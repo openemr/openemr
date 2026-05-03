@@ -171,6 +171,84 @@ $unreadSql = $isAdmin
 $unreadRow   = sqlQuery($unreadSql, $isAdmin ? [] : [$authUser]);
 $unreadCount = (int)($unreadRow['cnt'] ?? 0);
 
+// ── Portal message counts (onsite_mail = patient-initiated portal secure messages) ─
+// These are stored in OpenEMR core tables and persist whether or not MedEx is active.
+$portalMailNew      = 0;
+$portalMailMessages = [];
+$portalChatNew      = 0;
+if ($hasPortalAccess) {
+    $s_user = '%' . $authUser . '%';
+    // New unread secure messages from patients
+    $pmNewRow = sqlQuery(
+        "SELECT COUNT(*) AS cnt FROM onsite_mail
+         WHERE owner LIKE ? AND recipient_id LIKE ? AND message_status LIKE '%new%' AND deleted=0",
+        [$s_user, $s_user]
+    );
+    $portalMailNew = (int)($pmNewRow['cnt'] ?? 0);
+
+    // onsite_messages = portal live-chat (separate from secure messaging)
+    $pcNewRow = sqlQuery(
+        "SELECT COUNT(*) AS cnt FROM onsite_messages WHERE recip_id LIKE ? AND `date` > DATE_SUB(NOW(), INTERVAL 3 DAY)",
+        [$s_user]
+    );
+    $portalChatNew = (int)($pcNewRow['cnt'] ?? 0);
+
+    // Recent portal secure messages for inline display
+    $pmQuery = $isAdmin
+        ? "SELECT om.id, om.date, om.sender_name, om.recipient_name, om.title, om.body,
+                  om.message_status, om.sender_id, pd.pid, pd.fname, pd.lname
+           FROM onsite_mail om
+           LEFT JOIN patient_data pd ON om.sender_id = pd.pid
+           WHERE om.deleted = 0
+           ORDER BY om.date DESC LIMIT 50"
+        : "SELECT om.id, om.date, om.sender_name, om.recipient_name, om.title, om.body,
+                  om.message_status, om.sender_id, pd.pid, pd.fname, pd.lname
+           FROM onsite_mail om
+           LEFT JOIN patient_data pd ON om.sender_id = pd.pid
+           WHERE om.owner LIKE ? AND om.deleted = 0
+           ORDER BY om.date DESC LIMIT 50";
+    $pmResult = sqlStatement($pmQuery, $isAdmin ? [] : [$s_user]);
+    while ($r = sqlFetchArray($pmResult)) {
+        $portalMailMessages[] = $r;
+    }
+}
+$portalUnread = $portalMailNew + $portalChatNew;
+
+// ── Appointment stats — last 3 days ──────────────────────────────────────────
+$apptStats   = [];
+$apptTotal3d = 0;
+$apptResult  = sqlStatement(
+    "SELECT pc_apptstatus AS status, COUNT(*) AS cnt
+     FROM openemr_postcalendar_events
+     WHERE pc_eventDate >= DATE_SUB(CURDATE(), INTERVAL 3 DAY)
+       AND pc_eventDate <= CURDATE()
+       AND pc_pid != '' AND pc_pid IS NOT NULL
+     GROUP BY pc_apptstatus ORDER BY cnt DESC"
+);
+while ($r = sqlFetchArray($apptResult)) {
+    $apptStats[$r['status']] = (int)$r['cnt'];
+    $apptTotal3d += (int)$r['cnt'];
+}
+// Human-readable labels for appt status codes
+$apptStatLabels = [
+    '-'     => 'Pending',   '*' => 'Reminder Done', '+' => 'Chart Pulled',
+    'x'     => 'Canceled',  '%' => 'Canceled <24h', '?' => 'No Show',
+    '@'     => 'Arrived',   '~' => 'Arrived Late',  '!' => 'Left w/o Visit',
+    '#'     => 'Ins/Fin',   '<' => 'In Exam Room',  '>' => 'Checked Out',
+    '$'     => 'Coded',     '^' => 'Pending',
+    'AVM'   => 'AVM Conf',  'SMS' => 'SMS Conf',    'EMAIL' => 'Email Conf',
+    'CALL'  => 'Callback',
+];
+// Colour map for appt status badges
+$apptStatColors = [
+    '-' => 'secondary', '*' => 'info', '+' => 'info',
+    'x' => 'danger',    '%' => 'danger', '?' => 'danger',
+    '@' => 'success',   '~' => 'warning', '!' => 'warning',
+    '#' => 'warning',   '<' => 'primary', '>' => 'success',
+    '$' => 'secondary', '^' => 'secondary',
+    'AVM' => 'success', 'SMS' => 'success', 'EMAIL' => 'success', 'CALL' => 'info',
+];
+
 // ── Admin: portal messages and pnotes-by-user breakdown ────────────────────────
 $adminStats = [];
 if ($isAdmin) {
@@ -283,7 +361,7 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
     </div>
 
     <!-- ── Summary cards ───────────────────────────────────────────────────── -->
-    <div class="row mb-3 g-2">
+    <div class="row mb-2 g-2">
         <div class="col-6 col-md-3 mb-2">
             <div class="comm-card <?php echo $unreadCount > 0 ? 'danger' : ''; ?>">
                 <div class="comm-num"><?php echo (int)$unreadCount; ?></div>
@@ -291,24 +369,42 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
             </div>
         </div>
         <div class="col-6 col-md-3 mb-2">
-            <div class="comm-card <?php echo count($chatSessions) > 0 ? 'success' : ''; ?>">
-                <div class="comm-num"><?php echo count($chatSessions); ?></div>
-                <div class="comm-lbl"><?php echo xlt('Chat Sessions (synced)'); ?></div>
+            <div class="comm-card <?php echo $portalUnread > 0 ? 'danger' : ''; ?>">
+                <div class="comm-num"><?php echo (int)$portalUnread; ?></div>
+                <div class="comm-lbl"><?php echo xlt('Portal Unread'); ?></div>
             </div>
         </div>
         <div class="col-6 col-md-3 mb-2">
-            <div class="comm-card warning">
-                <div class="comm-num"><?php echo $smsSentToday; ?></div>
-                <div class="comm-lbl"><?php echo xlt('Chat Messages Today'); ?></div>
+            <div class="comm-card <?php echo count($chatSessions) > 0 ? 'success' : ''; ?>">
+                <div class="comm-num"><?php echo count($chatSessions); ?></div>
+                <div class="comm-lbl"><?php echo xlt('Secure Chat Sessions'); ?></div>
             </div>
         </div>
         <div class="col-6 col-md-3 mb-2">
             <div class="comm-card">
-                <div class="comm-num"><?php echo $smsSentWeek; ?></div>
-                <div class="comm-lbl"><?php echo xlt('Chat Messages This Week'); ?></div>
+                <div class="comm-num"><?php echo $smsSentToday; ?></div>
+                <div class="comm-lbl"><?php echo xlt('Chat Messages Today'); ?></div>
             </div>
         </div>
     </div>
+
+    <!-- ── Appointment activity — last 3 days ──────────────────────────────── -->
+    <?php if ($apptTotal3d > 0): ?>
+    <div class="mb-3 p-2 border rounded bg-white" style="font-size:0.8rem;">
+        <div class="d-flex align-items-center flex-wrap" style="gap:6px 10px;">
+            <span class="text-uppercase font-weight-bold text-muted mr-1" style="font-size:0.7rem;letter-spacing:.05em;"><?php echo xlt('Appts — 3 days'); ?></span>
+            <?php foreach ($apptStats as $code => $cnt):
+                $label = $apptStatLabels[$code] ?? $code;
+                $color = $apptStatColors[$code] ?? 'secondary';
+            ?>
+            <span class="badge badge-<?php echo attr($color); ?> py-1 px-2" title="<?php echo attr($label); ?>" style="font-size:0.75rem;">
+                <?php echo text($label); ?>: <?php echo (int)$cnt; ?>
+            </span>
+            <?php endforeach; ?>
+            <span class="ml-auto text-muted"><?php echo xlt('Total'); ?>: <?php echo (int)$apptTotal3d; ?></span>
+        </div>
+    </div>
+    <?php endif; ?>
 
     <!-- ── Tab nav ─────────────────────────────────────────────────────────── -->
     <ul class="nav nav-tabs comm-tabs" id="commTabs" role="tablist">
@@ -345,6 +441,9 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
             <a class="nav-link <?php echo $activeTab === 'portal' ? 'active' : ''; ?>"
                href="?tab=portal" id="tab-portal" role="tab">
                 <?php echo xlt('Portal Messages'); ?>
+                <?php if ($portalUnread > 0): ?>
+                    <span class="badge badge-danger ml-1"><?php echo (int)$portalUnread; ?></span>
+                <?php endif; ?>
             </a>
         </li>
         <?php endif; ?>
@@ -656,52 +755,184 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
 
         <!-- ═══════════════════════════════════════════════════════════════════
              TAB 4 — PORTAL MESSAGES
+             Both types persist without MedEx:
+             • onsite_mail  = patient-initiated secure portal messages (OpenEMR core)
+             • medex_secure_chat_tokens/log = provider-initiated secure chat (module)
              ═══════════════════════════════════════════════════════════════════ -->
         <?php if ($portalTabVisible): ?>
         <div class="tab-pane <?php echo $activeTab === 'portal' ? 'show active' : ''; ?>" id="pane-portal">
             <div class="section-toolbar">
-                <span class="text-muted small"><?php echo xlt('Use this tab to review patient portal conversations synced from MedEx secure chat.'); ?></span>
-                <span class="ml-auto">
-                    <a href="<?php echo attr($portalManagerUrl); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
-                        <?php echo xlt('Open MedEx Portal Manager'); ?>
+                <strong><?php echo xlt('Portal Messaging'); ?></strong>
+                <?php if ($portalUnread > 0): ?>
+                    <span class="badge badge-danger ml-1"><?php echo (int)$portalUnread; ?> <?php echo xlt('unread'); ?></span>
+                <?php endif; ?>
+                <span class="ml-auto" style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <?php if ($hasPortalAccess): ?>
+                    <a href="<?php echo attr($portalInboxUrl); ?>" target="_blank" class="btn btn-outline-secondary btn-sm" onclick="top.restoreSession()">
+                        <?php echo xlt('Open Portal Inbox'); ?>
                     </a>
-                    <a href="<?php echo attr($portalInboxUrl); ?>" target="_blank" class="btn btn-outline-secondary btn-sm">
-                        <?php echo xlt('Open OpenEMR Portal Inbox'); ?>
+                    <?php endif; ?>
+                    <?php if ($hasChatService): ?>
+                    <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
+                       target="_blank" class="btn btn-outline-primary btn-sm" onclick="top.restoreSession()">
+                        <?php echo xlt('Send Secure Chat Link'); ?>
                     </a>
+                    <?php endif; ?>
                 </span>
             </div>
 
-            <div class="p-3 border-bottom">
-                <h6 class="mb-2"><?php echo xlt('How Portal Messaging Works'); ?></h6>
-                <ol class="mb-0 pl-3">
-                    <li><?php echo xlt('Send a Secure Chat link to the patient from the Secure Chat tab.'); ?></li>
-                    <li><?php echo xlt('Messages are synced into OpenEMR portal messaging records.'); ?></li>
-                    <li><?php echo xlt('Use MedEx Portal Manager for sync status/history, or OpenEMR Portal Inbox for native thread view.'); ?></li>
-                </ol>
-                <?php if (!$portalSyncTableExists): ?>
-                <div class="alert alert-warning mt-3 mb-0">
-                    <?php echo xlt('Portal sync is not active for this customer yet. Enable portal sync to start recording entries in the portal manager.'); ?>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <?php if ($hasPortalAccess && $portalSyncTableExists): ?>
-            <div class="embedded-pane m-3 mt-0" style="height:680px;">
-                <iframe src="<?php echo attr($portalManagerUrl); ?>"
-                        title="<?php echo xla('Portal Messages Manager'); ?>"></iframe>
-            </div>
-            <?php elseif (!$hasPortalAccess): ?>
+            <?php if (!$portalSyncTableExists && !$hasPortalAccess): ?>
             <div class="p-3">
                 <div class="alert alert-warning mb-0">
-                    <?php echo xlt('Portal access ACL is required to view embedded portal messages. Ask an admin to grant Patients → Portal permission.'); ?>
+                    <?php echo xlt('Portal messaging requires either portal access (Patients → Portal ACL) or an active portal sync table. Neither is available on this instance.'); ?>
                 </div>
             </div>
             <?php else: ?>
+
+            <!-- ── Section A: Patient-Initiated Portal Messages (onsite_mail) ── -->
+            <?php if ($hasPortalAccess): ?>
+            <div class="p-3 pb-1">
+                <h6 class="mb-2 d-flex align-items-center">
+                    <?php echo xlt('Patient Secure Messages'); ?>
+                    <span class="text-muted small ml-2" style="font-weight:normal;font-size:0.75rem;">
+                        <?php echo xlt('(patient-initiated via portal — stored in OpenEMR, persist without MedEx)'); ?>
+                    </span>
+                    <?php if ($portalMailNew > 0): ?>
+                    <span class="badge badge-danger ml-2"><?php echo (int)$portalMailNew; ?> <?php echo xlt('new'); ?></span>
+                    <?php endif; ?>
+                </h6>
+                <?php if (empty($portalMailMessages)): ?>
+                <p class="text-muted small"><?php echo xlt('No portal messages yet.'); ?></p>
+                <?php else: ?>
+                <div class="table-responsive">
+                <table class="table table-sm table-hover pnotes-table mb-3">
+                    <thead>
+                        <tr>
+                            <th><?php echo xlt('Date'); ?></th>
+                            <th><?php echo xlt('From'); ?></th>
+                            <th><?php echo xlt('To'); ?></th>
+                            <th><?php echo xlt('Subject'); ?></th>
+                            <th><?php echo xlt('Status'); ?></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($portalMailMessages as $pm):
+                        $pmDate    = $pm['date'] ? date('M j Y g:ia', strtotime($pm['date'])) : '—';
+                        $pmFrom    = text($pm['sender_name'] ?: (trim(($pm['fname'] ?? '') . ' ' . ($pm['lname'] ?? '')) ?: 'Patient'));
+                        $pmTo      = text($pm['recipient_name'] ?: '—');
+                        $pmTitle   = text($pm['title'] ?: '(no subject)');
+                        $pmStatus  = $pm['message_status'];
+                        $pmBadge   = ($pmStatus === 'New' || stripos($pmStatus, 'new') !== false) ? 'badge-danger' : 'badge-secondary';
+                        $pmPid     = (int)($pm['pid'] ?? 0);
+                    ?>
+                    <tr class="<?php echo ($pmStatus === 'New' || stripos($pmStatus, 'new') !== false) ? 'table-warning' : ''; ?>">
+                        <td class="text-nowrap" style="font-size:0.78rem;"><?php echo text($pmDate); ?></td>
+                        <td><?php echo $pmFrom; ?></td>
+                        <td><?php echo $pmTo; ?></td>
+                        <td><?php echo $pmTitle; ?></td>
+                        <td><span class="badge <?php echo $pmBadge; ?>"><?php echo text($pmStatus); ?></span></td>
+                        <td>
+                            <?php if ($pmPid > 0): ?>
+                            <a href="<?php echo attr($GLOBALS['webroot']); ?>/portal/messaging/messages.php?pid=<?php echo (int)$pmPid; ?>"
+                               target="_blank" class="btn btn-outline-primary btn-xs" style="font-size:0.72rem;padding:1px 6px;" onclick="top.restoreSession()">
+                                <?php echo xlt('Reply'); ?>
+                            </a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
+            <!-- ── Section B: Provider-Initiated MedEx Secure Chat Tokens ── -->
+            <?php if ($hasChatService): ?>
+            <?php
+            $chatTokenResult = sqlStatement(
+                "SELECT t.pid, t.created_at, t.expires_at, t.used_at, t.method, t.user_initials,
+                        t.is_provider, pd.fname, pd.lname,
+                        (SELECT COUNT(*) FROM medex_secure_chat_log l WHERE l.pid = t.pid
+                         AND l.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)) AS msg_count
+                 FROM medex_secure_chat_tokens t
+                 LEFT JOIN patient_data pd ON t.pid = pd.pid
+                 WHERE t.expires_at > NOW() OR t.used_at IS NOT NULL
+                 ORDER BY t.created_at DESC LIMIT 50"
+            );
+            $chatTokens = [];
+            while ($r = sqlFetchArray($chatTokenResult)) {
+                $chatTokens[] = $r;
+            }
+            ?>
+            <div class="p-3 pt-1">
+                <h6 class="mb-2 d-flex align-items-center">
+                    <?php echo xlt('Provider-Initiated Secure Chat'); ?>
+                    <span class="text-muted small ml-2" style="font-weight:normal;font-size:0.75rem;">
+                        <?php echo xlt('(provider-sent link — stored in MedEx module tables)'); ?>
+                    </span>
+                </h6>
+                <?php if (empty($chatTokens)): ?>
+                <p class="text-muted small"><?php echo xlt('No secure chat sessions found.'); ?></p>
+                <?php else: ?>
+                <div class="table-responsive">
+                <table class="table table-sm table-hover pnotes-table mb-2">
+                    <thead>
+                        <tr>
+                            <th><?php echo xlt('Patient'); ?></th>
+                            <th><?php echo xlt('Sent'); ?></th>
+                            <th><?php echo xlt('Via'); ?></th>
+                            <th><?php echo xlt('Msgs'); ?></th>
+                            <th><?php echo xlt('Status'); ?></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($chatTokens as $ct):
+                        $ctName    = text(trim(($ct['fname'] ?? '') . ' ' . ($ct['lname'] ?? '')) ?: 'PID ' . (int)$ct['pid']);
+                        $ctSent    = $ct['created_at'] ? date('M j g:ia', strtotime($ct['created_at'])) : '—';
+                        $ctVia     = text(strtoupper($ct['method'] ?? '—'));
+                        $ctActive  = strtotime($ct['expires_at']) > time();
+                        $ctBadge   = $ctActive ? 'badge-success' : 'badge-secondary';
+                        $ctLabel   = $ctActive ? xlt('Active') : xlt('Expired');
+                        $ctUsed    = $ct['used_at'] ? date('M j g:ia', strtotime($ct['used_at'])) : null;
+                    ?>
+                    <tr>
+                        <td><?php echo $ctName; ?> <small class="text-muted">PID <?php echo (int)$ct['pid']; ?></small></td>
+                        <td class="text-nowrap" style="font-size:0.78rem;"><?php echo text($ctSent); ?></td>
+                        <td><?php echo $ctVia; ?></td>
+                        <td><?php echo (int)$ct['msg_count']; ?></td>
+                        <td>
+                            <span class="badge <?php echo $ctBadge; ?>"><?php echo $ctLabel; ?></span>
+                            <?php if ($ctUsed): ?>
+                                <small class="text-muted d-block" style="font-size:0.7rem;"><?php echo xlt('Used'); ?>: <?php echo text($ctUsed); ?></small>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php?pid=<?php echo (int)$ct['pid']; ?>"
+                               target="_blank" class="btn btn-outline-primary btn-xs" style="font-size:0.72rem;padding:1px 6px;" onclick="top.restoreSession()">
+                                <?php echo xlt('Chat'); ?>
+                            </a>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
+            <?php if (!$hasPortalAccess && !$hasChatService): ?>
             <div class="p-3">
                 <div class="alert alert-info mb-0">
-                    <?php echo xlt('Portal manager embed is hidden because portal sync is inactive on this site. You can still open the portal inbox using the button above.'); ?>
+                    <?php echo xlt('No messaging services are active. Grant Patients → Portal ACL for portal messages, or subscribe to Secure Chat for provider-initiated chat.'); ?>
                 </div>
             </div>
+            <?php endif; ?>
+
             <?php endif; ?>
         </div><!-- /pane-portal -->
         <?php endif; ?>
@@ -721,7 +952,6 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
                 </span>
             </div>
 
-            <!-- Pnotes by user breakdown -->
             <div class="p-3">
                 <?php if (!$portalSyncTableExists): ?>
                 <div class="alert alert-info py-2 mb-3" style="font-size:0.85rem;">
@@ -729,6 +959,69 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
                     <?php echo xlt('The Portal Messages tab is hidden from all users until portal sync is enabled for this tenant. To enable it, provision the medex_chat_sync table on this OpenEMR instance.'); ?>
                 </div>
                 <?php endif; ?>
+
+                <!-- Appointment activity — last 3 days -->
+                <?php if ($apptTotal3d > 0): ?>
+                <h6 class="mb-2"><?php echo xlt('Appointment Activity — Last 3 Days'); ?></h6>
+                <div class="table-responsive mb-4">
+                <table class="table table-sm table-bordered admin-stat-table">
+                    <thead><tr>
+                        <th><?php echo xlt('Status'); ?></th>
+                        <th><?php echo xlt('Count'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($apptStats as $code => $cnt):
+                        $label = $apptStatLabels[$code] ?? $code;
+                        $color = $apptStatColors[$code] ?? 'secondary';
+                    ?>
+                    <tr>
+                        <td><span class="badge badge-<?php echo attr($color); ?>"><?php echo text($label); ?></span></td>
+                        <td><?php echo (int)$cnt; ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <tr class="font-weight-bold">
+                        <td><?php echo xlt('Total'); ?></td>
+                        <td><?php echo (int)$apptTotal3d; ?></td>
+                    </tr>
+                    </tbody>
+                </table>
+                </div>
+                <?php endif; ?>
+
+                <!-- Portal message summary -->
+                <?php if ($hasPortalAccess && ($portalMailNew > 0 || !empty($portalMailMessages))): ?>
+                <h6 class="mb-2"><?php echo xlt('Portal Secure Messages — All Users'); ?></h6>
+                <?php
+                $pmAdminResult = sqlStatement(
+                    "SELECT om.recipient_name, COUNT(*) AS total,
+                            SUM(IF(om.message_status LIKE '%new%',1,0)) AS unread
+                     FROM onsite_mail om
+                     WHERE om.deleted = 0
+                     GROUP BY om.recipient_name ORDER BY unread DESC, total DESC LIMIT 20"
+                );
+                ?>
+                <div class="table-responsive mb-4">
+                <table class="table table-sm table-bordered admin-stat-table">
+                    <thead><tr>
+                        <th><?php echo xlt('Assigned To'); ?></th>
+                        <th><?php echo xlt('Total'); ?></th>
+                        <th><?php echo xlt('Unread'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php while ($pmr = sqlFetchArray($pmAdminResult)): ?>
+                    <tr>
+                        <td><?php echo text($pmr['recipient_name'] ?: '—'); ?></td>
+                        <td><?php echo (int)$pmr['total']; ?></td>
+                        <td><?php echo (int)$pmr['unread'] > 0
+                            ? '<span class="badge badge-danger">' . (int)$pmr['unread'] . '</span>'
+                            : '<span class="text-muted">0</span>'; ?></td>
+                    </tr>
+                    <?php endwhile; ?>
+                    </tbody>
+                </table>
+                </div>
+                <?php endif; ?>
+
                 <h6><?php echo xlt('Messages by User'); ?></h6>
                 <div class="table-responsive">
                 <table class="table table-sm table-bordered admin-stat-table mb-4">
