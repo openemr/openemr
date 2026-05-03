@@ -452,14 +452,21 @@ To trigger the banner end-to-end inside OpenEMR: open a patient's chart, ask one
 
 **Live status (2026-05-03 post-deploy).** The banner appears and resume works end-to-end against Railway prod — confirmed against multiple patient chart reopens. Conversations persist across iframe reloads and rehydrate with the same patient pseudonym.
 
-**Known issue tracked alongside, not blocking F19.** The OpenEMR-side iframe URL is currently emitted without the `&physician_user_id=…` segment (verified via `GET /?patient_id=…` in `copilot` Railway logs — the param is absent, not just empty). Net effect: every iframe-launched session falls back to `demo_physician_user_id` (`EPU-admin-46`), so:
+**Iframe `physician_user_id` propagation — RESOLVED ✅ (2026-05-03).** A previously-tracked gap: the deployed OpenEMR image was emitting the iframe URL without the `&physician_user_id=…` segment, so every iframe-launched session fell back to `demo_physician_user_id` (`EPU-admin-46`). Net effect was that F19 conversations bucketed under admin and F18 L3 panel enforcement was neutered on the iframe path.
 
-- F19 conversations are bucketed under `EPU-admin-46` for now, not the actual clinician. Resume works *within* that bucket (which is why the feature looks correct in single-tester demos), but per-physician keying is not yet in effect on the iframe path.
-- F18 L3 is similarly neutered on the iframe path — admin bypasses panel enforcement, so L3's gate is effectively only enforcing for direct API hits, not the iframe.
+The fragment fix (`copilot-rail-fragment.php` reads `$_SESSION['authUser']` and appends `&physician_user_id=` to the iframe `src`) shipped in commit `efb5eb5f7` on 2026-05-02. Subsequent OpenEMR image rebuilds — `30d100af3` (per-physician UI scope) and `f04657d65` (admin bypass via env list) — rolled the fragment forward into the deployed image. Verified end-to-end on 2026-05-03 via DevTools console:
 
-The fix is on the OpenEMR PHP side (`copilot-rail-fragment.php` already passes `&physician_user_id=' . urlencode($_SESSION['authUser'] ?? '')` since commit `efb5eb5f7`, 2026-05-02). Most likely cause: the deployed `openemr` Railway image predates that commit. Diagnostic = view-source the iframe in a logged-in OpenEMR session and inspect `<iframe id="copilot-rail" src="…">`. Fix = `railway up --service openemr --detach`. Tracked as a separate item, owned by the OpenEMR-PHP workstream — not a Co-Pilot bug.
+```js
+> document.getElementById('copilot-rail').src
+"https://copilot-production-b532.up.railway.app/?patient_id=a1ab5ad4-2882-414e-8670-75b57444ea05&physician_user_id=dr_alvarez"
+```
 
-**Log noise fix (`89cb9894e`).** While the iframe-URL issue persists, every session create logs `session … started without physician_user_id — using demo fallback EPU-admin-46`. Railway's log viewer paints WARN as `[error]`, which made the steady-state demo path look like a fault. Demoted to `logger.info` in `app/main.py:start_session` so it's still visible at INFO+ but stops triggering the red `[error]` paint. Behavior unchanged — only the level changed.
+The `physician_user_id=dr_alvarez` segment is now present, so:
+- F19 resume keys per real clinician (no more shared admin bucket)
+- F18 L3 panel gate fires on the iframe path against the real physician identity
+- The `app/main.py:start_session` "demo fallback" branch is no longer the steady-state path; it triggers only on direct API hits without the param (e.g. the standalone `https://copilot-production-b532.up.railway.app/` surface)
+
+**Log noise fix (`89cb9894e`).** During the gap, every session create was logging `session … started without physician_user_id — using demo fallback EPU-admin-46` at WARN. Railway's log viewer paints WARN as `[error]`, which made the steady-state demo path look like a fault. Demoted to `logger.info` in `app/main.py:start_session` so it's still visible at INFO+ but stops triggering the red `[error]` paint. Behavior unchanged — only the level changed. With the fix above resolved, this log line now fires only on direct (non-iframe) API hits.
 
 ---
 
