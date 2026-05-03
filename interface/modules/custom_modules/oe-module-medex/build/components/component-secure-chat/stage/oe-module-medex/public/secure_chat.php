@@ -250,6 +250,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $expiresAt = date('Y-m-d H:i:s', strtotime('+72 hours'));
             
             try {
+                // Expire any existing active tokens for this patient before creating new ones.
+                // This ensures "send new link" always starts a fresh session, not a rejoin.
+                sqlStatement(
+                    "UPDATE medex_secure_chat_tokens SET expires_at = NOW() WHERE pid = ? AND expires_at > NOW()",
+                    [$pid]
+                );
+
                 // Store token in database (no ON DUPLICATE KEY - token is unique)
                 sqlStatement("INSERT INTO medex_secure_chat_tokens (pid, token, expires_at, created_by, method) 
                               VALUES (?, ?, ?, ?, ?)",

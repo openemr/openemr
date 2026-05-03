@@ -114,6 +114,12 @@ $record = [
 ];
 $saved = $clinicalNotesService->saveArray($record);
 
+// Expire all active tokens for this patient so the session cannot be rejoined.
+sqlStatement(
+    "UPDATE medex_secure_chat_tokens SET expires_at = NOW() WHERE pid = ? AND expires_at > NOW()",
+    [$pid]
+);
+
 http_response_code(200);
 echo json_encode([
     'success' => true,
