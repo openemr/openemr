@@ -26,9 +26,7 @@ require_once __DIR__ . '/../src/MedExConfig.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\MedEx\MedExAPI;
 
 // ── Auth ─────────────────────────────────────────────────────────────────────
@@ -37,9 +35,8 @@ if (!AclMain::aclCheckCore('patients', 'notes')) {
     exit;
 }
 
-$session   = SessionWrapperFactory::getInstance()->getActiveSession();
-$authUser  = $session->get('authUser');
-$authUID   = (int)($session->get('authUserID') ?? 0);
+$authUser  = $_SESSION['authUser'] ?? '';
+$authUID   = (int)($_SESSION['authUserID'] ?? 0);
 $isAdmin   = AclMain::aclCheckCore('admin', 'super');
 $showAll   = $isAdmin ? 'yes' : 'no';
 
@@ -111,7 +108,8 @@ $noteRows  = getPnotesByUser($activity, $showAll, $authUser, false, $sortby, $so
 
 // ── Active Secure Chat sessions (from synced data in OpenEMR DB) ───────────────
 $chatSessions = [];
-if ($hasChatService) {
+$chatSyncTableExists = (bool)sqlQuery("SHOW TABLES LIKE 'medex_chat_sync'");
+if ($hasChatService && $chatSyncTableExists) {
     $chatQuery = $isAdmin
         ? "SELECT mcs.pid, mcs.practice_id,
                   MAX(mcs.sync_date) AS last_activity,
@@ -147,7 +145,7 @@ if ($hasChatService) {
 // ── SMS summary counts ─────────────────────────────────────────────────────────
 $smsSentToday = 0;
 $smsSentWeek  = 0;
-if ($hasSMSService) {
+if ($hasSMSService && $chatSyncTableExists) {
     // We read from onsite_mail as proxy; actual SMS stats live in MedEx DB
     $smsTodayRow = sqlQuery(
         "SELECT COUNT(*) AS cnt FROM medex_chat_sync WHERE DATE(sync_date) = CURDATE()"
