@@ -14765,11 +14765,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.1.51",
+            "version": "2.1.54",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dc3b523c45e714c70de2ac5113b958223b55dc59",
-                "reference": "dc3b523c45e714c70de2ac5113b958223b55dc59",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/8be50c3992107dc837b17da4d140fbbdf9a5c5bd",
+                "reference": "8be50c3992107dc837b17da4d140fbbdf9a5c5bd",
                 "shasum": ""
             },
             "require": {
@@ -14814,7 +14814,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-04-21T18:22:01+00:00"
+            "time": "2026-04-29T13:31:09+00:00"
         },
         {
             "name": "phpstan/phpstan-deprecation-rules",
@@ -14924,16 +14924,16 @@
         },
         {
             "name": "phpstan/phpstan-strict-rules",
-            "version": "2.0.10",
+            "version": "2.0.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-strict-rules.git",
-                "reference": "1aba28b697c1e3b6bbec8a1725f8b11b6d3e5a5f"
+                "reference": "9b000a578b85b32945b358b172c7b20e91189024"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/1aba28b697c1e3b6bbec8a1725f8b11b6d3e5a5f",
-                "reference": "1aba28b697c1e3b6bbec8a1725f8b11b6d3e5a5f",
+                "url": "https://api.github.com/repos/phpstan/phpstan-strict-rules/zipball/9b000a578b85b32945b358b172c7b20e91189024",
+                "reference": "9b000a578b85b32945b358b172c7b20e91189024",
                 "shasum": ""
             },
             "require": {
@@ -14969,9 +14969,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-strict-rules/issues",
-                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/2.0.10"
+                "source": "https://github.com/phpstan/phpstan-strict-rules/tree/2.0.11"
             },
-            "time": "2026-02-11T14:17:32+00:00"
+            "time": "2026-05-02T06:54:10+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
