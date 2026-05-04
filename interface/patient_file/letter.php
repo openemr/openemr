@@ -237,7 +237,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    $bodytext = $crytoGen->decryptFromFilesystem($bodytext);
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -257,7 +257,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    $bodytext = $crytoGen->decryptFromFilesystem($bodytext);
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
