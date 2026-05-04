@@ -1190,7 +1190,7 @@ class Document extends ORDataObject
         try {
             $decryptedData = $cryptoGen->decryptFromFilesystem($data);
         } catch (CryptoGenException $e) {
-            throw new RuntimeException("Failed to decrypt the data", $e);
+            throw new RuntimeException("Failed to decrypt the data", previous: $e);
         }
         return $decryptedData;
     }
