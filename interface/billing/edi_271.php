@@ -56,9 +56,7 @@ if (isset($_FILES) && !empty($_FILES)) {
     if ($message === '') {
         $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
-        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $uploadedFile = $cryptoGen->encryptForFilesystem($uploadedFile);
-        }
+        $uploadedFile = $cryptoGen->encryptForFilesystem($uploadedFile);
         if (file_put_contents($target, $uploadedFile)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($uploadedName)) . '"';
             $Response271 = file_get_contents($target);

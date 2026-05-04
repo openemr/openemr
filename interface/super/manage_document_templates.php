@@ -133,7 +133,7 @@ if (!empty($_POST['bn_upload'])) {
         $fileData = file_get_contents($tmp_name);
 
         // Encrypt uploaded file, if applicable.
-        $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptForFilesystem($fileData) : $fileData;
+        $storedData = $cryptoGen->encryptForFilesystem($fileData);
 
         // Store the uploaded file.
         if (file_put_contents($templatepath, $storedData) === false) {

@@ -77,11 +77,11 @@ interface CryptoInterface
     /**
      * Decrypts data retrieved from the filesystem.
      *
-     * If the value is not encrypted (no valid prefix), returns it unchanged (plaintext passthrough).
+     * If the value is not encrypted, it will pass through the plaintext
+     * unchanged.
      * If decryption fails, throws CryptoGenException.
      *
      * @param ?string $value The value to decrypt
-     * @param ?int $minimumVersion Minimum encryption version required
      * @return string The decrypted value, or original value if not encrypted
      * @throws CryptoGenException If decryption of encrypted data fails
      */

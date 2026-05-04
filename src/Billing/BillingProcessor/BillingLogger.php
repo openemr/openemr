@@ -105,9 +105,7 @@ class BillingLogger
     {
         // If the hlog isn't empty, write the log to disk
         if (!empty($this->hlog)) {
-            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                $this->hlog = $this->cryptoGen->encryptForFilesystem($this->hlog);
-            }
+            $this->hlog = $this->cryptoGen->encryptForFilesystem($this->hlog);
             $this->filesystem->write(self::LOG_PATH, $this->hlog);
         }
 

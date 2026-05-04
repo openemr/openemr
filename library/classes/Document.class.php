@@ -1072,7 +1072,7 @@ class Document extends ORDataObject
             $this->path_depth = $path_depth;
 
             // Store the file.
-            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptForFilesystem($data) : $data;
+            $storedData = $cryptoGen->encryptForFilesystem($data);
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1084,11 +1084,7 @@ class Document extends ORDataObject
             if ($has_thumbnail) {
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
-                if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                    $storedThumbnailData = $cryptoGen->encryptForFilesystem($thumbnail_data);
-                } else {
-                    $storedThumbnailData = $thumbnail_data;
-                }
+                $storedThumbnailData = $cryptoGen->encryptForFilesystem($thumbnail_data);
                 if (file_exists($filepath . $this->get_thumb_name($filenameUuid))) {
                     // this should never happen with current uuid mechanism
                     return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);

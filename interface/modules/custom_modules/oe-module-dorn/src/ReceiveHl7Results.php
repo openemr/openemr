@@ -1669,10 +1669,7 @@ class ReceiveHl7Results
      */
     private function hl7Crypt($content)
     {
-        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $content = (ServiceContainer::getCrypto())->encryptForFilesystem($content);
-        }
-
-        return $content;
+        return ServiceContainer::getCrypto()
+            ->encryptForFilesystem($content);
     }
 }

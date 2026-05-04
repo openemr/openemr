@@ -46,6 +46,7 @@ final readonly class Crypto implements CryptoInterface
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
+        private bool $encryptForFilesystem,
     ) {
     }
 
@@ -137,6 +138,17 @@ final readonly class Crypto implements CryptoInterface
         return $this->encryptStandard($value, keySource: KeySource::Drive);
     }
 
+    public function encryptForFilesystem(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->encryptForFilesystem) {
+            return '';
+        }
+        return $this->encryptStandard($value, keySource: KeySource::Drive);
+    }
+
     public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
     {
         if ($value === null || $value === '') {
@@ -146,6 +158,21 @@ final readonly class Crypto implements CryptoInterface
             return $value;
         }
         $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
+        if ($result === false) {
+            throw new CryptoGenException('Decryption failed');
+        }
+        return $result;
+    }
+
+    public function decryptFromFilesystem(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->cryptCheckStandard($value)) {
+            return $value;
+        }
+        $result = $this->decryptStandard($value, keySource: KeySource::Database);
         if ($result === false) {
             throw new CryptoGenException('Decryption failed');
         }
