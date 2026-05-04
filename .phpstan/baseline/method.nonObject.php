@@ -367,22 +367,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get_x12_sftp_pass\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method persist\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method populate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method set_x12_sftp_pass\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
 ];

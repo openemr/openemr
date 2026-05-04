@@ -13,7 +13,6 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -87,15 +86,9 @@ class ModuleService
         }
         if ($decrypt) {
             $crypt = ServiceContainer::getCrypto();
-            try {
-                $vendors['weno_encryption_key'] = $crypt->decryptFromDatabase(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
-                $vendors['weno_admin_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
-                $vendors['weno_provider_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
-            } catch (CryptoGenException) {
-                $vendors['weno_encryption_key'] = '';
-                $vendors['weno_admin_password'] = '';
-                $vendors['weno_provider_password'] = '';
-            }
+            $vendors['weno_encryption_key'] = $crypt->decryptFromDatabase(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
+            $vendors['weno_admin_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
+            $vendors['weno_provider_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
         }
 
         return $vendors;

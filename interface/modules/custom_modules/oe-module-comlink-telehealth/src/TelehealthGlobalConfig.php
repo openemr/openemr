@@ -14,7 +14,6 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -286,11 +285,7 @@ class TelehealthGlobalConfig
     public function getRegistrationAPIPassword()
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
-        try {
-            return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
-        } catch (CryptoGenException) {
-            return '';
-        }
+        return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     public function getRegistrationAPICmsId()

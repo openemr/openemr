@@ -16,7 +16,6 @@ use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -515,11 +514,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        try {
-            $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
-        } catch (CryptoGenException) {
-            return [];
-        }
+        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $credentials = json_decode($decrypt, true);
         if (empty($credentials['email_message'] ?? '')) {
             $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -594,11 +589,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        try {
-            $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
-        } catch (CryptoGenException) {
-            return [];
-        }
+        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $decode = json_decode($decrypt, true);
         if (empty($decode['smsMessage'])) {
             $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";

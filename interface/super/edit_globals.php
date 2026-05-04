@@ -31,7 +31,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -572,19 +571,11 @@ function checkBackgroundServices(): void
                                                     echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
-                                                    try {
-                                                        $fldvalueDecrypted = $cryptoGen->decryptFromDatabase(is_string($fldvalue) ? $fldvalue : null);
-                                                    } catch (CryptoGenException) {
-                                                        $fldvalueDecrypted = '';
-                                                    }
+                                                    $fldvalueDecrypted = $cryptoGen->decryptFromDatabase(is_string($fldvalue) ? $fldvalue : null);
                                                     echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
                                                     if ($userMode) {
-                                                        try {
-                                                            $globalTitle = $cryptoGen->decryptFromDatabase(is_string($globalValue) ? $globalValue : null);
-                                                        } catch (CryptoGenException) {
-                                                            $globalTitle = '';
-                                                        }
+                                                        $globalTitle = $cryptoGen->decryptFromDatabase(is_string($globalValue) ? $globalValue : null);
                                                     }
                                                     $fldvalueDecrypted = '';
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {

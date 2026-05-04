@@ -32,6 +32,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property C_X12Partner\\:\\:\\$x12_partners \\(array\\<X12Partner\\>\\) does not accept array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property Cache_Lite\\:\\:\\$_memoryCachingArray \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',

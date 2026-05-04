@@ -11,7 +11,6 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 
 class eRxGlobals
 {
@@ -133,11 +132,7 @@ class eRxGlobals
     {
         $cryptoGen = ServiceContainer::getCrypto();
         $value = $this->getGlobalValue('erx_account_password');
-        try {
-            return $cryptoGen->decryptFromDatabase(is_string($value) ? $value : null);
-        } catch (CryptoGenException) {
-            return '';
-        }
+        return $cryptoGen->decryptFromDatabase(is_string($value) ? $value : null);
     }
 
     /**

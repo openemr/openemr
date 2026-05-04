@@ -22,7 +22,6 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -156,11 +155,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 $doesExist = false;
                             } else {
                                 $cryptoGen = ServiceContainer::getCrypto();
-                                try {
-                                    $secret = $cryptoGen->decryptFromDatabase(is_string($existingSecret['var1']) ? $existingSecret['var1'] : null);
-                                } catch (CryptoGenException) {
-                                    $secret = false;
-                                }
+                                $secret = $cryptoGen->decryptFromDatabase(is_string($existingSecret['var1']) ? $existingSecret['var1'] : null);
                                 $doesExist = true;
                             }
 

@@ -14,7 +14,6 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use Psr\Log\LoggerInterface;
@@ -151,10 +150,6 @@ class TeleHealthUserRepository extends BaseService
     public function decryptPassword($password)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        try {
-            return $cryptoGen->decryptFromDatabase(is_string($password) ? $password : null);
-        } catch (CryptoGenException) {
-            return '';
-        }
+        return $cryptoGen->decryptFromDatabase(is_string($password) ? $password : null);
     }
 }

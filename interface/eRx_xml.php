@@ -14,7 +14,6 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
@@ -38,11 +37,7 @@ function getErxCredentials()
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_name');
     $cryptoGen = ServiceContainer::getCrypto();
-    try {
-        $cred[] = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('erx_account_password'));
-    } catch (CryptoGenException) {
-        $cred[] = '';
-    }
+    $cred[] = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('erx_account_password'));
 
     return $cred;
 }

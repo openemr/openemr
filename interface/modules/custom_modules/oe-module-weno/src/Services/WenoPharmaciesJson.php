@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -84,11 +83,7 @@ class WenoPharmaciesJson
         if (empty(OEGlobalsBag::getInstance()->get('weno_admin_password'))) {
             return '';
         }
-        try {
-            return md5($this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password')));
-        } catch (CryptoGenException) {
-            return '';
-        }
+        return md5($this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password')));
     }
 
     private function wenoEncryptionKey(): string

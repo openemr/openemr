@@ -17,7 +17,6 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -89,12 +88,8 @@ $edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : nul
 $ccdata = [];
 $invdata = [];
 if ($edata) {
-    try {
-        $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
-        $ccdata = json_decode($ccdataRaw, true);
-    } catch (CryptoGenException) {
-        $ccdata = [];
-    }
+    $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
+    $ccdata = json_decode($ccdataRaw, true);
     $invdata = json_decode((string) $edata['table_args'], true);
     echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
 }
@@ -451,20 +446,13 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <script src="<?php echo $globalsBag->getString('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
     <script src="<?php echo $globalsBag->getString('webroot') ?>/library/textformat.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="portal_payment.js?v=<?=$v_js_includes?>"></script>
-    <?php
-    try {
-        $gatewayPublicKey = $cryptoGen->decryptFromDatabase(is_string($globalsBag->getString('gateway_public_key')) ? $globalsBag->getString('gateway_public_key') : null);
-    } catch (CryptoGenException) {
-        $gatewayPublicKey = '';
-    }
-    ?>
     <script>
         var chargeMsg = <?php $amsg = xl('Payment was successfully authorized and your card is charged.') . "\n" .
                 xl("You will be notified when your payment is applied for this invoice.") . "\n" .
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($gatewayPublicKey); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -1219,14 +1207,9 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // credit info off the server.
         //
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
-        try {
-            $apiLoginIDValue = $cryptoGen->decryptFromDatabase(is_string($globalsBag->getString('gateway_api_key')) ? $globalsBag->getString('gateway_api_key') : null);
-        } catch (CryptoGenException) {
-            $apiLoginIDValue = '';
-        }
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($apiLoginIDValue); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
