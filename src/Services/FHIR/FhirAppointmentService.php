@@ -345,24 +345,23 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         }
 
         // start -> pc_eventDate (Y-m-d) + pc_startTime (H:i)
-        if (!empty($json['start'])) {
-            try {
-                $startDt = new \DateTimeImmutable($json['start']);
+        if (!empty($json['start']) && is_string($json['start'])) {
+            $startDt = date_create_immutable($json['start']);
+            if ($startDt !== false) {
                 $data['pc_eventDate'] = $startDt->format('Y-m-d');
                 $data['pc_startTime'] = $startDt->format('H:i');
-            } catch (\Exception) {
-                // Skip invalid date values
             }
         }
 
         // end -> calculate pc_duration from start/end difference (in seconds)
-        if (!empty($json['start']) && !empty($json['end'])) {
-            try {
-                $startDt = new \DateTimeImmutable($json['start']);
-                $endDt = new \DateTimeImmutable($json['end']);
+        if (
+            !empty($json['start']) && is_string($json['start'])
+            && !empty($json['end']) && is_string($json['end'])
+        ) {
+            $startDt = date_create_immutable($json['start']);
+            $endDt = date_create_immutable($json['end']);
+            if ($startDt !== false && $endDt !== false) {
                 $data['pc_duration'] = $endDt->getTimestamp() - $startDt->getTimestamp();
-            } catch (\Exception) {
-                // Skip invalid date values
             }
         }
 

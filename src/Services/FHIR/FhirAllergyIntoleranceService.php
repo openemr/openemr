@@ -334,12 +334,10 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         }
 
         // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
-        if (!empty($json['onsetDateTime'])) {
-            try {
-                $onsetDt = new \DateTimeImmutable($json['onsetDateTime']);
+        if (!empty($json['onsetDateTime']) && is_string($json['onsetDateTime'])) {
+            $onsetDt = date_create_immutable($json['onsetDateTime']);
+            if ($onsetDt !== false) {
                 $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
-            } catch (\Exception) {
-                // Skip invalid date values
             }
         }
 

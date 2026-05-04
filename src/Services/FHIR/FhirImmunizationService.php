@@ -277,12 +277,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // OccurrenceDateTime -> administered_date
-        if (!empty($json['occurrenceDateTime'])) {
-            try {
-                $dt = new \DateTimeImmutable($json['occurrenceDateTime']);
+        if (!empty($json['occurrenceDateTime']) && is_string($json['occurrenceDateTime'])) {
+            $dt = date_create_immutable($json['occurrenceDateTime']);
+            if ($dt !== false) {
                 $data['administered_date'] = $dt->format('Y-m-d');
-            } catch (\Exception) {
-                // Skip invalid date values
             }
         }
 
@@ -312,12 +310,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // ExpirationDate -> expiration_date
-        if (!empty($json['expirationDate'])) {
-            try {
-                $dt = new \DateTimeImmutable($json['expirationDate']);
+        if (!empty($json['expirationDate']) && is_string($json['expirationDate'])) {
+            $dt = date_create_immutable($json['expirationDate']);
+            if ($dt !== false) {
                 $data['expiration_date'] = $dt->format('Y-m-d');
-            } catch (\Exception) {
-                // Skip invalid date values
             }
         }
 
@@ -379,12 +375,10 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         // Recorded -> create_date
-        if (!empty($json['recorded'])) {
-            try {
-                $dt = new \DateTimeImmutable($json['recorded']);
+        if (!empty($json['recorded']) && is_string($json['recorded'])) {
+            $dt = date_create_immutable($json['recorded']);
+            if ($dt !== false) {
                 $data['create_date'] = $dt->format('Y-m-d H:i:s');
-            } catch (\Exception) {
-                // Skip invalid date values
             }
         }
 

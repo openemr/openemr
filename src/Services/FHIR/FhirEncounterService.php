@@ -328,13 +328,11 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // Period -> date (normalize to Y-m-d H:i:s for database)
-        if (!empty($json['period']['start'])) {
-            try {
-                $startDt = new \DateTimeImmutable($json['period']['start']);
-                $data['date'] = $startDt->format('Y-m-d H:i:s');
-            } catch (\Exception) {
-                $data['date'] = $json['period']['start'];
-            }
+        if (!empty($json['period']['start']) && is_string($json['period']['start'])) {
+            $startDt = date_create_immutable($json['period']['start']);
+            $data['date'] = $startDt !== false
+                ? $startDt->format('Y-m-d H:i:s')
+                : $json['period']['start'];
         }
 
         // Participant -> provider_uuid and referrer_uuid
@@ -399,9 +397,7 @@ class FhirEncounterService extends FhirServiceBase implements
         }
 
         // Default pc_catid for new encounters (required by EncounterValidator)
-        if (!isset($data['pc_catid'])) {
-            $data['pc_catid'] = $this->getDefaultEncounterCategoryId();
-        }
+        $data['pc_catid'] = $this->getDefaultEncounterCategoryId();
 
         return $data;
     }

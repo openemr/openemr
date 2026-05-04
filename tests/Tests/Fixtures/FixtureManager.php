@@ -185,7 +185,7 @@ class FixtureManager
     }
 
     /**
-     * @return single/random fhir allergy intolerance fixture
+     * @return mixed single/random fhir allergy intolerance fixture
      */
     public function getSingleFhirAllergyIntoleranceFixture()
     {
@@ -201,7 +201,7 @@ class FixtureManager
     }
 
     /**
-     * @return single/random fhir immunization fixture
+     * @return mixed single/random fhir immunization fixture
      */
     public function getSingleFhirImmunizationFixture()
     {
@@ -217,7 +217,7 @@ class FixtureManager
     }
 
     /**
-     * @return single/random fhir appointment fixture
+     * @return mixed single/random fhir appointment fixture
      */
     public function getSingleFhirAppointmentFixture()
     {
