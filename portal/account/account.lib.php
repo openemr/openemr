@@ -144,7 +144,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
             $expiry = new DateTime('NOW');
             $expiry->add(new DateInterval('PT01H'));
             $token_raw = RandomGenUtils::createUniqueToken(32);
-            $token_encrypt = (ServiceContainer::getCrypto())->encryptForDatabase($token_raw);
+            $token_encrypt = (ServiceContainer::getCrypto())->encryptStandard($token_raw);
             if (empty($token_encrypt)) {
                 // Serious issue if this is case, so return that something bad happened.
                 ServiceContainer::getLogger()->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
@@ -398,7 +398,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     }
 
     // Will send a link to user with encrypted token
-    $token = (ServiceContainer::getCrypto())->encryptForDatabase($token_new);
+    $token = (ServiceContainer::getCrypto())->encryptStandard($token_new);
     if (empty($token)) {
         // Serious issue if this is case, so exit.
         if ($resetPass) {

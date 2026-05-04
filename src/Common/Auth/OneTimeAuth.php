@@ -18,7 +18,6 @@ use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -88,7 +87,7 @@ class OneTimeAuth
         $expiry = new DateTime($date_base);
         $expiry->add(new DateInterval($p['expiry_interval'] ?? 'PT15M'));
         $token_raw = RandomGenUtils::createUniqueToken(16);
-        $token_encrypt = $this->cryptoGen->encryptForDatabase($token_raw);
+        $token_encrypt = $this->cryptoGen->encryptStandard($token_raw);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
         if (empty($p['pid']) || empty($token_raw)) {
             $err = xlt("Onetime failed with missing PID or the token creation failed");
@@ -153,16 +152,14 @@ class OneTimeAuth
 
         if (strlen((string)$onetime_token) >= 64) {
             $onetimeTokenStr = is_string($onetime_token) ? $onetime_token : null;
-            try {
-                $one_time = $this->cryptoGen->decryptFromDatabase($onetimeTokenStr, minimumVersion: 6);
-                if (!empty($one_time)) {
-                    $t_info = $this->getOnetime($one_time);
-                    if (!empty($t_info['pid'] ?? 0)) {
-                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
-                    }
+            $one_time = $this->cryptoGen->decryptStandard($onetimeTokenStr, minimumVersion: 6);
+            if ($one_time === false) {
+                $this->systemLogger->error("Onetime decrypt token failed");
+            } elseif ($one_time !== '') {
+                $t_info = $this->getOnetime($one_time);
+                if (!empty($t_info['pid'] ?? 0)) {
+                    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
                 }
-            } catch (CryptoGenException $e) {
-                $this->systemLogger->error("Onetime decrypt token failed: " . $e->getMessage());
             }
         } else {
             $this->systemLogger->error("Onetime token invalid length.");
