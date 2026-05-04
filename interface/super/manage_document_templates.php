@@ -19,7 +19,6 @@ require_once('../globals.php');
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -49,9 +48,7 @@ if (!empty($_POST['bn_download'])) {
     $fileData = file_get_contents($templatepath);
 
     // Decrypt file, if applicable
-    if ($cryptoGen->cryptCheckStandard($fileData)) {
-        $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
-    }
+    $fileData = $cryptoGen->decryptFromDatabase($fileData);
 
     header('Content-Description: File Transfer');
     header('Content-Transfer-Encoding: binary');
@@ -136,7 +133,7 @@ if (!empty($_POST['bn_upload'])) {
         $fileData = file_get_contents($tmp_name);
 
         // Encrypt uploaded file, if applicable.
-        $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($fileData, keySource: KeySource::Database) : $fileData;
+        $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptForFilesystem($fileData) : $fileData;
 
         // Store the uploaded file.
         if (file_put_contents($templatepath, $storedData) === false) {

@@ -14,7 +14,6 @@ namespace OpenEMR\Modules\Dorn;
 
 use Document;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -1671,7 +1670,7 @@ class ReceiveHl7Results
     private function hl7Crypt($content)
     {
         if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $content = (ServiceContainer::getCrypto())->encryptStandard($content, keySource: KeySource::Database);
+            $content = (ServiceContainer::getCrypto())->encryptForFilesystem($content);
         }
 
         return $content;
