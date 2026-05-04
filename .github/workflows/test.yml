@@ -552,7 +552,6 @@ jobs:
         setup_e2e_bookends ${{ needs.setup.outputs.webserver }}
 
     - name: Run ${{ matrix.suite }} tests
-      if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test ${{ matrix.suite }}
@@ -627,36 +626,42 @@ jobs:
     # silent Chrome death leaves a usable trace.
     - name: Capture selenium diagnostics on failure
       if: ${{ failure() && matrix.suite == 'e2e' }}
+      env:
+        # Write under RUNNER_TEMP so this step still works when the workspace
+        # is owned by the apache user (the openemr container chowns its
+        # bind-mounted workdir on startup, leaving the runner unable to mkdir
+        # in `.` when prereq steps were skipped).
+        DIAG_DIR: ${{ runner.temp }}/selenium-diagnostics
       run: |
         . ci/ciLibrary.source
-        mkdir -p selenium-diagnostics
+        mkdir -p "${DIAG_DIR}"
         # Container state — confirms whether selenium was up at failure time.
-        dc ps -a > selenium-diagnostics/docker-compose-ps.txt 2>&1 || true
+        dc ps -a > "${DIAG_DIR}/docker-compose-ps.txt" 2>&1 || true
         # Process tree inside the selenium container.
-        dc top selenium > selenium-diagnostics/docker-compose-top.txt 2>&1 || true
+        dc top selenium > "${DIAG_DIR}/docker-compose-top.txt" 2>&1 || true
         # Memory/CPU snapshot — resolve service to container ID since
         # `docker stats` does not accept compose service names.
         selenium_cid=$(dc ps -q selenium 2>/dev/null || true)
         if [[ -n "${selenium_cid}" ]]; then
-            docker stats --no-stream "${selenium_cid}" > selenium-diagnostics/docker-stats.txt 2>&1 || true
+            docker stats --no-stream "${selenium_cid}" > "${DIAG_DIR}/docker-stats.txt" 2>&1 || true
         else
-            echo 'selenium service has no container at failure time' > selenium-diagnostics/docker-stats.txt
+            echo 'selenium service has no container at failure time' > "${DIAG_DIR}/docker-stats.txt"
         fi
         # Kernel ring buffer — surface OOM-killer / segfault / chrome lines first,
         # then a tail as fallback when the buffer is silent.
         sudo dmesg -T 2>/dev/null | grep -iE 'oom|killed|segfault|chrome|selenium' \
-            > selenium-diagnostics/dmesg.matches.txt 2>&1 || true
-        sudo dmesg -T 2>/dev/null | tail -200 > selenium-diagnostics/dmesg.tail.txt 2>&1 || true
+            > "${DIAG_DIR}/dmesg.matches.txt" 2>&1 || true
+        sudo dmesg -T 2>/dev/null | tail -200 > "${DIAG_DIR}/dmesg.tail.txt" 2>&1 || true
         # Full selenium logs (also echoed to the job log by the later step, but
         # capturing to a file makes them downloadable alongside the rest).
-        dc logs --no-color selenium > selenium-diagnostics/selenium.log 2>&1 || true
+        dc logs --no-color selenium > "${DIAG_DIR}/selenium.log" 2>&1 || true
 
     - name: Upload selenium diagnostics
       if: ${{ failure() && matrix.suite == 'e2e' }}
       uses: actions/upload-artifact@v7
       with:
         name: selenium-diagnostics-${{ needs.setup.outputs.docker_dir }}
-        path: selenium-diagnostics/
+        path: ${{ runner.temp }}/selenium-diagnostics/
         if-no-files-found: ignore
 
     ##

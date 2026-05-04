@@ -108,138 +108,65 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <div class="container">
                             <?php
-                            if (!empty($check_res)) {
-                                foreach ($check_res as $key => $obj) {
-                                    $context = "";
-                                    ?>
-                                    <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                                        <div class="form-row">
-                                            <div class="forms col-md-4">
-                                                <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code"
-                                                    value="<?php echo attr($obj["code"]); ?>" onclick='sel_code(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()) ?>,
-                                                    this.parentElement.parentElement.parentElement.id);' data-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code']) . "'"; ?> />
-                                                <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>
-                                                <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
-                                                <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"]); ?>" />
-                                            </div>
-                                            <div class="forms col-md-4">
-                                                <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                                <input type=' text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd HH:MM Date of service'); ?>' />
-                                            </div>
-                                            <div class="forms col-md-4">
-                                                <label for="care_plan_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
-                                                <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="form-control care_plan_type">
-                                                    <option value=""></option>
-                                                    <?php foreach ($care_plan_type as $value) :
-                                                        $selected = ($value['value'] == $obj["care_plan_type"]) ? 'selected="selected"' : '';
-                                                        if (!empty($selected)) {
-                                                            $context = $value['title'];
-                                                        }
-                                                        ?>
-                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-row w-100 my-2">
-                                                <div class="forms col-md-3">
-                                                    <label for="proposed_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Target Date'); ?>:</label>
-                                                    <input type='text'
-                                                        id="proposed_date_<?php echo attr($key) + 1; ?>"
-                                                        name='proposed_date[]'
-                                                        class="form-control proposed_date datepicker"
-                                                        value='<?php echo attr($obj["proposed_date"] ?? ""); ?>'
-                                                        title='<?php echo xla('yyyy-mm-dd HH:MM Target or Achieve-by date'); ?>' />
-                                                </div>
-                                                <div class="forms col-md-3">
-                                                    <label for="end_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('End Date'); ?>:</label>
-                                                    <input type='text'
-                                                        id="end_date_<?php echo attr($key) + 1; ?>"
-                                                        name='end_date[]'
-                                                        class="form-control end_date datepicker"
-                                                        value='<?php echo attr($obj["date_end"] ?? ""); ?>'
-                                                        title='<?php echo xla('yyyy-mm-dd HH:MM planned end date'); ?>' />
-                                                </div>
-                                                <div class="forms col-md-3">
-                                                    <label for="status_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Status'); ?>:</label>
-                                                    <select name="plan_status[]" id="status_<?php echo attr($key) + 1; ?>" class="form-control plan_status">
-                                                        <option value=""></option>
-                                                        <?php foreach (($care_plan_status) as $opt) :
-                                                            $sel = ($opt['value'] == ($obj["plan_status"] ?? '')) ? 'selected="selected"' : ''; ?>
-                                                            <option value="<?php echo attr($opt['value']); ?>" <?php echo $sel; ?>>
-                                                                <?php echo text($opt['title']); ?>
-                                                            </option>
-                                                        <?php endforeach; ?>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="forms col-md-12">
-                                                <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                                <textarea name="description[]" id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo attr($context); ?>" class="form-control description" rows="6"><?php echo text($obj["description"]); ?></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="form-row mt-2">
-                                            <div class="forms col-md-12 d-flex flex-row-reverse ">
-                                                <?php include("templates/careplan_actions.php"); ?>
-                                            </div>
-                                            <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
-                                        </div>
-                                        <?php include "templates/careplan_reason_row.php"; ?>
-                                        <hr />
-                                    </div>
-                                <?php }
-                            } else { ?>
-                                <div class="tb_row" id="tb_row_1">
+                            foreach ($check_res ?: [[]] as $key => $obj) {
+                                $context = "";
+                                ?>
+                                <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                                     <div class="form-row">
-                                        <div class="forms col-md-2">
-                                            <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()) ?>, this.parentElement.parentElement.parentElement.id || "");'>
-                                            <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $session->get('authUser')); ?>" />
-                                            <span id="displaytext_1" class="displaytext help-block"></span>
-                                            <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
+                                        <div class="forms col-md-4">
+                                            <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
+                                            <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code"
+                                                value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()) ?>,
+                                                this.parentElement.parentElement.parentElement.id);' data-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code'] ?? ''); ?>' />
+                                            <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>
+                                            <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>" />
+                                            <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $session->get('authUser')); ?>" />
                                         </div>
-                                        <div class="forms col-md-2">
-                                            <label for="code_date_1" class="h5"><?php echo xlt('Date'); ?>:</label>
-                                            <input type='text' id="code_date_1" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd Date of service'); ?>' />
+                                        <div class="forms col-md-4">
+                                            <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
+                                            <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"] ?? ''); ?>' title='<?php echo xla('yyyy-mm-dd HH:MM Date of service'); ?>' />
                                         </div>
-                                        <div class="forms col-md-2">
-                                            <label for="care_plan_type_1" class="h5"><?php echo xlt('Type'); ?>:</label>
-                                            <select name="care_plan_type[]" id="care_plan_type_1" class="form-control care_plan_type">
+                                        <div class="forms col-md-4">
+                                            <label for="care_plan_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
+                                            <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="form-control care_plan_type">
                                                 <option value=""></option>
                                                 <?php foreach ($care_plan_type as $value) :
                                                     $selected = ($value['value'] == ($obj["care_plan_type"] ?? '')) ? 'selected="selected"' : '';
+                                                    if (!empty($selected)) {
+                                                        $context = $value['title'];
+                                                    }
                                                     ?>
                                                     <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                         </div>
 
-                                        <div class="form-row w-100">
+                                        <div class="form-row w-100 my-2">
                                             <div class="forms col-md-3">
-                                                <label for="proposed_date_1" class="h5"><?php echo xlt('Target Date'); ?>:</label>
+                                                <label for="proposed_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Target Date'); ?>:</label>
                                                 <input type='text'
-                                                    id="proposed_date_1"
+                                                    id="proposed_date_<?php echo attr($key) + 1; ?>"
                                                     name='proposed_date[]'
                                                     class="form-control proposed_date datepicker"
                                                     value='<?php echo attr($obj["proposed_date"] ?? ""); ?>'
-                                                    title='<?php echo xla('yyyy-mm-dd Target or Achieve-by date'); ?>' />
+                                                    title='<?php echo xla('yyyy-mm-dd HH:MM Target or Achieve-by date'); ?>' />
                                             </div>
-                                                <label for="end_date_1" class="h5"><?php echo xlt('End Date'); ?>:</label>
+                                            <div class="forms col-md-3">
+                                                <label for="end_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('End Date'); ?>:</label>
                                                 <input type='text'
-                                                    id="end_date_1"
+                                                    id="end_date_<?php echo attr($key) + 1; ?>"
                                                     name='end_date[]'
                                                     class="form-control end_date datepicker"
                                                     value='<?php echo attr($obj["date_end"] ?? ""); ?>'
-                                                    title='<?php echo xla('yyyy-mm-dd planned end date'); ?>' />
+                                                    title='<?php echo xla('yyyy-mm-dd HH:MM planned end date'); ?>' />
                                             </div>
                                             <div class="forms col-md-3">
-                                                <label for="status_1" class="h5"><?php echo xlt('Status'); ?>:</label>
-                                                <select name="plan_status[]" id="status_1" class="form-control plan_status">
+                                                <label for="status_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Status'); ?>:</label>
+                                                <select name="plan_status[]" id="status_<?php echo attr($key) + 1; ?>" class="form-control plan_status">
                                                     <option value=""></option>
-                                                    <?php foreach (($care_plan_status) as $opt) : ?>
-                                                        <option value="<?php echo attr($opt['value']); ?>">
+                                                    <?php foreach (($care_plan_status) as $opt) :
+                                                        $sel = ($opt['value'] == ($obj["plan_status"] ?? '')) ? 'selected="selected"' : ''; ?>
+                                                        <option value="<?php echo attr($opt['value']); ?>" <?php echo $sel; ?>>
                                                             <?php echo text($opt['title']); ?>
                                                         </option>
                                                     <?php endforeach; ?>
@@ -247,19 +174,19 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             </div>
                                         </div>
 
-                                        <div class="forms col-md-6">
-                                            <label for="description_1" class="h5"><?php echo xlt('Description'); ?>:</label>
-                                            <textarea name="description[]" id="description_1" data-textcontext="" class="form-control description" rows="6"><?php echo text($obj["description"] ?? ''); ?></textarea>
+                                        <div class="forms col-md-12">
+                                            <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
+                                            <textarea name="description[]" id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo attr($context); ?>" class="form-control description" rows="6"><?php echo text($obj["description"] ?? ''); ?></textarea>
                                         </div>
-                                        <div class="form-row w-100 mt-2 text-center">
-                                            <div class="forms col-md-12">
-                                                <?php include("templates/careplan_actions.php"); ?>
-                                            </div>
-                                            <input type="hidden" name="count[]" id="count_1" class="count" value="1" />
+                                    </div>
+                                    <div class="form-row mt-2">
+                                        <div class="forms col-md-12 d-flex flex-row-reverse ">
+                                            <?php include("templates/careplan_actions.php"); ?>
                                         </div>
-                                        <hr />
+                                        <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1; ?>" />
                                     </div>
                                     <?php include "templates/careplan_reason_row.php"; ?>
+                                    <hr />
                                 </div>
                             <?php } ?>
                         </div>
