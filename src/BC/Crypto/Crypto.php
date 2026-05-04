@@ -19,6 +19,7 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     KeyId,
     Keys\KeychainInterface,
@@ -55,7 +56,11 @@ final readonly class Crypto implements CryptoInterface
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
         $keychain = LegacyKeychainLoader::load();
-        return new Crypto($keychain, $logger);
+        return new Crypto(
+            $keychain,
+            $logger,
+            encryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
+        );
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
