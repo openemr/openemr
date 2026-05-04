@@ -107,6 +107,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\!\\=\\= between non\\-empty\\-string and null will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/BackgroundServicesCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between ADORecordSet and false will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
