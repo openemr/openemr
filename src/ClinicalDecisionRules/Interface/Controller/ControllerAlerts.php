@@ -47,11 +47,11 @@ class ControllerAlerts extends BaseController
     {
 
 
-        $ids = filter_input(INPUT_POST, 'id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $actives = filter_input(INPUT_POST, 'active', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $passives = filter_input(INPUT_POST, 'passive', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
-        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $ids = filter_input(INPUT_POST, 'id', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $actives = filter_input(INPUT_POST, 'active', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $passives = filter_input(INPUT_POST, 'passive', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
+        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) ?: [];
 
         // CdrAlertManager::update() consumes id[] and access_control[]
         // by zero-based positional offset, so reindex both via

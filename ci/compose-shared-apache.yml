@@ -12,6 +12,9 @@ services:
       ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
       PCOV_ON: ${ENABLE_COVERAGE:-false}
       SELENIUM_BASE_URL: http://openemr
+      # Disable the patient birthday-alert modal so e2e tests don't get blocked
+      # on the seed patient's birthday (DOB 1958-05-02). See issue #11980.
+      OPENEMR_SETTING_patient_birthday_alert: '0'
     healthcheck:
       test:
       - CMD
