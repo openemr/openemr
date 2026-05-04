@@ -798,7 +798,7 @@ class C_Document extends Controller
             } else {
                 // decrypt/decode when converted jpg already exists
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptdecryptFromFilesystem($resp->data);
+                    $content = $this->cryptoGen->decryptFromFilesystem($resp->data);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
