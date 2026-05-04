@@ -710,7 +710,7 @@ class C_Document extends Controller
                 die(xlt("File retrieval from CouchDB failed"));
             }
             if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard($content, KeySource::Database);
+                $filetext = $this->cryptoGen->decryptFromFilesystem($content);
             } else {
                 $filetext = base64_decode((string) $content);
             }
@@ -749,7 +749,7 @@ class C_Document extends Controller
                 $couchM = new CouchDB();
                 $respM = $couchM->retrieve_doc($couch_docid);
                 if ($d->get_encrypted() == 1) {
-                    $contentM = $this->cryptoGen->decryptStandard($respM->data, KeySource::Database);
+                    $contentM = $this->cryptoGen->decryptFromFilesystem($respM->data);
                 } else {
                     $contentM = base64_decode((string) $respM->data);
                 }
@@ -777,7 +777,7 @@ class C_Document extends Controller
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
                     if ($d->get_encrypted() == 1) {
-                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), KeySource::Database);
+                        $document = $this->cryptoGen->encryptForFilesystem(file_get_contents($to_file_tmp_name));
                     } else {
                         $document = base64_encode(file_get_contents($to_file_tmp_name));
                     }
@@ -792,14 +792,14 @@ class C_Document extends Controller
                 $couchF = new CouchDB();
                 $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($respF->data, KeySource::Database);
+                    $content = $this->cryptoGen->decryptFromFilesystem($respF->data);
                 } else {
                     $content = base64_decode((string) $respF->data);
                 }
             } else {
                 // decrypt/decode when converted jpg already exists
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($resp->data, KeySource::Database);
+                    $content = $this->cryptoGen->decryptdecryptFromFilesystem($resp->data);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -882,7 +882,7 @@ class C_Document extends Controller
         if ($original_file) {
             //normal case when serving the file referenced in database
             if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
+                $filetext = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
             } else {
                 if (!is_dir($url)) {
                     $filetext = file_get_contents($url);
@@ -923,7 +923,7 @@ class C_Document extends Controller
             if (!is_file($url)) {
                 if ($d->get_encrypted() == 1) {
                     // decrypt the from-file into a temporary file
-                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), KeySource::Database);
+                    $from_file_unencrypted = $this->cryptoGen->decryptFromFilesystem(file_get_contents($originalUrl));
                     $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                     file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                     // prepare a temporary file for the unencrypted to-file
@@ -935,7 +935,7 @@ class C_Document extends Controller
                     unlink($from_file_tmp_name);
                     // make the encrypted to-file if a to-file was created in above convert call
                     if (is_file($to_file_tmp_name)) {
-                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), KeySource::Database);
+                        $to_file_encrypted = $this->cryptoGen->encryptForFilesystem(file_get_contents($to_file_tmp_name));
                         file_put_contents($url, $to_file_encrypted);
                         // remove unencrypted tmp files
                         unlink($to_file_tmp);
@@ -948,7 +948,7 @@ class C_Document extends Controller
             }
             if (is_file($url)) {
                 if ($d->get_encrypted() == 1) {
-                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
+                    $filetext = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
                 } else {
                     $filetext = file_get_contents($url);
                 }
@@ -1023,7 +1023,7 @@ class C_Document extends Controller
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($d->couch_docid);
             if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard($resp->data, KeySource::Database);
+                $content = $this->cryptoGen->decryptFromFilesystem($resp->data);
             } else {
                 $content = base64_decode((string) $resp->data);
             }
@@ -1061,7 +1061,7 @@ class C_Document extends Controller
             }
 
             if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
+                $content = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
             } else {
                 $content = file_get_contents($url);
             }
@@ -1281,14 +1281,14 @@ class C_Document extends Controller
 
         $LOG = file_get_contents($log_path . $log_file);
 
-        if ($this->cryptoGen->cryptCheckStandard($LOG)) {
-            $LOG = $this->cryptoGen->decryptStandard($LOG, KeySource::Database);
-        }
+        $LOG = $this->cryptoGen->decryptFromFilesystem($LOG);
 
         $LOG .= $content;
 
         if (!empty($LOG)) {
             if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+                // CODE REVIEW FIXME: this should migrate, but not until
+                // FS encryption is internally gated like above
                 $LOG = $this->cryptoGen->encryptStandard($LOG, KeySource::Database);
             }
             file_put_contents($log_path . $log_file, $LOG);
