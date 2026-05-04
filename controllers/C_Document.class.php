@@ -45,7 +45,7 @@ class C_Document extends Controller
     public $patientService;
     public $_last_node;
     private $Document;
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     private bool $skip_acl_check = false;
     private readonly DocumentTemplateService $templateService;
     private bool $returnRetrieveKey = false;
