@@ -48,7 +48,7 @@ if (!empty($_POST['bn_download'])) {
     $fileData = file_get_contents($templatepath);
 
     // Decrypt file, if applicable
-    $fileData = $cryptoGen->decryptFromDatabase($fileData);
+    $fileData = $cryptoGen->decryptFromFilesystem($fileData);
 
     header('Content-Description: File Transfer');
     header('Content-Transfer-Encoding: binary');
