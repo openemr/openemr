@@ -52,11 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pc_catid\' on array\\{\\}\\|array\\{uuid\\?\\: mixed, puuid\\?\\: non\\-falsy\\-string, class_code\\?\\: mixed, date\\?\\: mixed, provider_uuid\\?\\: non\\-falsy\\-string, referrer_uuid\\?\\: non\\-falsy\\-string, reason\\?\\: mixed, facility_id\\?\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirEncounterService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'expiration\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',
