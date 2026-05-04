@@ -22,7 +22,6 @@ require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -992,13 +991,13 @@ class Document extends ORDataObject
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
             if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
-                $document = $cryptoGen->encryptStandard($data, keySource: KeySource::Database);
+                $document = $cryptoGen->encryptForFilesystem($data);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
                 if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
-                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, keySource: KeySource::Database);
+                    $th_document = $cryptoGen->encryptForFilesystem($thumbnail_data);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
                 }
@@ -1073,7 +1072,7 @@ class Document extends ORDataObject
             $this->path_depth = $path_depth;
 
             // Store the file.
-            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, keySource: KeySource::Database) : $data;
+            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptForFilesystem($data) : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1086,7 +1085,7 @@ class Document extends ORDataObject
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
                 if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, keySource: KeySource::Database);
+                    $storedThumbnailData = $cryptoGen->encryptForFilesystem($thumbnail_data);
                 } else {
                     $storedThumbnailData = $thumbnail_data;
                 }
@@ -1191,7 +1190,7 @@ class Document extends ORDataObject
     public function decrypt_content($data)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        $decryptedData = $cryptoGen->decryptStandard($data, keySource: KeySource::Database);
+        $decryptedData = $cryptoGen->decryptFromFilesystem($data);
         if ($decryptedData === false) {
             throw new RuntimeException("Failed to decrypt the data");
         }
