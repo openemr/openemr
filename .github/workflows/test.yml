@@ -129,13 +129,16 @@ jobs:
       # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
       run: |
         base='["api","services","email"'
-        if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
+        if [[ '${STEPS_PARSE_OUTPUTS_E2E_ENABLED}' = 'true' ]]; then
           base="${base},"'"e2e"'
         fi
-        if [[ '${{ steps.parse.outputs.redis_sentinel_enabled }}' = 'true' ]]; then
+        if [[ '${STEPS_PARSE_OUTPUTS_REDIS_SENTINEL_ENABLED}' = 'true' ]]; then
           base="${base},"'"redis-failover"'
         fi
         echo "suites=${base}]" >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_PARSE_OUTPUTS_E2E_ENABLED: ${{ steps.parse.outputs.e2e_enabled }}
+        STEPS_PARSE_OUTPUTS_REDIS_SENTINEL_ENABLED: ${{ steps.parse.outputs.redis_sentinel_enabled }}
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -172,11 +175,11 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
-          echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
-          echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
+          echo 'vendor=${{ runner.os }}-vendor-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'composer=${{ runner.os }}-composer-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'npm-build=${{ runner.os }}-npm-build-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}'
+          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
+          echo 'npm=${{ runner.os }}-node-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}'
         } >> "$GITHUB_OUTPUT"
       env:
         STEPS_PARSE_OUTPUTS_PHP: ${{ steps.parse.outputs.php }}
