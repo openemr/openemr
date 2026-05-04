@@ -149,9 +149,9 @@ final readonly class Crypto implements CryptoInterface
             return '';
         }
         if (!$this->encryptForFilesystem) {
-            return '';
+            return $value;
         }
-        return $this->encryptStandard($value, keySource: KeySource::Drive);
+        return $this->encryptStandard($value, keySource: KeySource::Database);
     }
 
     public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string

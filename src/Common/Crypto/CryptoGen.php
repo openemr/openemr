@@ -158,9 +158,9 @@ class CryptoGen implements CryptoInterface
             return '';
         }
         if (!$this->encryptForFilesystem) {
-            return '';
+            return $value;
         }
-        return $this->encryptStandard($value, keySource: KeySource::Drive);
+        return $this->encryptStandard($value, keySource: KeySource::Database);
     }
 
     /**
