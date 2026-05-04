@@ -18,7 +18,6 @@ $pid = $session->get('pid', 0);
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -118,7 +117,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
+        $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -240,9 +239,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $crytoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -262,9 +259,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $crytoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -280,7 +275,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
+        $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -305,9 +300,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -323,7 +316,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
+        $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -347,9 +340,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
