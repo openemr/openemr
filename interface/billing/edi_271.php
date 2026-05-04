@@ -60,7 +60,7 @@ if (isset($_FILES) && !empty($_FILES)) {
         if (file_put_contents($target, $uploadedFile)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($uploadedName)) . '"';
             $Response271 = file_get_contents($target);
-            $Response271 = $cryproGen->decryptFromFilesystem($Response271);
+            $Response271 = $cryptoGen->decryptFromFilesystem($Response271);
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
             } else {

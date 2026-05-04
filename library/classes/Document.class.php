@@ -22,6 +22,7 @@ require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -1186,9 +1187,10 @@ class Document extends ORDataObject
     public function decrypt_content($data)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        $decryptedData = $cryptoGen->decryptFromFilesystem($data);
-        if ($decryptedData === false) {
-            throw new RuntimeException("Failed to decrypt the data");
+        try {
+            $decryptedData = $cryptoGen->decryptFromFilesystem($data);
+        } catch (CryptoGenException $e) {
+            throw new RuntimeException("Failed to decrypt the data", $e);
         }
         return $decryptedData;
     }
