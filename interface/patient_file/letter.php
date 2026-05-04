@@ -116,9 +116,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while saving to the file') . ' ' . text($template_dir) . "/autosaved" . ' . ' .
@@ -274,9 +272,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . text($template_dir) . "/" . text($_POST['newtemplatename']);
@@ -315,9 +311,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . text($template_dir) . "/" . text($_POST['form_template']);
