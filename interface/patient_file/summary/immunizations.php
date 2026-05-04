@@ -11,8 +11,10 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/immunization_helper.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
@@ -23,7 +25,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @var int $pid should come from globals, but to fix phpstan issues we are declaring it here
@@ -31,10 +32,16 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // @phpstan-ignore nullCoalesce.variable
 $pid ??= $session->get('pid') ?? null;
 
+// Defaults used when mode is not 'add' or 'edit' so PHPStan can verify
+// the form rendering below without relying on conditional definitions.
+$id = 0;
+$immunization_id = '';
+$administered_by = '';
+$administered_by_id = '';
+$code_text = '';
+
 if (isset($_GET['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     /*
      * THIS IS A BUG. IF NEW IMMUN IS ADDED AND USER PRINTS PDF,
@@ -226,18 +233,14 @@ if (!empty($entered_by_id)) {
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $observation_criteria = getImmunizationObservationLists('1');
     echo json_encode($observation_criteria);
     exit;
 }
 
 if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $observation_criteria_value = getImmunizationObservationLists('2');
     echo json_encode($observation_criteria_value);
     exit;
@@ -246,6 +249,7 @@ if (!empty($_POST['type']) && ($_POST['type'] == 'duplicate_row_2')) {
 function getImmunizationObservationLists($k)
 {
     if ($k == 1) {
+        $observation_criteria = [];
         $observation_criteria_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", ['immunization_observation']);
         for ($iter = 0; $row = sqlFetchArray($observation_criteria_res); $iter++) {
             $observation_criteria[0]['option_id'] = '';
@@ -255,6 +259,7 @@ function getImmunizationObservationLists($k)
 
         return $observation_criteria;
     } else {
+        $observation_criteria_value = [];
         $observation_criteria_value_res = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity=1 ORDER BY seq, title", ['imm_vac_eligibility_results']);
         for ($iter = 0; $row = sqlFetchArray($observation_criteria_value_res); $iter++) {
             $observation_criteria_value[0]['option_id'] = '';
@@ -302,6 +307,12 @@ function saveImmunizationObservationResults($id, $immunizationdata): void
     }
 
     for ($i = 0; $i < $immunizationdata['tr_count']; $i++) {
+        $code = '';
+        $code_text = '';
+        $code_type = '';
+        $vis_published_dateval = '';
+        $vis_presented_dateval = '';
+        $imo_criteria_value = '';
         if ($immunizationdata['observation_criteria'][$i] == 'vaccine_type') {
             $code                     = $immunizationdata['cvx_vac_type_code'][$i];
             $code_text                = $immunizationdata['code_text_hidden'][$i];
@@ -885,14 +896,14 @@ $(function () {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   // special cases to deal with datepicker items that are added dynamically
@@ -901,7 +912,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
   });
@@ -1226,7 +1237,7 @@ function sel_code(id)
     id = id.split('sct_code_');
     var checkId = id[1];
     $('#clickId').val(checkId);
-    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
 }
 
 $(function () {

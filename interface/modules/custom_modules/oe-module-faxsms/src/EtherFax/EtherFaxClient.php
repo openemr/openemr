@@ -166,7 +166,7 @@ class EtherFaxClient
      * @param null $localId
      * @param null $callerId
      * @param null $tag
-     * @param null $isDocument
+     * @param ?bool $isDocument
      * @param null $fileName
      * @return FaxStatus
      * @throws \Exception

@@ -12,20 +12,27 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-require_once(__DIR__ . "/../../../library/api.inc.php");
-require_once(__DIR__ . "/../../forms/vitals/C_FormVitals.class.php");
+if (!defined('CAMOS_CONTENT_PARSER_SKIP_INCLUDES')) {
+    require_once(__DIR__ . "/../../../library/api.inc.php");
+    require_once(__DIR__ . "/../../forms/vitals/C_FormVitals.class.php");
+}
 
-function addAppt($days, $time)
+function addAppt(string $days, string $time): int
 {
+    $intervalDays = filter_var($days, FILTER_VALIDATE_INT);
+    if ($intervalDays === false) {
+        return 0;
+    }
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sql = "insert into openemr_postcalendar_events (pc_pid, pc_eventDate," .
-    "pc_comments, pc_aid,pc_startTime) values (?, date_add(current_date(), interval " . add_escape_custom($days) .
+    "pc_comments, pc_aid,pc_startTime) values (?, date_add(current_date(), interval " . $intervalDays .
     " day),'from CAMOS', ?, ?)";
-    return sqlInsert($sql, [$session->get('pid'), $session->get('authUserID'), $time]);
+    return QueryUtils::sqlInsert($sql, [$session->get('pid'), $session->get('authUserID'), $time]);
 }
-function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
+function addVitals(string $weight, string $height, string $systolic, string $diastolic, string $pulse, string $temp): void
 {
 //This is based on code from /openemr/interface/forms/vitals/C_FormVitals.class.phpif it doesn't work, look there for changes.
     $_POST['process'] = 'true';
@@ -36,20 +43,27 @@ function addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp): void
     $_POST['pulse'] = $pulse;
     $_POST['temperature'] = $temp;
     $c = new C_FormVitals();
-    echo $c->default_action_process();
+    $result = $c->default_action_process();
+    if (is_string($result)) {
+        echo $result;
+    }
 }
 
 //This function was copied from BillingUtilities class and altered to support 'justify'
-function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifier = null, ?string $units = null, ?string $fee = null, $justify = "")
+/**
+ * @param list<string> $justify
+ */
+function addBilling2(int $encounter, string $code_type, string $code, string $code_text, ?string $modifier = null, ?string $units = null, ?string $fee = null, array $justify = []): int
 {
     if (!$fee) {
         $fee = "0.00";
     }
     $justify_string = '';
-    if ($justify) {
+    if ($justify !== []) {
         //trim each entry
+        $justify_trimmed = [];
         foreach ($justify as $temp_justify) {
-            $justify_trimmed[] = trim((string) $temp_justify);
+            $justify_trimmed[] = trim($temp_justify);
         }
 
         //format it
@@ -63,10 +77,10 @@ function addBilling2($encounter, $code_type, $code, $code_text, ?string $modifie
 
     $sql = "insert into billing (date, encounter, code_type, code, code_text, pid, authorized, user, groupname,activity,billed,provider_id,modifier,units,fee,justify) values (NOW(), ?, ?, ?, ?, ?, ?, ?, ?, 1, 0, ?, ?, ?, ?, ?)";
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    return sqlInsert($sql, [$session->get('encounter'), $code_type, $code, $code_text, $session->get('pid'), $authorized, $session->get('authUserID'), $session->get('authProvider'), $session->get('authUserID'), $modifier, $units, $fee, $justify_string]);
+    return QueryUtils::sqlInsert($sql, [$encounter, $code_type, $code, $code_text, $session->get('pid'), $authorized, $session->get('authUserID'), $session->get('authProvider'), $session->get('authUserID'), $modifier, $units, $fee, $justify_string]);
 }
 
-function content_parser($input)
+function content_parser(string $input): string
 {
 
    // parse content field
@@ -76,40 +90,45 @@ function content_parser($input)
 //   $content = remove_comments($content);
 
    //reduce more than two empty lines to no more than two.
-    $content = preg_replace("/([^\n]\r[^\n]){2,}/", "\r\r", (string) $content);
-    $content = preg_replace("/([^\r]\n[^\r]){2,}/", "\n\n", (string) $content);
-    $content = preg_replace("/(\r\n){2,}/", "\r\n\r\n", (string) $content);
+    $content = preg_replace("/([^\n]\r[^\n]){2,}/", "\r\r", $content) ?? $content;
+    $content = preg_replace("/([^\r]\n[^\r]){2,}/", "\n\n", $content) ?? $content;
+    $content = preg_replace("/(\r\n){2,}/", "\r\n\r\n", $content) ?? $content;
 
 
     return $content;
 }
 
 // implement C style comments ie remove anything between /* and */
-function remove_comments($string_to_process)
+function remove_comments(string $string_to_process): string
 {
-    return preg_replace("/\/\*.*?\*\//s", "", (string) $string_to_process);
+    return preg_replace("/\/\*.*?\*\//s", "", $string_to_process) ?? '';
 }
 
 //process commands embedded in C style comments where function name is first
 //followed by args separated by :: delimiter and nothing else
 
-function process_commands(&$string_to_process, &$camos_return_data)
+/**
+ * @param list<array{category: string, subcategory: string, item: string, content: string}> $camos_return_data
+ */
+function process_commands(string &$string_to_process, array &$camos_return_data): int
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $tbl_camos_item = escape_table_name("form_CAMOS_item");
   //First, handle replace function as special case.  full depth of inserts should be evaluated prior
   //to evaluating other functions in final string assembly.
     $replace_finished = false;
     while (!$replace_finished) {
-        if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//", (string) $string_to_process, $matches)) {
+        if (preg_match_all("/\/\*\s*replace\s*::.*?\*\//", $string_to_process, $matches)) {
             foreach ($matches[0] as $val) {
-                $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
-                $comm_array = explode('::', (string) $comm); //array where first element is command and rest are args
+                $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val) ?? '';
+                $comm_array = explode('::', $comm); //array where first element is command and rest are args
                 $replacement_item = trim($comm_array[1]); //this is the item name to search for in the database.  easy.
                 $replacement_text = '';
-                $query = "SELECT content FROM form_CAMOS_item WHERE item like ?";
-                $statement = sqlStatement($query, [$replacement_item]);
-                if ($result = sqlFetchArray($statement)) {
-                    $replacement_text = $result['content'];
+                $query = "SELECT content FROM {$tbl_camos_item} WHERE item like ?";
+                $statement = QueryUtils::sqlStatementThrowException($query, [$replacement_item]);
+                /** @var array{content: ?string}|false $result */
+                if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
+                    $replacement_text = (string) $result['content'];
                 }
                 $string_to_process = str_replace($val, $replacement_text, $string_to_process);
             }
@@ -123,23 +142,29 @@ function process_commands(&$string_to_process, &$camos_return_data)
   //I am going to implement with mysql date functions.
   //I am putting this before other functions just like replace function because it is replacing text
   //needs to be here.
-    if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//", (string) $string_to_process, $matches)) {
+    if (preg_match("/\/\*\s*date_add\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
-        $days = $matches[1];
-        $query = "select date_format(date_add(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
-        $statement = sqlStatement($query, [$session->get('pid'), $session->get('encounter')]);
-        if ($result = sqlFetchArray($statement)) {
-            $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
+        $intervalDays = filter_var($matches[1], FILTER_VALIDATE_INT);
+        if ($intervalDays !== false) {
+            $query = "select date_format(date_add(date, interval " . $intervalDays . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
+            $statement = QueryUtils::sqlStatementThrowException($query, [$session->get('pid'), $session->get('encounter')]);
+            /** @var array{date: string}|false $result */
+            if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
+                $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
+            }
         }
     }
 
-    if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//", (string) $string_to_process, $matches)) {
+    if (preg_match("/\/\*\s*date_sub\s*::\s*(.*?)\s*\*\//", $string_to_process, $matches)) {
         $to_replace = $matches[0];
-        $days = $matches[1];
-        $query = "select date_format(date_sub(date, interval " . add_escape_custom($days) . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
-        $statement = sqlStatement($query, [$session->get('pid'), $session->get('encounter')]);
-        if ($result = sqlFetchArray($statement)) {
-            $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
+        $intervalDays = filter_var($matches[1], FILTER_VALIDATE_INT);
+        if ($intervalDays !== false) {
+            $query = "select date_format(date_sub(date, interval " . $intervalDays . " day),'%W, %m-%d-%Y') as date from form_encounter where pid = ? and encounter = ?";
+            $statement = QueryUtils::sqlStatementThrowException($query, [$session->get('pid'), $session->get('encounter')]);
+            /** @var array{date: string}|false $result */
+            if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
+                $string_to_process = str_replace($to_replace, $result['date'], $string_to_process);
+            }
         }
     }
 
@@ -149,34 +174,32 @@ function process_commands(&$string_to_process, &$camos_return_data)
     $camos_return_data = []; // to be filled with additional camos form submissions if any embedded
     $command_array = [];  //to be filled with potential commands
     $matches = [];  //to be filled with potential commands
-    if (!preg_match_all("/\/\*.*?\*\//s", (string) $string_to_process, $matches)) {
+    if (!preg_match_all("/\/\*.*?\*\//s", $string_to_process, $matches)) {
         return $return_value;
     }
 
     $command_array = $matches[0];
+    $rawEncounter = $session->get('encounter');
+    $encounter = is_numeric($rawEncounter) ? (int) $rawEncounter : 0;
     foreach ($command_array as $val) {
         //process each command
-        $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val);
-        $comm_array = explode('::', (string) $comm); //array where first element is command and rest are args
+        $comm = preg_replace("/(\/\*)|(\*\/)/", "", $val) ?? '';
+        $comm_array = explode('::', $comm); //array where first element is command and rest are args
         //Here is where we process particular commands
         if (trim($comm_array[0]) == 'billing') {
             array_shift($comm_array); //couldn't do it in 'if' or would lose element 0 for next if
             //insert data into the billing table, see, easy!
-            $type = trim((string) array_shift($comm_array));
-            $code = trim((string) array_shift($comm_array));
-            $text = trim((string) array_shift($comm_array));
-            $modifier = trim((string) array_shift($comm_array));
-            $units = trim((string) array_shift($comm_array));
+            $type = trim(array_shift($comm_array) ?? '');
+            $code = trim(array_shift($comm_array) ?? '');
+            $text = trim(array_shift($comm_array) ?? '');
+            $modifier = trim(array_shift($comm_array) ?? '');
+            $units = trim(array_shift($comm_array) ?? '');
             //make default units 1 if left blank - bm
-            if ($units == '') {
-                $units = 1;
+            if ($units === '') {
+                $units = '1';
             }
 
-            $fee = sprintf("%01.2f", trim((string) array_shift($comm_array)));
-            //make default fee 0.00 if left blank
-            if ($fee == '') {
-                $fee = sprintf("%01.2f", '0.00');
-            }
+            $fee = sprintf("%01.2f", trim(array_shift($comm_array) ?? ''));
 
             //in function call 'addBilling' note last param is the remainder of the array.  we will look for justifications here...
             addBilling2($encounter, $type, $code, $text, $modifier, $units, $fee, $comm_array);
@@ -184,36 +207,33 @@ function process_commands(&$string_to_process, &$camos_return_data)
 
         if (trim($comm_array[0]) == 'appt') {
             array_shift($comm_array);
-            $days = trim((string) array_shift($comm_array));
-            $time = trim((string) array_shift($comm_array));
+            $days = trim(array_shift($comm_array) ?? '');
+            $time = trim(array_shift($comm_array) ?? '');
             addAppt($days, $time);
         }
 
         if (trim($comm_array[0]) == 'vitals') {
             array_shift($comm_array);
-            $weight = trim((string) array_shift($comm_array));
-            $height = trim((string) array_shift($comm_array));
-            $systolic = trim((string) array_shift($comm_array));
-            $diastolic = trim((string) array_shift($comm_array));
-            $pulse = trim((string) array_shift($comm_array));
-            $temp = trim((string) array_shift($comm_array));
+            $weight = trim(array_shift($comm_array) ?? '');
+            $height = trim(array_shift($comm_array) ?? '');
+            $systolic = trim(array_shift($comm_array) ?? '');
+            $diastolic = trim(array_shift($comm_array) ?? '');
+            $pulse = trim(array_shift($comm_array) ?? '');
+            $temp = trim(array_shift($comm_array) ?? '');
             addVitals($weight, $height, $systolic, $diastolic, $pulse, $temp);
         }
 
-        $command_count = 0;
         if (trim($comm_array[0]) == 'camos') {
-            $command_count++;
             //data to be submitted as separate camos forms
             //this is for embedded prescriptions, test orders etc... usually within a soap note or something
             //data collected here will be returned so that save.php can give it special treatment and insert
             //into the database after the main form data is submitted so it will be in a sensible order
-            array_push(
-                $camos_return_data,
-                ["category" => trim($comm_array[1]),
-                "subcategory" => trim($comm_array[2]),
-                "item" => trim($comm_array[3]),
-                "content" => trim($comm_array[4])]
-            );
+            $camos_return_data[] = [
+                "category" => trim($comm_array[1] ?? ''),
+                "subcategory" => trim($comm_array[2] ?? ''),
+                "item" => trim($comm_array[3] ?? ''),
+                "content" => trim($comm_array[4] ?? ''),
+            ];
         }
     }
 
@@ -223,7 +243,7 @@ function process_commands(&$string_to_process, &$camos_return_data)
 // I was using this for debugging.  touch logging, chmod 777 logging, then can use.
   //file_put_contents('./logging',$string_to_process."\n\n*************\n\n",FILE_APPEND);//DEBUG
 
-function replace($pid, $enc, $content)
+function replace(int $pid, int $enc, string $content): string
 {
  //replace placeholders with values
     $name = '';
@@ -235,7 +255,7 @@ function replace($pid, $enc, $content)
     $age = '';
     $gender = '';
     $doctorname = '';
-    $query1 = sqlStatement(
+    $query1 = QueryUtils::sqlStatementThrowException(
         "select t1.fname, t1.mname, t1.lname, " .
         "t1.sex as gender, " .
         "t1.DOB, " .
@@ -245,40 +265,43 @@ function replace($pid, $enc, $content)
         "where t2.pid = ? and t2.encounter = ?",
         [$pid, $enc]
     );
-    if ($results = sqlFetchArray($query1)) {
+    /** @var array{fname: string, mname: string, lname: string, gender: ?string, DOB: ?string, date: ?string}|false $results */
+    $results = QueryUtils::fetchArrayFromResultSet($query1);
+    if ($results) {
         $fname = $results['fname'];
         $mname = $results['mname'];
         $lname = $results['lname'];
         $name = $mname ? $fname . ' ' . $mname . ' ' . $lname : $fname . ' ' . $lname;
 
-            $dob = $results['DOB'];
-            $date = $results['date'];
-            $age = patient_age($dob, $date);
-            $gender = $results['gender'];
+            $dob = $results['DOB'] ?? '';
+            $date = $results['date'] ?? '';
+            $age = ($dob !== '' && $date !== '') ? (string) patient_age($dob, $date) : '';
+            $gender = $results['gender'] ?? '';
     }
 
-    $query1 = sqlStatement("select t1.lname from users as t1 join forms as " .
-    "t2 on (t1.username like t2.user) where t2.encounter = ?", [$enc]);
-    if ($results = sqlFetchArray($query1)) {
+    $query1 = QueryUtils::sqlStatementThrowException("select t1.lname from users as t1 join forms as " .
+    "t2 on (t1.username like t2.user) where t2.pid = ? and t2.encounter = ?", [$pid, $enc]);
+    /** @var array{lname: string}|false $results */
+    if ($results = QueryUtils::fetchArrayFromResultSet($query1)) {
         $doctorname = "Dr. " . $results['lname'];
     }
 
     $ret = preg_replace(
         ["/patientname/i","/patientage/i","/patientgender/i","/doctorname/i"],
-        [$name,$age,strtolower((string) $gender),$doctorname],
-        (string) $content
+        [$name,$age,strtolower($gender),$doctorname],
+        $content
     );
     //Below will fix blocks that were inadvertently double escaped in openemr versions 5.0.1.0 - 5.0.1.5
-    return str_replace("\\n", "\n", $ret);
+    return str_replace("\\n", "\n", $ret ?? '');
 }
-function patient_age($birthday, $date)
+function patient_age(string $birthday, string $date): int
 {
  //calculate age from birthdate and a given later date
-    [$birth_year, $birth_month, $birth_day] = explode("-", (string) $birthday);
-    [$date_year, $date_month, $date_day] = explode("-", (string) $date);
-    $year_diff  = $date_year - $birth_year;
-    $month_diff = $date_month - $birth_month;
-    $day_diff   = (int) $date_day - $birth_day;
+    [$birth_year, $birth_month, $birth_day] = explode("-", $birthday);
+    [$date_year, $date_month, $date_day] = explode("-", $date);
+    $year_diff  = (int) $date_year - (int) $birth_year;
+    $month_diff = (int) $date_month - (int) $birth_month;
+    $day_diff   = (int) $date_day - (int) $birth_day;
     if ($month_diff < 0) {
         $year_diff--;
     } elseif (($month_diff == 0) && ($day_diff < 0)) {

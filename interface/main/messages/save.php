@@ -11,15 +11,16 @@
  */
 
 require_once "../../globals.php";
-require_once "$srcdir/lists.inc.php";
-require_once "$srcdir/forms.inc.php";
-require_once "$srcdir/patient.inc.php";
-require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/lists.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/MedEx/API.php";
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -27,6 +28,7 @@ if ($_REQUEST['go'] == 'sms_search') {
     $param = "%" . $_GET['term'] . "%";
     $query = "SELECT * FROM patient_data WHERE fname LIKE ? OR lname LIKE ?";
     $result = sqlStatement($query, [$param, $param]);
+    $results = [];
     while ($frow = sqlFetchArray($result)) {
         $data['Label']  = 'Name';
         $data['value']  = text($frow['fname'] . " " . $frow['lname']);
@@ -53,8 +55,8 @@ if ($_REQUEST['go'] == 'Preferences') {
 			`LABELS_local`=?,`LABELS_choice`=?,
 			`combine_time`=?, postcard_top=?";
 
-        $facilities = implode("|", $_REQUEST['facilities']);
-        $providers = implode("|", $_REQUEST['providers']);
+        $facilities = implode("|", filter_input(INPUT_POST, 'facilities', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY) ?: []);
+        $providers = implode("|", filter_input(INPUT_POST, 'providers', FILTER_VALIDATE_INT, FILTER_REQUIRE_ARRAY) ?: []);
         $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ?: '');
         $country_code = ($_REQUEST['PHONE_country_code'] ?: '1');
 
@@ -105,23 +107,25 @@ if ($_REQUEST['MedEx'] == "start") {
         if ($_SERVER["SSL_TLS_SNI"]) {
             $prefix = "https://";
         }
-        $data['website_url'] = $prefix . $_SERVER['HTTP_HOST'] . $web_root;
-        $practice_logo = "$OE_SITE_DIR/images/practice_logo.gif";
+        $data['website_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->getWebRoot();
+        $practice_logo = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/practice_logo.gif";
         if (!file_exists($practice_logo)) {
-            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . $web_root . "/sites/" . $session->get('site_id') . "/images/practice_logo.gif";
+            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->getWebRoot() . "/sites/" . $session->get('site_id') . "/images/practice_logo.gif";
         } else {
-            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->get('images_static_relative') . "/menu-logo.png";
+            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->getKernel()->getImagesRelative() . "/menu-logo.png";
         }
         $response = $MedEx->setup->autoReg($data);
         if (($response['API_key'] > '') && ($response['customer_id'] > '')) {
             sqlQuery("DELETE FROM medex_prefs");
             $runQuery = "SELECT * FROM facility ORDER BY name";
             $fetch = sqlStatement($runQuery);
+            $facilities = [];
             while ($frow = sqlFetchArray($fetch)) {
                 $facilities[] = $frow['id'];
             }
             $runQuery = "SELECT * FROM users WHERE username != '' AND active = '1' AND authorized = '1'";
             $prove = sqlStatement($runQuery);
+            $providers = [];
             while ($prow = sqlFetchArray($prove)) {
                 $providers[] = $prow['id'];
             }
@@ -255,11 +259,3 @@ if ($_REQUEST['action'] == "process") {
     echo text(json_encode($pidList));
     exit;
 }
-if ($_REQUEST['go'] == "Messages") {
-    if ($_REQUEST['msg_id']) {
-        $result = updateMessage($_REQUEST['msg_id']);
-        echo json_encode($result);
-        exit;
-    }
-}
-exit;

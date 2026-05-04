@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Comparison operation "\\>" between 0 and 5 is always false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Comparison operation "\\>" between 1 and 1 is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/UuidUserAccount.php',

@@ -13,20 +13,23 @@
  */
 
 require_once('../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . '/patient.inc.php');
+require_once($srcdir . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $info_msg = "";

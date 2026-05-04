@@ -38,6 +38,7 @@ class Therapy_Groups_Encounters
     {
         $sql = "SELECT * FROM " . self::TABLE . " WHERE group_id = ? AND date >= CURDATE();";
         $result = sqlStatement($sql, [$gid]);
+        $encounters = [];
         while ($row = sqlFetchArray($result)) {
             $encounters[] = $row;
         }

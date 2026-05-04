@@ -27,11 +27,11 @@ $boot = new BootstrapService();
 $taskManager = new NotificationTaskManager();
 $services = ['sms', 'email'];
 $actions = ['create', 'enable', 'disable', 'delete'];
+$selectedService = null;
+$period = null;
 
 if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $selectedService = $_POST['selected_service'] ?? null;
     $selectedAction = $_POST['action'] ?? null;
@@ -69,18 +69,14 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
 
 if ($_POST['form_save'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->set('editingUser', ($_POST['editingUser'] ?? 0));
     $boot->saveVendorGlobals($_POST);
 }
 
 // Handle user permissions form submission
 if ($_POST['form_save_permissions'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Get all active users
     $users_query = "SELECT id, username FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";

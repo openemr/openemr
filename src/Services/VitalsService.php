@@ -40,7 +40,7 @@ class VitalsService extends BaseService
     public const TABLE_VITALS = "form_vitals";
 
     /**
-     * @var boolean whether vital measurement for records retrieved should be converted based upon global settings.
+     * @var bool whether vital measurement for records retrieved should be converted based upon global settings.
      */
     private $shouldConvertVitalMeasurements;
 

@@ -54,7 +54,7 @@ interface MenuItemInterface
     /**
      * Return the requirement integer
      *
-     * @return integer
+     * @return int
      */
     public function getRequirements(): int;
 

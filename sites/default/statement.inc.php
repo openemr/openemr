@@ -25,7 +25,6 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 // The location/name of a temporary file to hold printable statements.
@@ -33,9 +32,6 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $STMT_TEMP_FILE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_statements.pdf";
-/** @var array{print_command?: string} $moreSecure */
-$moreSecure = OEGlobalsBag::getInstance()->get('more_secure');
-$STMT_PRINT_CMD = (ServiceContainer::getCrypto())->decryptStandard($moreSecure['print_command'] ?? null);
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF

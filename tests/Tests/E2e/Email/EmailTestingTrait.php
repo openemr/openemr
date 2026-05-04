@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -35,11 +35,48 @@ trait EmailTestingTrait
     }
 
     /**
+     * Extract the messages array from a decoded Mailpit API response.
+     *
+     * @param array<string, mixed> $data
+     * @return list<array<string, mixed>>
+     */
+    private function extractMessages(array $data): array
+    {
+        if (!array_key_exists('messages', $data)) {
+            return [];
+        }
+        $messages = $data['messages'];
+        if (!is_array($messages)) {
+            throw new \RuntimeException(
+                'Unexpected Mailpit JSON response: "messages" field must be an array, got ' . gettype($messages),
+            );
+        }
+        /** @var list<array<string, mixed>> */
+        return array_values($messages);
+    }
+
+    /**
+     * Decode a JSON response body into an associative array.
+     *
+     * @return array<string, mixed>
+     */
+    private function decodeJsonBody(string $body): array
+    {
+        $decoded = json_decode($body, true, 512, JSON_THROW_ON_ERROR);
+        if (!is_array($decoded)) {
+            throw new \RuntimeException(
+                'Unexpected Mailpit JSON response: expected object, got ' . gettype($decoded),
+            );
+        }
+        /** @var array<string, mixed> $decoded */
+        return $decoded;
+    }
+
+    /**
      * Get all messages from Mailpit
      *
      * @param int $limit Maximum number of messages to retrieve
-     * @return array
-     * @throws GuzzleException
+     * @return list<array<string, mixed>>
      */
     private function getMailpitMessages(int $limit = 50): array
     {
@@ -51,16 +88,14 @@ trait EmailTestingTrait
             'query' => ['limit' => $limit]
         ]);
 
-        $data = json_decode($response->getBody()->getContents(), true);
-        return $data['messages'] ?? [];
+        $data = $this->decodeJsonBody($response->getBody()->getContents());
+        return $this->extractMessages($data);
     }
 
     /**
      * Get a specific message by ID from Mailpit
      *
-     * @param string $id Message ID
-     * @return array|null
-     * @throws GuzzleException
+     * @return array<string, mixed>|null
      */
     private function getMailpitMessage(string $id): ?array
     {
@@ -70,18 +105,17 @@ trait EmailTestingTrait
 
         try {
             $response = $this->httpClient->get("/api/v1/message/{$id}");
-            return json_decode($response->getBody()->getContents(), true);
-        } catch (\Throwable) {
+        } catch (GuzzleException) {
             return null;
         }
+        $decoded = $this->decodeJsonBody($response->getBody()->getContents());
+        return $decoded !== [] ? $decoded : null;
     }
 
     /**
      * Search for messages in Mailpit
      *
-     * @param string $query Search query
-     * @return array
-     * @throws GuzzleException
+     * @return list<array<string, mixed>>
      */
     private function searchMailpitMessages(string $query): array
     {
@@ -93,15 +127,13 @@ trait EmailTestingTrait
             'query' => ['query' => $query]
         ]);
 
-        $data = json_decode($response->getBody()->getContents(), true);
-        return $data['messages'] ?? [];
+        $data = $this->decodeJsonBody($response->getBody()->getContents());
+        return $this->extractMessages($data);
     }
 
     /**
      * Delete all messages from Mailpit
      *
-     * @return bool
-     * @throws GuzzleException
      */
     private function deleteAllMailpitMessages(): bool
     {
@@ -120,11 +152,7 @@ trait EmailTestingTrait
     /**
      * Wait for an email to arrive in Mailpit
      *
-     * @param string $recipient Email recipient to wait for
-     * @param string|null $subject Optional subject to match
-     * @param int $timeout Timeout in seconds
-     * @return array|null The matching message or null if timeout
-     * @throws GuzzleException
+     * @return array<string, mixed>|null The matching message or null if timeout
      */
     private function waitForEmail(string $recipient, ?string $subject = null, int $timeout = 30): ?array
     {
@@ -134,11 +162,12 @@ trait EmailTestingTrait
             $messages = $this->getMailpitMessages();
 
             foreach ($messages as $message) {
+                /** @var list<array{Address: string}> $toAddresses */
                 $toAddresses = $message['To'] ?? [];
-                $messageSubject = $message['Subject'] ?? '';
+                $messageSubject = is_string($message['Subject'] ?? null) ? $message['Subject'] : '';
 
                 foreach ($toAddresses as $to) {
-                    if (strcasecmp((string) $to['Address'], $recipient) === 0) {
+                    if (strcasecmp($to['Address'], $recipient) === 0) {
                         if ($subject === null || stripos($messageSubject, $subject) !== false) {
                             return $message;
                         }
@@ -155,11 +184,6 @@ trait EmailTestingTrait
     /**
      * Assert that an email was received
      *
-     * @param string $recipient Email recipient
-     * @param string|null $subject Optional subject to match
-     * @param string $message Assertion failure message
-     * @return void
-     * @throws GuzzleException
      */
     private function assertEmailReceived(string $recipient, ?string $subject = null, string $message = ''): void
     {
@@ -178,11 +202,6 @@ trait EmailTestingTrait
     /**
      * Assert email content contains expected text
      *
-     * @param string $messageId Message ID
-     * @param string $expectedContent Expected content
-     * @param string $message Assertion failure message
-     * @return void
-     * @throws GuzzleException
      */
     private function assertEmailContent(string $messageId, string $expectedContent, string $message = ''): void
     {
@@ -190,7 +209,9 @@ trait EmailTestingTrait
 
         $this->assertNotNull($email, 'Email message not found');
 
-        $body = $email['Text'] ?? $email['HTML'] ?? '';
+        $text = is_string($email['Text'] ?? null) ? $email['Text'] : '';
+        $html = is_string($email['HTML'] ?? null) ? $email['HTML'] : '';
+        $body = $text !== '' ? $text : $html;
 
         if ($message === '') {
             $message = "Email content does not contain expected text: {$expectedContent}";
@@ -202,19 +223,18 @@ trait EmailTestingTrait
     /**
      * Get the latest email sent to a recipient
      *
-     * @param string $recipient Email recipient
-     * @return array|null
-     * @throws GuzzleException
+     * @return array<string, mixed>|null
      */
     private function getLatestEmailForRecipient(string $recipient): ?array
     {
         $messages = $this->getMailpitMessages();
 
         foreach ($messages as $message) {
+            /** @var list<array{Address: string}> $toAddresses */
             $toAddresses = $message['To'] ?? [];
 
             foreach ($toAddresses as $to) {
-                if (strcasecmp((string) $to['Address'], $recipient) === 0) {
+                if (strcasecmp($to['Address'], $recipient) === 0) {
                     return $message;
                 }
             }
@@ -226,8 +246,6 @@ trait EmailTestingTrait
     /**
      * Count messages in Mailpit
      *
-     * @return int
-     * @throws GuzzleException
      */
     private function getMailpitMessageCount(): int
     {
@@ -236,8 +254,9 @@ trait EmailTestingTrait
         }
 
         $response = $this->httpClient->get("/api/v1/messages");
-        $data = json_decode($response->getBody()->getContents(), true);
+        $data = $this->decodeJsonBody($response->getBody()->getContents());
 
-        return $data['total'] ?? 0;
+        $total = $data['total'] ?? 0;
+        return is_int($total) ? $total : 0;
     }
 }

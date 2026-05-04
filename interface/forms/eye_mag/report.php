@@ -128,6 +128,9 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
                     forms.pid=? ";
     $objQuery = sqlQuery($query, [$encounter,$pid]);
     @extract($objQuery);
+    // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
+    $encounter_date ??= null;
+    // End column defaults.
 
     $dated = new DateTime($encounter_date);
     $dated = $dated->format('Y/m/d');
@@ -183,6 +186,7 @@ function left_overs(): void
   /*
   * Keep: this could be co-opted to export an XML/HL7 type of document
   */
+    global $table_name, $id;
     $count = 0;
     $data = formFetch($table_name, $id);
 
@@ -235,6 +239,71 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
     $encounter_data = sqlQuery($query, [$encounter, $pid]);
     @extract($encounter_data);
+    // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
+    $ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null; $ACT10SCNEAR ??= null;
+    $ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null; $ACT11SCNEAR ??= null;
+    $ACT1CCDIST ??= null; $ACT1CCNEAR ??= null; $ACT1SCDIST ??= null; $ACT1SCNEAR ??= null; $ACT2CCDIST ??= null;
+    $ACT2CCNEAR ??= null; $ACT2SCDIST ??= null; $ACT2SCNEAR ??= null; $ACT3CCDIST ??= null; $ACT3CCNEAR ??= null;
+    $ACT3SCDIST ??= null; $ACT3SCNEAR ??= null; $ACT4CCDIST ??= null; $ACT4CCNEAR ??= null; $ACT4SCDIST ??= null;
+    $ACT4SCNEAR ??= null; $ACT5CCDIST ??= null; $ACT5CCNEAR ??= null; $ACT5SCDIST ??= null; $ACT5SCNEAR ??= null;
+    $ACT6CCDIST ??= null; $ACT6CCNEAR ??= null; $ACT6SCDIST ??= null; $ACT6SCNEAR ??= null; $ACT7CCDIST ??= null;
+    $ACT7CCNEAR ??= null; $ACT7SCDIST ??= null; $ACT7SCNEAR ??= null; $ACT8CCDIST ??= null; $ACT8CCNEAR ??= null;
+    $ACT8SCDIST ??= null; $ACT8SCNEAR ??= null; $ACT9CCDIST ??= null; $ACT9CCNEAR ??= null; $ACT9SCDIST ??= null;
+    $ACT9SCNEAR ??= null; $AMSLEROD ??= null; $AMSLEROS ??= null; $ANTSEG_COMMENTS ??= null; $ARNEARODVA ??= null;
+    $ARNEAROSVA ??= null; $ARODADD ??= null; $ARODAXIS ??= null; $ARODCYL ??= null; $ARODPRISM ??= null;
+    $ARODSPH ??= null; $ARODVA ??= null; $AROSADD ??= null; $AROSAXIS ??= null; $AROSCYL ??= null;
+    $AROSPRISM ??= null; $AROSSPH ??= null; $AROSVA ??= null; $ASSOCIATED1 ??= null; $ASSOCIATED2 ??= null;
+    $ASSOCIATED3 ??= null; $CACCDIST ??= null; $CACCNEAR ??= null; $CC1 ??= null; $CC2 ??= null; $CC3 ??= null;
+    $CHRONIC1 ??= null; $CHRONIC2 ??= null; $CHRONIC3 ??= null; $CONTEXT1 ??= null; $CONTEXT2 ??= null;
+    $CONTEXT3 ??= null; $CONTRASTODVA ??= null; $CONTRASTOSVA ??= null; $CRCOMMENTS ??= null;
+    $CRNEARODVA ??= null; $CRNEAROSVA ??= null; $CRODADD ??= null; $CRODAXIS ??= null; $CRODCYL ??= null;
+    $CRODPRISM ??= null; $CRODSPH ??= null; $CRODVA ??= null; $CROSADD ??= null; $CROSAXIS ??= null;
+    $CROSCYL ??= null; $CROSPRISM ??= null; $CROSSPH ??= null; $CROSVA ??= null; $CTLBRANDOD ??= null;
+    $CTLBRANDOS ??= null; $CTLMANUFACTUREROD ??= null; $CTLMANUFACTUREROS ??= null; $CTLODADD ??= null;
+    $CTLODAXIS ??= null; $CTLODBC ??= null; $CTLODCYL ??= null; $CTLODDIAM ??= null; $CTLODSPH ??= null;
+    $CTLODVA ??= null; $CTLOSADD ??= null; $CTLOSAXIS ??= null; $CTLOSBC ??= null; $CTLOSCYL ??= null;
+    $CTLOSDIAM ??= null; $CTLOSSPH ??= null; $CTLOSVA ??= null; $CTLSUPPLIEROD ??= null; $CTLSUPPLIEROS ??= null;
+    $DACCDIST ??= null; $DACCNEAR ??= null; $DIL_MEDS ??= null; $DIMODPUPILSIZE1 ??= null;
+    $DIMODPUPILSIZE2 ??= null; $DIMOSPUPILSIZE1 ??= null; $DIMOSPUPILSIZE2 ??= null; $DURATION1 ??= null;
+    $DURATION2 ??= null; $DURATION3 ??= null; $EXT_COMMENTS ??= null; $GLAREODVA ??= null; $GLAREOSVA ??= null;
+    $HERTELBASE ??= null; $HPI1 ??= null; $HPI2 ??= null; $HPI3 ??= null; $IOPTIME ??= null; $LADNEXA ??= null;
+    $LBROW ??= null; $LCAROTID ??= null; $LCNV ??= null; $LCNVII ??= null; $LIODVA ??= null; $LIOSVA ??= null;
+    $LLF ??= null; $LLL ??= null; $LMCT ??= null; $LMRD ??= null; $LOCATION1 ??= null; $LOCATION2 ??= null;
+    $LOCATION3 ??= null; $LTEMPART ??= null; $LUL ??= null; $LVFISSURE ??= null; $MODIFY1 ??= null;
+    $MODIFY2 ??= null; $MODIFY3 ??= null; $MOTILITYNORMAL ??= null; $MOTILITY_L0 ??= null; $MOTILITY_LI ??= null;
+    $MOTILITY_LL ??= null; $MOTILITY_LLIO ??= null; $MOTILITY_LLSO ??= null; $MOTILITY_LR ??= null;
+    $MOTILITY_LRSO ??= null; $MOTILITY_LS ??= null; $MOTILITY_R0 ??= null; $MOTILITY_RI ??= null;
+    $MOTILITY_RL ??= null; $MOTILITY_RLIO ??= null; $MOTILITY_RLSO ??= null; $MOTILITY_RR ??= null;
+    $MOTILITY_RRIO ??= null; $MOTILITY_RRSO ??= null; $MOTILITY_RS ??= null; $MRNEARODVA ??= null;
+    $MRNEAROSVA ??= null; $MRODADD ??= null; $MRODAXIS ??= null; $MRODCYL ??= null; $MRODPRISM ??= null;
+    $MRODSPH ??= null; $MRODVA ??= null; $MROSADD ??= null; $MROSAXIS ??= null; $MROSCYL ??= null;
+    $MROSPRISM ??= null; $MROSSPH ??= null; $MROSVA ??= null; $NEURO_COMMENTS ??= null; $NPC ??= null;
+    $ODAC ??= null; $ODACD ??= null; $ODAPD ??= null; $ODAXIALLENGTH ??= null; $ODCMT ??= null; $ODCOINS ??= null;
+    $ODCOLOR ??= null; $ODCONJ ??= null; $ODCORNEA ??= null; $ODCUP ??= null; $ODDISC ??= null; $ODECL ??= null;
+    $ODGONIO ??= null; $ODHERTEL ??= null; $ODIOPAP ??= null; $ODIOPFTN ??= null; $ODIOPTPN ??= null;
+    $ODIRIS ??= null; $ODK1 ??= null; $ODK2 ??= null; $ODK2AXIS ??= null; $ODKTHICKNESS ??= null;
+    $ODLENS ??= null; $ODLT ??= null; $ODMACULA ??= null; $ODNEARVA_1 ??= null; $ODNPA ??= null; $ODNPC ??= null;
+    $ODPDMeasured ??= null; $ODPERIPH ??= null; $ODPUPILREACTIVITY ??= null; $ODPUPILSIZE1 ??= null;
+    $ODPUPILSIZE2 ??= null; $ODREDDESAT ??= null; $ODSCHIRMER1 ??= null; $ODSCHIRMER2 ??= null; $ODTBUT ??= null;
+    $ODVA_1 ??= null; $ODVESSELS ??= null; $ODVF ??= null; $ODVF1 ??= null; $ODVF2 ??= null; $ODVF3 ??= null;
+    $ODVF4 ??= null; $ODVITREOUS ??= null; $ODW2W ??= null; $OSAC ??= null; $OSACD ??= null; $OSAPD ??= null;
+    $OSAXIALLENGTH ??= null; $OSCMT ??= null; $OSCOINS ??= null; $OSCOLOR ??= null; $OSCONJ ??= null;
+    $OSCORNEA ??= null; $OSCUP ??= null; $OSDISC ??= null; $OSECL ??= null; $OSGONIO ??= null; $OSHERTEL ??= null;
+    $OSIOPAP ??= null; $OSIOPFTN ??= null; $OSIOPTPN ??= null; $OSIRIS ??= null; $OSK1 ??= null; $OSK2 ??= null;
+    $OSK2AXIS ??= null; $OSKTHICKNESS ??= null; $OSLENS ??= null; $OSLT ??= null; $OSMACULA ??= null;
+    $OSNEARVA_1 ??= null; $OSNPA ??= null; $OSNPC ??= null; $OSPDMeasured ??= null; $OSPERIPH ??= null;
+    $OSPUPILREACTIVITY ??= null; $OSPUPILSIZE1 ??= null; $OSPUPILSIZE2 ??= null; $OSREDDESAT ??= null;
+    $OSSCHIRMER1 ??= null; $OSSCHIRMER2 ??= null; $OSTBUT ??= null; $OSVA_1 ??= null; $OSVESSELS ??= null;
+    $OSVF ??= null; $OSVF1 ??= null; $OSVF2 ??= null; $OSVF3 ??= null; $OSVF4 ??= null; $OSVITREOUS ??= null;
+    $OSW2W ??= null; $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null; $PHOSVA ??= null;
+    $PUPIL_COMMENTS ??= null; $PUPIL_NORMAL ??= null; $QUALITY1 ??= null; $QUALITY2 ??= null; $QUALITY3 ??= null;
+    $RADNEXA ??= null; $RBROW ??= null; $RCAROTID ??= null; $RCNV ??= null; $RCNVII ??= null;
+    $RETINA_COMMENTS ??= null; $RLF ??= null; $RLL ??= null; $RMCT ??= null; $RMRD ??= null; $RTEMPART ??= null;
+    $RUL ??= null; $RVFISSURE ??= null; $RX_TYPE ??= null; $SCNEARODVA ??= null; $SCNEAROSVA ??= null;
+    $SCODVA ??= null; $SCOSVA ??= null; $SEVERITY1 ??= null; $SEVERITY2 ??= null; $SEVERITY3 ??= null;
+    $STEREOPSIS ??= null; $TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $VERTFUSAMPS ??= null;
+    $display_Add ??= null; $encounter_date ??= null; $pend ??= null;
+    // End column defaults.
     $providerID = getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
     $dated = new DateTime($encounter_date);
@@ -422,11 +491,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         <span style="font-weight:bold;"><?php echo xlt('Chronic or Inactive Problems'); ?>:</span> <br/>
                                         &nbsp;<?php echo text($CHRONIC1) . "<br />";
                                         if ($CHRONIC2) {
-                                            echo "&nbsp;" . $CHRONIC2 . "<br />";
+                                            echo "&nbsp;" . text($CHRONIC2) . "<br />";
                                         }
 
                                         if ($CHRONIC3) {
-                                            echo "&nbsp;" . $CHRONIC3 . "<br />";
+                                            echo "&nbsp;" . text($CHRONIC3) . "<br />";
                                         }
                                 } ?>
                             </div>
@@ -470,7 +539,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
                                 $tmp_files_remove[] = $from_file_tmp_web_name;
                             } else {
-                                $filetoshow = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                                $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
                                 echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                             }
                         }
@@ -827,7 +896,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         echo "<br /><br />&nbsp;" . xlt('D&V Full OU{{Ductions and Versions full both eyes}}') . "&nbsp;<br /><br />";
                     } else {
                         if ($PDF_OUTPUT) {
-                            $background = "url(" . OEGlobalsBag::getInstance()->get("fileroot") . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
+                            $background = "url(" . OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
                         } else {
                             $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
                         }
@@ -2423,7 +2492,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 } else {
                     $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
                     if (file_exists($signature)) {
-                        echo "<img style='width:50mm;' src='" . OEGlobalsBag::getInstance()->get('web_root') . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
+                        echo "<img style='width:50mm;' src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
                     } else {
                         echo "<br /><br />";
                     }
@@ -2496,14 +2565,14 @@ function display_draw_image($zone, $encounter, $pid): void
             echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
             $tmp_files_remove[] = $from_file_tmp_web_name;
         } else {
-            $filetoshow = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
             echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
         }
     } else {
         //else show base_image
         $filetoshow = "../../forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
         if ($PDF_OUTPUT) {
-            $filetoshow = OEGlobalsBag::getInstance()->get("webroot") . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
         }
 
       // uncomment to show base image, no touch up by user.

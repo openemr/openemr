@@ -15,7 +15,7 @@
 set_time_limit(0);
 
 require_once '../globals.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -59,10 +59,7 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (empty($code_types[$code_type])) {
         die(xlt('Code type not yet defined') . ": '" . text($code_type) . "'");

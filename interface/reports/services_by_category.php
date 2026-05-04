@@ -15,6 +15,8 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 
+/** @var array<string, array<string, mixed>> $code_types */
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
@@ -22,9 +24,7 @@ use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 ?>
@@ -206,6 +206,7 @@ if (!empty($_POST['form_refresh'])) {
             ++$irow;
         }
 
+        $key = '';
         foreach ($code_types as $key => $value) {
             if ($value['id'] == $row['code_type']) {
                 break;

@@ -13,17 +13,21 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
 require_once(__DIR__ . "/../../../library/forms.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+$incdir = OEGlobalsBag::getInstance()->getProjectDir() . "/interface";
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -46,9 +50,7 @@ if (file_exists($deleteform)) {
 $returnurl = 'forms.php';
 
 if (!empty($_POST['confirm'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
@@ -69,7 +71,7 @@ if (!empty($_POST['confirm'])) {
     EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
-    $address = OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/encounter/" . $returnurl;
+    $address = OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/encounter/" . $returnurl;
     echo "\n<script>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }

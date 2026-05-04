@@ -306,6 +306,7 @@ class CcrTable
                     for ($i = 0; $i < count($val); $i++) {
                         if ($val[$i] == 'insert') {
                             if (substr((string) $key, 0, -4) == 'lists1') {
+                                $activity = null;
                                 if ($data['lists1-activity'][$i] == 'Active') {
                                     $activity = 1;
                                 } elseif ($data['lists1-activity'][$i] == 'Inactive') {
@@ -318,6 +319,7 @@ class CcrTable
                                 $query = "INSERT INTO lists (pid, date, type, title, diagnosis, reaction) VALUES (?,?,?,?,?,?)";
                                 QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['lists2-date'][$i], 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')), $data['lists2-type'][$i], $data['lists2-title'][$i], $data['lists2-diagnosis'][$i], $data['lists2-reaction'][$i]]);
                             } elseif (substr((string) $key, 0, -4) == 'prescriptions') {
+                                $active = null;
                                 if ($data['prescriptions-active'][$i] == 'Active') {
                                     $active = 1;
                                 } elseif ($data['prescriptions-active'][$i] == 'Inactive') {
@@ -332,6 +334,7 @@ class CcrTable
                             }
                         } elseif ($val[$i] == 'update') {
                             if (substr((string) $key, 0, -4) == 'lists1') {
+                                $activity = null;
                                 if ($data['lists1-activity'][$i] == 'Active') {
                                     $activity = 1;
                                 } elseif ($data['lists1-activity'][$i] == 'Inactive') {

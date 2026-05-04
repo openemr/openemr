@@ -18,6 +18,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -230,7 +231,7 @@ GET FACILITIES
 returns all facilities or just the id for the first one
 (FACILITY FILTERING (lemonsoftware))
 
-@param string - if 'first' return first facility ordered by id
+@param string $first if 'first' return first facility ordered by id
 @return array | int for 'first' case
 */
 function getFacilities($first = '')
@@ -862,7 +863,7 @@ function getPatientName($pid)
  * would be "John B Doe Jr". No additional punctuation is added. Spaces are
  * correctly omitted if the middle name of suffix does not apply.
  *
- * @var $pid int The Patient ID
+ * @var int $pid The Patient ID
  * @returns string The Full Name
  */
 function getPatientFullNameAsString($pid): string
@@ -1114,51 +1115,12 @@ function newPatientData(
     return $foo['pid'];
 }
 
-// Supported input date formats are:
-//   mm/dd/yyyy
-//   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
-//   yyyy/mm/dd
-//   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
-//
-function fixDate($date, $default = "0000-00-00")
-{
-    $fixed_date = $default;
-    $date = trim((string) $date);
-    if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
-        $dmy = preg_split("'[/.-]'", $date);
-        if ($dmy[0] > 99) {
-            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
-        } else {
-            if ($dmy[0] != 0 || $dmy[1] != 0 || $dmy[2] != 0) {
-                if ($dmy[2] < 1000) {
-                    $dmy[2] += 1900;
-                }
-
-                if ($dmy[2] < 1910) {
-                    $dmy[2] += 100;
-                }
-            }
-            // Determine if MDY date format is used, preferring Date Display Format from
-            // global settings if it's not YMD, otherwise guessing from country code.
-            $using_mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
-                (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
-            if ($using_mdy) {
-                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
-            } else {
-                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[1], $dmy[0]);
-            }
-        }
-    }
-
-    return $fixed_date;
-}
-
 function pdValueOrNull($key, $value)
 {
     if (
         (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
         str_starts_with((string) $key, 'userdate') || $key == 'deceased_date') &&
-        (empty($value) || $value == '0000-00-00')
+        Utilities::isDateEmpty($value)
     ) {
         return "NULL";
     } else {
@@ -1506,8 +1468,8 @@ function dateToDB($date)
  * Get up to 3 insurances (primary, secondary, tertiary) that are effective
  * for the given patient on the given date.
  *
- * @param int     The PID of the patient.
- * @param string  Date in yyyy-mm-dd format.
+ * @param int $patient_id The PID of the patient.
+ * @param string $encdate Date in yyyy-mm-dd format.
  * @return array  Array of 0-3 insurance_data rows.
  */
 function getEffectiveInsurances($patient_id, $encdate)
@@ -1561,9 +1523,9 @@ function getAllinsurances($pid)
  * to insurance.  If you want to include what insurance owes, set the second
  * parameter to true.
  *
- * @param int     The PID of the patient.
- * @param boolean Indicates if amounts owed by insurance are to be included.
- * @param int     Optional encounter id. If value is passed, will fetch only bills from specified encounter.
+ * @param int $pid The PID of the patient.
+ * @param bool $with_insurance Indicates if amounts owed by insurance are to be included.
+ * @param int $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
  * @return number The balance.
  */
 function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false)

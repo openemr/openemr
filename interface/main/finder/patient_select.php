@@ -11,10 +11,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/report_database.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
@@ -22,6 +20,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
+
+$report_id = 0;
+$itemized_test_id = 0;
+$pass_id = "all";
+$numerator_label = '';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
@@ -136,7 +143,7 @@ form {
 
 <script>
 <?php if ($popup) {
-    require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
 } ?>
 </script>
 
@@ -422,7 +429,7 @@ if ($result) {
             text($iter['phone_home']) . "</td>\n";
 
         echo "<td class='srSS'>" . text($iter['ss']) . "</td>";
-        if ($iter["DOB"] != "0000-00-00 00:00:00") {
+        if (!Utilities::isDateEmpty($iter["DOB"])) {
             echo "<td class='srDOB'>" . text(oeFormatShortDate($iter['DOB'])) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";

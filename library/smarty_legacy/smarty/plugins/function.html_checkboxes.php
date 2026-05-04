@@ -34,8 +34,8 @@
  * @author     Christopher Kvarme <christopher.kvarme@flashjab.com>
  * @author credits to Monte Ohrt <monte at ohrt dot com>
  * @version    1.0
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  * @return string
  * @uses smarty_function_escape_special_chars()
  */
@@ -116,12 +116,12 @@ function smarty_function_html_checkboxes($params, &$smarty)
 
     }
 
-    if(!empty($params['assign'])) {
+    if (!empty($params['assign'])) {
         $smarty->assign($params['assign'], $_html_result);
-    } else {
-        return implode("\n",$_html_result);
+        return '';
     }
 
+    return implode("\n", $_html_result);
 }
 
 function smarty_function_html_checkboxes_output($name, $value, $output, $selected, $extra, $separator, $labels) {

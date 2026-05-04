@@ -50,7 +50,7 @@ function edih_upload_reindex(array $_files, $top = true)
 /**
  * select error message in case of $_FILES error
  *
- * @param int
+ * @param int $code
  * @return string
  */
 function edih_upload_err_message($code)
@@ -191,7 +191,7 @@ function edih_ziptoarray($zipfilename, $param_ar, $single = false)
     }
 
     if ($zip_obj->status != 0) {
-        $err .= "Error code: " . text($zip_obj->status) . " " . text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
+        $err = "Error code: " . text($zip_obj->status) . " " . text($zip_obj->getStatusString()) . "<br />" . PHP_EOL;
         csv_edihist_log('edih_ziptoarray: ' . $zipfilename . ' ' . $err);
         $f_zr['reject'][] = ['name' => $zipfilename, 'comment' => $err];
         return $f_zr;
@@ -494,8 +494,8 @@ function edih_upload_files()
  * @uses csv_parameters()
  * @see edih_upload_files()
  * @param array $files_array  files array created by edih_upload_files()
- * @param bool       -- whether to return html output
- * @param bool       -- whether to only report errors (ignored)
+ * @param bool $html_out -- whether to return html output
+ * @param bool $err_only -- whether to only report errors (ignored)
  * @return string    html formatted messages
  */
 function edih_sort_upload($files_array, $html_out = true, $err_only = true)

@@ -139,7 +139,7 @@ class Bootstrap
 
     public function getURLPath()
     {
-        return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
+        return OEGlobalsBag::getInstance()->getWebRoot() . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/";
     }
 
     /**

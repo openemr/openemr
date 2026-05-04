@@ -35,6 +35,9 @@ function smarty_function_pc_url($args): void
     //print "<br />args<br />";
     extract($args);
     unset($args);
+    $link = '';
+    $localpath ??= '';
+    $setdeftime ??= 0;
 
     if (!isset($action)) {
         $action = _SETTING_DEFAULT_VIEW;

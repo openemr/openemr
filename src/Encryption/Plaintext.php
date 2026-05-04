@@ -6,17 +6,17 @@ namespace OpenEMR\Encryption;
 
 use SensitiveParameter;
 
-readonly class Plaintext
+final readonly class Plaintext
 {
     public function __construct(
-        #[SensitiveParameter] public string $wrapped,
+        #[SensitiveParameter] public string $bytes,
     ) {
     }
 
     public function __debugInfo(): array
     {
         return [
-            'wrapped' => '****',
+            'bytes' => '****',
         ];
     }
 }

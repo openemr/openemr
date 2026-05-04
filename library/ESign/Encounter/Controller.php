@@ -16,10 +16,10 @@
 
 namespace ESign;
 
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Abstract/Controller.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Configuration.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Signable.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Encounter/Log.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Abstract/Controller.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Configuration.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Signable.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Encounter/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -73,7 +73,7 @@ class Encounter_Controller extends Abstract_Controller
 
     /**
      *
-     * @return multitype:string
+     * @return string[]
      */
     public function esign_form_submit()
     {

@@ -26,16 +26,16 @@ class UserSettingsService
     public static function effectiveUser($user)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        return (is_null($user) ? $session->get('authUserID') : $user);
+        return ($user ?? $session->get('authUserID'));
     }
 
     /**
      * Return user setting(s) from the 'users' table
      *
      * @param string $label - Setting key
-     * @param int $user - user id number from users table
+     * @param ?int $user - user id number from users table
      * @param int $defaultUser - user id to check as alternative/default
-     * @return Effective user setting for $label (NULL if does not exist)
+     * @return ?string Effective user setting for $label (NULL if it does not exist)
      */
     public static function getUserSetting($label, $user = null, $defaultUser = 0)
     {
@@ -57,7 +57,7 @@ class UserSettingsService
      * @param string $label - Setting key
      * @param string $value - Setting value
      * @param int $user - user id number from users table
-     * @return boolean - true if setting exist and false if does not exist
+     * @return bool - true if setting exist and false if does not exist
      */
     public static function checkUserSetting($label, $value, $user = null)
     {
@@ -78,8 +78,8 @@ class UserSettingsService
      * @param string $label - Setting key
      * @param string $value - Setting value
      * @param int $user - user id number from users table
-     * @param boolean $createDefault - If no current global default value, create one.
-     * @param boolean $overwrite - If this is set to true, then overwrite the current setting
+     * @param bool $createDefault - If no current global default value, create one.
+     * @param bool $overwrite - If this is set to true, then overwrite the current setting
      */
     public static function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)
     {

@@ -14,7 +14,7 @@
  * Purpose:  used by other smarty functions to escape
  *           special chars except for already escaped ones
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
+ * @param mixed $string
  * @return string
  */
 function smarty_function_escape_special_chars($string)

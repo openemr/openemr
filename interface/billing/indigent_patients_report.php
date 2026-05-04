@@ -15,7 +15,6 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -24,6 +23,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Indigent Patients Report", xl("Indigent Patients Report"));
@@ -80,7 +81,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -181,9 +182,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 <?php
 if (!empty($_POST['form_refresh'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $where = "";
     $sqlBindArray = [];

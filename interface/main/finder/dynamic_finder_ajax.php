@@ -17,7 +17,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
@@ -39,6 +39,7 @@ $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['sea
 // Probably could have used a session var here because datatable server url
 // persists not allowing easy way to unset any for normal search but opted not.
 //
+$aColumns = [];
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(
@@ -78,7 +79,7 @@ if (isset($_GET['iSortCol_0'])) {
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
             } else {
-                $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . "` $sSortDir";
+                $orderby .= escape_sql_column_name($aColumns[$iSortCol], ['patient_data']) . " $sSortDir";
             }
         }
     }
@@ -150,13 +151,13 @@ if (isset($_GET['sSearch']) && $_GET['sSearch'] !== "") {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } elseif ($searchAny) {
-            $where .= " `" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ?"; // any search
+            $where .= " " . escape_sql_column_name($colname, ['patient_data']) . " LIKE ?"; // any search
             array_push($srch_bind, ('%' . $sSearch . '%'));
         } else {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -186,13 +187,13 @@ for ($i = 0; $i < count($aColumns); ++$i) {
                 array_push($srch_bind, ($sSearch . "%"), ($sSearch . "%"), ($sSearch . "%"));
             }
         } elseif ($colname == 'DOB') {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, dateSearch($sSearch));
         } elseif ($searchMethodInPatientList) { // exact search
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, $sSearch);
         } else {
-            $where .= "`" . escape_sql_column_name($colname, ['patient_data']) . "` LIKE ? ";
+            $where .= escape_sql_column_name($colname, ['patient_data']) . " LIKE ? ";
             array_push($srch_bind, ($sSearch . '%'));
         }
     }
@@ -223,7 +224,7 @@ foreach ($aColumns as $colname) {
     if ($colname == 'name') {
         $sellist .= "lname, fname, mname";
     } else {
-        $sellist .= "`" . escape_sql_column_name($colname, ['patient_data']) . "`";
+        $sellist .= escape_sql_column_name($colname, ['patient_data']);
     }
 }
 

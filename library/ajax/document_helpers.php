@@ -19,10 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-//verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $req = [
     'term' => (isset($_GET["term"]) ? filter_input(INPUT_GET, 'term') : ''),

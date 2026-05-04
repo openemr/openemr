@@ -28,9 +28,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 # Get the information for fields
@@ -57,9 +55,7 @@ $theroom = '';
 
 <?php
 if (!empty($_POST['statustype'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $status = $_POST['statustype'];
     if (strlen((string) $_POST['roomnum']) != 0) {

@@ -141,8 +141,10 @@ class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements I
         if (!empty($dataRecordReport['results'])) {
             foreach ($dataRecordReport['results'] as $result) {
                 $obsReference = UtilsService::createRelativeReference("Observation", $result['uuid']);
-                if (!empty($result['text'])) {
-                    $obsReference->setDisplay(xlt($result['text']));
+                $resultText = is_string($result['text'] ?? null) ? $result['text'] : '';
+                if ($resultText !== '') {
+                    // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                    $obsReference->setDisplay(xl($resultText));
                 }
                 $report->addResult($obsReference);
             }

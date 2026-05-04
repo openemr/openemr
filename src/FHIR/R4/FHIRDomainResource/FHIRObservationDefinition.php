@@ -566,7 +566,7 @@ class FHIRObservationDefinition extends FHIRDomainResource implements \JsonSeria
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

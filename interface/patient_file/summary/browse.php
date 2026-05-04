@@ -15,9 +15,11 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -26,15 +28,14 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //the maximum number of patient records to display:
 $M = 100;
 
 $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
+$tback = '';
 ?>
 <html>
 <head>
@@ -48,7 +49,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
                         <?php $datetimepicker_formatInput = true; ?>
-                        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                     });
                 } else {
@@ -322,7 +323,7 @@ function auto_populate_employer_address(){
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["ss"]) . "</a></td>";
-            if ($iter["DOB"] != "0000-00-00 00:00:00") {
+            if (!Utilities::isDateEmpty($iter["DOB"])) {
                 print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
@@ -357,7 +358,7 @@ function auto_populate_employer_address(){
                     attr_url($browsenum) . "&set_pid=" .
                     attr_url($iter["pid"]) . "'>" .
                     text($iter["ss"]) . "</a></td>";
-            if ($iter["DOB"] != "0000-00-00 00:00:00") {
+            if (!Utilities::isDateEmpty($iter["DOB"])) {
                 print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
@@ -392,7 +393,7 @@ function auto_populate_employer_address(){
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text($iter["ss"]) . "</a></td>";
-            if ($iter["DOB"] != "0000-00-00 00:00:00") {
+            if (!Utilities::isDateEmpty($iter["DOB"])) {
                 print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter["pid"]) . "'>" .
@@ -427,7 +428,7 @@ function auto_populate_employer_address(){
                         attr_url($browsenum) . "&set_pid=" .
                         attr_url($iter["pid"]) . "'>" .
                         text($iter["ss"]) . "</a></td>";
-            if ($iter["DOB"] != "0000-00-00 00:00:00") {
+            if (!Utilities::isDateEmpty($iter["DOB"])) {
                 print "<td><a class='text' target='_top' href='browse.php?browsenum=" .
                 attr_url($browsenum) . "&set_pid=" .
                 attr_url($iter["pid"]) . "'>" .

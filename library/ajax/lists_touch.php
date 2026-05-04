@@ -18,9 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //  IF there is a pid and type then will set the entry in lists_touch table
 if (!(empty($_POST['patient_id'])) && !(empty($_POST['type']))) {

@@ -14,7 +14,9 @@
  */
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
+
+/** @var array<string,array<string,mixed>> $code_types */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -67,10 +69,7 @@ function applyCode($layoutid, $codetype, $code, $description): void
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $thecodes = [];
     $tmp_name = $_FILES['form_file']['tmp_name'];
@@ -88,6 +87,7 @@ if (!empty($_POST['bn_upload'])) {
       //
         while (!feof($fhcsv)) {
             $codecount = 0;
+            $tmp = '';
             $acsv = fgetcsv($fhcsv, 1024);
             if (count($acsv) < 3) {
                 continue;
@@ -124,7 +124,7 @@ if (!empty($_POST['bn_upload'])) {
                 echo "<p style='color:red'>" . xlt('No matches for') . " '" . text($tmp) . "'.</p>\n";
             }
         } // end while
-        fclose($eres);
+        fclose($fhcsv);
 
       // Now zap the found service codes into the parameters for each layout.
         foreach ($thecodes as $layoutid => $arr) {

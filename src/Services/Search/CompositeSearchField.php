@@ -29,7 +29,7 @@ class CompositeSearchField implements ISearchField, \Stringable
     private $children;
 
     /**
-     * @var boolean Whether the composite fields should be treated as a logical AND (intersection)
+     * @var bool Whether the composite fields should be treated as a logical AND (intersection)
      * or a logical OR (UNION)
      */
     private $isAnd;

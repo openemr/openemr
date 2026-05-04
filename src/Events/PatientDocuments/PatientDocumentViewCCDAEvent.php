@@ -56,7 +56,7 @@ class PatientDocumentViewCCDAEvent extends Event
     private $format;
 
     /**
-     * @var boolean True if the ccda should ignore the user preferences (trimming, sort order, etc).  Default false
+     * @var bool True if the ccda should ignore the user preferences (trimming, sort order, etc). Default false
      */
     private $ignoreUserPreferences;
 

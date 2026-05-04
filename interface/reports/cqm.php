@@ -17,9 +17,9 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/clinical_rules.php";
-require_once "$srcdir/report_database.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php";
 
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -37,9 +37,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $amc_report_types = CertificationReportTypes::getReportTypeRecords();

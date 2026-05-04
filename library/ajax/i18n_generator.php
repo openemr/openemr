@@ -18,9 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
         JOIN lang_constants AS c ON d.cons_id = c.cons_id

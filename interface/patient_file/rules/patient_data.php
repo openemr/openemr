@@ -11,11 +11,12 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -68,7 +69,7 @@ $(function () {
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = true; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 
@@ -88,11 +89,8 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit();
 }
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_complete'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Save that form as a row in rule_patient_data table
     //  and then close the window/module.

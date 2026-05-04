@@ -21,35 +21,21 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CcdController extends AbstractActionController
 {
-    /**
-     * @var \Carecoordination\Model\CcdTable
-     */
-    protected $ccdTable;
-
-    protected $carecoordinationTable;
-
-    protected $documentsTable;
-
-    protected $listenerObject;
-    /**
-     * @var Documents\Controller\DocumentsController
-     */
-    private $documentsController;
+    protected Listener $listenerObject;
 
     public function __construct(
-        CcdTable $ccdTable,
-        CarecoordinationTable $carecoordinationTable,
-        DocumentsTable $documentsTable,
-        DocumentsController $documentsController
+        protected CcdTable $ccdTable,
+        protected CarecoordinationTable $carecoordinationTable,
+        protected DocumentsTable $documentsTable,
+        private readonly DocumentsController $documentsController
     ) {
 
         $this->listenerObject = new Listener();
-        $this->ccdTable = $ccdTable;
-        $this->carecoordinationTable = $carecoordinationTable;
-        $this->documentsTable = $documentsTable;
-        $this->documentsController = $documentsController;
     }
 
     /*
@@ -79,7 +65,7 @@ class CcdController extends AbstractActionController
                 if ($row['doc_type'] == 'CCD') {
                     $_REQUEST["document_id"] = $row['doc_id'];
                     $this->importAction();
-                    $this->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
+                    $this->documentsController->getDocumentsTable()->updateDocumentCategoryUsingCatname($row['doc_type'], $row['doc_id']);
                 }
             }
         }
@@ -115,7 +101,7 @@ class CcdController extends AbstractActionController
         $xml_content                      =    $this->getCarecoordinationTable()->getDocument($document_id);
 
         $xmltoarray                       =    new \Laminas\Config\Reader\Xml();
-        $array                            =    $xmltoarray->fromString((string) $xml_content);
+        $array                            =    $xmltoarray->fromString($xml_content);
 
         $this->getCcdTable()->import($array, $document_id);
 
@@ -132,16 +118,12 @@ class CcdController extends AbstractActionController
     {
         return $this->ccdTable;
     }
-    /**
-     * Table gateway
-     * @return object
-     */
-    public function getCarecoordinationTable()
+    public function getCarecoordinationTable(): CarecoordinationTable
     {
         return $this->carecoordinationTable;
     }
 
-    public function getDocumentsTable()
+    public function getDocumentsTable(): DocumentsTable
     {
         return $this->documentsTable;
     }

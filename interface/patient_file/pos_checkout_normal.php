@@ -49,7 +49,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -63,7 +66,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Patient Checkout", xl("Patient Checkout"));
@@ -198,7 +200,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script>
 
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
@@ -581,9 +583,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
     // If the Save button was clicked...
     //
     if (!empty($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
       // On a save, do the following:
       // Flag drug_sales and billing items as billed.
@@ -673,6 +673,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
 
       // Post discount.
         if ($_POST['form_discount']) {
+            $amount = '0.00';
             if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
                 $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {
@@ -812,7 +813,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <script>
             var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
             // This clears the tax line items in preparation for recomputing taxes.
             function clearTax(visible) {
@@ -927,7 +928,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                    <?php $datetimepicker_timepicker = false; ?>
                    <?php $datetimepicker_showseconds = false; ?>
                    <?php $datetimepicker_formatInput = false; ?>
-                   <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                   <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -1048,7 +1049,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                                 if ($codetype !== 'IPPF') {
                                                     continue;
                                                 }
-                                                if (preg_match('/^25222/', $code)) {
+                                                if (str_starts_with($code, '25222')) {
                                                     $gcac_related_visit = true;
                                                     if (preg_match('/^25222[34]/', $code)) {
                                                         $gcac_service_provided = true;

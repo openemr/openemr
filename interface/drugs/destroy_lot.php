@@ -56,7 +56,7 @@ if (!$lot_id) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -79,9 +79,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     sqlStatement(
         "UPDATE drug_inventory SET " .
@@ -104,7 +102,7 @@ if ($_POST['form_save']) {
   //
     echo "<script>\n";
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
     echo " window.close();\n";

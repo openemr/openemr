@@ -13,15 +13,18 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once("$srcdir/pid.inc.php");
-require_once("$srcdir/encounter.inc.php");
-require_once("$srcdir/forms.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/pid.inc.php");
+require_once($srcdir . "/encounter.inc.php");
+require_once($srcdir . "/forms.inc.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Tabs\TabsWrapper;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
 
 if (isset($_GET["set_encounter"])) {
     // The billing page might also be setting a new pid.

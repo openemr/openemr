@@ -61,9 +61,10 @@ function smarty_core_run_insert_handler($params, &$smarty)
 
         if (!empty($params['args']["assign"])) {
             $smarty->assign($params['args']["assign"], $_content);
-        } else {
-            return $_content;
+            return '';
         }
+
+        return $_content;
     }
 }
 

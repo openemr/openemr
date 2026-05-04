@@ -76,6 +76,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
 
         if (is_null($drug_test_done['random_drug_test'])) {
             # get a count of the number of times the patient has been screened.
+            $drug_test_count = ['COUNT(*)' => 0];
             if ($yearly_limit > 0) {
                 # check to see if screens are within the current year.
                 $lastyear = date("Y-m-d", strtotime("-1 year", strtotime(date("Y-m-d H:i:s"))));

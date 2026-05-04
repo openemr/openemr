@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot assign offset \'Claim_ct\' to array\\<string, mixed\\>\\|string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot assign offset \'Date\' to array\\<string, mixed\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
@@ -63,12 +58,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset mixed to array\\<array\\<string, mixed\\>\\>\\|string\\.$#',
-    'count' => 14,
+    'count' => 15,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset mixed to array\\<int\\<0, max\\>, array\\<string, mixed\\>\\>\\|string\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [

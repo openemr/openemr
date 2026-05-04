@@ -57,6 +57,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'rows\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'medication_adherence\' on non\\-empty\\-array in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',

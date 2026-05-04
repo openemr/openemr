@@ -51,25 +51,16 @@ jobs:
       run: |
         vendor/bin/phpunit -c phpunit-isolated.xml \
                            --coverage-clover=clover.xml \
-                           --log-junit=junit.xml \
-                           --testdox
+                           --log-junit=junit.xml
 
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
-        flags: isolated,php${{ matrix.php-version }}
+        flags: isolated-php${{ matrix.php-version }}
         report_type: test_results
-
-    - name: Hide test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
-      run: mv junit.xml junit.saved-test-data
-
-    - name: Unhide test results for GitHub upload
-      if: ${{ !cancelled() && hashFiles('junit.saved-test-data') != '' }}
-      run: mv junit.saved-test-data junit.xml
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() }}
@@ -86,8 +77,8 @@ jobs:
 
     - name: Upload coverage reports to Codecov
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
-        flags: isolated,php${{ matrix.php-version }}
+        flags: isolated-php${{ matrix.php-version }}

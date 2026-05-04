@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -250,13 +251,13 @@ function getRemindersHTML($today, $reminders = []): string
         // end check if reminder is due or overdue
         // append to html string
         $pdHTML .= '<p id="p_' . attr($r['messageID']) . '">
-            <a onclick="openAddScreen(' . attr(addslashes((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
-            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . "'" . attr(addslashes((string) $r['messageID'])) . "'" . ')" id="' . attr($r['messageID']) . '" href="#">
+            <a onclick="openAddScreen(' . attr(js_escape((string) $r['messageID'])) . ')" class="dnForwarder btn btn-secondary btn-send-msg" id="' . attr($r['messageID']) . '" href="#"> ' . xlt('Forward') . ' </a>
+            <a class="dnRemover btn btn-secondary btn-save" onclick="updateme(' . attr(js_escape((string) $r['messageID'])) . ')" id="' . attr($r['messageID']) . '" href="#">
             <span>' . xlt('Set As Completed') . '</span>
             </a>
             <span title="' . ($r['PatientID'] > 0 ? xla('Click Patient Name to Open Patient File') : '') . '" class="' . attr($class) . '">' .
             $warning . '
-            <span onclick="goPid(' . attr(addslashes((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
+            <span onclick="goPid(' . attr(js_escape((string) $r['PatientID'])) . ')" class="patLink" id="' . attr($r['PatientID']) . '">' .
             text($r['PatientName']) . '
             </span> ' .
             text($r['message']) . ' - [' . text($r['fromName']) . ']
@@ -511,7 +512,7 @@ function logRemindersArray(): array
         $reminders[$i]['messageID'] = $drRow['dr_id'];
         $reminders[$i]['PatientID'] = $drRow['pid'];
 
-        $reminders[$i]['pDate'] = ($drRow['processedDate'] == '0000-00-00 00:00:00' ? 'N/A' : $drRow['processedDate']);
+        $reminders[$i]['pDate'] = (Utilities::isDateEmpty($drRow['processedDate']) ? 'N/A' : $drRow['processedDate']);
         $reminders[$i]['sDate'] = $drRow['sDate'];
         $reminders[$i]['dDate'] = $drRow['dDate'];
 

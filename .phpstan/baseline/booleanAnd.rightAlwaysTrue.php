@@ -24,6 +24,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Right side of && is always true\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/stats.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Right side of && is always true\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/encounters_report.php',
 ];
 $ignoreErrors[] = [

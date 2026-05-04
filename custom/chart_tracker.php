@@ -83,9 +83,7 @@ function userSelect() {
 // This is the place for status messages.
 
 if ($form_newloc || $form_newuser) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     sqlStatement("INSERT INTO `chart_tracker` (`ct_pid`, `ct_when`, `ct_userid`, `ct_location`) VALUES (?, NOW(), ?, ?)", [$form_curpid, $form_newuser, $form_newloc]);
     echo "<div class='alert alert-success'>" . xlt('Save Successful for chart ID') . " " . "'" . text($form_curid) . "'.</div>";
 }
@@ -93,9 +91,7 @@ if ($form_newloc || $form_newuser) {
 $row = [];
 
 if ($form_newid) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Find out where the chart is now.
     $query = "SELECT pd.pid, pd.pubpid, pd.fname, pd.mname, pd.lname, " .

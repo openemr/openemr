@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Calendar\DayOfWeek;
+use OpenEMR\Common\Calendar\Month;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
@@ -26,28 +28,11 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
 
     // name the day of the week for different languages
     $day = (int) date("w", $strtime); // 0 sunday -> 6 saturday
-
-    static $days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    $dow = xl($days[$day]);
+    $dow = DayOfWeek::from($day)->label();
 
     // name of the month in different languages
     $month = (int) date('m', $strtime);
-
-    static $months = [
-        1 => 'January',
-        2 => 'February',
-        3 => 'March',
-        4 => 'April',
-        5 => 'May',
-        6 => 'June',
-        7 => 'July',
-        8 => 'August',
-        9 => 'September',
-        10 => 'October',
-        11 => 'November',
-        12 => 'December',
-    ];
-    $nom = xl($months[$month]);
+    $nom = Month::from($month)->label();
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Date string format

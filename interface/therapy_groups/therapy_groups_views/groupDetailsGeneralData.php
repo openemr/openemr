@@ -16,8 +16,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
+
+/** @var array<string,mixed> $groupData */
+/** @var string $readonly */
+/** @var string $savingStatus */
+/** @var string $message */
+/** @var array<int,array<string,mixed>> $statuses */
 
 ?>
 
@@ -37,8 +44,8 @@ use OpenEMR\Core\OEGlobalsBag;
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li class="current"><a href="<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('General data');?></a></li>
-                            <li><a href="<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('Participants ');?></a></li>
+                            <li class="current"><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('General data');?></a></li>
+                            <li><a href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
@@ -47,10 +54,10 @@ use OpenEMR\Core\OEGlobalsBag;
                                 <button class="btn btn-primary" onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php } ?>
                             <?php if ($readonly == '') { ?>
-                            <button class="btn btn-secondary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button class="btn btn-secondary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
                             <button class="btn btn-primary" id="saveUpdates"><?php echo xlt('Save');?></button>
                         <?php } else { ?>
-                            <button class="btn btn-primary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
+                            <button class="btn btn-primary" onclick="location.href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php } ?>
                       <?php }?>
                     </div>
@@ -128,7 +135,7 @@ use OpenEMR\Core\OEGlobalsBag;
                                                 <span class="font-weight-bold"><?php echo xlt('Ending date'); ?>:</span>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" name="group_end_date" class="form-control datepicker" value="<?php echo $groupData['group_end_date'] == '0000-00-00' ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?> />
+                                                <input type="text" name="group_end_date" class="form-control datepicker" value="<?php echo Utilities::isDateEmpty($groupData['group_end_date']) ? '' : attr(oeFormatShortDate($groupData['group_end_date'])) ;?>" <?php echo $readonly; ?> />
                                             </div>
                                         </div>
                                     </div>
@@ -206,7 +213,7 @@ use OpenEMR\Core\OEGlobalsBag;
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -221,7 +228,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
     function refreshme() {
         top.restoreSession();
-        location.href = <?php echo js_escape(OEGlobalsBag::getInstance()->get('webroot')); ?> + '/interface/therapy_groups/index.php?method=groupDetails&group_id=' + <?php echo js_url($groupId); ?>;
+        location.href = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?> + '/interface/therapy_groups/index.php?method=groupDetails&group_id=' + <?php echo js_url($groupId); ?>;
     }
 
     function newGroup(){

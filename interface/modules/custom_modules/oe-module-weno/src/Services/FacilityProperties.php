@@ -33,10 +33,7 @@ class FacilityProperties
         return $facilities_list;
     }
 
-    /**
-     * @return
-     */
-    public function updateFacilityNumber()
+    public function updateFacilityNumber(): void
     {
         $locations = $this->facilityupdates;
         foreach ($locations as $location) {

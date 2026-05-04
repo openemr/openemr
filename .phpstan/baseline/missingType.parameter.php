@@ -637,67 +637,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixCPT\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixCPT\\(\\) has parameter \\$mod with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixDate\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixEStatus\\(\\) has parameter \\$employer with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixJust\\(\\) has parameter \\$str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMI\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMStatus\\(\\) has parameter \\$status with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixRelation\\(\\) has parameter \\$rel with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSSN\\(\\) has parameter \\$ssn with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSex\\(\\) has parameter \\$sex with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixString\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_code_set_filters\\(\\) has parameter \\$filters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function main_code_set_search\\(\\) has parameter \\$form_code_type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
@@ -1257,26 +1197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Profiler\\:\\:startTimer\\(\\) has parameter \\$desc with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/profiler.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntryBatchcom\\(\\) has parameter \\$prow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_age\\(\\) has parameter \\$age with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/batchcom/batchcom.inc.php',
@@ -1340,51 +1260,6 @@ $ignoreErrors[] = [
     'message' => '#^Function unique_by_key\\(\\) has parameter \\$source with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edi_270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$PaymentType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$class with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$currvalue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$empty_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$list_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$onchange with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$screen with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$tag_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function generate_list_payment_category\\(\\) has parameter \\$title with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/payment_master.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function SavePatientAudit\\(\\) has parameter \\$invs with no type specified\\.$#',
@@ -1550,16 +1425,6 @@ $ignoreErrors[] = [
     'message' => '#^Function ub04Dispose\\(\\) has parameter \\$htmlin with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function get_codes_list\\(\\) has parameter \\$group with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/ub04_helpers.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function get_codes_list\\(\\) has parameter \\$term with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/ub04_helpers.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function lookup_codes\\(\\) has parameter \\$group with no type specified\\.$#',
@@ -2487,156 +2352,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function addAppt\\(\\) has parameter \\$days with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addAppt\\(\\) has parameter \\$time with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addBilling2\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addBilling2\\(\\) has parameter \\$code_text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addBilling2\\(\\) has parameter \\$code_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addBilling2\\(\\) has parameter \\$encounter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addBilling2\\(\\) has parameter \\$justify with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addVitals\\(\\) has parameter \\$diastolic with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addVitals\\(\\) has parameter \\$height with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addVitals\\(\\) has parameter \\$pulse with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addVitals\\(\\) has parameter \\$systolic with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addVitals\\(\\) has parameter \\$temp with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function addVitals\\(\\) has parameter \\$weight with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function content_parser\\(\\) has parameter \\$input with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function patient_age\\(\\) has parameter \\$birthday with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function patient_age\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function process_commands\\(\\) has parameter \\$camos_return_data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function process_commands\\(\\) has parameter \\$string_to_process with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function remove_comments\\(\\) has parameter \\$string_to_process with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function replace\\(\\) has parameter \\$content with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function replace\\(\\) has parameter \\$enc with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function replace\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/content_parser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getMyPatientData\\(\\) has parameter \\$form_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getMyPatientData\\(\\) has parameter \\$show_phone_flag with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function searchName\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function formatVitals\\(\\) has parameter \\$raw with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormData\\(\\) has parameter \\$end_date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormData\\(\\) has parameter \\$fname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormData\\(\\) has parameter \\$lname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFormData\\(\\) has parameter \\$start_date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function CAMOS_report\\(\\) has parameter \\$cols with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/CAMOS/report.php',
@@ -2927,21 +2642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function display_PMSFH\\(\\) has parameter \\$min_height with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function display_PMSFH\\(\\) has parameter \\$rows with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function display_PMSFH\\(\\) has parameter \\$view with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function display_PRIOR_section\\(\\) has parameter \\$id_to_show with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -3023,11 +2723,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function priors_select\\(\\) has parameter \\$orig_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function send_json_values\\(\\) has parameter \\$PMSFH with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
@@ -4972,16 +4667,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function UrlIfImageExists\\(\\) has parameter \\$append with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function UrlIfImageExists\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function find_or_create_constant\\(\\) has parameter \\$constant with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/csv/translation_utilities.php',
@@ -5122,21 +4807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/backup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function gzopen\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function gzopen\\(\\) has parameter \\$mode with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function gzopen\\(\\) has parameter \\$use_include_path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function obliterate_dir\\(\\) has parameter \\$dir with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/backup.php',
@@ -5192,49 +4862,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/find_appt_popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnConfigGetVar\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) has parameter \\$disable with no type specified\\.$#',
+    'message' => '#^Method pnHTML\\:\\:generateFormSelectMultiple\\(\\) has parameter \\$disable with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) has parameter \\$readonly with no type specified\\.$#',
+    'message' => '#^Method pnHTML\\:\\:generateFormSelectMultiple\\(\\) has parameter \\$readonly with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModAPIFunc\\(\\) has parameter \\$args with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModAPIFunc\\(\\) has parameter \\$func with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModAPIFunc\\(\\) has parameter \\$modname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModAPIFunc\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModAPILoad\\(\\) has parameter \\$modname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModAPILoad\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnModAvailable\\(\\) has parameter \\$modname with no type specified\\.$#',
@@ -5242,42 +4877,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnModDBInfoLoad\\(\\) has parameter \\$directory with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModDBInfoLoad\\(\\) has parameter \\$modname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModFunc\\(\\) has parameter \\$args with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModFunc\\(\\) has parameter \\$func with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModFunc\\(\\) has parameter \\$modname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModFunc\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnModGetIDFromName\\(\\) has parameter \\$module with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModGetInfo\\(\\) has parameter \\$modid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
@@ -5288,16 +4888,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnModGetVar\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModLoad\\(\\) has parameter \\$modname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModLoad\\(\\) has parameter \\$type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
@@ -5317,27 +4907,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function pnModURL\\(\\) has parameter \\$args with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModURL\\(\\) has parameter \\$func with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModURL\\(\\) has parameter \\$modname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnModURL\\(\\) has parameter \\$path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pnModURL\\(\\) has parameter \\$type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
@@ -5393,11 +4963,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pcVarPrepHTMLDisplay\\(\\) has parameter \\$s with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function pc_clean\\(\\) has parameter \\$s with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
@@ -5612,717 +5177,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadminapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) has parameter \\$dayOfWeek with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) has parameter \\$occurrence with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:NWeekdayOfMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextMonth\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfNextWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevMonth\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfPrevWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:beginOfWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateDiff\\(\\) has parameter \\$day1 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateDiff\\(\\) has parameter \\$day2 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateDiff\\(\\) has parameter \\$month1 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateDiff\\(\\) has parameter \\$month2 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateDiff\\(\\) has parameter \\$year1 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateDiff\\(\\) has parameter \\$year2 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateFormat\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateFormat\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateFormat\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateFormat\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateNow\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateToDays\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateToDays\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dateToDays\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dayOfWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dayOfWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:dayOfWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:daysInMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Date_Calc\\:\\:daysInMonth\\(\\) has parameter \\$year with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:daysToDate\\(\\) has parameter \\$days with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:daysToDate\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:defaultCentury\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfNextMonth\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfNextMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfNextMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfNextMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfPrevMonth\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfPrevMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfPrevMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfPrevMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:endOfWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:firstOfMonthWeekday\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:firstOfMonthWeekday\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarMonth\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarMonth\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarYear\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getCalendarYear\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthAbbrname\\(\\) has parameter \\$length with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthAbbrname\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthFromFullName\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getMonthFullname\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayAbbrname\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayAbbrname\\(\\) has parameter \\$length with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayAbbrname\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayAbbrname\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayFullname\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayFullname\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:getWeekdayFullname\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isFutureDate\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isFutureDate\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isFutureDate\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Date_Calc\\:\\:isLeapYear\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isPastDate\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isPastDate\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isPastDate\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isValidDate\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isValidDate\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:isValidDate\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:julianDate\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:julianDate\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:julianDate\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeekOnOrAfter\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeekOnOrAfter\\(\\) has parameter \\$dow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeekOnOrAfter\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeekOnOrAfter\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeekOnOrAfter\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeek\\(\\) has parameter \\$dow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeek\\(\\) has parameter \\$onOrAfter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDayOfWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDay\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDay\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDay\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextDay\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextWeekday\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextWeekday\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextWeekday\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:nextWeekday\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeekOnOrBefore\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeekOnOrBefore\\(\\) has parameter \\$dow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeekOnOrBefore\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeekOnOrBefore\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeekOnOrBefore\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeek\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeek\\(\\) has parameter \\$dow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeek\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeek\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeek\\(\\) has parameter \\$onOrBefore with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDayOfWeek\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDay\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDay\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDay\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevDay\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevWeekday\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevWeekday\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevWeekday\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:prevWeekday\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:quarterOfYear\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:quarterOfYear\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:quarterOfYear\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:weekOfYear\\(\\) has parameter \\$day with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:weekOfYear\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:weekOfYear\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:weeksInMonth\\(\\) has parameter \\$month with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Date_Calc\\:\\:weeksInMonth\\(\\) has parameter \\$year with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
@@ -9602,11 +8462,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Services\\\\EhiExporter\\:\\:getXmlNode\\(\\) has parameter \\$path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\EhiExporter\\\\Services\\\\EhiExporter\\:\\:shouldExportAdditionalAssets\\(\\) has parameter \\$tableName with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
@@ -9850,11 +8705,6 @@ $ignoreErrors[] = [
     'message' => '#^Function storeCallEvent\\(\\) has parameter \\$callData with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/phone-services/voice_webhook.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function isValidPhone\\(\\) has parameter \\$phone with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\BootstrapService\\:\\:getModuleRegistry\\(\\) has parameter \\$modId with no type specified\\.$#',
@@ -11277,11 +10127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Helper\\\\TranslatorViewHelper\\:\\:xl\\(\\) has parameter \\$str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/TranslatorViewHelper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Listener\\\\Listener\\:\\:detach\\(\\) has parameter \\$priority with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
@@ -11583,11 +10428,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:getImmunizations\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:getIssues\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
@@ -12892,16 +11732,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncountermanagerTable\\:\\:getCcdaAsHTML\\(\\) has parameter \\$ccda with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncountermanagerTable\\:\\:getCcdaAsPdf\\(\\) has parameter \\$ccda with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\EncountermanagerTable\\:\\:getEncounters\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
@@ -13802,11 +12632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getSearchClass\\(\\) has parameter \\$data_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function default_loadPayerInfo\\(\\) has parameter \\$date with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
@@ -14342,61 +13167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function deleteRows\\(\\) has parameter \\$colname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deleteRows\\(\\) has parameter \\$source_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deleteRows\\(\\) has parameter \\$target_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deleteRows\\(\\) has parameter \\$tblname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function logMergeEvent\\(\\) has parameter \\$event_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function logMergeEvent\\(\\) has parameter \\$log_message with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function logMergeEvent\\(\\) has parameter \\$target_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function mergeRows\\(\\) has parameter \\$colname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function mergeRows\\(\\) has parameter \\$source_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function mergeRows\\(\\) has parameter \\$target_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function mergeRows\\(\\) has parameter \\$tblname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function resolveDuplicateEncounters\\(\\) has parameter \\$targets with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
@@ -14408,26 +13178,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function resolveTargets\\(\\) has parameter \\$target_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateRows\\(\\) has parameter \\$colname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateRows\\(\\) has parameter \\$source_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateRows\\(\\) has parameter \\$target_pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateRows\\(\\) has parameter \\$tblname with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
@@ -14817,6 +13567,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function printHTML\\(\\) has parameter \\$title with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function printPDF\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
@@ -14828,6 +13583,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function printPDF\\(\\) has parameter \\$res2 with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function printPDF\\(\\) has parameter \\$title with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/shot_record.php',
 ];
@@ -15117,16 +13877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getAbortionMethod\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getContraceptiveMethod\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getGcacClientStatus\\(\\) has parameter \\$row with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
@@ -15178,11 +13928,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function ippf_stats_getListTitle\\(\\) has parameter \\$option with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function process_ippf_code\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
@@ -15407,11 +14152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function genGroupSelector\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_layout.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function genLayoutOptions\\(\\) has parameter \\$default with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
@@ -15623,11 +14363,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function writeOptionLine\\(\\) has parameter \\$subtype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/super/edit_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function writeOptionLine\\(\\) has parameter \\$title with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
@@ -19092,21 +17827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_dosage_display\\(\\) has parameter \\$display_form with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:get_unit_display\\(\\) has parameter \\$display_form with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:load_drug_attributes\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Prescription\\:\\:prescriptions_factory\\(\\) has parameter \\$order_by with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
@@ -19153,11 +17873,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Prescription\\:\\:set_encounter\\(\\) has parameter \\$enc with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_erx_source\\(\\) has parameter \\$erx_source with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
@@ -19293,11 +18008,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Prescription\\:\\:set_updated_by\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:toString\\(\\) has parameter \\$html with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
@@ -19628,11 +18338,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method HTML_TreeMenu_Listbox\\:\\:_nodeToHTML\\(\\) has parameter \\$prefix with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method HTML_TreeMenu_Presentation\\:\\:printMenu\\(\\) has parameter \\$options with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
 ];
@@ -23567,41 +22272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:create_thumbnail\\(\\) has parameter \\$content_file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:create_thumbnail\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:file_support_thumbnail\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:get_string_file\\(\\) has parameter \\$resource_file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:image_to_file\\(\\) has parameter \\$fileName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:image_to_file\\(\\) has parameter \\$quality with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Thumbnail\\:\\:image_to_file\\(\\) has parameter \\$resource_file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ThumbnailGenerator\\:\\:error_log\\(\\) has parameter \\$url with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/thumbnail/ThumbnailGenerator.php',
@@ -23663,21 +22333,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function rules_clinic_get_providers\\(\\) has parameter \\$pat_prov_rel with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function test_rules_clinic\\(\\) has parameter \\$dateTarget with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function test_rules_clinic_batch_method\\(\\) has parameter \\$dateTarget with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function test_rules_clinic_collate\\(\\) has parameter \\$dateTarget with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
@@ -24157,47 +22812,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/codes/edih_835_code_class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_997_code_text\\(\\) has parameter \\$ak_code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/codes/edih_997_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_code_text\\(\\) has parameter \\$ak_seg_field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/codes/edih_997_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_ta1_code\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/codes/edih_997_codes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_271_transaction_html\\(\\) has parameter \\$bht03 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_271_transaction_html\\(\\) has parameter \\$obj271 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_271_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_277_html\\(\\) has parameter \\$bht03 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function edih_277_transaction_html\\(\\) has parameter \\$accordion with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_277_transaction_html\\(\\) has parameter \\$bht03 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_277_transaction_html\\(\\) has parameter \\$obj277 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_277_html.php',
 ];
@@ -24212,139 +22832,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_278_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$codes27x with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$codes835 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$delimiters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$fname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_clp_summary\\(\\) has parameter \\$trans_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_html\\(\\) has parameter \\$clm01 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_835_html\\(\\) has parameter \\$summary with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_html\\(\\) has parameter \\$trace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$codes27x with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$codes835 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$delimiters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$fname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_payment_html\\(\\) has parameter \\$segments with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$codes27x with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$codes835 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$delimiters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$fname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_transaction_html\\(\\) has parameter \\$trans_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_round_cb\\(\\) has parameter \\$k with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_round_cb\\(\\) has parameter \\$v with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_err_report\\(\\) has parameter \\$err_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_errdata\\(\\) has parameter \\$obj997 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_error\\(\\) has parameter \\$filepath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_sbmtfile\\(\\) has parameter \\$filetype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_997_sbmtfile\\(\\) has parameter \\$icn with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_997_error.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_cleanup\\(\\) has parameter \\$archivename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_cleanup\\(\\) has parameter \\$types_ar with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function edih_archive_create_zip\\(\\) has parameter \\$archive_filename with no type specified\\.$#',
@@ -24352,119 +22842,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_array\\(\\) has parameter \\$csv_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_array\\(\\) has parameter \\$filepath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_array\\(\\) has parameter \\$filetype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_combine\\(\\) has parameter \\$csvtype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_combine\\(\\) has parameter \\$filetype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_split\\(\\) has parameter \\$csv_ar with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_csv_split\\(\\) has parameter \\$filename_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_date\\(\\) has parameter \\$period with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_filenames\\(\\) has parameter \\$archive_date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_filenames\\(\\) has parameter \\$csv_ar with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_main\\(\\) has parameter \\$period with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_move_old\\(\\) has parameter \\$filename_ar with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_move_old\\(\\) has parameter \\$parameters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_report\\(\\) has parameter \\$period with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_archive_restore\\(\\) has parameter \\$archive_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_archive_rewrite_csv\\(\\) has parameter \\$csv_keys with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_claim_history\\(\\) has parameter \\$encounter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_csv_process_html\\(\\) has parameter \\$data_ar with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_csv_process_html\\(\\) has parameter \\$err_only with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_list_denied_claims\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_list_denied_claims\\(\\) has parameter \\$filetype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_list_denied_claims\\(\\) has parameter \\$trace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_data.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_archive_select_list\\(\\) has parameter \\$outtp with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function csv_array_bounds\\(\\) has parameter \\$array with no type specified\\.$#',
@@ -24482,31 +22862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function csv_check_x12_obj\\(\\) has parameter \\$filepath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_check_x12_obj\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_convert_bytes\\(\\) has parameter \\$bytes with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_denied_by_file\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_denied_by_file\\(\\) has parameter \\$filetype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function csv_denied_by_file\\(\\) has parameter \\$trace with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
@@ -24517,77 +22872,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function csv_file_by_enctr\\(\\) has parameter \\$clm01 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_by_enctr\\(\\) has parameter \\$filetype with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_by_trace\\(\\) has parameter \\$from_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_by_trace\\(\\) has parameter \\$to_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_by_trace\\(\\) has parameter \\$trace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_type\\(\\) has parameter \\$gs_code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_file_type\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function csv_log_html\\(\\) has parameter \\$logname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_log_manage\\(\\) has parameter \\$list with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_notes_file\\(\\) has parameter \\$content with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_notes_file\\(\\) has parameter \\$open with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_singlerecord_test\\(\\) has parameter \\$array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_table_select_list\\(\\) has parameter \\$outtp with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_thead_html\\(\\) has parameter \\$csv_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function csv_thead_html\\(\\) has parameter \\$file_type with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
@@ -24597,42 +22882,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_csv_order\\(\\) has parameter \\$csvdata with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_csv_write\\(\\) has parameter \\$csv_data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_errseg_parse\\(\\) has parameter \\$err_seg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_errseg_parse\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_271_csv_data\\(\\) has parameter \\$obj270 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_277_csv_data\\(\\) has parameter \\$obj277 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_278_csv_data\\(\\) has parameter \\$obj278 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_csv_data\\(\\) has parameter \\$obj835 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
@@ -24642,27 +22892,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_997_csv_data\\(\\) has parameter \\$obj997 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_parse_date\\(\\) has parameter \\$strdate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_parse_select\\(\\) has parameter \\$file_path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_rsp_st_match\\(\\) has parameter \\$file_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_rsp_st_match\\(\\) has parameter \\$rsp_trace with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
@@ -24712,114 +22942,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function edih_display_text\\(\\) has parameter \\$claimid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_display_text\\(\\) has parameter \\$err_info with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_display_text\\(\\) has parameter \\$trace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_sort_upload\\(\\) has parameter \\$err_only with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_sort_upload\\(\\) has parameter \\$html_out with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_upload_err_message\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function edih_ziptoarray\\(\\) has parameter \\$single with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:__construct\\(\\) has parameter \\$file_path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:__construct\\(\\) has parameter \\$mk_segs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:__construct\\(\\) has parameter \\$text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_file_text\\(\\) has parameter \\$delimiters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_file_text\\(\\) has parameter \\$file_text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_file_text\\(\\) has parameter \\$segments with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_file_text\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_x12_envelopes\\(\\) has parameter \\$file_text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_x12_slice\\(\\) has parameter \\$arg_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method edih_x12_file\\:\\:edih_x12_slice\\(\\) has parameter \\$file_text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_accounting\\(\\) has parameter \\$delimiters with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function edih_835_accounting\\(\\) has parameter \\$segments with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function get_openemr_globals\\(\\) has parameter \\$libdir with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sftp_status\\(\\) has parameter \\$msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sftp_status\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function fetchCategoryIdByEncounter\\(\\) has parameter \\$encounter with no type specified\\.$#',
@@ -25097,11 +23222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formdata.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function escape_identifier\\(\\) has parameter \\$whitelist_items with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/formdata.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function formDataCore\\(\\) has parameter \\$isTrim with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formdata.inc.php',
@@ -25297,11 +23417,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function hl7Priority\\(\\) has parameter \\$s with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/global_functions.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function rbcell\\(\\) has parameter \\$colname with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
@@ -25447,11 +23562,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/group.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function hsc_private_xl_or_warn\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function issue_ippf_con_form\\(\\) has parameter \\$issue with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ippf_issues.inc.php',
@@ -25498,11 +23608,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getBarId\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFacilityInfo\\(\\) has parameter \\$facilityID with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
 ];
@@ -25767,56 +23872,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$auth with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$bodyClass with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$buttonClass with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$buttonLabel with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$buttonLink with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$fixedWidth with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$forceExpandAlways with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$label with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$linkMethod with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function expand_collapse_widget\\(\\) has parameter \\$title with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function genLabResultsTextItem\\(\\) has parameter \\$disabled with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -25942,11 +23997,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function generate_select_list\\(\\) has parameter \\$empty_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function generate_select_list\\(\\) has parameter \\$ignore_default with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -26057,11 +24107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function isOption\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function isSkipped\\(\\) has parameter \\$currvalue with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -26143,16 +24188,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function dateToDB\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fixDate\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function fixDate\\(\\) has parameter \\$default with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
@@ -26247,27 +24282,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getEffectiveInsurances\\(\\) has parameter \\$encdate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getEffectiveInsurances\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getEmployerData\\(\\) has parameter \\$given with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getEmployerData\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getFacilities\\(\\) has parameter \\$first with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
@@ -26542,22 +24562,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function get_patient_balance\\(\\) has parameter \\$eid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_patient_balance\\(\\) has parameter \\$in_collection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function get_patient_balance\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function get_patient_balance\\(\\) has parameter \\$with_insurance with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
@@ -27327,26 +25332,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function authorizePnote\\(\\) has parameter \\$authorized with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function authorizePnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deletePnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function disappearPnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getPnotesByDate\\(\\) has parameter \\$activity with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
@@ -27452,52 +25437,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function reappearPnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnoteMessageStatus\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnoteMessageStatus\\(\\) has parameter \\$message_status with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function updatePnotePatient\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$assigned_to with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$datetime with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$message_status with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$newtext with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$title with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
@@ -27575,11 +25515,6 @@ $ignoreErrors[] = [
     'message' => '#^Function updateRegistered\\(\\) has parameter \\$mod with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/registry.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function patient_fetch_reminders\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getEmployerReport\\(\\) has parameter \\$pid with no type specified\\.$#',
@@ -27887,26 +25822,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assetVersionNumber\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assetVersionNumber\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assetsTemplate\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetsTemplate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assetsTemplate\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetsTemplate.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_datetimepickerSupport\\(\\) has parameter \\$params with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
@@ -27917,66 +25832,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_dispatchPatientDocumentEvent\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.dispatchPatientDocumentEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_dispatchPatientDocumentEvent\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.dispatchPatientDocumentEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_headerTemplate\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_headerTemplate\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_xla\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_xla\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_xlj\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlj.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_xlj\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlj.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_xlt\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlt.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_xlt\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/function.xlt.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xla\\(\\) has parameter \\$translate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xla.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_xlt\\(\\) has parameter \\$translate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xlt.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:get_key\\(\\) has parameter \\$config_key with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
@@ -27985,11 +25840,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Config_File_Legacy\\:\\:get_var_names\\(\\) has parameter \\$section with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_add_plugin\\(\\) has parameter \\$delayed_loading with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_arg_list\\(\\) has parameter \\$attrs with no type specified\\.$#',
@@ -28027,11 +25877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_pop_tag\\(\\) has parameter \\$close_tag with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_preg_callback\\(\\) has parameter \\$matches with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
@@ -28043,11 +25888,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_push_cacheable_state\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_push_tag\\(\\) has parameter \\$open_tag with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
 ];
@@ -28162,16 +26002,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_core_assign_smarty_interface\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_core_assign_smarty_interface\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_core_create_dir_structure\\(\\) has parameter \\$params with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.create_dir_structure.php',
@@ -28180,16 +26010,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_core_create_dir_structure\\(\\) has parameter \\$smarty with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.create_dir_structure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_core_display_debug_console\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_core_display_debug_console\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_core_get_include_path\\(\\) has parameter \\$params with no type specified\\.$#',
@@ -28372,111 +26192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_block_textformat\\(\\) has parameter \\$content with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_block_textformat\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_block_textformat\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_compiler_assign\\(\\) has parameter \\$compiler with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/compiler.assign.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_compiler_assign\\(\\) has parameter \\$tag_attrs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/compiler.assign.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assign_debug_info\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_assign_debug_info\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_config_load\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_config_load\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_counter\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_counter\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_cycle\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_cycle\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_debug\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_debug\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_eval\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_eval\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_fetch\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_fetch\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_checkboxes\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_checkboxes\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_checkboxes_output\\(\\) has parameter \\$extra with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
@@ -28512,26 +26227,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_image\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_image\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_options\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_options\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_options_optgroup\\(\\) has parameter \\$key with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
@@ -28560,16 +26255,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_options_optoutput\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_radios\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_radios\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_radios_output\\(\\) has parameter \\$extra with no type specified\\.$#',
@@ -28632,16 +26317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_table\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_html_table\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_table_cycle\\(\\) has parameter \\$name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
@@ -28655,46 +26330,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_function_html_table_cycle\\(\\) has parameter \\$var with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_mailto\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_mailto\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_math\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_popup\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_popup\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_popup_init\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_popup_init\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_capitalize\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_modifier_capitalize\\(\\) has parameter \\$uc_digits with no type specified\\.$#',
@@ -28712,254 +26347,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_cat\\(\\) has parameter \\$cat with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.cat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_cat\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.cat.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_count_characters\\(\\) has parameter \\$include_spaces with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_characters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_count_characters\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_characters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_count_paragraphs\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_paragraphs.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_count_sentences\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_sentences.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_count_words\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_words.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_date_format\\(\\) has parameter \\$default_date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_date_format\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_date_format\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_debug_print_var\\(\\) has parameter \\$depth with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_debug_print_var\\(\\) has parameter \\$length with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_debug_print_var\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_default\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.default.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_default\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.default.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function smarty_modifier_escape\\(\\) has parameter \\$char_set with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_escape\\(\\) has parameter \\$esc_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_escape\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_indent\\(\\) has parameter \\$char with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.indent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_indent\\(\\) has parameter \\$chars with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.indent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_indent\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.indent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_lower\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.lower.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_nl2br\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.nl2br.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function _smarty_regex_replace_check\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_regex_replace\\(\\) has parameter \\$replace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_regex_replace\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_regex_replace\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_replace\\(\\) has parameter \\$replace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_replace\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_replace\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.replace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_spacify\\(\\) has parameter \\$spacify_char with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.spacify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_spacify\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.spacify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_string_format\\(\\) has parameter \\$format with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.string_format.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_string_format\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.string_format.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_strip\\(\\) has parameter \\$replace with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_strip\\(\\) has parameter \\$text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_strip_tags\\(\\) has parameter \\$replace_with_space with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip_tags.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_strip_tags\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip_tags.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_truncate\\(\\) has parameter \\$break_words with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_truncate\\(\\) has parameter \\$etc with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_truncate\\(\\) has parameter \\$length with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_truncate\\(\\) has parameter \\$middle with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_truncate\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_upper\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.upper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_wordwrap\\(\\) has parameter \\$break with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_wordwrap\\(\\) has parameter \\$cut with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_wordwrap\\(\\) has parameter \\$length with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_modifier_wordwrap\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_outputfilter_trimwhitespace\\(\\) has parameter \\$smarty with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_outputfilter_trimwhitespace\\(\\) has parameter \\$source with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function smarty_outputfilter_trimwhitespace_replace\\(\\) has parameter \\$replace with no type specified\\.$#',
@@ -28975,16 +26370,6 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_outputfilter_trimwhitespace_replace\\(\\) has parameter \\$subject with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_function_escape_special_chars\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.escape_special_chars.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function smarty_make_timestamp\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function form2db\\(\\) has parameter \\$fldval with no type specified\\.$#',
@@ -29028,11 +26413,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function icd_import\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function rmdir_recursive\\(\\) has parameter \\$dir with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
@@ -29220,171 +26600,6 @@ $ignoreErrors[] = [
     'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:xmlparser_setoption\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$phone_gateway with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$phone_msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntrySmsEmail\\(\\) has parameter \\$prow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$db_email_msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$prow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_InsertNotificationLogEntry\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendMail\\(\\) has parameter \\$from with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendMail\\(\\) has parameter \\$subject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendMail\\(\\) has parameter \\$to with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendMail\\(\\) has parameter \\$vBody with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendSMS\\(\\) has parameter \\$from with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendSMS\\(\\) has parameter \\$subject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendSMS\\(\\) has parameter \\$to with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_SendSMS\\(\\) has parameter \\$vBody with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getAlertpatientData\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getNotificationData\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_setmessage\\(\\) has parameter \\$db_email_msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_setmessage\\(\\) has parameter \\$prow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function my_print_r\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_curl\\(\\) has parameter \\$command with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_execgw\\(\\) has parameter \\$command with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_fopen\\(\\) has parameter \\$command with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_parse_auth\\(\\) has parameter \\$result with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_parse_getbalance\\(\\) has parameter \\$result with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:_parse_send\\(\\) has parameter \\$result with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:encode_message\\(\\) has parameter \\$text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:token_pay\\(\\) has parameter \\$token with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_clickatell\\:\\:uniord\\(\\) has parameter \\$c with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_tmb4\\:\\:__construct\\(\\) has parameter \\$password with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_tmb4\\:\\:__construct\\(\\) has parameter \\$username with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_tmb4\\:\\:_send\\(\\) has parameter \\$request with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_tmb4\\:\\:_send_curl\\(\\) has parameter \\$request with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method sms_tmb4\\:\\:_send_sock\\(\\) has parameter \\$request with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_tmb4.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function doCredentials\\(\\) has parameter \\$pid with no type specified\\.$#',
@@ -29892,11 +27107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Savant3_Filter_trimwhitespace\\:\\:replace\\(\\) has parameter \\$buffer with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Filter_trimwhitespace.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Savant3_Plugin_image\\:\\:image\\(\\) has parameter \\$attr with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
@@ -29977,116 +27187,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_check_data\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_enclose_value\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_rfile\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_offset\\(\\) has parameter \\$current_row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_row_condition\\(\\) has parameter \\$condition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_row_condition\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_row_conditions\\(\\) has parameter \\$conditions with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_validate_row_conditions\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_wfile\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_wfile\\(\\) has parameter \\$lock with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_wfile\\(\\) has parameter \\$mode with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:_wfile\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) has parameter \\$enclosure with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) has parameter \\$parse with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) has parameter \\$preferred with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:auto\\(\\) has parameter \\$search_depth with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:load_data\\(\\) has parameter \\$input with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:output\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:output\\(\\) has parameter \\$delimiter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:output\\(\\) has parameter \\$fields with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:output\\(\\) has parameter \\$filename with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method parseCSV\\:\\:parse\\(\\) has parameter \\$conditions with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
@@ -30102,66 +27202,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse_file\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:parse_string\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:save\\(\\) has parameter \\$append with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:save\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:save\\(\\) has parameter \\$fields with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:save\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:unparse\\(\\) has parameter \\$append with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:unparse\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:unparse\\(\\) has parameter \\$delimiter with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:unparse\\(\\) has parameter \\$fields with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method parseCSV\\:\\:unparse\\(\\) has parameter \\$is_php with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method thumbnail\\:\\:generate\\(\\) has parameter \\$useExactSize with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method thumbnail\\:\\:imageCreateFromFile\\(\\) has parameter \\$filename with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
@@ -30170,36 +27210,6 @@ $ignoreErrors[] = [
     'message' => '#^Method thumbnail\\:\\:imageCreateFromFile\\(\\) has parameter \\$imageType with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/thumbnail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method zipfile\\:\\:addFile\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/zip.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method zipfile\\:\\:addFile\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/zip.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method zipfile\\:\\:addFile\\(\\) has parameter \\$time with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/zip.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method zipfile\\:\\:unix2DosTime\\(\\) has parameter \\$unixtime with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/zip.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Auth401\\:\\:OutputHeaders\\(\\) has parameter \\$realm with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/Auth401.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Auth401\\:\\:OutputHeaders\\(\\) has parameter \\$terminate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/Auth401.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AuthenticationException\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
@@ -30212,77 +27222,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Authentication/AuthenticationException.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Close\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:CommitTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Escape\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Execute\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Execute\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Fetch\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Fetch\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:GetLastError\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:GetLastInsertId\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:GetQuotedSql\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:GetTableNames\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:GetTableNames\\(\\) has parameter \\$dbname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method IDataDriver\\:\\:GetTableNames\\(\\) has parameter \\$ommitEmptyTables with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Optimize\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Optimize\\(\\) has parameter \\$table with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
 ];
@@ -30292,142 +27232,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Query\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Query\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Release\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:Release\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:RollbackTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IDataDriver\\:\\:StartTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/IDataDriver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Close\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:CommitTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Escape\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Execute\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Execute\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Fetch\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Fetch\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:GetLastError\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:GetLastInsertId\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:GetQuotedSql\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:GetTableNames\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:GetTableNames\\(\\) has parameter \\$dbname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataDriverMySQLi\\:\\:GetTableNames\\(\\) has parameter \\$ommitEmptyTables with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Optimize\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Optimize\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataDriverMySQLi\\:\\:Ping\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Query\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Query\\(\\) has parameter \\$sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Release\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:Release\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:RollbackTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataDriverMySQLi\\:\\:StartTransaction\\(\\) has parameter \\$connection with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
@@ -30447,47 +27257,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DatabaseException.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ISqlFunction\\:\\:GetQuotedSql\\(\\) has parameter \\$phreezer with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/ISqlFunction.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Context\\:\\:Get\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Context\\:\\:Get\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Context\\:\\:Set\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Context\\:\\:Set\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/Context.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method FileUpload\\:\\:ToXML\\(\\) has parameter \\$base64 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/FileUpload.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetMethod\\(\\) has parameter \\$emulateHttpParamName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method RequestUtil\\:\\:GetPersisted\\(\\) has parameter \\$escape with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method RequestUtil\\:\\:GetUrlParts\\(\\) has parameter \\$appRoot with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/HTTP/RequestUtil.php',
 ];
@@ -30517,37 +27292,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Includer\\:\\:IncludeFile\\(\\) has parameter \\$path with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Includer\\:\\:RequireClass\\(\\) has parameter \\$classname with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Includer\\:\\:RequireClass\\(\\) has parameter \\$classpath with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ActionRouter\\:\\:GetAction\\(\\) has parameter \\$default_action with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ActionRouter\\:\\:GetAction\\(\\) has parameter \\$url_param with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ActionRouter\\:\\:GetRoute\\(\\) has parameter \\$uri with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ActionRouter\\:\\:GetUrlParam\\(\\) has parameter \\$default with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ActionRouter.php',
 ];
@@ -30587,21 +27337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method CacheMemCache\\:\\:__construct\\(\\) has parameter \\$_memcache with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method CacheMemCache\\:\\:__construct\\(\\) has parameter \\$_suppressServerErrors with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method CacheMemCache\\:\\:__construct\\(\\) has parameter \\$uniquePrefix with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method CacheNoCache\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php',
@@ -30620,16 +27355,6 @@ $ignoreErrors[] = [
     'message' => '#^Method ConnectionSetting\\:\\:__construct\\(\\) has parameter \\$connection_code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Criteria\\:\\:AddAnd\\(\\) has parameter \\$keymap_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Criteria\\:\\:AddOr\\(\\) has parameter \\$keymap_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Criteria\\:\\:Escape\\(\\) has parameter \\$val with no type specified\\.$#',
@@ -30652,29 +27377,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Criteria.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataAdapter\\:\\:GetTableNames\\(\\) has parameter \\$ommitEmptyTables with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataAdapter\\:\\:IsCommunicationError\\(\\) has parameter \\$error with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataAdapter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataPage\\:\\:ToObjectArray\\(\\) has parameter \\$asSimpleObject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataPage\\:\\:ToObjectArray\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:GetEmptyArray\\(\\) has parameter \\$count with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method DataSet\\:\\:IsLocked\\(\\) has parameter \\$cachekey with no type specified\\.$#',
@@ -30697,59 +27402,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:ToObjectArray\\(\\) has parameter \\$asSimpleObject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method DataSet\\:\\:ToObjectArray\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method DataSet\\:\\:UnlockCache\\(\\) has parameter \\$cachekey with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Dispatcher\\:\\:Dispatch\\(\\) has parameter \\$action with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Dispatcher\\:\\:Dispatch\\(\\) has parameter \\$context with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Dispatcher\\:\\:Dispatch\\(\\) has parameter \\$router with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Dispatcher.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$creator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$fileName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ExportUtility\\:\\:OutputAsExcel\\(\\) has parameter \\$reportTitle with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GenericRouter\\:\\:GetRoute\\(\\) has parameter \\$uri with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method GenericRouter\\:\\:GetUrlParam\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/GenericRouter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method GenericRouter\\:\\:GetUrlParam\\(\\) has parameter \\$paramKey with no type specified\\.$#',
@@ -30787,16 +27442,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRenderEngine.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method IRouter\\:\\:GetRoute\\(\\) has parameter \\$uri with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method IRouter\\:\\:GetUrlParam\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method IRouter\\:\\:GetUrlParam\\(\\) has parameter \\$key with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
@@ -30805,16 +27450,6 @@ $ignoreErrors[] = [
     'message' => '#^Method IRouter\\:\\:GetUrl\\(\\) has parameter \\$requestMethod with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/IRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetRoute\\(\\) has parameter \\$uri with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MockRouter\\:\\:GetUrlParam\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/MockRouter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method MockRouter\\:\\:GetUrlParam\\(\\) has parameter \\$paramKey with no type specified\\.$#',
@@ -30897,21 +27532,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:AddValidationError\\(\\) has parameter \\$msg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:AddValidationError\\(\\) has parameter \\$prop with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:CacheLevel\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Phreezable\\:\\:GetObject\\(\\) has parameter \\$camelCase with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
@@ -30922,44 +27542,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:IsLoaded\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:IsPartiallyLoaded\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Phreezable\\:\\:LoadFromObject\\(\\) has parameter \\$src with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:NoCache\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezable\\:\\:ToObject\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:Compare\\(\\) has parameter \\$a with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:Compare\\(\\) has parameter \\$b with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:GetByCriteria\\(\\) has parameter \\$cache_timeout with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Phreezer\\:\\:GetCustomCountQuery\\(\\) has parameter \\$criteria with no type specified\\.$#',
@@ -30977,39 +27562,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:Get\\(\\) has parameter \\$cache_timeout with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:Query\\(\\) has parameter \\$cache_timeout with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:SetCache\\(\\) has parameter \\$timeout with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Phreezer\\:\\:SetLevel2CacheProvider\\(\\) has parameter \\$lockFilePath with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Phreezer\\:\\:__construct\\(\\) has parameter \\$csetting with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:Get401Authentication\\(\\) has parameter \\$qs_password_field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:Get401Authentication\\(\\) has parameter \\$qs_username_field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PortalController\\:\\:Get\\(\\) has parameter \\$default with no type specified\\.$#',
@@ -31018,61 +27573,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PortalController\\:\\:Get\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:PrintOut\\(\\) has parameter \\$contentType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:PrintOut\\(\\) has parameter \\$text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderJSON\\(\\) has parameter \\$callback with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderJSON\\(\\) has parameter \\$forceUTF8 with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderJSON\\(\\) has parameter \\$options with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderJSON\\(\\) has parameter \\$useSimpleObject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderJSON\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:RenderXML\\(\\) has parameter \\$noMap with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:Require401Authentication\\(\\) has parameter \\$qs_password_field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:Require401Authentication\\(\\) has parameter \\$qs_username_field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:Require401Authentication\\(\\) has parameter \\$realm with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
@@ -31087,47 +27587,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:VerifyCSRFToken\\(\\) has parameter \\$headerName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:__construct\\(\\) has parameter \\$context with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method QueryBuilder\\:\\:RecurseFieldMaps\\(\\) has parameter \\$fms with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/QueryBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:CacheLevel\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:IsLoaded\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:IsPartiallyLoaded\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:NoCache\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Reporter\\:\\:Refresh\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Reporter\\:\\:ToObject\\(\\) has parameter \\$options with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Reporter.php',
 ];
@@ -31157,16 +27622,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ValidationResponse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method VerySimpleStringUtil\\:\\:ConvertEmailToMailTo\\(\\) has parameter \\$sanitize with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VerySimpleStringUtil\\:\\:ConvertUrlToLink\\(\\) has parameter \\$sanitize with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method VerySimpleStringUtil\\:\\:EncodeSpecialCharacters\\(\\) has parameter \\$numericEncodingOnly with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
@@ -31177,39 +27632,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method ExceptionFormatter\\:\\:FormatTrace\\(\\) has parameter \\$tb with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/ExceptionFormatter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method MemCacheProxy\\:\\:Get\\(\\) has parameter \\$flags with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MemCacheProxy\\:\\:__construct\\(\\) has parameter \\$server_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MemCacheProxy\\:\\:__construct\\(\\) has parameter \\$uniquePrefix with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/MemCacheProxy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VsDateUtil\\:\\:DstEndNorthAmerica\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/VsDateUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method VsDateUtil\\:\\:DstStartNorthAmerica\\(\\) has parameter \\$year with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Util/VsDateUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) has parameter \\$errors with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method AppBasePortalController\\:\\:RenderErrorJSON\\(\\) has parameter \\$exception with no type specified\\.$#',
@@ -31230,16 +27655,6 @@ $ignoreErrors[] = [
     'message' => '#^Method PortalPatientController\\:\\:SaveAudit\\(\\) has parameter \\$p with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PortalPatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method UserDAO\\:\\:GetExaminerFormHearings\\(\\) has parameter \\$criteria with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method UserDAO\\:\\:GetReviewerFormHearings\\(\\) has parameter \\$criteria with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/UserDAO.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function Zip\\(\\) has parameter \\$destination with no type specified\\.$#',
@@ -32637,6 +29052,51 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:__construct\\(\\) has parameter \\$file_path with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:__construct\\(\\) has parameter \\$mk_segs with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:__construct\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_file_text\\(\\) has parameter \\$delimiters with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_file_text\\(\\) has parameter \\$file_text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_file_text\\(\\) has parameter \\$segments with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_file_text\\(\\) has parameter \\$type with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_envelopes\\(\\) has parameter \\$file_text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_slice\\(\\) has parameter \\$file_text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:genHcfa1500Page\\(\\) has parameter \\$encounter with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
@@ -33177,29 +29637,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Option.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalRange\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalRange.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalRange\\:\\:__construct\\(\\) has parameter \\$lbl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalRange.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalRange\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalRange.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType\\:\\:__construct\\(\\) has parameter \\$lbl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/ReminderIntervalType.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
@@ -33400,36 +29840,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseBuilder\\:\\:resolveRuleCriteriaType\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$column with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$frequency with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$frequencyComparator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDatabaseCustom\\:\\:__construct\\(\\) has parameter \\$valueComparator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDatabaseCustom.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteriaDbView\\:\\:set\\(\\) has parameter \\$i with no type specified\\.$#',
@@ -33722,46 +30132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleAction\\(\\) has parameter \\$guid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleAction\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleFilterCriteria\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleTargetCriteriaByGroupId\\(\\) has parameter \\$groupId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleTargetCriteriaByGroupId\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRuleTargetCriteria\\(\\) has parameter \\$rule with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRule\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:getRule\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager\\:\\:labelExists\\(\\) has parameter \\$listId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
@@ -33795,16 +30165,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleType\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/TimeUnit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit\\:\\:__construct\\(\\) has parameter \\$lbl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/TimeUnit.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit\\:\\:from\\(\\) has parameter \\$code with no type specified\\.$#',
@@ -34462,16 +30822,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:decodePortalOneTime\\(\\) has parameter \\$redirect_token with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:encodeLink\\(\\) has parameter \\$encrypted_redirect with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:encodeLink\\(\\) has parameter \\$site_addr with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
@@ -34528,11 +30878,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:insertOnetime\\(\\) has parameter \\$scope with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:processOnetime\\(\\) has parameter \\$redirect_token with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
 ];
@@ -34620,11 +30965,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:setUserId\\(\\) has parameter \\$id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopePermissionObject\\:\\:isOrderedCrudString\\(\\) has parameter \\$input with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopePermissionObject.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ServerScopeListEntity\\:\\:lookupDescriptionForFullScopeString\\(\\) has parameter \\$scope with no type specified\\.$#',
@@ -34925,11 +31265,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\UserRepository\\:\\:getUserEntityByIdentifier\\(\\) has parameter \\$identifier with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/UserRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\SMARTSessionTokenContextBuilder\\:\\:getContextForScopes\\(\\) has parameter \\$scopes with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/SMARTSessionTokenContextBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Command\\\\CreateReleaseChangelogCommand\\:\\:filterIssuesByCategory\\(\\) has parameter \\$category with no type specified\\.$#',
@@ -35567,17 +31902,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:getQueryParam\\(\\) has parameter \\$key with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setPatientRequest\\(\\) has parameter \\$isPatientRequest with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:setQueryParams\\(\\) has parameter \\$queryParams with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
@@ -35618,11 +31943,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:withMethod\\(\\) has parameter \\$method with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:withParsedBody\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
@@ -35827,36 +32147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpResponse\\:\\:__call\\(\\) has parameter \\$args with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpResponse\\:\\:__call\\(\\) has parameter \\$method with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpResponse\\:\\:__construct\\(\\) has parameter \\$response with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpResponse\\:\\:header\\(\\) has parameter \\$asArray with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpResponse\\:\\:header\\(\\) has parameter \\$header with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeHttpResponse\\:\\:json\\(\\) has parameter \\$asArray with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\oeOAuth\\:\\:isCachedTokenValid\\(\\) has parameter \\$file with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeOAuth.php',
@@ -35903,11 +32193,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Layouts\\\\LayoutsUtils\\:\\:getListItemTitle\\(\\) has parameter \\$option with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Layouts\\\\LayoutsUtils\\:\\:isOption\\(\\) has parameter \\$options with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
@@ -36302,54 +32587,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Utils/CacheUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\FileUtils\\:\\:getHumanReadableFileSize\\(\\) has parameter \\$bytes with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\FileUtils\\:\\:getMimeTypeFromExtension\\(\\) has parameter \\$default with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:celsiusToFh\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:cmToInches\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:fhToCelsius\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:inchesToCm\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:kgToLb\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\MeasurementUtils\\:\\:lbToKg\\(\\) has parameter \\$val with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\StringUtils\\:\\:trimExcessWhitespace\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/StringUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\ValidationUtils\\:\\:isValidEmail\\(\\) has parameter \\$email with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/ValidationUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidMapping\\:\\:createMappingRecordForResourcePaths\\(\\) has parameter \\$resource with no type specified\\.$#',
@@ -36677,11 +32917,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/Generator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\BaseTypes\\\\AbstractType\\:\\:propertyExists\\(\\) has parameter \\$property with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\Qdm\\\\Patient\\:\\:add_data_element\\(\\) has parameter \\$dataElement with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/Qdm/Patient.php',
@@ -36932,11 +33167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:__construct\\(\\) has parameter \\$twigTemplate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:__construct\\(\\) has parameter \\$twigVariables with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
@@ -37082,16 +33312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/PatientFinder/ColumnFilter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:__construct\\(\\) has parameter \\$appointment with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:__construct\\(\\) has parameter \\$dbRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\RestApiExtend\\\\RestApiCreateEvent\\:\\:__construct\\(\\) has parameter \\$fhir_route_map with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/RestApiExtend/RestApiCreateEvent.php',
@@ -37152,11 +33372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/RestApiExtend/RestApiScopeEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Services\\\\DornLabEvent\\:\\:setSendOrderResponse\\(\\) has parameter \\$response with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Services/DornLabEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Services\\\\QuestLabTransmitEvent\\:\\:__construct\\(\\) has parameter \\$hl7 with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Services/QuestLabTransmitEvent.php',
@@ -37165,21 +33380,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\User\\\\UserCreatedEvent\\:\\:__construct\\(\\) has parameter \\$userData with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/User/UserCreatedEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\User\\\\UserUpdatedEvent\\:\\:__construct\\(\\) has parameter \\$dataBeforeUpdate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/User/UserUpdatedEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\User\\\\UserUpdatedEvent\\:\\:__construct\\(\\) has parameter \\$newUserData with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/User/UserUpdatedEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\UserInterface\\\\BaseActionButtonHelper\\:\\:__construct\\(\\) has parameter \\$opts with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/UserInterface/BaseActionButtonHelper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\Export\\\\ExportJob\\:\\:setApiBaseUrl\\(\\) has parameter \\$baseUrl with no type specified\\.$#',
@@ -37265,1046 +33465,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SmartLaunchController\\:\\:redirectAndLaunchSmartApp\\(\\) has parameter \\$intent with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SmartLaunchController\\:\\:renderLaunchButton\\(\\) has parameter \\$launchText with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:__construct\\(\\) has parameter \\$code_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:__construct\\(\\) has parameter \\$description with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:__construct\\(\\) has parameter \\$selected with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:addArrayParams\\(\\) has parameter \\$arr with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\EncounterInfo\\:\\:__construct\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/EncounterInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\EncounterInfo\\:\\:__construct\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/EncounterInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$code_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$description with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$fee with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$justify with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$mod_size with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$modifiers with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$ndc_info with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$selected with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:__construct\\(\\) has parameter \\$units with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\Procedure\\:\\:addProcParameters\\(\\) has parameter \\$params with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/Procedure.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_check_array\\(\\) has parameter \\$aco_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_check_array\\(\\) has parameter \\$aco_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_check_array\\(\\) has parameter \\$aro_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_get_groups\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_get_groups\\(\\) has parameter \\$root_group with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_get_groups\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_get_groups\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$aco_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$aco_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$aro_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$aro_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$axo_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$axo_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$debug with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$return_all with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$root_aro_group with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) has parameter \\$root_axo_group with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$aco_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$aco_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$aro_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$aro_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$axo_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$axo_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$root_aro_group with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_return_value\\(\\) has parameter \\$root_axo_group with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:debug_db\\(\\) has parameter \\$function_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:debug_text\\(\\) has parameter \\$text with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:get_cache\\(\\) has parameter \\$cache_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:put_cache\\(\\) has parameter \\$cache_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:put_cache\\(\\) has parameter \\$data with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclAdminApi\\:\\:get_paging_data\\(\\) has parameter \\$rs with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclAdminApi\\:\\:return_page\\(\\) has parameter \\$url with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:_rebuild_tree\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:_rebuild_tree\\(\\) has parameter \\$left with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:_rebuild_tree\\(\\) has parameter \\$table with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$acl_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$aco_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$allow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$aro_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$aro_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$axo_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$axo_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$enabled with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$note with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$return_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_acl\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group\\(\\) has parameter \\$parent_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group_object\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group_object\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group_object\\(\\) has parameter \\$object_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_group_object\\(\\) has parameter \\$object_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) has parameter \\$hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) has parameter \\$order with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) has parameter \\$hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) has parameter \\$order with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:add_object_section\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$acl_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$aco_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$aro_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$aro_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$axo_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:append_acl\\(\\) has parameter \\$axo_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:consolidated_edit_acl\\(\\) has parameter \\$aco_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:consolidated_edit_acl\\(\\) has parameter \\$aco_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:consolidated_edit_acl\\(\\) has parameter \\$aro_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:consolidated_edit_acl\\(\\) has parameter \\$aro_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:consolidated_edit_acl\\(\\) has parameter \\$return_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:count_all\\(\\) has parameter \\$arg with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_acl\\(\\) has parameter \\$acl_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group\\(\\) has parameter \\$reparent_children with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group_object\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group_object\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group_object\\(\\) has parameter \\$object_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_group_object\\(\\) has parameter \\$object_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_object\\(\\) has parameter \\$erase with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_object\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_object\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_object_section\\(\\) has parameter \\$erase with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_object_section\\(\\) has parameter \\$object_section_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:del_object_section\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$acl_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$aco_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$allow with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$aro_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$aro_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$axo_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$axo_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$enabled with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$note with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$return_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_acl\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_group\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_group\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_group\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_group\\(\\) has parameter \\$parent_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_group\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$order with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) has parameter \\$hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) has parameter \\$object_section_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) has parameter \\$order with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:edit_object_section\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$formatted_groups with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$level with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$root_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$sorted_groups with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:format_groups\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_acl\\(\\) has parameter \\$acl_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_children\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_children\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_children\\(\\) has parameter \\$recurse with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_data\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_data\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_id\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_id\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_id\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_objects\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_objects\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_objects\\(\\) has parameter \\$option with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_parent_id\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_group_parent_id\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object\\(\\) has parameter \\$return_hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_data\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_data\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_groups\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_groups\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_groups\\(\\) has parameter \\$option with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_id\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_id\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_id\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_section_section_id\\(\\) has parameter \\$name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_section_section_id\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_section_section_id\\(\\) has parameter \\$value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_section_value\\(\\) has parameter \\$object_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_section_value\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_objects\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_objects\\(\\) has parameter \\$return_hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_objects\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_root_group_id\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_section_data\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_section_data\\(\\) has parameter \\$section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_ungrouped_objects\\(\\) has parameter \\$object_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_ungrouped_objects\\(\\) has parameter \\$return_hidden with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$aco_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$aro_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$aro_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$axo_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$axo_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:is_conflicting_acl\\(\\) has parameter \\$ignore_acl_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:rebuild_tree\\(\\) has parameter \\$group_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:rebuild_tree\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:rebuild_tree\\(\\) has parameter \\$left with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$aco_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$aco_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$aro_group_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$aro_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$aro_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$axo_group_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$axo_section_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$axo_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:search_acl\\(\\) has parameter \\$return_value with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$acl_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$aco_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$aro_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$aro_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$axo_array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:shift_acl\\(\\) has parameter \\$axo_group_ids with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:showarray\\(\\) has parameter \\$array with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:sort_groups\\(\\) has parameter \\$group_type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\MedicalDevice\\\\MedicalDevice\\:\\:__construct\\(\\) has parameter \\$udi_data with no type specified\\.$#',
@@ -38430,16 +33590,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\CareTeamViewCard\\:\\:getUserCardSetting\\(\\) has parameter \\$settingName with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/CareTeamViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\DemographicsViewCard\\:\\:__construct\\(\\) has parameter \\$employerData with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/DemographicsViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\DemographicsViewCard\\:\\:__construct\\(\\) has parameter \\$patientData with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/DemographicsViewCard.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\InsuranceViewCard\\:\\:__construct\\(\\) has parameter \\$pid with no type specified\\.$#',
@@ -38773,21 +33923,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:isSMARTAuthorizationEndPoint\\(\\) has parameter \\$end_point with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$pageName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$template with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$templateVars with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
@@ -39617,11 +34752,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\Operations\\\\FhirOperationDefinitionRestController\\:\\:getAll\\(\\) has parameter \\$searchParams with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\Operations\\\\FhirOperationDefinitionRestController\\:\\:getOne\\(\\) has parameter \\$operationId with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
@@ -40122,41 +35252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/SMART/PatientContextSearchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$defaultTemplate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$pageName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$template with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$templateVars with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$pageName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$template with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$templateVars with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\TransactionRestController\\:\\:CreateTransaction\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
@@ -40223,11 +35318,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
 ];
@@ -40477,11 +35567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/BaseServiceInterface.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseServiceInterface.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:selectHelper\\(\\) has parameter \\$map with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseServiceInterface.php',
@@ -40547,11 +35632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\CarePlanService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\CarePlanService\\:\\:getOne\\(\\) has parameter \\$puuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
@@ -40583,11 +35663,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\CareTeamService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\CareTeamService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
 ];
@@ -41162,11 +36237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaTextParser\\:\\:__construct\\(\\) has parameter \\$xmlContent with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:createSchematronHtml\\(\\) has parameter \\$amid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -41463,11 +36533,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ConditionService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ConditionService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
@@ -42013,11 +37078,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\DrugService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\DrugService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
@@ -44442,11 +39502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationVitalsService\\:\\:populateComponentColumn\\(\\) has parameter \\$description with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationVitalsService\\:\\:populatePulseOximetryObservation\\(\\) has parameter \\$dataRecord with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
@@ -44728,11 +39783,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FacilityService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
@@ -45062,11 +40112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ImmunizationService\\:\\:getOne\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
@@ -45098,11 +40143,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
@@ -45153,11 +40193,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
 ];
@@ -45317,11 +40352,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/LocationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\LocationService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LocationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\LocationService\\:\\:getOne\\(\\) has parameter \\$uuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/LocationService.php',
@@ -45402,27 +40432,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/MessageService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:add\\(\\) has parameter \\$body with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:countNotes\\(\\) has parameter \\$active with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:deleteNoteById\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:disableNoteById\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ONoteService\\:\\:enableNoteById\\(\\) has parameter \\$id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ONoteService.php',
 ];
@@ -45458,11 +40473,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ObservationLabService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationLabService.php',
 ];
@@ -45772,11 +40782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformationActivity\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
@@ -46042,22 +41047,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerRoleService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerRoleService\\:\\:getOne\\(\\) has parameter \\$uuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerService\\:\\:getAll\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PractitionerService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];
@@ -46092,11 +41087,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PrescriptionService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:addDiagnosis\\(\\) has parameter \\$data with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
@@ -46113,11 +41103,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
@@ -46310,11 +41295,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\PopulationSet\\:\\:__construct\\(\\) has parameter \\$jsonPopulationSet with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/PopulationSet.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\QdmRequestOne\\:\\:__construct\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/QdmRequestOne.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\ResultsCalculator\\:\\:add_or_increment_code\\(\\) has parameter \\$code with no type specified\\.$#',
@@ -47407,11 +42387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/ReferenceSearchValue.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\SearchComparator\\:\\:isValidComparator\\(\\) has parameter \\$comparator with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/SearchComparator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\SearchFieldStatementResolver\\:\\:getDateFieldFormatForDateType\\(\\) has parameter \\$dateType with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
@@ -47447,26 +42422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/SearchQueryFragment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\ServiceField\\:\\:__construct\\(\\) has parameter \\$field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/ServiceField.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\ServiceField\\:\\:__construct\\(\\) has parameter \\$type with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/ServiceField.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\StringSearchField\\:\\:__construct\\(\\) has parameter \\$field with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/StringSearchField.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\StringSearchField\\:\\:__construct\\(\\) has parameter \\$values with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/StringSearchField.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\TokenSearchField\\:\\:createTokenSearchValue\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchField.php',
@@ -47483,11 +42438,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\TokenSearchValue\\:\\:buildFromFHIRString\\(\\) has parameter \\$codeSystemValue with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\TokenSearchValue\\:\\:buildFromFHIRString\\(\\) has parameter \\$isUuid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',
 ];
@@ -47553,11 +42503,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SurgeryService\\:\\:getAll\\(\\) has parameter \\$puuidBind with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\SurgeryService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SurgeryService.php',
 ];
@@ -47687,11 +42632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getAll\\(\\) has parameter \\$search with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/UserService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getAuthGroupForUser\\(\\) has parameter \\$username with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
@@ -47718,11 +42658,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:search\\(\\) has parameter \\$isAndCondition with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/UserService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:search\\(\\) has parameter \\$search with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
@@ -47895,11 +42830,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\BaseValidator\\:\\:validate\\(\\) has parameter \\$dataFields with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Validators\\\\OpenEMRChain\\:\\:listOption\\(\\) has parameter \\$listId with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/OpenEMRChain.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\PatientValidator\\:\\:isExistingUuid\\(\\) has parameter \\$uuid with no type specified\\.$#',
@@ -48097,9 +43027,24 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/PaginationUtilsTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategyTest\\:\\:getMockAccessTokenRepository\\(\\) has parameter \\$scopes with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Authorization/BearerTokenAuthorizationStrategyTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\Rules\\\\ListOptionRuleStub\\:\\:validateDirectly\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Rules/ListOptionRuleTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisServiceTest\\:\\:assertConditionHasBaseRequirements\\(\\) has parameter \\$fhirResource with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisServiceTest\\:\\:assertConditionHasBaseRequirements\\(\\) has parameter \\$record with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:setMockFetchSingleValue\\(\\) has parameter \\$value with no type specified\\.$#',
@@ -48397,21 +43342,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PractitionerValidatorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\RestControllers\\\\Authorization\\\\BearerTokenAuthorizationStrategyTest\\:\\:getMockAccessTokenRepository\\(\\) has parameter \\$scopes with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/BearerTokenAuthorizationStrategyTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisServiceTest\\:\\:assertConditionHasBaseRequirements\\(\\) has parameter \\$fhirResource with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisServiceTest\\:\\:assertConditionHasBaseRequirements\\(\\) has parameter \\$record with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionEncounterDiagnosisServiceTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirAllergyIntoleranceServiceQueryTest\\:\\:assertGetAllSearchResults\\(\\) has parameter \\$isExpectedToHaveAResult with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirAllergyIntoleranceServiceQueryTest.php',
@@ -48530,36 +43460,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirPatientServiceQueryTest\\:\\:testGetAll\\(\\) has parameter \\$parameterValue with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceQueryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:__construct\\(\\) has parameter \\$codeManager with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:__construct\\(\\) has parameter \\$ruleManager with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:_get\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:_get\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:_post\\(\\) has parameter \\$default with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Controller\\\\ControllerEdit@anonymous/tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest\\.php\\:25\\:\\:_post\\(\\) has parameter \\$var with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomClientCredentialsGrantTest\\:\\:createJWTForKeys\\(\\) has parameter \\$aud with no type specified\\.$#',

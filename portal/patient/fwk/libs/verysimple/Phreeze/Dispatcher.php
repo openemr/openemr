@@ -22,7 +22,7 @@ class Dispatcher
     /**
      * Set to true and Phreeze will not try to handle deprecated function warnings
      *
-     * @var boolean default = true
+     * @var bool default = true
      */
     static $IGNORE_DEPRECATED = true;
 
@@ -31,7 +31,7 @@ class Dispatcher
      * supplied by the router are valid and not do any checking for the existence of
      * the controller file or the method before trying to call it
      *
-     * @var boolean use fast lookup mode if true
+     * @var bool use fast lookup mode if true
      */
     static $FAST_LOOKUP = false;
 
@@ -73,12 +73,9 @@ class Dispatcher
      *          Object persistence engine
      * @param IRenderEngine $renderEngine
      *          rendering engine
-     * @param
-     *          string (optional) $action the user requested action (if not provided will use router->GetRoute())
-     * @param
-     *          Context (optional) a context object for persisting state
-     * @param
-     *          IRouter (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
+     * @param string $action (optional) the user requested action (if not provided will use router->GetRoute())
+     * @param Context $context (optional) a context object for persisting state
+     * @param IRouter $router (optional) router object for reading/writing URLs (if not provided, GenericRouter will be used)
      */
     static function Dispatch($phreezer, $renderEngine, $action = '', $context = null, $router = null)
     {

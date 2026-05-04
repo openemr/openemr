@@ -36,10 +36,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
 require_once(__DIR__ . "/../../interface/globals.php");
 
 
-// verify csrf
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // process requested function
 if ($_POST['function'] == 'request_assessment') {

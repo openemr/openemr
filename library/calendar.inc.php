@@ -13,7 +13,7 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
+require_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
@@ -73,8 +73,8 @@ function getUserFacWH($uID, $fID)
 
  /**
  * Check if day is weekend day
- * @param (int) $day
- * @return boolean
+ * @param int $day
+ * @return bool
  */
 function is_weekend_day($day)
 {
@@ -88,8 +88,8 @@ function is_weekend_day($day)
 
 /**
  * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed event in the events table
- * @param (int) $day
- * @return boolean
+ * @param int $day
+ * @return bool
  */
 function is_holiday($date)
 {

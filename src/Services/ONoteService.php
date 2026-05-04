@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ONoteService
@@ -28,45 +29,48 @@ class ONoteService
     /**
      * Creates a new office note.
      *
-     * @param The text of the office note.
-     * @return $body New id.
+     * @param  string $body The text of the office note.
+     * @return int The id of the newly inserted office note.
+     * @throws \OpenEMR\Common\Database\SqlQueryException On database error from the underlying insert.
      */
     public function add($body)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        return sqlInsert("INSERT INTO `onotes` (`date`, `body`, `user`, `groupname`, `activity`) VALUES (NOW(), ?, ?, ?, 1)", [$body, $session->get("authUser"), $session->get('authProvider')]);
+        return QueryUtils::sqlInsert("INSERT INTO `onotes` (`date`, `body`, `user`, `groupname`, `activity`) VALUES (NOW(), ?, ?, ?, 1)", [$body, $session->get("authUser"), $session->get('authProvider')]);
     }
 
     /**
-     * Toggles a office note to be enabled.
+     * Toggles an office note to be enabled.
      *
-     * @param $id The office note id.
-     * @return true/false if the update was successful.
+     * @param  int|string $id The office note id.
+     * @return void
+     * @throws \OpenEMR\Common\Database\SqlQueryException On database error from the underlying update.
      */
     public function enableNoteById($id)
     {
-        sqlStatement("UPDATE `onotes` SET `activity` = 1 WHERE `id` = ?", [$id]);
+        QueryUtils::sqlStatementThrowException("UPDATE `onotes` SET `activity` = 1 WHERE `id` = ?", [$id]);
     }
 
     /**
-     * Toggles a office note to be disabled.
+     * Toggles an office note to be disabled.
      *
-     * @param $id The office note id.
-     * @return true/false if the update was successful.
+     * @param  int|string $id The office note id.
+     * @return void
+     * @throws \OpenEMR\Common\Database\SqlQueryException On database error from the underlying update.
      */
     public function disableNoteById($id)
     {
-        sqlStatement("UPDATE `onotes` SET `activity` = 0 WHERE `id` = ?", [$id]);
+        QueryUtils::sqlStatementThrowException("UPDATE `onotes` SET `activity` = 0 WHERE `id` = ?", [$id]);
     }
 
     public function updateNoteById($id, $body)
     {
-        sqlStatement("UPDATE `onotes` SET `body` = ? WHERE `id` = ?", [$body, $id]);
+        QueryUtils::sqlStatementThrowException("UPDATE `onotes` SET `body` = ? WHERE `id` = ?", [$body, $id]);
     }
 
     public function deleteNoteById($id)
     {
-        sqlStatement("DELETE FROM `onotes` WHERE `id` = ?", [$id]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM `onotes` WHERE `id` = ?", [$id]);
     }
 
     /**
@@ -79,21 +83,15 @@ class ONoteService
      */
     public function getNotes($activity, $offset, $limit)
     {
-        $notes = [];
         if (($activity == 0) || ($activity == 1)) {
-            $note = sqlStatement("SELECT * FROM `onotes` WHERE `activity` = ? ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset), [$activity]);
-        } else {
-            $note = sqlStatement("SELECT * FROM `onotes` ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset));
+            return QueryUtils::fetchRecords("SELECT * FROM `onotes` WHERE `activity` = ? ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset), [$activity]);
         }
-        while ($row = sqlFetchArray($note)) {
-            $notes[] = $row;
-        }
-        return $notes;
+        return QueryUtils::fetchRecords("SELECT * FROM `onotes` ORDER BY `date` DESC LIMIT " . escape_limit($limit) . " OFFSET " . escape_limit($offset));
     }
 
     public function countNotes($active)
     {
-        $sql = "SELECT COUNT(*) FROM onotes WHERE activity = ? OR ? = -1";
-        return sqlQuery($sql, [$active, $active])['COUNT(*)'];
+        $row = QueryUtils::querySingleRow("SELECT COUNT(*) AS cnt FROM onotes WHERE activity = ? OR ? = -1", [$active, $active]);
+        return $row['cnt'] ?? 0;
     }
 }

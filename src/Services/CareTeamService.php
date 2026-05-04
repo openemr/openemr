@@ -56,7 +56,7 @@ class CareTeamService extends BaseService
         return ['uuid', 'puuid'];
     }
 
-    public function search($search, $isAndCondition = true): \OpenEMR\Validators\ProcessingResult
+    public function search(array $search, $isAndCondition = true): \OpenEMR\Validators\ProcessingResult
     {
         $processingResult = new ProcessingResult();
         // Build the base query for care teams
@@ -123,12 +123,12 @@ class CareTeamService extends BaseService
     /**
      * Returns a list of careTeams matching optional search criteria.
      *
-     * @param  $search         search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param  $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
             $isValidPatient = BaseValidator::validateId(
@@ -145,7 +145,7 @@ class CareTeamService extends BaseService
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }

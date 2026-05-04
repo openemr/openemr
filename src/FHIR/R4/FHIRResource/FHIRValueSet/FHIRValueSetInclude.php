@@ -299,7 +299,7 @@ class FHIRValueSetInclude extends FHIRBackboneElement implements \JsonSerializab
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

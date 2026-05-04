@@ -17,9 +17,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with array\\{id\\: int, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false will always evaluate to false\\.$#',
+    'message' => '#^Call to function is_null\\(\\) with array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_null\\(\\) with array\\<string, mixed\\> will always evaluate to false\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with string will always evaluate to false\\.$#',
@@ -59,6 +64,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_date.php',
 ];
 $ignoreErrors[] = [
@@ -67,7 +77,42 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_image.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with string will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/IO/Includer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'DataPage\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'DataSet\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'Phreezable\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'Reporter\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_a\\(\\) with VARIANT and \'SplFixedArray\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with VARIANT will always evaluate to false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with value will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
@@ -75,31 +120,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with VARIANT will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerDetail.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleAction will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerEdit.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule will always evaluate to false\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerReview.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\TimeUnit will always evaluate to false\\.$#',
@@ -117,11 +137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaDiagnosis.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleCriteria will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\ReminderIntervalType will always evaluate to false\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
@@ -130,6 +145,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_string\\(\\) with non\\-empty\\-array will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with array will always evaluate to false\\.$#',
@@ -147,7 +167,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with array will always evaluate to false\\.$#',
+    'message' => '#^Call to function is_object\\(\\) with array\\|null will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_scalar\\(\\) with array\\|null will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_string\\(\\) with array\\<mixed\\> will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
@@ -175,16 +205,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRQuestionnaireResponseStatus will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with Effective will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_null\\(\\) with OpenEMR\\\\Services\\\\Globals\\\\Effective will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with string will always evaluate to false\\.$#',

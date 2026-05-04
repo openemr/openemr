@@ -38,7 +38,7 @@ class Date_Calc
      * retrieves the local date using strftime(), which may
      * or may not be 32-bit safe on your system.
      *
-     * @param string the strftime() format to return the date
+     * @param string $format the strftime() format to return the date
      *
      * @access public
      *
@@ -53,13 +53,13 @@ class Date_Calc
      /**
      * Returns true for valid date, false for invalid date.
      *
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
+     * @param string $year year in format CCYY
+     * @param string $month month in format MM
+     * @param string $day day in format DD
      *
      * @access public
      *
-     * @return boolean true/false
+     * @return bool true/false
      */
 
     static function isValidDate($day, $month, $year)
@@ -118,13 +118,13 @@ class Date_Calc
     /**
      * Determines if given date is a future date from now.
      *
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
+     * @param string $year year in format CCYY
+     * @param string $month month in format MM
+     * @param string $day day in format DD
      *
      * @access public
      *
-     * @return boolean true/false
+     * @return bool true/false
      */
 
     static function isFutureDate($day, $month, $year)
@@ -152,13 +152,13 @@ class Date_Calc
     /**
      * Determines if given date is a past date from now.
      *
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
+     * @param string $year year in format CCYY
+     * @param string $month month in format MM
+     * @param string $day day in format DD
      *
      * @access public
      *
-     * @return boolean true/false
+     * @return bool true/false
      */
 
     static function isPastDate($day, $month, $year)
@@ -186,9 +186,9 @@ class Date_Calc
     /**
      * Returns day of week for given date, 0=Sunday
      *
-     * @param string year in format CCYY, default is current local year
-     * @param string month in format MM, default is current local month
-     * @param string day in format DD, default is current local day
+     * @param string $year year in format CCYY, default is current local year
+     * @param string $month month in format MM, default is current local month
+     * @param string $day day in format DD, default is current local day
      *
      * @access public
      *
@@ -231,13 +231,13 @@ class Date_Calc
     /**
      * Returns week of the year, first Sunday is first day of first week
      *
-     * @param string day in format DD
-     * @param string month in format MM
-     * @param string year in format CCYY
+     * @param string $day day in format DD
+     * @param string $month month in format MM
+     * @param string $year year in format CCYY
      *
      * @access public
      *
-     * @return integer $week_number
+     * @return int $week_number
      */
 
     static function weekOfYear($day, $month, $year)
@@ -267,9 +267,9 @@ class Date_Calc
     /**
      * Returns number of days since 31 December of year before given date.
      *
-     * @param string year in format CCYY, default is current local year
-     * @param string month in format MM, default is current local month
-     * @param string day in format DD, default is current local day
+     * @param string $year year in format CCYY, default is current local year
+     * @param string $month month in format MM, default is current local month
+     * @param string $day day in format DD, default is current local day
      *
      * @access public
      *
@@ -304,9 +304,9 @@ class Date_Calc
     /**
      * Returns quarter of the year for given date
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
      *
      * @access public
      *
@@ -335,10 +335,10 @@ class Date_Calc
     /**
      * Returns date of begin of next month of given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -374,10 +374,10 @@ class Date_Calc
     /**
      * Returns date of the last day of next month of given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -414,10 +414,10 @@ class Date_Calc
     /**
      * Returns date of the first day of previous month of given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -453,10 +453,10 @@ class Date_Calc
     /**
      * Returns date of the last day of previous month for given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -493,10 +493,10 @@ class Date_Calc
      * Returns date of the next weekday of given date,
      * skipping from Friday to Monday.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -534,10 +534,10 @@ class Date_Calc
      * Returns date of the previous weekday,
      * skipping from Monday to Friday.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -575,12 +575,12 @@ class Date_Calc
      * Returns date of the next specific day of the week
      * from the given date.
      *
-     * @param int day of week, 0=Sunday
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param boolean onOrAfter if true and days are same, returns current day
-     * @param string format for returned date
+     * @param int $dow day of week, 0=Sunday
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param bool $onOrAfter onOrAfter if true and days are same, returns current day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -621,12 +621,12 @@ class Date_Calc
      * Returns date of the previous specific day of the week
      * from the given date.
      *
-     * @param int day of week, 0=Sunday
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param boolean onOrBefore if true and days are same, returns current day
-     * @param string format for returned date
+     * @param int $dow day of week, 0=Sunday
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param bool $onOrBefore onOrBefore if true and days are same, returns current day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -667,11 +667,11 @@ class Date_Calc
      * Returns date of the next specific day of the week
      * on or before the given date.
      *
-     * @param int day of week, 0=Sunday
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param int $dow day of week, 0=Sunday
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -687,11 +687,11 @@ class Date_Calc
      * Returns date of the previous specific day of the week
      * on or before the given date.
      *
-     * @param int day of week, 0=Sunday
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param int $dow day of week, 0=Sunday
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -706,10 +706,10 @@ class Date_Calc
     /**
      * Returns date of day after given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -738,10 +738,10 @@ class Date_Calc
     /**
      * Returns date of day before given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -771,7 +771,7 @@ class Date_Calc
      * Sets century for 2 digit year.
      * 51-99 is 19, else 20
      *
-     * @param string 2 digit year
+     * @param string $year 2 digit year
      *
      * @access public
      *
@@ -794,12 +794,12 @@ class Date_Calc
     /**
      * Returns number of days between two given dates.
      *
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
+     * @param string $day1 year in format CCYY
+     * @param string $month1 month in format MM
+     * @param string $year1 day in format DD
+     * @param string $day2 year in format CCYY
+     * @param string $month2 month in format MM
+     * @param string $year2 day in format DD
      *
      * @access public
      *
@@ -824,7 +824,7 @@ class Date_Calc
     /**
      * Find the number of days in the given month.
      *
-     * @param string month in format MM, default current local month
+     * @param string $month month in format MM, default current local month
      *
      * @access public
      *
@@ -859,8 +859,8 @@ class Date_Calc
      * determining the number of rows when displaying a typical
      * month calendar.
      *
-     * @param string month in format MM, default current local month
-     * @param string year in format YYCC, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $year year in format YYCC, default current local year
      *
      * @access public
      *
@@ -904,8 +904,8 @@ class Date_Calc
     /**
      * Find the day of the week for the first of the month of given date.
      *
-     * @param string year in format CCYY, default to current local year
-     * @param string month in format MM, default to current local month
+     * @param string $year year in format CCYY, default to current local year
+     * @param string $month month in format MM, default to current local month
      *
      * @access public
      *
@@ -928,9 +928,9 @@ class Date_Calc
     /**
      * Return date of first day of month of given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -954,10 +954,10 @@ class Date_Calc
      * Find the month day of the beginning of week for given date,
      * using DATE_CALC_BEGIN_WEEKDAY. (can return weekday of prev month.)
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1004,10 +1004,10 @@ class Date_Calc
      * using DATE_CALC_BEGIN_WEEKDAY. (can return weekday
      * of following month.)
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1040,10 +1040,10 @@ class Date_Calc
      * Find the month day of the beginning of week after given date,
      * using DATE_CALC_BEGIN_WEEKDAY. (can return weekday of prev month.)
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1082,10 +1082,10 @@ class Date_Calc
      * Find the month day of the beginning of week before given date,
      * using DATE_CALC_BEGIN_WEEKDAY. (can return weekday of prev month.)
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1123,10 +1123,10 @@ class Date_Calc
     /**
      * Return an array with days in week
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1165,9 +1165,9 @@ class Date_Calc
      * Return a set of arrays to construct a calendar month for
      * the given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1224,8 +1224,8 @@ class Date_Calc
      * Return a set of arrays to construct a calendar year for
      * the given date.
      *
-     * @param string year in format CCYY, default current local year
-     * @param string format for returned date
+     * @param string $year year in format CCYY, default current local year
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1251,13 +1251,13 @@ class Date_Calc
      * Converts a date to number of days since a
      * distant unspecified epoch.
      *
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
+     * @param string $year year in format CCYY
+     * @param string $month month in format MM
+     * @param string $day day in format DD
      *
      * @access public
      *
-     * @return integer number of days
+     * @return int number of days
      */
 
     static function dateToDays($day, $month, $year)
@@ -1287,8 +1287,8 @@ class Date_Calc
     /**
      * Converts number of days to a distant unspecified epoch.
      *
-     * @param int number of days
-     * @param string format for returned date
+     * @param int $days number of days
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1331,11 +1331,11 @@ class Date_Calc
      * Calculates the date of the Nth weekday of the month,
      * such as the second Saturday of January 2000.
      *
-     * @param string occurrence: 1=first, 2=second, 3=third, etc.
-     * @param string dayOfWeek: 0=Sunday, 1=Monday, etc.
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string format for returned date
+     * @param string $occurrence occurrence: 1=first, 2=second, 3=third, etc.
+     * @param string $dayOfWeek dayOfWeek: 0=Sunday, 1=Monday, etc.
+     * @param string $year year in format CCYY
+     * @param string $month month in format MM
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1390,10 +1390,10 @@ class Date_Calc
      *  %Y        year as decimal including century (range 0000 to 9999)
      *  %%        literal '%'
      *
-     * @param string year in format CCYY
-     * @param string month in format MM
-     * @param string day in format DD
-     * @param string format for returned date
+     * @param string $year year in format CCYY
+     * @param string $month month in format MM
+     * @param string $day day in format DD
+     * @param string $format format for returned date
      *
      * @access public
      *
@@ -1485,7 +1485,7 @@ class Date_Calc
     /**
      * Returns the full month name for the given month
      *
-     * @param string month in format MM
+     * @param string $month month in format MM
      *
      * @access public
      *
@@ -1509,8 +1509,8 @@ class Date_Calc
     /**
      * Returns the abbreviated month name for the given month
      *
-     * @param string month in format MM
-     * @param int optional length of abbreviation, default is 3
+     * @param string $month month in format MM
+     * @param int $length optional length of abbreviation, default is 3
      *
      * @access public
      *
@@ -1532,9 +1532,9 @@ class Date_Calc
     /**
      * Returns the full weekday name for the given date
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
      *
      * @access public
      *
@@ -1564,10 +1564,10 @@ class Date_Calc
     /**
      * Returns the abbreviated weekday name for the given date
      *
-     * @param string year in format CCYY, default current local year
-     * @param string month in format MM, default current local month
-     * @param string day in format DD, default current local day
-     * @param int optional length of abbreviation, default is 3
+     * @param string $year year in format CCYY, default current local year
+     * @param string $month month in format MM, default current local month
+     * @param string $day day in format DD, default current local day
+     * @param int $length optional length of abbreviation, default is 3
      *
      * @access public
      *
@@ -1598,8 +1598,8 @@ class Date_Calc
     * Both August and Aug would return 8.
     * Month name is case insensitive.
     *
-    * @param    string  month name
-    * @return   integer month number
+    * @param string $month month name
+    * @return int month number
     */
     static function getMonthFromFullName($month)
     {
@@ -1625,6 +1625,7 @@ class Date_Calc
     */
     static function getMonthNames()
     {
+        $months = [];
         for ($i = 1; $i < 13; $i++) {
             $months[$i] = strftime('%B', mktime(0, 0, 0, $i, 1, 2001));
         }
@@ -1643,6 +1644,7 @@ class Date_Calc
     */
     static function getWeekDays()
     {
+        $weekdays = [];
         for ($i = 0; $i < 7; $i++) {
             $weekdays[$i] = strftime('%A', mktime(0, 0, 0, 1, $i, 2001));
         }

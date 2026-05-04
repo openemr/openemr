@@ -30,9 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -89,10 +87,12 @@ function create_client_cert(): void
         return;
     }
 
+    $user = '';
     if ($_POST["client_cert_user"]) {
         $user = trim((string) $_POST['client_cert_user']);
     }
 
+    $email = '';
     if ($_POST["client_cert_email"]) {
         $email = trim((string) $_POST['client_cert_email']);
     }

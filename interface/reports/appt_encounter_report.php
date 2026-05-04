@@ -29,8 +29,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
+
+/** @var array<string, array<string, mixed>> $code_types */
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -48,9 +50,7 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -112,6 +112,7 @@ function endDoctor(&$docrow): void
 $form_facility  = $_POST['form_facility'] ?? '';
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$res = null;
 if (!empty($_POST['form_refresh'])) {
     // MySQL doesn't grok full outer joins so we do it the hard way.
     //
@@ -223,7 +224,7 @@ if (!empty($_POST['form_refresh'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -428,7 +429,7 @@ if (!empty($_POST['form_refresh'])) {
                                 continue;
                             }
 
-                            if (preg_match('/^25222/', $code)) {
+                            if (str_starts_with($code, '25222')) {
                                 $gcac_related_visit = true;
                             }
                         }
@@ -500,12 +501,6 @@ if (!empty($_POST['form_refresh'])) {
    </td>
    <td>
       &nbsp;<?php
-         /*****************************************************************
-         if ($form_to_date) {
-            echo $row['pc_eventDate'] . '<br />';
-            echo substr($row['pc_startTime'], 0, 5);
-         }
-         *****************************************************************/
         if (empty($row['pc_eventDate'])) {
             echo text(oeFormatShortDate(substr((string) $row['encdate'], 0, 10)));
         } else {

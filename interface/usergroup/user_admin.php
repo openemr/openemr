@@ -17,8 +17,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -35,9 +35,7 @@ use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -51,6 +49,7 @@ if (!$_GET["id"]) {
 }
 
 $res = sqlStatement("select * from users where id=?", [$_GET["id"]]);
+$result = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result[$iter] = $row;
 }
@@ -68,7 +67,7 @@ $iter = $result[0];
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
-<?php  require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php"); ?>
+<?php  require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -259,9 +258,9 @@ function toggle_password() {
     $is_super_user = AclMain::aclCheckCore('admin', 'super');
     $acl_name = AclExtended::aclGetGroupTitles($iter["username"]);
     $bg_name = '';
+    $selected_user_is_superuser = false;
     if (is_countable($acl_name)) {
         $bg_count = count($acl_name);
-        $selected_user_is_superuser = false;
         for ($i = 0; $i < $bg_count; $i++) {
             if ($acl_name[$i] == "Emergency Login") {
                 $bg_name = $acl_name[$i];
@@ -371,6 +370,7 @@ if ($iter["portal_user"]) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
+    $result = [];
     for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];
     }

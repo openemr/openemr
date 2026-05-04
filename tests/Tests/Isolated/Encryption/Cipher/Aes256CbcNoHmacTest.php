@@ -9,7 +9,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Claude <noreply@anthropic.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,9 +17,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Encryption\Cipher;
 
+use BadMethodCallException;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Cipher\Aes256CbcNoHmac;
+use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\TestCase;
 
@@ -28,13 +31,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class Aes256CbcNoHmacTest extends TestCase
 {
-    private CryptoFixtureManager $fixtures;
-
-    protected function setUp(): void
-    {
-        // No install() needed - we only use the static test vectors
-        $this->fixtures = new CryptoFixtureManager('/dev/null');
-    }
+    use CipherTestHelperTrait;
 
     public function testDecryptsKnownCiphertextCorrectly(): void
     {
@@ -46,7 +43,7 @@ final class Aes256CbcNoHmacTest extends TestCase
 
         $result = $cipher->decrypt($rawCiphertext);
 
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->bytes);
     }
 
     public function testThrowsOnWrongKey(): void
@@ -71,7 +68,7 @@ final class Aes256CbcNoHmacTest extends TestCase
 
         // Empty string has no IV or ciphertext
         $this->expectException(CryptoGenException::class);
-        $cipher->decrypt('');
+        $cipher->decrypt(new Ciphertext(''));
     }
 
     /**
@@ -85,7 +82,8 @@ final class Aes256CbcNoHmacTest extends TestCase
             key: new KeyMaterial($this->fixtures->getTestKey('one')),
         );
 
-        $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(1));
+        $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(1))
+            ->value;
 
         // Corrupt the ciphertext (after IV = 16 bytes)
         // Without HMAC, this just produces garbage output
@@ -93,19 +91,20 @@ final class Aes256CbcNoHmacTest extends TestCase
             . chr(ord($rawCiphertext[16]) ^ 0xFF)
             . substr($rawCiphertext, 17);
 
-        $result = $cipher->decrypt($corrupted);
+        $result = $cipher->decrypt(new Ciphertext($corrupted));
 
         // It decrypts to something, just not the right thing
-        self::assertNotSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
+        self::assertNotSame(CryptoFixtureManager::PLAINTEXT, $result->bytes);
     }
 
-    /**
-     * Strip version prefix and base64 decode to get raw ciphertext.
-     */
-    private function extractRawCiphertext(string $encoded): string
+    public function testEncryptThrowsBadMethodCallException(): void
     {
-        $raw = base64_decode(substr($encoded, 3), strict: true);
-        self::assertIsString($raw, 'Test vector base64 decode failed');
-        return $raw;
+        $cipher = new Aes256CbcNoHmac(
+            key: new KeyMaterial($this->fixtures->getTestKey('one')),
+        );
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Encrypting new data with');
+        $cipher->encrypt(new Plaintext(CryptoFixtureManager::PLAINTEXT));
     }
 }

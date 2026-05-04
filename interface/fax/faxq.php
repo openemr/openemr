@@ -229,9 +229,9 @@ foreach ($mlines as $matches) {
     $ffbase = basename("/$ffname", '.tif');
     $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
-    echo "     <td onclick='dodclick(\"" . attr(addslashes($ffname)) . "\")'>";
+    echo "     <td onclick='dodclick(" . attr(js_escape($ffname)) . ")'>";
     echo "<a href='fax_view.php?file=" . attr_url($ffname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . text($ffbase) . "</a></td>\n";
-    echo "     <td onclick='domclick(\"" . attr(addslashes($ffname)) . "\")'>";
+    echo "     <td onclick='domclick(" . attr(js_escape($ffname)) . ")'>";
     echo "<a href='fax_dispatch.php?file=" . attr_url($ffname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($matches[3]) . "</td>\n";
     echo "     <td>" . text($matches[2]) . "</td>\n";
@@ -270,7 +270,7 @@ foreach ($dlines as $matches) {
 
     $bgcolor = (($encount & 1) ? "#ddddff" : "#ffdddd");
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
-    echo "     <td onclick='dojclick(\"" . attr(addslashes($jobid)) . "\")'>" .
+    echo "     <td onclick='dojclick(" . attr(js_escape($jobid)) . ")'>" .
      "<a href='fax_view.php?jid=" . attr_url($jobid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" .
      "$jobid</a></td>\n";
     echo "     <td>" . text($matches[5]) . "</td>\n";
@@ -300,10 +300,10 @@ foreach ($slines as $sline) {
     $sfname = $sline[0]; // filename
     $sfdate = date('Y-m-d H:i', $sline[9]);
     echo "    <tr class='detail' bgcolor='" . attr($bgcolor) . "'>\n";
-    echo "     <td onclick='dosvclick(\"" . attr(addslashes($sfname)) . "\")'>" .
+    echo "     <td onclick='dosvclick(" . attr(js_escape($sfname)) . ")'>" .
      "<a href='fax_view.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" .
      "$sfname</a></td>\n";
-    echo "     <td onclick='dosdclick(\"" . attr(addslashes($sfname)) . "\")'>";
+    echo "     <td onclick='dosdclick(" . attr(js_escape($sfname)) . ")'>";
     echo "<a href='fax_dispatch.php?scan=" . attr_url($sfname) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='return false'>" . xlt('Dispatch') . "</a></td>\n";
     echo "     <td>" . text($sfdate) . "</td>\n";
     echo "     <td align='right'>" . text($sline[7]) . "</td>\n";

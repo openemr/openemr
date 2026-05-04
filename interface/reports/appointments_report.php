@@ -30,9 +30,10 @@ require_once("../../library/patient.inc.php");
 /**
  * @global $srcdir
  */
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/appointments.inc.php";
-require_once "$srcdir/clinical_rules.php";
+$srcDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once $srcDir . '/options.inc.php';
+require_once $srcDir . '/appointments.inc.php';
+require_once $srcDir . '/clinical_rules.php';
 
 use OpenEMR\Common\{
     Acl\AccessDeniedHelper,
@@ -49,9 +50,7 @@ use OpenEMR\BC\ServiceContainer;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
@@ -136,6 +135,7 @@ function appointments_fetch_reminders($pid, $appt_date): array
     $seq_due = [];
     $seq_cat = [];
     $seq_act = [];
+    $rems_out = [];
     foreach ($rems as $ix => $rem) {
         $rem_out = [];
         $rule_txt = fetch_rule_txt('rule_reminder_due_opt', $rem['due_status']);
@@ -180,7 +180,7 @@ if (empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

@@ -49,7 +49,7 @@ class BaseActionButtonHelper implements ActionButtonInterface
      *
      * If any allowed keys are not set they will be set to an empty string.
      *
-     * @param [type] $opts
+     * @param mixed $opts
      */
     public function __construct($opts)
     {

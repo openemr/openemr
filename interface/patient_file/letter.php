@@ -13,16 +13,16 @@
  */
 
 require_once("../globals.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
@@ -30,15 +30,11 @@ $cryptoGen = ServiceContainer::getCrypto();
 $template_dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 // array of field name tags to allow internationalization
@@ -219,7 +215,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -558,15 +554,7 @@ while (false !== ($tfname = readdir($dh))) {
         continue;
     }
 
-    if (preg_match("/\.php$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.jpg$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.png$/", $tfname)) {
+    if (in_array(strtolower(pathinfo($tfname, PATHINFO_EXTENSION)), ['php', 'jpg', 'png'], true)) {
         continue;
     }
 
@@ -713,7 +701,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 

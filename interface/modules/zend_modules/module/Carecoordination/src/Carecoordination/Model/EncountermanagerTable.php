@@ -21,12 +21,13 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/ccr/transmitCCD.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/ccr/transmitCCD.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
 
 class EncountermanagerTable
 {
@@ -152,6 +153,7 @@ class EncountermanagerTable
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }
@@ -195,7 +197,7 @@ class EncountermanagerTable
         }
     }
 
-    private function getCcdaAsPdf($ccda)
+    private function getCcdaAsPdf(string $ccda)
     {
         $dompdf = new Dompdf();
         $dompdf->loadHtml($this->getCcdaAsHTML($ccda));
@@ -203,9 +205,19 @@ class EncountermanagerTable
         return $dompdf->output();
     }
 
-    public function getCcdaAsHTML($ccda)
+    private function getCcdaAsXml(string $ccda): string
     {
-        $xml = simplexml_load_string((string) $ccda);
+        $xml = XmlUtils::loadString($ccda);
+        $output = $xml->asXML();
+        if ($output === false) {
+            throw new \RuntimeException("Failed to serialize CCDA as XML");
+        }
+        return $output;
+    }
+
+    public function getCcdaAsHTML(string $ccda)
+    {
+        $xml = XmlUtils::loadString($ccda);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.
@@ -244,6 +256,7 @@ class EncountermanagerTable
 
         $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
+        $elec_sent = [];
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];
@@ -251,6 +264,8 @@ class EncountermanagerTable
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = QueryUtils::fetchRecords($query, [$value]);
+                    $ccda_id = null;
+                    $trans_id = null;
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
@@ -267,20 +282,19 @@ class EncountermanagerTable
                     $document = $documents[0];
                     $ccda = $document->get_data();
                     // use the filename that exists in the document for what is sent
-                    $fileName = $document->get_name();
-                    if (empty($ccda) || empty($fileName)) {
+                    $fileName = (string) $document->get_name();
+                    $ccdaString = (string) $ccda;
+                    if ($ccdaString === '' || $fileName === '') {
                         throw new \RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
                             . $document->get_id());
                     }
 
-                    if ($xml_type == 'html') {
-                        $ccda_file = $this->getCcdaAsHTML($ccda);
-                    } elseif ($xml_type == 'pdf') {
-                        $ccda_file = $this->getCcdaAsPdf($ccda);
-                    } elseif ($xml_type == 'xml') {
-                        $xml = simplexml_load_string($ccda);
-                        $ccda_file = $xml->saveXML();
-                    }
+                    $ccda_file = match ($xml_type) {
+                        'html' => $this->getCcdaAsHTML($ccdaString),
+                        'pdf' => $this->getCcdaAsPdf($ccdaString),
+                        'xml' => $this->getCcdaAsXml($ccdaString),
+                        default => throw new \RuntimeException("Unsupported CCDA export type: " . $xml_type),
+                    };
                     $replaceExt = "." . $xml_type;
                     $extpos = strrpos($fileName, ".xml");
                     if ($extpos !== false) {

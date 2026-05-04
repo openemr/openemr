@@ -12,8 +12,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("../../custom/code_types.inc.php");
 
@@ -31,9 +31,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $comarr = ['allow_sms' => xl('Allow SMS'),'allow_voice' => xl('Allow Voice Message'),'allow_mail' => xl('Allow Mail Message'),'allow_email' => xl('Allow Email')];
@@ -212,7 +210,7 @@ $communication = trim($_POST["communication"] ?? '');
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -498,7 +496,7 @@ if (!empty($_POST['form_refresh'])) {
                         c.code_text as code_text,
                         fe.encounter as encounter,
                         b.date as date";
-        $mh_stmt .= ",code,code_text,encounter,date";
+        $mh_stmt = ($mh_stmt ?? '') . ",code,code_text,encounter,date";
     }
 
     if (strlen($form_immunization) > 0) {

@@ -18,7 +18,7 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 function care_plan_report($pid, $encounter, $cols, $id): void
 {

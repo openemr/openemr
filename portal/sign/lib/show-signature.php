@@ -21,6 +21,7 @@ $isPortal = $data['is_portal'];
 $signer = '';
 $ignoreAuth = false;
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
@@ -47,15 +48,14 @@ if ($isPortal) {
 require_once("../../../interface/globals.php");
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!$isPortal) {
-    $userManipulatedFlag = false;
-    if ($user != $session->get('authUserID')) {
-        $userManipulatedFlag = true;
+if ($isPortal) {
+    // Portal users can only view patient signatures, not admin signatures
+    if ($type === 'admin-signature') {
+        AccessDeniedHelper::deny('Portal user attempted to view admin signature');
     }
-
-    if ($userManipulatedFlag) {
-        echo js_escape("error");
-        exit();
+} else {
+    if ($user != $session->get('authUserID')) {
+        AccessDeniedHelper::deny('User ID mismatch in show-signature');
     }
 }
 

@@ -15,8 +15,9 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -34,9 +35,7 @@ use OpenEMR\Services\ContactTelecomService;
 $logger = ServiceContainer::getLogger();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 global $pid;
 

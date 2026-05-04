@@ -11,10 +11,17 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 // Check permission to create encounters.
 $tmp = getPatientData($pid, "squad");

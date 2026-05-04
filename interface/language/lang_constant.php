@@ -32,9 +32,7 @@ if (!$thisauth) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['add'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //validate
     if ($_POST['constant_name'] == "") {

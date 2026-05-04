@@ -11,17 +11,19 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+$userauthorized = $session->get('userauthorized', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $mode              = $_REQUEST['mode'];
 $type              = $_REQUEST['type'];
@@ -34,6 +36,8 @@ $payment_method    = $_REQUEST['payment_method'];
 $insurance_company = $_REQUEST['insurance_company'];
 
 $target = '_parent';
+$tmore = '';
+$tback = '';
 
 // Possible units of measure for NDC drug quantities.
 $ndc_uom_choices = [
@@ -49,9 +53,7 @@ if ($payment_method == "insurance") {
 }
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         // Get the provider ID from the new encounter form if possible, otherwise
@@ -269,6 +271,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = [];
     $total = 0.0;
     $ndclino = 0;
+    $counter = 0;
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
                 $html = "<tr>";

@@ -19,9 +19,9 @@
  * Generate HTML for the QOE form suitable for insertion into a <div>.
  * This HTML may contain single quotes but not unescaped double quotes.
  *
- * @param  integer $ptid     Value matching a procedure_type_id in the procedure_types table.
- * @param  integer $orderid  Procedure order ID, if there is an existing order.
- * @param  integer $dbseq    Procedure order item sequence number, if there is an existing procedure.
+ * @param int $ptid Value matching a procedure_type_id in the procedure_types table.
+ * @param int $orderid Procedure order ID, if there is an existing order.
+ * @param int $dbseq Procedure order item sequence number, if there is an existing procedure.
  * @param  string  $formseq  Zero-relative occurrence number in the form.
  * @return string            The generated HTML.
  */

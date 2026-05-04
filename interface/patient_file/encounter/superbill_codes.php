@@ -11,14 +11,22 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+$userauthorized = $session->get('userauthorized', 0);
 require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$tback = '';
+$tmore = '';
+
 
 //the number of rows to display before resetting and starting a new column:
 $N = 10;
@@ -32,9 +40,7 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         if (strtolower((string) $type) == "copay") {

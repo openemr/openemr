@@ -87,8 +87,9 @@ class CcdaGenerator
 
         if (!$sections) {
             $components0 = $this->getEncounterccdadispatchTable()->getCCDAComponents(0);
+            $str = '';
             foreach ($components0 as $key => $value) {
-                if ($str ?? '') {
+                if ($str !== '') {
                     $str .= '|';
                 } else {
                     $str = $key;
@@ -101,8 +102,9 @@ class CcdaGenerator
 
         if (!$components) {
             $components1 = $this->getEncounterccdadispatchTable()->getCCDAComponents(1);
+            $str1 = '';
             foreach ($components1 as $key => $value) {
-                if ($str1 ?? '') {
+                if ($str1 !== '') {
                     $str1 .= '|';
                 } else {
                     $str1 = $key;

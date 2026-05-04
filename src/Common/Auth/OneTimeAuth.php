@@ -57,7 +57,6 @@ class OneTimeAuth
 
     /**
      * @param array $p
-     * @param bool  $encrypt_redirect
      * @return array|bool
      * @throws \Exception
      *
@@ -76,9 +75,8 @@ class OneTimeAuth
      *        'max_access_count' => 0, // 0 = unlimited.
      *     ]
      */
-    public function createPortalOneTime(array $p, bool $encrypt_redirect = false): array|bool
+    public function createPortalOneTime(array $p): array|bool
     {
-        $redirect_token = null;
         $passed_in_pid = $p['pid'] ?? 0;
         $valid = PatientPortalService::isValidPortalPatient($passed_in_pid);
         if (empty($valid['valid'] ?? null) || empty($passed_in_pid)) {
@@ -98,14 +96,6 @@ class OneTimeAuth
         }
 
         $redirect_raw = trim((string)($p['redirect_link'] ?? null));
-        if (!empty($redirect_raw) && $encrypt_redirect) {
-            $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
-            $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
-            if (empty($redirect_token)) {
-                // since redirect should be in database we can continue.
-                $this->systemLogger->error(xlt("Onetime redirect failed encryption."));
-            }
-        }
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
@@ -126,9 +116,8 @@ class OneTimeAuth
         $actions = array_merge($actionDefaults, $p['actions'] ?? []); // from event data.
 
         // Create the encoded link and return the onetime token data set
-        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
+        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt);
         $rtn['onetime_token'] = $token_encrypt;
-        $rtn['redirect_token'] = $redirect_token;
         $rtn['pin'] = $pin;
         $rtn['email'] = $email;
 
@@ -147,11 +136,10 @@ class OneTimeAuth
 
     /**
      * @param $onetime_token
-     * @param $redirect_token
      * @return array
      * @throws OneTimeAuthExpiredException
      */
-    public function decodePortalOneTime($onetime_token, $redirect_token = null, $logUpdate = true): array
+    public function decodePortalOneTime($onetime_token, $logUpdate = true): array
     {
         $auth = false;
         $rtn = [];
@@ -190,21 +178,7 @@ class OneTimeAuth
             $this->systemLogger->error($rtn['error']);
             throw new OneTimeAuthExpiredException($rtn['error'], $auth['pid']);
         }
-        // We'll rely on the stored redirect address as default.
-        // However, leave the option of using embedded encrypted redirect.
         $redirect = $t_info['redirect_url'] ?? null;
-        if (!empty($redirect_token)) {
-            $redirectTokenStr = is_string($redirect_token) ? $redirect_token : null;
-            if ($this->cryptoGen->cryptCheckStandard($redirectTokenStr)) {
-                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirectTokenStr, minimumVersion: 6);
-                $redirect_array = json_decode($redirect_decrypted, true);
-                $redirect = $redirect_array['to'];
-                if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
-                    throw new OneTimeAuthException(xlt("Error! credentials pid to and from don't match!"), $auth['pid']);
-                }
-                $this->systemLogger->debug("Redirect token decrypted: pid = " . $redirect_array['pid'] . " redirect = " . $redirect);
-            }
-        }
 
         $rtn['pid'] = $auth['pid'];
         $rtn['pin'] = $t_info['onetime_pin'];
@@ -226,10 +200,9 @@ class OneTimeAuth
     /**
      * @param $site_addr
      * @param $token_encrypt
-     * @param $encrypted_redirect
      * @return string
      */
-    private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
+    private function encodeLink($site_addr, $token_encrypt): string
     {
         $site_id = $this->session->get('site_id', 'default');
         if (stripos((string)$site_addr, "portal") !== false) {
@@ -259,18 +232,10 @@ class OneTimeAuth
                 'site' => $site_id
             ], '', '&', $enc_type));
         } else {
-            if (!empty($encrypted_redirect)) {
-                $encoded_link = sprintf($format, attr($site_addr), http_build_query([
-                    'service_auth' => $token_encrypt,
-                    'target' => $encrypted_redirect,
-                    'site' => $site_id
-                ], '', '&', $enc_type));
-            } else {
-                $encoded_link = sprintf($format, attr($site_addr), http_build_query([
-                    'service_auth' => $token_encrypt,
-                    'site' => $site_id
-                ], '', '&', $enc_type));
-            }
+            $encoded_link = sprintf($format, attr($site_addr), http_build_query([
+                'service_auth' => $token_encrypt,
+                'site' => $site_id
+            ], '', '&', $enc_type));
         }
         $this->systemLogger->debug("Onetime link " . text($encoded_link) . " encoded");
 
@@ -328,13 +293,12 @@ class OneTimeAuth
 
     /**
      * @param $token
-     * @param $redirect_token
      * @return array
      */
-    public function processOnetime($token, $redirect_token): array
+    public function processOnetime($token): array
     {
         try {
-            $auth = $this->decodePortalOneTime($token, $redirect_token);
+            $auth = $this->decodePortalOneTime($token);
             if ($auth["actions"]["enforce_auth_pin"]) {
                 $this->systemLogger->debug("Pin auth required");
                 if ($auth['pin'] != $_POST['login_pin'] ?? null) {

@@ -29,9 +29,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -175,8 +173,8 @@ $(function () {
                         <?php
                         $fres = 0;
                         $fres = $facilityService->getAllFacility();
+                        $result2 = [];
                         if ($fres) {
-                            $result2 = [];
                             for ($iter3 = 0; $iter3 < count($fres); $iter3++) {
                                 $result2[$iter3] = $fres[$iter3];
                             }

@@ -26,9 +26,13 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class EncounterccdadispatchController extends AbstractActionController
 {
     protected $data;
@@ -77,6 +81,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
+        $content = '';
         $request = $this->getRequest();
         $this->patient_id = $request->getQuery('pid');
         $this->encounter_id = $request->getQuery('encounter');
@@ -237,6 +242,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
                 // split content if unstructured is included from service.
                 $unstructured = "";
+                $content = strval($content);
                 if (substr_count($content, '</ClinicalDocument>') === 2) {
                     $d = explode('</ClinicalDocument>', $content);
                     $content = $d[0] . '</ClinicalDocument>';
@@ -249,7 +255,7 @@ class EncounterccdadispatchController extends AbstractActionController
                         ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();
                     }
-                    $xml = simplexml_load_string($content);
+                    $xml = XmlUtils::loadString($content);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.
@@ -306,25 +312,11 @@ class EncounterccdadispatchController extends AbstractActionController
             die();
         }
 
-        try {
-            ob_clean();
-            if (!empty($_POST['sent_by_app'] ?? '')) {
-                echo $content;
-                exit;
-            }
-            if (empty($downloadccda)) {
-                $practice_filename = "CCDA_{$this->patient_id}.xml";
-                header("Cache-Control: public");
-                header("Content-Description: File Transfer");
-                header("Content-Disposition: attachment; filename=" . $practice_filename);
-                header("Content-Type: application/download");
-                header("Content-Transfer-Encoding: binary");
-                echo $content;
-            }
-            exit;
-        } catch (\Throwable $e) {
-            die($e->getMessage());
+        ob_clean();
+        if (!empty($_POST['sent_by_app'] ?? '')) {
+            echo $content;
         }
+        exit;
     }
 
     /**
@@ -468,6 +460,7 @@ class EncounterccdadispatchController extends AbstractActionController
             return;
         }
 
+        $combination = $this->params('pids');
         $view = new ViewModel([
             'combination' => $combination,
             'listenerObject' => $this->listenerObject,
@@ -492,6 +485,7 @@ class EncounterccdadispatchController extends AbstractActionController
         $date = date('Y-m-d', $str_time);
 
         $encounter = $this->getEncounterccdadispatchTable()->getEncounterDate($date);
+        $result = null;
         foreach ($encounter as $row) {
             $result = $this->getEncounterccdadispatchTable()->signOff($row['pid'], $row['encounter']);
         }

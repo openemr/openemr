@@ -22,7 +22,7 @@ use Psr\Log\NullLogger;
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
- * @copyright Copyright (c) 2026 Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
@@ -253,19 +253,6 @@ class ApiTestClient
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
             $this->refresh_token = $responseBody->refresh_token;
-        } else {
-            $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
-            /** @var \stdClass|null $errorBody */
-            $errorBody = json_decode((string) $authResponse->getBody());
-            if (isset($errorBody->error)) {
-                $errorMessage .= " - " . $errorBody->error;
-            }
-            if (isset($errorBody->error_description)) {
-                $errorMessage .= ": " . $errorBody->error_description;
-            }
-            if (isset($errorBody->hint)) {
-                $errorMessage .= ": " . $errorBody->hint;
-            }
         }
 
         return $authResponse;

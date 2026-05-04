@@ -386,6 +386,7 @@ class SyndromicsurveillanceTable
             foreach ($o_result as $row) {
                     $i++;
                 if ($row['code'] == 'SS003') {
+                    $text = '';
                     if ($row['ob_value'] == '261QE0002X') {
                         $text = 'Emergency Care';
                     } elseif ($row['ob_value'] == '261QM2500X') {
@@ -509,6 +510,7 @@ class SyndromicsurveillanceTable
         $date   = str_replace('/', '-', $date);
         $arr    = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }

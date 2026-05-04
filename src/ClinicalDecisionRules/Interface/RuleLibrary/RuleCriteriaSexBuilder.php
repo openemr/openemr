@@ -21,7 +21,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 class RuleCriteriaSexBuilder extends RuleCriteriaBuilder
 {
     /**
-     * @return RuleCriteriaType
+     * @return ?RuleCriteriaType
      */
     function resolveRuleCriteriaType($method, $methodDetail, $value)
     {

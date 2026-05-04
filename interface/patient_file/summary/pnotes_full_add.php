@@ -11,23 +11,25 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/gprelations.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+$userauthorized = $session->get('userauthorized', 0);
+require_once($srcdir . "/pnotes.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/gprelations.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET['set_pid'])) {
-    require_once("$srcdir/pid.inc.php");
+    require_once($srcdir . "/pid.inc.php");
     setpid($_GET['set_pid']);
 }
 
@@ -88,18 +90,16 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
             if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
-                    reappearPnote($id);
+                    reappearPnote($id, $patient_id);
                 } else {
-                    disappearPnote($id);
+                    disappearPnote($id, $patient_id);
                 }
 
                 if ($docid) {
@@ -114,7 +114,7 @@ if (isset($mode)) {
     } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
-            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to']);
+            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', '', $patient_id);
             $noteid = '';
         } else {
             $noteid = addPnote(
@@ -138,7 +138,7 @@ if (isset($mode)) {
         $noteid = '';
     } elseif ($mode == "delete") {
         if ($noteid) {
-            deletePnote($noteid);
+            deletePnote($noteid, $patient_id);
             EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), "pnotes: id " . $noteid);
         }
 
@@ -461,7 +461,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         ,minDate : 0 //only future
     });
 

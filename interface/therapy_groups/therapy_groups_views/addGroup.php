@@ -28,6 +28,10 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+/** @var array<string,mixed> $groupData */
+/** @var string $message */
+/** @var string $savingStatus */
+
 ?>
 
 <?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
@@ -165,7 +169,7 @@ use OpenEMR\Core\OEGlobalsBag;
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

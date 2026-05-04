@@ -13,9 +13,9 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/clinical_rules.php";
-require_once "$srcdir/report_database.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php";
 
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -32,9 +32,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $form_begin_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_begin_date'] ?? '');
@@ -55,7 +53,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

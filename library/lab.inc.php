@@ -150,8 +150,8 @@ function getBarId($lab_id, $pid): bool|array|string|null
 
 /**
  *
- * @param <type> $facilityID
- * @return <type> the result set, false if the input is malformed
+ * @param mixed $facilityID
+ * @return mixed the result set, false if the input is malformed
  */
 function getFacilityInfo($facilityID): bool|array
 {

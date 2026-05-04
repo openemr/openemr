@@ -127,7 +127,7 @@ abstract class RuleCriteriaFactory
     /**
      *
      * @param RuleCriteriaType $criteriaType
-     * @return RuleCriteria
+     * @return ?RuleCriteriaBuilder
      */
     function getBuilderFor($criteriaType)
     {

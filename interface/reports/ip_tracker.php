@@ -23,9 +23,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'ip_tracker')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'ip_tracker', dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -68,7 +66,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request.append("function", func);
             request.append("ipId", ipId);
             request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
-            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+            fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -87,7 +85,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request.append("function", func);
             request.append("ipId", ipId);
             request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
-            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+            fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request
@@ -100,7 +98,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request.append("function", "resetIpCounter");
             request.append("ipId", ipId);
             request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
-            fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+            fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: request

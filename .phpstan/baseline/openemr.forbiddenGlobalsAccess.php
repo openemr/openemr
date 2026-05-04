@@ -8,7 +8,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 34,
+    'count' => 31,
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
@@ -33,7 +33,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 32,
+    'count' => 27,
     'path' => __DIR__ . '/../../sites/default/config.php',
 ];
 

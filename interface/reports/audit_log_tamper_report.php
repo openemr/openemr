@@ -32,9 +32,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 ?>
@@ -207,6 +205,7 @@ $check_sum = isset($_GET['check_sum']);
     $type_event = "";
     $tevent = "";
     $gev = "";
+    $getevent = "";
     if ($eventname != "" && $type_event != "") {
         $getevent = $eventname . "-" . $type_event;
     }
@@ -250,6 +249,7 @@ $check_sum = isset($_GET['check_sum']);
             }
 
             $checkSumOldApi = $iter['checksum_api'];
+            $checkSumNewApi = '';
             if (!empty($checkSumOldApi)) {
                 $checkSumNewApi = hash('sha3-512', $iter['log_id_api'] . $iter['user_id'] . $iter['patient_id_api'] . $iter['ip_address'] . $iter['method'] . $iter['request'] . $iter['request_url'] . $iter['request_body'] . $iter['response'] . $iter['created_time']);
             }
@@ -391,7 +391,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

@@ -17,9 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //  If all items are valid(ie. not empty) (note object_category and object_id and date_created can be empty), then proceed.
 if (

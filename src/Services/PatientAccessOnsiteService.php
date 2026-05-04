@@ -78,7 +78,7 @@ class PatientAccessOnsiteService
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sql = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ? ORDER BY setting_user LIMIT 1";
-        $user = (is_null($user) ? $session->get('authUserID') : $user);
+        $user ??= $session->get('authUserID');
         $rtn = sqlQueryNoLog($sql, [$user, $label]);
 
         return $rtn['setting_value'] ?? 0;

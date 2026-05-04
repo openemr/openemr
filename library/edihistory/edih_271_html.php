@@ -36,8 +36,8 @@
  * @uses edih_format_date()
  * @uses edih_format_percent()
  *
- * @param object   edih_x12_file type 271
- * @param string   bht03 or clm01 reference for transaction
+ * @param mixed $obj271 edih_x12_file type 271
+ * @param string $bht03 bht03 or clm01 reference for transaction
  * @return string
  */
 function edih_271_transaction_html($obj271, $bht03)
@@ -72,6 +72,10 @@ function edih_271_transaction_html($obj271, $bht03)
     $dep_eb_html = "";
     //
     $ebct = 0;
+    $cls = '';
+    $loopid = '';
+    $dmg03 = '';
+    $ebo7 = '';
     //
     $trns_ct = count($trans);
     for ($i = 0; $i < $trns_ct; $i++) {
@@ -568,7 +572,7 @@ function edih_271_html($filename, $bht03 = '')
     //
     if ($filename) {
         $obj271 = csv_check_x12_obj($filename, 'f271');
-        if ('edih_x12_file' == $obj271::class) {
+        if ($obj271 !== false) {
             if ($bht03) {
                 // particular transaction
                 $html_str .= edih_271_transaction_html($obj271, $bht03);

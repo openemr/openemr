@@ -16,16 +16,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/FeeSheetHtml.class.php");
-include_once("../../forms/eye_mag/php/eye_mag_functions.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/FeeSheetHtml.class.php");
+include_once(__DIR__ . "/php/eye_mag_functions.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -132,6 +132,72 @@ $query10 = "select  *,form_encounter.date as encounter_date
 
 $encounter_data = sqlQuery($query10, [$id, $pid, $encounter]);
 @extract($encounter_data);
+// Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
+$ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null; $ACT10SCNEAR ??= null;
+$ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null; $ACT11SCNEAR ??= null;
+$ACT1CCDIST ??= null; $ACT1CCNEAR ??= null; $ACT1SCDIST ??= null; $ACT1SCNEAR ??= null; $ACT2CCDIST ??= null;
+$ACT2CCNEAR ??= null; $ACT2SCDIST ??= null; $ACT2SCNEAR ??= null; $ACT3CCDIST ??= null; $ACT3CCNEAR ??= null;
+$ACT3SCDIST ??= null; $ACT3SCNEAR ??= null; $ACT4CCDIST ??= null; $ACT4CCNEAR ??= null; $ACT4SCDIST ??= null;
+$ACT4SCNEAR ??= null; $ACT5CCDIST ??= null; $ACT5CCNEAR ??= null; $ACT5SCDIST ??= null; $ACT5SCNEAR ??= null;
+$ACT6CCDIST ??= null; $ACT6CCNEAR ??= null; $ACT6SCDIST ??= null; $ACT6SCNEAR ??= null; $ACT7CCDIST ??= null;
+$ACT7CCNEAR ??= null; $ACT7SCDIST ??= null; $ACT7SCNEAR ??= null; $ACT8CCDIST ??= null; $ACT8CCNEAR ??= null;
+$ACT8SCDIST ??= null; $ACT8SCNEAR ??= null; $ACT9CCDIST ??= null; $ACT9CCNEAR ??= null; $ACT9SCDIST ??= null;
+$ACT9SCNEAR ??= null; $AMSLEROD ??= null; $AMSLEROS ??= null; $ANTSEG_COMMENTS ??= null; $ARNEARODVA ??= null;
+$ARNEAROSVA ??= null; $ARODADD ??= null; $ARODAXIS ??= null; $ARODCYL ??= null; $ARODPRISM ??= null;
+$ARODSPH ??= null; $ARODVA ??= null; $AROSADD ??= null; $AROSAXIS ??= null; $AROSCYL ??= null;
+$AROSPRISM ??= null; $AROSSPH ??= null; $AROSVA ??= null; $ASSOCIATED1 ??= null; $ASSOCIATED2 ??= null;
+$ASSOCIATED3 ??= null; $ATROPINE ??= null; $BALANCED ??= null; $BINOCVA ??= null; $CACCDIST ??= null;
+$CACCNEAR ??= null; $CC1 ??= null; $CC2 ??= null; $CC3 ??= null; $CHRONIC1 ??= null; $CHRONIC2 ??= null;
+$CHRONIC3 ??= null; $CONTEXT1 ??= null; $CONTEXT2 ??= null; $CONTEXT3 ??= null; $CRCOMMENTS ??= null;
+$CRODAXIS ??= null; $CRODCYL ??= null; $CRODSPH ??= null; $CRODVA ??= null; $CROSAXIS ??= null;
+$CROSCYL ??= null; $CROSSPH ??= null; $CROSVA ??= null; $CTLBRANDOD ??= null; $CTLBRANDOS ??= null;
+$CTLBRAND_list_OD ??= null; $CTLBRAND_list_OS ??= null; $CTLMANUFACTUREROD ??= null;
+$CTLMANUFACTUREROS ??= null; $CTLODADD ??= null; $CTLODAXIS ??= null; $CTLODBC ??= null; $CTLODCYL ??= null;
+$CTLODDIAM ??= null; $CTLODSPH ??= null; $CTLODVA ??= null; $CTLOSADD ??= null; $CTLOSAXIS ??= null;
+$CTLOSBC ??= null; $CTLOSCYL ??= null; $CTLOSDIAM ??= null; $CTLOSSPH ??= null; $CTLOSVA ??= null;
+$CTLSUPPLIEROD ??= null; $CTLSUPPLIEROS ??= null; $CTL_COMMENTS ??= null; $CYCLOGYL ??= null;
+$CYCLOMYDRIL ??= null; $DACCDIST ??= null; $DACCNEAR ??= null; $DIL_MEDS ??= null; $DIL_RISKS ??= null;
+$DIMODPUPILSIZE1 ??= null; $DIMODPUPILSIZE2 ??= null; $DIMOSPUPILSIZE1 ??= null; $DIMOSPUPILSIZE2 ??= null;
+$DURATION1 ??= null; $DURATION2 ??= null; $DURATION3 ??= null; $EXT_COMMENTS ??= null; $GLAREODVA ??= null;
+$GLAREOSVA ??= null; $HERTELBASE ??= null; $HPI1 ??= null; $HPI2 ??= null; $HPI3 ??= null; $IMP ??= null;
+$IOPTIME ??= null; $LADNEXA ??= null; $LBROW ??= null; $LCAROTID ??= null; $LCNV ??= null; $LCNVII ??= null;
+$LIODVA ??= null; $LIOSVA ??= null; $LLF ??= null; $LLL ??= null; $LMCT ??= null; $LMRD ??= null;
+$LOCATION1 ??= null; $LOCATION2 ??= null; $LOCATION3 ??= null; $LOCKED ??= null; $LOCKEDBY ??= null;
+$LTEMPART ??= null; $LUL ??= null; $LVFISSURE ??= null; $MODIFY1 ??= null; $MODIFY2 ??= null;
+$MODIFY3 ??= null; $MOTILITYNORMAL ??= null; $MOTILITY_LI ??= null; $MOTILITY_LL ??= null;
+$MOTILITY_LLIO ??= null; $MOTILITY_LLSO ??= null; $MOTILITY_LR ??= null; $MOTILITY_LRIO ??= null;
+$MOTILITY_LRSO ??= null; $MOTILITY_LS ??= null; $MOTILITY_RI ??= null; $MOTILITY_RL ??= null;
+$MOTILITY_RLIO ??= null; $MOTILITY_RLSO ??= null; $MOTILITY_RR ??= null; $MOTILITY_RRIO ??= null;
+$MOTILITY_RRSO ??= null; $MOTILITY_RS ??= null; $MRNEARODVA ??= null; $MRNEAROSVA ??= null; $MRODADD ??= null;
+$MRODAXIS ??= null; $MRODCYL ??= null; $MRODPRISM ??= null; $MRODSPH ??= null; $MRODVA ??= null;
+$MROSADD ??= null; $MROSAXIS ??= null; $MROSCYL ??= null; $MROSPRISM ??= null; $MROSSPH ??= null;
+$MROSVA ??= null; $NEO25 ??= null; $NEURO_COMMENTS ??= null; $NPC ??= null; $ODAC ??= null; $ODACD ??= null;
+$ODAPD ??= null; $ODAXIALLENGTH ??= null; $ODCMT ??= null; $ODCOINS ??= null; $ODCOLOR ??= null;
+$ODCONJ ??= null; $ODCORNEA ??= null; $ODCUP ??= null; $ODDISC ??= null; $ODGONIO ??= null;
+$ODHERTEL ??= null; $ODIOPAP ??= null; $ODIOPFTN ??= null; $ODIOPPOST ??= null; $ODIOPTPN ??= null;
+$ODIRIS ??= null; $ODK1 ??= null; $ODK2 ??= null; $ODK2AXIS ??= null; $ODKTHICKNESS ??= null;
+$ODLENS ??= null; $ODLT ??= null; $ODMACULA ??= null; $ODNPA ??= null; $ODPDMeasured ??= null;
+$ODPERIPH ??= null; $ODPUPILREACTIVITY ??= null; $ODPUPILSIZE1 ??= null; $ODPUPILSIZE2 ??= null;
+$ODREDDESAT ??= null; $ODSCHIRMER1 ??= null; $ODSCHIRMER2 ??= null; $ODTBUT ??= null; $ODVESSELS ??= null;
+$ODVF ??= null; $ODVF1 ??= null; $ODVF2 ??= null; $ODVF3 ??= null; $ODVF4 ??= null; $ODVITREOUS ??= null;
+$ODW2W ??= null; $OSAC ??= null; $OSACD ??= null; $OSAPD ??= null; $OSAXIALLENGTH ??= null; $OSCMT ??= null;
+$OSCOINS ??= null; $OSCOLOR ??= null; $OSCONJ ??= null; $OSCORNEA ??= null; $OSCUP ??= null; $OSDISC ??= null;
+$OSGONIO ??= null; $OSHERTEL ??= null; $OSIOPAP ??= null; $OSIOPFTN ??= null; $OSIOPPOST ??= null;
+$OSIOPTPN ??= null; $OSIRIS ??= null; $OSK1 ??= null; $OSK2 ??= null; $OSK2AXIS ??= null;
+$OSKTHICKNESS ??= null; $OSLENS ??= null; $OSLT ??= null; $OSMACULA ??= null; $OSNPA ??= null;
+$OSPDMeasured ??= null; $OSPERIPH ??= null; $OSPUPILREACTIVITY ??= null; $OSPUPILSIZE1 ??= null;
+$OSPUPILSIZE2 ??= null; $OSREDDESAT ??= null; $OSSCHIRMER1 ??= null; $OSSCHIRMER2 ??= null; $OSTBUT ??= null;
+$OSVESSELS ??= null; $OSVF ??= null; $OSVF1 ??= null; $OSVF2 ??= null; $OSVF3 ??= null; $OSVF4 ??= null;
+$OSVITREOUS ??= null; $OSW2W ??= null; $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null;
+$PHOSVA ??= null; $PUPIL_COMMENTS ??= null; $PUPIL_NORMAL ??= null; $QUALITY1 ??= null; $QUALITY2 ??= null;
+$QUALITY3 ??= null; $RADNEXA ??= null; $RBROW ??= null; $RCAROTID ??= null; $RCNV ??= null; $RCNVII ??= null;
+$RETINA_COMMENTS ??= null; $RLF ??= null; $RLL ??= null; $RMCT ??= null; $RMRD ??= null; $RTEMPART ??= null;
+$RUL ??= null; $RVFISSURE ??= null; $SCNEARODVA ??= null; $SCNEAROSVA ??= null; $SCODVA ??= null;
+$SCOSVA ??= null; $SEVERITY1 ??= null; $SEVERITY2 ??= null; $SEVERITY3 ??= null; $STEREOPSIS ??= null;
+$TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $TROPICAMIDE ??= null; $VERTFUSAMPS ??= null;
+$WETTYPE ??= null; $alert ??= null; $confused ??= null; $encounter_date ??= null; $oriented ??= null;
+$provider_id ??= null;
+// End column defaults.
 $id = $form_id;
 
 [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, $id, $provider_id);
@@ -226,7 +292,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" type="text/css">
 
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
@@ -286,7 +352,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 ?>;
           </script>
         <!-- start form -->
-        <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
+        <form method="post" action="<?php echo OEGlobalsBag::getInstance()->get('rootdir');?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
           <div id="Layer1" name="Layer1" class="display">
             <div id="warning" name="warning" class="alert alert-warning <?php echo $warning; ?>">
               <span type="button" class="close" data-dismiss="alert">&times;</span>
@@ -777,7 +843,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     <!-- start  PMH Right -->
                     <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
                       <a class="nodisplay left_PMSFH_tab" id="right-panel-link" href="#right-panel">
-                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/PMSFHx.png">
+                        <img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/images/PMSFHx.png">
                       </a>
                       <?php display_draw_section("PMH", $encounter, $pid); ?>
                       <div id="QP_PMH" name="QP_PMH" class="QP_class" style="max-height:100%">
@@ -1409,12 +1475,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                           <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('PD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Near'); ?>"><?php echo xlt('PD-N{{abbreviation for Binocular Pupillary Diameter - Near}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
-                            <a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
                                   name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
-                            <a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
+                            <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
                                   name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                             <br />
@@ -1622,15 +1688,15 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             <table>
                               <tr>
                                 <td></td>
-                                <td><a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
+                                <td><a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Manufacturer List'); ?>"
                                   name="CTL"><?php echo xlt('Manufacturer'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
-                                <td><a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=CTLSupplier" target="RTop"
+                                <td><a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=CTLSupplier" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Supplier List'); ?>"
                                   name="CTL"><?php echo xlt('Supplier'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
-                                <td><a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=CTLBrand" target="RTop"
+                                <td><a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=CTLBrand" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Contact Lens Brand List'); ?>"
                                   name="CTL"><?php echo xlt('Brand'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
@@ -1997,9 +2063,11 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     <?php
                   // output is defined above and if there are old visits, check for orders in eye_mag_functions:
                   // $output = priors_select("ALL",$id,$id,$pid);
-                    ($output_priors == '') ? ($title = "There are no prior visits documented to display for this patient.") : ($title = "Display old exam findings and copy forward if desired");?>
+                    $title = ($output_priors == '')
+                        ? xla("There are no prior visits documented to display for this patient.")
+                        : xla("Display old exam findings and copy forward if desired");?>
                   <span id="PRIORS_ALL_left_text" name="PRIORS_ALL_left_text"
-                  class="btn btn-secondary"><i class="fa fa-paste" title="<?php echo xla($title); ?>"></i>
+                  class="btn btn-secondary"><i class="fa fa-paste" title="<?php echo $title; ?>"></i>
                     <?php
                     if ($output_priors != '') {
                         echo $output_priors;
@@ -2017,7 +2085,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand'); ?></b>
                 </span>
 
-                <a  target="_shorthand" href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/help.php">
+                <a  target="_shorthand" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/help.php">
                 <i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i>
                 </a><br />
                 <textarea id="ALL_keyboard_left" name="ALL_keyboard_left" tabindex='1000'></textarea>
@@ -3581,7 +3649,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       <span class="anchor" id="IMPPLAN_anchor"></span>
                       <a class="closeButton_5 far fa-file-pdf"
                          title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>"
-                         onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
+                         onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
                          href="JavaScript:void(0);">
 
                       </a>
@@ -3692,10 +3760,10 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                     $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                 }
 
-                                                $k = xla($k);
-                                                $v['title'] = xlt($v['title']);
+                                                $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
+                                                $title = is_string($v['title'] ?? null) ? $v['title'] : '';
                                                 $insert_code = text($insert_code);
-                                                echo "<li class='ui-widget-content'> <span id='DX_POH_" . $k . "' name='DX_POH_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
+                                                echo "<li class='ui-widget-content'> <span id='DX_POH_" . $k . "' name='DX_POH_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
                                             foreach ($PMSFH[0]['POS'] as $k => $v) {
@@ -3704,23 +3772,23 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                     $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                 }
 
-                                                $k = xla($k);
-                                                $v['title'] = xlt($v['title']);
+                                                $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
+                                                $title = is_string($v['title'] ?? null) ? $v['title'] : '';
                                                 $insert_code = text($insert_code);
-                                                echo "<li class='ui-widget-content'> <span id='DX_POS_" . $k . "' name='DX_POS_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
+                                                echo "<li class='ui-widget-content'> <span id='DX_POS_" . $k . "' name='DX_POS_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                             }
 
-                                            if (!empty($PMSFH[0]['medical_problem'])) {
-                                                foreach ($PMSFH[0]['medical_problem'] as $k => $v) {
+                                            if (!empty($PMSFH[0]['PMH'])) {
+                                                foreach ($PMSFH[0]['PMH'] as $k => $v) {
                                                     $insert_code = '';
                                                     if ($v['diagnosis'] > '') {
                                                         $insert_code = "<code class='float-right diagnosis'>" . $v['diagnosis'] . "</code>";
                                                     }
 
-                                                    $k = xla($k);
-                                                    $v['title'] = xlt($v['title']);
+                                                    $k = attr(is_int($k) || is_string($k) ? (string) $k : '');
+                                                    $title = is_string($v['title'] ?? null) ? $v['title'] : '';
                                                     $insert_code = text($insert_code);
-                                                    echo "<li class='ui-widget-content'> <span id='DX_PMH_" . $k . "' name='DX_PMH_" . $k . "'>" . $v['title'] . "</span> " . $insert_code . "</li>";
+                                                    echo "<li class='ui-widget-content'> <span id='DX_PMH_" . $k . "' name='DX_PMH_" . $k . "'>" . $title . "</span> " . $insert_code . "</li>";
                                                 }
                                             }
                                         } else {
@@ -3856,7 +3924,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                           <tr>
                                               <td style="padding-top:10px;" colspan="3">
                                                   <b><u><?php echo xlt('Tests Performed'); ?>:</u></b>&nbsp;
-                                                  <a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
+                                                  <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options') . ". \n" . xlt('Only entries with a Code are billable') . ". "; ?>"
                                                      name="provider_testing_codes" style="color:black;font-weight:600;"><i class="fa fa-pencil-alt fa-fw"></i> </a>
                                               </td>
@@ -3960,7 +4028,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                                   echo " " . xlt('Billing'); ?>:</b></u><br />
                                                       <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
                                                       <button id="open_fee_sheet"
-                                                              onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet');" href="JavaScript:void(0);"
+                                                              onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet');" href="JavaScript:void(0);"
                                                               tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>
                                                   </div>
@@ -4003,7 +4071,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 ?>
                               <dt class="borderShadow">
                                   <span><?php echo xlt('Next Visit Orders'); ?></span>
-                                  <a href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
+                                  <a href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options'); ?>"
                                      name="provider_todo" style="color:black;font-weight:600;"><i class="fa fa-pencil-alt fa-fw"></i> </a>
                               </dt>
@@ -4087,7 +4155,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                           "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
                                                           "ORDER BY lname, fname");
                                                       echo "<select name='form_PCP' id='form_PCP' title='" . xla('Primary Care Provider') . "'>";
-                                                      echo "<option value=''>" . xlt($empty_title ?? '') . "</option>";
+                                                      echo "<option value=''>" . xlt('Unassigned') . "</option>";
                                                       $got_selected = false;
                                                       while ($urow = sqlFetchArray($ures)) {
                                                           $uname = text($urow['lname'] . ' ' . $urow['fname']);
@@ -4117,7 +4185,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                       "AND ( authorized = 1 OR ( username = '') ) " .
                                                       "ORDER BY lname, fname");
                                                   echo "<select name='form_rDOC' id='form_rDOC' title='" . xla('Every name in the address book appears here, not only physicians.') . "'>";
-                                                  echo "<option value=''>" . xlt($empty_title ?? '') . "</option>";
+                                                  echo "<option value=''>" . xlt('Unassigned') . "</option>";
                                                   $got_selected = false;
                                                   while ($urow = sqlFetchArray($ures)) {
                                                       $uname = text($urow['lname'] . ' ' . $urow['fname']);
@@ -4168,7 +4236,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                             ?>
                                                             <span id='pcp_fax'><?php echo text($pcp_data['fax']); ?></span>
                                                             <span id='pcp_fax_info'>
-                                                                 <a onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_PCP['DOC_ID']); ?>', 'PCP: Fax Report');"
+                                                                 <a onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_PCP['DOC_ID']); ?>', 'PCP: Fax Report');"
                                                                     href='JavaScript:void(0);'
                                                                     title='<?php echo xla('View the Summary Report sent via Fax Server on') . "\t " . attr($FAX_PCP['COMPLETED_DATE']); ?>'>
                                                                   <i class='far fa-file-pdf fa-fw'></i></a>
@@ -4197,7 +4265,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                         if ($FAX_REF['ID'] ?? '') { //it is here already, make them print and manually fax it.  Show icon ?>
                                                              <span id='ref_fax'><?php echo text($ref_data['fax']); ?></span>
                                                              <span id='ref_fax_info'>
-                                                                 <a onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"
+                                                                 <a onclick="openNewForm('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"
                                                                     href='JavaScript:void(0);'
                                                                     title='<?php echo xla('View the Summary Report sent via Fax Server on') . "\t " . attr($FAX_REF['COMPLETED_DATE']); ?>'>
                                                                   <i class='far fa-file-pdf fa-fw'></i></a>
@@ -4321,7 +4389,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                   echo str_replace("form-control", "", $select_pharm);
                                                 ?>
                                               </td><td class="top">
-                                                  <button onclick="editScripts('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?prescription&list&pid=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
+                                                  <button onclick="editScripts('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/controller.php?prescription&list&pid=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
                                               </td></tr>
 
                                       </table>
@@ -4349,7 +4417,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         menu_overhaul_bottom($pid, $encounter);
     }
     ?>
-  <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>
+  <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>
   <script>
         function openNewForm(sel, label) {
             top.restoreSession();
@@ -4401,7 +4469,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             }
             store_IMPPLAN(obj.IMPPLAN_items,'1');
         }
-        <?php require_once("$srcdir/restoreSession.php");
+        <?php require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
         ?>
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function dopclick(id) {
@@ -4450,7 +4518,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 search_term: term,
                 codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>
             });
-            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
+            dlgopen('<?php echo OEGlobalsBag::getInstance()->get('rootdir') ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
                             <?php
                         } else {
                             ?>
@@ -4459,7 +4527,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             search_term: term,
                             codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>
                         });
-                        dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
+                        dlgopen('<?php echo OEGlobalsBag::getInstance()->get('rootdir') ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
                             <?php
                         }
                         ?>
@@ -4474,12 +4542,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             <?php
         } ?>
 
-        var base = '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>';
+        var base = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>';
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">
         <span class="fa fa-file-alt" id="PANEL_TEXT" name="PANEL_TEXT"></span>

@@ -53,7 +53,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 7,
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/forms/CAMOS/report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to int\\.$#',
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
 $ignoreErrors[] = [
@@ -218,6 +223,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/main/authorizations/authorizations.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to int\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/main/authorizations/authorizations_full.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 11,
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
@@ -225,11 +240,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
@@ -288,11 +298,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
 ];
@@ -303,7 +308,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
 ];
 $ignoreErrors[] = [
@@ -433,7 +438,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
@@ -493,18 +498,13 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/execute_background_services.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
@@ -529,17 +529,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/deletedrug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
@@ -553,13 +543,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
+    'count' => 7,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
@@ -663,7 +648,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
@@ -703,18 +688,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Patient/Cards/CareExperiencePreferenceViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Patient/Cards/TreatmentPreferenceViewCard.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',

@@ -34,17 +34,14 @@ $cryptoGen = ServiceContainer::getCrypto();
 
 $form_filename = convert_safe_file_dir_name($_REQUEST['form_filename'] ?? '');
 
-$templatedir = "$OE_SITE_DIR/documents/doctemplates";
+$templatedir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/doctemplates";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // If downloading a file, do the download and nothing else.
 // Thus the current browser page should remain displayed.
 //
 if (!empty($_POST['bn_download'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $templatepath = "$templatedir/$form_filename";
 
@@ -71,10 +68,7 @@ if (!empty($_POST['bn_download'])) {
 }
 
 if (!empty($_POST['bn_delete'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $templatepath = "$templatedir/$form_filename";
     if (is_file($templatepath)) {
@@ -83,10 +77,7 @@ if (!empty($_POST['bn_delete'])) {
 }
 
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Handle uploads.
     $tmp_name = $_FILES['form_file']['tmp_name'];

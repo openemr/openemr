@@ -17,9 +17,9 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignableIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Signature.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Utils/Verification.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Signature.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Utils/Verification.php';
 
 abstract class DbRow_Signable implements SignableIF
 {
@@ -69,7 +69,7 @@ abstract class DbRow_Signable implements SignableIF
      * This is used for comparison with a current hash to
      * verify data integrity.
      *
-     * @return sha1(or sha3-512)|empty string
+     * @return string sha1 or sha3-512 hash, or empty string
      */
     protected function getLastLockHash()
     {
@@ -88,11 +88,6 @@ abstract class DbRow_Signable implements SignableIF
     public function getTableId()
     {
         return $this->_tableId;
-    }
-
-    public function renderForm()
-    {
-        include 'views/esign_signature_log.php';
     }
 
     public function isLocked()

@@ -57,7 +57,7 @@ switch ($search_any_type) {
                         class="img-thumbnail"
                         width="75"
                         height="75"
-                        onError="this.src = '<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/patient-picture-default.png'" />
+                        onError="this.src = '<?php echo OEGlobalsBag::getInstance()->getKernel()->getImagesRelative(); ?>/patient-picture-default.png'" />
                 </div>
                 <!-- /ko -->
             </div>

@@ -201,8 +201,8 @@ $templateVars = [
     'owner_id' => $foreign_id,
     'owner_contact_id' => $ownerContactId,
     'target_contact_id' => $targetContactId,
-    'webroot' => OEGlobalsBag::getInstance()->get('webroot'),
-    'srcdir' => OEGlobalsBag::getInstance()->get('srcdir'),
+    'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
+    'srcdir' => OEGlobalsBag::getInstance()->getSrcDir(),
     'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
 ];
 

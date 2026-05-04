@@ -20,9 +20,7 @@ use OpenEMR\Modules\Dorn\LabCompendiumInstall;
 
 if (!empty($_GET)) {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $labGuid = $_REQUEST['labGuid'];
     echo "<div style='background-color: white; color: black; padding: 5px;'>" .
         "<div>" . xlt('Compendium Install') . "</div><ul>";

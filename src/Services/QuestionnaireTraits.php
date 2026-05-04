@@ -70,7 +70,7 @@ trait QuestionnaireTraits
 
     /**
      * @param $item
-     * @return mixed|void
+     * @return mixed|null
      */
     public function getText($item)
     {
@@ -78,6 +78,8 @@ trait QuestionnaireTraits
         if ($text && method_exists($text, "getValue")) {
             return $text->getValue();
         }
+
+        return null;
     }
 
     /**
@@ -109,7 +111,7 @@ trait QuestionnaireTraits
 
     /**
      * @param $item
-     * @return mixed|void|null
+     * @return mixed|null
      */
     public function getType($item)
     {
@@ -117,6 +119,8 @@ trait QuestionnaireTraits
             $type = $this->getValue($item->getType());
             return $type;
         }
+
+        return null;
     }
 
     /**

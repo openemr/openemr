@@ -9,11 +9,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access constant class on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access constant class on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
 ];
 $ignoreErrors[] = [
@@ -24,16 +19,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access constant class on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/ExportUtility.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access constant class on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access constant class on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
@@ -105,11 +95,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access constant class on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access constant class on array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Organization/FhirOrganizationInsuranceService.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

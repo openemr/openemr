@@ -70,7 +70,7 @@ class SpherePayment
         }
 
         // Calculate the OpenEMR server
-        $this->serverSite = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('web_root');
+        $this->serverSite = OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->getKernel()->getWebRoot();
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Calculate the $mainUrl

@@ -10,9 +10,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //ensure user has proper access
@@ -21,6 +19,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 }
 
 require_once("gacl_admin.inc.php");
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 //GET takes precedence.
 if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
@@ -96,7 +98,7 @@ switch ($postAction) {
     default:
         $query = "select id,value,order_value,name from $object_sections_table order by order_value";
 
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
+        $rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
         $sections = [];

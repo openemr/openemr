@@ -21,6 +21,11 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PatientService;
 
 $result = ['success' => false];
+$pid = null;
+$documentId = null;
+$message = '';
+$recipient = null;
+$requested_by = null;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 

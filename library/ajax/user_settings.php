@@ -19,9 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use Symfony\Component\HttpFoundation\Response;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 //If 'mode' is either a 1 or 0 and 'target' ends with _expand
 //  Then will update the appropriate user _expand flag

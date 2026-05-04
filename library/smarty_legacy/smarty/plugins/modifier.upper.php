@@ -16,7 +16,7 @@
  * @link http://smarty.php.net/manual/en/language.modifier.upper.php
  *          upper (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param string
+ * @param mixed $string
  * @return string
  */
 function smarty_modifier_upper($string)

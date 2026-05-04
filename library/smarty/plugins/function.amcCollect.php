@@ -21,8 +21,8 @@
  * Name:     amcCollect<br />
  * Purpose:  amcCollect in OpenEMR - Smarty templates<br />
  *
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param Smarty $smarty
  */
 
 require_once(__DIR__ . '/../../amc.php');

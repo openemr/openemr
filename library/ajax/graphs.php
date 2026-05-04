@@ -19,9 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Collect passed variable(s)
 //  $table is the sql table (or form name if LBF)
@@ -291,4 +289,5 @@ $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
+header('Content-Type: application/json');
 echo json_encode($graph_build, JSON_UNESCAPED_SLASHES);
