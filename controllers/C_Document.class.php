@@ -21,7 +21,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -1286,11 +1285,7 @@ class C_Document extends Controller
         $LOG .= $content;
 
         if (!empty($LOG)) {
-            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                // CODE REVIEW FIXME: this should migrate, but not until
-                // FS encryption is internally gated like above
-                $LOG = $this->cryptoGen->encryptStandard($LOG, KeySource::Database);
-            }
+            $LOG = $this->cryptoGen->encryptForFilesystem($LOG);
             file_put_contents($log_path . $log_file, $LOG);
         }
     }

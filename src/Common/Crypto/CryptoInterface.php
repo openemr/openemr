@@ -85,5 +85,5 @@ interface CryptoInterface
      * @return string The decrypted value, or original value if not encrypted
      * @throws CryptoGenException If decryption of encrypted data fails
      */
-    public function decryptFromFilesystem(?string $value, ?int $minimumVersion = null): string;
+    public function decryptFromFilesystem(?string $value): string;
 }

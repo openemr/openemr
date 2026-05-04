@@ -94,7 +94,7 @@ class CDADocumentService extends BaseService
             }
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
+                $content = $cryptoGen->decryptFromFilesystem($fileData);
             } else {
                 $content = $fileData;
             }
