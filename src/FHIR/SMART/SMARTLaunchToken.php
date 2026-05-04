@@ -13,7 +13,6 @@
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 
 class SMARTLaunchToken
 {
@@ -130,7 +129,7 @@ class SMARTLaunchToken
         $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncoded = json_encode($context);
         ServiceContainer::getLogger()->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
-        $launchParams = $cryptoGen->encryptForDatabase($jsonEncoded !== false ? $jsonEncoded : null);
+        $launchParams = $cryptoGen->encryptStandard($jsonEncoded !== false ? $jsonEncoded : null);
         return base64_encode($launchParams); // make it URL safe
     }
 
@@ -160,9 +159,8 @@ class SMARTLaunchToken
         if ($jsonEncrypted === false) {
             throw new \InvalidArgumentException("serialized token is not valid base64");
         }
-        try {
-            $jsonEncoded = $cryptoGen->decryptFromDatabase($jsonEncrypted);
-        } catch (CryptoGenException) {
+        $jsonEncoded = $cryptoGen->decryptStandard($jsonEncrypted);
+        if ($jsonEncoded === false) {
             throw new \InvalidArgumentException("serialized token could not be decrypted.  Token was either invalid or something is wrong with the encryption keys");
         }
 
