@@ -737,8 +737,12 @@ class SQLUpgradeService implements ISQLUpgradeService
                             $eyeFormCategoryParent['rght'] + 5
                         ]
                     );
-                    // update categories_seq
-                    sqlStatementNoLog("UPDATE `categories_seq` SET `id` = (SELECT MAX(`id`) FROM `categories`)");
+                    // Reset categories_seq to MAX(categories.id). DELETE+INSERT instead of UPDATE
+                    // because categories_seq is a single-row sequence emulator with PRIMARY KEY on id;
+                    // an UPDATE without WHERE collapses every row to the same value and crashes with
+                    // a duplicate-key error if a stray second row is ever present.
+                    sqlStatementNoLog("DELETE FROM `categories_seq`");
+                    sqlStatementNoLog("INSERT INTO `categories_seq` (`id`) SELECT MAX(`id`) FROM `categories`");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;

@@ -377,7 +377,22 @@ header('Content-type: text/html; charset=utf-8');
         <div id='processDetails' class='card card-body pb-2 h-50 overflow-auto collapse show'>
             <div class='col-md bg-light text-dark'>
                 <?php if (!empty($_POST['form_submit']) || $cliFromVersion !== null) {
-                    $form_old_version = $cliFromVersion ?? ($_POST['form_old_version'] ?? '');
+                    // Default the POST input so the literal assignment below does not warn under CLI.
+                    // The exact form `$form_old_version = $_POST['form_old_version'];` is preserved
+                    // so the legacy openemr-devops sed-rewrite in `devtoolsLibrary.source`
+                    // (`upgradeOpenEMR()`, used by `openemr-cmd drid` etc.) keeps working against
+                    // images that bundle the older devtools script. New callers should pass
+                    // --from=X.Y.Z on the CLI; the override below picks that up.
+                    // @phpstan-ignore openemr.forbiddenRequestGlobals (Required for write)
+                    $_POST['form_old_version'] ??= '';
+                    $form_old_version = $_POST['form_old_version'];
+                    if ($cliFromVersion !== null) {
+                        $form_old_version = $cliFromVersion;
+                    }
+
+                    if ($form_old_version === '') {
+                        die("sql_upgrade: refusing to run with no source version. Pass --from=X.Y.Z on the CLI or submit the form.\n");
+                    }
 
                     foreach ($versions as $version => $filename) {
                         if (strcmp($version, (string) $form_old_version) < 0) {
