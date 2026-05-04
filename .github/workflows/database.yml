@@ -10,6 +10,9 @@ on:
       - master
       - rel-*
 
+permissions:
+  contents: read
+
 jobs:
   mysql:
     name: Doctrine Migrations MySQL
