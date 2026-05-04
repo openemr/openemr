@@ -214,6 +214,8 @@ updates:
   labels:
   - dependencies
   - docker
+  cooldown:
+    default-days: 7
 
   # Docker dev environments (easy, easy-light, easy-redis, production)
   # These use a single database version for convenience, not to test a
@@ -255,6 +257,8 @@ updates:
   labels:
   - dependencies
   - docker
+  cooldown:
+    default-days: 7
 
   # Docker insane (version-testing matrix)
   # Like CI, insane intentionally runs specific database + PHP versions.
@@ -301,6 +305,8 @@ updates:
   labels:
   - dependencies
   - docker
+  cooldown:
+    default-days: 7
 
   # JavaScript dependencies (ccdaservice)
 - package-ecosystem: npm
