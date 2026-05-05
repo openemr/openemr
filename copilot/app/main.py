@@ -8,7 +8,7 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
@@ -19,6 +19,7 @@ from app.agent.prewarm import prewarm
 from app.agent.schemas import PriorTurn
 from app.config import Settings, get_settings
 from app.fhir.client import FhirClient, FhirError
+from app.ingestion.schemas import AttachDocumentRequest
 from app.ingestion.service import IngestionService
 from app.ingestion.vlm import VlmExtractor
 from app.observability.trace import get_tracer
@@ -480,3 +481,52 @@ async def sessions_end(session_id: str):
     await store.end(session_id)
     sessions.end(session_id)
     return {"ok": True}
+
+
+@app.post("/v1/documents/attach")
+async def attach_document(
+    file: UploadFile = File(...),
+    patient_id: str = Form(...),
+    doc_type: str = Form(...),
+    mime_type: str = Form(...),
+    physician_user_id: str = Form(...),
+    settings: Settings = Depends(get_settings),
+):
+    """Accept a multipart document upload, run panel check, then ingest via VLM."""
+    # Re-validate via the same Pydantic model the architecture documents.
+    try:
+        AttachDocumentRequest(doc_type=doc_type, mime_type=mime_type)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+
+    fhir: FhirClient = app.state.fhir
+    await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
+
+    file_bytes = await file.read()
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="empty_file")
+
+    svc = app.state.ingestion_service
+    result = await svc.attach_and_extract(
+        patient_fhir_id=patient_id,
+        patient_pseudonym=patient_id,  # MVP: pseudonym == fhir_id; rotated in post-MVP
+        doc_type=doc_type,             # type: ignore[arg-type]  validated above
+        mime_type=mime_type,           # type: ignore[arg-type]
+        file_bytes=file_bytes,
+        physician_user_id=physician_user_id,
+    )
+    return {
+        "doc_id": result.doc_id,
+        "was_dedup_hit": result.was_dedup_hit,
+        "extraction": result.extraction.model_dump(mode="json"),
+        "bbox_overlay": [
+            {
+                "page": item.page,
+                "bbox": item.bbox.model_dump(),
+                "field_or_chunk_id": item.field_or_chunk_id,
+                "record_id": item.record_id,
+                "raw_text": item.raw_text,
+            }
+            for item in result.bbox_overlay
+        ],
+    }
