@@ -1,0 +1,26 @@
+/* app/web/copilot_iframe.css */
+body { font: 14px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; }
+#copilot-root { display: flex; flex-direction: column; height: 100vh; }
+header { padding: 8px 12px; background: #f4f4f6; border-bottom: 1px solid #ddd; }
+header h1 { margin: 0; font-size: 14px; display: inline; }
+#patient-banner { margin-left: 12px; color: #555; font-size: 12px; }
+main { flex: 1; display: flex; flex-direction: column; padding: 8px; }
+#drop-zone { border: 2px dashed #ccc; border-radius: 6px; padding: 16px;
+             text-align: center; color: #888; transition: background 0.15s; }
+#drop-zone[data-state="dragover"] { background: #eef6ff; border-color: #58a; }
+#drop-zone[data-state="uploading"] { background: #fffce8; border-color: #b80; }
+#conversation { list-style: none; padding: 0; flex: 1; overflow-y: auto; margin: 8px 0; }
+#conversation li { padding: 8px; border-bottom: 1px solid #eee; }
+#conversation li.user { font-weight: 600; }
+.citation-chip { display: inline-block; padding: 1px 6px; margin: 0 2px;
+                 background: #e8effa; border-radius: 4px; cursor: pointer;
+                 font-size: 12px; }
+.citation-chip:hover { background: #d6e3f7; }
+#chat-form { display: flex; gap: 4px; }
+#chat-form input[type="text"] { flex: 1; padding: 6px; }
+#paperclip { background: none; border: 1px solid #ccc; border-radius: 4px;
+             cursor: pointer; padding: 4px 8px; }
+dialog#bbox-modal { width: 90vw; height: 90vh; max-width: 1200px; padding: 0;
+                    border: 1px solid #888; border-radius: 6px; }
+dialog#bbox-modal header { display: flex; justify-content: space-between; align-items: center; }
+#bbox-modal-canvas-wrapper { overflow: auto; height: calc(100% - 40px); }

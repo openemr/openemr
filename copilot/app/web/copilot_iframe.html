@@ -1,0 +1,39 @@
+<!-- app/web/copilot_iframe.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Clinical Co-Pilot</title>
+  <link rel="stylesheet" href="/static/copilot_iframe.css" />
+</head>
+<body>
+  <div id="copilot-root">
+    <header>
+      <h1>Co-Pilot</h1>
+      <span id="patient-banner"></span>
+    </header>
+    <main>
+      <div id="drop-zone" data-state="idle">
+        <p>Drop a lab PDF or intake form here, or click the paperclip below.</p>
+      </div>
+      <ol id="conversation"></ol>
+      <form id="chat-form">
+        <button type="button" id="paperclip" aria-label="Attach a document">📎</button>
+        <input type="file" id="file-input" hidden accept="application/pdf,image/png,image/jpeg" />
+        <input type="text" id="question-input" placeholder="Ask about this patient…" required />
+        <button type="submit">Ask</button>
+      </form>
+    </main>
+  </div>
+  <dialog id="bbox-modal">
+    <header>
+      <h2 id="bbox-modal-title">Source: <span id="bbox-source-label"></span></h2>
+      <button id="bbox-modal-close" aria-label="Close">×</button>
+    </header>
+    <div id="bbox-modal-canvas-wrapper">
+      <canvas id="bbox-modal-canvas" width="800" height="1000"></canvas>
+    </div>
+  </dialog>
+  <script src="/static/copilot_iframe.js"></script>
+</body>
+</html>

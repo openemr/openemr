@@ -85,8 +85,18 @@ WEB_DIR = Path(__file__).parent / "web"
 
 
 @app.get("/")
-async def index():
-    return FileResponse(WEB_DIR / "index.html")
+async def get_iframe_shell():
+    return FileResponse(WEB_DIR / "copilot_iframe.html", media_type="text/html")
+
+
+@app.get("/static/copilot_iframe.js")
+async def get_iframe_js():
+    return FileResponse(WEB_DIR / "copilot_iframe.js", media_type="application/javascript")
+
+
+@app.get("/static/copilot_iframe.css")
+async def get_iframe_css():
+    return FileResponse(WEB_DIR / "copilot_iframe.css", media_type="text/css")
 
 
 @app.get("/v1/patient/{patient_id}/raw")
