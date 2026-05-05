@@ -17217,11 +17217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:get_thumb_name\\(\\) has parameter \\$file_name with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:persist\\(\\) has parameter \\$fid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
