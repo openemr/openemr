@@ -293,15 +293,22 @@ class AuthUtils
 
         // Collect ip address for log
         $ip = collectIpAddresses();
+        // Key the rate limiter on REMOTE_ADDR only ($ip['ip']), NOT the concatenated
+        // $ip['ip_string'] (which embeds HTTP_X_FORWARDED_FOR). XFF is attacker-controlled
+        // unless a trusted-proxy mechanism strips/normalizes it, so using ip_string
+        // would let an attacker bypass throttling by varying the header per request
+        // (CWE-807). The full ip_string is still embedded in audit-log messages below
+        // for forensic visibility.
+        $ipForRateLimit = $ip['ip'];
 
         // Check to ensure ip address has not been blocked
         // check IP login counter if this option is set
         if ($this->loginAuth || $this->apiAuth) {
-            $this->ipRateLimiter->ensureTracked($ip['ip_string']);
+            $this->ipRateLimiter->ensureTracked($ipForRateLimit);
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
-            $blockStatus = $this->ipRateLimiter->checkBlocked($ip['ip_string']);
+            $blockStatus = $this->ipRateLimiter->checkBlocked($ipForRateLimit);
             if (!$blockStatus->allowed) {
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
                 if ($blockStatus->forceBlocked) {
                     EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
                 } else {
@@ -309,7 +316,7 @@ class AuthUtils
                 }
                 $this->clearFromMemory($password);
                 if ($blockStatus->requiresEmailNotification) {
-                    $this->ipRateLimiter->notifyBlock($ip['ip_string']);
+                    $this->ipRateLimiter->notifyBlock($ipForRateLimit);
                 }
                 if (!$blockStatus->skipTimingAttack) {
                     $this->preventTimingAttack();
@@ -322,7 +329,7 @@ class AuthUtils
         if (empty($username) || empty($password)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
@@ -336,7 +343,7 @@ class AuthUtils
         if (empty($userInfo) || empty($userInfo['id'])) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found");
             $this->clearFromMemory($password);
@@ -345,7 +352,7 @@ class AuthUtils
         } elseif ($userInfo['active'] != 1) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not active");
             $this->clearFromMemory($password);
@@ -359,7 +366,7 @@ class AuthUtils
         if (empty($authGroup)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
             $this->clearFromMemory($password);
@@ -371,7 +378,7 @@ class AuthUtils
         if (AclExtended::aclGetGroupTitles($username) == 0) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
             $this->clearFromMemory($password);
@@ -387,7 +394,7 @@ class AuthUtils
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
@@ -401,7 +408,7 @@ class AuthUtils
             $checkArray = $this->checkLoginFailedCounter($username);
             if (!$checkArray['pass']) {
                 $this->incrementLoginFailedCounter($username);
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
                 $this->clearFromMemory($password);
                 if ($checkArray['email_notification']) {
@@ -419,7 +426,7 @@ class AuthUtils
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
-                    $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                    $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
                 }
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
                 $this->clearFromMemory($password);
@@ -431,7 +438,7 @@ class AuthUtils
             if (!AuthHash::hashValid($userSecure['password'])) {
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                    $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                    $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
                 }
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
@@ -443,7 +450,7 @@ class AuthUtils
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
-                    $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                    $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
                 }
                 EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
                 $this->clearFromMemory($password);
@@ -466,7 +473,7 @@ class AuthUtils
         if (!$this->checkPasswordNotExpired($username)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
-                $this->ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+                $this->ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             }
             EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
             error_log($username . ": " . $ip['ip_string'] . ". user password is expired");
@@ -479,7 +486,7 @@ class AuthUtils
         if ($this->loginAuth || $this->apiAuth) {
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
             self::resetLoginFailedCounter($username);
-            $this->ipRateLimiter->recordSuccessfulLogin($ip['ip_string']);
+            $this->ipRateLimiter->recordSuccessfulLogin($ipForRateLimit);
         }
         if ($this->loginAuth) {
             // Specialized code for login auth (not api auth)

@@ -57,26 +57,32 @@ if (
     // Dispatch OIDC login event — if a module handles it, skip password/Google auth
     $login_success = false;
 
-    // IP-based rate limiting for the OIDC path (password path handles its own via AuthUtils)
+    // IP-based rate limiting for the OIDC path (password path handles its own via AuthUtils).
+    // Key the rate limiter on REMOTE_ADDR only ($ip['ip']), NOT the concatenated
+    // $ip['ip_string'] (which embeds HTTP_X_FORWARDED_FOR). XFF is attacker-controlled
+    // unless a trusted-proxy mechanism strips/normalizes it, so using ip_string would
+    // let an attacker bypass throttling by varying the header per request (CWE-807).
+    // The full ip_string is still used in audit-log messages below for forensic value.
     $ipRateLimiter = new IpLoginRateLimiter();
     $ip = collectIpAddresses();
-    $ipRateLimiter->ensureTracked($ip['ip_string']);
+    $ipForRateLimit = $ip['ip'];
+    $ipRateLimiter->ensureTracked($ipForRateLimit);
 
     $oidcIdToken = filter_input(INPUT_POST, 'oidc_id_token') ?? '';
     $isOidcAttempt = $oidcIdToken !== '';
 
     if ($isOidcAttempt) {
         // Check IP block status before OIDC dispatch
-        $ipBlockStatus = $ipRateLimiter->checkBlocked($ip['ip_string']);
+        $ipBlockStatus = $ipRateLimiter->checkBlocked($ipForRateLimit);
         if (!$ipBlockStatus->allowed) {
-            $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+            $ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             if ($ipBlockStatus->forceBlocked) {
                 EventAuditLogger::getInstance()->newEvent('login', '', '', 0, 'OIDC failure: ' . $ip['ip_string'] . '. IP address has been manually blocked');
             } else {
                 EventAuditLogger::getInstance()->newEvent('login', '', '', 0, 'OIDC failure: ' . $ip['ip_string'] . '. IP address exceeded maximum number of failed logins');
             }
             if ($ipBlockStatus->requiresEmailNotification) {
-                $ipRateLimiter->notifyBlock($ip['ip_string']);
+                $ipRateLimiter->notifyBlock($ipForRateLimit);
             }
             $session->set('loginfailure', 1);
             authLoginScreen();
@@ -87,7 +93,7 @@ if (
         // and verified here using the same HMAC-based CsrfUtils mechanism.
         $oidcCsrfToken = filter_input(INPUT_POST, 'oidc_csrf_token') ?? '';
         if (!CsrfUtils::verifyCsrfToken($oidcCsrfToken, $session, 'oidc_login')) {
-            $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+            $ipRateLimiter->recordFailedAttempt($ipForRateLimit);
             EventAuditLogger::getInstance()->newEvent('login', '', '', 0, 'OIDC failure: ' . $ip['ip_string'] . '. CSRF token validation failed');
             $session->set('loginfailure', 1);
             authLoginScreen();
@@ -113,7 +119,7 @@ if (
                 $oidcLoginEvent->getUserInfo(),
                 $oidcLoginEvent->getAuthGroup(),
             );
-            $ipRateLimiter->recordSuccessfulLogin($ip['ip_string']);
+            $ipRateLimiter->recordSuccessfulLogin($ipForRateLimit);
             $login_success = true;
         }
         // If $oidcIdToken was POSTed but no listener handled it, $login_success
@@ -135,7 +141,7 @@ if (
     if ($login_success !== true) {
         // login attempt failed
         if ($isOidcAttempt) {
-            $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+            $ipRateLimiter->recordFailedAttempt($ipForRateLimit);
         }
         $session->set('loginfailure', 1);
         if (filter_input(INPUT_POST, 'clearPass') !== null) {

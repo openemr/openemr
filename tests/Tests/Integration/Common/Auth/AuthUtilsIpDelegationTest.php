@@ -28,6 +28,7 @@ final class AuthUtilsIpDelegationTest extends TestCase
     private const TEST_IP = '10.88.88.1';
 
     private ?string $originalRemoteAddr = null;
+    private ?string $originalForwardedFor = null;
 
     protected function setUp(): void
     {
@@ -38,6 +39,13 @@ final class AuthUtilsIpDelegationTest extends TestCase
         // Inject a deterministic IP so AuthUtils -> collectIpAddresses() returns it
         $this->originalRemoteAddr = is_string($_SERVER['REMOTE_ADDR'] ?? null) ? $_SERVER['REMOTE_ADDR'] : null;
         $_SERVER['REMOTE_ADDR'] = self::TEST_IP;
+
+        // Some tests vary HTTP_X_FORWARDED_FOR; capture the original so we can
+        // restore it in tearDown.
+        $this->originalForwardedFor = is_string($_SERVER['HTTP_X_FORWARDED_FOR'] ?? null)
+            ? $_SERVER['HTTP_X_FORWARDED_FOR']
+            : null;
+        unset($_SERVER['HTTP_X_FORWARDED_FOR']);
 
         // Ensure clean slate for our test IP
         $this->cleanTestIp();
@@ -52,16 +60,30 @@ final class AuthUtilsIpDelegationTest extends TestCase
             unset($_SERVER['REMOTE_ADDR']);
         }
 
+        // Restore original HTTP_X_FORWARDED_FOR
+        if ($this->originalForwardedFor !== null) {
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = $this->originalForwardedFor;
+        } else {
+            unset($_SERVER['HTTP_X_FORWARDED_FOR']);
+        }
+
         if (getenv('DISABLE_DATABASE') !== '1') {
             $this->cleanTestIp();
         }
     }
 
+    /**
+     * Match exact REMOTE_ADDR and any "REMOTE_ADDR (xxx)" variant — the latter
+     * existed in the buggy codebase that used $ip['ip_string'] as the rate-
+     * limiter key and would create one row per X-Forwarded-For value seen.
+     * The LIKE pattern ensures cleanTestIp() removes orphans from a previously
+     * buggy run too, so re-running the suite never inherits stale state.
+     */
     private function cleanTestIp(): void
     {
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM `ip_tracking` WHERE `ip_string` = ?",
-            [self::TEST_IP],
+            "DELETE FROM `ip_tracking` WHERE `ip_string` = ? OR `ip_string` LIKE ?",
+            [self::TEST_IP, self::TEST_IP . ' (%'],
         );
     }
 
@@ -149,5 +171,44 @@ final class AuthUtilsIpDelegationTest extends TestCase
 
         self::assertNotNull($row, 'ip_tracking should record attempts even for nonexistent users');
         self::assertSame('1', (string) $row['ip_login_fail_counter']);
+    }
+
+    /**
+     * Aisle round-2 finding #3 (CWE-807) regression. The rate limiter must
+     * key on REMOTE_ADDR alone, not on the concatenated `ip_string` (which
+     * embeds HTTP_X_FORWARDED_FOR). An attacker who can vary the
+     * `X-Forwarded-For` header across requests must still hit the same
+     * rate-limit bucket — otherwise throttling is trivially bypassed by
+     * sending a different XFF value per attempt.
+     */
+    public function testFailedAttemptsAggregateOnRemoteAddrIgnoringXForwardedFor(): void
+    {
+        $xffValues = ['1.1.1.1', '2.2.2.2', '3.3.3.3'];
+
+        foreach ($xffValues as $xff) {
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = $xff;
+            // confirmPassword takes $password by reference (it zeroes the buffer
+            // post-check), so the argument must be a real variable, not a literal.
+            $password = 'wrong-' . $xff;
+            (new AuthUtils('api'))->confirmPassword('admin', $password);
+        }
+
+        $row = $this->getIpTrackingRow();
+        self::assertNotNull($row, 'TEST_IP row must exist after the failed attempts');
+        self::assertSame(
+            (string) count($xffValues),
+            (string) $row['ip_login_fail_counter'],
+            'All attempts must aggregate on REMOTE_ADDR despite varying XFF — '
+            . 'otherwise XFF rotation bypasses the rate limit (CWE-807).',
+        );
+
+        // Belt-and-braces: assert no XFF-tagged buckets were created. If the
+        // limiter regressed back to keying on ip_string, we'd see rows like
+        // `10.88.88.1 (1.1.1.1)` here.
+        $orphanRows = QueryUtils::fetchRecords(
+            'SELECT `ip_string` FROM `ip_tracking` WHERE `ip_string` LIKE ?',
+            [self::TEST_IP . ' (%'],
+        );
+        self::assertSame([], $orphanRows, 'No XFF-tagged ip_tracking rows must be created');
     }
 }
