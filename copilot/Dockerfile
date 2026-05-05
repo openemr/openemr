@@ -15,6 +15,14 @@ COPY --from=builder /install /usr/local
 COPY app/ ./app/
 COPY . .
 
+# Diagnostic — print full app/ tree so any missing subdir is visible in the
+# build log before the import smoke test fails.
+RUN echo "=== app/ tree ===" && find app -maxdepth 3 -type d && echo "=== app/tools/ files ===" && ls -la app/tools/ 2>&1 || true
+
+# Make the source pip-installable so app.* modules resolve from site-packages
+# regardless of WORKDIR or PYTHONPATH quirks at runtime.
+RUN pip install --no-cache-dir --no-deps -e .
+
 # Fail the build immediately if critical source directories are missing
 RUN python -c "import app.tools.registry; import app.agent.loop; print('All modules verified')"
 
