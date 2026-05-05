@@ -84,6 +84,7 @@ class C_FormVitals
         $patient_age = getPatientAge($patient_dob);
 
         $i = 1;
+        $results = [];
         // eventually we want this just to use the service search date but we will move this here.
         $records = $vitalsService->getVitalsHistoryForPatient(OEGlobalsBag::getInstance()->get('pid'), $form_id);
 
@@ -101,7 +102,7 @@ class C_FormVitals
         if (
             $form_id === 0
             && $this->context == 'dashboard'
-            && is_countable($results)
+            && $results !== []
         ) {
             $vitals_history_count = count($results);
             $vitals = $results[$vitals_history_count];
@@ -324,7 +325,7 @@ class C_FormVitals
             ]
         ];
 
-        $resultsCount = count($results ?? []);
+        $resultsCount = count($results);
         $hasMoreVitals = false;
         $vitalsHistoryLookback = [];
         $maxHistoryCols = OEGlobalsBag::getInstance()->getInt('gbl_vitals_max_history_cols');
@@ -332,7 +333,7 @@ class C_FormVitals
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
         } else {
-            $vitalsHistoryLookback = $results ?? null;
+            $vitalsHistoryLookback = $results;
         }
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -349,10 +350,10 @@ class C_FormVitals
             ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
             ,'hide_circumferences' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
             ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session)
-            ,'results' => $results ?? null
+            ,'results' => $results
             ,'vitalsHistoryLookback' => $vitalsHistoryLookback
             ,'hasMoreVitals' => $hasMoreVitals
-            ,'results_count' => count(($results ?? []))
+            ,'results_count' => count($results)
             ,'reasonCodeStatii' => $reasonCodeStatii
             ,'interpretation_options' => $this->interpretationsList
             ,'VIEW' => true

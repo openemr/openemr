@@ -15,9 +15,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/lists.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/lists.inc.php");
 
 // todo -include_once("$srcdir/groups.inc");
 

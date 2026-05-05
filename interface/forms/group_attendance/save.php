@@ -16,9 +16,18 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("functions.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+$therapy_group = (PatientSessionUtil::getPid() === 0)
+    ? ($session->get('therapy_group') ?? 0)
+    : 0;
 
 // Save only if has permission to edit
 $can_edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');

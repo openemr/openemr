@@ -34,11 +34,17 @@ if ($isPortal) {
 $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 require_once("$srcdir/user.inc.php");
 // used for form generation utilities
 require_once("$srcdir/options.inc.php");
 
+$do_warning = 0;
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
 $questionnaire_form = $_GET['questionnaire_form'] ?? null;

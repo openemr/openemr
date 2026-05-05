@@ -10,6 +10,31 @@
  * @copyright Copyright (c) 2011 Boyd Stephen Smith Jr.
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * Design note for the escape helpers below (attr, text, js_escape, attr_js,
+ * attr_url, js_url, xmlEscape, errorLogEscape, csvEscape, ...):
+ *
+ *   The `@param string` annotations are deliberately NARROW. They exist so
+ *   PHPStan tells you when an escape is being applied to something that
+ *   does NOT need escaping. An int, float, bool, or already-sanitized
+ *   primitive carries no characters that any of these functions would
+ *   modify, so wrapping it is dead work that hides intent at the call
+ *   site.
+ *
+ *   When PHPStan reports "expects string, int given" (or similar) at a
+ *   call site, treat it as a signal — not noise to silence. The right
+ *   responses, in order of preference:
+ *
+ *     1. Drop the escape entirely. If the value is already a safe
+ *        primitive (e.g., `echo (int) $pid`), emit it directly.
+ *     2. If the value is a true union (e.g., `int|string` from a row
+ *        cell), narrow it explicitly at the call site:
+ *        `attr((string) $cell)`. The cast is harmless and makes the
+ *        intent clear.
+ *
+ *   Do NOT widen these `@param` types to `mixed`/`scalar` to make the
+ *   warnings disappear. That throws away the signal everywhere else and
+ *   re-hides the dead-escape sites this file is trying to surface.
  */
 
 /**

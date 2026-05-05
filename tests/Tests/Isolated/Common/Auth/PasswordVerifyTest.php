@@ -18,7 +18,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Tests\Unit;
+namespace OpenEMR\Tests\Isolated\Common\Auth;
 
 use OpenEMR\Common\Auth\AuthHash;
 use PHPUnit\Framework\TestCase;
