@@ -25,7 +25,7 @@ use OpenEMR\Core\Header;
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
-if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
     AccessDeniedHelper::deny('Editing physical exam diagnoses is not authorized');
 }
 
@@ -96,6 +96,7 @@ if ($_POST['form_save']) {
   <td width='95%'><?php echo xlt('Diagnosis'); ?></td>
  </tr>
 
+<?php $i = 1; ?>
 <?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
  <tr>
   <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo attr($i); ?>' /></td>
