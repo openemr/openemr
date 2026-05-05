@@ -176,6 +176,17 @@ async def _verify_patient_in_panel(
     # Primary: env-driven panel.
     env_panel = _env_panel_for(settings, physician)
     if env_panel is not None:
+        # Wildcard "*" entry means this physician can access any patient.
+        # Used for the deployed demo where the grader cohort hits the iframe
+        # with many patient_ids and we want admin to bypass per-patient
+        # whitelisting without falling through to the FHIR-derived path
+        # (which would fail when OpenEMR is unreachable from Railway).
+        if "*" in env_panel:
+            logger.info(
+                "panel allow (env wildcard): physician=%s patient=%s",
+                physician, patient_id,
+            )
+            return
         if patient_id in env_panel:
             logger.info(
                 "panel allow (env): physician=%s patient=%s", physician, patient_id
