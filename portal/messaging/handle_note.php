@@ -105,7 +105,32 @@ $title = $_POST['title'] ?? null;
 $sid = $_POST['sender_id'] ?? null;
 $sn = $_POST['sender_name'] ?? null;
 $rid = $_POST['recipient_id'] ?? null;
-$rn = $_POST['recipient_name'] ?? null;
+// Resolve recipient_name server-side so the stored display name is always the
+// patient's real name (fname + lname) rather than whatever the client submitted.
+// This prevents portal_username from appearing in the message list when a
+// clinician sends a chart note to a patient (issue #11202).
+if (!empty($rid)) {
+    // First try to look up as a portal patient (rid = portal_username).
+    $recipPatient = sqlQuery(
+        "SELECT CONCAT(pd.fname, ' ', pd.lname) AS full_name
+         FROM patient_data AS pd
+         INNER JOIN patient_access_onsite AS pao ON pao.pid = pd.pid
+         WHERE pao.portal_username = ?",
+        [$rid]
+    );
+    if (!empty($recipPatient['full_name'])) {
+        $rn = $recipPatient['full_name'];
+    } else {
+        // Fall back to EMR user lookup (rid = username) for staff-to-staff messages.
+        $recipUser = sqlQuery(
+            "SELECT CONCAT(fname, ' ', lname) AS full_name FROM users WHERE username = ?",
+            [$rid]
+        );
+        $rn = !empty($recipUser['full_name']) ? $recipUser['full_name'] : ($_POST['recipient_name'] ?? null);
+    }
+} else {
+    $rn = $_POST['recipient_name'] ?? null;
+}
 $header = '';
 
 switch ($task) {
