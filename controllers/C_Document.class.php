@@ -697,11 +697,7 @@ class C_Document extends Controller
                 $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                 die(xlt("File retrieval from CouchDB failed"));
             }
-            if ($d->is_encrypted()) {
-                $filetext = $this->cryptoGen->decryptFromFilesystem($content);
-            } else {
-                $filetext = base64_decode((string) $content);
-            }
+            $filetext = $d->is_encrypted() ? $this->cryptoGen->decryptFromFilesystem($content) : base64_decode((string) $content);
             if ($disable_exit == true) {
                 return $filetext;
             }

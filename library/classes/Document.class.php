@@ -1000,11 +1000,7 @@ class Document extends ORDataObject
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
-            if ($this->is_encrypted()) {
-                $document = $cryptoGen->encryptForFilesystem($data);
-            } else {
-                $document = base64_encode($data);
-            }
+            $document = $this->is_encrypted() ? $cryptoGen->encryptForFilesystem($data) : base64_encode($data);
             if ($has_thumbnail) {
                 if ($this->is_encrypted()) {
                     $th_document = $cryptoGen->encryptForFilesystem($thumbnail_data);
