@@ -362,14 +362,41 @@ class FallbackAdapter:
 
 
 def get_adapter(settings) -> LLMAdapter:
-    if settings.llm_provider == "openai":
-        if not settings.openai_api_key:
+    """Pick an LLM adapter.
+
+    Architecture (W2_ARCHITECTURE.md §1, llm.py docstring): Anthropic is the
+    *primary* — BAA, prompt caching, clinical reasoning. OpenAI is the
+    runtime *fallback*. So whenever ANTHROPIC_API_KEY is available we use
+    Anthropic, falling back to OpenAI on retryable errors when its key is
+    also set. `LLM_PROVIDER=openai` is honored only as an explicit
+    "force-OpenAI" override, e.g. to demo without Claude — it is NOT the
+    default, even if env happens to set it. This auto-corrects deployments
+    whose LLM_PROVIDER drifted from architectural intent.
+    """
+    have_anthropic = bool(settings.anthropic_api_key)
+    have_openai = bool(settings.openai_api_key)
+
+    # Explicit force-OpenAI override.
+    if settings.llm_provider == "openai" and not have_anthropic:
+        if not have_openai:
             raise RuntimeError("LLM_PROVIDER=openai but OPENAI_API_KEY is unset")
         return OpenAIAdapter(settings.openai_api_key, settings.openai_model)
-    if not settings.anthropic_api_key:
-        raise RuntimeError("LLM_PROVIDER=anthropic but ANTHROPIC_API_KEY is unset")
-    primary = AnthropicAdapter(settings.anthropic_api_key, settings.anthropic_model)
-    if settings.openai_api_key:
-        secondary = OpenAIAdapter(settings.openai_api_key, settings.openai_model)
-        return FallbackAdapter(primary, secondary)
-    return primary
+
+    if have_anthropic:
+        primary = AnthropicAdapter(settings.anthropic_api_key, settings.anthropic_model)
+        if have_openai:
+            secondary = OpenAIAdapter(settings.openai_api_key, settings.openai_model)
+            return FallbackAdapter(primary, secondary)
+        return primary
+
+    if have_openai:
+        logger.warning(
+            "ANTHROPIC_API_KEY missing — falling back to OpenAI as primary "
+            "(architectural intent is Anthropic primary)."
+        )
+        return OpenAIAdapter(settings.openai_api_key, settings.openai_model)
+
+    raise RuntimeError(
+        "No LLM credentials configured: set ANTHROPIC_API_KEY (preferred) "
+        "or OPENAI_API_KEY."
+    )
