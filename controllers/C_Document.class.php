@@ -175,15 +175,6 @@ class C_Document extends Controller
             $non_HTTP_owner = $this->manual_set_owner;
         }
 
-        $couchDB = false;
-        $harddisk = false;
-        if (OEGlobalsBag::getInstance()->get('document_storage_method') == 0) {
-            $harddisk = true;
-        }
-        if (OEGlobalsBag::getInstance()->get('document_storage_method') == 1) {
-            $couchDB = true;
-        }
-
         if ($_POST['process'] != "true") {
             return;
         }
@@ -201,9 +192,7 @@ class C_Document extends Controller
         $category_id = is_numeric($_POST['category_id']) ? $_POST['category_id'] : 1;
 
         $patient_id = 0;
-        if (isset($_GET['patient_id']) && !$couchDB) {
-            $patient_id = $_GET['patient_id'];
-        } elseif (is_numeric($_POST['patient_id'])) {
+        if (is_numeric($_POST['patient_id'])) {
             $patient_id = $_POST['patient_id'];
         }
 
