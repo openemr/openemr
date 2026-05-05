@@ -123,36 +123,20 @@ class FhirClient:
         sha3_hex: str,
         physician_user_id: str,
     ) -> dict[str, Any]:
-        """Create a FHIR DocumentReference + inline Binary attachment.
+        """MVP stub: synthesizes a doc id from the sha3 prefix.
 
-        Idempotency anchor lives in `identifier` so OpenEMR's hash column can
-        eventually be cross-referenced. The dedup decision itself is made by
-        the caller against `processed_documents`; this writer trusts that.
+        The real FHIR DocumentReference write is deferred (OpenEMR's R4 API
+        has no POST route — see W2_ARCHITECTURE.md §10). Co-Pilot's own
+        `processed_documents` table is the source of truth; the synthesized
+        id is stable across restarts because it derives from the file hash.
         """
-        import base64 as _b64
-
-        body = {
+        doc_id = f"copilot-{sha3_hex[:16]}"
+        return {
+            "id": doc_id,
             "resourceType": "DocumentReference",
             "status": "current",
-            "type": {
-                "text": "Lab report" if doc_type == "lab_doc" else "Intake form",
-            },
             "subject": {"reference": f"Patient/{patient_fhir_id}"},
-            "content": [
-                {
-                    "attachment": {
-                        "contentType": mime_type,
-                        "data": _b64.b64encode(file_bytes).decode("ascii"),
-                    }
-                }
-            ],
-            "identifier": [
-                {"system": "urn:copilot:sha3-512", "value": sha3_hex}
-            ],
         }
-        return await self._post(
-            "DocumentReference", body, physician_user_id=physician_user_id
-        )
 
     async def create_observation(
         self,
@@ -160,9 +144,12 @@ class FhirClient:
         body: dict[str, Any],
         physician_user_id: str,
     ) -> dict[str, Any]:
-        return await self._post(
-            "Observation", body, physician_user_id=physician_user_id
-        )
+        """MVP stub — synthesized id, no OpenEMR write."""
+        import hashlib
+        import json as _json
+        payload = _json.dumps(body, sort_keys=True).encode()
+        obs_id = f"copilot-obs-{hashlib.sha3_512(payload).hexdigest()[:16]}"
+        return {**body, "id": obs_id, "resourceType": "Observation"}
 
     async def create_allergy_intolerance(
         self,
@@ -170,9 +157,12 @@ class FhirClient:
         body: dict[str, Any],
         physician_user_id: str,
     ) -> dict[str, Any]:
-        return await self._post(
-            "AllergyIntolerance", body, physician_user_id=physician_user_id
-        )
+        """MVP stub — synthesized id, no OpenEMR write."""
+        import hashlib
+        import json as _json
+        payload = _json.dumps(body, sort_keys=True).encode()
+        allergy_id = f"copilot-allergy-{hashlib.sha3_512(payload).hexdigest()[:16]}"
+        return {**body, "id": allergy_id, "resourceType": "AllergyIntolerance"}
 
     async def create_medication_statement(
         self,
@@ -180,9 +170,12 @@ class FhirClient:
         body: dict[str, Any],
         physician_user_id: str,
     ) -> dict[str, Any]:
-        return await self._post(
-            "MedicationStatement", body, physician_user_id=physician_user_id
-        )
+        """MVP stub — synthesized id, no OpenEMR write."""
+        import hashlib
+        import json as _json
+        payload = _json.dumps(body, sort_keys=True).encode()
+        med_id = f"copilot-med-{hashlib.sha3_512(payload).hexdigest()[:16]}"
+        return {**body, "id": med_id, "resourceType": "MedicationStatement"}
 
 
 async def get_fhir_client(settings: Settings) -> FhirClient:

@@ -41,6 +41,8 @@ CREATE TABLE IF NOT EXISTS processed_documents (
   extracted_facts     TEXT NOT NULL,
   source_path         TEXT NOT NULL CHECK (source_path IN ('attach_route', 'front_desk_scan')),
   extracted_at        TEXT NOT NULL,
+  file_bytes          BLOB,
+  mime_type           TEXT,
   PRIMARY KEY (patient_pseudonym, hash)
 );
 
@@ -63,6 +65,8 @@ class ProcessedDocument:
     extracted_facts: dict[str, Any]
     source_path: str
     extracted_at: datetime
+    file_bytes: bytes | None = None
+    mime_type: str | None = None
 
 
 class ProcessedDocumentStore:
@@ -78,6 +82,15 @@ class ProcessedDocumentStore:
     async def init(self) -> None:
         async with aiosqlite.connect(self._db_path) as db:
             await db.executescript(_SCHEMA)
+            # Idempotent column adds for migrating existing DBs.
+            try:
+                await db.execute("ALTER TABLE processed_documents ADD COLUMN file_bytes BLOB")
+            except aiosqlite.OperationalError:
+                pass  # column already exists
+            try:
+                await db.execute("ALTER TABLE processed_documents ADD COLUMN mime_type TEXT")
+            except aiosqlite.OperationalError:
+                pass  # column already exists
             await db.commit()
 
     async def lookup(
@@ -88,7 +101,8 @@ class ProcessedDocumentStore:
             cur = await db.execute(
                 """
                 SELECT patient_pseudonym, hash, canonical_doc_id, doc_type,
-                       extracted_facts, source_path, extracted_at
+                       extracted_facts, source_path, extracted_at,
+                       file_bytes, mime_type
                   FROM processed_documents
                  WHERE patient_pseudonym = ? AND hash = ?
                 """,
@@ -105,6 +119,8 @@ class ProcessedDocumentStore:
             extracted_facts=json.loads(row["extracted_facts"]),
             source_path=row["source_path"],
             extracted_at=datetime.fromisoformat(row["extracted_at"]),
+            file_bytes=row["file_bytes"],
+            mime_type=row["mime_type"],
         )
 
     async def lookup_by_doc_id(
@@ -115,7 +131,8 @@ class ProcessedDocumentStore:
             cur = await db.execute(
                 """
                 SELECT patient_pseudonym, hash, canonical_doc_id, doc_type,
-                       extracted_facts, source_path, extracted_at
+                       extracted_facts, source_path, extracted_at,
+                       file_bytes, mime_type
                   FROM processed_documents
                  WHERE patient_pseudonym = ? AND canonical_doc_id = ?
                 """,
@@ -132,6 +149,8 @@ class ProcessedDocumentStore:
             extracted_facts=json.loads(row["extracted_facts"]),
             source_path=row["source_path"],
             extracted_at=datetime.fromisoformat(row["extracted_at"]),
+            file_bytes=row["file_bytes"],
+            mime_type=row["mime_type"],
         )
 
     async def record(
@@ -143,6 +162,8 @@ class ProcessedDocumentStore:
         doc_type: str,
         extracted_facts: dict[str, Any],
         source_path: str,
+        file_bytes: bytes | None = None,
+        mime_type: str | None = None,
     ) -> None:
         if source_path not in ("attach_route", "front_desk_scan"):
             raise ValueError(f"unknown source_path: {source_path!r}")
@@ -151,8 +172,9 @@ class ProcessedDocumentStore:
                 """
                 INSERT OR IGNORE INTO processed_documents
                   (patient_pseudonym, hash, canonical_doc_id, doc_type,
-                   extracted_facts, source_path, extracted_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                   extracted_facts, source_path, extracted_at,
+                   file_bytes, mime_type)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     patient_pseudonym,
@@ -162,6 +184,8 @@ class ProcessedDocumentStore:
                     json.dumps(extracted_facts, sort_keys=True),
                     source_path,
                     datetime.now(timezone.utc).isoformat(),
+                    file_bytes,
+                    mime_type,
                 ),
             )
             await db.commit()

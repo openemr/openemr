@@ -153,6 +153,8 @@ class IngestionService:
             doc_type=doc_type,
             extracted_facts=extraction.model_dump(mode="json"),
             source_path="attach_route",
+            file_bytes=file_bytes,
+            mime_type=mime_type,
         )
 
         span_output = vlm_span_output(

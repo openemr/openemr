@@ -1,11 +1,8 @@
-"""FHIR write helpers — POST shapes match OpenEMR's R4 endpoints."""
+"""FHIR write helpers — MVP stub behavior (no OpenEMR HTTP calls)."""
 from __future__ import annotations
-
-import base64
 
 import pytest
 import respx
-from httpx import Response
 
 from app.config import Settings
 from app.fhir.client import FhirClient
@@ -23,25 +20,8 @@ def settings(monkeypatch: pytest.MonkeyPatch) -> Settings:
 
 
 @respx.mock
-async def test_create_document_reference_posts_binary(settings: Settings) -> None:
-    respx.post("https://emr.example.com/oauth2/default/token").mock(
-        return_value=Response(200, json={"access_token": "tok", "expires_in": 3600})
-    )
-    captured: dict = {}
-
-    def _capture(request):
-        captured["body"] = request.read()
-        captured["url"] = str(request.url)
-        return Response(
-            201,
-            json={"id": "doc-123", "resourceType": "DocumentReference"},
-            headers={"Location": "DocumentReference/doc-123"},
-        )
-
-    respx.post("https://emr.example.com/apis/default/fhir/DocumentReference").mock(
-        side_effect=_capture
-    )
-
+async def test_create_document_reference_stub(settings: Settings) -> None:
+    """Stub returns a copilot- prefixed id, no HTTP call made."""
     client = FhirClient(settings)
     try:
         result = await client.create_document_reference(
@@ -49,50 +29,82 @@ async def test_create_document_reference_posts_binary(settings: Settings) -> Non
             doc_type="lab_doc",
             mime_type="application/pdf",
             file_bytes=b"%PDF-1.4\nfake-bytes",
-            sha3_hex="abc123",
+            sha3_hex="abc123def456789012345678",
             physician_user_id="dr_who",
         )
     finally:
         await client.aclose()
 
-    assert result["id"] == "doc-123"
-    body = captured["body"].decode()
-    assert "DocumentReference" in body
-    assert "Patient/patient-7" in body
-    assert base64.b64encode(b"%PDF-1.4\nfake-bytes").decode() in body
-    assert "urn:copilot:sha3-512" in body
-    assert "abc123" in body
+    assert result["id"] == "copilot-abc123def4567890"
+    assert result["resourceType"] == "DocumentReference"
+    assert result["status"] == "current"
+    assert result["subject"]["reference"] == "Patient/patient-7"
+    # No HTTP requests should have been made
+    assert len(respx.calls) == 0
 
 
-@pytest.mark.parametrize(
-    "method_name,resource_type",
-    [
-        ("create_observation", "Observation"),
-        ("create_allergy_intolerance", "AllergyIntolerance"),
-        ("create_medication_statement", "MedicationStatement"),
-    ],
-)
 @respx.mock
-async def test_thin_post_wrappers(
-    settings: Settings, method_name: str, resource_type: str
-) -> None:
-    respx.post("https://emr.example.com/oauth2/default/token").mock(
-        return_value=Response(200, json={"access_token": "tok", "expires_in": 3600})
-    )
-    expected = {"id": "res-1", "resourceType": resource_type}
-    respx.post(
-        f"https://emr.example.com/apis/default/fhir/{resource_type}"
-    ).mock(return_value=Response(201, json=expected))
-
+async def test_create_observation_stub(settings: Settings) -> None:
+    """Stub returns a copilot-obs- prefixed id, no HTTP call made."""
     client = FhirClient(settings)
+    body = {"resourceType": "Observation", "status": "final"}
     try:
-        result = await getattr(client, method_name)(
-            body={"resourceType": resource_type},
-            physician_user_id="dr_test",
+        result = await client.create_observation(body=body, physician_user_id="dr_who")
+    finally:
+        await client.aclose()
+
+    assert result["id"].startswith("copilot-obs-")
+    assert result["resourceType"] == "Observation"
+    assert len(respx.calls) == 0
+
+
+@respx.mock
+async def test_create_allergy_intolerance_stub(settings: Settings) -> None:
+    """Stub returns a copilot-allergy- prefixed id, no HTTP call made."""
+    client = FhirClient(settings)
+    body = {"resourceType": "AllergyIntolerance", "clinicalStatus": {}}
+    try:
+        result = await client.create_allergy_intolerance(body=body, physician_user_id="dr_who")
+    finally:
+        await client.aclose()
+
+    assert result["id"].startswith("copilot-allergy-")
+    assert result["resourceType"] == "AllergyIntolerance"
+    assert len(respx.calls) == 0
+
+
+@respx.mock
+async def test_create_medication_statement_stub(settings: Settings) -> None:
+    """Stub returns a copilot-med- prefixed id, no HTTP call made."""
+    client = FhirClient(settings)
+    body = {"resourceType": "MedicationStatement", "status": "active"}
+    try:
+        result = await client.create_medication_statement(body=body, physician_user_id="dr_who")
+    finally:
+        await client.aclose()
+
+    assert result["id"].startswith("copilot-med-")
+    assert result["resourceType"] == "MedicationStatement"
+    assert len(respx.calls) == 0
+
+
+@respx.mock
+async def test_stub_ids_are_stable(settings: Settings) -> None:
+    """Same input bytes → same synthesized doc_id across calls."""
+    client = FhirClient(settings)
+    sha = "aabbccddeeff00112233445566778899"
+    try:
+        r1 = await client.create_document_reference(
+            patient_fhir_id="p-1", doc_type="lab_doc", mime_type="application/pdf",
+            file_bytes=b"bytes", sha3_hex=sha, physician_user_id="dr_who",
+        )
+        r2 = await client.create_document_reference(
+            patient_fhir_id="p-1", doc_type="lab_doc", mime_type="application/pdf",
+            file_bytes=b"bytes", sha3_hex=sha, physician_user_id="dr_who",
         )
     finally:
         await client.aclose()
 
-    last_req = respx.calls.last.request
-    assert str(last_req.url).endswith(f"/{resource_type}")
-    assert result == expected
+    assert r1["id"] == r2["id"]
+    assert r1["id"].startswith("copilot-")
+    assert len(respx.calls) == 0

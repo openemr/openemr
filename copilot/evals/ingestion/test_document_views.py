@@ -1,7 +1,6 @@
 """GET /v1/documents/{doc_id}/preview and /extractions."""
 from __future__ import annotations
 
-import base64
 import json
 from datetime import datetime, timezone
 from unittest.mock import AsyncMock
@@ -37,25 +36,23 @@ def client(monkeypatch, tmp_path) -> TestClient:
 
 def test_preview_returns_pdf_bytes(client: TestClient) -> None:
     with client:
-        # Mock the FhirClient.get_resource for DocumentReference fetch
-        client.app.state.fhir_client.get_resource = AsyncMock(
-            return_value={
-                "resourceType": "DocumentReference",
-                "id": "doc-1",
-                "subject": {"reference": "Patient/patient-7"},
-                "content": [
-                    {
-                        "attachment": {
-                            "contentType": "application/pdf",
-                            "data": base64.b64encode(b"%PDF-1.4 fake").decode("ascii"),
-                        }
-                    }
-                ],
-            }
+        # Preview now reads from the local store, not FhirClient
+        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
+            return_value=ProcessedDocument(
+                patient_pseudonym="patient-7",
+                hash="abc",
+                canonical_doc_id="doc-1",
+                doc_type="lab_doc",
+                extracted_facts={"results": [], "document_date": None},
+                source_path="attach_route",
+                extracted_at=datetime.now(timezone.utc),
+                file_bytes=b"%PDF-1.4 fake",
+                mime_type="application/pdf",
+            )
         )
         r = client.get(
             "/v1/documents/doc-1/preview",
-            params={"physician_user_id": "dr_who"},
+            params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
         )
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("application/pdf")
@@ -63,29 +60,27 @@ def test_preview_returns_pdf_bytes(client: TestClient) -> None:
 
 
 def test_preview_rejects_out_of_panel_patient(client: TestClient) -> None:
-    """Preview must return 403 when the doc's patient is outside the physician's panel."""
+    """Preview must return 403 when the patient is outside the physician's panel."""
     with client:
-        client.app.state.fhir_client.get_resource = AsyncMock(
-            return_value={
-                "resourceType": "DocumentReference",
-                "id": "doc-99",
-                "subject": {"reference": "Patient/patient-99"},  # not in dr_who's panel
-                "content": [
-                    {
-                        "attachment": {
-                            "contentType": "application/pdf",
-                            "data": base64.b64encode(b"%PDF-1.4 fake").decode("ascii"),
-                        }
-                    }
-                ],
-            }
-        )
         r = client.get(
             "/v1/documents/doc-99/preview",
-            params={"physician_user_id": "dr_who"},
+            params={"physician_user_id": "dr_who", "patient_id": "patient-99"},
         )
     assert r.status_code == 403
     assert "out_of_panel" in r.json()["detail"]
+
+
+def test_preview_returns_404_when_not_found(client: TestClient) -> None:
+    """Preview returns 404 when the doc is not in the local store."""
+    with client:
+        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
+            return_value=None
+        )
+        r = client.get(
+            "/v1/documents/doc-missing/preview",
+            params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
+        )
+    assert r.status_code == 404
 
 
 def test_extractions_returns_cached_extraction(client: TestClient) -> None:
