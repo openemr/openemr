@@ -27,7 +27,8 @@ from app.persistence.conversations import ConversationStore
 from app.persistence.processed_documents import ProcessedDocumentStore
 from app.phi.log_filter import install as install_phi_log_filter
 from app.phi.session import sessions
-from app.tools.registry import set_ingestion_service
+from app.retrieval.corpus import GuidelineCorpus
+from app.tools.registry import set_corpus, set_ingestion_service
 
 logger = logging.getLogger("copilot.main")
 
@@ -52,6 +53,15 @@ async def lifespan(app: FastAPI):
     app.state.processed_documents = docs_store
     app.state.ingestion_service = ingestion
     set_ingestion_service(ingestion)
+
+    # Week 2: guideline corpus singleton
+    corpus = GuidelineCorpus(
+        jsonl_path="corpus/guidelines.jsonl",
+        sqlite_path=settings.conversation_db_path + ".corpus",
+    )
+    await corpus.build()
+    app.state.corpus = corpus
+    set_corpus(corpus)
 
     yield
     await fhir.aclose()

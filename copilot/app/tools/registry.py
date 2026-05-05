@@ -16,9 +16,18 @@ from app.tools import (
     get_recent_vitals,
 )
 from app.tools import document_tools
+from app.tools import guideline_tools
 from app.tools._base import ToolResult
 
 _INGESTION_SERVICE_HOLDER: dict[str, Any] = {"svc": None}
+
+_CORPUS_HOLDER: dict[str, Any] = {"corpus": None}
+
+
+def set_corpus(corpus: Any) -> None:
+    """Called once at FastAPI lifespan-start so the agent loop's tool dispatch
+    can reach the singleton corpus constructed at app startup."""
+    _CORPUS_HOLDER["corpus"] = corpus
 
 
 def set_ingestion_service(svc: Any) -> None:
@@ -108,6 +117,12 @@ TOOL_REGISTRY: dict[str, dict[str, Any]] = {
             ingestion_service=_INGESTION_SERVICE_HOLDER["svc"],
             session=session,
             args=args,
+        ),
+    },
+    "search_guidelines": {
+        "schema": guideline_tools.SCHEMA,
+        "run": lambda fhir, session, args: guideline_tools.run_search_guidelines(
+            corpus=_CORPUS_HOLDER["corpus"], args=args
         ),
     },
 }
