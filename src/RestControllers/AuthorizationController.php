@@ -1356,7 +1356,7 @@ class AuthorizationController
         // by the authorization grant flow.
         $code = $request->getParsedBody()['code'] ?? null;
         // grantType could be authorization_code, password or refresh_token.
-        $this->grantType = $request->getParsedBody()['grant_type'];
+        $this->grantType = $request->getParsedBody()['grant_type'] ?? '';
         $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().
