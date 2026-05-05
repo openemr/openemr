@@ -123,8 +123,13 @@ async def run_get_recent_uploads(
     args: dict[str, Any],
 ) -> ToolResult:
     limit = int(args.get("limit") or 3)
+    # The HTTP attach route stores rows keyed by raw FHIR uuid (no session
+    # context at upload time). The session's `patient_pseudonym()` is a
+    # randomized "Patient-XXXX" label used for trace minimization, NOT the
+    # storage key. Use `active_patient_id` (the real FHIR uuid this session
+    # is scoped to) so the lookup matches what the route stored.
     docs = await store.list_recent_for_patient(
-        patient_pseudonym=session.patient_pseudonym(), limit=limit
+        patient_pseudonym=session.active_patient_id, limit=limit
     )
     payload: list[dict[str, Any]] = []
     record_ids: list[str] = []
