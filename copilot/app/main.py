@@ -556,11 +556,20 @@ async def attach_document(
 
 
 @app.get("/v1/documents/{doc_id}/preview")
-async def get_document_preview(doc_id: str, physician_user_id: str):
+async def get_document_preview(
+    doc_id: str,
+    physician_user_id: str,
+    settings: Settings = Depends(get_settings),
+):
     fhir = app.state.fhir_client
     doc = await fhir.get_resource(
         "DocumentReference", doc_id, physician_user_id=physician_user_id
     )
+    # Extract patient_id from subject.reference ("Patient/{id}") and gate access.
+    subject_ref = (doc.get("subject") or {}).get("reference", "")
+    if subject_ref.startswith("Patient/"):
+        patient_id = subject_ref.split("/", 1)[1]
+        await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
     content = doc.get("content") or []
     if not content or "attachment" not in content[0]:
         raise HTTPException(status_code=404, detail="no_attachment")
@@ -573,7 +582,14 @@ async def get_document_preview(doc_id: str, physician_user_id: str):
 
 
 @app.get("/v1/documents/{doc_id}/extractions")
-async def get_document_extractions(doc_id: str, patient_id: str):
+async def get_document_extractions(
+    doc_id: str,
+    patient_id: str,
+    physician_user_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    fhir = app.state.fhir_client
+    await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
     store = app.state.processed_documents
     row = await store.lookup_by_doc_id(
         patient_pseudonym=patient_id, canonical_doc_id=doc_id

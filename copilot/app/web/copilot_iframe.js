@@ -3,6 +3,28 @@
   const params = new URLSearchParams(window.location.search);
   const PATIENT_ID = params.get("patient_id");
   const PHYSICIAN = params.get("physician_user_id") || "admin";
+
+  // Session bootstrap — minted lazily on the first chat submit.
+  let sessionId = null;
+
+  async function ensureSession() {
+    if (sessionId !== null) return sessionId;
+    const r = await fetch("/v1/sessions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patient_id: PATIENT_ID,
+        physician_user_id: PHYSICIAN,
+      }),
+    });
+    if (!r.ok) {
+      const text = await r.text();
+      throw new Error(`session_bootstrap_failed:${r.status}:${text}`);
+    }
+    const data = await r.json();
+    sessionId = data.session_id;
+    return sessionId;
+  }
   document.getElementById("patient-banner").textContent =
     PATIENT_ID ? `Patient: ${PATIENT_ID}` : "(no patient context)";
 
@@ -81,13 +103,21 @@
     if (!q) return;
     appendMessage("user", q);
     questionInput.value = "";
-    // Reuse existing /v1/chat — request shape is unchanged.
+
+    // Bootstrap (or reuse) the session before the first chat call.
+    let sid;
+    try {
+      sid = await ensureSession();
+    } catch (err) {
+      appendMessage("system", `Session error: ${err.message}`);
+      return;
+    }
+
     const r = await fetch("/v1/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        patient_id: PATIENT_ID,
-        physician_user_id: PHYSICIAN,
+        session_id: sid,
         question: q,
       }),
     });
@@ -96,7 +126,7 @@
       return;
     }
     const data = await r.json();
-    appendMessageWithCitations(data.prose, data.claims || []);
+    appendMessageWithCitations(data.response?.prose ?? data.prose ?? "", data.response?.claims ?? data.claims ?? []);
   };
 
   function appendMessage(role, text) {
