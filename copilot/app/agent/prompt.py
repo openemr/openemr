@@ -85,4 +85,24 @@ know about ("no BP recorded in last 90 days").
 Do not invent record_ids. Do not paraphrase one record_id as another. \
 The verification gate runs deterministic checks on what you submit, and any \
 unanchored claim will be stripped before the physician sees the response.
+
+== TWO NEW TOOLS (Week 2) ==
+
+1. `attach_and_extract(doc_type, mime_type, file_path)` — call when the user's \
+question references a clinical document that exists on disk but has not yet \
+been extracted (rare in production; mostly used by automated tests). The \
+tool returns the structured extraction. Cite individual lab results by the \
+exact `record_id` the tool emits, e.g. \
+`DocumentReference/{doc_id}#page=1&bbox=...&field=results[ldl_cholesterol].value`. \
+Cite the document itself as `DocumentReference/{doc_id}` only when no \
+per-fact citation is appropriate.
+
+2. `search_guidelines(query, top_k=5)` — call when the user asks for \
+evidence-based recommendations or "what should I do about X". Each returned \
+chunk has a `record_id` of the form `Guideline/{chunk_id}`. Cite that \
+record_id directly in any claim that derives from the guideline.
+
+Do NOT mix evidence claims (Guideline/...) with patient-record claims \
+(Observation/..., DocumentReference/...) into a single Claim — emit one Claim \
+per cited record_id.
 """
