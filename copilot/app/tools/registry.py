@@ -23,6 +23,14 @@ _INGESTION_SERVICE_HOLDER: dict[str, Any] = {"svc": None}
 
 _CORPUS_HOLDER: dict[str, Any] = {"corpus": None}
 
+_DOCS_STORE_HOLDER: dict[str, Any] = {"store": None}
+
+
+def set_docs_store(store: Any) -> None:
+    """Called once at FastAPI lifespan-start so the agent loop's tool dispatch
+    can reach the singleton ProcessedDocumentStore constructed at app startup."""
+    _DOCS_STORE_HOLDER["store"] = store
+
 
 def set_corpus(corpus: Any) -> None:
     """Called once at FastAPI lifespan-start so the agent loop's tool dispatch
@@ -123,6 +131,12 @@ TOOL_REGISTRY: dict[str, dict[str, Any]] = {
         "schema": guideline_tools.SCHEMA,
         "run": lambda fhir, session, args: guideline_tools.run_search_guidelines(
             corpus=_CORPUS_HOLDER["corpus"], args=args
+        ),
+    },
+    "get_recent_uploads": {
+        "schema": document_tools.GET_RECENT_UPLOADS_SCHEMA,
+        "run": lambda fhir, session, args: document_tools.run_get_recent_uploads(
+            store=_DOCS_STORE_HOLDER["store"], session=session, args=args
         ),
     },
 }

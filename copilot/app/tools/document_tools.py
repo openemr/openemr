@@ -1,11 +1,15 @@
 # app/tools/document_tools.py
-"""attach_and_extract — agent-callable tool that triggers ingestion mid-turn.
+"""Agent-callable tools for working with uploaded clinical documents.
 
-PRD §1 names this tool explicitly. The implementation is a thin shim over
-IngestionService that produces a ToolResult whose `record_ids` cover both the
-parent DocumentReference and every derived FHIR resource — that's what makes
-downstream `verify()` accept any claim citing a derived resource without
-custom rules.
+- `attach_and_extract` (PRD §1): runs ingestion mid-turn for a doc on disk.
+- `get_recent_uploads`: reads the most recent processed_documents rows so the
+  agent can answer questions about a doc the physician just dropped in the
+  iframe (without having to call OpenEMR/FHIR for the same data — those reads
+  fail when the deployed Co-Pilot can't reach OpenEMR, and the extracted
+  facts live in Co-Pilot's own SQLite anyway).
+
+Both tools produce ToolResults whose `record_ids` flow through the existing
+verify() gate without rule changes.
 """
 from __future__ import annotations
 
@@ -13,11 +17,13 @@ from pathlib import Path
 from typing import Any
 
 from app.ingestion.schemas import (
+    IntakeFormExtraction,
     LabPDFExtraction,
     encode_record_id_for_vlm,
     field_id_for_lab_result,
 )
 from app.ingestion.service import IngestionService
+from app.persistence.processed_documents import ProcessedDocumentStore
 from app.phi.session import PseudonymMap
 from app.tools._base import ToolResult
 
@@ -81,5 +87,77 @@ async def run_attach_and_extract(
         name="attach_and_extract",
         record_type="DocumentReference",
         data=[result.extraction.model_dump(mode="json")],
+        record_ids=record_ids,
+    )
+
+
+GET_RECENT_UPLOADS_SCHEMA: dict[str, Any] = {
+    "name": "get_recent_uploads",
+    "description": (
+        "Return the most recent clinical documents uploaded for the active "
+        "patient with their structured extractions. Use this when the "
+        "physician asks about a lab or intake form they just dropped in the "
+        "iframe (e.g. 'what was the LDL on the lab I just uploaded?'). The "
+        "extracted facts include lab values, allergies, medications, and "
+        "intake demographics — all anchored to the source DocumentReference "
+        "so claims you make can cite them."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10,
+                "default": 3,
+            },
+        },
+    },
+}
+
+
+async def run_get_recent_uploads(
+    *,
+    store: ProcessedDocumentStore,
+    session: PseudonymMap,
+    args: dict[str, Any],
+) -> ToolResult:
+    limit = int(args.get("limit") or 3)
+    docs = await store.list_recent_for_patient(
+        patient_pseudonym=session.patient_pseudonym(), limit=limit
+    )
+    payload: list[dict[str, Any]] = []
+    record_ids: list[str] = []
+    for d in docs:
+        record_ids.append(f"DocumentReference/{d.canonical_doc_id}")
+        # Re-emit per-fact record_ids so any claim citing a specific lab value
+        # passes verify() the same way attach_and_extract's claims do.
+        if d.doc_type == "lab_doc":
+            try:
+                lab_extr = LabPDFExtraction.model_validate(d.extracted_facts)
+                for idx, lab in enumerate(lab_extr.results):
+                    if lab.source_citation.bbox and lab.source_citation.page:
+                        record_ids.append(
+                            encode_record_id_for_vlm(
+                                doc_id=d.canonical_doc_id,
+                                page=lab.source_citation.page,
+                                bbox=lab.source_citation.bbox,
+                                field_or_chunk_id=field_id_for_lab_result(lab, idx),
+                            )
+                        )
+            except Exception:  # noqa: BLE001 — never let a malformed row break the tool
+                pass
+        payload.append(
+            {
+                "doc_id": d.canonical_doc_id,
+                "doc_type": d.doc_type,
+                "extracted_at": d.extracted_at.isoformat(),
+                "extraction": d.extracted_facts,
+            }
+        )
+    return ToolResult(
+        name="get_recent_uploads",
+        record_type="DocumentReference",
+        data=payload,
         record_ids=record_ids,
     )

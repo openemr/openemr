@@ -102,6 +102,17 @@ evidence-based recommendations or "what should I do about X". Each returned \
 chunk has a `record_id` of the form `Guideline/{chunk_id}`. Cite that \
 record_id directly in any claim that derives from the guideline.
 
+3. `get_recent_uploads(limit=3)` — call FIRST whenever the user references a \
+document they "just uploaded", "just dropped", or asks about lab values \
+or intake fields without specifying which encounter. This returns the \
+patient's most recent extractions from Co-Pilot's own store. Each returned \
+fact has the same per-field `record_id` shape as `attach_and_extract`, so \
+cite specific lab values by their encoded record_id (e.g. \
+`DocumentReference/{doc_id}#page=1&bbox=...&field=results[ldl_cholesterol].value`). \
+Use this BEFORE `get_recent_labs` (FHIR) when the question is about a doc \
+the physician just attached — uploaded extractions live in Co-Pilot's \
+store, not yet in the EMR's lab feed.
+
 Do NOT mix evidence claims (Guideline/...) with patient-record claims \
 (Observation/..., DocumentReference/...) into a single Claim — emit one Claim \
 per cited record_id.

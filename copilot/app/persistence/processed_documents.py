@@ -153,6 +153,40 @@ class ProcessedDocumentStore:
             mime_type=row["mime_type"],
         )
 
+    async def list_recent_for_patient(
+        self, *, patient_pseudonym: str, limit: int = 5
+    ) -> list[ProcessedDocument]:
+        """Return the patient's most recent processed documents, newest first."""
+        async with aiosqlite.connect(self._db_path) as db:
+            db.row_factory = aiosqlite.Row
+            cur = await db.execute(
+                """
+                SELECT patient_pseudonym, hash, canonical_doc_id, doc_type,
+                       extracted_facts, source_path, extracted_at,
+                       file_bytes, mime_type
+                  FROM processed_documents
+                 WHERE patient_pseudonym = ?
+              ORDER BY extracted_at DESC
+                 LIMIT ?
+                """,
+                (patient_pseudonym, limit),
+            )
+            rows = await cur.fetchall()
+        return [
+            ProcessedDocument(
+                patient_pseudonym=r["patient_pseudonym"],
+                hash=r["hash"],
+                canonical_doc_id=r["canonical_doc_id"],
+                doc_type=r["doc_type"],
+                extracted_facts=json.loads(r["extracted_facts"]),
+                source_path=r["source_path"],
+                extracted_at=datetime.fromisoformat(r["extracted_at"]),
+                file_bytes=r["file_bytes"],
+                mime_type=r["mime_type"],
+            )
+            for r in rows
+        ]
+
     async def record(
         self,
         *,
