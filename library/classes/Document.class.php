@@ -987,18 +987,26 @@ class Document extends ORDataObject
             $has_thumbnail = false;
         }
 
+        // Note: there used to be couchdb_encryption as a separate toggle, it
+        // was removed in #12000. drive_encryption now controls all files.
+        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+            $this->set_encrypted(self::ENCRYPTED_ON);
+        } else {
+            $this->set_encrypted(self::ENCRYPTED_OFF);
+        }
+
         $encounter_id = $eid;
         $this->storagemethod = OEGlobalsBag::getInstance()->get('document_storage_method');
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
-            if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
+            if ($this->is_encrypted()) {
                 $document = $cryptoGen->encryptForFilesystem($data);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
-                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
+                if ($this->is_encrypted()) {
                     $th_document = $cryptoGen->encryptForFilesystem($thumbnail_data);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
@@ -1102,14 +1110,6 @@ class Document extends ORDataObject
             }
         }
 
-        if (
-            (OEGlobalsBag::getInstance()->getBoolean('drive_encryption') && ($this->storagemethod != self::STORAGE_METHOD_COUCHDB))
-            || (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption') && ($this->storagemethod == self::STORAGE_METHOD_COUCHDB))
-        ) {
-            $this->set_encrypted(self::ENCRYPTED_ON);
-        } else {
-            $this->set_encrypted(self::ENCRYPTED_OFF);
-        }
         // we need our external unique reference identifier that can be mapped back to our table.
         $docUUID = (new UuidRegistry(['table_name' => $this->_table]))->createUuid();
         $this->set_uuid($docUUID);
