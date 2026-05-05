@@ -23,6 +23,7 @@ dependencies = [
   "python-dotenv>=1.0",
   "sse-starlette>=2.1",
   "aiosqlite>=0.20",
+  "python-multipart>=0.0.9",
 ]
 
 [project.optional-dependencies]
