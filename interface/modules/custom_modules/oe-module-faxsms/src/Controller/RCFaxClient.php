@@ -637,7 +637,11 @@ class RCFaxClient extends AppDispatch
             $response['url'] = $where;
         }
 
-        return json_encode($response);
+        try {
+            return json_encode($response, JSON_THROW_ON_ERROR);
+        } catch (\JsonException) {
+            return '{"success":false,"message":"Encoding error","url":""}';
+        }
     }
 
     /**
