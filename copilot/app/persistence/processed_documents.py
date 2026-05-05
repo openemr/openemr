@@ -107,6 +107,33 @@ class ProcessedDocumentStore:
             extracted_at=datetime.fromisoformat(row["extracted_at"]),
         )
 
+    async def lookup_by_doc_id(
+        self, *, patient_pseudonym: str, canonical_doc_id: str
+    ) -> ProcessedDocument | None:
+        async with aiosqlite.connect(self._db_path) as db:
+            db.row_factory = aiosqlite.Row
+            cur = await db.execute(
+                """
+                SELECT patient_pseudonym, hash, canonical_doc_id, doc_type,
+                       extracted_facts, source_path, extracted_at
+                  FROM processed_documents
+                 WHERE patient_pseudonym = ? AND canonical_doc_id = ?
+                """,
+                (patient_pseudonym, canonical_doc_id),
+            )
+            row = await cur.fetchone()
+        if row is None:
+            return None
+        return ProcessedDocument(
+            patient_pseudonym=row["patient_pseudonym"],
+            hash=row["hash"],
+            canonical_doc_id=row["canonical_doc_id"],
+            doc_type=row["doc_type"],
+            extracted_facts=json.loads(row["extracted_facts"]),
+            source_path=row["source_path"],
+            extracted_at=datetime.fromisoformat(row["extracted_at"]),
+        )
+
     async def record(
         self,
         *,

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import base64
 import json
 import logging
 import uuid
@@ -9,7 +10,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, Response
 from pydantic import BaseModel, Field
 
 from anthropic import AsyncAnthropic
@@ -541,4 +542,37 @@ async def attach_document(
             }
             for item in result.bbox_overlay
         ],
+    }
+
+
+@app.get("/v1/documents/{doc_id}/preview")
+async def get_document_preview(doc_id: str, physician_user_id: str):
+    fhir = app.state.fhir_client
+    doc = await fhir.get_resource(
+        "DocumentReference", doc_id, physician_user_id=physician_user_id
+    )
+    content = doc.get("content") or []
+    if not content or "attachment" not in content[0]:
+        raise HTTPException(status_code=404, detail="no_attachment")
+    att = content[0]["attachment"]
+    media_type = att.get("contentType", "application/octet-stream")
+    raw = att.get("data")
+    if not raw:
+        raise HTTPException(status_code=404, detail="empty_attachment")
+    return Response(content=base64.b64decode(raw), media_type=media_type)
+
+
+@app.get("/v1/documents/{doc_id}/extractions")
+async def get_document_extractions(doc_id: str, patient_id: str):
+    store = app.state.processed_documents
+    row = await store.lookup_by_doc_id(
+        patient_pseudonym=patient_id, canonical_doc_id=doc_id
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="extraction_not_found")
+    return {
+        "doc_id": doc_id,
+        "doc_type": row.doc_type,
+        "extracted_at": row.extracted_at.isoformat(),
+        "extraction": row.extracted_facts,
     }
