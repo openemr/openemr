@@ -36,6 +36,7 @@ if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && !empt
                  LIMIT 1";
     $slot_row = sqlQuery($slot_sql, [$provider_id, $event_date, $start_time]);
 
+
     if (!empty($slot_row['pc_eid'])) {
         $consumedSlotEid = (int)$slot_row['pc_eid'];
 
@@ -93,19 +94,21 @@ if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && !empt
 
 $resolvedDuration = null;
 
-// If we consumed a slot, use its duration first
-if ($slotConsumed && !empty($_SESSION['medex_pending_slot_consumption']['slot_duration'])) {
-    $resolvedDuration = $_SESSION['medex_pending_slot_consumption']['slot_duration'];
-}
-
-// Fall back to category duration
-if ($resolvedDuration === null && $catid > 0) {
+// 1. Category duration is the SOURCE OF TRUTH
+if ($catid > 0) {
     $crow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1", [$catid]);
     $catSeconds = (int)($crow['pc_duration'] ?? 0);
     if ($catSeconds > 0) {
         $resolvedDuration = (int)round($catSeconds / 60);
     }
 }
+
+// 2. Session slot duration (if we consumed a slot and no category)
+if ($resolvedDuration === null && $slotConsumed && !empty($_SESSION['medex_pending_slot_consumption']['slot_duration'])) {
+    $resolvedDuration = $_SESSION['medex_pending_slot_consumption']['slot_duration'];
+}
+
+// 3. URL parameter (last resort)
 if ($resolvedDuration === null && $duration !== null) {
     $d = (int)$duration;
     if ($d > 0) {

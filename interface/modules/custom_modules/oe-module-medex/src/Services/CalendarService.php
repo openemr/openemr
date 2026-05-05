@@ -119,6 +119,8 @@ class CalendarService
                 'category_name' => $row['pc_catname'],
                 'status' => $row['pc_apptstatus'],
                 'preferred_category' => $row['pc_prefcatid'],
+                'preferredCategoryId' => $row['pc_prefcatid'],
+                'isGeneratedSlot' => empty($row['patient_id']) && strpos($row['pc_catname'], 'Open Slot') !== false,
             ]
         ];
 
