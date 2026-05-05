@@ -12,7 +12,11 @@ RUN pip install --no-cache-dir --prefix=/install \
 FROM python:3.11-slim
 WORKDIR /srv
 COPY --from=builder /install /usr/local
+COPY app/ ./app/
 COPY . .
+
+# Fail the build immediately if critical source directories are missing
+RUN python -c "import app.tools.registry; import app.agent.loop; print('All modules verified')"
 
 # /data holds the conversation-history SQLite file. The Railway volume is
 # attached to /data via service config (railway.toml + dashboard) — Railway
