@@ -1,0 +1,53 @@
+{
+  "results": [
+    {
+      "test_name": "LDL Cholesterol",
+      "analyte_key": "ldl_cholesterol",
+      "loinc_code": null,
+      "value": 142.0,
+      "unit": "mg/dL",
+      "reference_range": "<100",
+      "collection_date": "2026-04-30",
+      "abnormal_flag": "H",
+      "source_citation": {
+        "source_doc_id": "DocumentReference/REPLACE",
+        "page": 1,
+        "bbox": {
+          "x": 0.1,
+          "y": 0.13,
+          "w": 0.42,
+          "h": 0.025
+        },
+        "raw_text": "LDL Cholesterol 142 mg/dL <100 H",
+        "confidence": 0.93,
+        "source_kind": "document",
+        "field_or_chunk_id": "results[ldl_cholesterol].value"
+      }
+    },
+    {
+      "test_name": "HDL Cholesterol",
+      "analyte_key": "hdl_cholesterol",
+      "loinc_code": null,
+      "value": 38.0,
+      "unit": "mg/dL",
+      "reference_range": ">40",
+      "collection_date": "2026-04-30",
+      "abnormal_flag": "L",
+      "source_citation": {
+        "source_doc_id": "DocumentReference/REPLACE",
+        "page": 1,
+        "bbox": {
+          "x": 0.1,
+          "y": 0.16,
+          "w": 0.42,
+          "h": 0.025
+        },
+        "raw_text": "HDL Cholesterol 38 mg/dL >40 L",
+        "confidence": 0.93,
+        "source_kind": "document",
+        "field_or_chunk_id": "results[hdl_cholesterol].value"
+      }
+    }
+  ],
+  "document_date": "2026-04-30"
+}

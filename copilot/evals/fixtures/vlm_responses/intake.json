@@ -1,0 +1,102 @@
+{
+  "demographics": {
+    "age": 58,
+    "gender": "F",
+    "chief_concern": "fatigue",
+    "source_citation": {
+      "source_doc_id": "DocumentReference/REPLACE",
+      "page": 1,
+      "bbox": {
+        "x": 0.1,
+        "y": 0.1,
+        "w": 0.3,
+        "h": 0.025
+      },
+      "raw_text": "Age: 58 Sex: F",
+      "confidence": 0.95,
+      "source_kind": "document",
+      "field_or_chunk_id": "demographics"
+    }
+  },
+  "chief_concern": "fatigue, occasional chest tightness on exertion",
+  "current_medications": [
+    {
+      "name": "Lisinopril",
+      "dose": "10mg",
+      "frequency": "daily",
+      "source_citation": {
+        "source_doc_id": "DocumentReference/REPLACE",
+        "page": 1,
+        "bbox": {
+          "x": 0.13,
+          "y": 0.21,
+          "w": 0.3,
+          "h": 0.025
+        },
+        "raw_text": "Lisinopril 10mg daily",
+        "confidence": 0.92,
+        "source_kind": "document",
+        "field_or_chunk_id": "medications[0]"
+      }
+    }
+  ],
+  "allergies": [
+    {
+      "verbatim_substance": "shellfish?? maybe iodine",
+      "coded_substance": null,
+      "code": null,
+      "code_system": null,
+      "reaction": "itchy?",
+      "severity": null,
+      "ambiguity_note": "no code \u2014 ambiguous; surface to clinician",
+      "source_citation": {
+        "source_doc_id": "DocumentReference/REPLACE",
+        "page": 1,
+        "bbox": {
+          "x": 0.13,
+          "y": 0.3,
+          "w": 0.4,
+          "h": 0.025
+        },
+        "raw_text": "shellfish?? maybe iodine \u2014 itchy?",
+        "confidence": 0.55,
+        "source_kind": "document",
+        "field_or_chunk_id": "allergies[0].substance"
+      }
+    }
+  ],
+  "family_history": [
+    {
+      "relation": "Mother",
+      "condition": "type 2 diabetes",
+      "source_citation": {
+        "source_doc_id": "DocumentReference/REPLACE",
+        "page": 1,
+        "bbox": {
+          "x": 0.13,
+          "y": 0.4,
+          "w": 0.4,
+          "h": 0.025
+        },
+        "raw_text": "Mother: type 2 diabetes",
+        "confidence": 0.93,
+        "source_kind": "document",
+        "field_or_chunk_id": "family_history[0]"
+      }
+    }
+  ],
+  "source_citation": {
+    "source_doc_id": "DocumentReference/REPLACE",
+    "page": 1,
+    "bbox": {
+      "x": 0.0,
+      "y": 0.0,
+      "w": 1.0,
+      "h": 1.0
+    },
+    "raw_text": "(intake form, page 1)",
+    "confidence": 1.0,
+    "source_kind": "document",
+    "field_or_chunk_id": "form"
+  }
+}
