@@ -115,24 +115,17 @@ if ($_POST['form_save'] ?? '') {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-        $payment_id = sqlInsert(
-            "insert into ar_session set " .
-            "payer_id = ?" .
-            ", patient_id = ?" .
-            ", user_id = ?" .
-            ", closed = ?" .
-            ", reference = ?" .
-            ", check_date =  now() , deposit_date = now() " .
-            ",  pay_total = ?" .
-            ", payment_type = 'patient'" .
-            ", description = ?" .
-            ", adjustment_code = 'pre_payment'" .
-            ", post_to_date = now() " .
-            ", payment_method = ?",
-            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
-        );
+        $form_prepayment = filter_input(INPUT_POST, 'form_prepayment', FILTER_VALIDATE_FLOAT);
+        if ($form_prepayment === false || $form_prepayment === null || $form_prepayment <= 0) {
+            $alertmsg = xl('Invalid prepayment amount.');
+        } else {
+            $payment_id = sqlInsert(
+                "insert into ar_session set payer_id = ?, patient_id = ?, user_id = ?, closed = ?, reference = ?, check_date = now(), deposit_date = now(), pay_total = ?, payment_type = 'patient', description = ?, adjustment_code = 'pre_payment', post_to_date = now(), payment_method = ?",
+                [0, $form_pid, $session->get('authUserID'), 0, $form_source, $form_prepayment, $NameNew, $form_method]
+            );
 
-        frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
+            frontPayment($form_pid, 0, $form_method, $form_source, $form_prepayment, 0, $timestamp);//insertion to 'payments' table.
+        }
     }
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
@@ -310,7 +303,7 @@ if ($_POST['form_save'] ?? '') {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
+if ($alertmsg === '' && (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null))) {
     if (($_REQUEST['receipt'] ?? null)) {
         $form_pid = $isPortal ? $pid : $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
@@ -618,6 +611,11 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 document.getElementById("check_number").value = authnum;
             }
         }
+        <?php if ($alertmsg !== '') { ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            alert(<?php echo js_escape($alertmsg); ?>);
+        });
+        <?php } ?>
     </script>
 
     <body class="skin-blue" onunload='imclosing()' onLoad="cursor_pointer();"
