@@ -27,6 +27,7 @@ from app.persistence.conversations import ConversationStore
 from app.persistence.processed_documents import ProcessedDocumentStore
 from app.phi.log_filter import install as install_phi_log_filter
 from app.phi.session import sessions
+from app.tools.registry import set_ingestion_service
 
 logger = logging.getLogger("copilot.main")
 
@@ -50,6 +51,7 @@ async def lifespan(app: FastAPI):
     ingestion = IngestionService(fhir=fhir, vlm=vlm, store=docs_store)
     app.state.processed_documents = docs_store
     app.state.ingestion_service = ingestion
+    set_ingestion_service(ingestion)
 
     yield
     await fhir.aclose()

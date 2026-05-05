@@ -15,7 +15,16 @@ from app.tools import (
     get_recent_labs,
     get_recent_vitals,
 )
+from app.tools import document_tools
 from app.tools._base import ToolResult
+
+_INGESTION_SERVICE_HOLDER: dict[str, Any] = {"svc": None}
+
+
+def set_ingestion_service(svc: Any) -> None:
+    """Called once at FastAPI lifespan-start so the agent loop's tool dispatch
+    can reach the singleton service constructed at app startup."""
+    _INGESTION_SERVICE_HOLDER["svc"] = svc
 
 
 async def _no_arg(
@@ -92,6 +101,14 @@ TOOL_REGISTRY: dict[str, dict[str, Any]] = {
     "check_drug_interactions": {
         "schema": check_drug_interactions.SCHEMA,
         "run": _drug_interactions,
+    },
+    "attach_and_extract": {
+        "schema": document_tools.SCHEMA,
+        "run": lambda fhir, session, args: document_tools.run_attach_and_extract(
+            ingestion_service=_INGESTION_SERVICE_HOLDER["svc"],
+            session=session,
+            args=args,
+        ),
     },
 }
 
