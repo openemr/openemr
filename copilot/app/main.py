@@ -19,6 +19,7 @@ from app.config import Settings, get_settings
 from app.fhir.client import FhirClient, FhirError
 from app.observability.trace import get_tracer
 from app.persistence.conversations import ConversationStore
+from app.phi.log_filter import install as install_phi_log_filter
 from app.phi.session import sessions
 
 logger = logging.getLogger("copilot.main")
@@ -27,6 +28,7 @@ logger = logging.getLogger("copilot.main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
+    install_phi_log_filter(logging.getLogger(), sessions)
     app.state.fhir = FhirClient(settings)
     app.state.tracer = get_tracer(settings)
     app.state.conv_store = ConversationStore(settings.conversation_db_path)
