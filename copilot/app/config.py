@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -17,9 +18,22 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4o"
 
+    # Base URL convenience field.  When set, openemr_fhir_base and
+    # openemr_oauth_base are derived from it (unless overridden individually).
+    openemr_base_url: str = ""
     openemr_fhir_base: str = "https://host.docker.internal:9300/apis/default/fhir"
     openemr_oauth_base: str = "https://host.docker.internal:9300/oauth2/default"
     openemr_verify_tls: bool = True  # set False for local self-signed cert
+
+    @model_validator(mode="after")
+    def _derive_urls_from_base(self) -> "Settings":
+        if self.openemr_base_url:
+            base = self.openemr_base_url.rstrip("/")
+            if self.openemr_fhir_base == "https://host.docker.internal:9300/apis/default/fhir":
+                self.openemr_fhir_base = f"{base}/apis/default/fhir"
+            if self.openemr_oauth_base == "https://host.docker.internal:9300/oauth2/default":
+                self.openemr_oauth_base = f"{base}/oauth2/default"
+        return self
 
     oauth_client_id: str = ""
     oauth_client_secret: str = ""

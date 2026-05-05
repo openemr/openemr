@@ -82,6 +82,108 @@ class FhirClient:
         r.raise_for_status()
         return r.json()
 
+    async def _post(
+        self,
+        resource_type: str,
+        body: dict[str, Any],
+        *,
+        physician_user_id: str,
+    ) -> dict[str, Any]:
+        url = f"{self._settings.openemr_fhir_base}/{resource_type}"
+        try:
+            r = await self._http.post(
+                url,
+                headers={
+                    **(await self._headers(physician_user_id)),
+                    "Content-Type": "application/fhir+json",
+                },
+                json=body,
+            )
+        except httpx.TimeoutException as e:
+            raise FhirError(f"FHIR timeout creating {resource_type}") from e
+        if r.status_code in (401, 403):
+            raise FhirError(
+                f"FHIR access denied creating {resource_type}",
+                status=r.status_code,
+            )
+        if r.status_code not in (200, 201):
+            raise FhirError(
+                f"FHIR write {resource_type} returned {r.status_code}: {r.text[:200]}",
+                status=r.status_code,
+            )
+        return r.json()
+
+    async def create_document_reference(
+        self,
+        *,
+        patient_fhir_id: str,
+        doc_type: str,
+        mime_type: str,
+        file_bytes: bytes,
+        sha3_hex: str,
+        physician_user_id: str,
+    ) -> dict[str, Any]:
+        """Create a FHIR DocumentReference + inline Binary attachment.
+
+        Idempotency anchor lives in `identifier` so OpenEMR's hash column can
+        eventually be cross-referenced. The dedup decision itself is made by
+        the caller against `processed_documents`; this writer trusts that.
+        """
+        import base64 as _b64
+
+        body = {
+            "resourceType": "DocumentReference",
+            "status": "current",
+            "type": {
+                "text": "Lab report" if doc_type == "lab_doc" else "Intake form",
+            },
+            "subject": {"reference": f"Patient/{patient_fhir_id}"},
+            "content": [
+                {
+                    "attachment": {
+                        "contentType": mime_type,
+                        "data": _b64.b64encode(file_bytes).decode("ascii"),
+                    }
+                }
+            ],
+            "identifier": [
+                {"system": "urn:copilot:sha3-512", "value": sha3_hex}
+            ],
+        }
+        return await self._post(
+            "DocumentReference", body, physician_user_id=physician_user_id
+        )
+
+    async def create_observation(
+        self,
+        *,
+        body: dict[str, Any],
+        physician_user_id: str,
+    ) -> dict[str, Any]:
+        return await self._post(
+            "Observation", body, physician_user_id=physician_user_id
+        )
+
+    async def create_allergy_intolerance(
+        self,
+        *,
+        body: dict[str, Any],
+        physician_user_id: str,
+    ) -> dict[str, Any]:
+        return await self._post(
+            "AllergyIntolerance", body, physician_user_id=physician_user_id
+        )
+
+    async def create_medication_statement(
+        self,
+        *,
+        body: dict[str, Any],
+        physician_user_id: str,
+    ) -> dict[str, Any]:
+        return await self._post(
+            "MedicationStatement", body, physician_user_id=physician_user_id
+        )
+
 
 async def get_fhir_client(settings: Settings) -> FhirClient:
     return FhirClient(settings)
