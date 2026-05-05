@@ -95,6 +95,7 @@ class AnthropicAdapter:
             last = dict(tools_with_cache[-1])
             last["cache_control"] = {"type": "ephemeral"}
             tools_with_cache[-1] = last
+        logger.info("llm-call provider=anthropic model=%s tools=%d", self._model, len(tools_with_cache))
         resp = await self._client.messages.create(
             model=self._model,
             max_tokens=2048,
@@ -193,6 +194,7 @@ class OpenAIAdapter:
         self, system_prompt: str, tool_defs: list[dict], conversation: list[Any]
     ) -> ProviderResponse:
         messages = [{"role": "system", "content": system_prompt}, *conversation]
+        logger.info("llm-call provider=openai model=%s", self._model)
         resp = await self._client.chat.completions.create(
             model=self._model,
             messages=messages,
