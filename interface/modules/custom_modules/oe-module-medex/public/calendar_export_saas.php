@@ -45,19 +45,24 @@ if (!$medexApi->isActive()) {
     die('MedEx not configured. Please configure MedEx API credentials in settings.');
 }
 
-if (!$medexApi->hasServiceEntitlement('calendar_export')) {
+if (!$medexApi->hasAnyServiceEntitlement(['calendar_export', 'calendar_ai', 'calendar_services'])) {
     http_response_code(403);
-    die('Active Calendar Export subscription required.');
+    die('Active Calendar Services subscription required.');
 }
 
 // Get subscriptions to check which providers have calendar service
 $subscriptions = $medexApi->getSubscriptions();
 $subscribedProviders = [];
 
-// Check for calendar_export practice-level subscription
+// Calendar Export is bundled into Calendar Services, but legacy calendar_export
+// subscriptions still need to keep working.
 $hasSubscription = false;
 foreach ($subscriptions as $serviceId => $subscription) {
-    if ($serviceId === 'calendar_export' && !empty($subscription['status']) && $subscription['status'] === 'active') {
+    if (
+        in_array($serviceId, ['calendar_export', 'calendar_ai', 'calendar_services'], true) &&
+        !empty($subscription['status']) &&
+        in_array(strtolower((string)$subscription['status']), ['active', 'trial', 'pending_cancel'], true)
+    ) {
         $hasSubscription = true;
         break;
     }
@@ -66,7 +71,7 @@ foreach ($subscriptions as $serviceId => $subscription) {
 // Verify subscription exists
 if (!$hasSubscription) {
     http_response_code(403);
-    die('Active Calendar Export subscription required. Subscribe at <a href="' . htmlspecialchars(\OpenEMR\Modules\MedEx\MedExConfig::mainSiteUrl() . '/subscriptions') . '">MedEx</a>');
+    die('Active Calendar Services subscription required. Subscribe at <a href="' . htmlspecialchars(\OpenEMR\Modules\MedEx\MedExConfig::mainSiteUrl() . '/subscriptions') . '">MedEx</a>');
 }
 
 // Get export parameters
@@ -108,7 +113,7 @@ try {
         'end_date' => $endDate,
         'practice_id' => $practiceId,
         'provider_ids' => $providersToExport,
-        'subscription_type' => 'calendar_export'
+        'subscription_type' => 'calendar_ai'
     ];
     
     // Call MedEx API

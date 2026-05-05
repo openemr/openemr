@@ -63,8 +63,14 @@ if (!$pdfApi->hasServiceEntitlement('pdf_management')) {
     jsonOut(['success' => false, 'error' => 'PDF Management subscription required'], 403);
 }
 
+// Ensure csrf_private_key exists — may be absent when arriving via MedEx SSO
+// without going through the normal OpenEMR login flow.
+if ($session && empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
     jsonOut(['success' => false, 'error' => 'Invalid CSRF token'], 403);
 }
 

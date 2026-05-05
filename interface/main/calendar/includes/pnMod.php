@@ -28,6 +28,108 @@
 // Purpose of file: Module variable handling
 // ----------------------------------------------------------------------
 
+function pnModBuildLegacyQuery($conn, string $query, array $params = []): string
+{
+    foreach ($params as $param) {
+        if ($param === null) {
+            $replacement = 'NULL';
+        } elseif (is_numeric($param) && !is_string($param)) {
+            $replacement = (string)$param;
+        } else {
+            $replacement = method_exists($conn, 'qstr')
+                ? $conn->qstr((string)$param)
+                : ("'" . addslashes((string)$param) . "'");
+        }
+        $query = preg_replace('/\?/', $replacement, $query, 1);
+    }
+    return $query;
+}
+
+function pnModFetchNumeric($conn, string $query, array $params = [])
+{
+    if (is_object($conn) && method_exists($conn, 'fetchNumeric')) {
+        return $conn->fetchNumeric($query, $params);
+    }
+    if (is_object($conn) && method_exists($conn, 'Execute')) {
+        $result = $conn->Execute(pnModBuildLegacyQuery($conn, $query, $params));
+        if (!$result || $result->EOF) {
+            return false;
+        }
+        $row = array_values((array)($result->fields ?? []));
+        if (method_exists($result, 'Close')) {
+            $result->Close();
+        }
+        return $row;
+    }
+    $result = sqlStatement($query, $params);
+    $row = sqlFetchArray($result);
+    return $row ? array_values($row) : false;
+}
+
+function pnModFetchAssoc($conn, string $query, array $params = [])
+{
+    if (is_object($conn) && method_exists($conn, 'fetchAssociative')) {
+        $row = $conn->fetchAssociative($query, $params);
+        return $row ?: false;
+    }
+    if (is_object($conn) && method_exists($conn, 'Execute')) {
+        $result = $conn->Execute(pnModBuildLegacyQuery($conn, $query, $params));
+        if (!$result || $result->EOF) {
+            return false;
+        }
+        $row = (array)($result->fields ?? []);
+        $assoc = [];
+        foreach ($row as $key => $value) {
+            if (!is_int($key) && !ctype_digit((string)$key)) {
+                $assoc[(string)$key] = $value;
+            }
+        }
+        if (method_exists($result, 'Close')) {
+            $result->Close();
+        }
+        return $assoc ?: false;
+    }
+    $result = sqlStatement($query, $params);
+    $row = sqlFetchArray($result);
+    return $row ?: false;
+}
+
+function pnModFetchOne($conn, string $query, array $params = [])
+{
+    if (is_object($conn) && method_exists($conn, 'fetchOne')) {
+        return $conn->fetchOne($query, $params);
+    }
+    if (is_object($conn) && method_exists($conn, 'GetOne')) {
+        return $conn->GetOne(pnModBuildLegacyQuery($conn, $query, $params));
+    }
+    if (is_object($conn) && method_exists($conn, 'Execute')) {
+        $result = $conn->Execute(pnModBuildLegacyQuery($conn, $query, $params));
+        if (!$result || $result->EOF) {
+            return false;
+        }
+        $fields = (array)($result->fields ?? []);
+        $value = $fields[0] ?? (array_values($fields)[0] ?? false);
+        if (method_exists($result, 'Close')) {
+            $result->Close();
+        }
+        return $value;
+    }
+    $row = sqlQuery($query, $params);
+    return $row ? (array_values($row)[0] ?? false) : false;
+}
+
+function pnModExecuteStatement($conn, string $query, array $params = []): bool
+{
+    if (is_object($conn) && method_exists($conn, 'executeStatement')) {
+        return (bool)$conn->executeStatement($query, $params);
+    }
+    if (is_object($conn) && method_exists($conn, 'Execute')) {
+        return (bool)$conn->Execute(pnModBuildLegacyQuery($conn, $query, $params));
+    }
+    sqlStatement($query, $params);
+    return true;
+}
+
 /*
  * pnModGetVar - get a module variable
  * Takes two parameters:
@@ -46,6 +148,9 @@ function pnModGetVar($modname, $name)
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     $modulevarstable = $pntable['module_vars'];
@@ -55,7 +160,7 @@ function pnModGetVar($modname, $name)
               WHERE $modulevarscolumn[modname] = ?
               AND $modulevarscolumn[name] = ?";
     try {
-        $value = $conn->fetchOne($query, [$modname, $name]);
+        $value = pnModFetchOne($conn, $query, [$modname, $name]);
     } catch (Doctrine\DBAL\Exception) {
         return;
     }
@@ -83,6 +188,9 @@ function pnModSetVar($modname, $name, $value)
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     $curvar = pnModGetVar($modname, $name);
@@ -96,13 +204,13 @@ function pnModSetVar($modname, $name, $value)
                           $modulevarscolumn[name],
                           $modulevarscolumn[value])
                       VALUES (?, ?, ?)";
-            $conn->executeStatement($query, [$modname, $name, $value]);
+            pnModExecuteStatement($conn, $query, [$modname, $name, $value]);
         } else {
             $query = "UPDATE $modulevarstable
                       SET $modulevarscolumn[value] = ?
                       WHERE $modulevarscolumn[modname] = ?
                       AND $modulevarscolumn[name] = ?";
-            $conn->executeStatement($query, [$value, $modname, $name]);
+            pnModExecuteStatement($conn, $query, [$value, $modname, $name]);
         }
     } catch (Doctrine\DBAL\Exception) {
         return;
@@ -131,6 +239,9 @@ function pnModGetIDFromName($module)
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -139,7 +250,7 @@ function pnModGetIDFromName($module)
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
     try {
-        $id = $conn->fetchOne($query, [$module]);
+        $id = pnModFetchOne($conn, $query, [$module]);
     } catch (Doctrine\DBAL\Exception) {
         return;
     }
@@ -172,21 +283,24 @@ function pnModGetInfo($modid)
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
     $modulescolumn = &$pntable['modules_column'];
-    $query = "SELECT $modulescolumn[name],
-                     $modulescolumn[type],
-                     $modulescolumn[directory],
-                     $modulescolumn[regid],
-                     $modulescolumn[displayname],
-                     $modulescolumn[description],
-                     $modulescolumn[version]
+    $query = "SELECT $modulescolumn[name] AS name,
+                     $modulescolumn[type] AS type,
+                     $modulescolumn[directory] AS directory,
+                     $modulescolumn[regid] AS regid,
+                     $modulescolumn[displayname] AS displayname,
+                     $modulescolumn[description] AS description,
+                     $modulescolumn[version] AS version
               FROM $modulestable
               WHERE $modulescolumn[id] = ?";
     try {
-        $row = $conn->fetchNumeric($query, [$modid]);
+        $row = pnModFetchAssoc($conn, $query, [$modid]);
     } catch (Doctrine\DBAL\Exception) {
         return;
     }
@@ -196,7 +310,15 @@ function pnModGetInfo($modid)
         return false;
     }
 
-    [$resarray['name'], $resarray['type'], $resarray['directory'], $resarray['regid'], $resarray['displayname'], $resarray['description'], $resarray['version']] = $row;
+    $resarray = [
+        'name' => $row['name'] ?? '',
+        'type' => $row['type'] ?? '',
+        'directory' => $row['directory'] ?? '',
+        'regid' => $row['regid'] ?? '',
+        'displayname' => $row['displayname'] ?? '',
+        'description' => $row['description'] ?? '',
+        'version' => $row['version'] ?? '',
+    ];
 
     $modinfo[$modid] = $resarray;
     return $resarray;
@@ -219,6 +341,9 @@ function pnModAPILoad($modname, $type = 'user')
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     if (!empty($loaded["$modname$type"])) {
@@ -228,13 +353,13 @@ function pnModAPILoad($modname, $type = 'user')
 
     $modulestable = $pntable['modules'];
     $modulescolumn = &$pntable['modules_column'];
-    $query = "SELECT $modulescolumn[name],
-                     $modulescolumn[directory],
-                     $modulescolumn[state]
+    $query = "SELECT $modulescolumn[name] AS name,
+                     $modulescolumn[directory] AS directory,
+                     $modulescolumn[state] AS state
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
     try {
-        $row = $conn->fetchNumeric($query, [$modname]);
+        $row = pnModFetchAssoc($conn, $query, [$modname]);
     } catch (Doctrine\DBAL\Exception $e) {
         return;
     }
@@ -243,7 +368,12 @@ function pnModAPILoad($modname, $type = 'user')
         return false;
     }
 
-    [$name, $directory, $state] = $row;
+    $name = $row['name'] ?? '';
+    $directory = $row['directory'] ?? '';
+    $state = $row['state'] ?? null;
+    if ($directory === '') {
+        return false;
+    }
 
     [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
 
@@ -285,6 +415,9 @@ function pnModDBInfoLoad($modname, $directory = '')
     // Get the directory if we don't already have it
     if (empty($directory)) {
         $conn = pnDBGetConn();
+        if (is_array($conn) && isset($conn[0])) {
+            $conn = $conn[0];
+        }
         $pntable = pnDBGetTables();
         $modulestable = $pntable['modules'];
         $modulescolumn = &$pntable['modules_column'];
@@ -292,7 +425,7 @@ function pnModDBInfoLoad($modname, $directory = '')
                 FROM $modulestable
                 WHERE $modulescolumn[name] = ?";
         try {
-            $directory = $conn->fetchOne($sql, [$modname]);
+            $directory = pnModFetchOne($conn, $sql, [$modname]);
         } catch (Doctrine\DBAL\Exception) {
             return false;
         }
@@ -332,6 +465,9 @@ function pnModLoad($modname, $type = 'user')
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -342,12 +478,12 @@ function pnModLoad($modname, $type = 'user')
         return $modname;
     }
 
-    $query = "SELECT $modulescolumn[directory],
-                     $modulescolumn[state]
+    $query = "SELECT $modulescolumn[directory] AS directory,
+                     $modulescolumn[state] AS state
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
     try {
-        $row = $conn->fetchNumeric($query, [$modname]);
+        $row = pnModFetchAssoc($conn, $query, [$modname]);
     } catch (Doctrine\DBAL\Exception $e) {
         return;
     }
@@ -356,7 +492,11 @@ function pnModLoad($modname, $type = 'user')
         return false;
     }
 
-    [$directory, $state] = $row;
+    $directory = $row['directory'] ?? '';
+    $state = $row['state'] ?? null;
+    if ($directory === '') {
+        return false;
+    }
 
     // Load the module and module language files
     [$osdirectory, $ostype] = pnVarPrepForOS($directory, $type);
@@ -530,6 +670,9 @@ function pnModAvailable($modname)
     }
 
     $conn = pnDBGetConn();
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     $pntable = pnDBGetTables();
 
     $modulestable = $pntable['modules'];
@@ -537,10 +680,33 @@ function pnModAvailable($modname)
     $query = "SELECT $modulescolumn[state]
               FROM $modulestable
               WHERE $modulescolumn[name] = ?";
-    try {
-        $state = $conn->fetchOne($query, [$modname]);
-    } catch (Doctrine\DBAL\Exception) {
-        return;
+    $state = false;
+    if (is_object($conn) && method_exists($conn, 'fetchOne')) {
+        try {
+            $state = pnModFetchOne($conn, $query, [$modname]);
+        } catch (\Throwable $e) {
+            return false;
+        }
+    } elseif (is_object($conn) && method_exists($conn, 'Execute')) {
+        $legacyQuery = "SELECT $modulescolumn[state]
+              FROM $modulestable
+              WHERE $modulescolumn[name] = '" . pnVarPrepForStore($modname) . "'";
+        $result = $conn->Execute($legacyQuery);
+        if (!$result || $result->EOF) {
+            $state = false;
+        } else {
+            [$state] = $result->fields;
+            $result->Close();
+        }
+    } else {
+        $result = sqlStatement(
+            "SELECT $modulescolumn[state] AS state FROM $modulestable WHERE $modulescolumn[name] = ?",
+            [$modname]
+        );
+        $row = sqlFetchArray($result);
+        if ($row) {
+            $state = $row['state'] ?? (array_values($row)[0] ?? false);
+        }
     }
 
     if ($state === false) {

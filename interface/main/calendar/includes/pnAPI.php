@@ -1,7 +1,5 @@
 <?php
 
-use Doctrine\DBAL\Connection;
-use OpenEMR\BC\Database;
 
 // $Id$
 // ----------------------------------------------------------------------
@@ -107,10 +105,30 @@ function pnConfigInit(): bool
                      $columns[value]
               FROM $table
               WHERE $columns[modname]= ?";
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
     try {
-        $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
-        $rows = $result->fetchAllNumeric();
-    } catch (Doctrine\DBAL\Exception) {
+        if (is_object($conn) && method_exists($conn, 'executeQuery')) {
+            $result = $conn->executeQuery($query, [_PN_CONFIG_MODULE]);
+            $rows = $result->fetchAllNumeric();
+        } elseif (is_object($conn) && method_exists($conn, 'Execute')) {
+            $quoted = method_exists($conn, 'qstr') ? $conn->qstr(_PN_CONFIG_MODULE) : ("'" . addslashes(_PN_CONFIG_MODULE) . "'");
+            $legacyQuery = str_replace('?', $quoted, $query);
+            $result = $conn->Execute($legacyQuery);
+            if (!$result) {
+                return false;
+            }
+            $rows = [];
+            while (!$result->EOF) {
+                $fields = is_array($result->fields ?? null) ? $result->fields : [];
+                $rows[] = (array_key_exists(0, $fields) && array_key_exists(1, $fields)) ? [$fields[0], $fields[1]] : array_values($fields);
+                $result->MoveNext();
+            }
+        } else {
+            return false;
+        }
+    } catch (\Throwable) {
         return false;
     }
 
@@ -207,6 +225,11 @@ function pnInit()
     $pntable = [];
     require 'pntables.php';
 
+    // Ensure legacy calendar DB handle is initialized for pn* includes.
+    if (!pnDBInit()) {
+        return false;
+    }
+
     // Build up old config array
     pnConfigInit();
 
@@ -217,9 +240,52 @@ function pnInit()
     return true;
 }
 
-function pnDBGetConn(): Connection
+function pnDBGetConn()
 {
-    return Database::instance()->getDbalConnection();
+    global $dbconn;
+    return [$dbconn];
+}
+
+function pnDBInit(): bool
+{
+    global $pnconfig;
+    global $dbconn;
+
+    if (is_object($dbconn)) {
+        return true;
+    }
+
+    if (!function_exists('ADONewConnection')) {
+        $vendorAdodb = __DIR__ . '/../../../../vendor/adodb/adodb-php/adodb.inc.php';
+        $legacyAdodb = __DIR__ . '/../../../../library/adodb/adodb.inc.php';
+        if (is_file($vendorAdodb)) {
+            require_once $vendorAdodb;
+        } elseif (is_file($legacyAdodb)) {
+            require_once $legacyAdodb;
+        }
+    }
+
+    if (!function_exists('ADONewConnection')) {
+        return false;
+    }
+
+    $dbType = $pnconfig['dbtype'] ?? 'mysqli';
+    $dbHost = $pnconfig['dbhost'] ?? 'localhost';
+    $dbPort = $pnconfig['dbport'] ?? '';
+    $dbName = $pnconfig['dbname'] ?? '';
+    $dbUser = $pnconfig['dbuname'] ?? '';
+    $dbPass = $pnconfig['dbpass'] ?? '';
+
+    if (!empty($dbPort) && strpos((string)$dbHost, ':') === false) {
+        $dbHost .= ':' . $dbPort;
+    }
+
+    $dbconn = ADONewConnection($dbType);
+    if (!$dbconn) {
+        return false;
+    }
+
+    return (bool)$dbconn->Connect($dbHost, $dbUser, $dbPass, $dbName);
 }
 
 /**

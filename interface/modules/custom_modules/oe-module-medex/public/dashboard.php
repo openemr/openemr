@@ -75,7 +75,7 @@ if (!$dashboardUrl) {
     <iframe
         id="medex-dashboard-frame"
         src="<?php echo attr($dashboardUrl); ?>"
-        allow="payment *; clipboard-read *; clipboard-write *"
+        allow="microphone *; payment *; clipboard-read *; clipboard-write *"
         onload="document.getElementById('loading').style.display='none';"
     ></iframe>
 </body>

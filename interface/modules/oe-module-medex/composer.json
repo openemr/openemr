@@ -1,0 +1,28 @@
+{
+    "name": "openemr/oe-module-medex",
+    "description": "MedEx custom module for OpenEMR",
+    "type": "openemr-module",
+    "license": "Proprietary",
+    "authors": [
+        {
+            "name": "MedEx",
+            "email": "support@medexbank.com"
+        }
+    ],
+    "version": "1.1.0",
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Modules\\MedEx\\": "src/"
+        }
+    },
+    "extra": {
+        "openemr": {
+            "type": "custom-module",
+            "directory": "oe-module-medex"
+        }
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^2.1"
+    }
+}

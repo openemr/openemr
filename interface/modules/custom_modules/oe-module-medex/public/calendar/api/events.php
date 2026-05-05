@@ -51,7 +51,10 @@ try {
 
         case 'POST':
             // Create new event
-            if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
+            if ($session && empty($session->get('csrf_private_key', null))) {
+                CsrfUtils::setupCsrfKey($session);
+            }
+            if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
                 http_response_code(403);
                 echo json_encode(['error' => 'Invalid CSRF token']);
                 exit;
@@ -66,7 +69,10 @@ try {
             // Update event (drag-drop reschedule)
             $data = json_decode(file_get_contents('php://input'), true);
 
-            if (!CsrfUtils::verifyCsrfToken($data['csrf_token'] ?? '', 'default')) {
+            if ($session && empty($session->get('csrf_private_key', null))) {
+                CsrfUtils::setupCsrfKey($session);
+            }
+            if (!CsrfUtils::verifyCsrfToken($data['csrf_token'] ?? '', session: $session)) {
                 http_response_code(403);
                 echo json_encode(['error' => 'Invalid CSRF token']);
                 exit;
@@ -87,7 +93,10 @@ try {
             // Delete event
             parse_str(file_get_contents('php://input'), $data);
 
-            if (!CsrfUtils::verifyCsrfToken($data['csrf_token'] ?? '', 'default')) {
+            if ($session && empty($session->get('csrf_private_key', null))) {
+                CsrfUtils::setupCsrfKey($session);
+            }
+            if (!CsrfUtils::verifyCsrfToken($data['csrf_token'] ?? '', session: $session)) {
                 http_response_code(403);
                 echo json_encode(['error' => 'Invalid CSRF token']);
                 exit;

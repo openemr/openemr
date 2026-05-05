@@ -1,0 +1,101 @@
+/**
+ * MedEx Centralized Tooltip Styles
+ * Speech bubble tooltips used across all MedEx injections
+ *
+ * Usage: Add `data-tooltip="Your text here"` to any element with class `.medex-tooltip`
+ *
+ * @package   MedEx
+ * @link      https://www.medexbank.com
+ * @author    MedEx <support@medexbank.com>
+ * @copyright Copyright (c) 2017-2026 MedEx
+ * @license   Proprietary
+ */
+
+/* Tooltip container - applies to ANY element with data-tooltip attribute */
+[data-tooltip] {
+    position: relative;
+    cursor: pointer;
+}
+
+/* Tooltip bubble (hidden by default) - matching Flow Board exactly */
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: #fff;
+    color: #333;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #ddd;
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.5;
+    min-width: 200px;
+    max-width: 350px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 99999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    text-align: left;
+}
+
+/* Tooltip arrow (tail pointing down) - white to match bubble */
+[data-tooltip]::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #fff;
+    z-index: 100000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Show tooltip on hover */
+[data-tooltip]:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+[data-tooltip]:hover::before {
+    opacity: 1;
+}
+
+/* Scrollbar styling for long tooltips */
+[data-tooltip]::after::-webkit-scrollbar {
+    width: 6px;
+}
+
+[data-tooltip]::after::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+[data-tooltip]::after::-webkit-scrollbar-thumb {
+    background: #9C27B0;
+    border-radius: 3px;
+}
+
+[data-tooltip]::after::-webkit-scrollbar-thumb:hover {
+    background: #7B1FA2;
+}
+
+/* Patient message speech bubble icon (purple comment icon) */
+.medex-patient-message-icon {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+}
+
+.medex-patient-message-icon i {
+    font-size: 32px;
+    color: #9C27B0;
+}

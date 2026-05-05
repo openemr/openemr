@@ -18,14 +18,18 @@ return [
     'controllers' => [
         'factories' => [
             Installer\Controller\InstallerController::class => function (ContainerInterface $container, $requestedName) {
-                $instModuleTable = new Installer\Model\InstModuleTable($container);
+                $instModuleTable = $container->get(Installer\Model\InstModuleTable::class);
                 return new Installer\Controller\InstallerController($instModuleTable);
             },
         ]
     ],
     'service_manager' => [
         'factories' => [
-            Installer\Model\InstModuleTable::class => fn(ContainerInterface $container, $requestedName) => new Installer\Model\InstModuleTable($container),
+            Installer\Model\InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
+                $adapter = $container->get('Laminas\Db\Adapter\Adapter');
+                $tableGateway = new Installer\Model\InstModuleTableGateway('modules', $adapter);
+                return new Installer\Model\InstModuleTable($tableGateway, $container);
+            },
         ]
     ],
     'router' => [
@@ -34,6 +38,20 @@ return [
                 'type'    => Segment::class,
                 'options' => [
                     'route'    => '/Installer[/:action][/:id]',
+                    'constraints' => [
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'id'     => '[0-9]+',
+                    ],
+                    'defaults' => [
+                        'controller' => Installer\Controller\InstallerController::class,
+                        'action'     => 'index',
+                    ],
+                ],
+            ],
+            'installer_lowercase' => [
+                'type'    => Segment::class,
+                'options' => [
+                    'route'    => '/installer[/:action][/:id]',
                     'constraints' => [
                         'action' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id'     => '[0-9]+',

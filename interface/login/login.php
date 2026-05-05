@@ -53,7 +53,8 @@ require_once("../globals.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$twig = new TwigContainer(null, $globalsBag->getKernel());
+$kernel = $GLOBALS['kernel'] ?? null;
+$twig = new TwigContainer(null, $kernel);
 $t = $twig->getTwig();
 
 $logoService = new LogoService();
@@ -63,6 +64,13 @@ $smallLogoOne = $logoService->getLogo("core/login/small_logo_1");
 $smallLogoTwo = $logoService->getLogo("core/login/small_logo_2");
 
 $layout = $globalsBag->get('login_page_layout');
+if (empty($layout)) {
+    $layout = 'login/login.html.twig';
+}
+$openemr_name = (string)($globalsBag->get('openemr_name') ?? '');
+if ($openemr_name === '') {
+    $openemr_name = 'OpenEMR';
+}
 
 // mdsupport - Add 'App' functionality for user interfaces without standard menu and frames
 // If this script is called with app parameter, validate it without showing other apps.
@@ -246,7 +254,7 @@ $viewArgs = [
     'hasSession' => true,
     'cookieText' => $cookie,
     'regConstants' => json_encode(['webroot' => $globalsBag->get('webroot')]),
-    'siteID' => $session->get('site_id'),
+    'siteID' => $session->get('site_id') ?: ($_GET['site'] ?? 'default'),
     'showLabels' => $globalsBag->getBoolean('show_labels_on_login_form'),
     'displayPrimaryLogo' => $globalsBag->getBoolean('show_primary_logo'),
     'primaryLogo'   => $primaryLogo,
@@ -261,10 +269,10 @@ $viewArgs = [
 /**
  * @var EventDispatcher;
  */
-$ed = $globalsBag->getKernel()->getEventDispatcher();
+$ed = $kernel ? $kernel->getEventDispatcher() : null;
 
 $templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $viewArgs);
-$event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
+$event = $ed ? $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT) : $templatePageEvent;
 
 try {
     echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());

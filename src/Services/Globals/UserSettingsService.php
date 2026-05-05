@@ -22,11 +22,51 @@ use function sqlStatement;
 
 class UserSettingsService
 {
+    /**
+     * Resolve numeric user id from a username/session auth user value.
+     */
+    private static function resolveUserIdFromUsername($username): ?int
+    {
+        $username = trim((string)$username);
+        if ($username === '') {
+            return null;
+        }
+        $row = sqlQuery("SELECT id FROM users WHERE username = ? LIMIT 1", [$username]);
+        $id = (int)($row['id'] ?? 0);
+        return $id > 0 ? $id : null;
+    }
+
 // Set effective user - If no user id is provided, then use the currently logged in user
     public static function effectiveUser($user)
     {
+        if (!is_null($user) && (int)$user > 0) {
+            return (int)$user;
+        }
+
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        return (is_null($user) ? $session->get('authUserID') : $user);
+
+        // Preferred numeric session keys.
+        $effectiveUser = (int)($session->get('authUserID') ?? 0);
+        if ($effectiveUser <= 0) {
+            $effectiveUser = (int)($session->get('authUserId') ?? 0);
+        }
+        if ($effectiveUser <= 0) {
+            $effectiveUser = (int)($_SESSION['authUserID'] ?? 0);
+        }
+        if ($effectiveUser <= 0) {
+            $effectiveUser = (int)($_SESSION['authUserId'] ?? 0);
+        }
+
+        // Fallback: resolve id from username if only authUser is available.
+        if ($effectiveUser <= 0) {
+            $authUsername = (string)($session->get('authUser') ?? ($_SESSION['authUser'] ?? ''));
+            $resolved = self::resolveUserIdFromUsername($authUsername);
+            if (!empty($resolved)) {
+                $effectiveUser = (int)$resolved;
+            }
+        }
+
+        return $effectiveUser > 0 ? $effectiveUser : null;
     }
 
     /**
@@ -39,8 +79,14 @@ class UserSettingsService
      */
     public static function getUserSetting($label, $user = null, $defaultUser = 0)
     {
+        if ($label === null || $label === '') {
+            return null;
+        }
 
         $user = self::effectiveUser($user);
+        if ($user === null) {
+            return null;
+        }
 
         // Collect entry for specified user or 0 (global default user)
         $res = sqlQuery("SELECT setting_value FROM user_settings
@@ -61,8 +107,14 @@ class UserSettingsService
      */
     public static function checkUserSetting($label, $value, $user = null)
     {
+        if ($label === null || $label === '') {
+            return false;
+        }
 
         $user = self::effectiveUser($user);
+        if ($user === null) {
+            return false;
+        }
 
         $curval = self::getUserSetting($label, $user);
         if (is_null($curval)) {
@@ -83,8 +135,14 @@ class UserSettingsService
      */
     public static function setUserSetting($label, $value, $user = null, $createDefault = true, $overwrite = true)
     {
+        if ($label === null || $label === '') {
+            return;
+        }
 
         $user = self::effectiveUser($user);
+        if ($user === null) {
+            return;
+        }
 
         $cur_value = self::getUserSetting($label, $user, $user);
 
@@ -109,8 +167,14 @@ class UserSettingsService
 // $user is the user id number from users table
     public static function removeUserSetting($label, $user = null)
     {
+        if ($label === null || $label === '') {
+            return;
+        }
 
         $user = self::effectiveUser($user);
+        if ($user === null) {
+            return;
+        }
 
         // mdsupport - DELETE has implicit select, no need to check and delete
         sqlQuery("DELETE FROM user_settings " .

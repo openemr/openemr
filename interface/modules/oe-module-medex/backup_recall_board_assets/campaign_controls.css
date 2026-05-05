@@ -1,0 +1,673 @@
+/**
+ * MedEx Campaign Toggle Controls CSS
+ * Styling for campaign toggle switches in recall board
+ */
+
+.medex-campaigns-header {
+    /* Column header styling */
+}
+
+.medex-campaign-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 4px;
+    min-width: 120px;
+}
+
+.campaign-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+/* Bootstrap-toggle: exact match from MedEx - outer container */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 57px;
+    height: 33px;
+    margin: 2px;
+    vertical-align: middle;
+    overflow: hidden;
+    border: 1px solid #000;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: rgba(123, 119, 119, 0.376) 3px 3px 3px 0px;
+}
+
+.switch input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Sliding container (.toggle-group) with 3 elements */
+.toggle-group {
+    position: absolute;
+    width: 114px;
+    height: 33px;
+    top: 0;
+    bottom: 0;
+    left: -57px;
+    transition: left 0.35s ease;
+    display: block;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    white-space: nowrap;
+}
+
+/* Green "On" button (left) - lighter gradient for top */
+.toggle-on {
+    position: absolute;
+    width: 57px;
+    height: 33px;
+    left: 0;
+    right: 57px;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: rgb(91, 183, 91);
+    background-image: linear-gradient(to bottom, rgb(110, 200, 110), rgb(91, 183, 91));
+    background-repeat: repeat-x;
+    color: rgb(255, 255, 255);
+    font-size: 12.6px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: center;
+    text-shadow: rgba(0, 0, 0, 0.25) 0px -1px 0px;
+    padding: 7.5px 24px 7.5px 12px;
+    box-sizing: border-box;
+    box-shadow: rgba(123, 119, 119, 0.376) 3px 3px 3px 0px;
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    touch-action: manipulation;
+}
+
+/* White "Off" button (right) */
+.toggle-off {
+    position: absolute;
+    width: 57px;
+    height: 33px;
+    left: 57px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background-color: rgb(238, 238, 238);
+    background-image: linear-gradient(rgb(238, 238, 238), rgb(221, 221, 221));
+    background-repeat: repeat-x;
+    color: rgb(51, 51, 51);
+    font-size: 12.6px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: center;
+    text-shadow: rgba(0, 0, 0, 0.25) 0px 1px 0px;
+    padding: 7.5px 12px 7.5px 24px;
+    box-sizing: border-box;
+    box-shadow: rgba(123, 119, 119, 0.376) 3px 3px 3px 0px;
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    touch-action: manipulation;
+}
+
+/* Gray handle in the middle */
+.toggle-handle {
+    position: relative;
+    width: 26px;
+    height: 33px;
+    margin: 0 auto;
+    padding: 0 12px;
+    background-color: rgb(231, 231, 231);
+    background-image: linear-gradient(rgb(238, 238, 238), rgb(221, 221, 221));
+    background-repeat: repeat-x;
+    border-left: 1px solid rgb(0, 0, 0);
+    border-right: 1px solid rgb(0, 0, 0);
+    border-top: 0;
+    border-bottom: 0;
+    border-radius: 4px;
+    box-sizing: border-box;
+    box-shadow: rgba(123, 119, 119, 0.376) 3px 3px 3px 0px;
+    color: rgb(119, 119, 119);
+    font-size: 12.6px;
+    font-weight: 400;
+    line-height: 18px;
+    text-align: center;
+    text-shadow: rgba(255, 255, 255, 0.5) 0px 1px 0px;
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    touch-action: manipulation;
+    vertical-align: middle;
+    z-index: 1;
+}
+
+/* OFF state: show "Off" section (default) */
+input:not(:checked) + .toggle-group {
+    left: -57px;
+}
+
+/* ON state: slide to show green "On" section */
+input:checked + .toggle-group {
+    left: 0;
+}
+
+/* Hover state */
+.slider:hover {
+    opacity: 0.9;
+}
+
+/* Focus state */
+input:focus + .slider {
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125), 0 0 0 2px rgba(92, 184, 92, 0.2);
+}
+
+/* Disabled state */
+input:disabled + .slider {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Modality label */
+.modality-label {
+    font-weight: 600;
+    font-size: 11px;
+    min-width: 45px;
+    color: #333;
+}
+
+/* Disabled state */
+.switch.disabled {
+    opacity: 0.5;
+}
+
+/* Hover effects */
+.switch input:not(:disabled):hover + .slider {
+    background-color: #b3b3b3;
+}
+
+.switch input:checked:not(:disabled):hover + .slider {
+    background-color: #27ae60;
+}
+
+/* Always send checkbox (optional - for future use) */
+.always-send {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 11px;
+}
+
+.always-send input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+/* MedEx-enhanced recall board styling - only applied when module is active */
+
+/* Actions column - make as narrow as possible */
+th.actions-header,
+.actions_column {
+    width: 1% !important;
+    white-space: nowrap !important;
+    padding: 4px 2px !important;
+}
+
+/* Office column - same width as Postcards and Labels (90px set in reminder_style.css) */
+th.office-header {
+    width: 1% !important;
+    white-space: nowrap !important;
+}
+
+/* Action buttons - MedEx style with gradients and shadows matching medexbank.com */
+.actions_column .btn {
+    margin: 2px !important;
+    padding: 7.5px 12px 7.5px 10px !important;
+    border-radius: 4px !important;
+    border: 1px solid #000 !important;
+    box-shadow: 3px 3px 3px 0px rgba(123, 119, 119, 0.376) !important;
+    text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.25) !important;
+    font-size: 12.6px !important;
+    line-height: 18.9px !important;
+    text-align: center !important;
+    user-select: none !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Icon colors - white on danger/info, black on primary */
+.actions_column .btn-danger i,
+.actions_column .btn-info i {
+    color: white !important;
+}
+
+.actions_column .btn-primary i {
+    color: #212529 !important; /* Dark gray/black for primary button */
+}
+
+/* Let Bootstrap handle button colors naturally - no overrides */
+
+/* Row background colors based on campaign status */
+.whitish {
+    background-color: #ffffff !important;
+}
+
+.greenish {
+    background-color: #d4edda !important;
+}
+
+.yellowish {
+    background-color: #fff3cd !important;
+}
+
+.reddish {
+    background-color: #f8d7da !important;
+}
+
+/* Office column - vertical stacked Bootstrap buttons */
+.msg_manual {
+    text-align: center !important;
+}
+
+.msg_manual > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2px !important;
+}
+
+/* MedEx-style buttons with gradients and shadows matching medexbank.com */
+.medex-phone-call,
+.medex-scheduler,
+.medex-sms-bot {
+    margin: 2px !important;
+    padding: 7.5px 12px 7.5px 10px !important;
+    border-radius: 4px !important;
+    border: 1px solid #000 !important;
+    box-shadow: 3px 3px 3px 0px rgba(123, 119, 119, 0.376) !important;
+    text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.25) !important;
+    font-size: 12.6px !important;
+    line-height: 18.9px !important;
+    text-align: center !important;
+    user-select: none !important;
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* Phone button - gray (Bootstrap secondary) */
+.medex-phone-call.btn-secondary {
+    background-color: rgb(108, 117, 125) !important;
+    background-image: linear-gradient(rgb(108, 117, 125), rgb(108, 117, 125)) !important;
+}
+
+/* Phone button - red when active (Bootstrap danger) */
+.medex-phone-call.btn-danger {
+    background-color: rgb(220, 53, 69) !important;
+    background-image: linear-gradient(rgb(220, 53, 69), rgb(220, 53, 69)) !important;
+}
+
+/* Calendar button - cyan (Bootstrap info - from your snippet) */
+.medex-scheduler.btn-info {
+    background-color: rgb(31, 144, 187) !important;
+    background-image: linear-gradient(rgb(35, 161, 209), rgb(35, 161, 209)) !important;
+}
+
+/* SMS Bot button - green (Bootstrap success) */
+.medex-sms-bot.btn-success {
+    background-color: rgb(40, 167, 69) !important;
+    background-image: linear-gradient(rgb(40, 167, 69), rgb(40, 167, 69)) !important;
+}
+
+/* Ensure icons have white color on colored buttons */
+.medex-phone-call i,
+.medex-scheduler i,
+.medex-sms-bot i {
+    color: rgb(255, 255, 255) !important;
+}
+
+/* Make Contact column wider to accommodate communication icons */
+.divTableCell[id^="contact_"] {
+    min-width: 180px !important;
+    width: auto !important;
+    overflow: visible !important; /* Allow tooltips to escape cell boundaries */
+}
+
+/* Communication icons container in Contact column - 3 icons across */
+.medex-communication-icons {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    margin-bottom: 6px !important;
+}
+
+/* Communication method icons - Match MedEx standard 26px x 29px */
+.medex-comm-phone,
+.medex-comm-sms,
+.medex-comm-email,
+.medex-comm-chat,
+.medex-comm-video,
+.medex-comm-whatsapp,
+.medex-comm-signal {
+    position: relative !important;
+    margin: 0 !important;
+    width: 26px !important;
+    height: 29px !important;
+    padding: 5px !important;
+    border-radius: 4px !important;
+    border: 1px solid #000 !important;
+    box-shadow: 3px 3px 3px 0px rgba(123, 119, 119, 0.376) !important;
+    text-shadow: 0px -1px 0px rgba(0, 0, 0, 0.25) !important;
+    font-size: 11.375px !important;
+    line-height: 17.0625px !important;
+    text-align: center !important;
+    user-select: none !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* Phone and SMS icons have 8px right margin, Email (last) has none */
+.medex-comm-phone,
+.medex-comm-sms {
+    margin-right: 8px !important;
+}
+
+/* Phone - gray initially, turns red when active */
+.medex-comm-phone.btn-secondary {
+    background-color: rgb(108, 117, 125) !important;
+    background-image: linear-gradient(rgb(108, 117, 125), rgb(108, 117, 125)) !important;
+}
+
+.medex-comm-phone.btn-danger {
+    background-color: rgb(220, 53, 69) !important;
+    background-image: linear-gradient(rgb(220, 53, 69), rgb(220, 53, 69)) !important;
+}
+
+/* SMS - green */
+.medex-comm-sms.btn-success {
+    background-color: rgb(40, 167, 69) !important;
+    background-image: linear-gradient(rgb(40, 167, 69), rgb(40, 167, 69)) !important;
+}
+
+/* Email - blue */
+.medex-comm-email.btn-primary {
+    background-color: rgb(0, 123, 255) !important;
+    background-image: linear-gradient(rgb(0, 123, 255), rgb(0, 123, 255)) !important;
+}
+
+/* Disabled communication icons - grayed out */
+.medex-comm-phone:disabled,
+.medex-comm-sms:disabled,
+.medex-comm-email:disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+    background-color: rgb(200, 200, 200) !important;
+    background-image: linear-gradient(rgb(200, 200, 200), rgb(200, 200, 200)) !important;
+}
+
+/* Icon colors - allow inline styles to override for warning icons */
+.medex-comm-phone i,
+.medex-comm-sms i,
+.medex-comm-email i {
+    color: white;
+}
+
+/* ========================================================================
+   Status Column - Campaign Icons (Recall Board)
+   ======================================================================== */
+
+/* Status column layout - icons at top, actions below */
+.status_column .status_content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.status_column .campaign_icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.status_column .status_actions {
+    width: 100%;
+    text-align: left;
+}
+
+/* Status column campaign icons - match MedEx standard sizing */
+.status_column .btn,
+.status_column span.btn,
+.campaign_icons .btn,
+.campaign_icons span.btn {
+    display: inline-block !important;
+    width: 26px !important;
+    height: 29px !important;
+    padding: 5px !important;
+    margin: 2px !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    border-radius: 4px !important;
+    border: 1px solid #000 !important;
+    cursor: pointer !important;
+    font-size: 11.375px !important;
+    line-height: 17.0625px !important;
+    box-sizing: border-box !important;
+}
+
+/* Campaign icons with declined modality - need position:relative for ban overlay */
+.campaign_icons .btn.medex-declined {
+    position: relative;
+}
+
+.status_column .btn i,
+.status_column span.btn i {
+    display: block;
+    line-height: inherit;
+}
+
+/* MedEx Icon Legend Status Colors - matching exact legend specifications */
+
+/* Scheduled (anticipated to be sent) - WHITE background */
+.status_column .btn.scheduled,
+.campaign_icons .btn.scheduled {
+    background-color: #fff !important;
+    color: #212529 !important;
+}
+
+.status_column .btn.scheduled:hover,
+.campaign_icons .btn.scheduled:hover {
+    background-color: #f5f5f5 !important;
+}
+
+/* Sent In-process - YELLOW background */
+.status_column .btn.sent,
+.status_column span.btn[style*="background-color:yellow"],
+.status_column span.btn[style*="background-color: yellow"] {
+    background-color: rgb(255, 255, 0) !important;
+    color: #212529;
+}
+
+/* Read/Delivered - BLUE background */
+.status_column .btn.read,
+.status_column span.btn[style*="background-color:#146abd"],
+.status_column span.btn[style*="background-color: #146abd"] {
+    background-color: #146abd !important;
+    color: #fff;
+}
+
+/* Confirmed - GREEN background */
+.status_column .btn.confirmed,
+.status_column span.btn[style*="background-color:green"],
+.status_column span.btn[style*="background-color: green"] {
+    background-color: green !important;
+    color: #fff;
+}
+
+/* Callback - RED background */
+.status_column .btn.callback,
+.status_column span.btn[style*="background-color:red"],
+.status_column span.btn[style*="background-color: red"] {
+    background-color: red !important;
+    color: #fff;
+}
+
+/* Failure - LIGHT RED/PINK background */
+.status_column .btn.failed,
+.status_column span.btn[style*="background-color:#ffc4c4"],
+.status_column span.btn[style*="background-color: #ffc4c4"] {
+    background-color: #ffc4c4 !important;
+    color: #212529;
+}
+
+/* STOP - RED background with white text */
+.status_column .btn.stop {
+    background-color: #dc3545 !important;
+    color: #fff;
+}
+
+/* ========================================================================
+   Recall Board Table Stacking - fix tooltip visibility
+   ======================================================================== */
+
+/* CRITICAL: All table containers MUST have overflow:visible for tooltips */
+.divTable {
+    overflow: visible !important;
+}
+
+.divTableBody {
+    overflow: visible !important;
+}
+
+.divTableRow {
+    overflow: visible !important;
+}
+
+.divTableCell {
+    overflow: visible !important;
+}
+
+/* Status column cell MUST allow overflow:visible so tooltips can escape */
+.status_column {
+    overflow: visible !important;
+}
+
+/* Campaign icons container needs high z-index to break out of row stacking */
+.status_column .campaign_icons {
+    position: relative;
+    z-index: 100000 !important;
+}
+
+/* Each campaign icon button needs position relative and high z-index */
+.campaign_icons .btn {
+    position: relative !important;
+    z-index: 100001 !important;
+}
+
+/* ========================================================================
+   Recall Board Column Widths
+   ======================================================================== */
+
+/* Actions column - narrow, just enough for 2 buttons */
+.actions_column {
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+}
+
+/* Status column - allow to grow if needed */
+.status_column {
+    min-width: 150px !important;
+    width: auto !important;
+}
+
+/* ========================================================================
+   Recall Board Action Buttons - Schedule, Edit, Delete
+   Override Bootstrap btn-sm to match MedEx standard sizing (26px x 29px)
+   ======================================================================== */
+
+.msg_manual .btn.btn-sm,
+.actions_column .btn.btn-sm {
+    width: 26px !important;
+    height: 29px !important;
+    padding: 5px !important;
+    margin: 2px !important;
+    font-size: 11.375px !important;
+    line-height: 17.0625px !important;
+    border-radius: 4px !important;
+    border: 1px solid #000 !important;
+    box-sizing: border-box !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.msg_manual .btn.btn-sm i,
+.actions_column .btn.btn-sm i {
+    font-size: 11.375px !important;
+    line-height: 17.0625px !important;
+}
+
+/* Speech bubble tooltip styling for patient messages (matching Flow Board) */
+.medex-patient-message-icon {
+    display: inline-block;
+    cursor: pointer;
+    position: relative;
+    margin-left: 5px;
+}
+
+.medex-patient-message-icon i {
+    font-size: 32px;
+    color: #9C27B0;
+}
+
+/* Bootstrap tooltip override for speech bubble style */
+.tooltip.medex-speech-bubble .tooltip-inner {
+    background-color: #fff;
+    border: 2px solid #9C27B0;
+    border-radius: 10px;
+    color: #333;
+    text-align: left;
+    padding: 12px 16px;
+    max-width: 400px;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.tooltip.medex-speech-bubble .arrow::before {
+    border-top-color: #9C27B0;
+}
+
+.tooltip.medex-speech-bubble.bs-tooltip-left .arrow::before {
+    border-left-color: #9C27B0;
+}
+
+.tooltip.medex-speech-bubble.bs-tooltip-right .arrow::before {
+    border-right-color: #9C27B0;
+}
+
+.tooltip.medex-speech-bubble.bs-tooltip-bottom .arrow::before {
+    border-bottom-color: #9C27B0;
+}

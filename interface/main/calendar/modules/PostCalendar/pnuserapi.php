@@ -63,6 +63,57 @@ require_once("modules/$pcDir/common.api.php");
 unset($pcModInfo, $pcDir);
 
 /**
+ * Compatibility SQL row iterator for mixed calendar DB layers.
+ *
+ * Supports Doctrine DBAL (`executeQuery()->iterateNumeric()`), legacy ADODB
+ * (`Execute()`), and sqlStatement fallback.
+ *
+ * @param mixed  $conn Calendar DB connection handle
+ * @param string $sql  SQL query
+ * @return iterable<array<int,mixed>>
+ */
+function postcalendar_numeric_rows($conn, string $sql): iterable
+{
+    if (is_array($conn) && isset($conn[0])) {
+        $conn = $conn[0];
+    }
+
+    if (is_object($conn) && method_exists($conn, 'executeQuery')) {
+        $result = $conn->executeQuery($sql);
+        foreach ($result->iterateNumeric() as $row) {
+            yield $row;
+        }
+        return;
+    }
+
+    if (is_object($conn) && method_exists($conn, 'Execute')) {
+        $result = $conn->Execute($sql);
+        if (!$result) {
+            $message = method_exists($conn, 'ErrorMsg') ? (string)$conn->ErrorMsg() : 'Calendar query failed';
+            throw new \RuntimeException($message);
+        }
+        while (!$result->EOF) {
+            $row = is_array($result->fields ?? null) ? $result->fields : [];
+            if (!(array_key_exists(0, $row) && array_key_exists(1, $row))) {
+                $row = array_values($row);
+            }
+            yield $row;
+            $result->MoveNext();
+        }
+        return;
+    }
+
+    $result = sqlStatement($sql);
+    while ($row = sqlFetchArray($result)) {
+        $numeric = [];
+        for ($i = 0; array_key_exists($i, $row); $i++) {
+            $numeric[] = $row[$i];
+        }
+        yield !empty($numeric) ? $numeric : array_values($row);
+    }
+}
+
+/**
  *  postcalendar_userapi_buildView
  *
  *  Builds the calendar display
@@ -694,8 +745,8 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //======================================================================
   //echo "<Br />sql: $sql<br />";
     try {
-        $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception $e) {
+        $rows = postcalendar_numeric_rows($conn, $sql);
+    } catch (\Throwable $e) {
         die(text($e->getMessage()));
     }
 
@@ -703,7 +754,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
     $events = [];
 
     $i = 0;
-    foreach ($result->iterateNumeric() as $row) {
+    foreach ($rows as $row) {
         // get the results from the query
         //RM include address
         $tmp = [];
@@ -909,7 +960,11 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
+    $globalsBag = OEGlobalsBag::getInstance();
+    $kernel = method_exists($globalsBag, 'getKernel') ? $globalsBag->getKernel() : ($GLOBALS['kernel'] ?? null);
+    if ($kernel && method_exists($kernel, 'getEventDispatcher')) {
+        $calFilterEvent = $kernel->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
+    }
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 
@@ -1008,8 +1063,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // echo "<!-- " . $sql . " -->\n"; // debugging
 
     try {
-        $result = $conn->executeQuery($sql);
-    } catch (Doctrine\DBAL\Exception $e) {
+        $rows = postcalendar_numeric_rows($conn, $sql);
+    } catch (\Throwable $e) {
         die(text($e->getMessage()));
     }
 
@@ -1017,7 +1072,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
     $events = [];
 
     $i = 0;
-    foreach ($result->iterateNumeric() as $row) {
+    foreach ($rows as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
 
         // get the results from the query

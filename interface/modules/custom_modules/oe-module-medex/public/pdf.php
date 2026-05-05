@@ -167,7 +167,12 @@ if ($patientDisplay) {
     $iframeUrl .= '&patient_display=' . urlencode(base64_encode($patientDisplay));
 }
 
-$csrfToken = CsrfUtils::collectCsrfToken();
+// Ensure csrf_private_key exists — may be absent when arriving via MedEx SSO
+// without going through the normal OpenEMR login flow.
+if ($session && empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 <!DOCTYPE html>
 <html>

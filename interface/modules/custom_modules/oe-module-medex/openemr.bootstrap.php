@@ -743,6 +743,13 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         $eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, 'medexRenderMainTabsAutoloadScript');
     }
 
+    // Register appointment slot listener to link patient appointments to consumed template slots
+    if (class_exists(\OpenEMR\Events\Appointments\AppointmentSetEvent::class)) {
+        require_once __DIR__ . '/src/Listeners/AppointmentSlotListener.php';
+        $appointmentSlotListener = new \OpenEMR\Modules\MedEx\Listeners\AppointmentSlotListener();
+        $eventDispatcher->addListener(\OpenEMR\Events\Appointments\AppointmentSetEvent::EVENT_HANDLE, [$appointmentSlotListener, 'onAppointmentSet']);
+    }
+
     register_shutdown_function(function (): void {
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
         if (strpos($requestUri, '/interface/modules/zend_modules/public/Installer') === false) {

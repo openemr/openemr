@@ -1,0 +1,86 @@
+/**
+ * MedEx Module - Patient Tracker Injection Styles
+ * Speech bubble tooltips for patient messages
+ *
+ * @package   MedEx
+ * @link      https://www.medexbank.com
+ * @author    MedEx <support@medexbank.com>
+ * @copyright Copyright (c) 2017-2026 MedEx
+ * @license   Proprietary
+ */
+
+/* Speech bubble tooltip container */
+.medex-patient-message-icon {
+    cursor: pointer;
+    display: inline-block;
+}
+
+/* Hide tooltip by default */
+.medex-patient-message-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: #fff;
+    color: #333;
+    padding: 12px 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    white-space: pre-wrap;
+    font-size: 13px;
+    line-height: 1.5;
+    min-width: 200px;
+    max-width: 350px;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 10000;
+    border: 1px solid #ddd;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Speech bubble arrow (tail pointing down) */
+.medex-patient-message-icon::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 8px solid transparent;
+    border-top-color: #fff;
+    z-index: 10001;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Show tooltip on hover */
+.medex-patient-message-icon:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+.medex-patient-message-icon:hover::before {
+    opacity: 1;
+}
+
+/* Scrollbar styling for long messages */
+.medex-patient-message-icon::after::-webkit-scrollbar {
+    width: 6px;
+}
+
+.medex-patient-message-icon::after::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.medex-patient-message-icon::after::-webkit-scrollbar-thumb {
+    background: #9C27B0;
+    border-radius: 3px;
+}
+
+.medex-patient-message-icon::after::-webkit-scrollbar-thumb:hover {
+    background: #7B1FA2;
+}

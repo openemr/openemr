@@ -1,0 +1,60 @@
+# AI Agent Discovery Pattern
+
+## 🤖 AI AGENT - PROJECT CONTEXT DISCOVERY
+
+When working on this project, AI agents should discover context in this order:
+
+1. **FIRST**: Read `MASTER_PROJECT_GUIDE.md` - Complete project context
+2. **SECOND**: Read `PROJECT-STATUS.md` - Current state and what's needed
+3. **THEN**: Read relevant PR plans and architecture docs
+
+## 🚨 CRITICAL WARNINGS
+
+- This is a 3-phase EXTRACTION project, not module enhancement
+- Goal: Remove ALL MedEx from `/library/MedEx/` while preserving core functionality
+- Phase 3 (core extraction) is current phase - NEEDS IMPLEMENTATION
+
+## ⚠️ CRITICAL: EVIDENCE-BASED DEVELOPMENT
+
+### **DO NOT MAKE ASSUMPTIONS**
+- ❌ NEVER speculate about how systems work without code evidence
+- ❌ NEVER invent architectures (webhooks, websockets, real-time) without finding actual implementation
+- ❌ NEVER assume efficiency patterns without seeing the actual code
+
+### **ALWAYS VERIFY WITH CODE**
+- ✅ ALWAYS grep/search for actual implementation before describing how something works
+- ✅ ALWAYS read the actual code files before making architectural claims
+- ✅ ALWAYS look for evidence in comments, function names, and actual implementations
+
+### **RECENT EXAMPLE OF WHAT NOT TO DO**
+When asked how MedEx handles appointment notifications:
+- **Wrong Answer**: Invented elaborate webhook/streaming architecture without evidence
+- **Right Answer**: "I don't know - the code shows background services were removed and there's a callback service, but I don't see the actual mechanism"
+
+### **CONSEQUENCES OF MAKING ASSUMPTIONS**
+- Leads to incorrect implementation suggestions
+- Wastes development time on non-existent features
+- Creates technical debt based on fantasy architectures
+- Undermines trust in AI recommendations
+
+**⚠️ STICK TO WHAT THE CODE ACTUALLY SHOWS. If you don't know how something works, say "I don't know" rather than making up an answer.**
+
+## 📋 Quick Context
+
+**Done**: ✅ Phase 1 (module modernization), ✅ Phase 2 (event architecture)
+**Current**: ❌ Phase 3 (core extraction) - NEEDS WORK
+**Missing**: CommunicationService.php, core file updates, database migration
+
+## 🔍 Discovery Files to Read
+
+1. `MASTER_PROJECT_GUIDE.md` - COMPLETE PROJECT CONTEXT
+2. `PROJECT-STATUS.md` - CURRENT STATE
+3. `FINAL_PR_PLAN.md` - IMPLEMENTATION PLAN
+4. `CLEAN_REMOVAL_PR.md` - STEP-BY-STEP CHANGES
+5. `ARCHITECTURE.md` - EVENT SYSTEM DESIGN
+
+## ⚠️ DO NOT PROCEED WITHOUT READING MASTER_PROJECT_GUIDE.md FIRST
+
+## 🚨 EVIDENCE-BASED DEVELOPMENT MANDATORY
+
+**This project requires evidence-based development. Do not make assumptions about how systems work. Always verify with actual code before making architectural claims.**

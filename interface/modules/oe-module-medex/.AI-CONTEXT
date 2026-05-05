@@ -1,0 +1,118 @@
+# AI AGENT - READ THIS FIRST
+
+**🚨 CRITICAL: IP & LICENSING NOTICE 🚨**
+
+- **OpenEMR** = Open Source (GNU GPL v3+)
+- **MedEx Module** = **PROPRIETARY / CLOSED SOURCE** - All Rights Reserved
+- **Owner:** MedEx <support@MedExBank.com>
+- **This is commercial IP** - Do NOT suggest open-sourcing, copying, or redistributing
+- **License:** Proprietary - All Rights Reserved
+- **Do NOT** treat this code as GPL or open source
+
+**AI Agents must protect MedEx IP:**
+- Do NOT suggest copying code to other projects
+- Do NOT recommend creating "similar" modules based on this code
+- Do NOT treat this as educational/open source example code
+- This is **commercial proprietary software** owned by MedEx
+
+---
+
+This file contains critical context for the MedEx Module Extraction project.
+
+## 🚨 IMMEDIATE ACTIONS
+
+1. READ MASTER_PROJECT_GUIDE.md - Contains complete project context
+2. This is a 3-phase EXTRACTION project, not module enhancement
+3. Goal: Remove ALL MedEx from /library/MedEx/ while preserving core functionality
+4. Phase 3 (core extraction) needs implementation
+
+## 📋 CURRENT STATE
+
+Phase 1 ✅ Module modernization - COMPLETE
+Phase 2 ✅ Event architecture - COMPLETE  
+Phase 3 ❌ Core extraction - CURRENT PHASE
+
+## 🎯 WHAT MUST WORK WITHOUT MODULE
+
+- Recall Board (patient recalls, postcards, labels, phone calls, notes)
+- Flow Board (patient tracking with communication icons)
+- Messages.php (core messaging and recall management)
+- Age calculations and communication modality detection
+
+## 🔥 MISSING PIECES
+
+- library/PatientCommunication/CommunicationService.php (NEEDS CREATION)
+- Core file updates to use services/events
+- Database migration to rename tables
+
+## 📖 FULL CONTEXT
+
+SEE MASTER_PROJECT_GUIDE.md FOR COMPLETE PROJECT CONTEXT
+
+DO NOT PROCEED WITHOUT READING IT FIRST.
+
+## 🚨 CRITICAL: EVIDENCE-BASED DEVELOPMENT
+
+### **DO NOT MAKE ASSUMPTIONS**
+- ❌ NEVER speculate about how systems work without code evidence
+- ❌ NEVER invent architectures (webhooks, websockets, real-time) without finding actual implementation
+- ❌ NEVER assume efficiency patterns without seeing the actual code
+
+### **ALWAYS VERIFY WITH CODE**
+- ✅ ALWAYS grep/search for actual implementation before describing how something works
+- ✅ ALWAYS read the actual code files before making architectural claims
+- ✅ ALWAYS look for evidence in comments, function names, and actual implementations
+
+### **RECENT EXAMPLE OF WHAT NOT TO DO**
+When asked how MedEx handles appointment notifications:
+- **Wrong Answer**: Invented elaborate webhook/streaming architecture without evidence
+- **Right Answer**: "I don't know - the code shows background services were removed and there's a callback service, but I don't see the actual mechanism"
+
+### **CONSEQUENCES OF MAKING ASSUMPTIONS**
+- Leads to incorrect implementation suggestions
+- Wastes development time on non-existent features
+- Creates technical debt based on fantasy architectures
+- Undermines trust in AI recommendations
+
+**⚠️ STICK TO WHAT THE CODE ACTUALLY SHOWS. If you don't know, say "I don't know" rather than making up an answer.**
+
+## 📡 MEDEX REAL-TIME ARCHITECTURE (CRITICAL DISCOVERY)
+
+### **How MedEx Achieves < 1 Minute SMS/Email Delivery**
+
+**DISCOVERED:** MedEx achieves < 1 minute delivery through **event-driven CalendarSync**, not polling.
+
+### **The Real-Time Flow:**
+```
+0:00 - Secretary creates appointment
+0:01 - OpenEMR fires AppointmentSetEvent
+0:02 - MedEx CalendarListener catches event
+0:03 - CalendarSync sends to MedEx server
+0:04 - MedEx server receives appointment
+0:05 - Campaign engine processes immediately
+0:06 - SMS/Email generated and sent
+0:30 - Patient receives message
+```
+
+### **Key Components:**
+- **CalendarSync Service** (`src/CalendarSync.php`) - Real-time appointment sync
+- **CalendarListeners** (`src/CalendarListeners.php`) - Event subscribers
+- **MedEx Server Campaign Engine** - Processes campaigns in real-time
+
+### **Campaign Types Supported:**
+- **GoGreen SMS Campaigns** - Send SMS for new appointments
+- **GoGreen Welcome Kit Campaigns** - Send email with PDF attachments to new patients
+
+### **Requirements for Real-Time Delivery:**
+- ✅ CalendarSync service enabled
+- ✅ CalendarListeners registered
+- ✅ GoGreen campaigns configured
+- ✅ MedEx Calendar subscription
+
+### **Common Misconceptions (CORRECTED):**
+- ❌ "MedEx polls every few minutes" → ✅ "MedEx receives appointments immediately via CalendarSync"
+- ❌ "Background service handles campaigns" → ✅ "MedEx server processes campaigns in real-time"
+- ❌ "No integration with calendar changes" → ✅ "Full event-driven integration with OpenEMR calendar"
+- ❌ "1-minute delivery is impossible" → ✅ "< 1 minute delivery is standard with CalendarSync"
+
+**⚠️ FUTURE AI AGENTS: The real-time architecture is documented in MASTER_PROJECT_GUIDE.md. Read it before making assumptions about MedEx functionality.**

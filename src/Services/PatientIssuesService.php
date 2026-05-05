@@ -29,6 +29,7 @@ class PatientIssuesService extends BaseService
     use ServiceEventTrait;
 
     const ISSUES_TABLE_NAME = "lists";
+    private static $tableColumnsCache = [];
 
     public function __construct()
     {
@@ -170,6 +171,7 @@ class PatientIssuesService extends BaseService
     // TODO: @adunsulag can this be merged with the search in ConditionService or move things to a common base class?
     public function search($search, $isAndCondition = true)
     {
+        $medicationSubqueryParts = $this->buildMedicationSubqueryParts();
         $sql = "SELECT lists.*
                 ,medications.lists_medication_id
                 ,medications.list_id
@@ -188,28 +190,20 @@ class PatientIssuesService extends BaseService
                 FROM lists
                 LEFT JOIN (
                     SELECT
-                       lists_medication.id AS lists_medication_id
-                       ,list_id
-                        ,usage_category
-                        ,usage_category_title
-                        ,drug_dosage_instructions
-                        ,request_intent
-                        ,request_intent_title
-                        ,medication_adherence_information_source
-                        ,medication_adherence
-                        ,medication_adherence_date_asserted
-                        ,is_primary_record
-                        ,reporting_source_record_id
-                        ,users.uuid AS reporting_source_uuid
-                        ,'user' AS reporting_source_type
+                       " . $medicationSubqueryParts['select'] . "
                     FROM lists_medication
-                    LEFT JOIN users ON users.id = lists_medication.reporting_source_record_id
+                    " . $medicationSubqueryParts['join'] . "
                 ) medications ON medications.list_id = lists.id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment() . " ORDER BY lists.begdate ";
         $sqlBindArray = $whereClause->getBoundValues();
+        $placeholderCount = substr_count($sql, '?');
+        if (count($sqlBindArray) > $placeholderCount) {
+            // Defensive guard: prevent malformed prepare errors if a caller sends extra bind values.
+            $sqlBindArray = array_slice($sqlBindArray, 0, $placeholderCount);
+        }
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
 
@@ -219,6 +213,62 @@ class PatientIssuesService extends BaseService
             $processingResult->addData($resultRecord);
         }
         return $processingResult;
+    }
+
+    private function buildMedicationSubqueryParts(): array
+    {
+        $medicationColumns = $this->getTableColumns('lists_medication');
+        $usersColumns = $this->getTableColumns('users');
+        $hasReportingSourceRecordId = in_array('reporting_source_record_id', $medicationColumns, true);
+
+        $selectParts = [
+            "lists_medication.id AS lists_medication_id"
+            ,$this->buildColumnSelect('list_id', $medicationColumns)
+            ,$this->buildColumnSelect('usage_category', $medicationColumns)
+            ,$this->buildColumnSelect('usage_category_title', $medicationColumns)
+            ,$this->buildColumnSelect('drug_dosage_instructions', $medicationColumns)
+            ,$this->buildColumnSelect('request_intent', $medicationColumns)
+            ,$this->buildColumnSelect('request_intent_title', $medicationColumns)
+            ,$this->buildColumnSelect('medication_adherence_information_source', $medicationColumns)
+            ,$this->buildColumnSelect('medication_adherence', $medicationColumns)
+            ,$this->buildColumnSelect('medication_adherence_date_asserted', $medicationColumns)
+            ,$this->buildColumnSelect('is_primary_record', $medicationColumns)
+            ,$this->buildColumnSelect('reporting_source_record_id', $medicationColumns)
+            ,($hasReportingSourceRecordId && in_array('uuid', $usersColumns, true)) ? "users.uuid AS reporting_source_uuid" : "NULL AS reporting_source_uuid"
+            ,"'user' AS reporting_source_type"
+        ];
+
+        return [
+            'select' => implode("\n                       ,", $selectParts)
+            ,'join' => $hasReportingSourceRecordId ? "LEFT JOIN users ON users.id = lists_medication.reporting_source_record_id" : ""
+        ];
+    }
+
+    private function buildColumnSelect(string $columnName, array $availableColumns): string
+    {
+        return in_array($columnName, $availableColumns, true) ? $columnName : "NULL AS " . $columnName;
+    }
+
+    private function getTableColumns(string $tableName): array
+    {
+        if (isset(self::$tableColumnsCache[$tableName])) {
+            return self::$tableColumnsCache[$tableName];
+        }
+
+        $rows = QueryUtils::fetchRecords(
+            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?",
+            [$tableName]
+        );
+        $columns = [];
+        foreach ($rows as $row) {
+            if (isset($row['COLUMN_NAME'])) {
+                $columns[] = $row['COLUMN_NAME'];
+            } elseif (isset($row['column_name'])) {
+                $columns[] = $row['column_name'];
+            }
+        }
+        self::$tableColumnsCache[$tableName] = $columns;
+        return $columns;
     }
 
     protected function createResultRecordFromDatabaseResult($row)

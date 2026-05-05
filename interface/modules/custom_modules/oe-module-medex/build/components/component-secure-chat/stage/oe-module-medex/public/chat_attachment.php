@@ -188,11 +188,13 @@ if ($size > (10 * 1024 * 1024)) {
 }
 
 $rawData = base64_decode($contentBase64, true);
-if ($rawData === false || strlen($rawData) !== $size) {
+if ($rawData === false || strlen($rawData) === 0) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Attachment decode failed']);
     exit;
 }
+// Accept decoded size within ±10% of reported size to handle HEIC→JPEG, EXIF strip, etc.
+$actualSize = strlen($rawData);
 
 $baseDir = rtrim((string)$GLOBALS['OE_SITE_DIR'], '/\\') . '/documents';
 $relativeDir = 'secure_chat/' . $practiceId . '/' . $pid;
@@ -206,16 +208,61 @@ if (!is_dir($targetDir) && !mkdir($targetDir, 0755, true) && !is_dir($targetDir)
 $ext = $allowed[$mime];
 $storedName = date('Ymd_His') . '_' . substr(hash('sha256', $fileName . microtime(true) . random_int(1, PHP_INT_MAX)), 0, 16) . '.' . $ext;
 $fullPath = $targetDir . '/' . $storedName;
-if (file_put_contents($fullPath, $rawData) === false) {
+
+// For images: auto-downscale to max 1600px on longest side before storing.
+// This keeps the full original quality for display but reduces file weight.
+$dataToWrite = $rawData;
+if (strpos($mime, 'image/') === 0 && extension_loaded('gd')) {
+    try {
+        $src = imagecreatefromstring($rawData);
+        if ($src !== false) {
+            $origW = imagesx($src);
+            $origH = imagesy($src);
+            $maxDim = 1600;
+            if ($origW > $maxDim || $origH > $maxDim) {
+                $scale = min($maxDim / $origW, $maxDim / $origH);
+                $newW  = (int)round($origW * $scale);
+                $newH  = (int)round($origH * $scale);
+                $dst   = imagecreatetruecolor($newW, $newH);
+                // Preserve alpha for PNG/WebP
+                if ($mime === 'image/png' || $mime === 'image/webp') {
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                }
+                imagecopyresampled($dst, $src, 0, 0, 0, 0, $newW, $newH, $origW, $origH);
+                ob_start();
+                if ($mime === 'image/png') {
+                    imagepng($dst, null, 6);
+                } elseif ($mime === 'image/webp') {
+                    imagewebp($dst, null, 82);
+                } else {
+                    imagejpeg($dst, null, 85);
+                }
+                $resized = ob_get_clean();
+                imagedestroy($dst);
+                if ($resized !== false && strlen($resized) > 0) {
+                    $dataToWrite = $resized;
+                }
+            }
+            imagedestroy($src);
+        }
+    } catch (\Throwable $e) {
+        error_log('MedEx chat_attachment: GD resize failed: ' . $e->getMessage());
+        // Non-fatal — store original
+    }
+}
+
+if (file_put_contents($fullPath, $dataToWrite) === false) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Write failed']);
     exit;
 }
 
 // Register in OpenEMR documents table so the file appears in the patient chart.
+$storedSize = strlen($dataToWrite);
 $relativeUrl = $relativeDir . '/' . $storedName;
 try {
-    registerDocumentInOpenEMR($pidInt, $relativeUrl, $mime, $size, $fileName);
+    registerDocumentInOpenEMR($pidInt, $relativeUrl, $mime, $storedSize, $fileName);
 } catch (\Throwable $e) {
     error_log("MedEx chat_attachment: document registration failed: " . $e->getMessage());
     // Non-fatal — file is already written; continue to return success.

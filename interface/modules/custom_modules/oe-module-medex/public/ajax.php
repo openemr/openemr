@@ -20,8 +20,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\MedEx\MedExAPI;
 use OpenEMR\Modules\MedEx\Services\ModalityService;
 
+// Ensure csrf_private_key exists — may be absent when arriving via MedEx SSO
+// without going through the normal OpenEMR login flow.
+if ($session && empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+
 // CSRF check
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

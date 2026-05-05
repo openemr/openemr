@@ -64,7 +64,9 @@ use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$session = SessionWrapperFactory::getInstance()->getWrapper();
+$kernel = OEGlobalsBag::getInstance()->get('kernel');
+$eventDispatcher = $kernel ? $kernel->getEventDispatcher() : OEGlobalsBag::getInstance()->get('eventDispatcher');
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
@@ -74,7 +76,7 @@ if (!isset($pid)) {
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
 SessionUtil::setSession('disablePreviousNameAdds', 0);
 
-$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
+$twig = new TwigContainer(null, $kernel);
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
@@ -92,14 +94,14 @@ if (isset($_GET['set_pid'])) {
 // Note: it would eventually be a good idea to move this into
 // it's own module that people can remove / add if they don't
 // want smart support in their system.
-$smartLaunchController = new SMARTLaunchController(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
+$smartLaunchController = new SMARTLaunchController($eventDispatcher);
 $smartLaunchController->registerContextEvents();
 $hiddenCards = getHiddenDashboardCards();
 
 /**
  * @var EventDispatcher
  */
-$ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+$ed = $eventDispatcher;
 
 $active_reminders = false;
 $all_allergy_alerts = false;
@@ -143,6 +145,17 @@ function getHiddenDashboardCards(): array
     }
 
     return $hiddenList;
+}
+
+function tableExistsInCurrentDb(string $tableName): bool
+{
+    $row = sqlQuery(
+        "SELECT COUNT(*) AS table_count
+         FROM INFORMATION_SCHEMA.TABLES
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?",
+        [$tableName]
+    );
+    return !empty($row['table_count']);
 }
 
 function print_as_money($money)
@@ -415,7 +428,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>,
                 patient: <?php echo js_escape($pid); ?>
             });
             dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
@@ -451,7 +464,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 0,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>
                 });
             } else {
                 $(target).find(".indicator").text(<?php echo xlj('collapse'); ?>);
@@ -459,7 +472,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 1,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>
                 });
             }
         }
@@ -496,7 +509,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             let csrf = new FormData;
             // a security given.
-            csrf.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+            csrf.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>);
             if (embedded === true) {
                 // special formatting in certain widgets.
                 csrf.append("embeddedScreen", true);
@@ -611,7 +624,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $(this).on("click", ".complete_btn", function () {
                     let btn = $(this);
                     let csrf = new FormData;
-                    csrf.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+                    csrf.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>);
                     fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')), {
                         method: "POST",
                         credentials: 'same-origin',
@@ -651,7 +664,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 });
                 $(".cdr-rule-btn-info-launch").on("click", function (e) {
                     let pid = <?php echo js_escape($pid); ?>;
-                    let csrfToken = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+                    let csrfToken = <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>;
                     let ruleId = $(this).data("ruleId");
                     const params = new URLSearchParams({
                         action: 'review!view',
@@ -725,7 +738,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ORDER BY grp_seq, grp_title");
             while ($gfrow = sqlFetchArray($gfres)) { ?>
             $(<?php echo js_escape("#" . $gfrow['grp_form_id'] . "_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>, {
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>
             });
             <?php } ?>
             tabbify();
@@ -896,7 +909,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
             }
             let formData = new FormData();
-            formData.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+            formData.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken()); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
             top.restoreSession();
@@ -1049,7 +1062,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
-    $viewEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
+    $viewEvent = $eventDispatcher->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
@@ -1069,7 +1082,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
+            $eventDispatcher->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1227,15 +1240,25 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     $cwd = getcwd();
-                    chdir("../../../");
-                    $c = new Controller();
-                    // This is a hacky way to get a Smarty template from the controller and injecting it into
-                    // a Twig template. This reduces the amount of refactoring that is required but ideally the
-                    // Smarty template should be upgraded to Twig
-                    ob_start();
-                    echo $c->dispatch(['controller' => 'prescription', 'action' => 'fragment', 'patient_id' => $pid]);
-                    $viewArgs['content'] = ob_get_contents();
-                    ob_end_clean();
+                    $viewArgs['content'] = '';
+                    try {
+                        chdir("../../../");
+                        $c = new Controller();
+                        // This is a hacky way to get a Smarty template from the controller and injecting it into
+                        // a Twig template. This reduces the amount of refactoring that is required but ideally the
+                        // Smarty template should be upgraded to Twig
+                        ob_start();
+                        echo $c->dispatch(['controller' => 'prescription', 'action' => 'fragment', 'patient_id' => $pid]);
+                        $viewArgs['content'] = ob_get_contents();
+                        ob_end_clean();
+                    } catch (\Throwable $e) {
+                        if (ob_get_level() > 0) {
+                            ob_end_clean();
+                        }
+                        error_log('demographics.php: prescription fragment dispatch failed: ' . $e->getMessage());
+                    } finally {
+                        chdir($cwd);
+                    }
 
                     echo "<div class='col m-0 p-0 mx-1'>";
                     echo $t->render('patient/card/rx.html.twig', $viewArgs); // render core prescription card
@@ -1245,7 +1268,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </div>
             <div class="row">
                 <?php
-                if (!in_array('card_care_team', $hiddenCards)) {
+                if (
+                    !in_array('card_care_team', $hiddenCards) &&
+                    tableExistsInCurrentDb('care_teams') &&
+                    tableExistsInCurrentDb('care_team_member')
+                ) {
                     $card = new CareTeamViewCard($pid, ['dispatcher' => $ed]);
                     $btnLabel = false;
                     if ($card->canAdd()) {
@@ -1273,7 +1300,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // ============================================================================
                 // TREATMENT INTERVENTION PREFERENCES CARD
                 // ============================================================================
-                if (!in_array('card_treatment_preferences', $hiddenCards)) {
+                if (
+                    !in_array('card_treatment_preferences', $hiddenCards) &&
+                    tableExistsInCurrentDb('patient_treatment_intervention_preferences')
+                ) {
                     $card = new TreatmentPreferenceViewCard($pid);
                     $viewArgs = [
                         'title' => xl('Treatment Intervention Preferences'),
@@ -1299,7 +1329,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // ============================================================================
                 // CARE EXPERIENCE PREFERENCES CARD
                 // ============================================================================
-                if (!in_array('card_care_experience', $hiddenCards)) {
+                if (
+                    !in_array('card_care_experience', $hiddenCards) &&
+                    tableExistsInCurrentDb('patient_care_experience_preferences')
+                ) {
                     $card = new CareExperiencePreferenceViewCard($pid);
 
                     $viewArgs = [
@@ -1347,11 +1380,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     // if anyone wants to render anything before the patient demographic list
-                    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
+                    $eventDispatcher->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
 
+                    $demographicsCardRendered = false;
                     foreach ($sectionCards as $card) {
+                        $cardIdentifier = method_exists($card, 'getIdentifier') ? $card->getIdentifier() : null;
+                        if ($cardIdentifier === 'demographics') {
+                            $demographicsCardRendered = true;
+                        }
                         $_auth = $card->getAcl();
-                        if (!empty($_auth) && !AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                        $isDemographicsCard = $cardIdentifier === 'demographics';
+                        if (!empty($_auth) && !$isDemographicsCard && !AclMain::aclCheckCore($_auth[0], $_auth[1])) {
                             continue;
                         }
 
@@ -1372,6 +1411,23 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => 'test',
                         ];
 
+                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
+                    }
+
+                    // Compatibility fallback: if listeners or ACL logic removed/skipped the demographics card,
+                    // force render it so patient summary always includes demographics.
+                    if (!$demographicsCardRendered) {
+                        $card = new DemographicsViewCard($result, $result2, ['dispatcher' => $ed]);
+                        $viewArgs = [
+                            'title' => $card->getTitle(),
+                            'id' => $card->getIdentifier(),
+                            'initiallyCollapsed' => $card->isInitiallyCollapsed(),
+                            'card_bg_color' => $card->getBackgroundColorClass(),
+                            'card_text_color' => $card->getTextColorClass(),
+                            'forceAlwaysOpen' => !$card->canCollapse(),
+                            'btnLabel' => $card->canEdit() ? 'Edit' : false,
+                            'btnLink' => 'test',
+                        ];
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
                     // Alternative approach: Add it directly in the secondary column section
@@ -1526,7 +1582,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list
-                    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
+                    $eventDispatcher->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
 
                     // This generates a section similar to Vitals for each LBF form that
                     // supports charting.  The form ID is used as the "widget label".
@@ -2039,7 +2095,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
                             'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
-                            'csrf' => CsrfUtils::collectCsrfToken(session: $session),
+                            'csrf' => CsrfUtils::collectCsrfToken(),
                             'pid' => $pid
                         ]);
                     endif;

@@ -1,0 +1,197 @@
+<?php
+
+/**
+ * MedEx Module - Practice Service
+ *
+ * Handles syncing practice data (facilities, providers, categories) to MedEx server
+ */
+
+namespace OpenEMR\Modules\MedEx\Services;
+
+class PracticeService
+{
+    private $medexApi;
+
+    public function __construct($medexApi)
+    {
+        $this->medexApi = $medexApi;
+    }
+
+    /**
+     * Sync practice data to MedEx server
+     * This should be called after registration or when practice settings change
+     */
+    public function syncToMedEx(string $token): array
+    {
+        try {
+            // Get medex_prefs settings
+            $prefs = sqlQuery("SELECT * FROM medex_prefs WHERE ME_username IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1");
+
+            if (!$prefs) {
+                return [
+                    'success' => false,
+                    'error' => 'No MedEx preferences found. Please configure preferences first.'
+                ];
+            }
+
+            // Build practice data payload
+            $practiceData = $this->buildPracticeData($prefs);
+
+            // Send to MedEx server
+            // Note: The token must be in the URL as a GET parameter for OpenCart API routing
+            $response = $this->medexApi->makeRequest(
+                'index.php?route=api/custom/addpractice&token=' . urlencode($token),
+                $practiceData,
+                'POST'
+            );
+
+            if (!empty($response['success'])) {
+                // Update last sync time
+                sqlStatement("UPDATE medex_prefs SET MedEx_lastupdated = NOW() WHERE ME_username IS NOT NULL");
+
+                return [
+                    'success' => true,
+                    'message' => 'Practice data synced successfully'
+                ];
+            }
+
+            return [
+                'success' => false,
+                'error' => $response['error'] ?? 'Sync failed'
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => 'Sync error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+    /**
+     * Build practice data payload for MedEx
+     */
+    private function buildPracticeData(array $prefs): array
+    {
+        $data = [];
+
+        // Callback URL for MedEx to send data back to OpenEMR
+        $callback_token = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token'")['gl_value'] ?? '';
+        $callback_url = $GLOBALS['site_addr_oath'] . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . $callback_token;
+        $data['callback_url'] = $callback_url;
+
+        // Get enabled providers
+        $data['providers'] = [];
+        if (!empty($prefs['ME_providers'])) {
+            $providers = explode('|', $prefs['ME_providers']);
+            foreach ($providers as $provider_id) {
+                if (empty($provider_id)) continue;
+
+                $provider = sqlQuery("SELECT id, fname, lname, username, specialty FROM users WHERE id = ?", [$provider_id]);
+                if ($provider) {
+                    $data['providers'][] = $provider;
+                }
+            }
+        }
+
+        // Get enabled facilities
+        $data['facilities'] = [];
+        if (!empty($prefs['ME_facilities'])) {
+            $facilities = explode('|', $prefs['ME_facilities']);
+            $facilityResult = sqlStatement("SELECT * FROM facility WHERE service_location = '1'");
+
+            while ($facility = sqlFetchArray($facilityResult)) {
+                if (in_array($facility['id'], $facilities)) {
+                    $facility['messages_active'] = '1';
+                    $data['facilities'][] = $facility;
+                }
+            }
+        }
+
+        // Get appointment categories
+        $data['categories'] = [];
+        $categoryResult = sqlStatement(
+            "SELECT pc_catid, pc_catname, pc_catdesc, pc_catcolor, pc_seq
+             FROM openemr_postcalendar_categories
+             WHERE pc_active = 1 AND pc_cattype = '0'
+             ORDER BY pc_catid"
+        );
+        while ($category = sqlFetchArray($categoryResult)) {
+            $data['categories'][] = $category;
+        }
+
+        // Get appointment statuses
+        $data['apptstats'] = [];
+        $statusResult = sqlStatement(
+            "SELECT * FROM list_options
+             WHERE list_id = 'apptstat' AND activity = '1'"
+        );
+        while ($status = sqlFetchArray($statusResult)) {
+            $data['apptstats'][] = $status;
+        }
+
+        // Get checked-out statuses
+        $data['checkedOut'] = [];
+        $checkedOutResult = sqlStatement(
+            "SELECT option_id FROM list_options
+             WHERE toggle_setting_2 = '1' AND list_id = 'apptstat' AND activity = '1'"
+        );
+        while ($checkedOut = sqlFetchArray($checkedOutResult)) {
+            $data['checkedOut'][] = $checkedOut;
+        }
+
+        // Get clinical reminders
+        $data['clinical_reminders'] = [];
+        $sql = "SELECT * FROM clinical_rules, list_options, rule_action, rule_action_item
+                WHERE clinical_rules.pid = 0
+                AND clinical_rules.patient_reminder_flag = 1
+                AND clinical_rules.id = list_options.option_id
+                AND clinical_rules.id = rule_action.id
+                AND list_options.option_id = clinical_rules.id
+                AND rule_action.category = rule_action_item.category
+                AND rule_action.item = rule_action_item.item";
+
+        $reminderResult = sqlStatementCdrEngine($sql);
+        while ($reminder = sqlFetchArray($reminderResult)) {
+            $data['clinical_reminders'][] = $reminder;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Perform initial sync after registration
+     * This uses the credentials that were just saved during registration
+     */
+    public function performInitialSync(): array
+    {
+        // First, we need to login to get a token
+        $loginResult = $this->medexApi->login(true); // Force fresh login
+
+        if (!$loginResult || empty($loginResult['success'])) {
+            return [
+                'success' => false,
+                'error' => 'Initial login failed: ' . ($this->medexApi->getLastError() ?? 'Unknown error')
+            ];
+        }
+
+        // Extract token from login response
+        // The MedEx server should return a token in the login response
+        error_log('[PracticeService] Login result: ' . json_encode($loginResult));
+
+        $token = $loginResult['token'] ?? null;
+
+        if (!$token) {
+            error_log('[PracticeService] No token in login response, attempting fallback');
+            return [
+                'success' => false,
+                'error' => 'Login did not return a token. Response: ' . json_encode($loginResult)
+            ];
+        }
+
+        error_log('[PracticeService] Using token: ' . $token);
+
+        // Now sync practice data
+        return $this->syncToMedEx($token);
+    }
+}
