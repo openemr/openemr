@@ -120,11 +120,13 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             escape_table_name($tbl),
             escape_sql_column_name($id, [$tbl])
         );
+        $sqlBindArray = [ $this->_formId ];
         if ($limit <> '*') {
-            $sql .= ' LIMIT ' . escape_limit($limit);
+            $sql .= ' LIMIT ?';
+            $sqlBindArray[] = (is_numeric($limit) ? (int) $limit : 0);
         }
 
-        $rs = sqlStatement($sql, [ $this->_formId ]);
+        $rs = sqlStatement($sql, $sqlBindArray);
         if (sqlNumRows($rs) == 1) { // maintain legacy hash
             $frs = sqlFetchArray($rs);
         } else {

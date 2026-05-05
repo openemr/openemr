@@ -83,11 +83,11 @@ while (!$finished && time() < $endtime) {
     $query1 = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
         " FROM patient_data AS p1, patient_data AS p2" .
         " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
-        " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . escape_limit($querylimit);
+        " GROUP BY p1.pid ORDER BY p1.pid LIMIT ?";
 
     // echo "$query1\n"; // debugging
 
-    $res1 = sqlStatementNoLog($query1);
+    $res1 = sqlStatementNoLog($query1, [$querylimit]);
     while ($row1 = sqlFetchArray($res1)) {
         $scores[$row1['pid']] = $row1['dupscore'];
     };

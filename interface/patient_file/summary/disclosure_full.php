@@ -106,7 +106,12 @@ $active = $_GET['active'] ?? '';
         <div class="col-12 jumbotron mt-3 p-4">
             <?php
             $N = 15;
-            $offset = $_REQUEST['offset'] ?? 0;
+            $offsetGet = filter_input(INPUT_GET, 'offset', FILTER_VALIDATE_INT);
+            $offsetPost = filter_input(INPUT_POST, 'offset', FILTER_VALIDATE_INT);
+            $offset = is_int($offsetGet) ? $offsetGet : (is_int($offsetPost) ? $offsetPost : 0);
+            if ($offset < 0) {
+                $offset = 0;
+            }
 
             $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
             " LEFT JOIN users u ON u.username = el.user " .
@@ -118,9 +123,9 @@ $active = $_GET['active'] ?? '';
             $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
             " LEFT JOIN users u ON u.username = el.user" .
             " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-            " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
+            " ORDER BY date DESC LIMIT ? OFFSET ?";
 
-            $r1 = sqlStatement($disclInnerQry, [$pid]);
+            $r1 = sqlStatement($disclInnerQry, [$pid, $N, $offset]);
             $n = sqlNumRows($r1);
             $noOfRecordsLeft = ($totalRecords - $offset);
             if ($n > 0) {?>
@@ -176,7 +181,7 @@ $active = $_GET['active'] ?? '';
                             <?php
                             if ($offset > ($N - 1) && $n != 0) {
                                 echo "   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-                                    "&offset=" . attr_url($offset - $N) . "' onclick='top.restoreSession()'>[" .
+                                    "&offset=" . attr_url((string) ($offset - $N)) . "' onclick='top.restoreSession()'>[" .
                                     xlt('Previous') . "]</a>\n";
                             }
                             ?>
@@ -185,7 +190,7 @@ $active = $_GET['active'] ?? '';
 
                             if ($n >= $N && $noOfRecordsLeft != $N) {
                                 echo "&nbsp;&nbsp;   <a class='link' href='disclosure_full.php?active=" . attr_url($active) .
-                                    "&offset=" . attr_url($offset + $N)  . "&leftrecords=" . attr_url($noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
+                                    "&offset=" . attr_url((string) ($offset + $N))  . "&leftrecords=" . attr_url((string) $noOfRecordsLeft) . "' onclick='top.restoreSession()'>[" .
                                     xlt('Next') . "]</a>\n";
                             }
                             ?>

@@ -29,25 +29,6 @@ function add_escape_custom($s)
 }
 
 /**
- * Escape a sql limit variable to prepare for a sql query.
- *
- * This will escape integers within the LIMIT ?, ? part of a sql query.
- * Note that there is a maximum value to these numbers, which is why
- * should only use for the LIMIT ? , ? part of the sql query and why
- * this is centralized to a function (in case need to upgrade this
- * function to support larger numbers in the future).
- *
- * @param   string $s  Limit variable to be escaped.
- * @return  string     Escaped limit variable.
- */
-function escape_limit($s)
-{
-    //prepare for safe mysql insertion
-    $s = (int)$s;
-    return $s;
-}
-
-/**
  * Escape/sanitize a sql sort order keyword variable to prepare for a sql query.
  *
  * This will escape/sanitize the sort order keyword. It is done by whitelisting

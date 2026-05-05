@@ -4302,10 +4302,15 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
       "unpackaged, date FROM registry WHERE " .
       "state LIKE ? ORDER BY category, priority, name";
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " LIMIT ? OFFSET ?";
+        $res = sqlStatement($sql, [
+            $state,
+            is_numeric($limit) ? (int) $limit : 0,
+            is_numeric($offset) ? (int) $offset : 0,
+        ]);
+    } else {
+        $res = sqlStatement($sql, [$state]);
     }
-
-    $res = sqlStatement($sql, [$state]);
     if ($res) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;

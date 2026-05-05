@@ -46,6 +46,7 @@ function updateRegistered($id, $mod)
 function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encounterType = 'all')
 {
     $sql = "select * from registry where state like ? ";
+    $sqlBindArray = [$state];
     if ($encounterType !== 'all') {
         switch ($encounterType) {
             case 'patient':
@@ -58,10 +59,11 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
     }
     $sql .= "order by priority, name ";
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " LIMIT ? OFFSET ?";
+        array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0));
     }
 
-    $res = sqlStatement($sql, [$state]);
+    $res = sqlStatement($sql, $sqlBindArray);
     if ($res) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $all[$iter] = $row;

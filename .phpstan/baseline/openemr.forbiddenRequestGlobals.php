@@ -1593,7 +1593,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 25,
+    'count' => 15,
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
 ];
 $ignoreErrors[] = [
@@ -2538,7 +2538,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_GET is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 18,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/find_code_dynamic_ajax.php',
 ];
 $ignoreErrors[] = [
@@ -2884,11 +2884,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
     'count' => 9,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/disclosure_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$_REQUEST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/disclosure_full.php',
 ];
 $ignoreErrors[] = [

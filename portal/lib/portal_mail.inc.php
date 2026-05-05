@@ -93,8 +93,11 @@ function addPortalMailboxMail(
  */
 function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -118,13 +121,14 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
 	WHERE p.deleted != 0 AND p.owner = ? AND p.recipient_id = ?
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
     $all = $row = [];
     $data = [$owner,$owner];
     if ($search) {
         $data = [$owner,$owner,$owner];
     }
+    array_push($data, ...$limitBind);
 
     $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -143,8 +147,11 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
  */
 function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -168,13 +175,14 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
 	WHERE p.deleted != 1 AND p.owner = ? AND p.recipient_id = ?
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
     $all = $row = [];
     $data = [$owner,$owner];
     if ($search) {
         $data = [$owner,$owner,$owner];
     }
+    array_push($data, ...$limitBind);
 
     $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -193,8 +201,11 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
  */
 function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -219,10 +230,12 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
 	AND date_created > DATE_SUB(NOW(), INTERVAL 1 MONTH)
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
     $all = $row = [];
-    $res = sqlStatement($sql, [$owner]);
+    $data = [$owner];
+    array_push($data, ...$limitBind);
+    $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -239,8 +252,11 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
  */
 function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $search = ''): array
 {
+    $limitSql = "";
+    $limitBind = [];
     if ($limit) {
-        $limit = "LIMIT " . escape_limit($offset) . ", " . escape_limit($limit);
+        $limitSql = "LIMIT ? OFFSET ?";
+        $limitBind = [(is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0)];
     }
 
     $sql = "
@@ -268,10 +284,12 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
 	AND p.message_status != 'Done'
 	$search
 	ORDER BY `date` desc
-	$limit
+	$limitSql
 	";
     $all = $row = [];
-    $res = sqlStatement($sql, [$owner,$owner]);
+    $data = [$owner,$owner];
+    array_push($data, ...$limitBind);
+    $res = sqlStatement($sql, $data);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }

@@ -84,10 +84,10 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
     "code LIKE ?) AND " .
     "code_type = ? " .
     "ORDER BY code " .
-    " LIMIT " . escape_limit(($M + 1)) .
+    " LIMIT ?" .
     "";
 
-    if ($res = sqlStatement($sql, [$pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id']])) {
+    if ($res = sqlStatement($sql, [$pid, "%" . $_POST["text"] . "%", "%" . $_POST["text"] . "%", $code_types[$code_type]['id'], $M + 1])) {
         $result = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;

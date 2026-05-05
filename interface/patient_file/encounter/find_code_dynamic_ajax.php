@@ -38,25 +38,36 @@ $fe_array = [];
 
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] : -1;
-$iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
-$limit = '';
-if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+$iDisplayStart  = filter_input(INPUT_GET, 'iDisplayStart', FILTER_VALIDATE_INT);
+$iDisplayLength = filter_input(INPUT_GET, 'iDisplayLength', FILTER_VALIDATE_INT);
+if (!is_int($iDisplayStart)) {
+    $iDisplayStart = -1;
 }
-$searchTerm = $_GET['sSearch'] ?? '';
+if (!is_int($iDisplayLength)) {
+    $iDisplayLength = -1;
+}
+$limit = '';
+$limitBinds = [];
+if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
+    $limit = "LIMIT ? OFFSET ?";
+    $limitBinds = [$iDisplayLength, $iDisplayStart];
+}
+$searchTerm = (string) (filter_input(INPUT_GET, 'sSearch') ?? '');
 
 // What we are picking from: codes, fields, lists or groups
-$what = $_GET['what'];
+$what = (string) (filter_input(INPUT_GET, 'what') ?? '');
+$codetype = (string) (filter_input(INPUT_GET, 'codetype') ?? '');
+$inactive = (string) (filter_input(INPUT_GET, 'inactive') ?? '');
+$source = (string) (filter_input(INPUT_GET, 'source') ?? '');
+$layoutIdIn = (string) (filter_input(INPUT_GET, 'layout_id') ?? '');
 $layout_id = '';
 
 if ($what == 'codes') {
-    $codetype = $_GET['codetype'];
     $prod = $codetype == 'PROD';
     $ncodetype = $code_types[$codetype]['id'];
-    $include_inactive = !empty($_GET['inactive']);
+    $include_inactive = $inactive !== '';
 } elseif ($what == 'fields') {
-    $source = empty($_GET['source']) ? 'D' : $_GET['source'];
+    $source = $source !== '' ? $source : 'D';
     if ($source == 'D') {
         $layout_id = 'DEM';
     } elseif ($source == 'H') {
@@ -65,8 +76,8 @@ if ($what == 'codes') {
         $layout_id = 'LBF%';
     }
 } elseif ($what == 'groups') {
-    if (!empty($_GET['layout_id'])) {
-        $layout_id = $_GET['layout_id'];
+    if ($layoutIdIn !== '') {
+        $layout_id = $layoutIdIn;
     }
 }
 
@@ -324,7 +335,7 @@ if ($what == 'fields' && $source == 'V') {
      * @global $code_external_tables
      */
     $stopEmptySearch = $externalTableId && $code_external_tables[$externalTableId][SKIP_TOTAL_TABLE_COUNT] ?? false;
-    if (empty(trim((string) $searchTerm)) && $stopEmptySearch) {
+    if (empty(trim($searchTerm)) && $stopEmptySearch) {
         $out['iSearchEmptyError'] = xl('Search term is required for this code type.');
         echo json_encode($out);
         exit;
@@ -334,8 +345,8 @@ if ($what == 'fields' && $source == 'V') {
     // only go out to 500 records for performance reasons, we'll display a message if there are more
     $maxCount = 500;
     if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-        $start  = (int) $iDisplayStart;
-        $number = (int) $iDisplayLength;
+        $start  = $iDisplayStart;
+        $number = $iDisplayLength;
     }
     $res = main_code_set_search(
         $codetype,
@@ -355,7 +366,7 @@ if ($what == 'fields' && $source == 'V') {
     if (!empty($res)) {
         while ($count < $number && $row = sqlFetchArray($res)) {// && $iFilteredTotal < $maxCount) {
             $dynCodeType = $codetype;
-            if (stripos((string) $codetype, 'VALUESET') !== false) {
+            if (stripos($codetype, 'VALUESET') !== false) {
                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
             }
             $arow = ['DT_RowId' => genFieldIdString([
@@ -380,7 +391,7 @@ if ($what == 'fields' && $source == 'V') {
     $out['iTotalRecords'] = min($maxCount, $start + $count);
 } else {
     $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $limitBinds);
     while ($row = sqlFetchArray($res)) {
         $arow = ['DT_RowId' => genFieldIdString($row)];
         if ($what == 'fields') {

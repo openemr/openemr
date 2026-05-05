@@ -7,6 +7,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_numeric\\(\\) with int will always evaluate to true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_object\\(\\) with ADORecordSet will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
@@ -195,6 +200,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with array\\<int\\<0, max\\>, non\\-empty\\-array\\> will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_numeric\\(\\) with int will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#',

@@ -198,11 +198,4 @@ trait DatabaseQueryTrait
         return QueryUtils::querySingleRow($sql, $params, $log);
     }
 
-    /**
-     * @return int
-     */
-    protected function escapeLimit(string|int $limit)
-    {
-        return QueryUtils::escapeLimit($limit);
-    }
 }

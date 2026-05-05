@@ -456,7 +456,9 @@ window.onload = function() {
 
 
             if ($pagesize > 0) {
-                $query .= " LIMIT " . escape_limit($pagestart) . "," . escape_limit($pagesize);
+                $query .= " LIMIT ? OFFSET ?";
+                $sqlBindArray[] = (is_numeric($pagesize) ? (int) $pagesize : 0);
+                $sqlBindArray[] = (is_numeric($pagestart) ? (int) $pagestart : 0);
             }
             $upper  = $pagestart + $pagesize;
             if (($upper > $numRes) || ($pagesize == 0)) {

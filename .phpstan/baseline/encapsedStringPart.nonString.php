@@ -1372,16 +1372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/WenoValidate.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$limitEnd \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$limitStart \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$code_text \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -1390,11 +1380,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$date \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$limit \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$baseModuleDir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -2869,11 +2854,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$limit \\(0\\|0\\.0\\|array\\{\\}\\|string\\|false\\|null\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../portal/lib/portal_mail.inc.php',
 ];
 $ignoreErrors[] = [
