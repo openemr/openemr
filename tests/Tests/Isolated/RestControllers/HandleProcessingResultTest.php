@@ -1,6 +1,6 @@
 <?php
 
-namespace OpenEMR\Tests\RestControllers;
+namespace OpenEMR\Tests\Isolated\RestControllers;
 
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Validators\ProcessingResult;

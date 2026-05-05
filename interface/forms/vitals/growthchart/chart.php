@@ -65,6 +65,7 @@ $isMetric = (((OEGlobalsBag::getInstance()->get('units_of_measurement') == 2) ||
 
 $patient_data = "";
 $sex = '';
+$dob = '';
 if (isset($pid) && is_numeric($pid)) {
     $patient_data = getPatientData($pid, "fname, lname, sex, DATE_FORMAT(DOB,'%Y%m%d') as DOB");
     $nowAge = getPatientAge($patient_data['DOB']);
@@ -145,6 +146,46 @@ $name_y1 = 60;
 $ageOffset = 0;
 $heightOffset = 0;
 $weightOffset = 0;
+
+// CDC chart plot offsets (set per chart type below; PHPStan cannot prove
+// the chart-type branch matches between setup and the foreach plotters).
+$HToffset = 0;
+$WToffset = 0;
+$datatable_hc_offset = 0;
+$datatable_bmi_offset = 0;
+$datatable2_hc_offset = 0;
+$datatable2_bmi_offset = 0;
+
+// CDC chart plot origins and per-unit scales (birth-to-24mo branch only).
+$HC_dot_x = 0;
+$HC_dot_y = 0;
+$HC_delta_x = 0.0;
+$HC_delta_y = 0.0;
+$HT_x = 0;
+$HT_delta_x = 0.0;
+$WT_y = 0;
+$WT_delta_y = 0.0;
+
+// CDC chart plot origins and per-unit scales (2-to-20yr branch only).
+$bmi_dot_x = 0;
+$bmi_dot_y = 0;
+$bmi_delta_x = 0.0;
+$bmi_delta_y = 0.0;
+
+// Per-data-point measurement intermediates (assigned via extract() inside
+// the foreach plot loops from getPatientAgeYMD()).
+$age = 0;
+$age_in_months = 0;
+$ageinYMD = '';
+$bmi = 0.0;
+
+// Background image filenames (set per sex inside each chart-type branch).
+// If $sex is neither male nor female these stay empty and the explicit
+// guard below the chart-type branch exits cleanly instead of fatalling at
+// imagecreatefrompng().
+$chart = '';
+$chartCss1 = '';
+$chartCss2 = '';
 
 if ($charttype == 'birth') {
     // Use birth to 24 months chart
@@ -256,6 +297,13 @@ if ($charttype == 'birth') {
 } else {
     // bad age data? no graph for you.
     echo "<p>" . xlt('Age data is out of range.') . "</p>";
+    exit;
+}
+
+if ($chart === '') {
+    // Sex was missing or not male/female; bail with a readable message
+    // instead of fatalling at imagecreatefrompng() below.
+    echo "<p>" . xlt('Patient sex must be set to male or female to render a growth chart.') . "</p>";
     exit;
 }
 
@@ -667,7 +715,7 @@ foreach ($datapoints as $data) {
         //birth to 24 mos chart has 8 rows to fill.
         if ($count < 8 && $charttype == "birth") {
             imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
-            imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, (string) $ageinYMD, $color);
+            imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, $ageinYMD, $color);
             imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, (string) unitsWt($weight), $color);
             imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, (string) unitsDist($height), $color);
             imagestring($im, 2, ($datatable_x + $datatable_hc_offset), $datatable_y, (string) unitsDist($head_circ), $color);
@@ -677,7 +725,7 @@ foreach ($datapoints as $data) {
         // 2 to 20 year-old chart has 7 rows to fill.
         if ($count < 7  && $charttype == "2-20") {
             imagestring($im, 2, $datatable_x, $datatable_y, $datestr, $color);
-            imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, (string) $ageinYMD, $color);
+            imagestring($im, 2, ($datatable_x + $datatable_age_offset), $datatable_y, $ageinYMD, $color);
             imagestring($im, 2, ($datatable_x + $datatable_weight_offset), $datatable_y, (string) unitsWt($weight), $color);
             imagestring($im, 2, ($datatable_x + $datatable_height_offset), $datatable_y, (string) unitsDist($height), $color);
             imagestring($im, 2, ($datatable_x + $datatable_bmi_offset), $datatable_y, substr((string) $bmi, 0, 5), $color);
@@ -687,7 +735,7 @@ foreach ($datapoints as $data) {
         // Head Circumference chart has 5 rows to fill in
         if ($count < 5 && $charttype == "birth") {
             imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, (string) $ageinYMD, $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, (string) unitsWt($weight), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, (string) unitsDist($height), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_hc_offset), $datatable2_y, (string) unitsDist($head_circ), $color);
@@ -697,7 +745,7 @@ foreach ($datapoints as $data) {
         // BMI chart has 14 rows to fill in.
         if ($count < 14 && $charttype == "2-20") {
             imagestring($im, 2, $datatable2_x, $datatable2_y, $datestr, $color);
-            imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, (string) $ageinYMD, $color);
+            imagestring($im, 2, ($datatable2_x + $datatable2_age_offset), $datatable2_y, $ageinYMD, $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_weight_offset), $datatable2_y, (string) unitsWt($weight), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_height_offset), $datatable2_y, (string) unitsDist($height), $color);
             imagestring($im, 2, ($datatable2_x + $datatable2_bmi_offset), $datatable2_y, substr((string) $bmi, 0, 5), $color);
