@@ -268,12 +268,19 @@ class JWTClientAuthenticationService
                 urlValidator: $this->urlValidator,
             );
 
+            // Single SystemClock shared by both LooseValidAt (for the iat/nbf/exp
+            // window) and UniqueID (for the replay-history "still within validity"
+            // lookup). UniqueID needs the clock to compare against current time —
+            // not the token's own exp — so a replay of the same token doesn't slip
+            // past the strict `jti_exp > ?` filter on the stored row.
+            $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
+
             // Configure JWT validation per RFC 7523 Section 3
             /** @var list<Constraint> $constraints */
             $constraints = [
                 // 1. Clock validation with 1 minute drift tolerance
                 new LooseValidAt(
-                    new SystemClock(new \DateTimeZone(\date_default_timezone_get())),
+                    $clock,
                     new DateInterval('PT' . self::MAX_CLOCK_DRIFT_MINUTES . 'M')
                 ),
                 // 2. Signature validation using RS384
@@ -283,7 +290,7 @@ class JWTClientAuthenticationService
                 // 4. Audience must be the token endpoint
                 new PermittedFor($this->authTokenUrl),
                 // 5. JTI uniqueness check for replay prevention
-                new UniqueID($this->jwtRepository),
+                new UniqueID($this->jwtRepository, $clock),
             ];
 
             // Parse the JWT

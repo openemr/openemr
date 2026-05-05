@@ -75,6 +75,40 @@ final class JWTRepositoryTest extends TestCase
         self::assertSame([], $filtered, 'Past-exp row must NOT match jti_exp > FROM_UNIXTIME(now)');
     }
 
+    /**
+     * SSRF/replay regression for Aisle round-2 #2 (CWE-287). Pins the SQL
+     * boundary of `jti_exp > FROM_UNIXTIME(?)`: when the lookup threshold
+     * equals the stored value (which is what happens if a caller passes the
+     * token's *own* exp instead of the current clock), the strict `>`
+     * comparison is false and the row is missed — the exact bug
+     * UniqueID::assert() used to reproduce. Documenting the boundary here
+     * keeps the SQL operator's semantics observable, so a future flip to
+     * `>=` is a deliberate, tested decision rather than a silent change.
+     */
+    public function testStrictFilterMissesRowWhenThresholdEqualsStoredExpiry(): void
+    {
+        $jti = 'jwt-repo-test-boundary-' . bin2hex(random_bytes(4));
+        $exp = time() + 3600;
+        $this->repository->saveJwtHistory($jti, 'jwt-repo-test-boundary', $exp);
+
+        // Querying with $exp as the threshold reproduces the bug: stored
+        // jti_exp == $exp, strict `>` is false, row is missed.
+        self::assertSame(
+            [],
+            $this->repository->getJwtGrantHistoryForJTI($jti, $exp),
+            'Strict `>` must miss the row when the threshold equals the stored exp '
+            . '— this is exactly why UniqueID must pass current clock time, not the token exp.',
+        );
+
+        // Querying with current time (which is < $exp) finds the row — the
+        // shape UniqueID now uses.
+        self::assertCount(
+            1,
+            $this->repository->getJwtGrantHistoryForJTI($jti, time()),
+            'Lookup with current time must find the still-valid row',
+        );
+    }
+
     public function testPurgeExpiredDropsPastRowsAndKeepsFutureRows(): void
     {
         $futureJti = 'jwt-repo-test-purge-keep-' . bin2hex(random_bytes(4));
