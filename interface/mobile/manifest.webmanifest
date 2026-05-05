@@ -1,0 +1,10 @@
+{
+  "name": "OpenEMR Mobile",
+  "short_name": "OpenEMR",
+  "start_url": "./index.php",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0b57d0",
+  "description": "Mobile-first OpenEMR wrapper optimized for touch workflows.",
+  "icons": []
+}
