@@ -1,0 +1,15 @@
+{
+  "event": "openemr-docs-binaries",
+  "repo": "openemr/website-openemr",
+  "sha": "deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
+  "actor": "openemr-release-bot",
+  "dispatched_at": "2026-04-29T13:00:00Z",
+  "data": {
+    "version": "8.1.0",
+    "branch": "rel-810",
+    "files": [
+      "openemr-8.1.0-ehi.tar.gz",
+      "openemr-8.1.0-b10.tar.gz"
+    ]
+  }
+}
