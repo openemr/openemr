@@ -82,7 +82,24 @@ class CalendarService
     {
         // Combine date and time for ISO format
         $start = $row['date'] . 'T' . $row['start_time'];
-        $end = $row['date'] . 'T' . $row['end_time'];
+
+        // Calculate end time - use pc_endTime if valid, otherwise calculate from duration
+        $endTime = $row['end_time'];
+        $duration = (int)($row['pc_duration'] ?? 0);
+
+        // If end_time is missing, same as start, or invalid, calculate from duration
+        if (empty($endTime) || $endTime === '00:00:00' || $endTime === $row['start_time']) {
+            if ($duration > 0) {
+                $startTimestamp = strtotime($row['date'] . ' ' . $row['start_time']);
+                $endTimestamp = $startTimestamp + $duration;
+                $endTime = date('H:i:s', $endTimestamp);
+            } else {
+                // Default to 15 minutes if no duration
+                $endTime = date('H:i:s', strtotime($row['start_time'] . ' +15 minutes'));
+            }
+        }
+
+        $end = $row['date'] . 'T' . $endTime;
 
         // Build event object
         $event = [

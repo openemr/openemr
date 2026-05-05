@@ -72,6 +72,12 @@ if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && !empt
 
         $slotConsumed = true;
 
+        // Calculate slot duration from pc_duration (in seconds) to minutes
+        $slotDurationMinutes = null;
+        if (!empty($slot_row['pc_duration']) && (int)$slot_row['pc_duration'] > 0) {
+            $slotDurationMinutes = (int)round((int)$slot_row['pc_duration'] / 60);
+        }
+
         // Store in session for linking after appointment is saved
         $_SESSION['medex_pending_slot_consumption'] = [
             'open_slot_eid' => $consumedSlotEid,
@@ -79,13 +85,21 @@ if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && !empt
             'event_date' => $event_date,
             'start_time' => $start_time,
             'category_id' => (int)$slot_row['pc_catid'],
+            'slot_duration' => $slotDurationMinutes, // Store for use when setting duration
             'timestamp' => time()
         ];
     }
 }
 
 $resolvedDuration = null;
-if ($catid > 0) {
+
+// If we consumed a slot, use its duration first
+if ($slotConsumed && !empty($_SESSION['medex_pending_slot_consumption']['slot_duration'])) {
+    $resolvedDuration = $_SESSION['medex_pending_slot_consumption']['slot_duration'];
+}
+
+// Fall back to category duration
+if ($resolvedDuration === null && $catid > 0) {
     $crow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1", [$catid]);
     $catSeconds = (int)($crow['pc_duration'] ?? 0);
     if ($catSeconds > 0) {
