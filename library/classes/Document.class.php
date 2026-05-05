@@ -1134,13 +1134,12 @@ class Document extends ORDataObject
     /**
      * Retrieves the document data that has been saved to the filesystem or couch db.  If the $force_no_decrypt flag is
      * set to true, it will return the encrypted version of the data for the document.
-     * @param bool $force_no_decrypt True if the document should have its data returned encrypted, false otherwise
      * @throws BadMethodCallException Thrown if the method is called when the document has been marked as deleted
      *                                or expired
      * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts
      *                      or is unencrypted.
      */
-    function get_data($force_no_decrypt = false)
+    function get_data()
     {
         $storagemethod = $this->get_storagemethod();
 
@@ -1169,7 +1168,7 @@ class Document extends ORDataObject
         }
 
         if (!empty($data)) {
-            if ($this->is_encrypted() && !$force_no_decrypt) {
+            if ($this->is_encrypted()) {
                 $data = $this->decrypt_content($data);
             }
             if ($base64Decode) {
