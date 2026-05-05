@@ -100,6 +100,12 @@ class Settings(BaseSettings):
     # ARCHITECTURE.md §9.4 (multi-turn cap).
     resume_replay_max_turns: int = 10
 
+    # --- Document ingestion (Week 2) ---
+    # SQLite file path for the processed-document dedup store.
+    copilot_docs_db_path: str = "./copilot_docs.db"
+    # Claude vision model used by VlmExtractor.
+    vlm_model_id: str = "claude-opus-4-5"
+
 
 @lru_cache
 def get_settings() -> Settings:

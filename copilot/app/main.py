@@ -12,13 +12,18 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel, Field
 
+from anthropic import AsyncAnthropic
+
 from app.agent.loop import run_turn
 from app.agent.prewarm import prewarm
 from app.agent.schemas import PriorTurn
 from app.config import Settings, get_settings
 from app.fhir.client import FhirClient, FhirError
+from app.ingestion.service import IngestionService
+from app.ingestion.vlm import VlmExtractor
 from app.observability.trace import get_tracer
 from app.persistence.conversations import ConversationStore
+from app.persistence.processed_documents import ProcessedDocumentStore
 from app.phi.log_filter import install as install_phi_log_filter
 from app.phi.session import sessions
 
@@ -29,12 +34,24 @@ logger = logging.getLogger("copilot.main")
 async def lifespan(app: FastAPI):
     settings = get_settings()
     install_phi_log_filter(logging.getLogger(), sessions)
-    app.state.fhir = FhirClient(settings)
+    fhir = FhirClient(settings)
+    app.state.fhir = fhir
+    app.state.fhir_client = fhir
     app.state.tracer = get_tracer(settings)
     app.state.conv_store = ConversationStore(settings.conversation_db_path)
     await app.state.conv_store.init()
+
+    # Week 2: document ingestion singletons
+    docs_store = ProcessedDocumentStore(settings.copilot_docs_db_path)
+    await docs_store.init()
+    anthropic_client = AsyncAnthropic(api_key=settings.anthropic_api_key)
+    vlm = VlmExtractor(client=anthropic_client, model_id=settings.vlm_model_id)
+    ingestion = IngestionService(fhir=fhir, vlm=vlm, store=docs_store)
+    app.state.processed_documents = docs_store
+    app.state.ingestion_service = ingestion
+
     yield
-    await app.state.fhir.aclose()
+    await fhir.aclose()
 
 
 app = FastAPI(
