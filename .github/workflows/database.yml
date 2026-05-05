@@ -10,6 +10,9 @@ on:
       - master
       - rel-*
 
+env:
+  ENVIRONMENT: ci
+
 jobs:
   mysql:
     name: Doctrine Migrations MySQL
@@ -54,6 +57,141 @@ jobs:
         run: ./cli migrations:status
         env:
           ENVIRONMENT: test
+
+  schema-comparison:
+    name: Schema Parity - ${{ matrix.db.name }}
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        db:
+          # - name: "MySQL 5.7"
+          #   image: "mysql:5.7"
+          # # - name: "MySQL 8.0"
+          # #   image: "mysql:8.0"
+          # - name: "MySQL 8.4"
+          #   image: "mysql:8.4"
+          - name: "MySQL 9"
+            image: "mysql:9"
+            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+          # # - name: "MariaDB 10.6"
+          # #   image: "mariadb:10.6"
+          # - name: "MariaDB 10.11"
+          #   image: "mariadb:10.11"
+          # # - name: "MariaDB 11.4"
+          # #   image: "mariadb:11.4"
+          # - name: "MariaDB 11.8"
+          #   image: "mariadb:11.8"
+          - name: "MariaDB 12.2"
+            image: "mariadb:12.2"
+            health-cmd: "healthcheck.sh --connect --innodb_initialized"
+    services:
+      mysql:
+        image: ${{ matrix.db.image }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="${{ matrix.db.health-cmd }}"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-php-composer
+        with:
+          php-version: '8.5'
+
+      - name: Create databases
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "
+            SET GLOBAL sql_mode = '';
+            CREATE DATABASE openemr_baseline CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+            CREATE DATABASE openemr_doctrine CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+          "
+
+      - name: Configure baseline database
+        run: |
+          cat > sites/default/sqlconf.php << 'EOF'
+          <?php
+          $sqlconf = [
+              'host' => '127.0.0.1',
+              'port' => 3306,
+              'login' => 'root',
+              'pass' => 'root',
+              'dbase' => 'openemr_baseline',
+          ];
+          EOF
+
+      - name: Run CLI installer
+        run: ./cli install
+            --db-host=127.0.0.1
+            --db-port=3306
+            --db-root-user=root
+            --db-root-password=root
+            --db-user=root
+            --db-password=root
+            --db-name=openemr_baseline
+            --oe-admin-username=admin
+            --oe-admin-password=pass
+            --no-interaction
+            -vvv
+
+      - name: Configure doctrine database
+        run: |
+          cat > sites/default/sqlconf.php << 'EOF'
+          <?php
+          $sqlconf = [
+              'host' => '127.0.0.1',
+              'port' => 3306,
+              'login' => 'root',
+              'pass' => 'root',
+              'dbase' => 'openemr_doctrine',
+          ];
+          EOF
+
+      - name: Run Doctrine migrations
+        run: ./cli migrations:migrate --no-interaction
+
+      - name: Dump schemas
+        run: |
+          mysqldump -h 127.0.0.1 -u root -proot \
+            --column-statistics=0 \
+            --no-data --skip-comments --skip-add-drop-table \
+            openemr_baseline | sed 's/ AUTO_INCREMENT=[0-9]*//' > /tmp/baseline.sql
+
+          mysqldump -h 127.0.0.1 -u root -proot \
+            --column-statistics=0 \
+            --no-data --skip-comments --skip-add-drop-table \
+            openemr_doctrine | sed 's/ AUTO_INCREMENT=[0-9]*//' > /tmp/doctrine.sql
+
+      - name: Compare schemas
+        run: |
+          echo "=== Schema Comparison ==="
+          echo "Baseline tables: $(grep -c 'CREATE TABLE' /tmp/baseline.sql)"
+          echo "Doctrine tables: $(grep -c 'CREATE TABLE' /tmp/doctrine.sql)"
+
+          if diff /tmp/baseline.sql /tmp/doctrine.sql > /tmp/schema_diff.txt; then
+            echo "Schemas match!"
+          else
+            echo "Diff lines: $(wc -l < /tmp/schema_diff.txt)"
+            echo ""
+            echo "=== Schema Diff ==="
+            cat /tmp/schema_diff.txt
+            exit 1
+          fi
+
+      - name: Upload schema dumps
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-dumps-${{ matrix.db.name }}
+          path: |
+            /tmp/baseline.sql
+            /tmp/doctrine.sql
+            /tmp/schema_diff.txt
 
   # # Placeholder jobs for future database support
   # sqlite:
