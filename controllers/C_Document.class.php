@@ -177,15 +177,6 @@ class C_Document extends Controller
             $non_HTTP_owner = $this->manual_set_owner;
         }
 
-        $couchDB = false;
-        $harddisk = false;
-        if (OEGlobalsBag::getInstance()->get('document_storage_method') == 0) {
-            $harddisk = true;
-        }
-        if (OEGlobalsBag::getInstance()->get('document_storage_method') == 1) {
-            $couchDB = true;
-        }
-
         if ($_POST['process'] != "true") {
             return;
         }
@@ -203,9 +194,7 @@ class C_Document extends Controller
         $category_id = is_numeric($_POST['category_id']) ? $_POST['category_id'] : 1;
 
         $patient_id = 0;
-        if (isset($_GET['patient_id']) && !$couchDB) {
-            $patient_id = $_GET['patient_id'];
-        } elseif (is_numeric($_POST['patient_id'])) {
+        if (is_numeric($_POST['patient_id'])) {
             $patient_id = $_POST['patient_id'];
         }
 
@@ -708,7 +697,7 @@ class C_Document extends Controller
                 $this->document_upload_download_log($d->get_foreign_id(), $log_content);
                 die(xlt("File retrieval from CouchDB failed"));
             }
-            if ($d->get_encrypted() == 1) {
+            if ($d->is_encrypted()) {
                 $filetext = $this->cryptoGen->decryptFromFilesystem($content);
             } else {
                 $filetext = base64_decode((string) $content);
@@ -747,7 +736,7 @@ class C_Document extends Controller
                 //create the converted jpg
                 $couchM = new CouchDB();
                 $respM = $couchM->retrieve_doc($couch_docid);
-                if ($d->get_encrypted() == 1) {
+                if ($d->is_encrypted()) {
                     $contentM = $this->cryptoGen->decryptFromFilesystem($respM->data);
                 } else {
                     $contentM = base64_decode((string) $respM->data);
@@ -775,7 +764,7 @@ class C_Document extends Controller
                 // save the to-file if a to-file was created in above convert call
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
-                    if ($d->get_encrypted() == 1) {
+                    if ($d->is_encrypted()) {
                         $document = $this->cryptoGen->encryptForFilesystem(file_get_contents($to_file_tmp_name));
                     } else {
                         $document = base64_encode(file_get_contents($to_file_tmp_name));
@@ -790,14 +779,14 @@ class C_Document extends Controller
                 // now collect the newly created converted jpg
                 $couchF = new CouchDB();
                 $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
-                if ($d->get_encrypted() == 1) {
+                if ($d->is_encrypted()) {
                     $content = $this->cryptoGen->decryptFromFilesystem($respF->data);
                 } else {
                     $content = base64_decode((string) $respF->data);
                 }
             } else {
                 // decrypt/decode when converted jpg already exists
-                if ($d->get_encrypted() == 1) {
+                if ($d->is_encrypted()) {
                     $content = $this->cryptoGen->decryptFromFilesystem($resp->data);
                 } else {
                     $content = base64_decode((string) $resp->data);
@@ -880,7 +869,7 @@ class C_Document extends Controller
         }
         if ($original_file) {
             //normal case when serving the file referenced in database
-            if ($d->get_encrypted() == 1) {
+            if ($d->is_encrypted()) {
                 $filetext = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
             } else {
                 if (!is_dir($url)) {
@@ -920,7 +909,7 @@ class C_Document extends Controller
             }
             $url = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $convertedFile;
             if (!is_file($url)) {
-                if ($d->get_encrypted() == 1) {
+                if ($d->is_encrypted()) {
                     // decrypt the from-file into a temporary file
                     $from_file_unencrypted = $this->cryptoGen->decryptFromFilesystem(file_get_contents($originalUrl));
                     $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
@@ -946,7 +935,7 @@ class C_Document extends Controller
                 }
             }
             if (is_file($url)) {
-                if ($d->get_encrypted() == 1) {
+                if ($d->is_encrypted()) {
                     $filetext = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
                 } else {
                     $filetext = file_get_contents($url);
@@ -1021,7 +1010,7 @@ class C_Document extends Controller
             $url = $file_path . $d->get_url();
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($d->couch_docid);
-            if ($d->get_encrypted() == 1) {
+            if ($d->is_encrypted()) {
                 $content = $this->cryptoGen->decryptFromFilesystem($resp->data);
             } else {
                 $content = base64_decode((string) $resp->data);
@@ -1059,7 +1048,7 @@ class C_Document extends Controller
                 return;
             }
 
-            if ($d->get_encrypted() == 1) {
+            if ($d->is_encrypted()) {
                 $content = $this->cryptoGen->decryptFromFilesystem(file_get_contents($url));
             } else {
                 $content = file_get_contents($url);
