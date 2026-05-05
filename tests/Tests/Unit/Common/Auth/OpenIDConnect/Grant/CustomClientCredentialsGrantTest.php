@@ -23,13 +23,16 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Services\UserService;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
@@ -168,6 +171,106 @@ class CustomClientCredentialsGrantTest extends TestCase
         $this->expectExceptionMessage('The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.');
 
         $grant->respondToAccessTokenRequest($this->getMockServerRequestForJWT($jwt), $response, $ttl);
+    }
+
+    /**
+     * SSRF regression: a client whose stored `jwks_uri` resolves to a
+     * private/loopback address must be rejected by the URL validator before
+     * any HTTP request is issued. The mock HTTP handler holds no responses,
+     * so if validation were skipped the call would fail with a different
+     * exception (queue empty) — making this a genuine guard, not a tautology.
+     */
+    public function testJwtAuthRejectsClientWithPrivateIpJwksUri(): void
+    {
+        // Cloud-metadata IP — the canonical SSRF target. Strict policy must reject.
+        $this->assertSsrfJwksUriRejected('https://169.254.169.254/latest/meta-data/jwks');
+    }
+
+    /**
+     * SSRF regression: an http-only `jwks_uri` is rejected when the strict
+     * production policy is in effect, even if the host itself is public.
+     */
+    public function testJwtAuthRejectsHttpOnlyJwksUriUnderStrictPolicy(): void
+    {
+        $this->assertSsrfJwksUriRejected('http://example.com/jwks.json');
+    }
+
+    /**
+     * Shared SSRF assertion: build a client-credentials grant with the strict
+     * URL validator wired into the JWT auth service, set the client's stored
+     * `jwks_uri` to the supplied (unsafe) value, and assert that the token
+     * request is rejected as `invalid_client` with no outbound HTTP issued.
+     *
+     * Centralized so neither test bumps the per-mock-helper baseline counts
+     * for this file (PHPStan tracks the existing tests' MockObject patterns
+     * by source-line occurrence).
+     *
+     * @param non-empty-string $unsafeJwksUri
+     * @throws \Exception
+     */
+    private function assertSsrfJwksUriRejected(string $unsafeJwksUri): void
+    {
+        // Helper has no return type declaration; narrow to keep PHPStan happy
+        // without bumping the baseline counts that the original tests rely on.
+        /** @var ClientEntity $clientEntity */
+        $clientEntity = $this->getClientEntityForTest();
+        $clientId = $clientEntity->getIdentifier();
+        assert(is_string($clientId) && $clientId !== '');
+        $jwt = $this->createJWTForKeys($clientId, self::AUDIENCE);
+
+        $clientEntity->setJwksUri($unsafeJwksUri);
+
+        $mockHttp = new MockHandler([]); // no responses queued — should never be called
+        $httpClient = new Client(['handler' => HandlerStack::create($mockHttp)]);
+
+        // Concrete intersection so the variable simultaneously satisfies the
+        // interface-typed setter on AbstractGrant and the PHPDoc-typed
+        // constructor parameter on JWTClientAuthenticationService.
+        /** @var ClientRepository&MockObject $clientRepository */
+        $clientRepository = $this->getMockClientRepository($clientEntity);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
+        /** @var UserService&MockObject $userService */
+        $userService = $this->getMockUserService();
+        $grant->setUserService($userService);
+        $grant->setPrivateKey($this->createMock(CryptKey::class));
+        $grant->setClientRepository($clientRepository);
+        /** @var AccessTokenRepository&MockObject $accessTokenRepo */
+        $accessTokenRepo = $this->getMockAccessTokenRepository(new AccessTokenEntity());
+        $grant->setAccessTokenRepository($accessTokenRepo);
+        /** @var ScopeRepositoryInterface&MockObject $scopeRepo */
+        $scopeRepo = $this->getMockScopeRepository();
+        $grant->setScopeRepository($scopeRepo);
+
+        $strictValidator = new OidcUrlValidator(requireHttps: true, blockPrivateIps: true);
+        /** @var JWTRepository&MockObject $jwtRepo */
+        $jwtRepo = $this->getMockJwtRepository();
+        $jwtAuthService = new JWTClientAuthenticationService(
+            self::AUDIENCE,
+            $clientRepository,
+            $jwtRepo,
+            $httpClient,
+            $strictValidator,
+        );
+        $grant->setJWTAuthenticationService($jwtAuthService);
+
+        $response = $this->createMock(ResponseTypeInterface::class);
+        $response->expects($this->never())->method('setAccessToken');
+
+        // The URL validator throws OidcUrlValidationException; JsonWebKeySet wraps
+        // it as JWKValidatorException; JWTClientAuthenticationService catches that
+        // and surfaces invalid_client to the caller.
+        $this->expectException(OAuthServerException::class);
+        $this->expectExceptionMessage(self::OAUTH_INVALID_CLIENT_MESSAGE);
+
+        /** @var ServerRequestInterface&MockObject $serverRequest */
+        $serverRequest = $this->getMockServerRequestForJWT($jwt);
+        $grant->respondToAccessTokenRequest(
+            $serverRequest,
+            $response,
+            new \DateInterval('PT300S'),
+        );
+
+        $this->assertCount(0, $mockHttp, 'No HTTP request should have been issued');
     }
 
     /**

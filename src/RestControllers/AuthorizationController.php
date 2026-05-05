@@ -33,6 +33,8 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidationException;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\ClaimExtractor;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
@@ -79,6 +81,7 @@ use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
@@ -231,7 +234,7 @@ class AuthorizationController
             $this->oaEncryptionKey = $oauth2KeyConfig->getEncryptionKey();
             $this->passphrase = $oauth2KeyConfig->getPassPhrase();
         } catch (OAuth2KeyException $exception) {
-            $this->getSystemLogger()->error("OpenEMR error - " . $exception->getMessage() . ", so forced exit");
+            $this->getLogger()->error("OpenEMR error - " . $exception->getMessage() . ", so forced exit");
             $serverException = OAuthServerException::serverError(
                 "Security error - problem with authorization server keys.",
                 $exception
@@ -251,7 +254,7 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $headers = [];
         try {
-            $this->getSystemLogger()->debug("AuthorizationController::clientRegistration start");
+            $this->getLogger()->debug("AuthorizationController::clientRegistration start");
             $request_headers = $request->getHeaders();
             foreach ($request_headers as $header => $value) {
                 $headers[strtolower((string) $header)] = $value[0];
@@ -263,7 +266,7 @@ class AuthorizationController
             if (!$data) {
                 throw new OAuthServerException('Invalid JSON', 0, 'invalid_client_metadata');
             }
-            $this->getSystemLogger()->debug("AuthorizationController::clientRegistration passed client_metadata checks");
+            $this->getLogger()->debug("AuthorizationController::clientRegistration passed client_metadata checks");
             // many of these are optional and are here if we want to implement
             $keys = ['contacts' => null,
                 'application_type' => null,
@@ -293,7 +296,7 @@ class AuthorizationController
                 'dsi_type' => array_values(DecisionSupportInterventionService::DSI_TYPES),
                 'dsi_source_attributes' => [] // do we care to report errors on source attributes for the values we support? they won't save if we don't have it in the system
             ];
-            $this->getSystemLogger()->debug("Initial validation passed");
+            $this->getLogger()->debug("Initial validation passed");
             $clientRepository = $this->getClientRepository();
             $client_id = $clientRepository->generateClientId();
             $reg_token = $clientRepository->generateRegistrationAccessToken();
@@ -352,6 +355,21 @@ class AuthorizationController
                     }
                 }
             }
+            // Reject unsafe jwks_uri values at the storage boundary so they never
+            // reach the token endpoint as an SSRF sink. The same gate is enforced
+            // again at fetch time in JsonWebKeySet, but stopping here keeps the
+            // attacker surface entirely off the persistence layer.
+            if (isset($params['jwks_uri']) && is_string($params['jwks_uri']) && $params['jwks_uri'] !== '') {
+                try {
+                    $this->buildJwksUrlValidator()->validateJwksUri($params['jwks_uri']);
+                } catch (OidcUrlValidationException $exception) {
+                    $this->getLogger()->warning(
+                        'AuthorizationController::clientRegistration rejected unsafe jwks_uri',
+                        ['exception' => $exception->getMessage()]
+                    );
+                    throw new OAuthServerException('jwks_uri is invalid', 0, 'invalid_client_metadata');
+                }
+            }
             if (!$data->has('redirect_uris')) {
                 throw new OAuthServerException('redirect_uris is invalid', 0, 'invalid_redirect_uri');
             }
@@ -376,7 +394,7 @@ class AuthorizationController
 
                 $clientSaved = true;
             } catch (\Throwable $exception) {
-                $this->getSystemLogger()->error("Failed to create account Exception: " . $exception->getMessage(), ['exception' => $exception]);
+                $this->getLogger()->error("Failed to create account Exception: " . $exception->getMessage(), ['exception' => $exception]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
                 if ($clientSaved) {
@@ -385,7 +403,7 @@ class AuthorizationController
                     try {
                         $this->rollbackTransaction();
                     } catch (\Throwable $exception) {
-                        $this->getSystemLogger()->error("Error rolling back transaction", ['exception' => $exception]);
+                        $this->getLogger()->error("Error rolling back transaction", ['exception' => $exception]);
                     }
                 }
             }
@@ -421,11 +439,11 @@ class AuthorizationController
             $this->session->invalidate();
             return $response;
         } catch (JsonException $exception) {
-            $this->getSystemLogger()->error("Exception occurred " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $this->getLogger()->error("Exception occurred " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $this->session->invalidate();
             return (new OAuthServerException('No JSON body', 0, 'invalid_client_metadata'))->generateHttpResponse($response);
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->error("Exception occurred " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            $this->getLogger()->error("Exception occurred " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         }
@@ -438,7 +456,7 @@ class AuthorizationController
      */
     private function validateScopesAgainstServerApprovedScopes(HttpRestRequest $request, string $scopeString): void
     {
-        $this->getSystemLogger()->debug(
+        $this->getLogger()->debug(
             "AuthorizationController->validateScopesAgainstServerApprovedScopes() - Validating scopes",
             ['scopeString' => $scopeString]
         );
@@ -451,6 +469,37 @@ class AuthorizationController
                 throw OAuthServerException::invalidScope($scope);
             }
         }
+    }
+
+    /**
+     * Non-deprecated accessor for the system logger. Mirrors the lazy-init
+     * semantics of the deprecated trait method `getSystemLogger()` but resolves
+     * the default logger through {@see ServiceContainer::getLogger()} (the
+     * project-blessed factory) instead of instantiating `SystemLogger`
+     * directly. Once the controller is migrated to constructor-injected DI,
+     * this helper becomes obsolete.
+     */
+    private function getLogger(): LoggerInterface
+    {
+        return $this->logger ??= ServiceContainer::getLogger();
+    }
+
+    /**
+     * Build the SSRF safety gate applied before any outbound JWKS fetch
+     * (`jwks_uri` from `oauth_clients`, the `jwks_uri` value submitted at
+     * Dynamic Client Registration). Strict in production: HTTPS required,
+     * private/loopback/link-local addresses rejected so an attacker who
+     * controls a stored `jwks_uri` cannot pivot the server into hitting
+     * cloud metadata or internal services. Relaxed in dev so the docker
+     * dev mock services keep working without TLS.
+     */
+    private function buildJwksUrlValidator(): OidcUrlValidator
+    {
+        $strictPolicy = !$this->globalsBag->getKernel()->isDev();
+        return new OidcUrlValidator(
+            requireHttps: $strictPolicy,
+            blockPrivateIps: $strictPolicy,
+        );
     }
 
     private function createServerResponse(): ResponseInterface
@@ -557,7 +606,7 @@ class AuthorizationController
         // in order to support our POST based auth requests we need to convert any POST params to GET so the rest of the code
         // flow will work properly
         $httpRequest = $this->convertPostParamsToGet($httpRequest);
-        $logger = $this->getSystemLogger();
+        $logger = $this->getLogger();
         $logger->debug("AuthorizationController->oauthAuthorizationFlow() starting authorization flow");
         $response = $this->createServerResponse();
         $request = $this->convertHttpRestRequestToServerRequest($httpRequest);
@@ -582,7 +631,7 @@ class AuthorizationController
             if ($authRequest->getClient() instanceof ClientEntity) {
                 $session->set('client_role', $authRequest->getClient()->getClientRole());
             } else {
-                $this->getSystemLogger()->error(
+                $this->getLogger()->error(
                     "AuthorizationController->oauthAuthorizationFlow() authRequest client is not a ClientEntity and could not set client role",
                     ['client' => $authRequest->getClient()->getIdentifier()]
                 );
@@ -656,7 +705,7 @@ class AuthorizationController
         }
 
         // OpenID Connect Response Type
-        $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() creating server");
+        $this->getLogger()->debug("AuthorizationController->getAuthorizationServer() creating server");
         $responseType = new OEIdTokenResponse(
             $this->globalsBag,
             $this->session,
@@ -664,7 +713,7 @@ class AuthorizationController
             new ClaimExtractor($customClaim),
             new SMARTSessionTokenContextBuilder($this->getServerConfig(), $this->session)
         );
-        $responseType->setLogger($this->getSystemLogger());
+        $responseType->setLogger($this->getLogger());
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';
         }
@@ -687,13 +736,14 @@ class AuthorizationController
             $tokenUrl, // Use token URL as audience
             $this->getClientRepository(),
             new JWTRepository(),
-            null // HTTP client will be created as needed
+            null, // HTTP client will be created as needed
+            $this->buildJwksUrlValidator(),
         );
-        $jwtAuthService->setLogger($this->getSystemLogger());
+        $jwtAuthService->setLogger($this->getLogger());
 
-        $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
+        $this->getLogger()->debug("AuthorizationController->getAuthorizationServer() grantType is " . $this->grantType);
         if ($this->grantType === 'authorization_code') {
-            $this->getSystemLogger()->debug(
+            $this->getLogger()->debug(
                 "logging global params",
                 ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->webroot, 'site_id' => $this->session->get('site_id')]
             );
@@ -712,7 +762,7 @@ class AuthorizationController
             );
             // Set the JWT authentication service on the grant
             $grant->setJWTAuthenticationService($jwtAuthService);
-            $grant->setSystemLogger($this->getSystemLogger());
+            $grant->setSystemLogger($this->getLogger());
 
             $grant->setRefreshTokenTTL(new DateInterval(self::GRANT_TYPE_REFRESH_TOKEN_TTL)); // minimum per ONC
             $authServer->enableGrantType(
@@ -749,7 +799,7 @@ class AuthorizationController
                 $this->session,
                 $this->authBaseFullUrl . AuthorizationController::getTokenPath()
             );
-            $client_credentials->setSystemLogger($this->getSystemLogger());
+            $client_credentials->setSystemLogger($this->getLogger());
             // Set the JWT authentication service on the grant
             $client_credentials->setJWTAuthenticationService($jwtAuthService);
             $authServer->enableGrantType(
@@ -758,7 +808,7 @@ class AuthorizationController
             );
         }
 
-        $this->getSystemLogger()->debug("AuthorizationController->getAuthorizationServer() authServer created");
+        $this->getLogger()->debug("AuthorizationController->getAuthorizationServer() authServer created");
         return $authServer;
     }
 
@@ -801,7 +851,7 @@ class AuthorizationController
         $clientId = $session->get('client_id');
         if (empty($clientId)) {
             // why are we logging in... we need to terminate
-            $this->getSystemLogger()->error("Application client_id was missing when it shouldn't have been");
+            $this->getLogger()->error("Application client_id was missing when it shouldn't have been");
             return $this->renderTwigPage(
                 'oauth2/authorize/login',
                 "error/general_http_error.html.twig",
@@ -833,13 +883,13 @@ class AuthorizationController
             ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
         if (empty($request->request->get('username')) && empty($request->request->get('password'))) {
-            $this->getSystemLogger()->debug("AuthorizationController->userLogin() presenting blank login form");
+            $this->getLogger()->debug("AuthorizationController->userLogin() presenting blank login form");
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
         $continueLogin = false;
         if ($request->request->has('user_role')) {
             if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $session, 'oauth2')) {
-                $this->getSystemLogger()->error("AuthorizationController->userLogin() Invalid CSRF token");
+                $this->getLogger()->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfViolation(toScreen: false);
                 $request->request->replace(); // clear out username/password
                 $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
@@ -847,24 +897,24 @@ class AuthorizationController
                 $loginTwigVars['invalid'] = $invalid;
                 return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
             } else {
-                $this->getSystemLogger()->debug("AuthorizationController->userLogin() verifying login information");
+                $this->getLogger()->debug("AuthorizationController->userLogin() verifying login information");
                 $continueLogin = $this->verifyLogin(
                     $request->request->get('username'),
                     $request->request->get('password'),
                     $request->request->get('email', ''),
                     $request->request->get('user_role')
                 );
-                $this->getSystemLogger()->debug("AuthorizationController->userLogin() verifyLogin result", ["continueLogin" => $continueLogin]);
+                $this->getLogger()->debug("AuthorizationController->userLogin() verifyLogin result", ["continueLogin" => $continueLogin]);
             }
         }
 
         if (!$continueLogin) {
-            $this->getSystemLogger()->debug("AuthorizationController->userLogin() login invalid, presenting login form");
+            $this->getLogger()->debug("AuthorizationController->userLogin() login invalid, presenting login form");
             $invalid = xl("Sorry, verify the information you have entered is correct"); // todo: display error
             $loginTwigVars['invalid'] = $invalid;
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         } else {
-            $this->getSystemLogger()->debug("AuthorizationController->userLogin() login valid, continuing oauth process");
+            $this->getLogger()->debug("AuthorizationController->userLogin() login valid, continuing oauth process");
         }
 
         //Require MFA if turned on
@@ -908,7 +958,7 @@ class AuthorizationController
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
             $loginTwigVars['invalid'] = xl("Sorry, an error occurred while processing your request. Please try again later.");
-            $this->getSystemLogger()->error("failed to process MFA Error:" . $error->getMessage(), ['exception' => $error]);
+            $this->getLogger()->error("failed to process MFA Error:" . $error->getMessage(), ['exception' => $error]);
             // NOTE: if twig throws an exception, we have a problem here.
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
@@ -919,7 +969,7 @@ class AuthorizationController
         $session->set('persist_login', $request->request->has('persist_login') ? 1 : 0);
         $sessionUserId = $session->get('user_id');
         if (!is_string($sessionUserId) || $sessionUserId === '') {
-            $this->logger?->error(
+            $this->getLogger()->error(
                 'AuthorizationController->userLogin() session user_id missing or invalid after successful login',
                 ['type' => get_debug_type($sessionUserId)],
             );
@@ -937,7 +987,7 @@ class AuthorizationController
         } else {
             $redirect = $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM;
         }
-        $this->getSystemLogger()->debug(
+        $this->getLogger()->debug(
             "AuthorizationController->userLogin() complete redirecting",
             ["scopes" => $session->get('scopes', '')
             ,
@@ -966,7 +1016,7 @@ class AuthorizationController
         try {
             $responseBody = $twig->render($template, $vars);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->error("caught exception rendering template", ['exception' => $e]);
+            $this->getLogger()->error("caught exception rendering template", ['exception' => $e]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
         $factory = new Psr17Factory();
@@ -989,7 +1039,7 @@ class AuthorizationController
     {
         if (!isset($this->clientRepository)) {
             $clientRepository = new ClientRepository();
-            $clientRepository->setSystemLogger($this->getSystemLogger());
+            $clientRepository->setSystemLogger($this->getLogger());
             $this->clientRepository = $clientRepository;
         }
         return $this->clientRepository;
@@ -1002,7 +1052,7 @@ class AuthorizationController
         } else {
             $scopeRepository = new ScopeRepository($session);
             $scopeRepository->setServerConfig($this->getServerConfig());
-            $scopeRepository->setSystemLogger($this->getSystemLogger());
+            $scopeRepository->setSystemLogger($this->getLogger());
             return $scopeRepository;
         }
     }
@@ -1149,17 +1199,17 @@ class AuthorizationController
         $auth = new AuthUtils($type);
         $is_true = $auth->confirmPassword($username, $password, $email);
         if (!$is_true) {
-            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username, 'email' => $email, 'type' => $type]);
+            $this->getLogger()->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username, 'email' => $email, 'type' => $type]);
             return false;
-        } else {
-            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() login attempt passed", ['username' => $username, 'email' => $email, 'type' => $type]);
         }
+
+        $this->getLogger()->debug("AuthorizationController->verifyLogin() login attempt passed", ['username' => $username, 'email' => $email, 'type' => $type]);
         // TODO: should user_id be set to be a uuid here?
         $userId = $auth->getUserId();
-        $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() getUserId", ['username' => $username, 'userId' => $userId, 'email' => $email, 'type' => $type]);
+        $this->getLogger()->debug("AuthorizationController->verifyLogin() getUserId", ['username' => $username, 'userId' => $userId, 'email' => $email, 'type' => $type]);
         if (isset($userId) && $this->userId = $userId) {
             $this->session->set('user_id', $this->getUserUuid($this->userId, 'users'));
-            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $session->get('user_id'),
+            $this->getLogger()->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $session->get('user_id'),
                 'username' => $username, 'email' => $email, 'type' => $type]);
             return true;
         }
@@ -1167,7 +1217,7 @@ class AuthorizationController
             $puuid = $this->getUserUuid($id, 'patient');
             // TODO: @adunsulag check with @sjpadgett on where this user_id is even used as we are assigning it to be a uuid
             $this->session->set('user_id', $puuid);
-            $this->getSystemLogger()->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $session->get('user_id')
+            $this->getLogger()->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $session->get('user_id')
                 , 'username' => $username, 'email' => $email, 'type' => $type]);
             $this->session->set('pid', $id);
             $this->session->set('puuid', $puuid);
@@ -1213,7 +1263,7 @@ class AuthorizationController
 
             $sessionUserId = $this->session->get('user_id');
             if (!is_string($sessionUserId) || $sessionUserId === '') {
-                $this->logger?->error(
+                $this->getLogger()->error(
                     'AuthorizationController->authorizeUser() session user_id missing or invalid',
                     ['type' => get_debug_type($sessionUserId)],
                 );
@@ -1251,7 +1301,7 @@ class AuthorizationController
                         $code,
                         $session_cache
                     )) {
-                        $this->getSystemLogger()->error("AuthorizationController::authorizeUser() failed to save trusted user session");
+                        $this->getLogger()->error("AuthorizationController::authorizeUser() failed to save trusted user session");
                         throw OAuthServerException::serverError("Failed authorization due to internal server error.");
                     }
                 }
@@ -1261,18 +1311,18 @@ class AuthorizationController
                 }
             }
             // Return the HTTP redirect response. Redirect is to client callback.
-            $this->getSystemLogger()->debug("AuthorizationController->authorizeUser() sending server response");
+            $this->getLogger()->debug("AuthorizationController->authorizeUser() sending server response");
             $this->session->invalidate();
             return $result;
         } catch (OAuthServerException $exception) {
-            $this->logger?->debug(
+            $this->getLogger()->debug(
                 'AuthorizationController->authorizeUser() OAuth error',
                 ['hint' => $exception->getHint()],
             );
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         } catch (\Throwable $exception) {
-            $this->logger?->error(
+            $this->getLogger()->error(
                 'AuthorizationController->authorizeUser() Exception thrown',
                 ['exception' => $exception],
             );
@@ -1298,7 +1348,7 @@ class AuthorizationController
 
     private function updateAuthRequestWithUserApprovedScopes(AuthorizationRequest $request, $approvedScopes): AuthorizationRequest
     {
-        $this->getSystemLogger()->debug(
+        $this->getLogger()->debug(
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() attempting to update auth request with user approved scopes",
             ['userApprovedScopes' => $approvedScopes ]
         );
@@ -1319,13 +1369,13 @@ class AuthorizationController
                 }
             }
             catch (\Throwable $e) {
-                $this->getSystemLogger()->error(
+                $this->getLogger()->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
                 );
             }
         }
-        $this->getSystemLogger()->debug(
+        $this->getLogger()->debug(
             "AuthorizationController->updateAuthRequestWithUserApprovedScopes() replaced request scopes with user approved scopes",
             ['updatedScopes' => $scopeUpdates]
         );
@@ -1374,7 +1424,7 @@ class AuthorizationController
      */
     public function oauthAuthorizeToken(HttpRestRequest $request): ResponseInterface
     {
-        $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() starting request");
+        $this->getLogger()->debug("AuthorizationController->oauthAuthorizeToken() starting request");
         $response = $this->createServerResponse();
 
         if ($request->getMethod() == 'OPTIONS') {
@@ -1387,7 +1437,7 @@ class AuthorizationController
         $code = $request->getParsedBody()['code'] ?? null;
         // grantType could be authorization_code, password or refresh_token.
         $this->grantType = $request->getParsedBody()['grant_type'];
-        $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
+        $this->getLogger()->debug("AuthorizationController->oauthAuthorizeToken() grant type received", ['grant_type' => $this->grantType]);
         if ($this->grantType === 'authorization_code') {
             // re-populate from saved session cache populated in authorizeUser().
             $ssbc = $this->sessionUserByCode($code);
@@ -1397,7 +1447,7 @@ class AuthorizationController
                 // TODO: @adunsulag should we throw an exception here?
             }
 
-            $this->getSystemLogger()->debug(
+            $this->getLogger()->debug(
                 "AuthorizationController->oauthAuthorizeToken() restored session user from code ",
                 ['session' => $this->session->all()]
             );
@@ -1412,7 +1462,7 @@ class AuthorizationController
         try {
             if (($this->grantType === 'authorization_code') && empty($this->session->get('csrf'))) {
                 // the saved session was not populated as expected
-                $this->getSystemLogger()->error("AuthorizationController->oauthAuthorizeToken() CSRF check failed");
+                $this->getLogger()->error("AuthorizationController->oauthAuthorizeToken() CSRF check failed");
                 throw new OAuthServerException('Bad request', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
             }
             $result = $server->respondToAccessTokenRequest($leagueRequest, $response);
@@ -1420,18 +1470,18 @@ class AuthorizationController
             if ($this->grantType === self::GRANT_TYPE_PASSWORD) {
                 $this->saveTrustedUserForPasswordGrant($request, $result);
             }
-            $this->getSystemLogger()->debug("AuthorizationController->oauthAuthorizeToken() responded to access token request");
+            $this->getLogger()->debug("AuthorizationController->oauthAuthorizeToken() responded to access token request");
             $this->session->invalidate();
             return $result;
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->debug(
+            $this->getLogger()->debug(
                 "AuthorizationController->oauthAuthorizeToken() OAuthServerException occurred",
                 ["hint" => $exception->getHint(), "message" => $exception->getMessage(), "stack" => $exception->getTraceAsString()]
             );
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()->error(
+            $this->getLogger()->error(
                 "AuthorizationController->oauthAuthorizeToken() Exception occurred",
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
@@ -1457,12 +1507,12 @@ class AuthorizationController
         try {
             $id = $this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant);
             if (empty($id)) {
-                $this->getSystemLogger()->error("AuthorizationController::saveTrustedUser() failed to save trusted user");
+                $this->getLogger()->error("AuthorizationController::saveTrustedUser() failed to save trusted user");
                 return false;
             }
             return true;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->error("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['exception' => $e]);
+            $this->getLogger()->error("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['exception' => $e]);
             return false;
         }
     }
@@ -1524,7 +1574,7 @@ class AuthorizationController
                     ->withBody($factory->createStream($message));
             }
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->error("OAuth error for client {client_id}: " . $exception->getMessage(), ['client_id' => $client_id]);
+            $this->getLogger()->error("OAuth error for client {client_id}: " . $exception->getMessage(), ['client_id' => $client_id]);
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         }
@@ -1537,7 +1587,7 @@ class AuthorizationController
         $tokenRestController->setRefreshTokenRepository($this->getRefreshTokenRepository());
         $tokenRestController->setCryptoGen($this->cryptoGen);
         $tokenRestController->setClientRepository($this->getClientRepository());
-        $tokenRestController->setSystemLogger($this->getSystemLogger());
+        $tokenRestController->setSystemLogger($this->getLogger());
         $tokenRestController->setAccessTokenRepository($this->getTokenRepository());
         return $tokenRestController->postAction($request);
     }
@@ -1682,12 +1732,12 @@ class AuthorizationController
         // if don't allow our globals settings to allow skipping the authorization flow when inside an ehr launch
         // we just return false
         if ($this->globalsBag->getInt('oauth_ehr_launch_authorization_flow_skip', 0) !== 1) {
-            $this->getSystemLogger()->debug("AuthorizationController->shouldSkipAuthorizationFlow() - oauth_ehr_launch_authorization_flow_skip not set, not skipping even though launch is present.");
+            $this->getLogger()->debug("AuthorizationController->shouldSkipAuthorizationFlow() - oauth_ehr_launch_authorization_flow_skip not set, not skipping even though launch is present.");
             return false;
         }
         if ($client instanceof ClientEntity) {
             if ($client->shouldSkipEHRLaunchAuthorizationFlow()) {
-                $this->getSystemLogger()->debug("AuthorizationController->shouldSkipAuthorizationFlow() - client is configured to skip authorization flow.");
+                $this->getLogger()->debug("AuthorizationController->shouldSkipAuthorizationFlow() - client is configured to skip authorization flow.");
                 return true;
             }
         }
@@ -1707,7 +1757,7 @@ class AuthorizationController
         $queryParams = $request->getQueryParams();
         $session = $request->getSession();
         if (empty($queryParams['autosubmit']) || $queryParams['autosubmit'] !== '1') {
-            $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit not set, redirecting to autosubmit page.");
+            $this->getLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit not set, redirecting to autosubmit page.");
             // we are going to display a form here with a javascript to autosubmit this page so we can make our session
             // cookies on a first party domain to verify the user is logged in.  It requires a whole page load and it's
             // a slower approach but we can then rely on the session cookie as a first party domain.
@@ -1716,7 +1766,7 @@ class AuthorizationController
             // deal with the security implications of the launch token being hijacked/MITM.
             return $this->getSmartAuthController()->dispatchRoute(SMARTAuthorizationController::EHR_SMART_LAUNCH_AUTOSUBMIT, $request);
         }
-        $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit set, processing authorization flow.");
+        $this->getLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit set, processing authorization flow.");
         // if we have come back from an autosubmit we are going to check to see if we are logged in
 
         $launch = $request->getQueryParams()['launch'];
@@ -1759,7 +1809,7 @@ class AuthorizationController
         // now we need to get our session user_id
         $this->saveTrustedUser($apiSession['client_id'], $apiSession['user_id'], $apiSession['scopes'], $apiSession['persist_login'], $code, $session_cache);
 
-        $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() sending server response");
+        $this->getLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() sending server response");
         $session->invalidate(); // invalidate the session so we don't have to worry about it
         return $result;
     }
@@ -1868,7 +1918,7 @@ class AuthorizationController
         // note this switching of sessions can slow things down a bit depending on how the php session storage is setup.
         // for now we only handle in-ehr launch for providers not patients.  We can add this later if needed.
         if (empty($userId)) {
-            $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user logged in, redirecting to login page");
+            $this->getLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user logged in, redirecting to login page");
             $this->restoreOAuthSession($request, $oauthSessionId);
             $this->session->invalidate(); // restart the oauth2 session
             return null;
@@ -1877,7 +1927,7 @@ class AuthorizationController
         $userService = new UserService();
         $user = $userService->getUser($userId);
         if (empty($user)) {
-            $this->getSystemLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user found for logged in authUserID, redirecting to login page");
+            $this->getLogger()->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user found for logged in authUserID, redirecting to login page");
             $this->restoreOAuthSession($request, $oauthSessionId);
             $this->session->invalidate(); // restart the oauth2 session
             return null;
@@ -1903,7 +1953,7 @@ class AuthorizationController
     protected function getUserRepository(): UserRepository
     {
         $userIdentityRepository = new UserRepository($this->getServerConfig()->getFhirUrl());
-        $userIdentityRepository->setSystemLogger($this->getSystemLogger());
+        $userIdentityRepository->setSystemLogger($this->getLogger());
         return $userIdentityRepository;
     }
     /**
@@ -1912,7 +1962,7 @@ class AuthorizationController
     private function getTokenRepository(): AccessTokenRepository
     {
         $tokenRepository = new AccessTokenRepository($this->serverConfig, $this->session);
-        $tokenRepository->setSystemLogger($this->getSystemLogger());
+        $tokenRepository->setSystemLogger($this->getLogger());
         return $tokenRepository;
     }
 
@@ -1923,7 +1973,7 @@ class AuthorizationController
     private function getRefreshTokenRepository(bool $includeAuthGrantRefreshToken = true): RefreshTokenRepository
     {
         $repo = new RefreshTokenRepository($includeAuthGrantRefreshToken);
-        $repo->setSystemLogger($this->getSystemLogger());
+        $repo->setSystemLogger($this->getLogger());
         return $repo;
     }
 

@@ -34,6 +34,7 @@ use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
@@ -76,6 +77,10 @@ class JWTClientAuthenticationService
      * @param ClientRepository $clientRepository Repository for client operations
      * @param JWTRepository $jwtRepository Repository for JWT tracking (replay prevention)
      * @param ClientInterface|null $httpClient HTTP client for fetching JWKS
+     * @param OidcUrlValidator|null $urlValidator SSRF guard applied before any outbound JWKS fetch.
+     *     Production wiring should always inject this with strict flags (require https,
+     *     block private IPs); a null validator means JWKS URIs go unchecked, which is only
+     *     acceptable in tests that supply a mocked HTTP client.
      */
     public function __construct(
         private readonly string $authTokenUrl,
@@ -84,7 +89,8 @@ class JWTClientAuthenticationService
         /**
          * The http client that retrieves JWK URIs
          */
-        private ?ClientInterface $httpClient = null
+        private ?ClientInterface $httpClient = null,
+        private readonly ?OidcUrlValidator $urlValidator = null,
     ) {
         $this->logger = ServiceContainer::getLogger();
     }
@@ -252,11 +258,14 @@ class JWTClientAuthenticationService
         }
 
         try {
-            // Get the JSON Web Key Set for signature validation
+            // Get the JSON Web Key Set for signature validation. Passing the URL validator
+            // ensures that any outbound JWKS fetch (`jwks_uri`) is gated by the SSRF policy
+            // before the HTTP client is invoked.
             $jsonWebKeySet = new JsonWebKeySet(
                 $this->getHttpClient(),
                 $client->getJwksUri(),
-                $client->getJwks()
+                $client->getJwks(),
+                urlValidator: $this->urlValidator,
             );
 
             // Configure JWT validation per RFC 7523 Section 3

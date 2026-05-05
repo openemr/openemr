@@ -121,12 +121,6 @@ use setLogger\\(\\)$#',
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\AuthorizationController\\:
-read from the \\-\\>logger property$#',
-    'count' => 62,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomAuthCodeGrant\\:
 use setLogger\\(\\)$#',
     'count' => 1,

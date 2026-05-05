@@ -19,6 +19,7 @@ namespace OpenEMR\RestControllers;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -229,7 +230,23 @@ class TokenIntrospectionRestController {
             $tokenUrl,
             $this->getClientRepository(),
             $this->getJWTRepository(),
-            null
+            null,
+            $this->buildJwksUrlValidator(),
+        );
+    }
+
+    /**
+     * Build the SSRF safety gate applied before any outbound JWKS fetch in
+     * the JWT client-assertion path. Strict in production (https-only,
+     * private/loopback/link-local rejected); relaxed in dev so docker mock
+     * services keep working.
+     */
+    private function buildJwksUrlValidator(): OidcUrlValidator
+    {
+        $strictPolicy = !$this->getGlobalsBag()->getKernel()->isDev();
+        return new OidcUrlValidator(
+            requireHttps: $strictPolicy,
+            blockPrivateIps: $strictPolicy,
         );
     }
 
@@ -325,7 +342,8 @@ class TokenIntrospectionRestController {
                     $tokenUrl,
                     $this->getClientRepository(),
                     new JWTRepository(),
-                    null
+                    null,
+                    $this->buildJwksUrlValidator(),
                 );
                 $jwtAuthService->setLogger($this->getSystemLogger());
 
