@@ -624,3 +624,148 @@ evals/
 scripts/
 └── install-hooks.sh            # writes .git/hooks/pre-push (idempotent)
 ```
+
+---
+
+## Appendix C — Deployed-MVP reality (as of 2026-05-05, Tuesday MVP cutoff)
+
+Sections §1-§10 above are the design-of-record from the architecture-defense gate. The shipped MVP intentionally diverged in places where the design assumed capabilities OpenEMR's R4 API doesn't actually expose, or where post-MVP scope (LangGraph, eval gate, rerank) was deferred per `W2_IMPLEMENTATION.md`. This appendix is the single source of truth on **what's live** vs **what stayed deferred**, with commit references.
+
+### C.1 What shipped
+
+- **Document ingestion + extraction** (`POST /v1/documents/attach`): 3-layer panel check → sha3-512 dedup → Claude vision (Sonnet 4.6) → strict-schema typed extraction → bbox overlay returned to caller. End-to-end working, exercised live against the deployed Co-Pilot.
+- **Two new agent-callable tools**: `attach_and_extract` (PRD §1) and `search_guidelines` (BM25 over the 12-chunk seed corpus). Both registered in `app/tools/registry.py`; both emit `record_ids` consumable by the existing Week 1 `verify()` gate without rule changes.
+- **One additional tool not in the original architecture**: `get_recent_uploads` — agent reads recent processed-document rows so it can answer "what was the LDL on the lab I just uploaded?" without going through FHIR (commit `4dc7922b1`, fixed for cross-patient-leakage in `85975f5dd`). This bridge tool was needed because OpenEMR's FHIR R4 API has no `POST /fhir/DocumentReference` route (the `$docref` operation is for retrieving CCDA-derived DocumentReferences, not creating new ones).
+- **Iframe UI** (`/`, `/static/copilot_iframe.{js,css}`): drop-zone + paperclip + bbox modal. Light-theme CSS pinned via `color-scheme: light` so the iframe renders identically regardless of host page dark-mode preference (commit `48cab4144`).
+- **Cohere/dense rerank fallback path**: BM25 only for MVP; FTS5 over SQLite. Architecture §5.5 / §10 already documented this deferral.
+- **PHI-safe Langfuse spans for the VLM worker**: `vlm_span_input()` returns None, `vlm_span_output()` emits aggregate metrics only with allowlist enforcement (`app/observability/vlm_span.py`). Architecture §8 contract honored.
+- **Deployed at** `https://copilot-production-b532.up.railway.app`, with the `/data` Railway volume holding both `copilot.db` (conversations) and `copilot_docs.db` (processed_documents + extracted file_bytes).
+
+### C.2 What diverged from the architecture and why
+
+1. **FHIR DocumentReference write is stubbed, not real.**
+   - **Architecture (§1, §2, §2.3) said:** "Extended with a DocumentReference *write* path (Week 1 only reads)" + "DocumentReference holds the Binary (the original file bytes, base64-encoded)".
+   - **Reality:** `app/fhir/client.py::create_document_reference` synthesizes a doc id (`copilot-{sha3-512[:16]}`) and returns a FHIR-shaped dict without hitting OpenEMR. Same for `create_observation`, `create_allergy_intolerance`, `create_medication_statement`. No HTTP write to OpenEMR is attempted.
+   - **Why:** OpenEMR's `apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php` only exposes `GET /fhir/DocumentReference` and a `POST /fhir/DocumentReference/$docref` *operation* (for CCDA retrieval). There is no general POST-to-create. The non-FHIR `POST /apis/default/api/patient/{pid}/document` *does* exist but requires path-param + PUUID resolution that diverges per OpenEMR build, and the dev-easy / Railway-deployed instances exhibited different ACL behavior. The shippable answer for Tuesday MVP was: Co-Pilot's own SQLite is the source of truth for uploaded docs; the FHIR-write path is documented as a Week 3+ integration item (same shape as the QuestionnaireResponse-CREATE deferral already in §10).
+   - **Commit:** `971affe8d` (initial Option-A pivot).
+
+2. **`/v1/documents/{doc_id}/preview` reads from local SQLite, not FHIR.**
+   - **Architecture (§2.0) said:** the bbox modal fetches preview bytes via the FHIR DocumentReference attachment.
+   - **Reality:** `processed_documents` was extended with `file_bytes BLOB` and `mime_type TEXT` columns; `/preview` `lookup_by_doc_id`s the row and returns the bytes directly (commit `971affe8d`). Panel-gated behind `_verify_patient_in_panel` (commit `e61a11262`).
+
+3. **LangGraph supervisor + 2 workers + critic node — NOT IMPLEMENTED.**
+   - **Architecture (§4) prescribed:** supervisor + intake_extractor + evidence_retriever + answer_composer + critic, deterministic routing, child Langfuse spans per worker.
+   - **Reality:** the agent loop is still Week 1's `run_turn` extended with the three new tools. No graph rewrite. The deterministic routing rules in §4.1 were not implemented.
+   - **Why:** Tuesday-MVP scope discipline. The MVP plan (`W2_IMPLEMENTATION.md` §0) explicitly defers the graph to `W2_EARLY_IMPLEMENTATION.md` for the Thursday Early Submission, so the underlying tools (which the graph would orchestrate) could be tested first. Adding the graph on top of working tools is a clean refactor; building both at once would have meant unrigging both if either layer had bugs.
+
+4. **50-case eval gate + PR-blocking pre-push hook — NOT IMPLEMENTED.**
+   - **Architecture (§6) prescribed:** 50-case golden set, boolean rubrics across 5 categories, PR-blocking hook, regression sensitivity.
+   - **Reality:** the test suite stands at **75 passed, 3 skipped** (Week 1's 42 + 33 new MVP cases covering schemas, VLM mock path, FHIR writer stubs, BM25 corpus, attach route, lifespan wiring, document-tool data-item shape, and cross-patient-leakage assertions). No YAML golden set, no pre-push hook, no per-category threshold logic.
+   - **Why:** same scope discipline. Deferred to `W2_EARLY_IMPLEMENTATION.md`.
+
+5. **TurnTrace 6 new fields — NOT IMPLEMENTED.**
+   - **Architecture (§7.2) prescribed:** `routing_path`, `extraction_confidence_min`, `retrieval_hit_ids`, `rerank_scores`, `vlm_cost_estimate_usd`, `documents_attached`.
+   - **Reality:** `TurnTrace` carries Week 1 fields only. Per-turn observability is functional but doesn't include the new dimensions.
+
+6. **`LLM_PROVIDER` env-var no longer hard-overrides — Anthropic always wins when its key is set.**
+   - **Architecture (§1) prescribed:** Anthropic primary, OpenAI fallback.
+   - **Reality:** the factory at `app/agent/llm.py::get_adapter` was tightened (commit `f2d6bc972`) so that `ANTHROPIC_API_KEY` set always picks Anthropic + FallbackAdapter (when both keys are set), regardless of `LLM_PROVIDER`. The env var is now an explicit force-OpenAI override that only applies when `ANTHROPIC_API_KEY` is unset. This auto-corrects deployments whose `LLM_PROVIDER=openai` setting drifted from architectural intent.
+
+7. **Panel gate supports a wildcard for the deployed-demo cohort.**
+   - **Architecture (§4.1) prescribed:** explicit per-physician patient list via `PHYSICIAN_PATIENT_PANEL`.
+   - **Reality (commit `53df1f289`):** the env-driven panel now accepts a `"*"` entry meaning "this physician can access any patient". Used as `{"admin": ["*"]}` for the deployed Railway service so any iframe URL passing `physician_user_id=admin` is admitted regardless of patient_id. The FHIR-derived secondary path is unchanged; this only loosens the env-driven primary path.
+
+8. **`/v1/documents/{doc_id}/preview` and `/extractions` are panel-gated.**
+   - **Architecture (§2.0):** didn't specify the gate explicitly for these views.
+   - **Reality (commit `e61a11262`):** both routes call `_verify_patient_in_panel` before returning data. Out-of-panel callers get the same 403 `patient_out_of_panel` shape as the attach route.
+
+9. **`.gitattributes` patch needed to keep `app/tools/` in the Railway build.**
+   - **Reality (commit `e7cccee51`):** OpenEMR's repo-root `.gitattributes` had an unanchored `tools/ export-ignore` rule. Railway builds from `git archive`, so `copilot/app/tools/` was being stripped from the build context (causing `ModuleNotFoundError: app.tools` at startup). Anchoring the pattern to `/tools/` (top-level only) was the fix. The Dockerfile additionally got a `RUN python -c "import app.tools.registry; ..."` smoke test (commit `717fca2ff`) so any future `.gitattributes` regression fails the build instead of the runtime healthcheck.
+
+### C.3 New tools and routes (final shipped registry)
+
+Tool registry at MVP (`app/tools/registry.py`):
+
+```
+get_patient_summary           (Week 1)
+get_active_medications        (Week 1)
+get_recent_labs               (Week 1)
+get_recent_vitals             (Week 1)
+get_encounter_history         (Week 1)
+get_allergies                 (Week 1)
+get_encounter_note            (Week 1)
+check_drug_interactions       (Week 1)
+attach_and_extract            (Week 2 — PRD §1)
+search_guidelines             (Week 2)
+get_recent_uploads            (Week 2 — bridge tool, not in original architecture)
+```
+
+HTTP routes added:
+
+```
+POST /v1/documents/attach                 panel-gated, multipart upload + extraction
+GET  /v1/documents/{doc_id}/preview       panel-gated, returns Co-Pilot SQLite-stored file bytes
+GET  /v1/documents/{doc_id}/extractions   panel-gated, returns cached typed extraction
+GET  /static/copilot_iframe.{js,css}      iframe asset routes
+GET  /                                    iframe shell HTML (replaced Week 1's inline HTML)
+```
+
+### C.4 Deployment-time configuration on Railway
+
+| Variable | Value | Notes |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | (set) | required; FallbackAdapter degrades to OpenAI only when unset |
+| `OPENAI_API_KEY` | (set) | enables FallbackAdapter wrapping |
+| `ANTHROPIC_MODEL` | `claude-sonnet-4-6` | matches `Settings.anthropic_model` default |
+| `VLM_MODEL_ID` | `claude-sonnet-4-6` | matches `Settings.vlm_model_id` default; consolidated from Opus 4.5 |
+| `CONVERSATION_DB_PATH` | `/data/copilot.db` | mounted Railway volume |
+| `COPILOT_DOCS_DB_PATH` | `/data/copilot_docs.db` | mounted Railway volume; holds extracted facts + original file_bytes |
+| `OPENEMR_FHIR_BASE` | (host depends on deployment) | reads still attempt FHIR; unreachable instance fails gracefully |
+| `OPENEMR_OAUTH_BASE` | (host depends on deployment) | same |
+| `PHYSICIAN_PATIENT_PANEL` | `{"admin": ["*"]}` | wildcard; admits any patient_id when physician=admin |
+| `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` | (set) | enables turn-level trace emission; no per-LLM-call generation span yet |
+| `LLM_PROVIDER` | unused if `ANTHROPIC_API_KEY` set | architectural intent now dominates the env var |
+
+### C.5 Deferred to follow-on plans
+
+Sorted by priority for `W2_EARLY_IMPLEMENTATION.md` (Thursday Early Submission target):
+
+1. **LangGraph supervisor + 2 workers + critic node** (architecture §4). Highest priority — PRD requirement for "Early Submission" row.
+2. **50-case eval gate + PR-blocking pre-push hook** (architecture §6). Hard PRD requirement; grading gate.
+3. **Cohere rerank + dense retrieval** (architecture §5). Recall@5 improvement on the 50-case retrieval subset.
+4. **TurnTrace 6 new fields** (architecture §7.2). Adds the routing_path, retrieval_hit_ids, etc. for full Langfuse observability.
+5. **Per-LLM-call Langfuse generation spans** (not in original architecture but surfaced during deployment): currently the agent's tool calls show in the trace but the model identity isn't auto-instrumented — visible only via the `INFO:copilot.agent.llm:llm-call` log lines added in commit `0b0526e2f` (level config in `271363584`).
+6. **Real FHIR DocumentReference write path** (architecture §1 §2.3). Either patch OpenEMR upstream or switch to `POST /apis/default/api/patient/{pid}/document` with PUUID resolution + path-param plumbing. Week 3+.
+7. **Code-quality cleanup batch** flagged during reviews: dedupe `_walk_citations` between `service.py` and `vlm_span.py`; switch `model_fields` from instance to class to silence Pydantic V2 deprecation warnings; pick one of `app.state.fhir` / `app.state.fhir_client` and standardize.
+
+### C.6 Commit timeline (MVP branch — `master` after merge of `w2-mvp`)
+
+`f5b385f97` — Week 1 baseline (42 evals).
+`eab5fb1bf` → `48cab4144` — 18 commits delivering the W2 MVP. Notable beats:
+
+- `eab5fb1bf` Land architecture + ingestion/observability/persistence/phi scaffold.
+- `a09872927` + `c3c00547a` FhirClient write helpers.
+- `22f9e6060` Claude vision adapter.
+- `0bb813377` FHIR writer for derived facts.
+- `ed31f5f50` IngestionService orchestration.
+- `efada7539` FastAPI lifespan wiring.
+- `895d87fd5` + `97aaf74f0` POST /v1/documents/attach + python-multipart dep.
+- `52723cdce` attach_and_extract agent tool.
+- `eea350c97` Corpus + BM25 search_guidelines tool.
+- `bff5fe4f5` /preview + /extractions routes.
+- `32c84c0c5` Synthetic fixture generator + pipeline smoke test.
+- `09d196b79` Iframe drop-zone + paperclip + bbox modal UI.
+- `299cb3a4b` System prompt update for new tools.
+- `e61a11262` Iframe session bootstrap + panel gate on preview/extractions (final review fix).
+- `971affe8d` **MVP pivot: stub FHIR writes + serve preview from local store** (Option A — the deploy-ready shape).
+- `e7cccee51` `.gitattributes` anchor fix (Railway build was stripping `app/tools/`).
+- `717fca2ff` Dockerfile import smoke test.
+- `fb33beb53` `pip install -e .` + `app/` tree diagnostic.
+- `53df1f289` Wildcard `"*"` support in `PHYSICIAN_PATIENT_PANEL`.
+- `f2d6bc972` Anthropic-primary factory regardless of `LLM_PROVIDER`.
+- `0b0526e2f` `llm-call` log lines per adapter.
+- `4dc7922b1` `get_recent_uploads` tool (bridge for "what was on the doc I just uploaded").
+- `c153cccef` Pseudonym key fix (`active_patient_id` not session pseudonym).
+- `85975f5dd` **Per-fact data items so Layer-2 cross-patient-leakage passes** (this was the bug that gated the chat answer about uploaded data).
+- `271363584` Logger config + Sonnet 4.6 pin + `.gitignore` hardening.
+- `48cab4144` Light-theme CSS pin (dark-mode browsers were rendering black-on-black).
