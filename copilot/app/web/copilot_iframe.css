@@ -1,26 +1,53 @@
-/* app/web/copilot_iframe.css */
-body { font: 14px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; }
-#copilot-root { display: flex; flex-direction: column; height: 100vh; }
-header { padding: 8px 12px; background: #f4f4f6; border-bottom: 1px solid #ddd; }
-header h1 { margin: 0; font-size: 14px; display: inline; }
+/* app/web/copilot_iframe.css
+ * Explicit light-theme colors so the iframe renders the same regardless of
+ * the host page's dark-mode preference (macOS prefers-color-scheme: dark
+ * was inverting the body to black + leaving text at the default ~black,
+ * making the chat unreadable). Setting both bg AND color removes that
+ * dependency. */
+:root { color-scheme: light; }
+body { font: 14px/1.4 -apple-system, BlinkMacSystemFont, sans-serif; margin: 0;
+       background: #ffffff; color: #1f2328; }
+#copilot-root { display: flex; flex-direction: column; height: 100vh;
+                background: #ffffff; color: #1f2328; }
+header { padding: 8px 12px; background: #f4f4f6; border-bottom: 1px solid #ddd;
+         color: #1f2328; }
+header h1 { margin: 0; font-size: 14px; display: inline; color: #1f2328; }
 #patient-banner { margin-left: 12px; color: #555; font-size: 12px; }
-main { flex: 1; display: flex; flex-direction: column; padding: 8px; }
+main { flex: 1; display: flex; flex-direction: column; padding: 8px;
+       background: #ffffff; color: #1f2328; }
 #drop-zone { border: 2px dashed #ccc; border-radius: 6px; padding: 16px;
-             text-align: center; color: #888; transition: background 0.15s; }
-#drop-zone[data-state="dragover"] { background: #eef6ff; border-color: #58a; }
-#drop-zone[data-state="uploading"] { background: #fffce8; border-color: #b80; }
-#conversation { list-style: none; padding: 0; flex: 1; overflow-y: auto; margin: 8px 0; }
-#conversation li { padding: 8px; border-bottom: 1px solid #eee; }
-#conversation li.user { font-weight: 600; }
+             text-align: center; color: #6a737d; background: #fafbfc;
+             transition: background 0.15s; }
+#drop-zone[data-state="dragover"] { background: #eef6ff; border-color: #58a; color: #1f2328; }
+#drop-zone[data-state="uploading"] { background: #fffce8; border-color: #b80; color: #1f2328; }
+#conversation { list-style: none; padding: 0; flex: 1; overflow-y: auto;
+                margin: 8px 0; color: #1f2328; }
+#conversation li { padding: 8px; border-bottom: 1px solid #eee; color: #1f2328; }
+#conversation li.user { font-weight: 600; color: #1f2328; }
+#conversation li.system { color: #6a737d; font-style: italic; }
+#conversation li.assistant { color: #1f2328; }
 .citation-chip { display: inline-block; padding: 1px 6px; margin: 0 2px;
-                 background: #e8effa; border-radius: 4px; cursor: pointer;
-                 font-size: 12px; }
+                 background: #e8effa; color: #1f2328; border-radius: 4px;
+                 cursor: pointer; font-size: 12px; }
 .citation-chip:hover { background: #d6e3f7; }
-#chat-form { display: flex; gap: 4px; }
-#chat-form input[type="text"] { flex: 1; padding: 6px; }
-#paperclip { background: none; border: 1px solid #ccc; border-radius: 4px;
-             cursor: pointer; padding: 4px 8px; }
+#chat-form { display: flex; gap: 4px; padding: 4px 0; background: #ffffff; }
+#chat-form input[type="text"] { flex: 1; padding: 6px; background: #ffffff;
+                                color: #1f2328; border: 1px solid #ccc;
+                                border-radius: 4px; }
+#chat-form button[type="submit"] { padding: 6px 12px; background: #2da44e;
+                                   color: #ffffff; border: 1px solid #2c974b;
+                                   border-radius: 4px; cursor: pointer; }
+#chat-form button[type="submit"]:hover { background: #2c974b; }
+#paperclip { background: #ffffff; color: #1f2328; border: 1px solid #ccc;
+             border-radius: 4px; cursor: pointer; padding: 4px 8px; }
 dialog#bbox-modal { width: 90vw; height: 90vh; max-width: 1200px; padding: 0;
-                    border: 1px solid #888; border-radius: 6px; }
-dialog#bbox-modal header { display: flex; justify-content: space-between; align-items: center; }
-#bbox-modal-canvas-wrapper { overflow: auto; height: calc(100% - 40px); }
+                    border: 1px solid #888; border-radius: 6px;
+                    background: #ffffff; color: #1f2328; }
+dialog#bbox-modal header { display: flex; justify-content: space-between;
+                           align-items: center; padding: 8px 12px;
+                           background: #f4f4f6; color: #1f2328; }
+dialog#bbox-modal h2 { margin: 0; font-size: 14px; }
+#bbox-modal-close { background: none; border: none; font-size: 20px;
+                    cursor: pointer; color: #1f2328; }
+#bbox-modal-canvas-wrapper { overflow: auto; height: calc(100% - 40px);
+                             background: #ffffff; }
