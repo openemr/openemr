@@ -120,7 +120,7 @@ jobs:
     # in one step. When there is no diff this is a no-op.
     - name: Create or update release-prep PR
       id: prep-pr
-      uses: peter-evans/create-pull-request@v7
+      uses: peter-evans/create-pull-request@v8
       with:
         token: ${{ steps.app-token.outputs.token }}
         branch: release-prep/${{ steps.resolve.outputs.branch }}
