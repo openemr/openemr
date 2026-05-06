@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Release\Tests;
+namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Release\TagCreationRequest;
 use OpenEMR\Release\TagCreator;

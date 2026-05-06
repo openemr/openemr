@@ -136,6 +136,7 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
         "iamcal/sql-parser": "^0.7.0",
+        "justinrainbow/json-schema": "^6.8",
         "league/flysystem-memory": "^3.31",
         "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
@@ -188,7 +189,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\": "tests"
+            "OpenEMR\\": "tests",
+            "OpenEMR\\Release\\": "tools/release/src"
         }
     },
     "config": {

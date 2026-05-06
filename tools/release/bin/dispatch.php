@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use OpenEMR\Release\DispatchDataBuilder;
 use OpenEMR\Release\Dispatcher;
@@ -89,7 +89,7 @@ use Symfony\Component\HttpClient\HttpClient;
 
         try {
             $results = $dispatcher->dispatch($request, $targets);
-        } catch (\Throwable $e) {
+        } catch (\RuntimeException | \InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return 1;
         }

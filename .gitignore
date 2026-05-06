@@ -31,8 +31,6 @@ ccdaservice/node_modules
 # dev tool local overrides
 phpcs.xml
 phpstan.neon
-!/tools/release/phpcs.xml
-!/tools/release/phpstan.neon
 coverage/js-unit
 
 # phpstan

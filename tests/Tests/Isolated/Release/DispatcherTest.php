@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Release\Tests;
+namespace OpenEMR\Tests\Isolated\Release;
 
 use OpenEMR\Release\Dispatcher;
 use OpenEMR\Release\DispatchRequest;
@@ -20,7 +20,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 
 final class DispatcherTest extends TestCase
 {
-    private const SCHEMA_PATH = __DIR__ . '/../contracts/dispatch.schema.json';
+    private const SCHEMA_PATH = __DIR__ . '/../../../../tools/release/contracts/dispatch.schema.json';
 
     public function testValidRelCutDispatchesToBothConsumers(): void
     {

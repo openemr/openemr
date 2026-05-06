@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Release\Tests\Contracts;
+namespace OpenEMR\Tests\Isolated\Release\Contracts;
 
 use JsonSchema\Validator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -23,7 +23,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DispatchSchemaTest extends TestCase
 {
-    private const SCHEMA_PATH = __DIR__ . '/../../contracts/dispatch.schema.json';
+    private const SCHEMA_PATH = __DIR__ . '/../../../../../tools/release/contracts/dispatch.schema.json';
     private const FIXTURE_DIR = __DIR__ . '/../fixtures/dispatch';
 
     /**

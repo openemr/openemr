@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use OpenEMR\Release\OptionReader;
 use OpenEMR\Release\TagCreationRequest;
@@ -68,7 +68,7 @@ use Symfony\Component\HttpClient\HttpClient;
         $creator = new TagCreator(HttpClient::create());
         try {
             $result = $creator->create($request);
-        } catch (\Throwable $e) {
+        } catch (\RuntimeException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return 1;
         }

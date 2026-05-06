@@ -38,6 +38,8 @@ parameters:
   - src
   - templates
   - tests
+  - tools/release/bin
+  - tools/release/src
   - version.php
   scanFiles:
   - library/sql.inc.php

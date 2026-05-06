@@ -15,7 +15,7 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . '/vendor/autoload.php';
+require dirname(__DIR__, 3) . '/vendor/autoload.php';
 
 use OpenEMR\Release\BranchVersionResolver;
 use Symfony\Component\Console\Input\InputArgument;
