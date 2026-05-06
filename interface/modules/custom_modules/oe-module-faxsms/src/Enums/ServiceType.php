@@ -22,7 +22,6 @@ enum ServiceType: int
     case EMAIL = 4;
     case CLICKATELL_SMS = 5;
     case SIGNALWIRE = 6;
-    case VOICE = 9;
 
     /**
      * Get the credential storage key for this service type
@@ -39,7 +38,6 @@ enum ServiceType: int
             self::EMAIL => '_email',
             self::CLICKATELL_SMS => '_clickatell',
             self::SIGNALWIRE => '_signalwire',
-            self::VOICE => '_voice',
         };
     }
 
@@ -75,7 +73,6 @@ enum ServiceType: int
             self::EMAIL => 'Email',
             self::CLICKATELL_SMS => 'Clickatell SMS',
             self::SIGNALWIRE => 'SignalWire Fax',
-            self::VOICE => 'Voice',
         };
     }
 
@@ -94,7 +91,6 @@ enum ServiceType: int
             self::EMAIL => xlt('Email'),
             self::CLICKATELL_SMS => xlt('Clickatell SMS'),
             self::SIGNALWIRE => xlt('SignalWire Fax'),
-            self::VOICE => xlt('Voice'),
         };
     }
 
@@ -147,7 +143,6 @@ enum ServiceType: int
             'sms' => [self::DISABLED, self::RINGCENTRAL, self::TWILIO_SMS, self::CLICKATELL_SMS],
             'fax' => [self::DISABLED, self::RINGCENTRAL, self::ETHERFAX, self::SIGNALWIRE],
             'email' => [self::DISABLED, self::EMAIL],
-            'voice' => [self::DISABLED, self::VOICE],
             default => [self::DISABLED],
         };
     }

@@ -282,9 +282,6 @@ abstract class AppDispatch
             'email' => [
                 ServiceType::EMAIL->value => fn(): EmailClient => new EmailClient(),
             ],
-            'voice' => [
-                ServiceType::VOICE->value => fn(): VoiceClient => new VoiceClient(),
-            ],
         ];
 
         $factory = $factoryMap[$type][$s] ?? null;
@@ -318,9 +315,6 @@ abstract class AppDispatch
         }
         if (self::$_apiModule === 'email') {
             return OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null;
-        }
-        if (self::$_apiModule === 'voice') {
-            return OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null;
         }
 
         throw new \RuntimeException(
