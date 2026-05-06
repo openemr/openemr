@@ -21,6 +21,8 @@ use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 /**
  * @phpstan-type ProcessRunner callable(Process): int
@@ -56,6 +58,18 @@ final readonly class SwaggerRegenMutator implements MutatorInterface
         }
 
         $after = file_exists($path) ? (string) file_get_contents($path) : '';
+        // The subprocess uses Symfony\Yaml::dump so the output is valid
+        // by construction, but verify in case the command's
+        // implementation changes.
+        try {
+            Yaml::parse($after);
+        } catch (ParseException $e) {
+            throw new \RuntimeException(
+                self::RELATIVE_PATH . ': openemr:create-api-documentation produced invalid YAML',
+                0,
+                $e,
+            );
+        }
         if ($before === $after) {
             return MutatorResult::noop();
         }

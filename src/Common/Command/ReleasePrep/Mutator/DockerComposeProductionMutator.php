@@ -21,6 +21,8 @@ namespace OpenEMR\Common\Command\ReleasePrep\Mutator;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Yaml;
 
 final readonly class DockerComposeProductionMutator implements MutatorInterface
 {
@@ -70,6 +72,19 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         }
         if ($updated === $contents) {
             return MutatorResult::noop();
+        }
+        // Belt-and-suspenders: regex substitution preserves formatting
+        // but doesn't know YAML syntax. Parse the result before writing
+        // so a pathological input that produces invalid YAML fails the
+        // mutator rather than ships a broken file.
+        try {
+            Yaml::parse($updated);
+        } catch (ParseException $e) {
+            throw new \RuntimeException(
+                'docker-compose.yml: regex substitution produced invalid YAML',
+                0,
+                $e,
+            );
         }
         if (file_put_contents($path, $updated) === false) {
             throw new \RuntimeException('Cannot write ' . $path);

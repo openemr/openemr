@@ -64,6 +64,13 @@ final readonly class DockerVersionFileMutator implements MutatorInterface
             if (file_put_contents($absolutePath, $newContents) === false) {
                 throw new \RuntimeException('Cannot write ' . $absolutePath);
             }
+            // Validate post-write: the file should still be a single
+            // integer (the Docker entrypoint reads it that way).
+            if (preg_match('/^\d+\n?$/', $newContents) !== 1) {
+                throw new \RuntimeException(
+                    'docker-version write produced non-integer content at ' . $absolutePath,
+                );
+            }
             $changed[] = $this->relativize($absolutePath, $context->projectDir);
         }
         return new MutatorResult($changed, $messages);
