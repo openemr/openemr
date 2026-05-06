@@ -1,0 +1,33 @@
+case_id: lab_pdf_glucose
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: LabPDFExtraction
+expected_values:
+  results[0].value: 105.0
+  results[0].unit: mg/dL
+fixture:
+  extraction:
+    results:
+    - test_name: Glucose
+      analyte_key: glucose
+      loinc_code: null
+      value: 105.0
+      unit: mg/dL
+      reference_range: 70-99
+      collection_date: '2026-04-30'
+      abnormal_flag: H
+      source_citation:
+        source_doc_id: DocumentReference/lab_pdf_glucose
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: Glucose 105.0 mg/dL 70-99 H
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: results[glucose].value
+    document_date: '2026-04-30'

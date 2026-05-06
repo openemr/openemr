@@ -1,0 +1,35 @@
+case_id: intake_questionnaire_obese
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: IntakeFormExtraction
+expected_values:
+  demographics.age: 55
+  chief_concern: weight management consultation
+fixture:
+  extraction:
+    demographics:
+      age: 55
+      gender: F
+      chief_concern: weight management consultation
+      source_citation:
+        source_doc_id: QuestionnaireResponse/intake_questionnaire_obese
+        page: null
+        bbox: null
+        raw_text: demographics
+        confidence: 1.0
+        source_kind: questionnaire_response
+        field_or_chunk_id: linkId-demographics
+    chief_concern: weight management consultation
+    current_medications: []
+    allergies: []
+    family_history: []
+    source_citation:
+      source_doc_id: QuestionnaireResponse/intake_questionnaire_obese
+      page: null
+      bbox: null
+      raw_text: document
+      confidence: 1.0
+      source_kind: questionnaire_response
+      field_or_chunk_id: linkId-document

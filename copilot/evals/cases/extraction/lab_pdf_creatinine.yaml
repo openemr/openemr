@@ -1,0 +1,33 @@
+case_id: lab_pdf_creatinine
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: LabPDFExtraction
+expected_values:
+  results[0].value: 2.72
+  results[0].unit: mg/dL
+fixture:
+  extraction:
+    results:
+    - test_name: Creatinine
+      analyte_key: creatinine
+      loinc_code: null
+      value: 2.72
+      unit: mg/dL
+      reference_range: 0.6-1.2
+      collection_date: '2026-04-30'
+      abnormal_flag: H
+      source_citation:
+        source_doc_id: DocumentReference/lab_pdf_creatinine
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: Creatinine 2.72 mg/dL 0.6-1.2 H
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: results[creatinine].value
+    document_date: '2026-04-30'

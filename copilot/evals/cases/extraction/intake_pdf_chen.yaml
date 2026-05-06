@@ -1,0 +1,43 @@
+case_id: intake_pdf_chen
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: IntakeFormExtraction
+expected_values:
+  demographics.age: 58
+  chief_concern: fatigue, occasional chest tightness on exertion
+fixture:
+  extraction:
+    demographics:
+      age: 58
+      gender: F
+      chief_concern: fatigue, occasional chest tightness on exertion
+      source_citation:
+        source_doc_id: DocumentReference/intake_pdf_chen
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.1
+          w: 0.5
+          h: 0.05
+        raw_text: demographics
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: demographics
+    chief_concern: fatigue, occasional chest tightness on exertion
+    current_medications: []
+    allergies: []
+    family_history: []
+    source_citation:
+      source_doc_id: DocumentReference/intake_pdf_chen
+      page: 1
+      bbox:
+        x: 0.1
+        y: 0.1
+        w: 0.5
+        h: 0.05
+      raw_text: document
+      confidence: 0.95
+      source_kind: document
+      field_or_chunk_id: document

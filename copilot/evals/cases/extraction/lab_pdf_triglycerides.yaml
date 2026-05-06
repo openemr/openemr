@@ -1,0 +1,33 @@
+case_id: lab_pdf_triglycerides
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: LabPDFExtraction
+expected_values:
+  results[0].value: 210.0
+  results[0].unit: mg/dL
+fixture:
+  extraction:
+    results:
+    - test_name: Triglycerides
+      analyte_key: triglycerides
+      loinc_code: null
+      value: 210.0
+      unit: mg/dL
+      reference_range: <150
+      collection_date: '2026-04-30'
+      abnormal_flag: H
+      source_citation:
+        source_doc_id: DocumentReference/lab_pdf_triglycerides
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: Triglycerides 210.0 mg/dL <150 H
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: results[triglycerides].value
+    document_date: '2026-04-30'

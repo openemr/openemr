@@ -1,0 +1,33 @@
+case_id: lab_pdf_lipid_low_confidence
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: LabPDFExtraction
+expected_values:
+  results[0].test_name: HDL Cholesterol
+  results[0].unit: mg/dL
+fixture:
+  extraction:
+    results:
+    - test_name: HDL Cholesterol
+      analyte_key: hdl_cholesterol
+      loinc_code: null
+      value: null
+      unit: mg/dL
+      reference_range: '>40'
+      collection_date: '2026-04-30'
+      abnormal_flag: null
+      source_citation:
+        source_doc_id: DocumentReference/lab_pdf_lipid_low_confidence
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: HDL Cholesterol None mg/dL >40 None
+        confidence: 0.3
+        source_kind: document
+        field_or_chunk_id: results[hdl_cholesterol].value
+    document_date: '2026-04-30'

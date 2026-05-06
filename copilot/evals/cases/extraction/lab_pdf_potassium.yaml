@@ -1,0 +1,33 @@
+case_id: lab_pdf_potassium
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: LabPDFExtraction
+expected_values:
+  results[0].value: 4.1
+  results[0].unit: mEq/L
+fixture:
+  extraction:
+    results:
+    - test_name: Potassium
+      analyte_key: potassium
+      loinc_code: null
+      value: 4.1
+      unit: mEq/L
+      reference_range: 3.5-5.0
+      collection_date: '2026-04-30'
+      abnormal_flag: N
+      source_citation:
+        source_doc_id: DocumentReference/lab_pdf_potassium
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: Potassium 4.1 mEq/L 3.5-5.0 N
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: results[potassium].value
+    document_date: '2026-04-30'

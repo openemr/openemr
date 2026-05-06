@@ -1,0 +1,43 @@
+case_id: intake_pdf_kowalski
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: IntakeFormExtraction
+expected_values:
+  demographics.age: 47
+  chief_concern: right knee pain after fall
+fixture:
+  extraction:
+    demographics:
+      age: 47
+      gender: F
+      chief_concern: right knee pain after fall
+      source_citation:
+        source_doc_id: DocumentReference/intake_pdf_kowalski
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.1
+          w: 0.5
+          h: 0.05
+        raw_text: demographics
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: demographics
+    chief_concern: right knee pain after fall
+    current_medications: []
+    allergies: []
+    family_history: []
+    source_citation:
+      source_doc_id: DocumentReference/intake_pdf_kowalski
+      page: 1
+      bbox:
+        x: 0.1
+        y: 0.1
+        w: 0.5
+        h: 0.05
+      raw_text: document
+      confidence: 0.95
+      source_kind: document
+      field_or_chunk_id: document

@@ -1,0 +1,33 @@
+case_id: lab_pdf_a1c
+category: extraction
+scorers:
+- schema_valid
+- factually_consistent
+expected_schema_class: LabPDFExtraction
+expected_values:
+  results[0].value: 7.2
+  results[0].unit: '%'
+fixture:
+  extraction:
+    results:
+    - test_name: Hemoglobin A1c
+      analyte_key: hba1c
+      loinc_code: null
+      value: 7.2
+      unit: '%'
+      reference_range: <7.0
+      collection_date: '2026-04-30'
+      abnormal_flag: H
+      source_citation:
+        source_doc_id: DocumentReference/lab_pdf_a1c
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: Hemoglobin A1c 7.2 % <7.0 H
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: results[hba1c].value
+    document_date: '2026-04-30'
