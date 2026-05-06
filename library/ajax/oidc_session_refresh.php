@@ -157,7 +157,16 @@ $result = $handler->handle($idToken, $sessionIssuer, $sessionAudience, $sessionS
 
 // 8. Act on result
 if ($result->success && $result->validatedToken !== null) {
-    OidcSessionHelper::updateTokenExpiry($result->validatedToken->expiresAt, $result->validatedToken->jti);
+    // Persist the validator's revocation key (literal jti when present, or
+    // the synthetic per-issuance identifier when the IdP omits jti). The
+    // session previously stored the literal jti, which was null for
+    // jti-less tokens — making logout/revocation downstream a no-op for
+    // those users. The revocation key is always non-null and matches what
+    // jwt_grant_history and oidc_token_revocation index by.
+    OidcSessionHelper::updateTokenExpiry(
+        $result->validatedToken->expiresAt,
+        $result->validatedToken->revocationKey,
+    );
     OidcSessionHelper::recordRefresh(time());
 }
 

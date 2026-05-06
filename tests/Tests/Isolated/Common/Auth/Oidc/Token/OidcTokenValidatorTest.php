@@ -689,17 +689,54 @@ final class OidcTokenValidatorTest extends TestCase
         self::assertSame([], $this->jwtRepository->recordsFor('revoked-jti-2'));
     }
 
-    public function testTokenWithoutJtiIsNotAffectedByRevocationCheck(): void
+    public function testTokenWithoutJtiIsValidatedByRevocationCheckViaSyntheticKey(): void
     {
-        // No jti claim → revocation check is skipped (documented behavior).
-        // Validation proceeds; replay protection still kicks in via the
-        // synthetic key.
+        // Aisle round-2 finding #6 (CWE-287). Before the fix, jti-less
+        // tokens skipped the revocation check entirely — they could never
+        // be revoked. Now the check uses the validator's replay key
+        // (synthetic `oidc-synthetic:hash(iss|sub|iat)` when jti is
+        // missing), which means logout/admin revocation flows can target
+        // the same identifier and the validator rejects it on subsequent
+        // presentations.
         $jwt = $this->buildToken();
+        $result = $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        // Sanity: jti-less token validates and exposes a synthetic
+        // revocation key.
+        self::assertNull($result->jti);
+        self::assertStringStartsWith('oidc-synthetic:', $result->revocationKey);
+        self::assertSame('user-123', $result->identity->externalId);
+    }
+
+    public function testTokenWithoutJtiCanBeRevokedViaSyntheticKey(): void
+    {
+        // Validate once to learn the synthetic key, revoke it, build an
+        // identical token (same iss/sub/iat → same synthetic key), and
+        // assert the second validation is rejected. End-to-end proof that
+        // jti-less tokens are now revocable.
+        $jwt = $this->buildToken();
+        $first = $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        $this->revocationChecker->revoke($first->revocationKey);
+
+        // Same iss/sub/iat → same synthetic key. Need a fresh JWT string
+        // to bypass the replay-history record we just stored, but the
+        // revocation key is what the test is actually exercising.
+        $jwtAgain = $this->buildToken();
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('Token has been revoked');
+        $this->validator->validate($jwtAgain, self::JWKS_URI, $this->params);
+    }
+
+    public function testRevocationKeyEqualsLiteralJtiWhenPresent(): void
+    {
+        $jwt = $this->buildToken(jti: 'literal-jti-xyz');
 
         $result = $this->validator->validate($jwt, self::JWKS_URI, $this->params);
 
-        self::assertNull($result->jti);
-        self::assertSame('user-123', $result->identity->externalId);
+        self::assertSame('literal-jti-xyz', $result->jti);
+        self::assertSame('literal-jti-xyz', $result->revocationKey);
     }
 }
 

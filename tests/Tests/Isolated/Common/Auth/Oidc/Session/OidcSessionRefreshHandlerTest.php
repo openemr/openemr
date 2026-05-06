@@ -188,6 +188,7 @@ final class OidcSessionRefreshHandlerTest extends TestCase
             claims: ['sub' => $subject, 'iss' => $issuer],
             expiresAt: new \DateTimeImmutable('+1 hour'),
             jti: 'refresh-jti-1',
+            revocationKey: 'refresh-jti-1',
         );
         $this->tokenValidator->method('validate')->willReturn($token);
     }

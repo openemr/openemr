@@ -31,16 +31,24 @@ final class ValidatedTokenTest extends TestCase
             claims: $claims,
             expiresAt: $expiresAt,
             jti: 'token-id-abc',
+            revocationKey: 'token-id-abc',
         );
 
         self::assertSame($identity, $token->identity);
         self::assertSame($claims, $token->claims);
         self::assertSame($expiresAt, $token->expiresAt);
         self::assertSame('token-id-abc', $token->jti);
+        self::assertSame('token-id-abc', $token->revocationKey);
     }
 
-    public function testConstructionWithDefaultJti(): void
+    public function testConstructionWithoutLiteralJtiCarriesSyntheticRevocationKey(): void
     {
+        // IdPs that omit `jti` (Firebase/GCIP in some configurations) still
+        // need a stable per-issuance identifier so the validator can do
+        // replay protection AND revocation lookups. The validator's
+        // computeReplayKey() returns an `oidc-synthetic:hash(...)` value
+        // in that case, which the ValidatedToken carries in revocationKey
+        // even when jti is null.
         $identity = new NormalizedIdentity(
             externalId: 'user-456',
             issuer: 'https://login.microsoftonline.com/tid/v2.0',
@@ -52,9 +60,12 @@ final class ValidatedTokenTest extends TestCase
             identity: $identity,
             claims: ['sub' => 'user-456'],
             expiresAt: $expiresAt,
+            jti: null,
+            revocationKey: 'oidc-synthetic:abc123def456',
         );
 
         self::assertNull($token->jti);
+        self::assertSame('oidc-synthetic:abc123def456', $token->revocationKey);
     }
 
     public function testIsImmutable(): void

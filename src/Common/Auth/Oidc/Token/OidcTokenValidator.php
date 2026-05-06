@@ -164,26 +164,33 @@ readonly class OidcTokenValidator
             }
         }
 
-        // Step 9: Reject revoked jtis. Tokens without a jti claim cannot be
-        // revoked through this mechanism — operators wanting immediate lockout
-        // for those should rely on session invalidation instead.
+        // Compute the per-token-issuance identifier once and use it for both
+        // revocation and replay protection. computeReplayKey() returns the
+        // literal `jti` claim when the IdP supplies one, or a synthetic
+        // `oidc-synthetic:hash(iss|sub|iat)` value when it doesn't (notably
+        // Firebase/GCIP in some configurations). Using the same key for both
+        // checks means tokens without a jti are still revocable — the
+        // operator revokes the synthetic key, and the validator rejects it
+        // here.
+        $replayKey = $this->computeReplayKey($token);
         $jti = $token->claims()->get('jti');
-        if (is_string($jti) && $jti !== '' && $this->revocationChecker->isRevoked($jti)) {
+
+        // Step 9: Reject revoked tokens. Keyed on the replay key (not the raw
+        // jti) so jti-less tokens are also revocation-checked.
+        if ($this->revocationChecker->isRevoked($replayKey)) {
             throw new OidcTokenValidationException('Token has been revoked');
         }
 
         // JTI replay protection.
         //
-        // Every ID-token validation records a replay key so a second presentation
-        // of the same token is rejected. Providers that omit the "jti" claim
-        // (notably Firebase/GCIP in some configurations) fall back to a synthetic
-        // key derived from (iss, sub, iat), which is unique per token issuance.
+        // Every ID-token validation records the replay key so a second
+        // presentation of the same token is rejected.
         //
-        // The repository's "jti_exp > ?" filter is passed the current clock time
-        // (not the token's own exp), so the lookup returns "has this jti been
-        // seen recently, and is the stored record still within its validity
-        // window". Records past their stored jti_exp naturally age out.
-        $replayKey = $this->computeReplayKey($token);
+        // The repository's "jti_exp > ?" filter is passed the current clock
+        // time (not the token's own exp), so the lookup returns "has this
+        // key been seen recently, and is the stored record still within its
+        // validity window". Records past their stored jti_exp naturally age
+        // out.
         $nowTimestamp = $this->clock->now()->getTimestamp();
         if ($this->jwtRepository->getJwtGrantHistoryForJTI($replayKey, $nowTimestamp) !== []) {
             throw new OidcTokenValidationException('ID token has already been used (replay detected)');
@@ -208,11 +215,16 @@ readonly class OidcTokenValidator
 
         // Step 11: Build result. exp is guaranteed DateTimeImmutable by the
         // require-exp guard right after the LooseValidAt assertions above.
+        // revocationKey is the validator's per-issuance identifier — equal
+        // to the raw jti when the IdP supplied one, or a synthetic value
+        // otherwise. Callers tracking the token across requests should
+        // persist this, not the literal jti (which can be null).
         return new ValidatedToken(
             identity: $identity,
             claims: $claims,
             expiresAt: $exp,
             jti: is_string($jti) ? $jti : null,
+            revocationKey: $replayKey,
         );
     }
 
@@ -229,6 +241,10 @@ readonly class OidcTokenValidator
      *         key. Falling back to a constant placeholder would collide all
      *         tokens for the same (iss, sub) and let a single presented token
      *         lock the user out of subsequent logins.
+     *
+     * @return non-empty-string Either the literal `jti` (validated non-empty
+     *         on the early return path) or `'oidc-synthetic:'` followed by a
+     *         SHA-256 hex digest, which is always non-empty by construction.
      */
     private function computeReplayKey(Plain $token): string
     {
