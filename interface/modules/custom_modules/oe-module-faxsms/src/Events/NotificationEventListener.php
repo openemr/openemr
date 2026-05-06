@@ -29,7 +29,7 @@ class NotificationEventListener implements EventSubscriberInterface
     private readonly bool $isEmailEnabled;
     private readonly bool $isFaxEnabled;
 
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
         $this->isSmsEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? 0);
         $this->isFaxEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? 0);

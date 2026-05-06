@@ -327,5 +327,5 @@ if ($allowSMSButtons) {
 }
 
 if (!(empty($session->get('authUserID')) && $session->get('pid')) && ($allowSMS || $allowEmail)) {
-    (new NotificationEventListener($eventDispatcher, OEGlobalsBag::getInstance()->getKernel()))->subscribeToEvents();
+    (new NotificationEventListener($eventDispatcher))->subscribeToEvents();
 }
