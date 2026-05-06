@@ -77,13 +77,16 @@ lightweight ref). Lightweight tags lack author/date/message metadata and break
 
 ## Dispatch events emitted
 
-The workflow emits `repository_dispatch` to consumer repos:
+The workflow emits `repository_dispatch` to consumer repos. The full
+envelope (`event`, `repo`, `sha`, `actor`, `dispatched_at`, `data`) is
+defined in `tools/release/contracts/dispatch.schema.json`; the table below
+lists only the per-event `data` payload.
 
-| Event                  | When                           | Payload                                |
-| ---------------------- | ------------------------------ | -------------------------------------- |
-| `openemr-rel-cut`      | first push to a new `rel-*`    | `{ branch, sha }`                      |
-| `openemr-rel-update`   | subsequent push to `rel-*`     | `{ branch, sha }`                      |
-| `openemr-tag`          | annotated tag created          | `{ tag, branch, sha }`                 |
+| Event                  | When                                  | `data` payload                          |
+| ---------------------- | ------------------------------------- | --------------------------------------- |
+| `openemr-rel-cut`      | first push to a new `rel-*`           | `{ branch, version, prev_release }`     |
+| `openemr-rel-update`   | subsequent push to `rel-*`            | `{ branch, version, prev_release }`     |
+| `openemr-tag`          | annotated tag created                 | `{ tag, branch, version }`              |
 
 Targets: `openemr/website-openemr`, `openemr/openemr-devops`.
 
