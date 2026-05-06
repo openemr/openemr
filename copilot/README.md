@@ -16,8 +16,10 @@ every patient chart; click to slide a 400px panel in). The standalone URL at
 `/` is kept for development and for the demo video.
 
 See:
-- [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) — current status, what's built, what's left
-- [`../ARCHITECTURE.md`](../ARCHITECTURE.md) — full design
+- [`W1_IMPLEMENTATION.md`](./W1_IMPLEMENTATION.md) — Week 1 status, the agent loop, citation contract, verification gate
+- [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) — Week 2 design-of-record from the architecture-defense gate (§1–§10) + Appendix C documenting the deployed-MVP delta
+- [`W2_IMPLEMENTATION.md`](./W2_IMPLEMENTATION.md) — Week 2 MVP plan (14 tasks, all landed)
+- [`../ARCHITECTURE.md`](../ARCHITECTURE.md) — Week 1 full design
 - [`../USERS.md`](../USERS.md) — target user + use cases
 - [`../AUDIT.md`](../AUDIT.md) — codebase audit findings the agent must mitigate
 
@@ -116,21 +118,30 @@ demo video and for hitting the agent without going through OpenEMR.
 
 ## Tests
 
-The eval suite has **17 tests** across PHI minimization, tool integration,
-verification gate, and live LLM scenarios:
+The eval suite has **75 tests** (Week 1 baseline: 42; Week 2 MVP: +33),
+3 skipped (live-LLM cases gated behind `ANTHROPIC_LIVE=1`):
 
 ```bash
 make test       # PHI + tool integration tests only (no live LLM)
-make eval       # full suite, mocked LLM
+make eval       # full suite, mocked LLM — 75 passed, 3 skipped expected
 make eval-live  # full suite, real LLM call (requires ANTHROPIC_API_KEY in env)
 ```
 
-Test breakdown:
-- 7 PHI minimizer tests (`evals/tools/test_phi_minimizer.py`)
-- 3 tool integration tests (`evals/tools/test_tool_integration.py`)
-- 4 verification gate tests (`evals/agent/test_verification.py`)
-- 3 live LLM scenarios — UC1 happy path, UC1 refusal-on-empty, prompt injection
-  (`evals/agent/test_scenarios.py`)
+Test breakdown (post-Week 2):
+- Week 1: PHI minimizer, tool integration, verification gate, agent
+  scenarios, panel-scope, prewarm, persistence, resume — 42 cases.
+- Week 2 ingestion (`evals/ingestion/`):
+  - `test_vlm.py` — Claude vision adapter content-block dispatch.
+  - `test_fhir_writer.py` — derived FHIR resource builders + write seam.
+  - `test_extraction_service.py` — IngestionService dedup + writes.
+  - `test_attach_route.py` — POST `/v1/documents/attach` end-to-end.
+  - `test_document_views.py` — `/preview` + `/extractions` panel-gated.
+  - `test_pipeline_smoke.py` — fixture PDF through the full pipeline with VLM mocked.
+- Week 2 retrieval (`evals/retrieval/test_corpus.py`) — BM25 corpus index + queries.
+- Week 2 tools (`evals/tools/test_document_tool.py`) — `attach_and_extract`
+  + `get_recent_uploads` ToolResult shape, including Layer-2 cross-patient-leakage compatibility.
+- Week 2 agent (`evals/agent/test_fhir_writes.py`, `test_iframe_routes.py`) — stub-write helpers + iframe shell HTML/JS/CSS.
+- Week 2 persistence (`evals/persistence/test_lifespan_wiring.py`) — app.state singletons.
 
 `make eval` writes `evals/RESULTS.md` with a summary of pass/fail counts.
 
@@ -138,17 +149,33 @@ Test breakdown:
 
 ```
 app/
-  main.py              FastAPI entry, /healthz, /v1/sessions, /v1/chat, /v1/patient/{id}/raw
-  config.py            Settings (env-driven)
-  fhir/                OAuth2 + FHIR HTTP client
-  tools/               8 FHIR-backed tools using shared 5-step pattern (_base.py + registry.py)
-  agent/               Orchestration loop, provider-agnostic LLM adapter, prompt, schemas
+  main.py              FastAPI entry: /healthz, /v1/sessions, /v1/chat,
+                       /v1/documents/{attach,preview,extractions} (Week 2)
+  config.py            Settings (env-driven; Anthropic + OpenAI adapters)
+  fhir/                OAuth2 + FHIR HTTP client. Week 2 write helpers
+                       are stubbed — see W2_ARCHITECTURE.md Appendix C.2
+  tools/               11 tools — 8 Week 1 FHIR readers + Week 2:
+                         attach_and_extract, search_guidelines, get_recent_uploads
+  agent/               Orchestration loop, provider-agnostic LLM adapter
+                       (FallbackAdapter wraps Anthropic + OpenAI), prompt,
+                       schemas. Week 2 prompt teaches the new tools.
   verification/        Layer-1 attribution + Layer-2 domain rules
-  phi/                 PHI minimizer + session pseudonym map
-  observability/       Langfuse trace wrapper (noop fallback when keys absent)
+  phi/                 PHI minimizer + session pseudonym map + log_filter
+  observability/       Langfuse trace wrapper + PHI-safe vlm_span helpers
   acl/                 GACL mirror — defense in depth
-  web/                 Standalone chat UI (with ?patient_id= auto-bind for the iframe rail)
-evals/                 pytest suite — 17 tests
+  ingestion/           Week 2: schemas (Pydantic), VLM adapter,
+                       service orchestration, FHIR writer (stubbed)
+  retrieval/           Week 2: SQLite + FTS5 BM25 corpus reader
+  persistence/         conversation store + processed_documents (Week 2:
+                       sha3-512 dedup + extracted file_bytes + mime_type)
+  web/                 Iframe shell (HTML + CSS + JS) for the drop-zone
+                       UI; bbox modal; chat input. Light-theme pinned
+                       so dark-mode hosts render correctly.
+corpus/                12-chunk hand-curated guideline corpus (USPSTF/ADA/AHA)
+scripts/               generate_mvp_fixtures.py — deterministic synthetic
+                       lab + intake PDFs for the pipeline smoke test
+evals/                 pytest suite — 75 tests (W1: 42 + W2 MVP: 33)
+  agent/  ingestion/  retrieval/  tools/  persistence/
 ```
 
 ## Status
@@ -156,9 +183,41 @@ evals/                 pytest suite — 17 tests
 - ✅ Phase A — skeleton, OAuth2, FHIR roundtrip
 - ✅ Phase B — 8 tools, PHI minimizer, ACL mirror
 - ✅ Phase C — agent loop, two-layer verification gate
-- ✅ Phase D — Langfuse observability, eval suite (17/17)
-- ✅ Phase E — chat UI, Railway deploy, **iframe rail in OpenEMR**
-- 📋 Phase F — demo video, AI cost analysis, secret rotation
+- ✅ Phase D — Langfuse observability, eval suite
+- ✅ Phase E — chat UI, Railway deploy, iframe rail in OpenEMR
+- ✅ **Week 2 MVP** — multimodal ingestion (lab PDF + intake form via Claude
+  vision), 11-tool registry, BM25 retrieval over the seed guideline corpus,
+  bbox-overlay citation contract, deployed and demoable end-to-end. See
+  [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) Appendix C for what shipped
+  vs what's deferred to the Thursday Early plan.
+- ⏭ **Week 2 Early Submission (Thursday)** — LangGraph supervisor + 2
+  workers + critic node, Cohere rerank + dense retrieval, 50-case golden
+  eval set + PR-blocking pre-push hook, 6 new TurnTrace fields. Tracked in
+  `W2_EARLY_IMPLEMENTATION.md` (TBD).
+- 📋 Week 2 Final (Sunday) — cost/latency report, demo video polish.
 
-See [`IMPLEMENTATION.md`](./IMPLEMENTATION.md) for the up-to-date status,
-remaining checklist, and risk log.
+## Week 2 highlights
+
+What the deployed Co-Pilot can do today (`https://copilot-production-b532.up.railway.app`):
+
+- **Drag-and-drop a lab PDF or intake form** onto the iframe drop zone.
+  Claude vision (Sonnet 4.6) extracts structured facts; every fact carries
+  a normalized bounding box back to the source page.
+- **Click any citation chip** in the agent's response — bbox modal opens
+  with the rectangle drawn on the canvas. Per-fact citations are encoded as
+  `DocumentReference/<doc_id>#page=N&bbox=...&field=results[<analyte>].value`.
+- **Ask a guideline-grounded question** (e.g., "What does the guideline
+  recommend for high LDL?") — `search_guidelines` runs BM25 over the
+  12-chunk seed corpus; the response cites `Guideline/<chunk_id>`.
+- **Combined upload + guideline question** — the agent calls
+  `get_recent_uploads` for the lab value AND `search_guidelines` for the
+  evidence, returning two citation chips in one response.
+- **sha3-512 idempotency** — re-dropping the same PDF triggers a "deduped"
+  toast; no second extraction, no duplicate observation.
+
+See [`W2_IMPLEMENTATION.md`](./W2_IMPLEMENTATION.md) for the 14-task plan
+the MVP followed, and [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) Appendix C
+for what's deployed vs what's deferred.
+
+See [`W1_IMPLEMENTATION.md`](./W1_IMPLEMENTATION.md) for the Week 1 status,
+the agent loop, and the citation contract that Week 2 builds on.
