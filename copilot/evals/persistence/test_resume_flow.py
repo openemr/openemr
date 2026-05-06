@@ -52,6 +52,16 @@ def app_client(monkeypatch, tmp_path):
         captured.append(kwargs)
         session = kwargs["session"]
         question = kwargs["question"]
+        # Include a tool_result that anchors the synthetic claim. Required
+        # so the critic node (W2 KR1) sees the claim's record_id in this
+        # turn's tool_results and doesn't strip it. The fake's intent is to
+        # exercise the resume flow, not verification.
+        anchored_record = {
+            "record_id": "MedicationRequest/1",
+            "subject_pseudonym": session.patient_pseudonym(),
+            "rxnorm": "1191",
+            "display": "aspirin",
+        }
         return AgentTurnOutput(
             response=AgentResponse(
                 prose=f"echo: {question}",
@@ -67,7 +77,9 @@ def app_client(monkeypatch, tmp_path):
                 tool_latencies_ms={},
                 tool_failures={},
             ),
-            raw_tool_results=[],
+            raw_tool_results=[
+                {"tool": "get_active_medications", "data": [anchored_record]}
+            ],
         )
 
     from app import main as main_module
