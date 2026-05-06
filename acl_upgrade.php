@@ -810,10 +810,35 @@ if ($acl_version < $upgrade_acl) {
 }
 
 
+// Upgrade for acl_version 14
+//
+// W2 KR5 (Clinical Co-Pilot — front-desk role): grant the stock 'Front Office'
+// group write access to patients|docs so receptionists can upload intake
+// forms / labs to a patient chart via the Documents Zend module before the
+// physician opens the iframe. The Co-Pilot's pending-intake banner then
+// surfaces those uploads on iframe load. See copilot/W2_ARCHITECTURE.md §2.0.
+$upgrade_acl = 14;
+if ($acl_version < $upgrade_acl) {
+    echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
+
+    //Collect the ACL ID numbers.
+    echo "<B>Checking to ensure all the proper ACL(access control list) are present:</B></BR>";
+    $front_write = AclExtended::getAclIdNumber('Front Office', 'write');
+
+    //Update the ACLs
+    echo "<BR/><B>Updating the ACLs(Access Control Lists)</B><BR/>";
+    //Insert the 'docs' object from the 'patients' section into the Front Office group write ACL (added in W2 — Co-Pilot front-desk role)
+    AclExtended::updateAcl($front_write, 'Front Office', 'patients', 'Patients', 'docs', 'Documents (write,addonly optional)', 'write');
+
+    //DONE with upgrading to this version
+    $acl_version = $upgrade_acl;
+}
+
+
 
 /* This is a template for a new revision, when needed
-// Upgrade for acl_version 14
-$upgrade_acl = 14;
+// Upgrade for acl_version 15
+$upgrade_acl = 15;
 if ($acl_version < $upgrade_acl) {
     echo "<B>UPGRADING ACCESS CONTROLS TO VERSION " . $upgrade_acl . ":</B></BR>";
 

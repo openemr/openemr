@@ -258,3 +258,41 @@ PR via `.github/workflows/copilot-ci.yml`, and pre-push via
 
 To re-freeze the baseline (e.g., after intentional case additions):
 `make eval-baseline`.
+
+## Front-desk demo prep (W2 Tier 2 lite)
+
+The W2 architecture's "front desk uploads intake forms before the
+physician opens the iframe" flow is shipped as the **lite slice** in
+this branch:
+
+- **`acl_upgrade.php` v14** grants the stock **Front Office** group
+  write access to `patients|docs`. Run the OpenEMR ACL upgrade after
+  pulling this branch (Admin → Other → ACL Upgrade) so receptionists
+  can upload via the Documents Zend module.
+- **`GET /v1/sessions/{id}/pending_intakes`** returns processed
+  documents for the active patient. Panel-gated.
+- **Iframe banner** appears top-of-iframe when the endpoint returns
+  ≥1 doc: *"N intake documents uploaded by front desk — review."*
+  Click to expand the list; click a row to open the existing bbox
+  modal pointed at the doc.
+- **Per-session in-memory dismiss** — closing the iframe re-fetches
+  the list. Persistent acknowledgement
+  (`processed_documents.acknowledged_by_physician_at`) is **deferred
+  to Final**.
+
+**Manual demo prep** (not automatable from the agent service):
+
+1. Run the ACL upgrade so the Front Office group has the new grant.
+2. Create a Front Office user (or use an existing one) — Admin →
+   Users → Add.
+3. Log in as that user, open a target patient's chart, and upload one
+   or two intake-form PDFs via the **Documents** tab (Zend module).
+4. Log out, then log back in as the physician and open the Co-Pilot
+   iframe for the same patient. The banner should appear with the
+   uploaded count.
+
+The full **facility-scope** front-desk gate (`_verify_patient_in_facility`,
+facility-aware variants of `copilot-finder-scope.php` and
+`copilot-demographics-gate.php`) and the dataset expansion to 18-20
+patients across 2 facilities are **deferred to Final** per
+`copilot/W2_EARLY_IMPLEMENTATION.md`.
