@@ -7,6 +7,6 @@ x-includes:
 
 services:
   mysql:
-    image: mysql:8.4.9@sha256:21d5c55b7f74a97dcbd281dfbb10356a16b1199da956a63b55493418afe2b940
+    image: mysql:8.4.9@sha256:6e54d72c66fb55fa2bba384cba8c7c0ea9d629fb4d2af613b0eef98d19c6df15
   openemr:
     image: openemr/openemr:flex-3.23-php-8.5@sha256:a8ef080efd15117bddb188c4fff7e1b6ca34328ade3a64396cde266e91b272d4
