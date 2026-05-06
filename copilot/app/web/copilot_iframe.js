@@ -4,6 +4,11 @@
   const PATIENT_ID = params.get("patient_id");
   const PHYSICIAN = params.get("physician_user_id") || "admin";
 
+  if (window.pdfjsLib) {
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+
   // Session bootstrap — minted lazily on the first chat submit.
   let sessionId = null;
 
@@ -153,50 +158,110 @@
     li.scrollIntoView({ block: "end" });
   }
 
+  function drawBboxOverlay(ctx, bbox, width, height) {
+    if (bbox.length !== 4 || bbox.some(Number.isNaN)) return;
+    const [x, y, w, h] = bbox;
+    ctx.strokeStyle = "rgba(220, 60, 60, 0.9)";
+    ctx.lineWidth = 3;
+    ctx.strokeRect(x * width, y * height, w * width, h * height);
+  }
+
+  function drawTextFallback(ctx, message) {
+    ctx.fillStyle = "#fafafa";
+    ctx.fillRect(0, 0, modalCanvas.width, modalCanvas.height);
+    ctx.fillStyle = "#222";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(message, 20, 30);
+  }
+
+  async function renderImagePreview(blob, page, bbox) {
+    const url = URL.createObjectURL(blob);
+    try {
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error("image_load_failed"));
+        el.src = url;
+      });
+      modalCanvas.width = img.naturalWidth;
+      modalCanvas.height = img.naturalHeight;
+      const ctx = modalCanvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  async function renderPdfPreview(arrayBuffer, page, bbox) {
+    if (!window.pdfjsLib) {
+      throw new Error("pdfjs_not_loaded");
+    }
+    const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pageNum = Math.min(Math.max(page || 1, 1), pdf.numPages);
+    const pdfPage = await pdf.getPage(pageNum);
+    const viewport = pdfPage.getViewport({ scale: 1.5 });
+    modalCanvas.width = viewport.width;
+    modalCanvas.height = viewport.height;
+    const ctx = modalCanvas.getContext("2d");
+    await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+    drawBboxOverlay(ctx, bbox, viewport.width, viewport.height);
+  }
+
   async function openBboxModal(recordId) {
     // record_id formats:
     //   DocumentReference/{doc_id}#page={N}&bbox={x},{y},{w},{h}&field={...}
     //   Guideline/{chunk_id}
     //   QuestionnaireResponse/{qr_id}#linkId={...}
+    modalLabel.textContent = recordId;
+    const ctx = modalCanvas.getContext("2d");
+    modalCanvas.width = 800;
+    modalCanvas.height = 1000;
+    ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+
     if (!recordId.startsWith("DocumentReference/")) {
-      modalLabel.textContent = recordId;
-      const ctx = modalCanvas.getContext("2d");
-      ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
-      ctx.fillStyle = "#222"; ctx.font = "14px sans-serif";
-      ctx.fillText(`(non-document citation: ${recordId})`, 20, 30);
+      drawTextFallback(ctx, `(non-document citation: ${recordId})`);
       modal.showModal();
       return;
     }
+
     const [docPart, fragment] = recordId.split("#");
     const docId = docPart.split("/")[1];
-    const params = new URLSearchParams(fragment || "");
-    const page = parseInt(params.get("page") || "1", 10);
-    const bbox = (params.get("bbox") || "").split(",").map(Number);
+    const fragParams = new URLSearchParams(fragment || "");
+    const page = parseInt(fragParams.get("page") || "1", 10);
+    const bbox = (fragParams.get("bbox") || "").split(",").map(Number);
 
-    modalLabel.textContent = recordId;
-    const ctx = modalCanvas.getContext("2d");
-    ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
-    ctx.fillStyle = "#fafafa";
-    ctx.fillRect(0, 0, modalCanvas.width, modalCanvas.height);
-    ctx.fillStyle = "#222"; ctx.font = "14px sans-serif";
-    ctx.fillText(
-      `Document ${docId} page ${page} — bbox (${bbox.join(", ")})`,
-      20, 30
-    );
-    // For MVP we don't render the actual PDF page in the canvas; we draw the
-    // bbox overlay on a neutral background. Full PDF.js rendering is in the
-    // post-MVP plan.
-    if (bbox.length === 4) {
-      const [x, y, w, h] = bbox;
-      ctx.strokeStyle = "rgba(220, 60, 60, 0.9)";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(
-        x * modalCanvas.width,
-        y * modalCanvas.height,
-        w * modalCanvas.width,
-        h * modalCanvas.height
-      );
-    }
     modal.showModal();
+    drawTextFallback(ctx, `Loading ${docId} page ${page}…`);
+
+    const previewUrl =
+      `/v1/documents/${encodeURIComponent(docId)}/preview` +
+      `?patient_id=${encodeURIComponent(PATIENT_ID || "")}` +
+      `&physician_user_id=${encodeURIComponent(PHYSICIAN)}`;
+
+    try {
+      const r = await fetch(previewUrl);
+      if (!r.ok) {
+        throw new Error(`preview_${r.status}`);
+      }
+      const contentType = (r.headers.get("Content-Type") || "").toLowerCase();
+      if (contentType.startsWith("image/")) {
+        await renderImagePreview(await r.blob(), page, bbox);
+      } else if (contentType.startsWith("application/pdf")) {
+        await renderPdfPreview(await r.arrayBuffer(), page, bbox);
+      } else {
+        drawTextFallback(ctx, `(unsupported preview type: ${contentType})`);
+        drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
+      }
+    } catch (err) {
+      console.error("bbox modal preview failed", err);
+      modalCanvas.width = 800;
+      modalCanvas.height = 1000;
+      drawTextFallback(
+        ctx,
+        `(preview unavailable for ${recordId}: ${err.message})`
+      );
+      drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
+    }
   }
 })();
