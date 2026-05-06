@@ -48,10 +48,12 @@ jobs:
       contents: read
     strategy:
       matrix:
-        # The release-prep command runs against application code so it
-        # tracks the openemr application's PHP floor.
+        # The conductor itself is tooling (only runs on CI) so per OCE
+        # conventions it tracks the latest stable PHP, not the openemr
+        # application floor. The release-prep mutators only need to
+        # parse application code, not execute it on this PHP version.
         php-version:
-        - '8.2'
+        - '8.5'
     steps:
     - name: Checkout
       uses: actions/checkout@v6
@@ -161,7 +163,7 @@ jobs:
       matrix:
         # Same rationale as the prep job above.
         php-version:
-        - '8.2'
+        - '8.5'
     steps:
     - name: Checkout merge commit
       uses: actions/checkout@v6
