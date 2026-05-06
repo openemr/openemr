@@ -103,10 +103,6 @@ final class ReleasePrepCommand extends Command
 
         $rawDigest = $input->getOption('image-digest');
         $imageDigest = is_string($rawDigest) && $rawDigest !== '' ? $rawDigest : null;
-        if ($imageDigest !== null && preg_match('/^sha256:[0-9a-f]{64}$/', $imageDigest) !== 1) {
-            $output->writeln('<error>--image-digest must be sha256:<64-hex>; got: ' . $imageDigest . '</error>');
-            return Command::INVALID;
-        }
 
         $rawProjectDir = $input->getOption('project-dir');
         $projectDir = is_string($rawProjectDir) && $rawProjectDir !== ''

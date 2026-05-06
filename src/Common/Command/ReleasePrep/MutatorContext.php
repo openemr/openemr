@@ -25,6 +25,11 @@ final readonly class MutatorContext
         public int $patch,
         public ?string $imageDigest = null,
     ) {
+        if ($imageDigest !== null && preg_match('/^sha256:[0-9a-f]{64}$/', $imageDigest) !== 1) {
+            throw new \InvalidArgumentException(
+                'imageDigest must match sha256:<64-hex>; got: ' . $imageDigest,
+            );
+        }
     }
 
     public static function fromVersionString(string $projectDir, string $version, ?string $imageDigest = null): self
