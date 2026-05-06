@@ -75,6 +75,26 @@ final class BranchVersionResolverTest extends TestCase
         self::assertSame('8.0.0', $resolver->previousRelease('8.1.0'));
     }
 
+    public function testPreviousReleaseSkipsTagsAboveTarget(): void
+    {
+        // A future-version tag (e.g. someone pre-tagged 8.2.0 while
+        // 8.1.0 is being cut) must not be returned as the previous
+        // release of 8.1.0.
+        $this->git(['tag', '-a', 'v8_0_5', '-m', 'OpenEMR 8.0.5 released 2026-03-01']);
+        $this->git(['tag', '-a', 'v8_2_0', '-m', 'OpenEMR 8.2.0 released 2026-04-01']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.0.5', $resolver->previousRelease('8.1.0'));
+    }
+
+    public function testPreviousReleaseFallsBackWhenAllTagsAreAboveTarget(): void
+    {
+        // No qualifying tag below the target -> synthesise one. Same
+        // behaviour as a fresh repo with no tags at all.
+        $this->git(['tag', '-a', 'v8_2_0', '-m', 'OpenEMR 8.2.0 released 2026-04-01']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.0.0', $resolver->previousRelease('8.1.0'));
+    }
+
     /**
      * @param list<string> $args
      */

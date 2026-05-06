@@ -40,9 +40,14 @@ final readonly class BranchVersionResolver
     }
 
     /**
-     * Returns the latest v<MAJOR>_<MINOR>_<PATCH> tag's version, or
-     * synthesises one based on the target version when no tag exists
-     * yet (initial run on a fresh repo).
+     * Returns the latest v<MAJOR>_<MINOR>_<PATCH> tag whose version is
+     * strictly less than the target, or synthesises one based on the
+     * target version when no qualifying tag exists yet (initial run on
+     * a fresh repo, or a target older than every tag in the repo).
+     *
+     * Filtering by target catches the case where a higher-numbered
+     * release was tagged out-of-order: cutting 8.1.0 should not report
+     * 8.2.0 as the previous release.
      */
     public function previousRelease(string $targetVersion): string
     {
@@ -51,7 +56,7 @@ final readonly class BranchVersionResolver
                 'target version must be MAJOR.MINOR.PATCH; got: ' . $targetVersion,
             );
         }
-        $latestTag = $this->latestVersionTag();
+        $latestTag = $this->latestVersionTagBelow($targetVersion);
         if ($latestTag !== null) {
             return $latestTag;
         }
@@ -59,7 +64,7 @@ final readonly class BranchVersionResolver
         return sprintf('%s.%d.0', $tm[1], $prevMinor);
     }
 
-    private function latestVersionTag(): ?string
+    private function latestVersionTagBelow(string $targetVersion): ?string
     {
         $process = new Process(['git', 'tag', '--list', 'v*', '--sort=-v:refname'], $this->repoDir);
         $process->mustRun();
@@ -70,8 +75,12 @@ final readonly class BranchVersionResolver
         $split = preg_split('/\R/', $output);
         $lines = $split === false ? [] : $split;
         foreach ($lines as $tag) {
-            if (preg_match('/^v(\d+)_(\d+)_(\d+)$/', $tag, $m) === 1) {
-                return sprintf('%s.%s.%s', $m[1], $m[2], $m[3]);
+            if (preg_match('/^v(\d+)_(\d+)_(\d+)$/', $tag, $m) !== 1) {
+                continue;
+            }
+            $candidate = sprintf('%s.%s.%s', $m[1], $m[2], $m[3]);
+            if (version_compare($candidate, $targetVersion, '<')) {
+                return $candidate;
             }
         }
         return null;
