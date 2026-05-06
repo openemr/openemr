@@ -48,12 +48,16 @@ def _start(client: TestClient) -> str:
 
 
 def _patch_fhir_search(main_module, monkeypatch, bundle: dict) -> None:
+    captured: dict = {}
+
     async def _fake_search(resource_type, params, *, physician_user_id):
         assert resource_type == "DocumentReference"
         assert params.get("patient") == PATIENT_ID
+        captured["params"] = params
         return bundle
 
     monkeypatch.setattr(main_module.app.state.fhir, "search", _fake_search)
+    return captured
 
 
 def test_pending_intakes_returns_empty_when_fhir_returns_empty_bundle(
@@ -166,3 +170,26 @@ def test_pending_intakes_response_shape_is_stable(app_client, monkeypatch) -> No
     r = client.get(f"/v1/sessions/{sid}/pending_intakes")
     body = r.json()
     assert set(body.keys()) == {"items", "count"}
+
+
+def test_pending_intakes_constrains_to_recent_uploads(
+    app_client, monkeypatch
+) -> None:
+    """W2 KR5 round-7 fix (codex P2): without a date filter the endpoint
+    returns every DocumentReference on the chart, which is wrong for the
+    "uploaded by front desk — review" banner copy. The lite implementation
+    asks FHIR for `date=geYYYY-MM-DD` (last 7 days) so the banner stays
+    focused on recent activity.
+    """
+    client, main_module = app_client
+    captured = _patch_fhir_search(main_module, monkeypatch, {"entry": []})
+    sid = _start(client)
+
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+
+    date_param = captured["params"].get("date")
+    assert isinstance(date_param, str)
+    assert date_param.startswith("ge"), "must be a `geYYYY-MM-DD` lower bound"
+    # The cutoff is computed at request time; sanity check the iso-date suffix.
+    assert len(date_param) == len("geYYYY-MM-DD")

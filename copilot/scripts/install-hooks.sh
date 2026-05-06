@@ -26,7 +26,7 @@ cat > "$HOOK_PATH" <<'HOOK'
 #!/usr/bin/env bash
 # Auto-installed by copilot/scripts/install-hooks.sh.
 #
-# Runs the W2 50-case eval gate's FAST_SUBSET (12 cases, ~2s in Docker)
+# Runs the W2 50-case eval gate's FAST_SUBSET (~14 cases, <2s in Docker)
 # before allowing a push. The PRD requires this gate to block regressions:
 # during grading, a small regression is injected and the gate must fail.
 #
@@ -35,32 +35,46 @@ cat > "$HOOK_PATH" <<'HOOK'
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
+ZERO_OID="0000000000000000000000000000000000000000"
 
-# Skip if no copilot/** changes in the push range — saves docker-pull time
-# on PHP-only branches.
-range="HEAD"
-if git rev-parse --verify --quiet "$1@{0}" >/dev/null 2>&1; then
-  : # interactive push; just use HEAD
-fi
-if ! git diff --name-only --quiet -- copilot/ 2>/dev/null; then
-  : # there are local copilot changes vs index — run gate
-fi
-# Coarse check: does the push touch copilot/?
+# Git's pre-push hook contract: pushed refs are passed on STDIN as
+# "<local_ref> <local_oid> <remote_ref> <remote_oid>" lines, one per ref.
+# Reading stdin is the only authoritative way to know what's being pushed
+# — `@{u}` doesn't resolve on new branches with no upstream, and
+# `HEAD~1..HEAD` misses copilot changes in earlier commits of the push
+# (codex round-7 P2 fix).
 copilot_touched=0
-if git log --name-only --pretty=format: HEAD..@{u} 2>/dev/null \
-    | grep -q '^copilot/' ; then
-  copilot_touched=1
-fi
-if [ "$copilot_touched" = "0" ] && git diff --name-only @{u}..HEAD 2>/dev/null \
-    | grep -q '^copilot/' ; then
-  copilot_touched=1
-fi
-
-# If we can't determine, run the gate anyway (safe default).
-if [ "$copilot_touched" = "0" ]; then
-  if git diff --name-only HEAD~1..HEAD 2>/dev/null | grep -q '^copilot/' ; then
-    copilot_touched=1
+read_any=0
+while read -r local_ref local_oid remote_ref remote_oid; do
+  read_any=1
+  # Skip ref deletions (local_oid is all zeros).
+  [ "$local_oid" = "$ZERO_OID" ] && continue
+  if [ "$remote_oid" = "$ZERO_OID" ]; then
+    # New branch on the remote — diff against the merge-base with origin's
+    # default branch if we can find one; otherwise fall back to "all
+    # commits reachable from local_oid that aren't on master".
+    base="$(git merge-base "$local_oid" origin/master 2>/dev/null \
+            || git merge-base "$local_oid" master 2>/dev/null \
+            || echo "")"
+    if [ -n "$base" ]; then
+      range="$base..$local_oid"
+    else
+      # Last resort: just check the tip.
+      range="$local_oid~1..$local_oid"
+    fi
+  else
+    range="$remote_oid..$local_oid"
   fi
+  if git diff --name-only "$range" 2>/dev/null | grep -q '^copilot/' ; then
+    copilot_touched=1
+    break
+  fi
+done
+
+# If stdin had no refs (e.g. git push run without piping), default to
+# running the gate — safer than skipping.
+if [ "$read_any" = "0" ]; then
+  copilot_touched=1
 fi
 
 if [ "$copilot_touched" = "1" ]; then

@@ -549,10 +549,25 @@ async def get_pending_intakes(
     # path only — filtering it by source_path returns nothing because no
     # production writer records `front_desk_scan` rows. Source the banner
     # from FHIR DocumentReference per W2_ARCHITECTURE.md §2.0 / §4.1.
+    #
+    # W2 KR5 round-7 fix (codex P2): without filtering, the endpoint
+    # returns EVERY DocumentReference for the patient (years of chart
+    # documents) and the iframe labels them all "uploaded by front desk —
+    # review." Constrain to RECENT uploads (last 7 days) — recent activity
+    # is the lite-implementation proxy for "front-desk-uploaded and not
+    # yet reviewed by the physician." The persistent-ack column
+    # (`processed_documents.acknowledged_by_physician_at`) and the
+    # `author` role-based filter are Final-scope.
+    from datetime import datetime, timedelta, timezone
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=7)).date().isoformat()
     try:
         bundle = await fhir.search(
             "DocumentReference",
-            {"patient": session.active_patient_id, "_count": "20"},
+            {
+                "patient": session.active_patient_id,
+                "date": f"ge{cutoff}",
+                "_count": "20",
+            },
             physician_user_id=session.physician_user_id,
         )
     except FhirError:
