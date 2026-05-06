@@ -1,3 +1,25 @@
+# AgentForge — Clinical Co-Pilot in OpenEMR
+
+Gauntlet AI Austin admission track. This repo is a fork of [openemr/openemr](https://github.com/openemr/openemr) with a Clinical Co-Pilot AI agent embedded as an iframe rail on the patient demographics page.
+
+## Live demo
+
+| Surface | URL |
+|---|---|
+| OpenEMR (fork, with Co-Pilot rail) | <https://openemr-production-0c8c.up.railway.app/> |
+| Clinical Co-Pilot agent (standalone) | <https://copilot-production-b532.up.railway.app/> |
+
+Open the OpenEMR URL, log in, pick a patient → the Co-Pilot rail tab is on the right edge of the demographics page. The standalone agent URL is for the demo video and direct API access.
+
+## Week 1 deliverables
+
+- [`AUDIT.md`](AUDIT.md) — security / performance / architecture / compliance audit of the OpenEMR codebase
+- [`USERS.md`](USERS.md) — target user, workflow, agent-vs-UI justification
+- [`ARCHITECTURE.md`](ARCHITECTURE.md) — AI integration design
+- [`copilot/README.md`](copilot/README.md) — Co-Pilot service: setup, OAuth registration, deploy, eval suite
+
+---
+
 [![Syntax Status](https://github.com/openemr/openemr/actions/workflows/syntax.yml/badge.svg)](https://github.com/openemr/openemr/actions/workflows/syntax.yml)
 [![Styling Status](https://github.com/openemr/openemr/actions/workflows/styling.yml/badge.svg)](https://github.com/openemr/openemr/actions/workflows/styling.yml)
 [![Testing Status](https://github.com/openemr/openemr/actions/workflows/test.yml/badge.svg)](https://github.com/openemr/openemr/actions/workflows/test.yml)

@@ -2,6 +2,49 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+# Memory Bank Protocol
+
+This repository carries a **Memory Bank** under `memory-bank/`. It is the persistent project context across sessions and across weeks of the AgentForge sprint.
+
+## The four rules (non-negotiable)
+
+1. **Every session start: read all Memory Bank files in order, before any other action.**
+   1. `memory-bank/projectbrief.md`
+   2. `memory-bank/techContext.md`
+   3. `memory-bank/systemPatterns.md`
+   4. `memory-bank/activeContext.md`
+   5. `memory-bank/progress.md`
+   6. `memory-bank/assignments/week<current>.md` (whichever week is active)
+
+2. **When a new week's assignment arrives: read `progress.md` and the previous week's `assignments/weekN.md` first**, then create `assignments/week<N+1>.md` and proceed.
+
+3. **After completing any task: proactively update `activeContext.md` and `progress.md`** — without being asked. Both files reflect "where we are now," and stale state poisons future sessions.
+
+4. **On the literal command `update memory bank`: do a full review of every file in `memory-bank/`** — reconcile against the current code, fix drift, dated-supersede stale claims, prune what no longer holds. Treat it as a maintenance pass, not a write-only dump.
+
+## Update triggers (per file)
+
+| File | When to touch it |
+|---|---|
+| `projectbrief.md` | Only if overall project objective changes. Rare. |
+| `techContext.md` | New dep, version pin, env var, deployment surface, or service. |
+| `systemPatterns.md` | New architectural decision or an existing pattern superseded. Record the **why**. |
+| `activeContext.md` | Start and end of any focused work block; whenever current focus shifts. |
+| `progress.md` | Deliverable finished, blocked, or a known issue discovered/resolved. |
+| `assignments/weekN.md` | When spec is first read; when each requirement is satisfied; when the week closes. |
+
+## Operating rules
+
+- **Code > Memory Bank.** If a file says X and the code says Y, trust the code, then update the file.
+- **Append, do not silently rewrite.** When superseding a decision, leave a dated note. Do not delete history.
+- **Absolute dates only** (`2026-05-05`). Never relative (`yesterday`, `last week`).
+- **Cite `file:line`** when referencing implementation, so future-you can navigate.
+- **No secrets in `memory-bank/`.** Reference env-var *names* only.
+
+---
+
 # OpenEMR Development Guide
 
 ## Project Structure

@@ -21,7 +21,7 @@ def write_lab_pdf(path: Path) -> None:
     c.setFont("Helvetica-Bold", 16)
     c.drawString(72, 720, "Synthetic Reference Lab — Lipid Panel")
     c.setFont("Helvetica", 10)
-    c.drawString(72, 700, "Patient: SYNTHEA-MVP-001    Collected: 2026-04-30")
+    c.drawString(72, 700, "Patient: Flatley871, Chris95   DOB: 1979-11-19   Collected: 2026-05-05")
     c.setFont("Helvetica-Bold", 11)
     c.drawString(72, 660, "Test                       Value    Unit     Ref Range   Flag")
     c.setFont("Helvetica", 11)
