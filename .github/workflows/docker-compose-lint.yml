@@ -24,6 +24,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
+      with:
+        persist-credentials: false
 
     - name: Get changed docker compose files
       id: changed-files
@@ -43,21 +45,27 @@ jobs:
 
         # If the changed-files step failed or returned empty,
         # use find to locate all docker compose files in the repo.
-        if [[ "${{ steps.changed-files.outcome }}" = success && "${{ steps.changed-files.outputs.any_changed }}" = true ]]; then
+        if [[ "${STEPS_CHANGED_FILES_OUTCOME}" = success && "${STEPS_CHANGED_FILES_OUTPUTS_ANY_CHANGED}" = true ]]; then
           echo 'Changed files found, checking only those.'
           # Store files in a way that handles spaces properly
           echo "mode=files" >> "$GITHUB_OUTPUT"
-          echo "files=${{ steps.changed-files.outputs.all_changed_files }}" >> "$GITHUB_OUTPUT"
+          echo "files=${STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES}" >> "$GITHUB_OUTPUT"
         else
           echo 'No changed files found, checking all docker compose files in the repo.'
           # Use recursive mode in dclint to find all compose files
           echo "mode=recursive" >> "$GITHUB_OUTPUT"
         fi
+      env:
+        STEPS_CHANGED_FILES_OUTCOME: ${{ steps.changed-files.outcome }}
+        STEPS_CHANGED_FILES_OUTPUTS_ANY_CHANGED: ${{ steps.changed-files.outputs.any_changed }}
+        STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
 
     - name: Run dclint on changed files
       if: steps.files-to-check.outputs.mode == 'files'
       run: |
-        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 ${{ steps.files-to-check.outputs.files }} --exclude .github
+        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 "${STEPS_FILES_TO_CHECK_OUTPUTS_FILES}" --exclude .github
+      env:
+        STEPS_FILES_TO_CHECK_OUTPUTS_FILES: ${{ steps.files-to-check.outputs.files }}
 
     - name: Run dclint recursively
       if: steps.files-to-check.outputs.mode == 'recursive'

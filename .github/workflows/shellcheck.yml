@@ -48,12 +48,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'pull_request' && github.event.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+permissions:
+  contents: read
+
 jobs:
   shellcheck:
     name: ShellCheck
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Get changed shell files
       id: changed-files
       # We run shellcheck on all unique shell files in the repo
@@ -92,10 +97,10 @@ jobs:
 
         # If the changed-files step failed or returned empty,
         # use git to find all shell files in the repo.
-        if [[ "${{ steps.changed-files.outcome }}" = success && "${{ steps.changed-files.outputs.any_changed }}" = true ]]; then
+        if [[ "${STEPS_CHANGED_FILES_OUTCOME}" = success && "${STEPS_CHANGED_FILES_OUTPUTS_ANY_CHANGED}" = true ]]; then
           echo 'Changed files found, checking only those.'
           set -f  # disable glob expansion
-          files_to_check=( ${{ steps.changed-files.outputs.all_changed_files }} )
+          files_to_check=( "${STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES}" )
           set +f  # re-enable glob expansion
         else
           echo 'No changed files found, checking all shell files in the repo.'
@@ -138,6 +143,10 @@ jobs:
 
         # This relies on one space between each path name.
         echo "files=${unique_files[*]}" >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CHANGED_FILES_OUTCOME: ${{ steps.changed-files.outcome }}
+        STEPS_CHANGED_FILES_OUTPUTS_ANY_CHANGED: ${{ steps.changed-files.outputs.any_changed }}
+        STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
     - name: Run shellcheck on unique files
       if: ${{ steps.unique-files.outputs.files != '' }}
       # Pipefail is somehow only enabled when we explicitly
@@ -146,7 +155,9 @@ jobs:
       # this kind of inconsistency is very shell-like anyway.
       shell: bash
       run: |
-        shellcheck --check-sourced --external-sources --format=checkstyle ${{ steps.unique-files.outputs.files }} | tee checkstyle-shellcheck.xml
+        shellcheck --check-sourced --external-sources --format=checkstyle "${STEPS_UNIQUE_FILES_OUTPUTS_FILES}" | tee checkstyle-shellcheck.xml
+      env:
+        STEPS_UNIQUE_FILES_OUTPUTS_FILES: ${{ steps.unique-files.outputs.files }}
     - uses: staabm/annotate-pull-request-from-checkstyle-action@v1
       if: ${{ failure() && hashFiles('checkstyle-shellcheck.xml') != '' }}
       with:

@@ -62,6 +62,7 @@ jobs:
       with:
         submodules: recursive
         token: ${{ secrets.INFERNO_PAT }}
+        persist-credentials: false
 
     - name: Fix permissions for Docker uid/gid differences
       run: |
@@ -110,13 +111,16 @@ jobs:
     - name: Check vendor artifacts cache
       id: vendor-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.vendor }}'
-        matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_VENDOR}"
+        matched="${STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_VENDOR: ${{ steps.cache-keys.outputs.vendor }}
+        STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.vendor-cache-restore.outputs.cache-matched-key }}
 
     ##
     # Restore composer's download cache (fallback if vendor cache misses)
@@ -134,13 +138,16 @@ jobs:
     - name: Check composer cache
       id: composer-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.composer }}'
-        matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_COMPOSER}"
+        matched="${STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_COMPOSER: ${{ steps.cache-keys.outputs.composer }}
+        STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.composer-cache-restore.outputs.cache-matched-key }}
 
     - name: Composer Install
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
@@ -204,13 +211,16 @@ jobs:
     - name: Check npm build cache
       id: npm-build-cache-check
       run: |
-        key='${{ steps.npm-cache-keys.outputs.npm-build }}'
-        matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM_BUILD}"
+        matched="${STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM_BUILD: ${{ steps.npm-cache-keys.outputs.npm-build }}
+        STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}
 
     ##
     # Restore CCDA build artifacts
@@ -229,13 +239,16 @@ jobs:
     - name: Check ccda build cache
       id: ccda-build-cache-check
       run: |
-        key='${{ steps.npm-cache-keys.outputs.ccda-build }}'
-        matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_NPM_CACHE_KEYS_OUTPUTS_CCDA_BUILD}"
+        matched="${STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_NPM_CACHE_KEYS_OUTPUTS_CCDA_BUILD: ${{ steps.npm-cache-keys.outputs.ccda-build }}
+        STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}
 
     ##
     # Restore npm download cache (fallback if build caches miss)
@@ -253,13 +266,16 @@ jobs:
     - name: Check npm cache
       id: npm-cache-check
       run: |
-        key='${{ steps.npm-cache-keys.outputs.npm }}'
-        matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM}"
+        matched="${STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM: ${{ steps.npm-cache-keys.outputs.npm }}
+        STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.npm-cache-restore.outputs.cache-matched-key }}
 
     - name: NPM CI
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}

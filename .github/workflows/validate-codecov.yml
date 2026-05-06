@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Validate codecov.yml
         run: curl -f -X POST --data-binary @codecov.yml https://codecov.io/validate

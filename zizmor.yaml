@@ -1,0 +1,18 @@
+rules:
+  # disabled temporarily
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
+
+  # disabled temporarily
+  secrets-outside-env:
+    disable: true
+
+  # disabled temporarily
+  dangerous-triggers:
+    disable: true
+
+  # disabled temporarily
+  secrets-inherit:
+    disable: true
