@@ -17,6 +17,17 @@ declare(strict_types=1);
 
 require dirname(__DIR__, 3) . '/vendor/autoload.php';
 
+// OpenEMR\Release\ classes live under autoload-dev so composer-require-checker
+// does not demand conductor-only deps in production. Anything invoking this
+// script needs a `composer install` that includes dev dependencies.
+if (!class_exists(\OpenEMR\Release\BranchVersionResolver::class)) {
+    fwrite(
+        STDERR,
+        "OpenEMR\\Release\\ classes are not autoloadable; rerun composer install with dev dependencies.\n",
+    );
+    exit(2);
+}
+
 use OpenEMR\Release\BranchVersionResolver;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
