@@ -2,8 +2,9 @@
 
 /**
  * On master only: bump version.php to the next development version.
- * Increments $v_minor, resets $v_patch to 0, and ensures $v_tag is
- * '-dev' so master keeps marking development builds.
+ * Sets the four version variables to the target version components and
+ * forces $v_tag back to '-dev' so master keeps marking development
+ * builds.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -16,9 +17,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command\ReleasePrep\Mutator;
 
+use OpenEMR\Common\Command\ReleasePrep\AstSourceEditor;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Scalar;
+use PhpParser\Node\Stmt;
 
 final readonly class VersionPhpMasterMutator implements MutatorInterface
 {
@@ -37,35 +42,40 @@ final readonly class VersionPhpMasterMutator implements MutatorInterface
             throw new \RuntimeException('Cannot read ' . $path);
         }
 
-        $updated = preg_replace(
-            '/^(\$v_major\s*=\s*)\'\d+\';/m',
-            "$1'" . $context->major . "';",
-            $contents,
-            1,
-        );
-        $updated = preg_replace(
-            '/^(\$v_minor\s*=\s*)\'\d+\';/m',
-            "$1'" . $context->minor . "';",
-            (string) $updated,
-            1,
-        );
-        $updated = preg_replace(
-            '/^(\$v_patch\s*=\s*)\'\d+\';/m',
-            "$1'" . $context->patch . "';",
-            (string) $updated,
-            1,
-        );
-        $updated = preg_replace(
-            '/^(\$v_tag\s*=\s*)\'\';/m',
-            "$1'-dev';",
-            (string) $updated,
-            1,
-        );
+        $targets = [
+            'v_major' => (string) $context->major,
+            'v_minor' => (string) $context->minor,
+            'v_patch' => (string) $context->patch,
+            'v_tag' => '-dev',
+        ];
+
+        $editor = new AstSourceEditor();
+        $updated = $editor->edit($contents, function (array $ast) use ($targets): array {
+            $ranges = [];
+            foreach ($ast as $stmt) {
+                if (!$stmt instanceof Stmt\Expression || !$stmt->expr instanceof Expr\Assign) {
+                    continue;
+                }
+                $assign = $stmt->expr;
+                if (!$assign->var instanceof Expr\Variable || !is_string($assign->var->name)) {
+                    continue;
+                }
+                if (!array_key_exists($assign->var->name, $targets) || !$assign->expr instanceof Scalar\String_) {
+                    continue;
+                }
+                $ranges[] = [
+                    $assign->expr->getStartFilePos(),
+                    $assign->expr->getEndFilePos(),
+                    "'" . $targets[$assign->var->name] . "'",
+                ];
+            }
+            return $ranges;
+        });
 
         if ($updated === $contents) {
             return MutatorResult::noop();
         }
-        if (file_put_contents($path, (string) $updated) === false) {
+        if (file_put_contents($path, $updated) === false) {
             throw new \RuntimeException('Cannot write ' . $path);
         }
         return new MutatorResult([self::RELATIVE_PATH]);

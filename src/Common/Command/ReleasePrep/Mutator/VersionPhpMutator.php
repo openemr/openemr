@@ -1,9 +1,13 @@
 <?php
 
 /**
- * Strip the `-dev` suffix from $v_tag in version.php for a release-branch
- * push. The -dev tag distinguishes development builds from cut releases;
- * removing it is the load-bearing version-string change at release time.
+ * On rel-* push: normalise version.php to the target release version
+ * and strip `-dev` from $v_tag. Drives the actual `OpenEMR <X.Y.Z>`
+ * string the application reports.
+ *
+ * Uses AST traversal (nikic/php-parser) rather than regex so a typo or
+ * formatting drift in version.php would surface as a parse error
+ * rather than a silent regex miss.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -16,9 +20,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command\ReleasePrep\Mutator;
 
+use OpenEMR\Common\Command\ReleasePrep\AstSourceEditor;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Scalar;
+use PhpParser\Node\Stmt;
 
 final readonly class VersionPhpMutator implements MutatorInterface
 {
@@ -37,40 +45,35 @@ final readonly class VersionPhpMutator implements MutatorInterface
             throw new \RuntimeException('Cannot read ' . $path);
         }
 
-        $updated = preg_replace(
-            '/^(\$v_major\s*=\s*)\'\d+\';/m',
-            "$1'" . $context->major . "';",
-            $contents,
-            1,
-            $majorReplaced,
-        );
-        $updated = preg_replace(
-            '/^(\$v_minor\s*=\s*)\'\d+\';/m',
-            "$1'" . $context->minor . "';",
-            (string) $updated,
-            1,
-            $minorReplaced,
-        );
-        $updated = preg_replace(
-            '/^(\$v_patch\s*=\s*)\'\d+\';/m',
-            "$1'" . $context->patch . "';",
-            (string) $updated,
-            1,
-            $patchReplaced,
-        );
-        $updated = preg_replace(
-            '/^(\$v_tag\s*=\s*)\'-?dev\';/m',
-            "$1'';",
-            (string) $updated,
-            1,
-            $tagReplaced,
-        );
-        // Tolerate $v_tag already at '' (idempotence).
-        if ($majorReplaced === 0 || $minorReplaced === 0 || $patchReplaced === 0) {
-            throw new \RuntimeException(
-                'version.php did not contain expected $v_major / $v_minor / $v_patch lines',
-            );
-        }
+        $targets = [
+            'v_major' => (string) $context->major,
+            'v_minor' => (string) $context->minor,
+            'v_patch' => (string) $context->patch,
+            'v_tag' => '',
+        ];
+
+        $editor = new AstSourceEditor();
+        $updated = $editor->edit($contents, function (array $ast) use ($targets): array {
+            $ranges = [];
+            foreach ($ast as $stmt) {
+                if (!$stmt instanceof Stmt\Expression || !$stmt->expr instanceof Expr\Assign) {
+                    continue;
+                }
+                $assign = $stmt->expr;
+                if (!$assign->var instanceof Expr\Variable || !is_string($assign->var->name)) {
+                    continue;
+                }
+                if (!array_key_exists($assign->var->name, $targets) || !$assign->expr instanceof Scalar\String_) {
+                    continue;
+                }
+                $ranges[] = [
+                    $assign->expr->getStartFilePos(),
+                    $assign->expr->getEndFilePos(),
+                    "'" . $targets[$assign->var->name] . "'",
+                ];
+            }
+            return $ranges;
+        });
 
         if ($updated === $contents) {
             return MutatorResult::noop();

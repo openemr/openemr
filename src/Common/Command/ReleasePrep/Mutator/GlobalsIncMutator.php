@@ -1,9 +1,11 @@
 <?php
 
 /**
- * Switch the `allow_debug_language` default to '0' in
- * library/globals.inc.php. The wiki release checklist requires this so
- * production releases don't ship with the dummy/debug language enabled.
+ * Switch the `allow_debug_language` default from '1' to '0' in
+ * library/globals.inc.php so production releases don't ship with the
+ * dummy/debug language enabled. Walks the AST to find the array entry
+ * keyed 'allow_debug_language' and updates the third element of its
+ * value array (the default).
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -16,13 +18,22 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command\ReleasePrep\Mutator;
 
+use OpenEMR\Common\Command\ReleasePrep\AstSourceEditor;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
+use PhpParser\Node;
+use PhpParser\Node\ArrayItem;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Scalar;
+use PhpParser\NodeFinder;
 
 final readonly class GlobalsIncMutator implements MutatorInterface
 {
     private const RELATIVE_PATH = 'library/globals.inc.php';
+    private const TARGET_KEY = 'allow_debug_language';
+    private const DEFAULT_INDEX = 2;
+    private const NEW_DEFAULT = '0';
 
     public function name(): string
     {
@@ -37,35 +48,40 @@ final readonly class GlobalsIncMutator implements MutatorInterface
             throw new \RuntimeException('Cannot read ' . $path);
         }
 
-        // The block reads:
-        //
-        //     'allow_debug_language' => [
-        //         xl('Allow Debugging Language'),
-        //         'bool',                           // data type
-        //         '1',                              // default = true during development...
-        //
-        // Match the entire block so the replacement is anchored on the
-        // 'allow_debug_language' key, then swap '1' → '0' on the third
-        // line of that block.
-        $pattern =
-            '/(\'allow_debug_language\'\s*=>\s*\[\s*'
-            . 'xl\([^)]*\),\s*'
-            . "'bool',\s*\/\/\s*data type\s*"
-            . ")'1'(,\s*\/\/\s*default = true)/";
-        $updated = preg_replace($pattern, "$1'0'$2", $contents, 1, $count);
-        if ($updated === null) {
-            throw new \RuntimeException('preg_replace failed for globals.inc.php');
-        }
-        if ($count === 0) {
-            // Already at 0, or the structure changed. Verify it's at 0,
-            // not changed.
-            if (preg_match('/\'allow_debug_language\'\s*=>\s*\[\s*xl\([^)]*\),\s*\'bool\',[^\']*\'0\'/', $contents) !== 1) {
+        $editor = new AstSourceEditor();
+        $updated = $editor->edit($contents, function (array $ast): array {
+            $finder = new NodeFinder();
+            // Find every array entry whose key is the literal 'allow_debug_language'.
+            $entries = $finder->find($ast, fn(Node $node): bool => $node instanceof ArrayItem
+                && $node->key instanceof Scalar\String_
+                && $node->key->value === self::TARGET_KEY);
+            if ($entries === []) {
                 throw new \RuntimeException(
-                    "Expected 'allow_debug_language' default to be '1' or '0' in globals.inc.php; structure changed",
+                    "Did not find an entry keyed '" . self::TARGET_KEY . "' in globals.inc.php",
                 );
             }
-            return MutatorResult::noop();
-        }
+            $ranges = [];
+            foreach ($entries as $entry) {
+                if (!$entry instanceof ArrayItem || !$entry->value instanceof Expr\Array_) {
+                    continue;
+                }
+                $defaultItem = $entry->value->items[self::DEFAULT_INDEX] ?? null;
+                if (!$defaultItem instanceof ArrayItem || !$defaultItem->value instanceof Scalar\String_) {
+                    continue;
+                }
+                $literal = $defaultItem->value;
+                if ($literal->value === self::NEW_DEFAULT) {
+                    continue;
+                }
+                $ranges[] = [
+                    $literal->getStartFilePos(),
+                    $literal->getEndFilePos(),
+                    "'" . self::NEW_DEFAULT . "'",
+                ];
+            }
+            return $ranges;
+        });
+
         if ($updated === $contents) {
             return MutatorResult::noop();
         }
