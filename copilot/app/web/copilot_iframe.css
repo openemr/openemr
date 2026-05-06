@@ -51,3 +51,18 @@ dialog#bbox-modal h2 { margin: 0; font-size: 14px; }
                     cursor: pointer; color: #1f2328; }
 #bbox-modal-canvas-wrapper { overflow: auto; height: calc(100% - 40px);
                              background: #ffffff; }
+/* W2 KR5: pending-intake banner */
+#pending-intakes-banner { background: #fffaeb; color: #5c3d00;
+                          border-bottom: 1px solid #f6c662; padding: 6px 12px;
+                          font-size: 13px; }
+#pending-intakes-toggle { background: none; border: none; color: #5c3d00;
+                          cursor: pointer; padding: 0; text-align: left;
+                          font: inherit; width: 100%; }
+#pending-intakes-toggle:hover { text-decoration: underline; }
+#pending-intakes-count { font-weight: 700; }
+#pending-intakes-list { list-style: none; padding: 4px 0 0 0; margin: 6px 0 0 0;
+                        border-top: 1px dashed #f6c662; }
+#pending-intakes-list li { padding: 3px 0; cursor: pointer; color: #5c3d00; }
+#pending-intakes-list li:hover { text-decoration: underline; }
+#pending-intakes-list li.acknowledged { color: #6a737d; text-decoration: line-through;
+                                        cursor: default; }

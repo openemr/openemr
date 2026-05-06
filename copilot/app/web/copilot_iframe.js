@@ -28,10 +28,81 @@
     }
     const data = await r.json();
     sessionId = data.session_id;
+    // W2 KR5: kick the pending-intakes fetch on first session bootstrap.
+    // Fire-and-forget — banner pops in async; chat works without waiting.
+    refreshPendingIntakes(sessionId).catch(() => {});
     return sessionId;
+  }
+
+  // ───────────── W2 KR5: pending-intake banner ─────────────
+
+  // Per-session in-memory dismissal set. Persistent ack is Final-scope.
+  const acknowledgedDocIds = new Set();
+
+  async function refreshPendingIntakes(sid) {
+    const banner = document.getElementById("pending-intakes-banner");
+    const list = document.getElementById("pending-intakes-list");
+    const countEl = document.getElementById("pending-intakes-count");
+    const toggle = document.getElementById("pending-intakes-toggle");
+    if (!banner || !list || !countEl || !toggle) return;
+
+    let body;
+    try {
+      const r = await fetch(`/v1/sessions/${encodeURIComponent(sid)}/pending_intakes`);
+      if (!r.ok) return;  // Silent — observability surface, not blocking.
+      body = await r.json();
+    } catch {
+      return;
+    }
+    const visible = (body.items || []).filter((it) => !acknowledgedDocIds.has(it.doc_id));
+    if (visible.length === 0) {
+      banner.hidden = true;
+      return;
+    }
+    banner.hidden = false;
+    countEl.textContent = String(visible.length);
+    list.replaceChildren();
+    for (const item of visible) {
+      const li = document.createElement("li");
+      li.textContent = `${item.doc_type} — ${item.doc_id} (${item.uploaded_at.slice(0, 10)})`;
+      li.dataset.docId = item.doc_id;
+      li.onclick = () => onPendingIntakeClick(item, li);
+      list.appendChild(li);
+    }
+    toggle.onclick = () => {
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      toggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+      list.hidden = expanded;
+    };
+  }
+
+  function onPendingIntakeClick(item, listItemEl) {
+    // Open the existing bbox modal pointed at this doc's parent record.
+    // The user can then click into specific fields if extractions exist.
+    const recordId = `DocumentReference/${item.doc_id}`;
+    openBboxModal(recordId);
+    // In-memory dismiss: mark this doc acknowledged so the banner shrinks.
+    acknowledgedDocIds.add(item.doc_id);
+    listItemEl.classList.add("acknowledged");
+    listItemEl.onclick = null;
+    // Re-derive the count locally (avoid round-trip).
+    const remaining = document.querySelectorAll(
+      "#pending-intakes-list li:not(.acknowledged)"
+    ).length;
+    const countEl = document.getElementById("pending-intakes-count");
+    const banner = document.getElementById("pending-intakes-banner");
+    if (countEl) countEl.textContent = String(remaining);
+    if (banner && remaining === 0) banner.hidden = true;
   }
   document.getElementById("patient-banner").textContent =
     PATIENT_ID ? `Patient: ${PATIENT_ID}` : "(no patient context)";
+
+  // W2 KR5: bootstrap session eagerly on load so the pending-intake banner
+  // can appear without waiting for the first chat submit. Failures are
+  // tolerated — chat still works lazily on the user's first message.
+  if (PATIENT_ID) {
+    ensureSession().catch(() => {});
+  }
 
   const dropZone = document.getElementById("drop-zone");
   const fileInput = document.getElementById("file-input");

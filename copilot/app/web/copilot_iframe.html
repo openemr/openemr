@@ -12,6 +12,15 @@
       <h1>Co-Pilot</h1>
       <span id="patient-banner"></span>
     </header>
+    <!-- W2 KR5: pending-intake banner. Hidden by default; populated by
+         copilot_iframe.js on session bootstrap. -->
+    <div id="pending-intakes-banner" hidden>
+      <button id="pending-intakes-toggle" type="button" aria-expanded="false">
+        <span id="pending-intakes-count">0</span> intake document(s) uploaded
+        by front desk — review
+      </button>
+      <ul id="pending-intakes-list" hidden></ul>
+    </div>
     <main>
       <div id="drop-zone" data-state="idle">
         <p>Drop a lab PDF or intake form here, or click the paperclip below.</p>

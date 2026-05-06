@@ -19,6 +19,9 @@ PHYSICIAN = "dr_pending"
 @pytest.fixture
 def app_client(monkeypatch, tmp_path):
     monkeypatch.setenv("CONVERSATION_DB_PATH", str(tmp_path / "copilot.db"))
+    # Isolate the W2 processed_documents store too — without this, prior tests'
+    # records leak into the empty-patient assertion.
+    monkeypatch.setenv("COPILOT_DOCS_DB_PATH", str(tmp_path / "copilot_docs.db"))
     monkeypatch.setenv(
         "PHYSICIAN_PATIENT_PANEL", json.dumps({PHYSICIAN: [PATIENT_ID]})
     )
