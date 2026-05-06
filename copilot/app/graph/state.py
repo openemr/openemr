@@ -58,6 +58,10 @@ class AgentGraphState(TypedDict, total=False):
     retrieval_seed_query: str | None
     tool_results: list[dict[str, Any]]
     retry_count: int
+    # W2 KR3: graph-level observability fields populated by workers and
+    # surfaced into ``trace`` by ``answer_composer``.
+    extraction_confidence_min: float | None
+    retrieval_hit_ids: list[str]
 
     # Outputs
     response: Any | None     # app.agent.schemas.AgentResponse | None

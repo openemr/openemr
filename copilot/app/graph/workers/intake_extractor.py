@@ -37,12 +37,31 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     tool_results = list(state.get("tool_results") or [])
     tool_results.append(result.to_dict())
 
-    return {
+    # W2 KR3: derive extraction_confidence_min from per-fact source_citation
+    # confidences embedded in the tool_result data items. Defensive over the
+    # heterogeneous result.data shape (list of items; some may not carry a
+    # source_citation, e.g. parent DocumentReference rows).
+    confidences: list[float] = []
+    data = result.data if isinstance(result.data, list) else [result.data]
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        sc = item.get("source_citation")
+        if isinstance(sc, dict):
+            c = sc.get("confidence")
+            if isinstance(c, (int, float)):
+                confidences.append(float(c))
+    extraction_confidence_min = min(confidences) if confidences else None
+
+    delta: dict[str, Any] = {
         "routing_path": routing,
         "tool_results": tool_results,
         # Consume the signal so the supervisor doesn't re-route here.
         "pending_extraction": None,
     }
+    if extraction_confidence_min is not None:
+        delta["extraction_confidence_min"] = extraction_confidence_min
+    return delta
 
 
 __all__ = ["run"]
