@@ -221,3 +221,40 @@ for what's deployed vs what's deferred.
 
 See [`W1_IMPLEMENTATION.md`](./W1_IMPLEMENTATION.md) for the Week 1 status,
 the agent loop, and the citation contract that Week 2 builds on.
+
+## Verifying the W2 eval gate
+
+The W2 eval gate is the PRD-mandated regression-blocking suite (50 cases ×
+5 boolean rubrics: `schema_valid`, `citation_present`, `factually_consistent`,
+`safe_refusal`, `no_phi_in_logs`). It runs locally via `make eval`, on every
+PR via `.github/workflows/copilot-ci.yml`, and pre-push via
+`.git/hooks/pre-push` (installed once by `bash copilot/scripts/install-hooks.sh`).
+
+**Threshold:** any category dropping below 0.95 OR more than 5pp from
+`evals/baseline.json` exits 1.
+
+**Reproducing a regression so you can confirm the gate fires:**
+
+1. Comment out one of the new W2 Layer-2 rules in
+   `copilot/app/verification/rules.py`:
+
+   ```python
+   rejections.extend(
+       check_extracted_fact_has_source_doc(response, tool_results)
+   )
+   ```
+
+   (Comment that line.)
+
+2. Run `make eval-fast` (the pre-push subset, ~2s in Docker). The
+   regression weakens the citation contract enforced on extracted-fact
+   record_ids; `evals/RESULTS.md` shows the `cross` category dropping
+   and the runner exits 1.
+
+3. Try `git push` — the pre-push hook re-runs `make eval-fast` and blocks
+   the push with the same exit code.
+
+4. Revert the comment, run `make eval-fast` again, push succeeds.
+
+To re-freeze the baseline (e.g., after intentional case additions):
+`make eval-baseline`.

@@ -51,6 +51,16 @@ jobs:
           OPENEMR_OAUTH_BASE: https://example.invalid/oauth2/default
         run: pytest evals -v
 
+      - name: W2 50-case eval gate (regression-blocking)
+        env:
+          ANTHROPIC_API_KEY: dummy-key
+          OPENAI_API_KEY: dummy-key
+          OAUTH_CLIENT_ID: dummy
+          OAUTH_CLIENT_SECRET: dummy
+          OPENEMR_FHIR_BASE: https://example.invalid/apis/default/fhir
+          OPENEMR_OAUTH_BASE: https://example.invalid/oauth2/default
+        run: python -m evals.runner --cases-root evals/cases --with-corpus
+
   # Deploy job intentionally dropped pre-Final.
   # The Railway token kept getting rejected by `railway up` despite both
   # account-scoped and project-scoped variants. Rather than burn submission
