@@ -63,7 +63,7 @@ jobs:
     - name: Run dclint on changed files
       if: steps.files-to-check.outputs.mode == 'files'
       run: |
-        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 ${STEPS_FILES_TO_CHECK_OUTPUTS_FILES} --exclude .github
+        docker run --rm --volume "$PWD:$PWD" --workdir "$PWD" zavoloklom/dclint:3.1.0 "${STEPS_FILES_TO_CHECK_OUTPUTS_FILES}" --exclude .github
       env:
         STEPS_FILES_TO_CHECK_OUTPUTS_FILES: ${{ steps.files-to-check.outputs.files }}
 

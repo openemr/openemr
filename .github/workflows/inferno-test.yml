@@ -111,8 +111,8 @@ jobs:
     - name: Check vendor artifacts cache
       id: vendor-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_VENDOR}'
-        matched='${STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_VENDOR}"
+        matched="${STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -138,8 +138,8 @@ jobs:
     - name: Check composer cache
       id: composer-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_COMPOSER}'
-        matched='${STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_COMPOSER}"
+        matched="${STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -211,8 +211,8 @@ jobs:
     - name: Check npm build cache
       id: npm-build-cache-check
       run: |
-        key='${STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM_BUILD}'
-        matched='${STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM_BUILD}"
+        matched="${STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -239,8 +239,8 @@ jobs:
     - name: Check ccda build cache
       id: ccda-build-cache-check
       run: |
-        key='${STEPS_NPM_CACHE_KEYS_OUTPUTS_CCDA_BUILD}'
-        matched='${STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_NPM_CACHE_KEYS_OUTPUTS_CCDA_BUILD}"
+        matched="${STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -266,8 +266,8 @@ jobs:
     - name: Check npm cache
       id: npm-cache-check
       run: |
-        key='${STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM}'
-        matched='${STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_NPM_CACHE_KEYS_OUTPUTS_NPM}"
+        matched="${STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else

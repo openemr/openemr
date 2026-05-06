@@ -129,10 +129,10 @@ jobs:
       # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
       run: |
         base='["api","services","email"'
-        if [[ '${STEPS_PARSE_OUTPUTS_E2E_ENABLED}' = 'true' ]]; then
+        if [[ "${STEPS_PARSE_OUTPUTS_E2E_ENABLED}" = "true" ]]; then
           base="${base},"'"e2e"'
         fi
-        if [[ '${STEPS_PARSE_OUTPUTS_REDIS_SENTINEL_ENABLED}' = 'true' ]]; then
+        if [[ "${STEPS_PARSE_OUTPUTS_REDIS_SENTINEL_ENABLED}" = "true" ]]; then
           base="${base},"'"redis-failover"'
         fi
         echo "suites=${base}]" >> "$GITHUB_OUTPUT"
@@ -175,11 +175,11 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
-          echo 'composer=${{ runner.os }}-composer-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
-          echo 'npm-build=${{ runner.os }}-npm-build-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
-          echo 'npm=${{ runner.os }}-node-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}'
+          echo "vendor=${{ runner.os }}-vendor-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}"
+          echo "composer=${{ runner.os }}-composer-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}"
+          echo "npm-build=${{ runner.os }}-npm-build-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}"
+          echo "ccda-build=${{ runner.os }}-ccdaservice-modules-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/ccdaservice/package-lock.json') }}"
+          echo "npm=${{ runner.os }}-node-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}"
         } >> "$GITHUB_OUTPUT"
       env:
         STEPS_PARSE_OUTPUTS_PHP: ${{ steps.parse.outputs.php }}
@@ -205,8 +205,8 @@ jobs:
     - name: Check vendor artifacts cache
       id: vendor-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_VENDOR}'
-        matched='${STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_VENDOR}"
+        matched="${STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -237,8 +237,8 @@ jobs:
     - name: Check composer cache
       id: composer-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_COMPOSER}'
-        matched='${STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_COMPOSER}"
+        matched="${STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -277,8 +277,8 @@ jobs:
     - name: Check npm build cache
       id: npm-build-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_NPM_BUILD}'
-        matched='${STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_NPM_BUILD}"
+        matched="${STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -309,8 +309,8 @@ jobs:
     - name: Check ccda build cache
       id: ccda-build-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_CCDA_BUILD}'
-        matched='${STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_CCDA_BUILD}"
+        matched="${STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -340,8 +340,8 @@ jobs:
     - name: Check npm cache
       id: npm-cache-check
       run: |
-        key='${STEPS_CACHE_KEYS_OUTPUTS_NPM}'
-        matched='${STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_NPM}"
+        matched="${STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
@@ -576,14 +576,14 @@ jobs:
       if: ${{ env.ENABLE_COVERAGE == 'true' && (matrix.suite == 'api' || matrix.suite == 'e2e') }}
       run: |
         . ci/ciLibrary.source
-        setup_e2e_bookends ${NEEDS_SETUP_OUTPUTS_WEBSERVER}
+        setup_e2e_bookends "${NEEDS_SETUP_OUTPUTS_WEBSERVER}"
       env:
         NEEDS_SETUP_OUTPUTS_WEBSERVER: ${{ needs.setup.outputs.webserver }}
 
     - name: Run ${{ matrix.suite }} tests
       run: |
         . ci/ciLibrary.source
-        build_test ${MATRIX_SUITE}
+        build_test "${MATRIX_SUITE}"
       env:
         MATRIX_SUITE: ${{ matrix.suite }}
 
@@ -707,7 +707,7 @@ jobs:
       if: ${{ !cancelled() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
       run: |
         . ci/ciLibrary.source
-        dump_error_log ${NEEDS_SETUP_OUTPUTS_WEBSERVER}
+        dump_error_log "${NEEDS_SETUP_OUTPUTS_WEBSERVER}"
       env:
         NEEDS_SETUP_OUTPUTS_WEBSERVER: ${{ needs.setup.outputs.webserver }}
 
