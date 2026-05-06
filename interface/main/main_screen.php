@@ -21,7 +21,6 @@ $sessionAllowWrite = true;
 require_once('../globals.php');
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
@@ -239,7 +238,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $mfaUsername = $session->get('authUser');
                     $mfaAuthGroup = $session->get('authProvider');
                     EventAuditLogger::getInstance()->logAuthFailure(
-                        AuthEvent::mfa(),
+                        'mfa',
                         is_string($mfaUsername) ? $mfaUsername : null,
                         is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
                         'TOTP code incorrect'
@@ -279,7 +278,7 @@ if (isset($_POST['new_login_session_management'])) {
                     $mfaUsername = $session->get('authUser');
                     $mfaAuthGroup = $session->get('authProvider');
                     EventAuditLogger::getInstance()->logAuthFailure(
-                        AuthEvent::mfa(),
+                        'mfa',
                         is_string($mfaUsername) ? $mfaUsername : null,
                         is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
                         'U2F authentication error: ' . $e->getMessage()

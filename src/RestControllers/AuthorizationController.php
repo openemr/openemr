@@ -28,7 +28,6 @@ use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
@@ -900,7 +899,7 @@ class AuthorizationController
                             $mfaAuthGroup = $resolvedGroup;
                         }
                     }
-                    EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
+                    EventAuditLogger::getInstance()->logAuthFailure('mfa', $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;

@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Logging;
 
 use Lcobucci\Clock\FrozenClock;
-use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\SinkInterface;
@@ -81,7 +80,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'testuser',
             'Administrators',
             'TOTP code incorrect',
@@ -100,7 +99,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'testuser',
             'Administrators',
             'TOTP code incorrect',
@@ -123,7 +122,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'testuser',
             'Administrators',
             'TOTP code incorrect',
@@ -143,7 +142,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'drsmith',
             'physicians',
             'U2F authentication error',
@@ -162,7 +161,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             null,
             '',
             'OAuth2 MFA (TOTP) code incorrect',
@@ -181,7 +180,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'testuser',
             'Administrators',
             'TOTP code incorrect',
@@ -200,7 +199,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'portaluser',
             'portal',
             'Portal MFA failure',
@@ -223,7 +222,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->willReturn(true);
 
         $this->makeLogger($sink)->logAuthFailure(
-            AuthEvent::mfa(),
+            'mfa',
             'testuser',
             'Administrators',
             'TOTP code incorrect',

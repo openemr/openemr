@@ -11,7 +11,6 @@ use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
-use Rector\Php82\Rector\Class_\ReadOnlyClassRector;
 use Rector\ValueObject\PhpVersion;
 
 return RectorConfig::configure()
@@ -66,12 +65,6 @@ return RectorConfig::configure()
     ])
     ->withPhpSets()
     ->withSkip([
-        __DIR__ . '/sites/default/documents/smarty',
-        // Probe for #12012: avoid class-level readonly on AuthEvent.
-        // PHP 8.2 + opcache + apache prefork + class-level readonly is a
-        // known segfault pattern; property-level readonly is stable on 8.1+.
-        ReadOnlyClassRector::class => [
-            __DIR__ . '/src/Common/Auth/AuthEvent.php',
-        ],
+        __DIR__ . '/sites/default/documents/smarty'
     ])
     ->withTypeCoverageLevel(5);
