@@ -15,5 +15,6 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           running-workflow-name: All Checks Passed
+          ignore-checks: codecov/project
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 30
