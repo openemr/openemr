@@ -118,3 +118,54 @@ async def test_evidence_retriever_dispatches_when_seed_query_set(monkeypatch) ->
     assert delta["tool_results"][0]["tool"] == "search_guidelines"
     # Signal consumed.
     assert delta["retrieval_seed_query"] is None
+
+
+@pytest.mark.asyncio
+async def test_evidence_retriever_writes_reranked_order_into_tool_results(
+    monkeypatch,
+) -> None:
+    """W2 KR1 round-2 fix (codex P2): a real reranker must reorder the
+    seed evidence the LLM sees — not just the trace observability fields.
+    """
+    async def fake_dispatch(name: str, args: dict[str, Any], fhir, session):
+        return ToolResult(
+            name="search_guidelines",
+            data=[
+                {"record_id": "Guideline/A", "chunk_id": "A", "text": "first"},
+                {"record_id": "Guideline/B", "chunk_id": "B", "text": "second"},
+                {"record_id": "Guideline/C", "chunk_id": "C", "text": "third"},
+            ],
+            record_ids=["Guideline/A", "Guideline/B", "Guideline/C"],
+            record_type="Guideline",
+        )
+
+    class _ReverseReranker:
+        name = "reverse-test"
+
+        def rerank(self, query: str, hits: list[Any], *, top_k=None):
+            rev = list(reversed(hits))
+            return rev, [3.0, 2.0, 1.0]
+
+    monkeypatch.setattr(
+        "app.graph.workers.evidence_retriever.dispatch", fake_dispatch
+    )
+    monkeypatch.setattr(
+        "app.graph.workers.evidence_retriever.get_reranker",
+        lambda: _ReverseReranker(),
+    )
+    state: dict[str, Any] = {
+        "fhir": object(),
+        "session": object(),
+        "routing_path": ["supervisor"],
+        "tool_results": [],
+        "retrieval_seed_query": "anything",
+    }
+    delta = await evidence_retriever.run(state)  # type: ignore[arg-type]
+
+    # The tool_result the LLM seeds from must reflect the reranker's order
+    # (C, B, A) — NOT the BM25 order (A, B, C).
+    appended = delta["tool_results"][0]
+    assert [item["chunk_id"] for item in appended["data"]] == ["C", "B", "A"]
+    # Trace fields agree.
+    assert delta["retrieval_hit_ids"] == ["C", "B", "A"]
+    assert delta["rerank_scores"] == [3.0, 2.0, 1.0]

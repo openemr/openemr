@@ -117,11 +117,21 @@ def test_extracted_fact_rule_ignores_non_document_record_ids() -> None:
 
 
 def test_evidence_chunk_passes_for_known_chunk_id() -> None:
+    """The corpus' real chunk_ids contain '#' (e.g. 'uspstf-statin-2022#sec-2.1');
+    the rule must NOT split on '#' — chunk_id is opaque after `Guideline/`.
+    """
     response = AgentResponse(
         prose="ASCVD risk thresholds suggest statin.",
-        claims=[Claim(text="statin if ≥20%", record_id="Guideline/aha-cv-2024-3")],
+        claims=[
+            Claim(
+                text="statin if ≥20%",
+                record_id="Guideline/uspstf-statin-2022#sec-2.1",
+            )
+        ],
     )
-    known = frozenset({"aha-cv-2024-3", "uspstf-statin-2022", "ada-a1c-2024-1"})
+    known = frozenset(
+        {"uspstf-statin-2022#sec-2.1", "ada-a1c-screening-2024#sec-2.1"}
+    )
     rejections = check_evidence_chunk_in_corpus(response, known)
     assert rejections == []
 
@@ -135,6 +145,30 @@ def test_evidence_chunk_rejects_unknown_chunk_id() -> None:
     rejections = check_evidence_chunk_in_corpus(response, known)
     assert len(rejections) == 1
     assert "fake-chunk-99" in rejections[0]
+
+
+def test_evidence_chunk_does_not_strip_hash_fragment() -> None:
+    """Regression for codex round-2 P1: a chunk_id WITH '#sec-N' must NOT
+    be truncated to the part before '#' before checking known_chunk_ids.
+    """
+    response = AgentResponse(
+        prose="chunk_id has a # inside.",
+        claims=[
+            Claim(
+                text="g",
+                record_id="Guideline/uspstf-statin-2022#sec-2.1",
+            )
+        ],
+    )
+    # Known set has the SHORT form; the full form must NOT match it.
+    known_short_only = frozenset({"uspstf-statin-2022"})
+    rejections = check_evidence_chunk_in_corpus(response, known_short_only)
+    assert len(rejections) == 1, "must reject when only the truncated form is known"
+
+    # Now flip — known has the FULL form, claim should pass.
+    known_full = frozenset({"uspstf-statin-2022#sec-2.1"})
+    rejections = check_evidence_chunk_in_corpus(response, known_full)
+    assert rejections == [], "must accept when the full chunk_id (incl. '#sec-N.M') is known"
 
 
 def test_evidence_chunk_rule_ignores_non_guideline_record_ids() -> None:

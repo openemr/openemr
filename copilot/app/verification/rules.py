@@ -167,8 +167,11 @@ def check_evidence_chunk_in_corpus(
         rid = claim.record_id
         if not rid.startswith("Guideline/"):
             continue
-        # Format: Guideline/{chunk_id} — fragment is stripped if present.
-        chunk_id = rid.split("/", 1)[1].split("#", 1)[0]
+        # Format: Guideline/{chunk_id}. The chunk_id is opaque — corpus
+        # authors typically embed `#sec-N.M` style sub-section markers
+        # IN the chunk_id (see corpus/guidelines.jsonl), so do NOT split
+        # on `#`. Take everything after the first slash verbatim.
+        chunk_id = rid[len("Guideline/"):]
         if chunk_id not in known_chunk_ids:
             rejections.append(
                 f"Evidence chunk not in corpus: claim cites {rid} "

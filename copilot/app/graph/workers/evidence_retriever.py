@@ -33,9 +33,6 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     session = state["session"]
     result = await dispatch("search_guidelines", {"query": query}, fhir, session)
 
-    tool_results = list(state.get("tool_results") or [])
-    tool_results.append(result.to_dict())
-
     # W2 KR3: derive retrieval_hit_ids (chunk_ids in score order) from the
     # tool result data so answer_composer can surface them into TurnTrace.
     data = result.data if isinstance(result.data, list) else [result.data]
@@ -45,6 +42,17 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     # and emits 1.0 scores; Cohere / local cross-encoder are gated by env.
     reranker = get_reranker()
     reordered, scores = reranker.rerank(query, hit_dicts)
+
+    # W2 KR1 round-2 fix (codex P2): the LLM seeds from `tool_results`, so
+    # the post-rerank order MUST be the data we hand it — not the original
+    # BM25 order. Without this swap, `state.retrieval_hit_ids` /
+    # `rerank_scores` advertise reranked ordering while the model still
+    # sees the BM25 list.
+    tool_result_dict = result.to_dict()
+    tool_result_dict["data"] = list(reordered)
+
+    tool_results = list(state.get("tool_results") or [])
+    tool_results.append(tool_result_dict)
 
     hit_ids: list[str] = []
     for item in reordered:
