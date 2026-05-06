@@ -14,9 +14,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth;
 
-final readonly class AuthEvent
+final class AuthEvent
 {
-    public function __construct(public string $value)
+    public function __construct(public readonly string $value)
     {
         if ($value === '') {
             throw new \DomainException('AuthEvent value cannot be empty');
