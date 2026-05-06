@@ -17,3 +17,14 @@ fixture:
     tool_latencies_ms:
       get_recent_labs: 220.0
     tool_failures: {}
+    routing_path:
+    - supervisor
+    - answer_composer
+    - critic
+    extraction_confidence_min: 0.93
+    retrieval_hit_ids:
+    - uspstf-statin-2022#sec-2.1
+    rerank_scores:
+    - 0.91
+    vlm_cost_estimate_usd: 0.012
+    documents_attached: 1
