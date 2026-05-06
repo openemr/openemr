@@ -109,6 +109,7 @@ def test_preview_falls_back_to_fhir_inline_attachment(client: TestClient) -> Non
             return_value={
                 "resourceType": "DocumentReference",
                 "id": "doc-front-desk",
+                "subject": {"reference": "Patient/patient-7"},
                 "content": [
                     {
                         "attachment": {
@@ -128,6 +129,48 @@ def test_preview_falls_back_to_fhir_inline_attachment(client: TestClient) -> Non
     assert r.content == payload
 
 
+def test_preview_blocks_cross_patient_doc_when_subject_mismatch(
+    client: TestClient,
+) -> None:
+    """W2 KR5 round-6 fix (codex P1, security): the panel gate only checks
+    the QUERY-PARAM patient_id. Without subject validation, a caller in-
+    panel for patient-7 could pass a doc_id whose DocumentReference
+    actually belongs to patient-99 and the endpoint would stream patient-99's
+    bytes. After the fix: 403, no bytes leaked.
+    """
+    import base64 as _b64
+
+    payload = b"%PDF-1.4 patient-99-secret"
+
+    with client:
+        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
+            return_value=None
+        )
+        client.app.state.fhir_client.get_resource = AsyncMock(
+            return_value={
+                "resourceType": "DocumentReference",
+                "id": "doc-from-other-patient",
+                # Subject is patient-99 — caller is in-panel for patient-7.
+                "subject": {"reference": "Patient/patient-99"},
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "application/pdf",
+                            "data": _b64.b64encode(payload).decode(),
+                        }
+                    }
+                ],
+            }
+        )
+        r = client.get(
+            "/v1/documents/doc-from-other-patient/preview",
+            params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
+        )
+    assert r.status_code == 403
+    assert "subject" in r.json()["detail"]
+    assert payload not in r.content  # belt-and-suspenders
+
+
 def test_preview_falls_back_to_fhir_binary_url(client: TestClient) -> None:
     """If the FHIR DocumentReference points to a separate Binary resource
     (the OpenEMR-default shape), the endpoint chases that reference.
@@ -141,6 +184,7 @@ def test_preview_falls_back_to_fhir_binary_url(client: TestClient) -> None:
             return {
                 "resourceType": "DocumentReference",
                 "id": resource_id,
+                "subject": {"reference": "Patient/patient-7"},
                 "content": [
                     {
                         "attachment": {

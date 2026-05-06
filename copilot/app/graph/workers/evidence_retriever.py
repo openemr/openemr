@@ -13,11 +13,14 @@ shape enables; KR 4 (dense + rerank) will exercise it.
 """
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from app.graph.state import AgentGraphState
 from app.retrieval.rerank import get_reranker
 from app.tools.registry import dispatch
+
+logger = logging.getLogger("copilot.graph.evidence_retriever")
 
 
 async def run(state: AgentGraphState) -> dict[str, Any]:
@@ -31,7 +34,26 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
 
     fhir = state["fhir"]
     session = state["session"]
-    result = await dispatch("search_guidelines", {"query": query}, fhir, session)
+    # W2 KR1 round-6 fix (codex P2): if the dispatch or rerank raises (e.g.
+    # SQLite FTS5 syntax error on inputs like 'type-2 diabetes guideline'),
+    # the existing W1 single-pass loop converted tool exceptions into tool
+    # errors — but this pre-fetch path runs OUTSIDE that loop and would
+    # propagate, returning 500 on /v1/chat. Wrap in BLE001-style and skip
+    # the seed on failure: the answer_composer can still call
+    # search_guidelines via its own tool-use loop with a sanitized query.
+    try:
+        result = await dispatch(
+            "search_guidelines", {"query": query}, fhir, session
+        )
+    except Exception as e:  # noqa: BLE001 — observability layer; never break /v1/chat
+        logger.warning(
+            "evidence_retriever prefetch failed (skipping seed): %s", e
+        )
+        return {
+            "routing_path": routing,
+            # Consume the signal so the supervisor doesn't loop forever.
+            "retrieval_seed_query": None,
+        }
 
     # W2 KR3: derive retrieval_hit_ids (chunk_ids in score order) from the
     # tool result data so answer_composer can surface them into TurnTrace.
@@ -40,8 +62,14 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
 
     # W2 KR4: rerank step. The default IdentityReranker preserves BM25 order
     # and emits 1.0 scores; Cohere / local cross-encoder are gated by env.
-    reranker = get_reranker()
-    reordered, scores = reranker.rerank(query, hit_dicts)
+    try:
+        reranker = get_reranker()
+        reordered, scores = reranker.rerank(query, hit_dicts)
+    except Exception as e:  # noqa: BLE001 — same rationale as above
+        logger.warning(
+            "evidence_retriever rerank failed (using BM25 order): %s", e
+        )
+        reordered, scores = list(hit_dicts), []
 
     # W2 KR1 round-2 fix (codex P2): the LLM seeds from `tool_results`, so
     # the post-rerank order MUST be the data we hand it — not the original

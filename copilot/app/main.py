@@ -754,6 +754,24 @@ async def get_document_preview(
     except FhirError:
         raise HTTPException(status_code=404, detail="document_not_found")
 
+    # W2 KR5 round-6 fix (codex P1, security): the panel gate above
+    # checks that the CALLER is in-panel for `patient_id` query param,
+    # but a malicious caller could pass any DocumentReference doc_id —
+    # including one for ANOTHER patient. The fetched resource MUST have
+    # subject.reference == "Patient/{patient_id}" before we stream its
+    # attachment, otherwise this endpoint becomes a cross-patient PHI
+    # leak.
+    subject_ref = (doc_ref.get("subject") or {}).get("reference") or ""
+    expected_subject_ref = f"Patient/{patient_id}"
+    if subject_ref != expected_subject_ref:
+        # 403 (not 404) — we found the doc but the requesting context
+        # is not authorized to read it. Don't reveal whether the doc
+        # exists for some OTHER patient.
+        raise HTTPException(
+            status_code=403,
+            detail="document_subject_does_not_match_session_patient",
+        )
+
     contents = doc_ref.get("content") or []
     if not contents or not isinstance(contents[0], dict):
         raise HTTPException(status_code=404, detail="no_attachment")
