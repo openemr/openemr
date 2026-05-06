@@ -2,6 +2,38 @@
 
 [![copilot-ci](https://github.com/rikkiiwang/openemr/actions/workflows/copilot-ci.yml/badge.svg?branch=master)](https://github.com/rikkiiwang/openemr/actions/workflows/copilot-ci.yml)
 
+> **What `feat/w2-early-submission` ships** (autonomous night-shift run
+> `2026-05-06-0104`, 27+ task-commits since `78d0672c7`):
+>
+> - **LangGraph state machine** — supervisor + `intake_extractor` +
+>   `evidence_retriever` workers + `answer_composer` (W1 loop wrapped) +
+>   `critic` node, with deterministic plain-Python routing
+>   (`app/graph/`).
+> - **PRD-mandated 50-case eval gate** with five boolean rubric scorers
+>   + threshold-based regression check + `make eval-fast` (<2 s, <2 min
+>   target) + pre-push hook installer + CI extension. See "Verifying the
+>   W2 eval gate" below for the regression-repro recipe.
+> - **6 new W2 TurnTrace fields** + Langfuse `generation()` spans per
+>   LLM call so model identity surfaces in the trace UI.
+> - **Reranker scaffolding** (`app/retrieval/rerank.py`) — Identity /
+>   Cohere / local-cross-encoder; default Identity in CI.
+> - **Tier-2 LITE front-desk role** — `GET /v1/sessions/{id}/pending_intakes`
+>   + iframe banner with expandable list + ACL grant for the stock
+>   `Front Office` group (acl_upgrade.php v14). See "Front-desk demo
+>   prep" below.
+> - **148 tests passing**, 50/50 eval cases at 100% across all six
+>   PRD-named categories. The branch is **green at every commit** by
+>   design (per-task structural pre-commit gate).
+>
+> **What stays Final-deferred:** real `POST /fhir/DocumentReference`,
+> round-trip eval test, full `_verify_patient_in_facility` helper,
+> dataset expansion to 18-20 patients × 2 facilities, persistent
+> banner-dismiss, dense retrieval (OpenAI embeddings), cost+latency
+> report, demo video. See `copilot/W2_EARLY_IMPLEMENTATION.md` for the
+> tier breakdown.
+
+---
+
 A separate Python (FastAPI) service that surfaces inside OpenEMR as a SMART on
 FHIR app and gives a primary care physician patient context in the 60–90s
 window between rooms.
