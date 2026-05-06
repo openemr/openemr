@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir --prefix=/install \
     "anthropic>=0.40" "openai>=1.50" "pydantic>=2.9" "pydantic-settings>=2.5" \
     "langfuse>=2.50,<3" "python-dotenv>=1.0" "sse-starlette>=2.1" \
     "aiosqlite>=0.20" "python-multipart>=0.0.9" \
-    "langgraph>=0.2,<0.3"
+    "langgraph>=0.2,<0.3" "pyyaml>=6.0"
 
 FROM python:3.11-slim
 WORKDIR /srv
