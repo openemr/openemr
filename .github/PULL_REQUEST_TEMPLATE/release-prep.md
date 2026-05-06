@@ -4,6 +4,13 @@ Mechanical changes have been applied for release `v<VERSION>`. Verify the diff
 and check the items below before merging — merging this PR creates the
 annotated release tag and triggers the docs/infra workflows.
 
+> **Do not push commits directly to this PR's branch (`release-prep/*`).**
+> The conductor force-pushes this branch on every push to its base; any
+> manual commits will be silently overwritten on the next conductor run.
+> If a mechanical change here is wrong, fix it at the source: open a
+> regular PR against the base `rel-*` branch (or against `master`),
+> merge it, and the conductor will re-render this PR on the next run.
+
 ## Release manager checklist
 
 - [ ] Edit the auto-generated release-notes draft (in the `website-openemr` docs PR for this release).
