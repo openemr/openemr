@@ -8,8 +8,13 @@
   fail when the deployed Co-Pilot can't reach OpenEMR, and the extracted
   facts live in Co-Pilot's own SQLite anyway).
 
-Both tools produce ToolResults whose `record_ids` flow through the existing
-verify() gate without rule changes.
+Both tools produce ToolResults whose `data` items each carry their own
+`record_id` field. This is what `app/verification/rules.py::_record_belongs_to_active_patient`
+walks looking for a match — without it, Layer-2 verification rejects any
+claim whose record_id was emitted in `record_ids` but not duplicated as a
+key on a data item. `subject_pseudonym` is set to the session's pseudonym so
+the cross-patient-leakage check passes for facts derived from this session's
+upload.
 """
 from __future__ import annotations
 
@@ -50,6 +55,149 @@ SCHEMA: dict[str, Any] = {
 }
 
 
+def _flatten_extraction_to_data_items(
+    extraction: LabPDFExtraction | IntakeFormExtraction,
+    *,
+    doc_id: str,
+    doc_type: str,
+    subject_pseudonym: str,
+    extracted_at_iso: str | None = None,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Build per-fact data items + their record_ids for verify() to walk.
+
+    Returns (data_items, per_fact_record_ids). Both lists are kept in
+    lockstep — for every record_id in the second list there is exactly one
+    data item with a matching `record_id` key, plus the parent
+    DocumentReference item at index 0. Caller appends the parent
+    record_id (`DocumentReference/{doc_id}`) themselves.
+    """
+    parent_item: dict[str, Any] = {
+        "record_id": f"DocumentReference/{doc_id}",
+        "subject_pseudonym": subject_pseudonym,
+        "resourceType": "DocumentReference",
+        "doc_type": doc_type,
+    }
+    if extracted_at_iso:
+        parent_item["extracted_at"] = extracted_at_iso
+
+    data_items: list[dict[str, Any]] = [parent_item]
+    per_fact_record_ids: list[str] = []
+
+    if isinstance(extraction, LabPDFExtraction):
+        for idx, lab in enumerate(extraction.results):
+            if lab.source_citation.bbox is None or lab.source_citation.page is None:
+                continue
+            rid = encode_record_id_for_vlm(
+                doc_id=doc_id,
+                page=lab.source_citation.page,
+                bbox=lab.source_citation.bbox,
+                field_or_chunk_id=field_id_for_lab_result(lab, idx),
+            )
+            per_fact_record_ids.append(rid)
+            data_items.append(
+                {
+                    "record_id": rid,
+                    "subject_pseudonym": subject_pseudonym,
+                    "resourceType": "Observation",
+                    "test_name": lab.test_name,
+                    "analyte_key": lab.analyte_key,
+                    "loinc_code": lab.loinc_code,
+                    "value": lab.value,
+                    "unit": lab.unit,
+                    "reference_range": lab.reference_range,
+                    "abnormal_flag": lab.abnormal_flag,
+                    "collection_date": (
+                        lab.collection_date.isoformat()
+                        if lab.collection_date else None
+                    ),
+                }
+            )
+        return data_items, per_fact_record_ids
+
+    # IntakeFormExtraction — flatten allergies / medications / family history.
+    if isinstance(extraction, IntakeFormExtraction):
+        # Demographics + chief concern as a Patient-shaped item, no per-field
+        # record_id encoding (no useful bbox to anchor a derived FHIR id).
+        data_items.append(
+            {
+                "record_id": f"DocumentReference/{doc_id}#field=demographics",
+                "subject_pseudonym": subject_pseudonym,
+                "resourceType": "Patient",
+                "id": subject_pseudonym,
+                "age": extraction.demographics.age,
+                "gender": extraction.demographics.gender,
+                "chief_concern": extraction.chief_concern,
+            }
+        )
+        per_fact_record_ids.append(f"DocumentReference/{doc_id}#field=demographics")
+
+        for i, med in enumerate(extraction.current_medications):
+            if med.source_citation.bbox is None or med.source_citation.page is None:
+                continue
+            rid = encode_record_id_for_vlm(
+                doc_id=doc_id,
+                page=med.source_citation.page,
+                bbox=med.source_citation.bbox,
+                field_or_chunk_id=f"medications[{i}]",
+            )
+            per_fact_record_ids.append(rid)
+            data_items.append(
+                {
+                    "record_id": rid,
+                    "subject_pseudonym": subject_pseudonym,
+                    "resourceType": "MedicationStatement",
+                    "name": med.name,
+                    "dose": med.dose,
+                    "frequency": med.frequency,
+                }
+            )
+
+        for i, allergy in enumerate(extraction.allergies):
+            if allergy.source_citation.bbox is None or allergy.source_citation.page is None:
+                continue
+            rid = encode_record_id_for_vlm(
+                doc_id=doc_id,
+                page=allergy.source_citation.page,
+                bbox=allergy.source_citation.bbox,
+                field_or_chunk_id=f"allergies[{i}].substance",
+            )
+            per_fact_record_ids.append(rid)
+            data_items.append(
+                {
+                    "record_id": rid,
+                    "subject_pseudonym": subject_pseudonym,
+                    "resourceType": "AllergyIntolerance",
+                    "verbatim_substance": allergy.verbatim_substance,
+                    "coded_substance": allergy.coded_substance,
+                    "reaction": allergy.reaction,
+                    "severity": allergy.severity,
+                    "ambiguity_note": allergy.ambiguity_note,
+                }
+            )
+
+        for i, fh in enumerate(extraction.family_history):
+            if fh.source_citation.bbox is None or fh.source_citation.page is None:
+                continue
+            rid = encode_record_id_for_vlm(
+                doc_id=doc_id,
+                page=fh.source_citation.page,
+                bbox=fh.source_citation.bbox,
+                field_or_chunk_id=f"family_history[{i}]",
+            )
+            per_fact_record_ids.append(rid)
+            data_items.append(
+                {
+                    "record_id": rid,
+                    "subject_pseudonym": subject_pseudonym,
+                    "resourceType": "FamilyMemberHistory",
+                    "relation": fh.relation,
+                    "condition": fh.condition,
+                }
+            )
+
+    return data_items, per_fact_record_ids
+
+
 async def run_attach_and_extract(
     *,
     ingestion_service: IngestionService,
@@ -69,24 +217,18 @@ async def run_attach_and_extract(
         physician_user_id=session.physician_user_id,
     )
 
-    record_ids: list[str] = [f"DocumentReference/{result.doc_id}"]
-    if isinstance(result.extraction, LabPDFExtraction):
-        for idx, lab in enumerate(result.extraction.results):
-            if lab.source_citation.bbox is None or lab.source_citation.page is None:
-                continue
-            record_ids.append(
-                encode_record_id_for_vlm(
-                    doc_id=result.doc_id,
-                    page=lab.source_citation.page,
-                    bbox=lab.source_citation.bbox,
-                    field_or_chunk_id=field_id_for_lab_result(lab, idx),
-                )
-            )
+    data_items, per_fact_record_ids = _flatten_extraction_to_data_items(
+        result.extraction,
+        doc_id=result.doc_id,
+        doc_type=args["doc_type"],
+        subject_pseudonym=session.patient_pseudonym(),
+    )
+    record_ids: list[str] = [f"DocumentReference/{result.doc_id}"] + per_fact_record_ids
 
     return ToolResult(
         name="attach_and_extract",
         record_type="DocumentReference",
-        data=[result.extraction.model_dump(mode="json")],
+        data=data_items,
         record_ids=record_ids,
     )
 
@@ -131,38 +273,36 @@ async def run_get_recent_uploads(
     docs = await store.list_recent_for_patient(
         patient_pseudonym=session.active_patient_id, limit=limit
     )
-    payload: list[dict[str, Any]] = []
+    data_items: list[dict[str, Any]] = []
     record_ids: list[str] = []
+    subject_pseudonym = session.patient_pseudonym()
+
     for d in docs:
-        record_ids.append(f"DocumentReference/{d.canonical_doc_id}")
-        # Re-emit per-fact record_ids so any claim citing a specific lab value
-        # passes verify() the same way attach_and_extract's claims do.
-        if d.doc_type == "lab_doc":
-            try:
-                lab_extr = LabPDFExtraction.model_validate(d.extracted_facts)
-                for idx, lab in enumerate(lab_extr.results):
-                    if lab.source_citation.bbox and lab.source_citation.page:
-                        record_ids.append(
-                            encode_record_id_for_vlm(
-                                doc_id=d.canonical_doc_id,
-                                page=lab.source_citation.page,
-                                bbox=lab.source_citation.bbox,
-                                field_or_chunk_id=field_id_for_lab_result(lab, idx),
-                            )
-                        )
-            except Exception:  # noqa: BLE001 — never let a malformed row break the tool
-                pass
-        payload.append(
-            {
-                "doc_id": d.canonical_doc_id,
-                "doc_type": d.doc_type,
-                "extracted_at": d.extracted_at.isoformat(),
-                "extraction": d.extracted_facts,
-            }
+        # Reconstruct the typed extraction so we can flatten it the same way
+        # attach_and_extract does. Malformed rows are skipped quietly so a
+        # single bad row doesn't kill the tool.
+        try:
+            if d.doc_type == "lab_doc":
+                extraction = LabPDFExtraction.model_validate(d.extracted_facts)
+            else:
+                extraction = IntakeFormExtraction.model_validate(d.extracted_facts)
+        except Exception:  # noqa: BLE001
+            continue
+
+        items, per_fact_rids = _flatten_extraction_to_data_items(
+            extraction,
+            doc_id=d.canonical_doc_id,
+            doc_type=d.doc_type,
+            subject_pseudonym=subject_pseudonym,
+            extracted_at_iso=d.extracted_at.isoformat(),
         )
+        data_items.extend(items)
+        record_ids.append(f"DocumentReference/{d.canonical_doc_id}")
+        record_ids.extend(per_fact_rids)
+
     return ToolResult(
         name="get_recent_uploads",
         record_type="DocumentReference",
-        data=payload,
+        data=data_items,
         record_ids=record_ids,
     )
