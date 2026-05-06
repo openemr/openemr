@@ -542,28 +542,65 @@ async def get_pending_intakes(
         fhir, session.physician_user_id, session.active_patient_id, settings
     )
 
-    store: ProcessedDocumentStore = app.state.processed_documents
-    docs = await store.list_recent_for_patient(
-        patient_pseudonym=session.active_patient_id,  # store keyed by raw FHIR uuid
-        limit=20,
-    )
-    # W2 KR5 round-3 fix (codex P2): the store also returns rows the
-    # PHYSICIAN uploaded via the iframe drop-zone (source_path='attach_route').
-    # Banner copy reads "uploaded by front desk — review", so it's incorrect
-    # to surface the physician's own prior uploads here. Filter to
-    # front_desk_scan (the source_path written when the front desk uploads
-    # via OpenEMR's stock Documents Zend module — the canonical front-desk
-    # path per W2_ARCHITECTURE.md §2.0).
-    items = [
-        PendingIntakeItem(
-            doc_id=d.canonical_doc_id,
-            doc_type=d.doc_type,
-            uploaded_at=d.extracted_at.isoformat(),
-            mime_type=d.mime_type,
+    # W2 KR5 round-4 fix (codex P2): the front-desk source-of-truth is
+    # OpenEMR's stock Documents Zend module, which writes to OpenEMR's
+    # MySQL `documents` table and surfaces via FHIR DocumentReference. The
+    # local processed_documents SQLite is downstream of the iframe drop-zone
+    # path only — filtering it by source_path returns nothing because no
+    # production writer records `front_desk_scan` rows. Source the banner
+    # from FHIR DocumentReference per W2_ARCHITECTURE.md §2.0 / §4.1.
+    try:
+        bundle = await fhir.search(
+            "DocumentReference",
+            {"patient": session.active_patient_id, "_count": "20"},
+            physician_user_id=session.physician_user_id,
         )
-        for d in docs
-        if d.source_path == "front_desk_scan"
-    ]
+    except FhirError:
+        # FHIR transient errors must not break iframe load. Banner just
+        # stays empty for this turn.
+        return PendingIntakesResponse(items=[], count=0)
+
+    items: list[PendingIntakeItem] = []
+    for entry in bundle.get("entry") or []:
+        resource = entry.get("resource") or {}
+        if resource.get("resourceType") != "DocumentReference":
+            continue
+        doc_id = resource.get("id") or ""
+        if not doc_id:
+            continue
+        # Doc type label — prefer `type.coding[0].display`, fall back to
+        # `type.text`, then a synthesized default. (Coding takes priority
+        # because it's the codified form; `text` is the human-typed
+        # display field that may be a shorthand.)
+        doc_type = "document"
+        type_node = resource.get("type") or {}
+        if isinstance(type_node, dict):
+            codings = type_node.get("coding") or []
+            if codings and isinstance(codings[0], dict):
+                coding_label = codings[0].get("display") or codings[0].get("code")
+                if coding_label:
+                    doc_type = coding_label
+            if doc_type == "document":
+                doc_type = type_node.get("text") or doc_type
+        # Upload timestamp — `date` (FHIR DocumentReference field) is the
+        # creation timestamp. Falls back to current-server-time only if
+        # absent.
+        uploaded_at = resource.get("date") or ""
+        # Mime — from the first content.attachment.contentType.
+        mime_type: str | None = None
+        contents = resource.get("content") or []
+        if contents and isinstance(contents[0], dict):
+            attachment = contents[0].get("attachment") or {}
+            mime_type = attachment.get("contentType")
+        items.append(
+            PendingIntakeItem(
+                doc_id=doc_id,
+                doc_type=doc_type,
+                uploaded_at=uploaded_at,
+                mime_type=mime_type,
+            )
+        )
+
     return PendingIntakesResponse(items=items, count=len(items))
 
 

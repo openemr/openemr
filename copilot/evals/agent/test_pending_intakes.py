@@ -1,4 +1,8 @@
-"""Integration tests for /v1/sessions/{id}/pending_intakes (W2 KR5 lite)."""
+"""Integration tests for /v1/sessions/{id}/pending_intakes (W2 KR5 lite).
+
+Round-4 codex fix: endpoint now reads FHIR DocumentReference, not the
+local processed_documents SQLite. Tests mock fhir.search accordingly.
+"""
 from __future__ import annotations
 
 import json
@@ -16,8 +20,6 @@ PHYSICIAN = "dr_pending"
 @pytest.fixture
 def app_client(monkeypatch, tmp_path):
     monkeypatch.setenv("CONVERSATION_DB_PATH", str(tmp_path / "copilot.db"))
-    # Isolate the W2 processed_documents store too — without this, prior tests'
-    # records leak into the empty-patient assertion.
     monkeypatch.setenv("COPILOT_DOCS_DB_PATH", str(tmp_path / "copilot_docs.db"))
     monkeypatch.setenv(
         "PHYSICIAN_PATIENT_PANEL", json.dumps({PHYSICIAN: [PATIENT_ID]})
@@ -33,7 +35,7 @@ def app_client(monkeypatch, tmp_path):
     monkeypatch.setattr(main_module, "_verify_patient_in_panel", _noop_panel)
 
     with TestClient(main_module.app) as c:
-        yield c
+        yield c, main_module
 
 
 def _start(client: TestClient) -> str:
@@ -45,9 +47,23 @@ def _start(client: TestClient) -> str:
     return r.json()["session_id"]
 
 
-def test_pending_intakes_returns_empty_for_fresh_patient(app_client) -> None:
-    sid = _start(app_client)
-    r = app_client.get(f"/v1/sessions/{sid}/pending_intakes")
+def _patch_fhir_search(main_module, monkeypatch, bundle: dict) -> None:
+    async def _fake_search(resource_type, params, *, physician_user_id):
+        assert resource_type == "DocumentReference"
+        assert params.get("patient") == PATIENT_ID
+        return bundle
+
+    monkeypatch.setattr(main_module.app.state.fhir, "search", _fake_search)
+
+
+def test_pending_intakes_returns_empty_when_fhir_returns_empty_bundle(
+    app_client, monkeypatch
+) -> None:
+    client, main_module = app_client
+    _patch_fhir_search(main_module, monkeypatch, {"entry": []})
+    sid = _start(client)
+
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
     assert r.status_code == 200
     body = r.json()
     assert body["count"] == 0
@@ -55,55 +71,98 @@ def test_pending_intakes_returns_empty_for_fresh_patient(app_client) -> None:
 
 
 def test_pending_intakes_returns_404_for_unknown_session(app_client) -> None:
-    r = app_client.get("/v1/sessions/no-such-session/pending_intakes")
+    client, _ = app_client
+    r = client.get("/v1/sessions/no-such-session/pending_intakes")
     assert r.status_code == 404
 
 
-@pytest.mark.asyncio
-async def test_pending_intakes_returns_front_desk_uploads_only(
-    app_client,
+def test_pending_intakes_surfaces_fhir_documentreferences(
+    app_client, monkeypatch
 ) -> None:
-    """Banner copy reads 'uploaded by front desk' — we must surface only
-    docs with source_path='front_desk_scan', not the physician's own
-    iframe drop-zone uploads (source_path='attach_route').
+    """The endpoint reads OpenEMR's FHIR DocumentReference for the patient
+    so front-desk uploads done via the stock Documents Zend module surface
+    in the iframe banner.
     """
-    sid = _start(app_client)
+    client, main_module = app_client
+    bundle = {
+        "resourceType": "Bundle",
+        "type": "searchset",
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "doc-front-desk-1",
+                    "type": {
+                        "coding": [
+                            {
+                                "system": "http://loinc.org",
+                                "code": "11502-2",
+                                "display": "Laboratory report",
+                            }
+                        ],
+                        "text": "Lab Report",
+                    },
+                    "date": "2026-05-06T08:30:00Z",
+                    "content": [
+                        {
+                            "attachment": {
+                                "contentType": "application/pdf",
+                                "url": "/Binary/doc-front-desk-1",
+                            }
+                        }
+                    ],
+                }
+            },
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "doc-front-desk-2",
+                    "type": {"text": "Intake Form"},
+                    "date": "2026-05-05T14:15:00Z",
+                    "content": [
+                        {"attachment": {"contentType": "image/png"}}
+                    ],
+                }
+            },
+        ],
+    }
+    _patch_fhir_search(main_module, monkeypatch, bundle)
+    sid = _start(client)
 
-    # Inject one front-desk upload + one physician self-upload.
-    from app import main as main_module
-    store = main_module.app.state.processed_documents
-    await store.record(
-        patient_pseudonym=PATIENT_ID,
-        hash="sha3-512-front-desk",
-        canonical_doc_id="copilot-front-desk-doc",
-        doc_type="lab_doc",
-        extracted_facts={"results": []},
-        source_path="front_desk_scan",
-        file_bytes=b"%PDF-front-desk",
-        mime_type="application/pdf",
-    )
-    await store.record(
-        patient_pseudonym=PATIENT_ID,
-        hash="sha3-512-physician-self",
-        canonical_doc_id="copilot-physician-self",
-        doc_type="lab_doc",
-        extracted_facts={"results": []},
-        source_path="attach_route",  # physician's own iframe upload
-        file_bytes=b"%PDF-self",
-        mime_type="application/pdf",
-    )
-
-    r = app_client.get(f"/v1/sessions/{sid}/pending_intakes")
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
     assert r.status_code == 200
     body = r.json()
-    # Only the front-desk one surfaces; the physician self-upload is filtered out.
-    assert body["count"] == 1
-    assert body["items"][0]["doc_id"] == "copilot-front-desk-doc"
+    assert body["count"] == 2
+    items_by_id = {i["doc_id"]: i for i in body["items"]}
+    assert items_by_id["doc-front-desk-1"]["doc_type"] == "Laboratory report"
+    assert items_by_id["doc-front-desk-1"]["mime_type"] == "application/pdf"
+    assert items_by_id["doc-front-desk-2"]["doc_type"] == "Intake Form"
+    assert items_by_id["doc-front-desk-2"]["mime_type"] == "image/png"
 
 
-def test_pending_intakes_response_shape_is_stable(app_client) -> None:
+def test_pending_intakes_handles_fhir_error_gracefully(
+    app_client, monkeypatch
+) -> None:
+    """Transient FHIR errors must NOT 500 the iframe load — banner stays empty."""
+    client, main_module = app_client
+    from app.fhir.client import FhirError
+
+    async def _failing_search(*args, **kwargs):
+        raise FhirError("upstream timeout")
+
+    monkeypatch.setattr(main_module.app.state.fhir, "search", _failing_search)
+    sid = _start(client)
+
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+    assert r.json() == {"items": [], "count": 0}
+
+
+def test_pending_intakes_response_shape_is_stable(app_client, monkeypatch) -> None:
     """The response must always have items + count keys, even when empty."""
-    sid = _start(app_client)
-    r = app_client.get(f"/v1/sessions/{sid}/pending_intakes")
+    client, main_module = app_client
+    _patch_fhir_search(main_module, monkeypatch, {})
+    sid = _start(client)
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
     body = r.json()
     assert set(body.keys()) == {"items", "count"}

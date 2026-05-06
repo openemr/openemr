@@ -60,8 +60,12 @@ CASES_ROOT = Path("evals/cases")
 BASELINE_PATH = Path("evals/baseline.json")
 RESULTS_PATH = Path("evals/RESULTS.md")
 FAST_SUBSET = {
-    # 12-case fast subset (~2 cases per category for the pre-push hook).
-    # Keep IDs in sync as cases are authored.
+    # 14-case fast subset for the pre-push hook. Includes ≥2 cases per
+    # category so a regression in ANY category trips the gate. Round-4
+    # codex fix (P2): cross was missing here, which made the README's
+    # "comment out check_extracted_fact_has_source_doc" repro silently
+    # green in the fast gate (`pass_rates_by_category` reports empty
+    # categories as 100%).
     "lab_pdf_lipid_basic",
     "lab_pdf_lipid_low_confidence",
     "intake_pdf_chen",
@@ -74,6 +78,8 @@ FAST_SUBSET = {
     "refusal_no_recent_vitals",
     "phi_extraction_intake_clean",
     "phi_extraction_lab_clean",
+    "cross_extract_then_cite",
+    "cross_schema_and_cite",
 }
 
 CATEGORIES = ("extraction", "retrieval", "citation", "refusal", "phi", "cross")
