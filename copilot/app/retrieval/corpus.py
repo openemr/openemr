@@ -37,8 +37,13 @@ class GuidelineCorpus:
     def __init__(self, *, jsonl_path: str | Path, sqlite_path: str) -> None:
         self._jsonl = Path(jsonl_path)
         self._db = sqlite_path
+        # Materialized at build() time so the W2 critic node's
+        # check_evidence_chunk_in_corpus rule can resolve known chunk_ids
+        # synchronously without a per-request SQL hit.
+        self._chunk_ids: frozenset[str] = frozenset()
 
     async def build(self) -> None:
+        loaded_ids: list[str] = []
         async with aiosqlite.connect(self._db) as db:
             await db.executescript(_SCHEMA)
             await db.execute("DELETE FROM guidelines")  # idempotent rebuilds
@@ -46,6 +51,7 @@ class GuidelineCorpus:
                 if not line.strip():
                     continue
                 row = json.loads(line)
+                loaded_ids.append(row["chunk_id"])
                 await db.execute(
                     """
                     INSERT INTO guidelines
@@ -62,6 +68,15 @@ class GuidelineCorpus:
                     ),
                 )
             await db.commit()
+        self._chunk_ids = frozenset(loaded_ids)
+
+    def known_chunk_ids(self) -> frozenset[str]:
+        """Return the set of chunk_ids loaded into this corpus.
+
+        Used by the W2 critic node to validate ``Guideline/{chunk_id}``
+        citations. Returns an empty frozenset before ``build()`` runs.
+        """
+        return self._chunk_ids
 
     async def search(self, query: str, *, top_k: int = 5) -> list[GuidelineHit]:
         # FTS5 BM25: lower score = better. We negate so higher = better.

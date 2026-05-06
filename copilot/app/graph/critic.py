@@ -26,6 +26,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.graph.state import AgentGraphState
+from app.tools.registry import get_corpus
 from app.verification.attribution import verify
 from app.verification.rules import apply_rules
 
@@ -58,14 +59,27 @@ async def critique(state: AgentGraphState) -> dict[str, Any]:
     if not attr.passed:
         rejections.extend(attr.unknown_ids)
 
-    # Layer 2 — domain rules. Same idempotent re-check.
+    # Layer 2 — domain rules. Same idempotent re-check, plus the two new
+    # W2 rules (check_extracted_fact_has_source_doc and
+    # check_evidence_chunk_in_corpus). The chunk-in-corpus rule needs the
+    # corpus's known chunk-ids; resolved defensively because tests may run
+    # before the FastAPI lifespan registered the corpus.
     if session is not None:
         active_pseudonym = session.patient_pseudonym()
+        known_chunk_ids = None
+        try:
+            corpus = get_corpus()
+            if corpus is not None:
+                known_chunk_ids = corpus.known_chunk_ids()
+        except Exception:  # noqa: BLE001
+            known_chunk_ids = None
+
         rule_result = apply_rules(
             response,
             tool_results,
             active_pseudonym,
             proposed_drug=state.get("proposed_drug"),
+            known_chunk_ids=known_chunk_ids,
         )
         if not rule_result.passed:
             rejections.extend(rule_result.rejection_reasons)

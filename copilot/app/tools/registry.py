@@ -38,6 +38,15 @@ def set_corpus(corpus: Any) -> None:
     _CORPUS_HOLDER["corpus"] = corpus
 
 
+def get_corpus() -> Any:
+    """Read the singleton corpus instance (or None if lifespan hasn't run).
+
+    Used by the W2 critic node to resolve known chunk_ids for the
+    ``check_evidence_chunk_in_corpus`` Layer-2 rule.
+    """
+    return _CORPUS_HOLDER["corpus"]
+
+
 def set_ingestion_service(svc: Any) -> None:
     """Called once at FastAPI lifespan-start so the agent loop's tool dispatch
     can reach the singleton service constructed at app startup."""
