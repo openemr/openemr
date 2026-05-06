@@ -106,8 +106,7 @@ jobs:
       run: |
         php bin/console openemr:release-prep \
           --target-version="${{ steps.resolve.outputs.version }}" \
-          --scope=rel \
-          --skip-globals
+          --scope=rel
 
     # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
     # which handles the diff detection, branch force-push, and PR open-or-update
