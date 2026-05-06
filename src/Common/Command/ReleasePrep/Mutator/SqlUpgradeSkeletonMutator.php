@@ -20,6 +20,10 @@ namespace OpenEMR\Common\Command\ReleasePrep\Mutator;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
 use OpenEMR\Common\Command\ReleasePrep\MutatorResult;
+use PhpParser\Node\Expr;
+use PhpParser\Node\Scalar;
+use PhpParser\Node\Stmt;
+use PhpParser\ParserFactory;
 
 final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
 {
@@ -69,19 +73,32 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
         if ($contents === false) {
             throw new \RuntimeException('Cannot read version.php');
         }
-        $major = $this->extractVar($contents, 'v_major');
-        $minor = $this->extractVar($contents, 'v_minor');
-        $patch = $this->extractVar($contents, 'v_patch');
-        return $major . '.' . $minor . '.' . $patch;
-    }
-
-    private function extractVar(string $contents, string $name): string
-    {
-        $pattern = '/^\$' . preg_quote($name, '/') . "\\s*=\\s*'(\\d+)';/m";
-        if (preg_match($pattern, $contents, $matches) !== 1) {
-            throw new \RuntimeException('version.php missing $' . $name);
+        $ast = (new ParserFactory())->createForNewestSupportedVersion()->parse($contents);
+        if ($ast === null) {
+            throw new \RuntimeException('Cannot parse version.php');
         }
-        return $matches[1];
+        $found = ['v_major' => null, 'v_minor' => null, 'v_patch' => null];
+        foreach ($ast as $stmt) {
+            if (!$stmt instanceof Stmt\Expression || !$stmt->expr instanceof Expr\Assign) {
+                continue;
+            }
+            $assign = $stmt->expr;
+            if (
+                !$assign->var instanceof Expr\Variable
+                || !is_string($assign->var->name)
+                || !array_key_exists($assign->var->name, $found)
+                || !$assign->expr instanceof Scalar\String_
+            ) {
+                continue;
+            }
+            $found[$assign->var->name] = $assign->expr->value;
+        }
+        foreach ($found as $name => $value) {
+            if ($value === null) {
+                throw new \RuntimeException('version.php missing $' . $name);
+            }
+        }
+        return $found['v_major'] . '.' . $found['v_minor'] . '.' . $found['v_patch'];
     }
 
     private function latestUpgradeFile(string $sqlDir): ?string
