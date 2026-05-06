@@ -96,7 +96,21 @@ Both affordances POST `multipart/form-data` to `/v1/documents/attach`. The ifram
 
 **Standalone Co-Pilot URL is not a UI surface in Week 2.** The deployed Railway service still exposes the API (`/v1/sessions`, `/v1/chat`, `/v1/documents/attach`), but the UI is iframe-only. This eliminates a class of cross-context auth and patient-id problems the brainstorm surfaced.
 
-**Front desk is a real Week 2 role.** OpenEMR ships a pre-defined **Front Office** ACL group (`acl_upgrade.php:86`) with `write/addonly/view` permissions; granting `patients|docs` write to that group is a one-line ACL change, not new code. Front desk uploads via OpenEMR's stock Documents UI; the resulting `DocumentReference.author` resolves to the front-desk user's Practitioner reference (real, auditable). Live uploads from the iframe drop zone remain physician-scoped via the existing 3-layer per-physician gate.
+**Front desk is a real Week 2 role — facility-scoped, not provider-scoped.** OpenEMR ships a pre-defined **Front Office** ACL group (`acl_upgrade.php:86`) with `write/addonly/view` permissions; granting `patients|docs` write to that group is a one-line ACL change, not new code. Front desk uploads via OpenEMR's stock Documents UI; the resulting `DocumentReference.author` resolves to the front-desk user's Practitioner reference (real, auditable). Live uploads from the iframe drop zone remain physician-scoped via the existing 3-layer per-physician gate.
+
+**Scope contrast — physician vs front desk.** Physicians see only patients on their own panel (the 3-layer gate from W1: `copilot-finder-scope.php`, `copilot-demographics-gate.php`, `_verify_patient_in_panel`, all keyed on `patient_data.providerID == users.id`). Front desk staff see *every patient whose assigned provider belongs to the same facility as the front-desk user* — i.e. the join `patient_data.providerID → users.id → users.facility_id` matches the front-desk user's `users.facility_id`. The model is "I help the docs in my building." This is enforced via three new mirrors of the existing scope hooks:
+
+| Layer | Existing (physician) | New (front desk) |
+|---|---|---|
+| Demographics gate | `copilot-demographics-gate.php` (providerID == users.id) | `copilot-demographics-gate.php` extended: front-desk users (those in the `Front Office` ACL group) pass when the patient's provider's `facility_id` matches the user's `facility_id` |
+| Finder gate | `copilot-finder-scope.php` (providerID = $copilotProviderFilter) | Same file extended: front-desk users get `WHERE providerID IN (SELECT id FROM users WHERE facility_id = $copilotFacilityFilter)` |
+| Session/endpoint gate | `_verify_patient_in_panel` in `copilot/app/main.py` | New `_verify_patient_in_facility` (mirror) used by `/v1/documents/attach` when the caller is in the front-desk role; resolves the user's facility via FHIR `Practitioner.qualification` or a config map; returns same "in scope / out of scope" verdict |
+
+**Role detection.** The Co-Pilot doesn't trust a query-string `role=front_desk` — it resolves the role from OpenEMR's ACL membership for the SMART/PKCE-authenticated user. A small helper `resolve_role(user_id) -> {"physician", "front_desk"}` reads the ACL group membership once at session open; the result is cached on the session. Wrong-role uploads get a 403 with no PHI in the response body. Out-of-facility access by a front-desk user gets the same 403 + clinical-audit log entry as out-of-panel access by a physician.
+
+**Pending-intake notification.** When a physician opens the Co-Pilot iframe for a patient, the iframe shows a top-of-panel **banner** if the patient has front-desk-uploaded intake forms or `QuestionnaireResponse`s that the physician hasn't yet reviewed. Banner copy: *"3 intake documents uploaded by front desk — review."* Clicking the banner expands an **inline list** of the pending docs (one row per doc: filename, upload date, who uploaded, doc_type chip). Clicking a row opens the existing `<dialog id="bbox-modal">` with the source rendered + bbox overlay (the W2-MVP+bbox flow). Once a doc is opened, it's marked acknowledged and removed from the list; the banner shrinks its count and disappears when the list is empty. Acknowledgements persist in the existing `processed_documents` SQLite (new column `acknowledged_by_physician_at TIMESTAMP NULL`) so reopening the iframe later doesn't re-surface the same docs. **No auto-injected chat message** — the banner is the only surface; the physician decides when to engage. Inline-banner-only was chosen over chat-injection because chat injection competes with the user's first question for attention and because the banner's count is glanceable in the 60-90 second between-rooms window the agent is built for.
+
+**Pending-intake source.** The banner's count comes from a new endpoint `GET /v1/sessions/{session_id}/pending_intakes` which is a thin wrapper around the supervisor's `pending_intake_sources(pid)` from §4.1 — same FHIR query union (unprocessed `DocumentReference`s + unprocessed `QuestionnaireResponse`s for this patient), same dedup against `processed_documents`, but adds the `acknowledged_by_physician_at IS NULL` filter. Re-uses the existing `_verify_patient_in_panel` so the endpoint is panel-gated like every other patient endpoint.
 
 ### §2.1 Three ingestion variants (lab + two intake sources)
 
@@ -137,6 +151,33 @@ We have **no real lab PDFs or intake forms**, so all test data is synthesized in
 **Generation script:** `scripts/generate_test_documents.py` — seeded RNG (`SEED=42` committed), reproducible, idempotent. Output: `evals/fixtures/documents/`. Both the script and its output ship in-repo.
 
 **Eval coverage:** the 15 extraction cases in §6.1 reference these fixtures by filename; CI's `test_extraction_*` cases mock the Claude vision call to return canned JSON, so the eval suite never depends on a live VLM call. A small live-VLM smoke test (`@pytest.mark.live_llm`) runs the real model against one fixture per doc type when `ANTHROPIC_LIVE=1`.
+
+### §2.6 EHR-resident dataset (patients, providers, facilities)
+
+The W1 deploy onboarded **10 Synthea CCDA patients** distributed across **3 providers** (`sql/example_patient_data.sql`: providerID=1 → 2 patients; providerID=4 → 5 patients; providerID=5 → 5 patients). All three providers share the default facility (`users.facility_id = 3`, "Your Clinic Name Here"). For Week 2, the dataset extends along three axes — none of them invent new patient identities, all of them stay synthetic:
+
+| Axis | W1 state | W2 state | Why |
+|---|---|---|---|
+| **Patient count** | 10 (Synthea) | 18–20 (10 existing + 8–10 new Synthea CCDA imports) | Density — each facility needs enough patients that "all my facility's pending intakes" is a meaningful list, not 1–2 rows. |
+| **Provider count** | 3 | 4–5 (add 1–2 to balance new patients across) | Mirrors a real 5–15-PCP group practice (PRD's target setting). |
+| **Facility count** | 1 | 2 ("Riverside Family Medicine" + "Eastside Clinic") | The whole point of facility scope is to *exclude* — one facility can't demo this. |
+| **Front-desk users** | 0 | 1 per facility | Demonstrates per-facility scope; multi-user-per-facility is deferred (additive, not architectural). |
+| **Pre-staged documents** | 0 | 4–6 per facility, mix of `intake_form_pdf` (PDF + PNG photo) and `lab_pdf`, all uploaded by the front-desk user via OpenEMR's stock Documents UI before the demo starts | Gives the **pending-intake banner** real content on iframe open. Without these the banner has nothing to show and the front-desk story is hypothetical. |
+
+**Provider → facility mapping (committed seed):**
+
+```
+Riverside Family Medicine   (facility_id = 3)   providers: 1, 4         (~7 patients)
+Eastside Clinic             (facility_id = 4)   providers: 5, 6 (new)   (~8 patients)
+Front-desk user @ Riverside (users row, Front Office ACL group)
+Front-desk user @ Eastside  (users row, Front Office ACL group)
+```
+
+This ratio (~half/half) puts pressure on the facility-scope gate: a Riverside front-desk user trying to access an Eastside patient must get a 403, and the Riverside physician's banner must NOT include Eastside docs the Eastside front desk uploaded.
+
+**Reproducibility.** A new script `copilot/scripts/seed_w2_dataset.py` (idempotent, seeded) does three things in order: (a) imports the additional Synthea CCDA bundles, (b) `UPDATE patient_data` to assign `providerID` per the table above, (c) `UPDATE users SET facility_id = …` to assign providers to facilities and creates the two front-desk users with Front Office ACL membership, (d) uploads the pre-staged intake/lab fixtures via the OpenEMR Documents Zend module's API as the appropriate front-desk user (so `DocumentReference.author` is real, not synthesized). The script is safe to re-run (`INSERT ... ON DUPLICATE KEY UPDATE` and dedup on `documents.hash`).
+
+**No PHI.** All names/DOBs/addresses are Synthea-generated; the front-desk users are synthetic accounts (e.g., `front-rfm`, `front-esc`); intake-form contents are the same synthetic templates as §2.5 with patient data swapped to match the assigned provider's panel.
 
 **API contract:** `POST /v1/documents/attach` accepts `multipart/form-data` with fields `file: UploadFile`, `patient_id: str`, `doc_type: Literal["lab_doc", "intake_form_doc"]`, `mime_type: Literal["application/pdf", "image/png", "image/jpeg"]`. The `doc_type` describes the *clinical role* (lab vs intake form), independent of file format; `mime_type` carries the format. The two together dispatch to the right VLM prompt and the right Pydantic extraction schema, while remaining open to future formats (e.g. TIFF fax scans) without renaming an enum. No pre-signed-URL handoff (we don't have S3; blobs flow straight into OpenEMR's `Binary`).
 
@@ -516,6 +557,7 @@ Two eval cases enforce this:
 - **Demo / synthetic data only** — Synthea + manually crafted synthetic intake PDFs. The `evals/fixtures/` PDFs ship in-repo because they contain only fabricated data.
 - **Document blobs** stored in OpenEMR's `DocumentReference` / `Binary` resources, never in object storage outside the trust boundary. No S3, no R2, no third-party document processors.
 - **Three-layer scope reuse** — `/v1/documents/attach` invokes the same `_verify_patient_in_panel` Week 1 already runs at session create. A physician cannot upload to a patient outside their panel; out-of-panel `pid` returns 403 with the same `patient_out_of_panel` body.
+- **Front-desk facility scope** — Week 2 adds a parallel gate (`_verify_patient_in_facility` in Python; mirrored awk-injected branch in `copilot-finder-scope.php` + `copilot-demographics-gate.php`) that resolves the caller's role from the `Front Office` ACL group membership and confines patient access to those whose assigned provider sits in the caller's `users.facility_id`. Out-of-facility access by a front-desk user returns the same 403 + audit log entry as out-of-panel access by a physician — the role differs, the trust boundary is uniform. The pending-intake notification in §2.0 *only* surfaces docs that pass the physician's panel check, so a Riverside physician never sees Eastside front-desk uploads even if the same `Patient.id` exists across both facilities (which it shouldn't, but defense-in-depth).
 - **VLM payload privacy** — raw image bytes and the raw VLM JSON output are *physically* exposed to the VLM (it has to read the page) but **never reach Langfuse**. The contract is enforced in code by `app/observability/vlm_span.py`:
   - `vlm_span_input()` always returns `None` — image bytes never become the `input` of a Langfuse span.
   - `vlm_span_output(extraction, ...)` builds the `output` payload from a typed `LabPDFExtraction` / `IntakeFormExtraction` and emits **aggregate metrics only** — `extracted_field_count`, `mean_confidence`, `min_confidence`, `low_confidence_count`, `coded_count` / `uncoded_count` (allergies that disambiguated vs surfaced for clinician), `pages_touched`, the pseudonymized `doc_id`, `doc_type`, `mime_type`, `model_id`, `latency_ms`. A frozen-set allowlist (`_VLM_OUTPUT_ALLOWED_KEYS`) raises at construction time if a future contributor adds a new key without updating the no-PHI eval.
