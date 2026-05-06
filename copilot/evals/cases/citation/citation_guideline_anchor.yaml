@@ -1,0 +1,18 @@
+case_id: citation_guideline_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: USPSTF supports statin therapy for high CVD risk.
+    claims:
+    - text: statin guideline
+      record_id: Guideline/uspstf-statin-2022#sec-2.1
+    data_gaps: []
+  tool_results:
+  - tool: search_guidelines
+    data:
+    - record_id: Guideline/uspstf-statin-2022#sec-2.1
+      chunk_id: uspstf-statin-2022#sec-2.1
+expected_record_ids:
+- Guideline/uspstf-statin-2022#sec-2.1

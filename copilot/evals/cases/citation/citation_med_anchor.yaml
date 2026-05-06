@@ -1,0 +1,18 @@
+case_id: citation_med_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Patient is on lisinopril 10mg daily.
+    claims:
+    - text: lisinopril 10mg
+      record_id: MedicationRequest/rx-1
+    data_gaps: []
+  tool_results:
+  - tool: get_active_medications
+    data:
+    - record_id: MedicationRequest/rx-1
+      subject_pseudonym: p-A
+      rxnorm: '314076'
+      display: lisinopril 10mg

@@ -1,0 +1,18 @@
+case_id: citation_encounter_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Last visit was 2026-04-15 for diabetes follow-up.
+    claims:
+    - text: encounter 2026-04-15
+      record_id: Encounter/enc-1
+    data_gaps: []
+  tool_results:
+  - tool: get_encounter_history
+    data:
+    - record_id: Encounter/enc-1
+      subject_pseudonym: p-A
+      date: '2026-04-15'
+      reason: diabetes f/u

@@ -1,0 +1,18 @@
+case_id: citation_allergy_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Patient is allergic to penicillin.
+    claims:
+    - text: penicillin allergy
+      record_id: AllergyIntolerance/al-1
+    data_gaps: []
+  tool_results:
+  - tool: get_allergies
+    data:
+    - record_id: AllergyIntolerance/al-1
+      subject_pseudonym: p-A
+      display: penicillin
+      clinical_status: active

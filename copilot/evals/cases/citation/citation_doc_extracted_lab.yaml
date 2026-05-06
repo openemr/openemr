@@ -1,0 +1,17 @@
+case_id: citation_doc_extracted_lab
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Lab uploaded today shows LDL 142.
+    claims:
+    - text: LDL 142
+      record_id: DocumentReference/d1#page=1&bbox=0.1,0.1,0.5,0.05&field=results[ldl_cholesterol].value
+    data_gaps: []
+  tool_results:
+  - tool: attach_and_extract
+    data:
+    - record_id: DocumentReference/d1#page=1&bbox=0.1,0.1,0.5,0.05&field=results[ldl_cholesterol].value
+      subject_pseudonym: p-A
+      value: 142

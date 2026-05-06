@@ -1,0 +1,20 @@
+case_id: citation_two_claims_same_tool
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: LDL 142, HDL 38.
+    claims:
+    - text: LDL 142
+      record_id: Observation/obs-ldl
+    - text: HDL 38
+      record_id: Observation/obs-hdl
+    data_gaps: []
+  tool_results:
+  - tool: get_recent_labs
+    data:
+    - record_id: Observation/obs-ldl
+      subject_pseudonym: p-A
+    - record_id: Observation/obs-hdl
+      subject_pseudonym: p-A

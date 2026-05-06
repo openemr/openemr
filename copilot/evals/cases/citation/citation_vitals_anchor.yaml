@@ -1,0 +1,18 @@
+case_id: citation_vitals_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Most recent BP was 145/92.
+    claims:
+    - text: BP 145/92
+      record_id: Observation/obs-bp
+    data_gaps: []
+  tool_results:
+  - tool: get_recent_vitals
+    data:
+    - record_id: Observation/obs-bp
+      subject_pseudonym: p-A
+      systolic: 145
+      diastolic: 92

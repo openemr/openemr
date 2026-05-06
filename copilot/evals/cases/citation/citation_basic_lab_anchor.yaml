@@ -1,0 +1,20 @@
+case_id: citation_basic_lab_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: LDL is 142 mg/dL.
+    claims:
+    - text: LDL 142
+      record_id: Observation/obs-ldl
+    data_gaps: []
+  tool_results:
+  - tool: get_recent_labs
+    data:
+    - record_id: Observation/obs-ldl
+      subject_pseudonym: p-A
+      loinc: 13457-7
+      value: 142
+expected_record_ids:
+- Observation/obs-ldl

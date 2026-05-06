@@ -1,0 +1,18 @@
+case_id: citation_summary_anchor
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Patient is a 58yo F with hypertension.
+    claims:
+    - text: 58yo F hypertension
+      record_id: Patient/p-summary
+    data_gaps: []
+  tool_results:
+  - tool: get_patient_summary
+    data:
+    - record_id: Patient/p-summary
+      subject_pseudonym: p-A
+      age: 58
+      gender: F
