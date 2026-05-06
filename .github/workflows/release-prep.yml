@@ -34,9 +34,12 @@ permissions:
   contents: read
 
 concurrency:
-  # Serialise runs per release branch so a fast follow-up push doesn't
-  # race the previous run's force-push.
-  group: ${{ github.workflow }}-${{ github.event.pull_request.base.ref || github.ref }}
+  # Serialise every event for a given rel-branch into one queue so a
+  # fast follow-up push doesn't race the previous run's force-push, and
+  # a release-prep PR merge doesn't race a concurrent push to the base.
+  # Use ref_name (branch name without the refs/heads/ prefix) on push so
+  # the key matches pull_request.base.ref on the close event.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.base.ref || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -95,17 +98,21 @@ jobs:
 
     - name: Render PR body
       id: pr-body
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
       run: |
         {
           echo 'body<<EOF'
-          php tools/release/bin/render-pr-body.php "${{ steps.resolve.outputs.version }}"
+          php tools/release/bin/render-pr-body.php "${VERSION}"
           echo 'EOF'
         } >> "$GITHUB_OUTPUT"
 
     - name: Run release-prep mutators
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
       run: |
         php bin/console openemr:release-prep \
-          --target-version="${{ steps.resolve.outputs.version }}" \
+          --target-version="${VERSION}" \
           --scope=rel
 
     # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
@@ -131,10 +138,11 @@ jobs:
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         OPERATION: ${{ steps.prep-pr.outputs.pull-request-operation }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        PUSH_SHA: ${{ github.sha }}
       run: |
-        rel_branch='${{ steps.resolve.outputs.branch }}'
-        version='${{ steps.resolve.outputs.version }}'
-        prev_release="$(php tools/release/bin/derive-prev-release.php "${version}")"
+        prev_release="$(php tools/release/bin/derive-prev-release.php "${VERSION}")"
         # peter-evans reports `created` when it opens a new release-prep PR
         # for this rel-branch and `updated` when it pushes to an existing
         # one. Use that signal directly: by the time we reach this step the
@@ -147,10 +155,10 @@ jobs:
         esac
         php tools/release/bin/dispatch.php \
           --event="${event}" \
-          --sha="${{ github.sha }}" \
+          --sha="${PUSH_SHA}" \
           --actor='openemr-release-bot' \
-          --branch="${rel_branch}" \
-          --version="${version}" \
+          --branch="${REL_BRANCH}" \
+          --version="${VERSION}" \
           --prev-release="${prev_release}"
 
   finalize:
@@ -201,26 +209,39 @@ jobs:
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
+        VERSION: ${{ steps.resolve.outputs.version }}
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         PR_URL: ${{ github.event.pull_request.html_url }}
       run: |
         php tools/release/bin/create-tag.php \
           --repo="${REPO}" \
-          --version='${{ steps.resolve.outputs.version }}' \
+          --version="${VERSION}" \
           --commit-sha="${MERGE_SHA}" \
           --conductor-pr-url="${PR_URL}"
+
+    - name: Verify annotated tag
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        tag_name="v${VERSION//./_}"
+        # The tag was just created via the API; the local checkout
+        # doesn't have it yet. Fetch it before handing the local repo
+        # to TagVerifier.
+        git fetch --tags --quiet
+        php tools/release/bin/verify-tag.php "${tag_name}"
 
     - name: Dispatch openemr-tag to consumers
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
       run: |
-        version='${{ steps.resolve.outputs.version }}'
-        rel_branch='${{ steps.resolve.outputs.branch }}'
-        tag_name="v${version//./_}"
+        tag_name="v${VERSION//./_}"
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
-          --sha='${{ github.event.pull_request.merge_commit_sha }}' \
+          --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
-          --branch="${rel_branch}" \
-          --version="${version}" \
+          --branch="${REL_BRANCH}" \
+          --version="${VERSION}" \
           --tag="${tag_name}"
