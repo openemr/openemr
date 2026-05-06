@@ -16,7 +16,6 @@ use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
@@ -30,21 +29,11 @@ class NotificationEventListener implements EventSubscriberInterface
     private readonly bool $isEmailEnabled;
     private readonly bool $isFaxEnabled;
 
-    /**
-     * @var \Twig\Environment The twig rendering environment
-     */
-    private $twig;
-
     public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
         $this->isSmsEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? 0);
         $this->isFaxEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? 0);
         $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
-
-        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
     }
 
     public function getTemplatePath(): string
