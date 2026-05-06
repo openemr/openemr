@@ -1,6 +1,6 @@
 # Active Context
 
-**Last updated:** 2026-05-06 (Week 2 MVP shipped to Railway 2026-05-05; `master` at `78d0672c7`). PDF.js bbox-overlay fix applied to `app/web/copilot_iframe.{html,js}` after `78d0672c7` — uncommitted. Architecture extended 2026-05-06 to make Front Desk role first-class with **facility scope** + **pending-intake banner notification** + **EHR dataset expansion plan** (new §2.6); `W2_EARLY_IMPLEMENTATION.md` authored with the 13-task Tier-1/Tier-2 plan.
+**Last updated:** 2026-05-06 (autonomous night-shift run `2026-05-06-0104` shipped W2 Tier 1 + Tier 2-lite onto branch `feat/w2-early-submission`, head `5b9af3243`, 24 task-commits; Tier 1 covers LangGraph state machine, 50-case eval gate + pre-push hook, TurnTrace 6-field extension + Langfuse generation spans, Reranker scaffolding; Tier 2-lite covers `GET /v1/sessions/{id}/pending_intakes` + iframe banner + `Front Office` ACL grant — all 140 tests + 50/50 eval cases green).
 
 ---
 
@@ -25,31 +25,29 @@ Spec read and digested: `~/Desktop/Gauntlet/Week2/Week 2 - AgentForge Clinical C
 
 ## Immediate next steps
 
-MVP shipped; pivot to Early Submission. Plan now lives in `copilot/W2_EARLY_IMPLEMENTATION.md` (authored 2026-05-06). Tier-1 (eval gate critical, Thursday) + Tier-2 (front-desk lite, optional) + Final-deferred. The 13 tasks in priority order:
+W2 Early-Submission scope is **shipped** on `feat/w2-early-submission`. Manual demo prep + final deploy + remaining Final-scope items are next. **Nothing is on the local main/master beyond `78d0672c7` yet** — branch must be merged or PR'd.
 
-**Tier 1 — eval gate critical (Thursday 2026-05-07):**
-1. Lock scope; commit the uncommitted bbox-overlay PDF/PNG fix.
-2. LangGraph skeleton — terminal-node refactor, **no behavior change** checkpoint (all 75 tests stay green).
-3. Worker nodes + plain-Python supervisor (`intake_extractor`, `evidence_retriever`, `answer_composer`, `decide_next`).
-4. Critic node + extended Layer-2 rules (`check_extracted_fact_has_source_doc`, `check_evidence_chunk_in_corpus`).
-5. 50-case golden set under `evals/cases/*.yaml` (15 extraction / 10 retrieval / 10 citation / 5 refusal / 5 PHI / 5 cross).
-6. Five boolean rubric scorers + `evals/RESULTS.md` writer + threshold logic (any category <0.95 OR >5pp drop → exit 1).
-7. PR-blocking `pre-push` Git hook + `make eval-fast` <2 min + regression-repro recipe in README.
-8. TurnTrace 6-field extension (`routing_path`, `extraction_confidence_min`, `retrieval_hit_ids`, `rerank_scores`, `vlm_cost_estimate_usd`, `documents_attached`).
-9. Langfuse generation spans in `AnthropicAdapter.call` + `OpenAIAdapter.call` so model identity shows in trace UI.
-10. Dense + Cohere rerank — only if Tier 1 is done by Thursday afternoon.
+**Manual steps the night-shift agent can't perform:**
 
-**Tier 2 — front-desk LITE (only if Tier 1 is solid by Thursday morning):**
-11. ACL grant `patients|docs` write to `Front Office` group + 2 pre-staged intake fixtures uploaded as `front-rfm` user via OpenEMR Documents Zend module.
-12. `GET /v1/sessions/{id}/pending_intakes` endpoint, panel-gated (re-uses `_verify_patient_in_panel` — no new gate yet).
-13. Iframe banner stub fetching the endpoint + click-to-modal (re-uses bbox-overlay fix). In-memory dismiss only.
+1. Inspect the branch — `git log master..feat/w2-early-submission` (24 commits).
+2. Open the iframe locally and verify the bbox modal renders the PDF underneath the rectangle (W2 MVP carry-over fix).
+3. Open the iframe with Mariela / Dana and verify the pending-intake banner appears once a doc is uploaded as a Front Office user via the OpenEMR Documents Zend module.
+4. Run the regression-repro recipe in `copilot/README.md` ("Verifying the W2 eval gate") to confirm the gate fires.
+5. Optional: run `bash copilot/scripts/install-hooks.sh` to install the local pre-push hook.
+6. Push the branch when ready (`git push origin feat/w2-early-submission`); Railway auto-deploys from GitHub master, so wait until the user is ready to merge.
+7. Submit to the cohort grader.
 
-**Final-deferred (`W2_FINAL_IMPLEMENTATION.md`, Sunday 2026-05-10):**
+**Final-deferred (Sunday 2026-05-10) — none of these were touched by the night-shift run:**
+
 - Real `POST /fhir/DocumentReference` (replace `971affe8d` stub) + round-trip eval.
 - Full `_verify_patient_in_facility` Python helper + facility-aware variants of `copilot-finder-scope.php` + `copilot-demographics-gate.php`.
 - `scripts/seed_w2_dataset.py` — Synthea bulk import to 18-20 patients across 2 facilities + 2 front-desk users.
 - `processed_documents.acknowledged_by_physician_at` + persistent dismiss tracking.
+- `vlm_cost_estimate_usd` populator (TurnTrace field exists; populator stayed null).
+- Dense retrieval (OpenAI embeddings + numpy cosine).
 - Cost & latency report; demo video; source-grounded UI polish.
+
+**Night-shift run pointer:** `.night-shift/runs/2026-05-06-0104/` (state.json, handoff.md, per-KR codex-approval.txt + decomp-adversarial.txt + per-task code-review.txt; all marked `CODEX UNAVAILABLE — SELF-REVIEW`/`SELF-ADVERSARIAL REVIEW` because `codex` CLI was missing on the host).
 
 ---
 

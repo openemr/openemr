@@ -157,6 +157,44 @@ PDF.js pinned at v3.11.174 (not 4.x as planned) because v4 dropped the IIFE buil
 
 `copilot/W2_EARLY_IMPLEMENTATION.md` authored — 13-task plan splitting Tier-1 (eval-gate-critical, must-ship-Thursday: LangGraph + critic + 50 cases + pre-push hook + TurnTrace + Langfuse spans) from Tier-2 (front-desk LITE: ACL grant + 2 pre-staged docs + endpoint + banner stub, in-memory dismiss only) from Final-deferred (full facility-scope helper, full dataset expansion, persistent dismiss, real FHIR writes, demo video). The hard PRD gate (regression-blocking eval suite) is the single non-negotiable; everything else is sequenced behind it.
 
+### W2 Early-Submission shipped — autonomous night-shift run 2026-05-06
+
+Branch `feat/w2-early-submission` (head `5b9af3243`), 24 commits since `78d0672c7`. Five KRs landed:
+
+**KR1 — LangGraph state machine** (5 tasks, commits `fa99554aa`–`33a40252e`):
+- `app/graph/{state,build,critic,supervisor}.py` + `app/graph/workers/{answer_composer,intake_extractor,evidence_retriever}.py`.
+- `/v1/chat` now routes through `app.state.agent_graph.ainvoke()`. The "no behavior change" checkpoint at task 1.2 held — all 75 W1+MVP tests stayed green.
+- Two new W2 Layer-2 rules wired into `apply_rules`: `check_extracted_fact_has_source_doc`, `check_evidence_chunk_in_corpus` (`app/verification/rules.py`).
+- Plain-Python supervisor + `decide_next` routing — PRD pitfall #3 mitigation (no LLM in the supervisor).
+
+**KR2 — 50-case eval gate + pre-push hook** (9 tasks, commits `63ff72e8c`–`c22de6d2e`):
+- 5 boolean scorers in `copilot/evals/scorers/{schema_valid,citation_present,factually_consistent,safe_refusal,no_phi_in_logs}.py`.
+- Runner `copilot/evals/runner.py` with YAML loader, threshold logic (<0.95 OR >5pp drop → exit 1), `RESULTS.md` writer, baseline freeze.
+- 50 YAML cases under `copilot/evals/cases/{extraction,retrieval,citation,refusal,phi,cross}/*.yaml` — 15+10+10+5+5+5.
+- `make eval-fast` (12-case subset, ~2s) + `make eval-baseline`; `bash copilot/scripts/install-hooks.sh` writes `.git/hooks/pre-push`.
+- README "Verifying the W2 eval gate" section with the regression-repro recipe (comment out `check_extracted_fact_has_source_doc` → cross category drops → exit 1).
+- `.github/workflows/copilot-ci.yml` extended with the W2 50-case gate step.
+
+**KR3 — TurnTrace 6-field extension + Langfuse generation spans** (6 tasks, `103bb9964`–`324ae99be`):
+- TurnTrace gains `routing_path`, `extraction_confidence_min`, `retrieval_hit_ids`, `rerank_scores`, `vlm_cost_estimate_usd` (populator deferred to Final), `documents_attached`.
+- Per-LLM-call `langfuse.generation()` spans in `AnthropicAdapter.call` + `OpenAIAdapter.call` via `app/observability/llm_span.py` (singleton-cached, no-ops without LANGFUSE_PUBLIC_KEY).
+- PHI eval cases extended to scan all 6 new fields.
+
+**KR4 — Reranker scaffolding** (1 task, `22e59d28d`):
+- `app/retrieval/rerank.py` with `Reranker` Protocol + `IdentityReranker` (CI default), `CohereReranker` (lazy `cohere` import; `COHERE_API_KEY` gated), `LocalCrossEncoderReranker` (lazy `sentence_transformers` import).
+- `get_reranker()` factory + `evidence_retriever` wires the chosen reranker → `state.rerank_scores`.
+- Dense retrieval (OpenAI embeddings) explicitly Final-deferred to avoid paid-API exposure in CI.
+
+**KR5 — Front-desk LITE (Tier 2)** (3 tasks, `10e9cd5dd`, `4387836fb`, `5b9af3243`):
+- `GET /v1/sessions/{session_id}/pending_intakes` endpoint, panel-gated, reads from local `processed_documents` SQLite.
+- Iframe banner top-of-rail with toggle + collapsible list; click → existing bbox modal; per-session in-memory dismiss.
+- `acl_upgrade.php` v14 grants `Front Office` group write on `patients|docs`. PHP syntax verified via `php:8.2-cli` docker image.
+- `copilot/README.md` "Front-desk demo prep" section with manual upload procedure.
+
+**Test count: 140 passed, 3 skipped (live_llm). 50/50 eval cases. Both `make eval` and `make eval-fast` exit 0.**
+
+**Next: deploy + manual smoke-test (instructions in `activeContext.md`); Final-scope items below.**
+
 ---
 
 ## 📋 Pending

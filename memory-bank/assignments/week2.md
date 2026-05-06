@@ -4,7 +4,7 @@
 **Subtitle:** *Multimodal Evidence Agent — seeing clinical documents, routing work, and gating changes with evals*
 **Window:** 2026-05-04 → 2026-05-10 (kickoff Mon 2026-05-04; Final Sun 2026-05-10 noon CT)
 **Active branch:** `w2-mvp` (HEAD `971affe8d` as of 2026-05-05)
-**Status:** ⏳ In progress — MVP-scope code largely on `w2-mvp`; LangGraph + 50-case eval still ahead
+**Status:** ✅ Tier-1 + Tier-2-LITE shipped on `feat/w2-early-submission` (head `5b9af3243`, 24 task-commits, night-shift run `2026-05-06-0104`); manual smoke-test + deploy + Final-scope items pending
 
 **Companion docs (already on `w2-mvp`):**
 - `copilot/W2_ARCHITECTURE.md` — design-of-record (baseline `f5b385f97`)
@@ -126,28 +126,38 @@
 | Iframe session bootstrap + panel gate | preview/extractions panel checks | `e61a11262` |
 | Stub FHIR writes + local-store preview | `app/ingestion/service.py` etc. — deploy-ready | `971affe8d` |
 
-### ⏳ Early-Submission scope — not yet started (per `W2_EARLY_IMPLEMENTATION.md` plan)
+### ✅ Early-Submission scope — shipped on `feat/w2-early-submission` (night-shift 2026-05-06; head `5b9af3243`)
 
-- LangGraph supervisor + worker contracts (`app/graph/`)
-- `evidence_retriever` worker with full BM25+dense+rerank pipeline
-- Critic node (Layer-1 + extended Layer-2 rules: `check_extracted_fact_has_source_doc`, `check_evidence_chunk_in_corpus`)
-- Dense retrieval via OpenAI embeddings stored as SQLite BLOBs
-- Cohere Rerank adapter + local-cross-encoder fallback (`Reranker` protocol)
-- 50-case golden set under `evals/cases/*.yaml`
-- Boolean rubric scorers + per-category pass-rate writer in `evals/RESULTS.md`
-- PR-blocking `pre-push` Git hook + `make eval-fast` (<2 min)
-- TurnTrace 6-field extension (`routing_path`, `extraction_confidence_min`, `retrieval_hit_ids`, `rerank_scores`, `vlm_cost_estimate_usd`, `documents_attached`)
-- CI workflow extension to run full 50-case suite on every PR
+- ✅ LangGraph supervisor + worker contracts (`app/graph/`) — KR1 commits `fa99554aa`–`33a40252e`
+- ✅ Critic node (Layer-1 + extended Layer-2 rules: `check_extracted_fact_has_source_doc`, `check_evidence_chunk_in_corpus`) — `6a05a6289`, `082b74bff`
+- ✅ Reranker `Protocol` with `IdentityReranker` default; Cohere + local-cross-encoder lazy — `22e59d28d`
+- ⚠️ Dense retrieval via OpenAI embeddings — **deferred to Final** (would require paid-API in CI)
+- ✅ 50-case golden set under `copilot/evals/cases/*.yaml` (15+10+10+5+5+5) — `7daf1bfa2`–`060caea98`
+- ✅ Boolean rubric scorers + per-category pass-rate writer in `copilot/evals/RESULTS.md` — `63ff72e8c`, `ff74a3178`, `0b325a91c`
+- ✅ PR-blocking `pre-push` Git hook + `make eval-fast` (<2 min) — `0dbb606d2`, `c22de6d2e`
+- ✅ TurnTrace 6-field extension — `103bb9964`–`b00b29d64`
+- ✅ Langfuse `generation()` spans per LLM call — `14fb8f405`
+- ✅ CI workflow extension to run full 50-case suite on every PR — part of `c22de6d2e`
 
-### 📋 Final-scope — not yet started (per `W2_FINAL_IMPLEMENTATION.md` plan)
+### ✅ Tier-2 LITE — front-desk pending-intake notification (also shipped)
 
-- Real FHIR writes (replace stubs from `971affe8d`)
+- ✅ `GET /v1/sessions/{id}/pending_intakes` endpoint, panel-gated, reads from local SQLite — `10e9cd5dd`
+- ✅ Iframe banner + expandable list + click-to-bbox-modal + per-session in-memory dismiss — `4387836fb`
+- ✅ `acl_upgrade.php` v14 granting `Front Office` write on `patients|docs` + README "Front-desk demo prep" — `5b9af3243`
+
+### 📋 Final-scope — carry-over for the next sprint (per `W2_FINAL_IMPLEMENTATION.md` plan)
+
+- Real FHIR writes (replace stubs from `971affe8d`) + round-trip eval test (upload → re-fetch via W1 `get_recent_labs` → correct `derivedFrom`)
+- Full `_verify_patient_in_facility` Python helper + facility-aware variants of `copilot-finder-scope.php` + `copilot-demographics-gate.php`
+- `scripts/seed_w2_dataset.py` — Synthea bulk import to 18-20 patients across 2 facilities + 2 front-desk users
+- `processed_documents.acknowledged_by_physician_at` column + persistent banner-dismiss tracking across sessions
+- `vlm_cost_estimate_usd` populator (TurnTrace field exists; populator deferred — needs token-usage plumbing through ingestion service)
+- Dense retrieval (OpenAI embeddings + numpy cosine over BLOB)
 - Cost & latency report (extend `copilot/COST.md`)
 - 3–5 min demo video
 - p50/p95 latency capture + bottleneck section
 - Source-grounded UI polish (click-citation → bbox modal flow)
 - Final deploy verification on Railway
-- Round-trip eval test: upload lab PDF → re-fetch via W1 `get_recent_labs` → must surface once with correct `derivedFrom`
 
 ---
 
