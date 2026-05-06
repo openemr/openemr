@@ -271,13 +271,17 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
 
       ```
-      Usage: openemr-cmd worktree <add|remove|up|down|list|regen> [options]
+      Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env> [options]
 
         add <branch> [-b] [--env easy|easy-light|easy-redis] [--start]
                                   Create worktree (-b creates new branch, default env: easy)
         remove <branch> [--keep-volumes] Remove worktree (volumes deleted by default)
         up <branch>               Start Docker stack for worktree
         down <branch> [--keep-volumes]  Stop Docker stack for worktree (volumes deleted by default)
+        start <branch>            Start stopped containers for worktree (preserves data)
+        stop <branch>             Stop running containers for worktree (preserves data)
+        set-env <branch> <env>    Switch a worktree's env (easy|easy-light|easy-redis); stack must be down first
+        exec <branch> <cmd> [args...]   Run an openemr-cmd command against the worktree's openemr container
         list                      List all worktrees and status
         regen <branch>            Regenerate override/env files
         wt                        Alias for worktree
@@ -301,6 +305,28 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       - Can stop the docker testing stack on a worktree via:
       ```sh
       openemr-cmd worktree down worktree-branch-label
+      ```
+
+      - Can pause a worktree's running containers without recreating them (preserves data and is faster than `down`/`up`):
+      ```sh
+      openemr-cmd worktree stop worktree-branch-label
+      ```
+
+      - Can resume a worktree's stopped containers (counterpart to `stop`):
+      ```sh
+      openemr-cmd worktree start worktree-branch-label
+      ```
+
+      - Can run any standard `openemr-cmd` command against a specific worktree's `openemr` container without manually looking up the container id. Examples:
+      ```sh
+      openemr-cmd worktree exec worktree-branch-label drid
+      openemr-cmd worktree exec worktree-branch-label shell
+      openemr-cmd worktree exec worktree-branch-label pl
+      ```
+
+      - Can switch a worktree to a different docker dev environment (`easy`, `easy-light`, or `easy-redis`). The stack must be fully torn down first (use `worktree down` to discard the old volumes, or `worktree down --keep-volumes` to preserve them):
+      ```sh
+      openemr-cmd worktree set-env worktree-branch-label easy-redis
       ```
 
       - Can remove the worktree via:
