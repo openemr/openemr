@@ -107,11 +107,27 @@ final readonly class SqlUpgradeSkeletonMutator implements MutatorInterface
         if ($files === false || $files === []) {
             return null;
         }
-        // Sort lexically; the version-pair filename pattern sorts in
-        // semver order for single-digit components, which is what
-        // OpenEMR has shipped to date.
-        sort($files);
+        // Sort by the "to" version using version_compare so 8_0_10 sorts
+        // after 8_0_9. Lexical sort would silently bite when patch hits
+        // double digits.
+        usort($files, fn(string $a, string $b): int => version_compare(
+            $this->toVersionFromFilename($a),
+            $this->toVersionFromFilename($b),
+        ));
         return $files[count($files) - 1];
+    }
+
+    private function toVersionFromFilename(string $path): string
+    {
+        $name = basename($path);
+        if (preg_match('/-to-(\d+_\d+_\d+)_upgrade\.sql$/', $name, $m) !== 1) {
+            // glob already matched *-to-*_upgrade.sql, but the version
+            // segments might not be numeric; fall back to a version that
+            // sorts last so a malformed filename doesn't accidentally
+            // become "latest".
+            return '0.0.0';
+        }
+        return str_replace('_', '.', $m[1]);
     }
 
     /**
