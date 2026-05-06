@@ -1,6 +1,6 @@
 services:
   redis-master:
-    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    image: redis:8.6@sha256:25dbb04fc4d6d190eda327dab551631500b0f9ac8f9808e8e63b7fda1ddff196
     container_name: redis-master
     command:
       - redis-server
@@ -24,7 +24,7 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    image: redis:8.6@sha256:25dbb04fc4d6d190eda327dab551631500b0f9ac8f9808e8e63b7fda1ddff196
     container_name: redis-replica-1
     command:
       - redis-server
@@ -44,7 +44,7 @@ services:
       - --replica-announce-ip
       - redis-replica-1
   redis-replica-2:
-    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    image: redis:8.6@sha256:25dbb04fc4d6d190eda327dab551631500b0f9ac8f9808e8e63b7fda1ddff196
     container_name: redis-replica-2
     command:
       - redis-server
@@ -64,7 +64,7 @@ services:
       - --replica-announce-ip
       - redis-replica-2
   sentinel-1:
-    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    image: redis:8.6@sha256:25dbb04fc4d6d190eda327dab551631500b0f9ac8f9808e8e63b7fda1ddff196
     container_name: sentinel-1
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -84,7 +84,7 @@ services:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.6@sha256:832d7785830f3f4b559300e6191fc914b15642c1935252338825cf4332200148
+    image: redis:8.6@sha256:25dbb04fc4d6d190eda327dab551631500b0f9ac8f9808e8e63b7fda1ddff196
     container_name: sentinel-2
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -130,7 +130,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:a8ef080efd15117bddb188c4fff7e1b6ca34328ade3a64396cde266e91b272d4
+    image: openemr/openemr:flex@sha256:160dfa90a49dace7cfcb9f15e3df6e94ae9c9e7af6424b39ffaad88bc38de3a9
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
