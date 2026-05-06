@@ -20,7 +20,6 @@ from app.ingestion.schemas import (
     IntakeFormExtraction,
     LabPDFExtraction,
     MimeType,
-    SourceCitation,
 )
 from app.ingestion.vlm import VlmExtractor
 from app.observability.vlm_span import vlm_span_output

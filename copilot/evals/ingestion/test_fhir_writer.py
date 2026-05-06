@@ -4,7 +4,6 @@ from __future__ import annotations
 from datetime import date
 from unittest.mock import AsyncMock, MagicMock
 
-import pytest
 
 from app.ingestion.fhir_writer import (
     build_observation_from_lab,
@@ -14,8 +13,6 @@ from app.ingestion.fhir_writer import (
 from app.ingestion.schemas import (
     Allergy,
     BoundingBox,
-    Demographics,
-    IntakeFormExtraction,
     LabPDFExtraction,
     LabResult,
     SourceCitation,

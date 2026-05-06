@@ -37,13 +37,43 @@ def test_get_reranker_returns_identity_when_no_credentials_or_st(monkeypatch) ->
     assert isinstance(r, IdentityReranker)
 
 
-def test_get_reranker_picks_cohere_when_key_set(monkeypatch) -> None:
+def test_get_reranker_picks_cohere_when_key_set_and_package_installed(
+    monkeypatch,
+) -> None:
+    """Real production case: COHERE_API_KEY set AND cohere package importable."""
+    import sys
+    import types
+
+    fake_cohere = types.ModuleType("cohere")
+    monkeypatch.setitem(sys.modules, "cohere", fake_cohere)
     monkeypatch.setenv("COHERE_API_KEY", "fake-key")
     reset_reranker_cache()
 
     r = get_reranker()
     assert r.name == "cohere"
     assert isinstance(r, CohereReranker)
+
+
+def test_get_reranker_falls_back_when_cohere_key_set_but_package_missing(
+    monkeypatch,
+) -> None:
+    """W2 KR4 round-3 fix (codex P2): COHERE_API_KEY set + cohere package
+    NOT installed must NOT pick CohereReranker (whose first .rerank() call
+    would raise RuntimeError mid-request). Fall through to local /
+    identity instead.
+    """
+    import sys
+
+    monkeypatch.setitem(sys.modules, "cohere", None)  # ImportError on import
+    monkeypatch.setitem(sys.modules, "sentence_transformers", None)
+    monkeypatch.setenv("COHERE_API_KEY", "fake-key")
+    reset_reranker_cache()
+
+    r = get_reranker()
+    # cohere unavailable → falls through; sentence_transformers also unavailable
+    # → identity is the final fallback.
+    assert r.name == "identity"
+    assert isinstance(r, IdentityReranker)
 
 
 def test_reranker_protocol_is_satisfied_by_identity() -> None:

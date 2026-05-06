@@ -4,10 +4,9 @@ data items both populated so Layer-1 attribution AND Layer-2 cross-patient-
 leakage checks pass."""
 from __future__ import annotations
 
-import json
 import os
 import tempfile
-from datetime import date, datetime, timezone
+from datetime import date
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest

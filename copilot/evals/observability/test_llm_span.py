@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import pytest
 
 
 def test_emit_generation_noops_without_credentials(monkeypatch) -> None:

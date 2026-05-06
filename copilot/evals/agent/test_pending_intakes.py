@@ -2,13 +2,10 @@
 from __future__ import annotations
 
 import json
-from datetime import datetime
-from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
 
-from app.persistence.processed_documents import ProcessedDocument
 from app.phi.session import sessions as session_store
 
 
@@ -63,34 +60,45 @@ def test_pending_intakes_returns_404_for_unknown_session(app_client) -> None:
 
 
 @pytest.mark.asyncio
-async def test_pending_intakes_returns_processed_doc_when_present(
+async def test_pending_intakes_returns_front_desk_uploads_only(
     app_client,
 ) -> None:
+    """Banner copy reads 'uploaded by front desk' — we must surface only
+    docs with source_path='front_desk_scan', not the physician's own
+    iframe drop-zone uploads (source_path='attach_route').
+    """
     sid = _start(app_client)
 
-    # Inject a processed document directly via the store.
+    # Inject one front-desk upload + one physician self-upload.
     from app import main as main_module
     store = main_module.app.state.processed_documents
     await store.record(
-        patient_pseudonym=PATIENT_ID,  # store keyed by raw FHIR uuid
-        hash="sha3-512-fake",
-        canonical_doc_id="copilot-fake-doc-1",
+        patient_pseudonym=PATIENT_ID,
+        hash="sha3-512-front-desk",
+        canonical_doc_id="copilot-front-desk-doc",
         doc_type="lab_doc",
         extracted_facts={"results": []},
-        source_path="attach_route",  # validated enum: attach_route | front_desk_scan
-        file_bytes=b"%PDF-fake",
+        source_path="front_desk_scan",
+        file_bytes=b"%PDF-front-desk",
+        mime_type="application/pdf",
+    )
+    await store.record(
+        patient_pseudonym=PATIENT_ID,
+        hash="sha3-512-physician-self",
+        canonical_doc_id="copilot-physician-self",
+        doc_type="lab_doc",
+        extracted_facts={"results": []},
+        source_path="attach_route",  # physician's own iframe upload
+        file_bytes=b"%PDF-self",
         mime_type="application/pdf",
     )
 
     r = app_client.get(f"/v1/sessions/{sid}/pending_intakes")
     assert r.status_code == 200
     body = r.json()
+    # Only the front-desk one surfaces; the physician self-upload is filtered out.
     assert body["count"] == 1
-    item = body["items"][0]
-    assert item["doc_id"] == "copilot-fake-doc-1"
-    assert item["doc_type"] == "lab_doc"
-    assert item["mime_type"] == "application/pdf"
-    assert "uploaded_at" in item
+    assert body["items"][0]["doc_id"] == "copilot-front-desk-doc"
 
 
 def test_pending_intakes_response_shape_is_stable(app_client) -> None:

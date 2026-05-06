@@ -7,7 +7,6 @@ Confirms two contracts:
 """
 from __future__ import annotations
 
-import time
 
 import pytest
 

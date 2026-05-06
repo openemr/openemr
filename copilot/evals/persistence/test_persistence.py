@@ -5,7 +5,6 @@ Each test gets its own SQLite file (tmp_path) — no shared state.
 """
 from __future__ import annotations
 
-import asyncio
 from datetime import datetime, timedelta, timezone
 
 import aiosqlite

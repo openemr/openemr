@@ -547,6 +547,13 @@ async def get_pending_intakes(
         patient_pseudonym=session.active_patient_id,  # store keyed by raw FHIR uuid
         limit=20,
     )
+    # W2 KR5 round-3 fix (codex P2): the store also returns rows the
+    # PHYSICIAN uploaded via the iframe drop-zone (source_path='attach_route').
+    # Banner copy reads "uploaded by front desk — review", so it's incorrect
+    # to surface the physician's own prior uploads here. Filter to
+    # front_desk_scan (the source_path written when the front desk uploads
+    # via OpenEMR's stock Documents Zend module — the canonical front-desk
+    # path per W2_ARCHITECTURE.md §2.0).
     items = [
         PendingIntakeItem(
             doc_id=d.canonical_doc_id,
@@ -555,6 +562,7 @@ async def get_pending_intakes(
             mime_type=d.mime_type,
         )
         for d in docs
+        if d.source_path == "front_desk_scan"
     ]
     return PendingIntakesResponse(items=items, count=len(items))
 

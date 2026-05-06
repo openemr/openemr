@@ -175,9 +175,21 @@ def get_reranker() -> Reranker:
         return _CACHED
 
     if os.environ.get("COHERE_API_KEY"):
-        _CACHED = CohereReranker(api_key=os.environ["COHERE_API_KEY"])
-        logger.info("reranker=cohere")
-        return _CACHED
+        # Probe the import at factory time, NOT lazily inside CohereReranker.rerank.
+        # Pre-fix bug (codex round-3 P2): selecting CohereReranker without the
+        # `cohere` package caused the FIRST guideline-flavored chat to raise
+        # RuntimeError mid-request. Now we fall through to the local /
+        # identity reranker if the dep is missing.
+        try:
+            import cohere  # noqa: F401, PLC0415
+            _CACHED = CohereReranker(api_key=os.environ["COHERE_API_KEY"])
+            logger.info("reranker=cohere")
+            return _CACHED
+        except ImportError:
+            logger.warning(
+                "COHERE_API_KEY set but `cohere` package not installed; "
+                "falling back to local-cross-encoder / identity"
+            )
 
     try:
         import sentence_transformers  # noqa: F401, PLC0415

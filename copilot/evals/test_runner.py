@@ -1,7 +1,6 @@
 """Unit tests for the eval runner — load → run → score → threshold → write."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest
