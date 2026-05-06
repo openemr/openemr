@@ -53,6 +53,14 @@ interface CryptoInterface
     public function encryptForDatabase(?string $value): string;
 
     /**
+     * Encrypts data for storage on a filesystem.
+     *
+     * @param ?string $value The value to encrypt
+     * @return string The encrypted value, or empty string if input is null/empty
+     */
+    public function encryptForFilesystem(?string $value): string;
+
+    /**
      * Decrypts data retrieved from the database.
      *
      * If the value is not encrypted (no valid prefix), returns it unchanged (plaintext passthrough).
@@ -64,4 +72,18 @@ interface CryptoInterface
      * @throws CryptoGenException If decryption of encrypted data fails
      */
     public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string;
+
+
+    /**
+     * Decrypts data retrieved from the filesystem.
+     *
+     * If the value is not encrypted, it will pass through the plaintext
+     * unchanged.
+     * If decryption fails, throws CryptoGenException.
+     *
+     * @param ?string $value The value to decrypt
+     * @return string The decrypted value, or original value if not encrypted
+     * @throws CryptoGenException If decryption of encrypted data fails
+     */
+    public function decryptFromFilesystem(?string $value): string;
 }

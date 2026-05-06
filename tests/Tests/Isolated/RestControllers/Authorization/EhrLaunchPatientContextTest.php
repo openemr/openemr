@@ -61,6 +61,11 @@ class EhrLaunchPatientContextTest extends TestCase
                 return $this->encryptStandard($value);
             }
 
+            public function encryptForFilesystem(?string $value): string
+            {
+                return $this->encryptStandard($value);
+            }
+
             public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
             {
                 if ($value === null || $value === '') {
@@ -70,6 +75,18 @@ class EhrLaunchPatientContextTest extends TestCase
                     return $value;
                 }
                 $result = $this->decryptStandard($value, minimumVersion: $minimumVersion);
+                return $result === false ? '' : $result;
+            }
+
+            public function decryptFromFilesystem(?string $value): string
+            {
+                if ($value === null || $value === '') {
+                    return '';
+                }
+                if (!$this->cryptCheckStandard($value)) {
+                    return $value;
+                }
+                $result = $this->decryptStandard($value);
                 return $result === false ? '' : $result;
             }
         };

@@ -1,0 +1,247 @@
+name: Release Prep Conductor
+
+# Long-lived release-prep PR pattern (release-please-shaped) for the
+# openemr/openemr conductor in the three-PR release-automation flow
+# (openemr/openemr-devops#664). On every push to a rel-* branch, runs
+# the mechanical edits and force-pushes them to release-prep/<rel-branch>,
+# opening or updating a draft PR. On merge of that PR, creates the
+# annotated release tag and dispatches openemr-tag to the consumer
+# repos.
+
+on:
+  push:
+    branches:
+    - 'rel-*'
+    paths-ignore:
+    - 'docs/**'
+  pull_request:
+    types:
+    - closed
+    branches:
+    - 'rel-*'
+  workflow_dispatch:
+    inputs:
+      target-version:
+        description: 'Target release version (MAJOR.MINOR.PATCH)'
+        required: true
+        type: string
+      branch:
+        description: 'Release branch (rel-NNN)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialise every event for a given rel-branch into one queue so a
+  # fast follow-up push doesn't race the previous run's force-push, and
+  # a release-prep PR merge doesn't race a concurrent push to the base.
+  # Use ref_name (branch name without the refs/heads/ prefix) on push so
+  # the key matches pull_request.base.ref on the close event.
+  group: ${{ github.workflow }}-${{ github.event.pull_request.base.ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  prep:
+    name: Generate release-prep PR (${{ matrix.php-version }})
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # The conductor itself is tooling (only runs on CI) so per OCE
+        # conventions it tracks the latest stable PHP, not the openemr
+        # application floor. The release-prep mutators only need to
+        # parse application code, not execute it on this PHP version.
+        php-version:
+        - '8.5'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        app-id: ${{ secrets.RELEASE_APP_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Resolve target version and branch
+      id: resolve
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        REF: ${{ github.ref }}
+        INPUT_BRANCH: ${{ inputs.branch }}
+        INPUT_VERSION: ${{ inputs.target-version }}
+      run: |
+        case "${EVENT_NAME}" in
+          workflow_dispatch)
+            echo "branch=${INPUT_BRANCH}"
+            echo "version=${INPUT_VERSION}"
+            ;;
+          *)
+            branch="${REF#refs/heads/}"
+            echo "branch=${branch}"
+            printf 'version='
+            php tools/release/bin/branch-to-version.php "${branch}"
+            ;;
+        esac >> "$GITHUB_OUTPUT"
+
+    - name: Render PR body
+      id: pr-body
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${VERSION}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Run release-prep mutators
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        php bin/console openemr:release-prep \
+          --target-version="${VERSION}" \
+          --scope=rel
+
+    # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
+    # which handles the diff detection, branch force-push, and PR open-or-update
+    # in one step. When there is no diff this is a no-op.
+    - name: Create or update release-prep PR
+      id: prep-pr
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-prep/${{ steps.resolve.outputs.branch }}
+        base: ${{ steps.resolve.outputs.branch }}
+        title: 'release-prep: ${{ steps.resolve.outputs.version }}'
+        body: ${{ steps.pr-body.outputs.body }}
+        commit-message: 'release-prep: ${{ steps.resolve.outputs.version }}'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: true
+        delete-branch: false
+
+    - name: Dispatch rel-cut / rel-update to consumers
+      if: steps.prep-pr.outputs.pull-request-operation != 'none'
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        OPERATION: ${{ steps.prep-pr.outputs.pull-request-operation }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        PUSH_SHA: ${{ github.sha }}
+      run: |
+        prev_release="$(php tools/release/bin/derive-prev-release.php "${VERSION}")"
+        # peter-evans reports `created` when it opens a new release-prep PR
+        # for this rel-branch and `updated` when it pushes to an existing
+        # one. Use that signal directly: by the time we reach this step the
+        # peter-evans action has already created the branch upstream, so a
+        # post-hoc `gh api` existence check would always say "exists" and
+        # dispatch the very first push as rel-update.
+        case "${OPERATION}" in
+          created) event='openemr-rel-cut' ;;
+          *)       event='openemr-rel-update' ;;
+        esac
+        php tools/release/bin/dispatch.php \
+          --event="${event}" \
+          --sha="${PUSH_SHA}" \
+          --actor='openemr-release-bot' \
+          --branch="${REL_BRANCH}" \
+          --version="${VERSION}" \
+          --prev-release="${prev_release}"
+
+  finalize:
+    name: Tag + dispatch on release-prep merge
+    if: |
+      github.event_name == 'pull_request'
+      && github.event.pull_request.merged == true
+      && startsWith(github.event.pull_request.head.ref, 'release-prep/')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        # Same rationale as the prep job above.
+        php-version:
+        - '8.5'
+    steps:
+    - name: Checkout merge commit
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ github.event.pull_request.merge_commit_sha }}
+        fetch-depth: 0
+
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        app-id: ${{ secrets.RELEASE_APP_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: ${{ matrix.php-version }}
+
+    - name: Resolve version from base branch
+      id: resolve
+      env:
+        BASE_REF: ${{ github.event.pull_request.base.ref }}
+      run: |
+        {
+          echo "branch=${BASE_REF}"
+          printf 'version='
+          php tools/release/bin/branch-to-version.php "${BASE_REF}"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Create annotated tag
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        REPO: ${{ github.repository }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+      run: |
+        php tools/release/bin/create-tag.php \
+          --repo="${REPO}" \
+          --version="${VERSION}" \
+          --commit-sha="${MERGE_SHA}" \
+          --conductor-pr-url="${PR_URL}"
+
+    - name: Verify annotated tag
+      env:
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        tag_name="v${VERSION//./_}"
+        # The tag was just created via the API; the local checkout
+        # doesn't have it yet. Fetch it before handing the local repo
+        # to TagVerifier.
+        git fetch --tags --quiet
+        php tools/release/bin/verify-tag.php "${tag_name}"
+
+    - name: Dispatch openemr-tag to consumers
+      env:
+        RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+        REL_BRANCH: ${{ steps.resolve.outputs.branch }}
+        MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+      run: |
+        tag_name="v${VERSION//./_}"
+        php tools/release/bin/dispatch.php \
+          --event=openemr-tag \
+          --sha="${MERGE_SHA}" \
+          --actor='openemr-release-bot' \
+          --branch="${REL_BRANCH}" \
+          --version="${VERSION}" \
+          --tag="${tag_name}"

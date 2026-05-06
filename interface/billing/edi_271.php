@@ -18,7 +18,6 @@ require_once(__DIR__ . "/../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -57,15 +56,11 @@ if (isset($_FILES) && !empty($_FILES)) {
     if ($message === '') {
         $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
-        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, keySource: KeySource::Database);
-        }
+        $uploadedFile = $cryptoGen->encryptForFilesystem($uploadedFile);
         if (file_put_contents($target, $uploadedFile)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($uploadedName)) . '"';
             $Response271 = file_get_contents($target);
-            if ($cryptoGen->cryptCheckStandard($Response271)) {
-                $Response271 = $cryptoGen->decryptStandard($Response271, keySource: KeySource::Database);
-            }
+            $Response271 = $cryptoGen->decryptFromFilesystem($Response271);
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
             } else {
