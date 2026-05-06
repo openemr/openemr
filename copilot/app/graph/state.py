@@ -64,6 +64,8 @@ class AgentGraphState(TypedDict, total=False):
     retrieval_hit_ids: list[str]
     # W2 KR4: reranker-emitted score list aligned with retrieval_hit_ids.
     rerank_scores: list[float]
+    # W2 KR8: per-call USD cost from the most recent VLM extraction this turn.
+    vlm_cost_estimate_usd: float | None
 
     # Outputs
     response: Any | None     # app.agent.schemas.AgentResponse | None

@@ -46,6 +46,10 @@ class IngestionResult:
     bbox_overlay: list[BboxOverlayItem]
     was_dedup_hit: bool
     span_output: dict[str, Any] | None  # for the caller's tracer
+    # W2 KR8: per-call USD cost estimate from the VLM extraction. None when
+    # this was a cache hit (no fresh VLM call) or when the model_id isn't
+    # in the cost table (`app.observability.cost`).
+    cost_estimate_usd: float | None = None
 
 
 def _walk_citations(payload: Any):
@@ -166,10 +170,21 @@ class IngestionService:
             latency_ms=latency_ms,
         )
 
+        # W2 KR8: per-call USD cost estimate. None if model_id isn't priced.
+        from app.observability.cost import estimate_anthropic_cost_usd
+        cost_usd = estimate_anthropic_cost_usd(
+            model_id=vlm_meta.model_id,
+            input_tokens=vlm_meta.input_tokens,
+            output_tokens=vlm_meta.output_tokens,
+            cache_read_tokens=vlm_meta.cache_read_tokens,
+            cache_write_tokens=vlm_meta.cache_creation_tokens,
+        )
+
         return IngestionResult(
             doc_id=doc_id,
             extraction=extraction,
             bbox_overlay=_bbox_overlay(extraction, doc_id),
             was_dedup_hit=False,
             span_output=span_output,
+            cost_estimate_usd=cost_usd,
         )

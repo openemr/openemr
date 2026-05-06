@@ -63,6 +63,10 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
     rerank_scores = state.get("rerank_scores") or []
     if rerank_scores and hasattr(output.trace, "rerank_scores"):
         output.trace.rerank_scores = list(rerank_scores)
+    # W2 KR8: VLM USD cost — populated by intake_extractor when an extraction fired.
+    cost_usd = state.get("vlm_cost_estimate_usd")
+    if cost_usd is not None and hasattr(output.trace, "vlm_cost_estimate_usd"):
+        output.trace.vlm_cost_estimate_usd = float(cost_usd)
 
     return {
         "response": output.response,

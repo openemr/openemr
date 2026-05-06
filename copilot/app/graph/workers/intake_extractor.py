@@ -42,6 +42,7 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     # heterogeneous result.data shape (list of items; some may not carry a
     # source_citation, e.g. parent DocumentReference rows).
     confidences: list[float] = []
+    cost_estimate_usd: float | None = None
     data = result.data if isinstance(result.data, list) else [result.data]
     for item in data:
         if not isinstance(item, dict):
@@ -51,6 +52,10 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
             c = sc.get("confidence")
             if isinstance(c, (int, float)):
                 confidences.append(float(c))
+        # W2 KR8: parent DocumentReference item carries the cost estimate.
+        c_usd = item.get("cost_estimate_usd")
+        if isinstance(c_usd, (int, float)):
+            cost_estimate_usd = float(c_usd)
     extraction_confidence_min = min(confidences) if confidences else None
 
     delta: dict[str, Any] = {
@@ -61,6 +66,8 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     }
     if extraction_confidence_min is not None:
         delta["extraction_confidence_min"] = extraction_confidence_min
+    if cost_estimate_usd is not None:
+        delta["vlm_cost_estimate_usd"] = cost_estimate_usd
     return delta
 
 

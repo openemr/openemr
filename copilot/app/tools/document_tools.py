@@ -225,6 +225,12 @@ async def run_attach_and_extract(
     )
     record_ids: list[str] = [f"DocumentReference/{result.doc_id}"] + per_fact_record_ids
 
+    # W2 KR8: surface the per-call USD cost on the parent DocumentReference
+    # data item so the intake_extractor worker (and any post-hoc analysis)
+    # can attribute cost to this turn. None on dedup hits or unpriced models.
+    if result.cost_estimate_usd is not None and data_items:
+        data_items[0]["cost_estimate_usd"] = result.cost_estimate_usd
+
     return ToolResult(
         name="attach_and_extract",
         record_type="DocumentReference",
