@@ -35,12 +35,26 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     tool_results = list(state.get("tool_results") or [])
     tool_results.append(result.to_dict())
 
-    return {
+    # W2 KR3: derive retrieval_hit_ids (chunk_ids in score order) from the
+    # tool result data so answer_composer can surface them into TurnTrace.
+    hit_ids: list[str] = []
+    data = result.data if isinstance(result.data, list) else [result.data]
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        chunk_id = item.get("chunk_id")
+        if isinstance(chunk_id, str):
+            hit_ids.append(chunk_id)
+
+    delta: dict[str, Any] = {
         "routing_path": routing,
         "tool_results": tool_results,
         # Consume the signal so the supervisor doesn't re-route here.
         "retrieval_seed_query": None,
     }
+    if hit_ids:
+        delta["retrieval_hit_ids"] = hit_ids
+    return delta
 
 
 __all__ = ["run"]
