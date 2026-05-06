@@ -62,6 +62,19 @@ class EligibilityData
     }
 
     /**
+     * Remove every cached eligibility record for a patient (across all payer
+     * responsibilities). Used by the "Reset" button on the eligibility tab to
+     * give testers a clean slate.
+     */
+    public static function removeAllEligibilityForPatient(int $pid): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM mod_claimrev_eligibility WHERE pid = ?",
+            [$pid]
+        );
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     public static function getEligibilityCheckByStatus(string $status): array

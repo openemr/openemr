@@ -127,6 +127,9 @@ foreach ($insurance as $row) {
                                         <span class="spinner-border spinner-border-sm d-none" id="spinner-<?php echo attr($row['payer_responsibility']); ?>" role="status"></span>
                                         <?php echo xlt("Check Now"); ?>
                                     </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm ml-2" onclick="resetEligibility()" title="<?php echo attr(xl('Delete all cached eligibility results for this patient')); ?>">
+                                        <i class="fa fa-trash"></i> <?php echo xlt("Reset"); ?>
+                                    </button>
                                 </div>
                             </div>
                         </form>
@@ -389,6 +392,31 @@ function checkNow(responsibility) {
             if (spinner) {
                 spinner.classList.add('d-none');
             }
+            alert(<?php echo xlj("Error communicating with server"); ?>);
+        }
+    });
+}
+
+function resetEligibility() {
+    if (!confirm(<?php echo xlj("Delete all cached eligibility results for this patient? This cannot be undone."); ?>)) {
+        return;
+    }
+    $.ajax({
+        url: '../../modules/custom_modules/oe-module-claimrev-connect/public/eligibility_clear.php',
+        type: 'POST',
+        data: {
+            pid: <?php echo js_escape((string) $pid); ?>,
+            csrf_token: <?php echo js_escape($eligibilityCsrfToken); ?>
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                location.reload();
+            } else {
+                alert(response.message || <?php echo xlj("Reset failed"); ?>);
+            }
+        },
+        error: function() {
             alert(<?php echo xlj("Error communicating with server"); ?>);
         }
     });
