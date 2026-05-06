@@ -34,9 +34,9 @@ final readonly class OptionReader
     /**
      * @return list<string>
      */
-    public function commaList(string $name): array
+    public function commaList(string $name, string $default = ''): array
     {
-        $raw = $this->string($name);
+        $raw = $this->string($name, $default);
         if ($raw === '') {
             return [];
         }
