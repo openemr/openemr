@@ -302,44 +302,44 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       openemr-cmd worktree up worktree-branch-label
       ```
 
-      - Can stop the docker testing stack on a worktree via:
+    - Can stop the docker testing stack on a worktree via:
       ```sh
       openemr-cmd worktree down worktree-branch-label
       ```
 
-      - Can pause a worktree's running containers without recreating them (preserves data and is faster than `down`/`up`):
+    - Can pause a worktree's running containers without recreating them (preserves data and is faster than `down`/`up`):
       ```sh
       openemr-cmd worktree stop worktree-branch-label
       ```
 
-      - Can resume a worktree's stopped containers (counterpart to `stop`):
+    - Can resume a worktree's stopped containers (counterpart to `stop`):
       ```sh
       openemr-cmd worktree start worktree-branch-label
       ```
 
-      - Can run any standard `openemr-cmd` command against a specific worktree's `openemr` container without manually looking up the container id. Examples:
+    - Can run any standard `openemr-cmd` command against a specific worktree's `openemr` container without manually looking up the container id. Examples:
       ```sh
       openemr-cmd worktree exec worktree-branch-label drid
       openemr-cmd worktree exec worktree-branch-label shell
       openemr-cmd worktree exec worktree-branch-label pl
       ```
 
-      - Can switch a worktree to a different docker dev environment (`easy`, `easy-light`, or `easy-redis`). The stack must be fully torn down first (use `worktree down` to discard the old volumes, or `worktree down --keep-volumes` to preserve them):
+    - Can switch a worktree to a different docker dev environment (`easy`, `easy-light`, or `easy-redis`). The stack must be fully torn down first (use `worktree down` to discard the old volumes, or `worktree down --keep-volumes` to preserve them):
       ```sh
       openemr-cmd worktree set-env worktree-branch-label easy-redis
       ```
 
-      - Can remove the worktree via:
+    - Can remove the worktree via:
       ```sh
       openemr-cmd worktree remove worktree-branch-label
       ```
 
-      - Can view the list of worktrees via:
+    - Can view the list of worktrees via:
       ```sh
       openemr-cmd worktree list
       ```
 
-      - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
+    - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
 
 
 2. <a name="xdebug"></a>Xdebug and profiling is supported for PHPStorm, VSCode and VSCodium.
