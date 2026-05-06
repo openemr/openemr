@@ -1,0 +1,20 @@
+case_id: phi_extraction_intake_clean
+category: phi
+scorers:
+- no_phi_in_logs
+phi_substrings:
+- Margaret
+- Chen
+- '1967-08-14'
+- 212-555-0100
+fixture:
+  trace:
+    session_id: s-1
+    user_id: dr_alvarez
+    patient_pseudonym: patient-A
+    question_text: What is the patient chief complaint?
+    tool_call_sequence:
+    - attach_and_extract
+    tool_latencies_ms:
+      attach_and_extract: 320.5
+    tool_failures: {}

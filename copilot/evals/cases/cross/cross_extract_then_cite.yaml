@@ -1,0 +1,19 @@
+case_id: cross_extract_then_cite
+category: cross
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Uploaded lab shows LDL 142 mg/dL.
+    claims:
+    - text: LDL 142
+      record_id: DocumentReference/d1#page=1&bbox=0.1,0.1,0.5,0.05&field=results[ldl_cholesterol].value
+    data_gaps: []
+  tool_results:
+  - tool: attach_and_extract
+    data:
+    - record_id: DocumentReference/d1
+      resourceType: DocumentReference
+    - record_id: DocumentReference/d1#page=1&bbox=0.1,0.1,0.5,0.05&field=results[ldl_cholesterol].value
+      subject_pseudonym: p-A
+      value: 142

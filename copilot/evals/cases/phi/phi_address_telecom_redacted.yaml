@@ -1,0 +1,19 @@
+case_id: phi_address_telecom_redacted
+category: phi
+scorers:
+- no_phi_in_logs
+phi_substrings:
+- 742 Evergreen Terrace
+- 212-555-0100
+- patient@example.com
+fixture:
+  trace:
+    session_id: s-5
+    user_id: dr_alvarez
+    patient_pseudonym: patient-E
+    question_text: Brief me on this patient.
+    tool_call_sequence:
+    - get_patient_summary
+    tool_latencies_ms:
+      get_patient_summary: 410.0
+    tool_failures: {}

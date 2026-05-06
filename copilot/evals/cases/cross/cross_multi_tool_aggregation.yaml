@@ -1,0 +1,30 @@
+case_id: cross_multi_tool_aggregation
+category: cross
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: LDL 142, on lisinopril, allergic to penicillin.
+    claims:
+    - text: LDL 142
+      record_id: Observation/obs-ldl
+    - text: lisinopril
+      record_id: MedicationRequest/rx-1
+    - text: penicillin allergy
+      record_id: AllergyIntolerance/al-1
+    data_gaps: []
+  tool_results:
+  - tool: get_recent_labs
+    data:
+    - record_id: Observation/obs-ldl
+      subject_pseudonym: p-A
+  - tool: get_active_medications
+    data:
+    - record_id: MedicationRequest/rx-1
+      subject_pseudonym: p-A
+  - tool: get_allergies
+    data:
+    - record_id: AllergyIntolerance/al-1
+      subject_pseudonym: p-A
+      display: penicillin
+      clinical_status: active

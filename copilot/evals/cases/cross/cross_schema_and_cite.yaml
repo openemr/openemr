@@ -1,0 +1,44 @@
+case_id: cross_schema_and_cite
+category: cross
+scorers:
+- schema_valid
+- citation_present
+expected_schema_class: LabPDFExtraction
+fixture:
+  extraction:
+    results:
+    - test_name: LDL Cholesterol
+      analyte_key: ldl_cholesterol
+      loinc_code: 13457-7
+      value: 142.0
+      unit: mg/dL
+      reference_range: <100
+      collection_date: '2026-04-30'
+      abnormal_flag: H
+      source_citation:
+        source_doc_id: DocumentReference/cross1
+        page: 1
+        bbox:
+          x: 0.1
+          y: 0.13
+          w: 0.42
+          h: 0.025
+        raw_text: LDL 142 mg/dL
+        confidence: 0.95
+        source_kind: document
+        field_or_chunk_id: results[ldl_cholesterol].value
+    document_date: '2026-04-30'
+  response:
+    prose: LDL 142 from uploaded lab.
+    claims:
+    - text: LDL 142
+      record_id: DocumentReference/cross1#page=1&bbox=0.1,0.13,0.42,0.025&field=results[ldl_cholesterol].value
+    data_gaps: []
+  tool_results:
+  - tool: attach_and_extract
+    data:
+    - record_id: DocumentReference/cross1
+      resourceType: DocumentReference
+    - record_id: DocumentReference/cross1#page=1&bbox=0.1,0.13,0.42,0.025&field=results[ldl_cholesterol].value
+      subject_pseudonym: p-A
+      value: 142

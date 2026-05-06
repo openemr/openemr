@@ -1,0 +1,18 @@
+case_id: phi_provider_name_pseudonymized
+category: phi
+scorers:
+- no_phi_in_logs
+phi_substrings:
+- Dr. Alvarez
+- alvarez_md
+fixture:
+  trace:
+    session_id: s-4
+    user_id: physician-1
+    patient_pseudonym: patient-D
+    question_text: Encounter history?
+    tool_call_sequence:
+    - get_encounter_history
+    tool_latencies_ms:
+      get_encounter_history: 180.0
+    tool_failures: {}

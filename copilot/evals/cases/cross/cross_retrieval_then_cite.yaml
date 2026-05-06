@@ -1,0 +1,16 @@
+case_id: cross_retrieval_then_cite
+category: cross
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: USPSTF supports statin for high CVD risk.
+    claims:
+    - text: USPSTF statin
+      record_id: Guideline/uspstf-statin-2022#sec-2.1
+    data_gaps: []
+  tool_results:
+  - tool: search_guidelines
+    data:
+    - record_id: Guideline/uspstf-statin-2022#sec-2.1
+      chunk_id: uspstf-statin-2022#sec-2.1

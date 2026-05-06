@@ -1,0 +1,19 @@
+case_id: phi_extraction_lab_clean
+category: phi
+scorers:
+- no_phi_in_logs
+phi_substrings:
+- Flatley871
+- Chris95
+- '1979-11-19'
+fixture:
+  trace:
+    session_id: s-2
+    user_id: dr_alvarez
+    patient_pseudonym: patient-B
+    question_text: What was the LDL?
+    tool_call_sequence:
+    - get_recent_labs
+    tool_latencies_ms:
+      get_recent_labs: 220.0
+    tool_failures: {}

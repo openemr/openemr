@@ -1,0 +1,19 @@
+case_id: phi_pseudonyms_only_in_trace
+category: phi
+scorers:
+- no_phi_in_logs
+phi_substrings:
+- John Doe
+- Jane Smith
+- 02468
+fixture:
+  trace:
+    session_id: s-3
+    user_id: dr_alvarez
+    patient_pseudonym: patient-C
+    question_text: Med reconciliation?
+    tool_call_sequence:
+    - get_active_medications
+    tool_latencies_ms:
+      get_active_medications: 140.0
+    tool_failures: {}
