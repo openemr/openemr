@@ -24,6 +24,14 @@ if ($pid === null) {
     exit;
 }
 $insurance = EligibilityData::getInsuranceData($pid);
+// When the patient has no insurance, still allow Coverage Discovery,
+// Demographics, and MBI Finder — those products query the payer using
+// patient demographics and don't need a payer row. Inject a synthetic
+// primary tab so the form renders, and hide the Eligibility option below.
+$noInsurance = $insurance === [];
+if ($noInsurance) {
+    $insurance = [['payer_responsibility' => 'primary']];
+}
 $eligibilityCsrfToken = CsrfHelper::collectCsrfToken('eligibility');
 
 //check if form was submitted
@@ -66,7 +74,7 @@ if (ModuleInput::postExists('checkElig')) {
 foreach ($insurance as $row) {
     ?>
             <li class="nav-item" role="presentation">
-                <a id="claimrev-ins-<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>"> <?php echo text(ucfirst((string) $row['payer_responsibility']));?>  </a>
+                <a id="claimrev-ins-<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>"> <?php echo text($noInsurance ? xl('No Insurance') : ucfirst((string) $row['payer_responsibility']));?>  </a>
             </li>
     <?php
     $first = "false";
@@ -85,14 +93,22 @@ foreach ($insurance as $row) {
                     <div class="col">
                         <form method="post" action="../../patient_file/summary/demographics.php">
                             <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst((string) $row['payer_responsibility']));?>">
+                            <?php if ($noInsurance) { ?>
+                                <div class="alert alert-info py-2 mb-2">
+                                    <i class="fa fa-info-circle"></i>
+                                    <?php echo xlt("No insurance on file. Coverage Discovery, Demographics, and MBI Finder can still be run using the patient's demographic information."); ?>
+                                </div>
+                            <?php } ?>
                             <div class="form-row align-items-center mb-2">
                                 <div class="col-auto">
+                                    <?php if (!$noInsurance) { ?>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input cr-product-cb cr-exclusive" type="checkbox" name="product_1" id="product_1_<?php echo attr($row['payer_responsibility']); ?>" value="1" checked data-pr="<?php echo attr($row['payer_responsibility']); ?>" data-excludes="product_3,product_5">
                                         <label class="form-check-label" for="product_1_<?php echo attr($row['payer_responsibility']); ?>"><?php echo xlt("Eligibility"); ?></label>
                                     </div>
+                                    <?php } ?>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input cr-product-cb cr-exclusive" type="checkbox" name="product_3" id="product_3_<?php echo attr($row['payer_responsibility']); ?>" value="1" data-pr="<?php echo attr($row['payer_responsibility']); ?>" data-excludes="product_1">
+                                        <input class="form-check-input cr-product-cb cr-exclusive" type="checkbox" name="product_3" id="product_3_<?php echo attr($row['payer_responsibility']); ?>" value="1"<?php echo $noInsurance ? ' checked' : ''; ?> data-pr="<?php echo attr($row['payer_responsibility']); ?>" data-excludes="product_1">
                                         <label class="form-check-label" for="product_3_<?php echo attr($row['payer_responsibility']); ?>"><?php echo xlt("Coverage Discovery"); ?></label>
                                     </div>
                                     <span class="border-left ml-2 pl-2"></span>

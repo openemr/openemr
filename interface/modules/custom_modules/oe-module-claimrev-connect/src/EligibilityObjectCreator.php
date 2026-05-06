@@ -146,6 +146,17 @@ class EligibilityObjectCreator
         // Null productsToRun defaults to eligibility (see buildRevenueToolsRequest).
         $hasEligibility = $productsToRun === null || in_array(1, $productsToRun, true);
         $hasMbiFinder = $productsToRun !== null && in_array(5, $productsToRun, true);
+
+        // Coverage Discovery, Demographics, and MBI Finder don't need an
+        // insurance row — they query the payer using patient demographics.
+        // When the patient has no insurance and the caller isn't asking for
+        // Eligibility, build a single request from patient data alone.
+        if ($resultSubscribers === [] && !$hasEligibility) {
+            $pr = ValueMapping::mapPayerResponsibility($payer_responsibility);
+            $results[] = EligibilityObjectCreator::buildRevenueToolsRequest($pid, $pr, $eventDate, $providerId, $facilityId, $productsToRun);
+            return $results;
+        }
+
         foreach ($resultSubscribers as $subscriberRow) {
             $pr = ValueMapping::mapPayerResponsibility(TypeCoerce::asString($subscriberRow['type'] ?? ''));
             $revenueTools = EligibilityObjectCreator::buildRevenueToolsRequest($pid, $pr, $eventDate, $providerId, $facilityId, $productsToRun);
