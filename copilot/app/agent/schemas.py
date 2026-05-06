@@ -59,6 +59,52 @@ class TurnTrace(BaseModel):
     final_response_length: int = 0
     total_latency_ms: float = 0.0
 
+    # ── W2 KR3 additions: graph-level observability fields. All optional /
+    # default-empty so the W1 ``run_turn`` path doesn't have to populate them.
+    routing_path: list[str] = Field(
+        default_factory=list,
+        description=(
+            "Ordered list of node names visited during this turn — e.g. "
+            "['supervisor', 'intake_extractor', 'supervisor', "
+            "'answer_composer', 'critic']. Populated by the graph workers."
+        ),
+    )
+    extraction_confidence_min: float | None = Field(
+        default=None,
+        description=(
+            "Lowest per-fact confidence in the most recent extraction this "
+            "turn. None when no extraction fired."
+        ),
+    )
+    retrieval_hit_ids: list[str] = Field(
+        default_factory=list,
+        description=(
+            "chunk_ids returned by the evidence_retriever worker, in score "
+            "order. Empty when retrieval didn't fire."
+        ),
+    )
+    rerank_scores: list[float] = Field(
+        default_factory=list,
+        description=(
+            "Reranker scores aligned with retrieval_hit_ids when the "
+            "reranker ran (KR 4 stretch). Empty until rerank lands."
+        ),
+    )
+    vlm_cost_estimate_usd: float | None = Field(
+        default=None,
+        description=(
+            "Estimated USD cost of the VLM extraction call this turn, "
+            "derived from token usage. None when no VLM call fired."
+        ),
+    )
+    documents_attached: int = Field(
+        default=0,
+        description=(
+            "Count of attach_and_extract tool results emitted this turn. "
+            "Used by the eval gate to verify the document path was exercised."
+        ),
+    )
+
 
 SUBMIT_RESPONSE_TOOL = {
     "name": "submit_response",
