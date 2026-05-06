@@ -24,6 +24,7 @@ dependencies = [
   "sse-starlette>=2.1",
   "aiosqlite>=0.20",
   "python-multipart>=0.0.9",
+  "langgraph>=0.2,<0.3",
 ]
 
 [project.optional-dependencies]
