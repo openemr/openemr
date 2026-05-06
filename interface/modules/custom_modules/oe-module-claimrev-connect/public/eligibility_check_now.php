@@ -23,6 +23,11 @@ use OpenEMR\Modules\ClaimRevConnector\CsrfHelper;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityTransfer;
 use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
 
+// Coverage Discovery polls for retryLater results for up to ~60s, plus the
+// ClaimRev API host runs on Cloud Run where a cold start adds another ~60s.
+// Default max_execution_time of 30s is not enough to cover that worst case.
+set_time_limit(180);
+
 header('Content-Type: application/json');
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {

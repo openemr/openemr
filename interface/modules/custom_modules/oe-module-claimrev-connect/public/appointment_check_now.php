@@ -24,6 +24,11 @@ use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityTransfer;
 use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
 
+// One eligibility round-trip can include a Cloud Run cold start (~60s) plus
+// an upstream poll loop for retryLater results. Give the script enough budget
+// to cover the worst case across all of the patient's insurance rows.
+set_time_limit(180);
+
 header('Content-Type: application/json');
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {

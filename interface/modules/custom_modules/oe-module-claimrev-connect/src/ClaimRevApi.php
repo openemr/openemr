@@ -28,6 +28,18 @@ use SensitiveParameter;
  */
 readonly class ClaimRevApi
 {
+    /**
+     * Max seconds to wait on a TCP/TLS connect. Cloud Run cold starts can
+     * take ~60s before the first byte comes back, so give it room.
+     */
+    private const HTTP_CONNECT_TIMEOUT = 30;
+
+    /** Max seconds to wait for a full response after the connection is up. */
+    private const HTTP_TIMEOUT = 60;
+
+    /** OAuth token POST attempts (initial + retries). */
+    private const TOKEN_MAX_ATTEMPTS = 3;
+
     public function __construct(
         private ClientInterface $client,
         #[SensitiveParameter] private string $accessToken,
@@ -91,6 +103,8 @@ readonly class ClaimRevApi
                 'accept' => 'application/json',
                 'content-type' => 'application/json',
             ], self::getVersionHeaders()),
+            'connect_timeout' => self::HTTP_CONNECT_TIMEOUT,
+            'timeout' => self::HTTP_TIMEOUT,
         ]);
 
         return new self($client, $token);
@@ -107,21 +121,48 @@ readonly class ClaimRevApi
         string $scope,
         #[SensitiveParameter] string $clientSecret,
     ): string {
-        $client = new Client();
-        try {
-            $response = $client->request('POST', $authority, [
-                'form_params' => [
-                    'client_id' => $clientId,
-                    'scope' => $scope,
-                    'client_secret' => $clientSecret,
-                    'grant_type' => 'client_credentials',
-                ],
-            ]);
-        } catch (GuzzleException $e) {
+        $client = new Client([
+            'connect_timeout' => self::HTTP_CONNECT_TIMEOUT,
+            'timeout' => self::HTTP_TIMEOUT,
+        ]);
+        $params = [
+            'form_params' => [
+                'client_id' => $clientId,
+                'scope' => $scope,
+                'client_secret' => $clientSecret,
+                'grant_type' => 'client_credentials',
+            ],
+        ];
+
+        // The B2C token endpoint occasionally returns transient TLS resets or
+        // 5xx responses, especially when the client side is on a Cloud Run
+        // instance just waking up. Retry a couple of times with brief backoff
+        // so the user-facing "Check Now" doesn't bubble those up as errors.
+        $lastException = null;
+        for ($attempt = 1; $attempt <= self::TOKEN_MAX_ATTEMPTS; $attempt++) {
+            try {
+                $response = $client->request('POST', $authority, $params);
+                break;
+            } catch (GuzzleException $e) {
+                $lastException = $e;
+                if ($attempt === self::TOKEN_MAX_ATTEMPTS) {
+                    throw new ClaimRevAuthenticationException(
+                        'Failed to acquire ClaimRev access token after ' . self::TOKEN_MAX_ATTEMPTS . ' attempts: ' . $e->getMessage(),
+                        0,
+                        $e
+                    );
+                }
+                // Backoff: 200ms, 400ms.
+                usleep(200_000 * $attempt);
+            }
+        }
+
+        if (!isset($response)) {
+            // Defensive — the loop above either sets $response or throws.
             throw new ClaimRevAuthenticationException(
-                'Failed to acquire ClaimRev access token: ' . $e->getMessage(),
+                'Failed to acquire ClaimRev access token',
                 0,
-                $e
+                $lastException,
             );
         }
 
