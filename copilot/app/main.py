@@ -474,6 +474,67 @@ async def sessions_recent(
     )
 
 
+# ---------------- W2 KR5: Front-desk LITE pending-intake notification ----------------
+
+
+class PendingIntakeItem(BaseModel):
+    doc_id: str
+    doc_type: str
+    uploaded_at: str
+    mime_type: str | None = None
+
+
+class PendingIntakesResponse(BaseModel):
+    items: list[PendingIntakeItem]
+    count: int
+
+
+@app.get(
+    "/v1/sessions/{session_id}/pending_intakes",
+    response_model=PendingIntakesResponse,
+)
+async def get_pending_intakes(
+    session_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    """Return processed documents for the active patient that the iframe
+    should surface as "uploaded by front desk — review."
+
+    The lite slice (W2 KR5) reads from the local ``processed_documents``
+    SQLite store. Persistent acknowledgement
+    (``acknowledged_by_physician_at``) is Final-scope; for now, the
+    iframe dismisses items in-memory after the bbox modal opens for them.
+
+    Panel-gated via ``_verify_patient_in_panel`` — callers must be on
+    the patient's clinician panel. The full facility-scope helper is
+    Final-scope.
+    """
+    session = sessions.get(session_id)
+    if session is None:
+        raise HTTPException(status_code=404, detail="session not found or expired")
+
+    fhir: FhirClient = app.state.fhir
+    await _verify_patient_in_panel(
+        fhir, session.physician_user_id, session.active_patient_id, settings
+    )
+
+    store: ProcessedDocumentStore = app.state.processed_documents
+    docs = await store.list_recent_for_patient(
+        patient_pseudonym=session.active_patient_id,  # store keyed by raw FHIR uuid
+        limit=20,
+    )
+    items = [
+        PendingIntakeItem(
+            doc_id=d.canonical_doc_id,
+            doc_type=d.doc_type,
+            uploaded_at=d.extracted_at.isoformat(),
+            mime_type=d.mime_type,
+        )
+        for d in docs
+    ]
+    return PendingIntakesResponse(items=items, count=len(items))
+
+
 class ResumeRequest(BaseModel):
     conversation_id: str
 
