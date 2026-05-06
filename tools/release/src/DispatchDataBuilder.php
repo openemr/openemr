@@ -43,7 +43,7 @@ final readonly class DispatchDataBuilder
             DispatchRequest::EVENT_PROBE => [
                 'note' => 'release-permissions-probe; ignored by consumers',
             ],
-            default => [],
+            default => throw new \InvalidArgumentException('Unknown dispatch event: ' . $event),
         };
     }
 }
