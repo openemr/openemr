@@ -603,7 +603,7 @@ final class OidcTokenValidatorTest extends TestCase
      * The require-exp guard runs before any storage write — confirm no
      * row leaks into jwt_grant_history when validation fails for this
      * reason. Otherwise a partially-validated token could lock its own
-     * jti out of subsequent (valid-shape) re-uses.
+     * jti out of subsequent (valid-shape) reuses.
      */
     public function testTokenWithoutExpDoesNotPolluteReplayHistory(): void
     {
