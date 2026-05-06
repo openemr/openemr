@@ -9,29 +9,42 @@
       "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
   }
 
-  // Session bootstrap — minted lazily on the first chat submit.
+  // Session bootstrap — minted lazily on the first chat submit OR eagerly
+  // on iframe load (for the pending-intake banner). Both call sites await
+  // the same in-flight promise so the eager load-time request and the
+  // first chat submit don't race and end up minting two sessions
+  // (W2 KR5 round-5 codex P2 fix).
   let sessionId = null;
+  let sessionInflight = null;
 
   async function ensureSession() {
     if (sessionId !== null) return sessionId;
-    const r = await fetch("/v1/sessions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        patient_id: PATIENT_ID,
-        physician_user_id: PHYSICIAN,
-      }),
-    });
-    if (!r.ok) {
-      const text = await r.text();
-      throw new Error(`session_bootstrap_failed:${r.status}:${text}`);
+    if (sessionInflight !== null) return sessionInflight;
+    sessionInflight = (async () => {
+      const r = await fetch("/v1/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: PATIENT_ID,
+          physician_user_id: PHYSICIAN,
+        }),
+      });
+      if (!r.ok) {
+        const text = await r.text();
+        throw new Error(`session_bootstrap_failed:${r.status}:${text}`);
+      }
+      const data = await r.json();
+      sessionId = data.session_id;
+      // W2 KR5: kick the pending-intakes fetch on first session bootstrap.
+      // Fire-and-forget — banner pops in async; chat works without waiting.
+      refreshPendingIntakes(sessionId).catch(() => {});
+      return sessionId;
+    })();
+    try {
+      return await sessionInflight;
+    } finally {
+      sessionInflight = null;
     }
-    const data = await r.json();
-    sessionId = data.session_id;
-    // W2 KR5: kick the pending-intakes fetch on first session bootstrap.
-    // Fire-and-forget — banner pops in async; chat works without waiting.
-    refreshPendingIntakes(sessionId).catch(() => {});
-    return sessionId;
   }
 
   // ───────────── W2 KR5: pending-intake banner ─────────────

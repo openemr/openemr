@@ -70,17 +70,107 @@ def test_preview_rejects_out_of_panel_patient(client: TestClient) -> None:
     assert "out_of_panel" in r.json()["detail"]
 
 
-def test_preview_returns_404_when_not_found(client: TestClient) -> None:
-    """Preview returns 404 when the doc is not in the local store."""
+def test_preview_returns_404_when_not_in_store_and_fhir_404s(
+    client: TestClient,
+) -> None:
+    """Preview falls back to FHIR DocumentReference when the doc isn't in the
+    local store; if the FHIR fetch also 404s, the endpoint returns 404.
+    """
+    from app.fhir.client import FhirError
+
     with client:
         client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
             return_value=None
+        )
+        client.app.state.fhir_client.get_resource = AsyncMock(
+            side_effect=FhirError("not found", status=404)
         )
         r = client.get(
             "/v1/documents/doc-missing/preview",
             params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
         )
     assert r.status_code == 404
+
+
+def test_preview_falls_back_to_fhir_inline_attachment(client: TestClient) -> None:
+    """W2 KR5 round-5 fix: when a doc isn't in the local store (front-desk
+    upload via OpenEMR's stock Documents Zend module), the endpoint
+    fetches the FHIR DocumentReference and returns its inline attachment.
+    """
+    import base64 as _b64
+
+    payload = b"%PDF-1.4 from-fhir-inline"
+
+    with client:
+        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
+            return_value=None
+        )
+        client.app.state.fhir_client.get_resource = AsyncMock(
+            return_value={
+                "resourceType": "DocumentReference",
+                "id": "doc-front-desk",
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "application/pdf",
+                            "data": _b64.b64encode(payload).decode(),
+                        }
+                    }
+                ],
+            }
+        )
+        r = client.get(
+            "/v1/documents/doc-front-desk/preview",
+            params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
+        )
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/pdf")
+    assert r.content == payload
+
+
+def test_preview_falls_back_to_fhir_binary_url(client: TestClient) -> None:
+    """If the FHIR DocumentReference points to a separate Binary resource
+    (the OpenEMR-default shape), the endpoint chases that reference.
+    """
+    import base64 as _b64
+
+    payload = b"\x89PNG\r\n\x1a\nfake-png"
+
+    async def _fake_get_resource(resource_type, resource_id, *, physician_user_id):
+        if resource_type == "DocumentReference":
+            return {
+                "resourceType": "DocumentReference",
+                "id": resource_id,
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "image/png",
+                            "url": "Binary/bin-9",
+                        }
+                    }
+                ],
+            }
+        if resource_type == "Binary":
+            return {
+                "resourceType": "Binary",
+                "id": resource_id,
+                "contentType": "image/png",
+                "data": _b64.b64encode(payload).decode(),
+            }
+        raise AssertionError(f"unexpected resource_type={resource_type}")
+
+    with client:
+        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
+            return_value=None
+        )
+        client.app.state.fhir_client.get_resource = _fake_get_resource
+        r = client.get(
+            "/v1/documents/doc-front-desk-png/preview",
+            params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
+        )
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("image/png")
+    assert r.content == payload
 
 
 def test_extractions_returns_cached_extraction(client: TestClient) -> None:

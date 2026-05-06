@@ -736,12 +736,64 @@ async def get_document_preview(
     row = await store.lookup_by_doc_id(
         patient_pseudonym=patient_id, canonical_doc_id=doc_id
     )
-    if row is None:
+    if row is not None and row.file_bytes:
+        media_type = row.mime_type or "application/octet-stream"
+        return Response(content=row.file_bytes, media_type=media_type)
+
+    # W2 KR5 round-5 fix (codex P2): the pending-intakes banner now
+    # surfaces FHIR DocumentReferences (front-desk uploads via OpenEMR's
+    # stock Documents Zend module). Those don't have local
+    # processed_documents rows, so fall back to fetching their attachment
+    # bytes from FHIR. The DocumentReference's content[].attachment may
+    # carry inline `data` (base64) or a `url` pointing at a Binary
+    # resource — try both.
+    try:
+        doc_ref = await fhir.get_resource(
+            "DocumentReference", doc_id, physician_user_id=physician_user_id
+        )
+    except FhirError:
         raise HTTPException(status_code=404, detail="document_not_found")
-    if not row.file_bytes:
+
+    contents = doc_ref.get("content") or []
+    if not contents or not isinstance(contents[0], dict):
         raise HTTPException(status_code=404, detail="no_attachment")
-    media_type = row.mime_type or "application/octet-stream"
-    return Response(content=row.file_bytes, media_type=media_type)
+    attachment = contents[0].get("attachment") or {}
+    media_type = attachment.get("contentType") or "application/octet-stream"
+
+    inline_b64 = attachment.get("data")
+    if isinstance(inline_b64, str) and inline_b64:
+        import base64 as _b64
+        try:
+            payload = _b64.b64decode(inline_b64)
+        except (ValueError, TypeError):
+            raise HTTPException(status_code=502, detail="bad_attachment_data")
+        return Response(content=payload, media_type=media_type)
+
+    binary_url = attachment.get("url")
+    if isinstance(binary_url, str) and binary_url:
+        # OpenEMR returns relative URLs like "Binary/{id}". Resolve as
+        # `{resource_type}/{resource_id}` against fhir.get_resource.
+        if "/" in binary_url:
+            res_type, _, res_id = binary_url.rpartition("/")
+            res_type = res_type.split("/")[-1]
+            try:
+                binary = await fhir.get_resource(
+                    res_type, res_id, physician_user_id=physician_user_id
+                )
+            except FhirError:
+                raise HTTPException(status_code=404, detail="binary_not_found")
+            data_b64 = binary.get("data")
+            if isinstance(data_b64, str) and data_b64:
+                import base64 as _b64
+                try:
+                    payload = _b64.b64decode(data_b64)
+                except (ValueError, TypeError):
+                    raise HTTPException(status_code=502, detail="bad_binary_data")
+                # Binary.contentType (FHIR-spec) overrides DocumentReference's hint.
+                media_type = binary.get("contentType") or media_type
+                return Response(content=payload, media_type=media_type)
+
+    raise HTTPException(status_code=404, detail="no_attachment")
 
 
 @app.get("/v1/documents/{doc_id}/extractions")
