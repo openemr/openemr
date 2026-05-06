@@ -112,6 +112,7 @@ jobs:
     # which handles the diff detection, branch force-push, and PR open-or-update
     # in one step. When there is no diff this is a no-op.
     - name: Create or update release-prep PR
+      id: prep-pr
       uses: peter-evans/create-pull-request@v7
       with:
         token: ${{ steps.app-token.outputs.token }}
@@ -126,21 +127,24 @@ jobs:
         delete-branch: false
 
     - name: Dispatch rel-cut / rel-update to consumers
+      if: steps.prep-pr.outputs.pull-request-operation != 'none'
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        OPERATION: ${{ steps.prep-pr.outputs.pull-request-operation }}
       run: |
         rel_branch='${{ steps.resolve.outputs.branch }}'
         version='${{ steps.resolve.outputs.version }}'
         prev_release="$(php tools/release/bin/derive-prev-release.php "${version}")"
-        # First push to a new rel-branch is rel-cut; subsequent pushes are rel-update.
-        # The conductor distinguishes by checking whether the upstream release-prep
-        # branch already exists; gh exit code 0 = exists.
-        if gh api "repos/${{ github.repository }}/branches/release-prep/${rel_branch}" >/dev/null 2>&1; then
-          event='openemr-rel-update'
-        else
-          event='openemr-rel-cut'
-        fi
+        # peter-evans reports `created` when it opens a new release-prep PR
+        # for this rel-branch and `updated` when it pushes to an existing
+        # one. Use that signal directly: by the time we reach this step the
+        # peter-evans action has already created the branch upstream, so a
+        # post-hoc `gh api` existence check would always say "exists" and
+        # dispatch the very first push as rel-update.
+        case "${OPERATION}" in
+          created) event='openemr-rel-cut' ;;
+          *)       event='openemr-rel-update' ;;
+        esac
         php tools/release/bin/dispatch.php \
           --event="${event}" \
           --sha="${{ github.sha }}" \
