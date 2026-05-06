@@ -1,0 +1,51 @@
+name: Dependabot Auto-Merge
+
+on:
+  pull_request_target:
+
+permissions:
+  contents: read
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.AUTO_MERGE_APP_ID }}
+          private-key: ${{ secrets.AUTO_MERGE_APP_PRIVATE_KEY }}
+
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ steps.app-token.outputs.token }}
+
+      # Auto-merge docker-compose updates from directories where CI exercises
+      # every image. Prefix matching only for ci/apache_* and ci/nginx_* since
+      # those version-matrix dirs are added/removed over time; everything else
+      # is matched explicitly so new dirs require an intentional opt-in here.
+      - name: Auto-merge docker-compose updates
+        if: >-
+          steps.metadata.outputs.package-ecosystem == 'docker_compose' &&
+          (
+            startsWith(steps.metadata.outputs.directory, '/ci/apache_') ||
+            startsWith(steps.metadata.outputs.directory, '/ci/nginx_') ||
+            steps.metadata.outputs.directory == '/ci/compose-shared-mailpit' ||
+            steps.metadata.outputs.directory == '/ci/compose-shared-nginx' ||
+            steps.metadata.outputs.directory == '/ci/compose-shared-redis-sentinel' ||
+            steps.metadata.outputs.directory == '/ci/compose-shared-selenium' ||
+            steps.metadata.outputs.directory == '/ci/inferno' ||
+            steps.metadata.outputs.directory == '/docker/development-easy' ||
+            steps.metadata.outputs.directory == '/docker/development-easy-light' ||
+            steps.metadata.outputs.directory == '/docker/development-easy-redis' ||
+            steps.metadata.outputs.directory == '/docker/development-insane' ||
+            steps.metadata.outputs.directory == '/docker/production'
+          )
+        run: gh pr merge --auto --squash "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}

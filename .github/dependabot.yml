@@ -203,6 +203,9 @@ updates:
     redis:
       patterns:
       - redis
+    infrastructure:
+      patterns:
+      - alpine
   labels:
   - dependencies
   - docker

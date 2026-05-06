@@ -1,0 +1,19 @@
+name: All Checks Passed
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  all-checks:
+    name: All Checks Passed
+    runs-on: ubuntu-latest
+    steps:
+      - uses: lewagon/wait-on-check-action@v1.7.0
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          running-workflow-name: All Checks Passed
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          wait-interval: 30
