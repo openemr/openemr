@@ -47,7 +47,7 @@ final readonly class Crypto implements CryptoInterface
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
-        private bool $encryptForFilesystem,
+        private bool $shouldEncryptForFilesystem,
     ) {
     }
 
@@ -59,7 +59,7 @@ final readonly class Crypto implements CryptoInterface
         return new Crypto(
             $keychain,
             $logger,
-            encryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
+            shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
         );
     }
 
@@ -148,7 +148,7 @@ final readonly class Crypto implements CryptoInterface
         if ($value === null || $value === '') {
             return '';
         }
-        if (!$this->encryptForFilesystem) {
+        if (!$this->shouldEncryptForFilesystem) {
             return $value;
         }
         return $this->encryptStandard($value, keySource: KeySource::Database);

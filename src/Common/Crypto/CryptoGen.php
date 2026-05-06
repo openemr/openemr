@@ -49,16 +49,17 @@ class CryptoGen implements CryptoInterface
 
     private readonly string $siteDir;
 
-    private readonly bool $encryptForFilesystem;
+    private readonly bool $shouldEncryptForFilesystem;
 
     public function __construct(
         ?LoggerInterface $logger = null,
         ?string $siteDir = null,
-        ?bool $encryptForFilesystem = null,
+        ?bool $shouldEncryptForFilesystem = null,
     ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
-        $this->encryptForFilesystem = $encryptForFilesystem ?? OEGlobalsBag::getInstance()->getBoolean('drive_encryption');
+        $this->shouldEncryptForFilesystem = $shouldEncryptForFilesystem
+            ?? OEGlobalsBag::getInstance()->getBoolean('drive_encryption');
     }
 
     /**
@@ -157,7 +158,7 @@ class CryptoGen implements CryptoInterface
         if ($value === null || $value === '') {
             return '';
         }
-        if (!$this->encryptForFilesystem) {
+        if (!$this->shouldEncryptForFilesystem) {
             return $value;
         }
         return $this->encryptStandard($value, keySource: KeySource::Database);

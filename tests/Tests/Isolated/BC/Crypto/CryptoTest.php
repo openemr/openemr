@@ -44,7 +44,7 @@ final class CryptoTest extends TestCase
     {
         $this->fixtures = new CryptoFixtureManager('/dev/null');
         $this->keychain = $this->buildKeychain();
-        $this->crypto = new Crypto($this->keychain, new NullLogger(), encryptForFilesystem: true);
+        $this->crypto = new Crypto($this->keychain, new NullLogger(), shouldEncryptForFilesystem: true);
     }
 
     private function buildKeychain(): Keychain
@@ -340,7 +340,7 @@ final class CryptoTest extends TestCase
 
     public function testEncryptForFilesystemPassesThroughPlaintextWhenDisabled(): void
     {
-        $crypto = new Crypto($this->keychain, new NullLogger(), encryptForFilesystem: false);
+        $crypto = new Crypto($this->keychain, new NullLogger(), shouldEncryptForFilesystem: false);
         $plaintext = 'plaintext data that should not be encrypted';
 
         $result = $crypto->encryptForFilesystem($plaintext);
