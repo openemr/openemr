@@ -58,17 +58,34 @@ final readonly class SwaggerRegenMutator implements MutatorInterface
         }
 
         $after = file_exists($path) ? (string) file_get_contents($path) : '';
-        // The subprocess uses Symfony\Yaml::dump so the output is valid
-        // by construction, but verify in case the command's
-        // implementation changes.
+        // Validate the regenerated OpenAPI document beyond
+        // well-formedness: assert it parses AND its info.version equals
+        // the target. The subprocess uses Symfony\Yaml::dump so output
+        // is valid by construction, but a stale or wrong version slipped
+        // in (e.g. the OpenApiVersionMutator didn't run first) is the
+        // mistake worth catching here.
         try {
-            Yaml::parse($after);
+            $parsed = Yaml::parse($after);
         } catch (ParseException $e) {
             throw new \RuntimeException(
                 self::RELATIVE_PATH . ': openemr:create-api-documentation produced invalid YAML',
                 0,
                 $e,
             );
+        }
+        $actualVersion = is_array($parsed)
+            && is_array($parsed['info'] ?? null)
+            ? ($parsed['info']['version'] ?? null)
+            : null;
+        $expectedVersion = $context->versionString();
+        if ($actualVersion !== $expectedVersion) {
+            throw new \RuntimeException(sprintf(
+                '%s: post-regen info.version was %s; expected %s'
+                . ' (did OpenApiVersionMutator run first?)',
+                self::RELATIVE_PATH,
+                var_export($actualVersion, true),
+                $expectedVersion,
+            ));
         }
         if ($before === $after) {
             return MutatorResult::noop();

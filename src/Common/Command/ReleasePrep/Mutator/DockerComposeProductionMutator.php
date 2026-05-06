@@ -73,18 +73,34 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         if ($updated === $contents) {
             return MutatorResult::noop();
         }
-        // Belt-and-suspenders: regex substitution preserves formatting
-        // but doesn't know YAML syntax. Parse the result before writing
-        // so a pathological input that produces invalid YAML fails the
-        // mutator rather than ships a broken file.
+        // Validate beyond well-formedness: the regex preserves formatting
+        // but doesn't know YAML structure. Parse the result and assert
+        // that services.openemr.image is exactly the value we intended
+        // to write. This catches both invalid YAML and the case where
+        // the regex matched something that looked right but wasn't
+        // actually the openemr image entry.
         try {
-            Yaml::parse($updated);
+            $parsed = Yaml::parse($updated);
         } catch (ParseException $e) {
             throw new \RuntimeException(
                 'docker-compose.yml: regex substitution produced invalid YAML',
                 0,
                 $e,
             );
+        }
+        $expectedDigest = $newDigestHex ?? $this->extractDigest($contents);
+        $expectedImage = sprintf('openemr/openemr:%s@sha256:%s', $version, $expectedDigest);
+        $actualImage = is_array($parsed)
+            && is_array($parsed['services'] ?? null)
+            && is_array($parsed['services']['openemr'] ?? null)
+            ? ($parsed['services']['openemr']['image'] ?? null)
+            : null;
+        if ($actualImage !== $expectedImage) {
+            throw new \RuntimeException(sprintf(
+                'docker-compose.yml: post-mutation services.openemr.image was %s; expected %s',
+                var_export($actualImage, true),
+                $expectedImage,
+            ));
         }
         if (file_put_contents($path, $updated) === false) {
             throw new \RuntimeException('Cannot write ' . $path);
@@ -93,5 +109,15 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
             ? ['docker-compose.yml: tag pinned to ' . $version . '; digest preserved (no --image-digest provided)']
             : [];
         return new MutatorResult([self::RELATIVE_PATH], $messages);
+    }
+
+    private function extractDigest(string $original): string
+    {
+        if (
+            preg_match('/image:\s*openemr\/openemr:[^@\s]+@sha256:([0-9a-f]{64})/', $original, $m) !== 1
+        ) {
+            throw new \RuntimeException('Cannot extract original digest from docker-compose.yml');
+        }
+        return $m[1];
     }
 }
