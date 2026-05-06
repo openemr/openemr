@@ -62,6 +62,8 @@ class AgentGraphState(TypedDict, total=False):
     # surfaced into ``trace`` by ``answer_composer``.
     extraction_confidence_min: float | None
     retrieval_hit_ids: list[str]
+    # W2 KR4: reranker-emitted score list aligned with retrieval_hit_ids.
+    rerank_scores: list[float]
 
     # Outputs
     response: Any | None     # app.agent.schemas.AgentResponse | None

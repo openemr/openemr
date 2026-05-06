@@ -60,6 +60,9 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
     hit_ids = state.get("retrieval_hit_ids") or []
     if hit_ids and hasattr(output.trace, "retrieval_hit_ids"):
         output.trace.retrieval_hit_ids = list(hit_ids)
+    rerank_scores = state.get("rerank_scores") or []
+    if rerank_scores and hasattr(output.trace, "rerank_scores"):
+        output.trace.rerank_scores = list(rerank_scores)
 
     return {
         "response": output.response,

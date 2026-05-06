@@ -16,6 +16,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.graph.state import AgentGraphState
+from app.retrieval.rerank import get_reranker
 from app.tools.registry import dispatch
 
 
@@ -37,12 +38,17 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
 
     # W2 KR3: derive retrieval_hit_ids (chunk_ids in score order) from the
     # tool result data so answer_composer can surface them into TurnTrace.
-    hit_ids: list[str] = []
     data = result.data if isinstance(result.data, list) else [result.data]
-    for item in data:
-        if not isinstance(item, dict):
-            continue
-        chunk_id = item.get("chunk_id")
+    hit_dicts: list[dict[str, Any]] = [d for d in data if isinstance(d, dict)]
+
+    # W2 KR4: rerank step. The default IdentityReranker preserves BM25 order
+    # and emits 1.0 scores; Cohere / local cross-encoder are gated by env.
+    reranker = get_reranker()
+    reordered, scores = reranker.rerank(query, hit_dicts)
+
+    hit_ids: list[str] = []
+    for item in reordered:
+        chunk_id = item.get("chunk_id") if isinstance(item, dict) else None
         if isinstance(chunk_id, str):
             hit_ids.append(chunk_id)
 
@@ -54,6 +60,8 @@ async def run(state: AgentGraphState) -> dict[str, Any]:
     }
     if hit_ids:
         delta["retrieval_hit_ids"] = hit_ids
+    if scores:
+        delta["rerank_scores"] = scores
     return delta
 
 
