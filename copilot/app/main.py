@@ -14,11 +14,13 @@ from pydantic import BaseModel, Field
 
 from anthropic import AsyncAnthropic
 
-from app.agent.loop import run_turn
+from app.agent.loop import run_turn  # kept for monkeypatch compatibility in tests
 from app.agent.prewarm import prewarm
 from app.agent.schemas import PriorTurn
 from app.config import Settings, get_settings
 from app.fhir.client import FhirClient, FhirError
+from app.graph.build import build_graph
+from app.graph.state import AgentGraphState
 from app.ingestion.schemas import AttachDocumentRequest
 from app.ingestion.service import IngestionService
 from app.ingestion.vlm import VlmExtractor
@@ -29,6 +31,13 @@ from app.phi.log_filter import install as install_phi_log_filter
 from app.phi.session import sessions
 from app.retrieval.corpus import GuidelineCorpus
 from app.tools.registry import set_corpus, set_docs_store, set_ingestion_service
+
+# `run_turn` is no longer called directly from this module — `/v1/chat`
+# routes through ``app.state.agent_graph`` (LangGraph). The import is kept
+# so existing test monkeypatches that target ``app.main.run_turn`` continue
+# to no-op rather than fail with AttributeError; tests have been retargeted
+# to the new patch site at ``app.graph.workers.answer_composer.run_turn``.
+_ = run_turn
 
 logger = logging.getLogger("copilot.main")
 
@@ -72,6 +81,9 @@ async def lifespan(app: FastAPI):
     await corpus.build()
     app.state.corpus = corpus
     set_corpus(corpus)
+
+    # Week 2 (KR 1): compile the agent graph once per process.
+    app.state.agent_graph = build_graph()
 
     yield
     await fhir.aclose()
@@ -385,19 +397,25 @@ async def chat(body: ChatRequest, settings: Settings = Depends(get_settings)):
     except Exception:  # noqa: BLE001
         logger.exception("failed to load prior turns; continuing without history")
 
-    output = await run_turn(
-        settings=settings,
-        fhir=fhir,
-        session=session,
-        question=body.question,
-        proposed_drug=body.proposed_drug,
-        prior_turns=prior_turns or None,
-    )
-    payload = {
-        "response": output.response.model_dump(),
-        "trace": output.trace.model_dump(),
+    initial_state: AgentGraphState = {
+        "settings": settings,
+        "fhir": fhir,
+        "session": session,
+        "question": body.question,
+        "proposed_drug": body.proposed_drug,
+        "prior_turns": prior_turns or None,
+        "tool_results": [],
+        "routing_path": [],
+        "retry_count": 0,
     }
-    app.state.tracer.emit(output.trace, payload["response"])
+    final_state = await app.state.agent_graph.ainvoke(initial_state)
+    response = final_state["response"]
+    trace = final_state["trace"]
+    payload = {
+        "response": response.model_dump(),
+        "trace": trace.model_dump(),
+    }
+    app.state.tracer.emit(trace, payload["response"])
 
     # Persist this turn for resume. The pseudonym snapshot is taken AFTER the
     # turn so any provider pseudonyms minted during tool calls are captured.
@@ -406,9 +424,9 @@ async def chat(body: ChatRequest, settings: Settings = Depends(get_settings)):
         await store.append_turn(
             conversation_id=body.session_id,
             question=body.question,
-            assistant_prose=output.response.prose,
-            claims=[c.model_dump() for c in output.response.claims] or None,
-            data_gaps=list(output.response.data_gaps) or None,
+            assistant_prose=response.prose,
+            claims=[c.model_dump() for c in response.claims] or None,
+            data_gaps=list(response.data_gaps) or None,
             pseudonym_map=session.snapshot(),
         )
     except Exception:  # noqa: BLE001

@@ -7,8 +7,9 @@ End-to-end through the FastAPI app:
   - /v1/sessions/resume rehydrates the same pseudonyms + replays messages
   - On the next /v1/chat after resume, run_turn receives prior_turns
 
-The LLM is never called: we monkeypatch app.main.run_turn with a fake that
-captures the kwargs passed to it. This lets us assert prior_turns is set
+The LLM is never called: we monkeypatch ``run_turn`` at its current call
+site (``app.graph.workers.answer_composer.run_turn`` since W2 KR1) with a
+fake that captures the kwargs. This lets us assert prior_turns is set
 correctly without spending tokens.
 """
 from __future__ import annotations
@@ -70,7 +71,11 @@ def app_client(monkeypatch, tmp_path):
         )
 
     from app import main as main_module
-    monkeypatch.setattr(main_module, "run_turn", fake_run_turn)
+    from app.graph.workers import answer_composer as _ac
+    # /v1/chat now routes through app.state.agent_graph; the only place that
+    # invokes run_turn is the answer_composer node. Patch there so the fake
+    # is what the graph runs.
+    monkeypatch.setattr(_ac, "run_turn", fake_run_turn)
 
     # 6. Stub the panel gate to a no-op (env path covers happy case; we don't
     #    want to require an OAuth/FHIR mock for these flow tests).
