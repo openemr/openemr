@@ -26,7 +26,10 @@ $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    AccessDeniedHelper::deny('Editing physical exam diagnoses is not authorized');
+    AccessDeniedHelper::denyWithTemplate(
+        'Editing physical exam diagnoses is not authorized',
+        xl('Access Denied'),
+    );
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
