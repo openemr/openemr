@@ -22,17 +22,10 @@ concurrency:
 
 jobs:
   probe:
-    name: Probe release-app permissions (${{ matrix.php-version }})
+    name: Probe release-app permissions
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-    strategy:
-      matrix:
-        # Conductor tooling runs only on CI runners (no customer
-        # deployment), so per OCE conventions it tracks the latest
-        # stable PHP rather than the openemr application floor.
-        php-version:
-        - '8.5'
     steps:
     - name: Checkout
       uses: actions/checkout@v6
@@ -47,7 +40,10 @@ jobs:
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
       with:
-        php-version: ${{ matrix.php-version }}
+        # Conductor tooling runs only on CI runners (no customer
+        # deployment), so per OCE conventions it tracks the latest
+        # stable PHP rather than the openemr application floor.
+        php-version: '8.5'
 
     - name: Resolve default branch
       id: repo
