@@ -112,6 +112,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Events\\\\NotificationEventListener\\:\\:\\$twig is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\WenoModule\\\\Bootstrap\\:\\:\\$logger is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Bootstrap.php',
