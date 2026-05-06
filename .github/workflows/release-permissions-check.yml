@@ -68,7 +68,7 @@ jobs:
         fi
         echo "OK: release App is installed on ${REPO}"
 
-    - name: Probe contents:write (create throwaway branch)
+    - name: Probe contents:write (create throwaway branch + commit)
       id: probe-contents
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -78,12 +78,24 @@ jobs:
       run: |
         branch="release-permissions-check/${RUN_ID}"
         echo "branch=${branch}" >> "$GITHUB_OUTPUT"
-        sha=$(gh api "repos/${REPO}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')
-        if ! gh api -X POST "repos/${REPO}/git/refs" -f "ref=refs/heads/${branch}" -f "sha=${sha}" >/dev/null; then
+        base_sha=$(gh api "repos/${REPO}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')
+        if ! gh api -X POST "repos/${REPO}/git/refs" -f "ref=refs/heads/${branch}" -f "sha=${base_sha}" >/dev/null; then
           echo "FAIL: contents:write missing (cannot create branch)" >&2
           exit 1
         fi
-        echo "OK: created throwaway branch ${branch}"
+        # The PR probe needs at least one commit on the branch — a zero-diff
+        # PR is a 422 Validation Failed even when pull-requests:write is granted.
+        base_tree=$(gh api "repos/${REPO}/git/commits/${base_sha}" --jq '.tree.sha')
+        commit_sha=$(gh api -X POST "repos/${REPO}/git/commits" -f "message=release-permissions-check probe ${RUN_ID}" -f "tree=${base_tree}" -F "parents[]=${base_sha}" --jq '.sha')
+        if [[ -z "${commit_sha}" ]]; then
+          echo "FAIL: contents:write missing (cannot create commit)" >&2
+          exit 1
+        fi
+        if ! gh api -X PATCH "repos/${REPO}/git/refs/heads/${branch}" -f "sha=${commit_sha}" >/dev/null; then
+          echo "FAIL: contents:write missing (cannot fast-forward branch)" >&2
+          exit 1
+        fi
+        echo "OK: created throwaway branch ${branch} with empty-tree commit"
 
     - name: Probe pull-requests:write (open + close draft PR)
       id: probe-prs
