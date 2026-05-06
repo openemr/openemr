@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     llm_provider: str = "anthropic"  # "anthropic" or "openai"
 
     anthropic_api_key: str = ""
-    anthropic_model: str = "claude-sonnet-4-5-20250929"
+    anthropic_model: str = "claude-sonnet-4-6"
 
     openai_api_key: str = ""
     openai_model: str = "gpt-4o"
@@ -104,7 +104,7 @@ class Settings(BaseSettings):
     # SQLite file path for the processed-document dedup store.
     copilot_docs_db_path: str = "./copilot_docs.db"
     # Claude vision model used by VlmExtractor.
-    vlm_model_id: str = "claude-opus-4-5"
+    vlm_model_id: str = "claude-sonnet-4-6"
 
 
 @lru_cache

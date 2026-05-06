@@ -4,6 +4,10 @@
 # environment vars
 .env
 
+# Local OpenEMR runtime artifacts — never commit
+sites/default/documents/certificates/oa*.key
+sites/default/documents/[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*/
+
 # vendor and assets
 node_modules
 /vendor/*

@@ -32,6 +32,15 @@ from app.tools.registry import set_corpus, set_docs_store, set_ingestion_service
 
 logger = logging.getLogger("copilot.main")
 
+# All copilot.* loggers emit at INFO so per-request observability lines
+# (e.g. `llm-call provider=anthropic model=...`) reach Railway/uvicorn
+# stdout. The root logger remains at WARNING — only this tree is bumped.
+logging.getLogger("copilot").setLevel(logging.INFO)
+if not logging.getLogger("copilot").handlers:
+    _h = logging.StreamHandler()
+    _h.setFormatter(logging.Formatter("%(levelname)s:%(name)s:%(message)s"))
+    logging.getLogger("copilot").addHandler(_h)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
