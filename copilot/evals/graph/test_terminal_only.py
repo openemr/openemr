@@ -89,8 +89,10 @@ async def test_terminal_graph_routes_through_composer_then_critic(monkeypatch) -
     }
     final = await g.ainvoke(initial)
 
-    # The graph routes composer → critic → END.
-    assert final["routing_path"] == ["answer_composer", "critic"]
+    # The graph routes supervisor → answer_composer → critic → END.
+    # (Task 1.5 added the supervisor entry point — it ticks once because no
+    # pending_extraction or retrieval_seed_query is set.)
+    assert final["routing_path"] == ["supervisor", "answer_composer", "critic"]
     assert final["response"].prose == "terminal_ok"
     assert final["rejections"] == []
     # run_turn received the forwarded kwargs.
