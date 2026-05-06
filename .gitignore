@@ -45,3 +45,13 @@ tmp-phpstan/*
 docker/development-easy/docker-compose.override.yml
 docker/development-easy-light/docker-compose.override.yml
 docker/development-easy-redis/docker-compose.override.yml
+
+# Night shift agent artifacts
+.night-shift/
+
+# Local dev artifacts (Co-Pilot SQLite, runtime var dir)
+copilot/copilot_docs.db
+copilot/var/
+
+# Synthea log blobs (local-only)
+sites/default/documents/logs_and_misc/methods/
