@@ -143,6 +143,7 @@ final class OidcTokenValidatorTest extends TestCase
         ?string $jti = null,
         bool $includeNbf = true,
         bool $includeIat = true,
+        bool $includeExp = true,
     ): string {
         $now = $this->clock->now();
         $iat = $issuedAt ?? $now;
@@ -154,9 +155,11 @@ final class OidcTokenValidatorTest extends TestCase
             InMemory::plainText('unused'),
         );
 
-        $builder = $config->builder()
-            ->expiresAt($exp)
-            ->withHeader('kid', $kid);
+        $builder = $config->builder()->withHeader('kid', $kid);
+
+        if ($includeExp) {
+            $builder = $builder->expiresAt($exp);
+        }
 
         if ($includeIat) {
             $builder = $builder->issuedAt($iat);
@@ -577,6 +580,43 @@ final class OidcTokenValidatorTest extends TestCase
         $this->expectException(OidcTokenValidationException::class);
         $this->expectExceptionMessage('replay detected');
         $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    /**
+     * Aisle round-2 finding #5 (CWE-294). Without `exp`, the saveJwtHistory
+     * call wrote `jti_exp = NULL` and the replay-lookup filter
+     * `jti_exp > FROM_UNIXTIME(?)` excluded NULL rows, letting the same
+     * token be replayed forever. Reject up front so the storage layer
+     * never sees a NULL exp from this path.
+     */
+    public function testTokenWithoutExpIsRejected(): void
+    {
+        $jwt = $this->buildToken(jti: 'jti-no-exp', includeExp: false);
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('Token missing required exp claim');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
+
+    /**
+     * The require-exp guard runs before any storage write — confirm no
+     * row leaks into jwt_grant_history when validation fails for this
+     * reason. Otherwise a partially-validated token could lock its own
+     * jti out of subsequent (valid-shape) re-uses.
+     */
+    public function testTokenWithoutExpDoesNotPolluteReplayHistory(): void
+    {
+        $jwt = $this->buildToken(jti: 'jti-no-exp-no-pollute', includeExp: false);
+
+        try {
+            $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+            self::fail('Expected OidcTokenValidationException');
+        } catch (OidcTokenValidationException) {
+            // Expected.
+        }
+
+        self::assertSame([], $this->jwtRepository->recordsFor('jti-no-exp-no-pollute'));
     }
 
     public function testTokenWithoutJtiAndIatIsRejected(): void

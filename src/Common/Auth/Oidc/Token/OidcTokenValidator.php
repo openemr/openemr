@@ -143,6 +143,18 @@ readonly class OidcTokenValidator
             throw new OidcTokenValidationException('Token validation failed', 0, $e);
         }
 
+        // LooseValidAt validates `exp` *if present* but doesn't require it.
+        // We require it explicitly: a token without `exp` would store
+        // `jti_exp = NULL` in jwt_grant_history, and the replay-lookup
+        // filter `jti_exp > ?` excludes NULL rows from the result set
+        // (SQL: NULL > x is NULL, not true) — letting the same token be
+        // replayed indefinitely. Reject up front so the storage layer
+        // never sees a NULL exp from this path.
+        $exp = $token->claims()->get('exp');
+        if (!$exp instanceof \DateTimeImmutable) {
+            throw new OidcTokenValidationException('Token missing required exp claim');
+        }
+
         // Step 8: Verify iat is not unreasonably old
         $iat = $token->claims()->get('iat');
         if ($iat instanceof \DateTimeInterface) {
@@ -171,7 +183,6 @@ readonly class OidcTokenValidator
         // (not the token's own exp), so the lookup returns "has this jti been
         // seen recently, and is the stored record still within its validity
         // window". Records past their stored jti_exp naturally age out.
-        $exp = $token->claims()->get('exp');
         $replayKey = $this->computeReplayKey($token);
         $nowTimestamp = $this->clock->now()->getTimestamp();
         if ($this->jwtRepository->getJwtGrantHistoryForJTI($replayKey, $nowTimestamp) !== []) {
@@ -179,8 +190,8 @@ readonly class OidcTokenValidator
         }
         $issuerClaim = $token->claims()->get('iss');
         $issuerForRecord = is_string($issuerClaim) ? $issuerClaim : $parameters->expectedIssuer;
-        $storedExpiration = $exp instanceof \DateTimeInterface ? $exp->getTimestamp() : null;
-        $this->jwtRepository->saveJwtHistory($replayKey, $issuerForRecord, $storedExpiration);
+        // exp is now guaranteed DateTimeImmutable by the explicit guard above.
+        $this->jwtRepository->saveJwtHistory($replayKey, $issuerForRecord, $exp->getTimestamp());
 
         // Step 10: Map claims to NormalizedIdentity
         $claims = $this->extractClaims($token);
@@ -195,15 +206,12 @@ readonly class OidcTokenValidator
             throw new OidcTokenValidationException('Failed to map token claims to identity', 0, $e);
         }
 
-        // Step 11: Build result
-        $expiresAt = $exp instanceof \DateTimeImmutable
-            ? $exp
-            : new \DateTimeImmutable('@' . $this->clock->now()->getTimestamp());
-
+        // Step 11: Build result. exp is guaranteed DateTimeImmutable by the
+        // require-exp guard right after the LooseValidAt assertions above.
         return new ValidatedToken(
             identity: $identity,
             claims: $claims,
-            expiresAt: $expiresAt,
+            expiresAt: $exp,
             jti: is_string($jti) ? $jti : null,
         );
     }

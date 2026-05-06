@@ -398,22 +398,32 @@ class JWTClientAuthenticationService
             throw OAuthServerException::invalidRequest('client_assertion', 'Invalid issuer claim');
         }
 
-        // Check expiration is not too far in future (24 hours max per SMART spec)
+        // Require `exp` outright. RFC 7523 §3.4 lists it as a MUST for
+        // client-assertion JWTs. Beyond spec compliance, accepting a JWT
+        // without `exp` would store `jti_exp = NULL` in jwt_grant_history,
+        // and the replay-lookup filter `jti_exp > ?` excludes NULL rows
+        // (SQL: `NULL > x` is NULL, not true) — letting the same assertion
+        // be replayed forever. Reject before saveJwtHistory() so the
+        // storage layer never sees a NULL exp from this path.
         $exp = $claims->get('exp');
-        if ($exp instanceof \DateTimeInterface) {
-            $maxExp = (new \DateTimeImmutable())->add(
-                new DateInterval('PT' . self::MAX_JWT_EXPIRATION_HOURS . 'H')
+        if (!$exp instanceof \DateTimeInterface) {
+            $this->logger->error('JWT client assertion missing required exp claim');
+            throw OAuthServerException::invalidRequest('client_assertion', 'Missing exp claim');
+        }
+
+        // Check expiration is not too far in future (24 hours max per SMART spec)
+        $maxExp = (new \DateTimeImmutable())->add(
+            new DateInterval('PT' . self::MAX_JWT_EXPIRATION_HOURS . 'H')
+        );
+        if ($exp > $maxExp) {
+            $this->logger->error(
+                'JWT expiration exceeds maximum allowed time',
+                ['exp' => $exp->format('c'), 'max_exp' => $maxExp->format('c')]
             );
-            if ($exp > $maxExp) {
-                $this->logger->error(
-                    'JWT expiration exceeds maximum allowed time',
-                    ['exp' => $exp->format('c'), 'max_exp' => $maxExp->format('c')]
-                );
-                throw OAuthServerException::invalidRequest(
-                    'client_assertion',
-                    'Token expiration exceeds maximum allowed time'
-                );
-            }
+            throw OAuthServerException::invalidRequest(
+                'client_assertion',
+                'Token expiration exceeds maximum allowed time'
+            );
         }
 
         // Check 'iat' (issued at) is not too old (5 minutes)

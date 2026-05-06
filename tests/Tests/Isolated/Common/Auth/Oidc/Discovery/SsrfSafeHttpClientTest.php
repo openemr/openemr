@@ -20,7 +20,6 @@ use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidationException;
 use OpenEMR\Common\Auth\Oidc\Discovery\SsrfBlockedException;
 use OpenEMR\Common\Auth\Oidc\Discovery\SsrfSafeHttpClient;
 use PHPUnit\Framework\Constraint\Callback;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Client\NetworkExceptionInterface;
 use Psr\Http\Client\RequestExceptionInterface;

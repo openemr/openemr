@@ -174,6 +174,75 @@ class CustomClientCredentialsGrantTest extends TestCase
     }
 
     /**
+     * Aisle round-2 finding #5 / round-1 finding #2 (CWE-294). Without `exp`,
+     * the assertion's saveJwtHistory() call would store `jti_exp = NULL`
+     * and the replay-lookup filter `jti_exp > FROM_UNIXTIME(?)` would
+     * exclude NULL rows, letting the same client assertion be replayed
+     * forever. RFC 7523 §3.4 also requires `exp` for client-assertion
+     * JWTs.
+     *
+     * @throws \Exception
+     */
+    public function testRejectsClientAssertionWithoutExpClaim(): void
+    {
+        // Helper has no return type declaration; narrow to keep PHPStan happy
+        // without bumping baselined "method on mixed" counts. Same shape as
+        // assertSsrfJwksUriRejected().
+        /** @var ClientEntity $clientEntity */
+        $clientEntity = $this->getClientEntityForTest();
+        $clientId = $clientEntity->getIdentifier();
+        assert(is_string($clientId) && $clientId !== '');
+        // loadJSONFile() has no return type; narrow to string for setJwks().
+        $jwks = $this->loadJSONFile("jwk-public-valid.json");
+        assert(is_string($jwks));
+        $clientEntity->setJwks($jwks);
+
+        $jwt = $this->createJWTForKeys($clientId, self::AUDIENCE, includeExp: false);
+
+        $accessToken = new AccessTokenEntity();
+        // Intersection-typed @var locals so this test doesn't add to the
+        // baselined "MockObject given where X expected" counts that the
+        // existing tests in this file already track. Same shape as
+        // assertSsrfJwksUriRejected().
+        /** @var ClientRepository&MockObject $clientRepository */
+        $clientRepository = $this->getMockClientRepository($clientEntity);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
+        /** @var UserService&MockObject $userService */
+        $userService = $this->getMockUserService();
+        $grant->setUserService($userService);
+        $grant->setPrivateKey($this->createMock(CryptKey::class));
+        $grant->setClientRepository($clientRepository);
+        /** @var AccessTokenRepository&MockObject $accessTokenRepo */
+        $accessTokenRepo = $this->getMockAccessTokenRepository($accessToken);
+        $grant->setAccessTokenRepository($accessTokenRepo);
+        /** @var ScopeRepositoryInterface&MockObject $scopeRepo */
+        $scopeRepo = $this->getMockScopeRepository();
+        $grant->setScopeRepository($scopeRepo);
+        /** @var JWTRepository&MockObject $jwtRepo */
+        $jwtRepo = $this->getMockJwtRepository();
+        $grant->setJWTAuthenticationService(
+            new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $jwtRepo),
+        );
+
+        $response = $this->createMock(ResponseTypeInterface::class);
+        $response->expects($this->never())->method('setAccessToken');
+
+        $this->expectException(OAuthServerException::class);
+        // performAdditionalValidations() throws OAuthServerException::invalidRequest
+        // for missing exp; the standard message is the "missing required parameter…"
+        // string — same as the testInvalidResponseForClientWithJwksUri pattern.
+        $this->expectExceptionMessage('The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.');
+
+        /** @var ServerRequestInterface&MockObject $serverRequest */
+        $serverRequest = $this->getMockServerRequestForJWT($jwt);
+        $grant->respondToAccessTokenRequest(
+            $serverRequest,
+            $response,
+            new \DateInterval('PT300S'),
+        );
+    }
+
+    /**
      * SSRF regression: a client whose stored `jwks_uri` resolves to a
      * private/loopback address must be rejected by the URL validator before
      * any HTTP request is issued. The mock HTTP handler holds no responses,
@@ -386,7 +455,7 @@ class CustomClientCredentialsGrantTest extends TestCase
      * @param non-empty-string $iss
      * @param non-empty-string $aud
      */
-    private function createJWTForKeys(string $iss, string $aud): string
+    private function createJWTForKeys(string $iss, string $aud, bool $includeExp = true): string
     {
 
         $configuration = Configuration::forAsymmetricSigner(
@@ -398,7 +467,7 @@ class CustomClientCredentialsGrantTest extends TestCase
         );
 
         $now   = new \DateTimeImmutable();
-        $token = $configuration->builder()
+        $builder = $configuration->builder()
             // Configures the issuer (iss claim)
             ->issuedBy($iss)
             // Configures the subject (sub claim)
@@ -411,14 +480,18 @@ class CustomClientCredentialsGrantTest extends TestCase
             ->issuedAt($now)
             // Configures the time that the token can be used (nbf claim)
             ->canOnlyBeUsedAfter($now)
-            // Configures the expiration time of the token (exp claim)
-            ->expiresAt($now->modify('+60 seconds'))
             // Configures a new claim, called "uid"
             ->withClaim('uid', 1)
             // Configures a new header, called "foo"
-            ->withHeader('foo', 'bar')
-            // Builds a new token
-            ->getToken($configuration->signer(), $configuration->signingKey());
+            ->withHeader('foo', 'bar');
+
+        // Configures the expiration time of the token (exp claim). Tests
+        // exercising the "missing exp" guard pass includeExp=false.
+        if ($includeExp) {
+            $builder = $builder->expiresAt($now->modify('+60 seconds'));
+        }
+
+        $token = $builder->getToken($configuration->signer(), $configuration->signingKey());
         return $token->toString(); // The string representation of the object is a JWT string
     }
 }

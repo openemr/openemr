@@ -109,6 +109,35 @@ final class JWTRepositoryTest extends TestCase
         );
     }
 
+    /**
+     * Aisle round-2 finding #5 (CWE-294) regression. Legacy rows could have
+     * `jti_exp = NULL` (a token without `exp` was once accepted, stored
+     * NULL, and the replay-lookup filter `jti_exp > FROM_UNIXTIME(?)`
+     * silently excluded them — `NULL > x` is `NULL`, not true). The
+     * lookup is now `(jti_exp IS NULL OR jti_exp > FROM_UNIXTIME(?))`,
+     * which fail-closes: any NULL row counts as still-in-window and
+     * therefore as a replay match.
+     */
+    public function testFilteredQueryMatchesNullExpiryRow(): void
+    {
+        $jti = 'jwt-repo-test-null-exp-' . bin2hex(random_bytes(4));
+        // Insert directly with NULL jti_exp — saveJwtHistory($jti, $client, null)
+        // also produces this shape (FROM_UNIXTIME(NULL) returns NULL).
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO jwt_grant_history (jti, client_id, jti_exp, creation_date) VALUES (?, ?, NULL, NOW())',
+            [$jti, 'jwt-repo-test-null-exp'],
+        );
+
+        $rows = $this->repository->getJwtGrantHistoryForJTI($jti, time());
+
+        self::assertCount(
+            1,
+            $rows,
+            'NULL jti_exp must be matched by the replay-lookup filter — '
+            . 'fail-closed semantics ensure the same JTI can never be replayed.',
+        );
+    }
+
     public function testPurgeExpiredDropsPastRowsAndKeepsFutureRows(): void
     {
         $futureJti = 'jwt-repo-test-purge-keep-' . bin2hex(random_bytes(4));

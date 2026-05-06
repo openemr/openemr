@@ -32,7 +32,14 @@ class JWTRepository
             // YYYYMMDDhhmmss numeric form and the comparison is effectively
             // always-true — expired rows leak through and the table never
             // ages out of the replay window.
-            $sql .= " AND jti_exp > FROM_UNIXTIME(?)";
+            //
+            // The IS NULL branch catches legacy rows inserted before the
+            // validator hardening landed (where a token without `exp` could
+            // store NULL). Without it, `NULL > x` is `NULL` (not true) and
+            // the row escapes the lookup, letting the same JTI be replayed
+            // indefinitely. Treating NULL as "never expires, always in the
+            // replay window" is fail-closed.
+            $sql .= " AND (jti_exp IS NULL OR jti_exp > FROM_UNIXTIME(?))";
             $params[] = $expiration;
         }
         $records = QueryUtils::fetchRecords($sql, $params, true);

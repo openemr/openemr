@@ -54,7 +54,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-final class SsrfSafeHttpClient implements ClientInterface
+final readonly class SsrfSafeHttpClient implements ClientInterface
 {
     private const HTTP_DEFAULT_PORT = 80;
     private const HTTPS_DEFAULT_PORT = 443;
@@ -73,9 +73,9 @@ final class SsrfSafeHttpClient implements ClientInterface
      *   caller already accepted.
      */
     public function __construct(
-        private readonly GuzzleClientInterface $inner,
-        private readonly OidcHostResolverInterface $resolver,
-        private readonly LoggerInterface|NullLogger $logger = new NullLogger(),
+        private GuzzleClientInterface $inner,
+        private OidcHostResolverInterface $resolver,
+        private LoggerInterface|NullLogger $logger = new NullLogger(),
     ) {
     }
 
