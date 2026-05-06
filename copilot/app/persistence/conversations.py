@@ -169,6 +169,14 @@ class ConversationStore:
                   AND active_patient_id = ?
                   AND ended_at IS NULL
                   AND last_used_at >= ?
+                  -- W2 KR5 round-8 fix (codex P2): suppress zero-turn
+                  -- conversations from the resume offer. The iframe's
+                  -- eager session bootstrap (added in KR5 to power the
+                  -- pending-intake banner) creates a row before the user
+                  -- sends any chat; without this filter, opening the
+                  -- iframe and walking away would later offer an empty
+                  -- "resume previous chat" banner.
+                  AND turn_count > 0
                 ORDER BY last_used_at DESC
                 LIMIT 1
                 """,

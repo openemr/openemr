@@ -25,6 +25,21 @@ async def _store(db_path: str) -> ConversationStore:
     return s
 
 
+async def _add_one_turn(store: ConversationStore, cid: str) -> None:
+    """Bump turn_count to 1 — find_recent suppresses zero-turn rows
+    (W2 KR5 round-8 fix). Tests that need a positive find_recent
+    result must add a turn after creating the conversation.
+    """
+    await store.append_turn(
+        conversation_id=cid,
+        question="ping",
+        assistant_prose="pong",
+        claims=None,
+        data_gaps=None,
+        pseudonym_map={"real_to_pseudo": {}, "pseudo_to_real": {}, "provider_letter_idx": 0},
+    )
+
+
 async def test_round_trip_three_turns(db_path):
     store = await _store(db_path)
     cid = "conv-1"
@@ -70,6 +85,7 @@ async def test_find_recent_returns_latest_unended(db_path):
             patient_pseudonym="Patient-A1B2",
             pseudonym_map=pmap,
         )
+        await _add_one_turn(store, cid)
         # Spread last_used_at by directly bumping via touch (each call moves to "now").
         await store.touch(cid)
 
@@ -139,6 +155,7 @@ async def test_find_recent_keyed_by_physician_and_patient(db_path):
         patient_pseudonym="Patient-A1B2",
         pseudonym_map=pmap,
     )
+    await _add_one_turn(store, "alvarez-1")
     await store.create(
         conversation_id="chen-1",
         physician_user_id="dr_chen",
@@ -146,6 +163,7 @@ async def test_find_recent_keyed_by_physician_and_patient(db_path):
         patient_pseudonym="Patient-C9D8",
         pseudonym_map=pmap,
     )
+    await _add_one_turn(store, "chen-1")
 
     a = await store.find_recent(
         physician_user_id="dr_alvarez", active_patient_id="patient-1", window_hours=24
@@ -177,6 +195,7 @@ async def test_find_recent_at_window_boundary(db_path):
         patient_pseudonym="Patient-EDGE",
         pseudonym_map={"real_to_pseudo": {}, "pseudo_to_real": {}, "provider_letter_idx": 0},
     )
+    await _add_one_turn(store, cid)
     # Place last_used_at fractionally inside the 24h window so we're
     # robust to wall-clock drift between the UPDATE and the SELECT.
     on_edge = (
@@ -196,6 +215,41 @@ async def test_find_recent_at_window_boundary(db_path):
     )
     assert recent is not None
     assert recent.conversation_id == cid
+
+
+async def test_find_recent_skips_zero_turn_conversations(db_path):
+    """W2 KR5 round-8 fix (codex P2): the iframe's eager session bootstrap
+    creates a conversation row before the user sends any chat. Without
+    this filter, opening the iframe and walking away would later offer
+    an empty 'resume previous chat' banner — confusing UX.
+    """
+    store = await _store(db_path)
+    pmap = {"real_to_pseudo": {}, "pseudo_to_real": {}, "provider_letter_idx": 0}
+    await store.create(
+        conversation_id="empty-bootstrap",
+        physician_user_id="dr_alvarez",
+        active_patient_id="patient-1",
+        patient_pseudonym="Patient-A1B2",
+        pseudonym_map=pmap,
+    )
+    # No append_turn called — turn_count stays 0.
+
+    recent = await store.find_recent(
+        physician_user_id="dr_alvarez",
+        active_patient_id="patient-1",
+        window_hours=24,
+    )
+    assert recent is None, "zero-turn conversations must NOT surface in resume offer"
+
+    # After one turn, the same conversation IS resumable.
+    await _add_one_turn(store, "empty-bootstrap")
+    recent_after = await store.find_recent(
+        physician_user_id="dr_alvarez",
+        active_patient_id="patient-1",
+        window_hours=24,
+    )
+    assert recent_after is not None
+    assert recent_after.conversation_id == "empty-bootstrap"
 
 
 def test_pseudonym_snapshot_and_restore_preserves_pseudonyms():

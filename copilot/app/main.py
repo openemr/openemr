@@ -773,12 +773,20 @@ async def get_document_preview(
     # checks that the CALLER is in-panel for `patient_id` query param,
     # but a malicious caller could pass any DocumentReference doc_id —
     # including one for ANOTHER patient. The fetched resource MUST have
-    # subject.reference == "Patient/{patient_id}" before we stream its
-    # attachment, otherwise this endpoint becomes a cross-patient PHI
-    # leak.
+    # subject.reference resolving to "Patient/{patient_id}" before we
+    # stream its attachment, otherwise this endpoint becomes a
+    # cross-patient PHI leak.
+    #
+    # Round-8 fix (codex P2): FHIR allows absolute references like
+    # `https://host/.../Patient/{id}`. Compare the trailing
+    # `Patient/{id}` segment, not the full string.
     subject_ref = (doc_ref.get("subject") or {}).get("reference") or ""
-    expected_subject_ref = f"Patient/{patient_id}"
-    if subject_ref != expected_subject_ref:
+    expected_tail = f"Patient/{patient_id}"
+    subject_ok = (
+        subject_ref == expected_tail
+        or subject_ref.endswith("/" + expected_tail)
+    )
+    if not subject_ok:
         # 403 (not 404) — we found the doc but the requesting context
         # is not authorized to read it. Don't reveal whether the doc
         # exists for some OTHER patient.

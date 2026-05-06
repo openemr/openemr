@@ -42,8 +42,14 @@ class Settings(BaseSettings):
         "openid offline_access api:fhir "
         "user/Patient.read user/Observation.read user/MedicationRequest.read "
         "user/Condition.read user/Encounter.read user/AllergyIntolerance.read "
-        "user/DocumentReference.read"
+        "user/DocumentReference.read user/Binary.read"
     )
+    # `user/Binary.read` is required by the W2 KR5 pending-intakes preview
+    # path: when a front-desk DocumentReference's `content[].attachment.url`
+    # points to `Binary/{id}` (the OpenEMR-default shape), the preview
+    # endpoint chases that reference. Without this scope a SMART/FHIR
+    # server that enforces resource scopes returns 403 and the modal
+    # reports `binary_not_found`.
     # Legacy single-physician demo (kept for backwards compat with .env)
     oauth_username: str = "admin"
     oauth_password: str = "pass"

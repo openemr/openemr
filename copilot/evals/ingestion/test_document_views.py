@@ -171,6 +171,46 @@ def test_preview_blocks_cross_patient_doc_when_subject_mismatch(
     assert payload not in r.content  # belt-and-suspenders
 
 
+def test_preview_accepts_absolute_subject_reference(client: TestClient) -> None:
+    """W2 KR5 round-8 fix (codex P2): FHIR allows absolute references like
+    `https://host/.../Patient/{id}`. The previous exact-match comparison
+    rejected valid same-patient docs from servers that serialize absolute
+    references. Now we compare the trailing `Patient/{id}` segment.
+    """
+    import base64 as _b64
+
+    payload = b"%PDF-1.4 absolute-ref-ok"
+
+    with client:
+        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
+            return_value=None
+        )
+        client.app.state.fhir_client.get_resource = AsyncMock(
+            return_value={
+                "resourceType": "DocumentReference",
+                "id": "doc-with-abs-ref",
+                # ABSOLUTE form — FHIR-compliant, breaks the pre-fix exact match.
+                "subject": {
+                    "reference": "https://emr.example.com/apis/default/fhir/Patient/patient-7"
+                },
+                "content": [
+                    {
+                        "attachment": {
+                            "contentType": "application/pdf",
+                            "data": _b64.b64encode(payload).decode(),
+                        }
+                    }
+                ],
+            }
+        )
+        r = client.get(
+            "/v1/documents/doc-with-abs-ref/preview",
+            params={"physician_user_id": "dr_who", "patient_id": "patient-7"},
+        )
+    assert r.status_code == 200
+    assert r.content == payload
+
+
 def test_preview_falls_back_to_fhir_binary_url(client: TestClient) -> None:
     """If the FHIR DocumentReference points to a separate Binary resource
     (the OpenEMR-default shape), the endpoint chases that reference.
