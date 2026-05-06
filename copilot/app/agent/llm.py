@@ -17,8 +17,11 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from dataclasses import dataclass
 from typing import Any, Protocol
+
+from app.observability.llm_span import emit_generation
 
 logger = logging.getLogger("copilot.agent.llm")
 
@@ -96,6 +99,7 @@ class AnthropicAdapter:
             last["cache_control"] = {"type": "ephemeral"}
             tools_with_cache[-1] = last
         logger.info("llm-call provider=anthropic model=%s tools=%d", self._model, len(tools_with_cache))
+        _t0 = time.perf_counter()
         resp = await self._client.messages.create(
             model=self._model,
             max_tokens=2048,
@@ -105,6 +109,7 @@ class AnthropicAdapter:
             tools=tools_with_cache,
             messages=conversation,
         )
+        latency_ms = (time.perf_counter() - _t0) * 1000.0
         usage = getattr(resp, "usage", None)
         u = Usage()
         if usage:
@@ -112,6 +117,18 @@ class AnthropicAdapter:
             u.output_tokens = getattr(usage, "output_tokens", 0) or 0
             u.cached_tokens = getattr(usage, "cache_read_input_tokens", 0) or 0
             u.cache_write_tokens = getattr(usage, "cache_creation_input_tokens", 0) or 0
+        # W2 KR3 / Task 3.5: per-call generation span so model identity
+        # surfaces in the Langfuse trace UI (no PHI — aggregate metrics only).
+        emit_generation(
+            provider="anthropic",
+            model=self._model,
+            prompt_tokens=u.input_tokens,
+            completion_tokens=u.output_tokens,
+            cached_tokens=u.cached_tokens,
+            cache_write_tokens=u.cache_write_tokens,
+            latency_ms=latency_ms,
+            finish_reason=getattr(resp, "stop_reason", None),
+        )
 
         text_chunks: list[str] = []
         tool_uses: list[ToolUseRequest] = []
@@ -195,6 +212,7 @@ class OpenAIAdapter:
     ) -> ProviderResponse:
         messages = [{"role": "system", "content": system_prompt}, *conversation]
         logger.info("llm-call provider=openai model=%s", self._model)
+        _t0 = time.perf_counter()
         resp = await self._client.chat.completions.create(
             model=self._model,
             messages=messages,
@@ -202,6 +220,7 @@ class OpenAIAdapter:
             tool_choice="auto",
             max_tokens=2048,
         )
+        latency_ms = (time.perf_counter() - _t0) * 1000.0
         msg = resp.choices[0].message
         usage = getattr(resp, "usage", None)
         u = Usage()
@@ -211,6 +230,17 @@ class OpenAIAdapter:
             details = getattr(usage, "prompt_tokens_details", None)
             if details is not None:
                 u.cached_tokens = getattr(details, "cached_tokens", 0) or 0
+        # W2 KR3 / Task 3.5: per-call generation span (model identity in UI).
+        emit_generation(
+            provider="openai",
+            model=self._model,
+            prompt_tokens=u.input_tokens,
+            completion_tokens=u.output_tokens,
+            cached_tokens=u.cached_tokens,
+            cache_write_tokens=u.cache_write_tokens,
+            latency_ms=latency_ms,
+            finish_reason=getattr(resp.choices[0], "finish_reason", None),
+        )
 
         tool_uses: list[ToolUseRequest] = []
         for tc in (msg.tool_calls or []):
