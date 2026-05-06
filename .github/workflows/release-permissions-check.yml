@@ -25,8 +25,11 @@ jobs:
       contents: read
     strategy:
       matrix:
+        # Conductor tooling runs only on CI runners (no customer
+        # deployment), so per OCE conventions it tracks the latest
+        # stable PHP rather than the openemr application floor.
         php-version:
-        - '8.2'
+        - '8.5'
     steps:
     - name: Checkout
       uses: actions/checkout@v6
@@ -43,36 +46,41 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
 
-    - name: Install conductor sub-package deps
-      working-directory: tools/release
-      run: composer install --no-interaction --prefer-dist --no-progress
+    - name: Resolve default branch
+      id: repo
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        REPO: ${{ github.repository }}
+      run: echo "default-branch=$(gh api "repos/${REPO}" --jq '.default_branch')" >> "$GITHUB_OUTPUT"
 
     - name: Probe installation membership
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
       run: |
-        if ! gh api /installation/repositories --jq '.repositories[].full_name' | grep -Fxq "${REPO}"; then
-          printf 'FAIL: release App is not installed on %s\n' "${REPO}" >&2
+        installed=$(gh api /installation/repositories --jq ".repositories[] | select(.full_name == \"${REPO}\") | .full_name")
+        if [[ -z "${installed}" ]]; then
+          echo "FAIL: release App is not installed on ${REPO}" >&2
           exit 1
         fi
-        printf 'OK: release App is installed on %s\n' "${REPO}"
+        echo "OK: release App is installed on ${REPO}"
 
-    - name: Probe contents:write (create + delete throwaway branch)
+    - name: Probe contents:write (create throwaway branch)
       id: probe-contents
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
         RUN_ID: ${{ github.run_id }}
+        DEFAULT_BRANCH: ${{ steps.repo.outputs.default-branch }}
       run: |
         branch="release-permissions-check/${RUN_ID}"
-        printf 'branch=%s\n' "${branch}" >> "$GITHUB_OUTPUT"
-        sha="$(gh api "repos/${REPO}/git/ref/heads/$(gh api "repos/${REPO}" --jq '.default_branch')" --jq '.object.sha')"
+        echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+        sha=$(gh api "repos/${REPO}/git/ref/heads/${DEFAULT_BRANCH}" --jq '.object.sha')
         if ! gh api -X POST "repos/${REPO}/git/refs" -f "ref=refs/heads/${branch}" -f "sha=${sha}" >/dev/null; then
-          printf 'FAIL: contents:write missing (cannot create branch)\n' >&2
+          echo "FAIL: contents:write missing (cannot create branch)" >&2
           exit 1
         fi
-        printf 'OK: created throwaway branch %s\n' "${branch}"
+        echo "OK: created throwaway branch ${branch}"
 
     - name: Probe pull-requests:write (open + close draft PR)
       id: probe-prs
@@ -80,22 +88,22 @@ jobs:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
         BRANCH: ${{ steps.probe-contents.outputs.branch }}
+        DEFAULT_BRANCH: ${{ steps.repo.outputs.default-branch }}
       run: |
-        default_branch="$(gh api "repos/${REPO}" --jq '.default_branch')"
         body='Permissions probe — auto-closed.'
-        pr_number="$(gh api -X POST "repos/${REPO}/pulls" -f "title=release-permissions-check probe" -f "head=${BRANCH}" -f "base=${default_branch}" -f "body=${body}" -F "draft=true" --jq '.number' 2>/dev/null || true)"
+        pr_number=$(gh api -X POST "repos/${REPO}/pulls" -f "title=release-permissions-check probe" -f "head=${BRANCH}" -f "base=${DEFAULT_BRANCH}" -f "body=${body}" -F 'draft=true' --jq '.number')
         if [[ -z "${pr_number}" ]]; then
-          printf 'FAIL: pull-requests:write missing (cannot open draft PR)\n' >&2
+          echo "FAIL: pull-requests:write missing (cannot open draft PR)" >&2
           exit 1
         fi
-        printf 'pr_number=%s\n' "${pr_number}" >> "$GITHUB_OUTPUT"
+        echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
         if ! gh api -X PATCH "repos/${REPO}/pulls/${pr_number}" -f 'state=closed' >/dev/null; then
-          printf 'FAIL: pull-requests:write missing (cannot close draft PR)\n' >&2
+          echo "FAIL: pull-requests:write missing (cannot close draft PR)" >&2
           exit 1
         fi
-        printf 'OK: opened and closed draft PR #%s\n' "${pr_number}"
+        echo "OK: opened and closed draft PR #${pr_number}"
 
-    - name: Probe annotated tag creation (create + delete throwaway tag)
+    - name: Probe annotated tag creation
       id: probe-tag
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
@@ -104,20 +112,20 @@ jobs:
         BRANCH: ${{ steps.probe-contents.outputs.branch }}
       run: |
         tag_name="release-permissions-check-${RUN_ID}"
-        sha="$(gh api "repos/${REPO}/git/ref/heads/${BRANCH}" --jq '.object.sha')"
-        date="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+        sha=$(gh api "repos/${REPO}/git/ref/heads/${BRANCH}" --jq '.object.sha')
+        date=$(date -u +%Y-%m-%dT%H:%M:%SZ)
         message="release-permissions-check probe ${RUN_ID}"
-        tag_sha="$(gh api -X POST "repos/${REPO}/git/tags" -f "tag=${tag_name}" -f "message=${message}" -f "object=${sha}" -f "type=commit" -F "tagger[name]=openemr-release-bot" -F "tagger[email]=release-bot@openemr.invalid" -F "tagger[date]=${date}" --jq '.sha')"
+        tag_sha=$(gh api -X POST "repos/${REPO}/git/tags" -f "tag=${tag_name}" -f "message=${message}" -f "object=${sha}" -f 'type=commit' -F 'tagger[name]=openemr-release-bot' -F 'tagger[email]=release-bot@openemr.invalid' -F "tagger[date]=${date}" --jq '.sha')
         if [[ -z "${tag_sha}" ]]; then
-          printf 'FAIL: cannot create annotated tag object\n' >&2
+          echo "FAIL: cannot create annotated tag object" >&2
           exit 1
         fi
         if ! gh api -X POST "repos/${REPO}/git/refs" -f "ref=refs/tags/${tag_name}" -f "sha=${tag_sha}" >/dev/null; then
-          printf 'FAIL: cannot create tag ref\n' >&2
+          echo "FAIL: cannot create tag ref" >&2
           exit 1
         fi
-        printf 'tag_name=%s\n' "${tag_name}" >> "$GITHUB_OUTPUT"
-        printf 'OK: created annotated tag %s\n' "${tag_name}"
+        echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
+        echo "OK: created annotated tag ${tag_name}"
 
     - name: Probe cross-repo dispatch (release-permissions-probe)
       env:
@@ -128,24 +136,27 @@ jobs:
           --event=release-permissions-probe \
           --target-repos=openemr/openemr-devops,openemr/website-openemr \
           --sha='${{ github.sha }}' \
-          --actor=openemr-release-bot \
-          || { printf 'FAIL: cross-repo dispatch failed\n' >&2; exit 1; }
-        printf 'OK: dispatched release-permissions-probe to consumer repos\n'
+          --actor=openemr-release-bot
+        echo "OK: dispatched release-permissions-probe to consumer repos"
 
+    # Cleanup steps use continue-on-error so a failure to clean up is
+    # surfaced as a red step but doesn't fail the overall run (the
+    # probes themselves are what matter). `|| true` would silently
+    # swallow the failure; this is the GitHub-Actions-native way.
     - name: Cleanup throwaway tag
       if: always() && steps.probe-tag.outputs.tag_name != ''
+      continue-on-error: true
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
         TAG: ${{ steps.probe-tag.outputs.tag_name }}
-      run: |
-        gh api -X DELETE "repos/${REPO}/git/refs/tags/${TAG}" || true
+      run: gh api -X DELETE "repos/${REPO}/git/refs/tags/${TAG}"
 
     - name: Cleanup throwaway branch
       if: always() && steps.probe-contents.outputs.branch != ''
+      continue-on-error: true
       env:
         GH_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
         BRANCH: ${{ steps.probe-contents.outputs.branch }}
-      run: |
-        gh api -X DELETE "repos/${REPO}/git/refs/heads/${BRANCH}" || true
+      run: gh api -X DELETE "repos/${REPO}/git/refs/heads/${BRANCH}"

@@ -48,6 +48,8 @@ jobs:
       contents: read
     strategy:
       matrix:
+        # The release-prep command runs against application code so it
+        # tracks the openemr application's PHP floor.
         php-version:
         - '8.2'
     steps:
@@ -68,10 +70,6 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
 
-    - name: Install conductor sub-package deps
-      working-directory: tools/release
-      run: composer install --no-interaction --prefer-dist --no-progress
-
     - name: Resolve target version and branch
       id: resolve
       env:
@@ -80,15 +78,27 @@ jobs:
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.target-version }}
       run: |
-        if [[ "${EVENT_NAME}" == 'workflow_dispatch' ]]; then
-          branch="${INPUT_BRANCH}"
-          version="${INPUT_VERSION}"
-        else
-          branch="${REF#refs/heads/}"
-          version="$(php tools/release/bin/branch-to-version.php "${branch}")"
-        fi
-        printf 'branch=%s\n' "${branch}" >> "$GITHUB_OUTPUT"
-        printf 'version=%s\n' "${version}" >> "$GITHUB_OUTPUT"
+        case "${EVENT_NAME}" in
+          workflow_dispatch)
+            echo "branch=${INPUT_BRANCH}"
+            echo "version=${INPUT_VERSION}"
+            ;;
+          *)
+            branch="${REF#refs/heads/}"
+            echo "branch=${branch}"
+            printf 'version='
+            php tools/release/bin/branch-to-version.php "${branch}"
+            ;;
+        esac >> "$GITHUB_OUTPUT"
+
+    - name: Render PR body
+      id: pr-body
+      run: |
+        {
+          echo 'body<<EOF'
+          php tools/release/bin/render-pr-body.php "${{ steps.resolve.outputs.version }}"
+          echo 'EOF'
+        } >> "$GITHUB_OUTPUT"
 
     - name: Run release-prep mutators
       run: |
@@ -97,54 +107,27 @@ jobs:
           --scope=rel \
           --skip-globals
 
-    - name: Detect changes
-      id: diff
-      run: |
-        if git diff --quiet; then
-          printf 'changed=false\n' >> "$GITHUB_OUTPUT"
-        else
-          printf 'changed=true\n' >> "$GITHUB_OUTPUT"
-        fi
-
-    - name: Configure git identity
-      if: steps.diff.outputs.changed == 'true'
-      run: |
-        git config user.name 'openemr-release-bot'
-        git config user.email 'release-bot@openemr.invalid'
-
-    - name: Commit and force-push to release-prep/<rel-branch>
-      if: steps.diff.outputs.changed == 'true'
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
-      run: |
-        rel_branch='${{ steps.resolve.outputs.branch }}'
-        version='${{ steps.resolve.outputs.version }}'
-        pr_branch="release-prep/${rel_branch}"
-        git add -A
-        git commit -m "release-prep: ${version}"
-        git push --force "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git" "HEAD:refs/heads/${pr_branch}"
-
-    - name: Open or update draft PR
-      if: steps.diff.outputs.changed == 'true'
-      env:
-        GH_TOKEN: ${{ steps.app-token.outputs.token }}
-        REPO: ${{ github.repository }}
-      run: |
-        rel_branch='${{ steps.resolve.outputs.branch }}'
-        version='${{ steps.resolve.outputs.version }}'
-        pr_branch="release-prep/${rel_branch}"
-        body="$(php tools/release/bin/render-pr-body.php "${version}")"
-        existing="$(gh pr list --repo "${REPO}" --head "${pr_branch}" --base "${rel_branch}" --state open --json number --jq '.[0].number // empty')"
-        if [[ -z "${existing}" ]]; then
-          gh pr create --repo "${REPO}" --title "release-prep: ${version}" --body "${body}" --base "${rel_branch}" --head "${pr_branch}" --draft
-        else
-          gh pr edit --repo "${REPO}" "${existing}" --title "release-prep: ${version}" --body "${body}"
-        fi
+    # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
+    # which handles the diff detection, branch force-push, and PR open-or-update
+    # in one step. When there is no diff this is a no-op.
+    - name: Create or update release-prep PR
+      uses: peter-evans/create-pull-request@v7
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: release-prep/${{ steps.resolve.outputs.branch }}
+        base: ${{ steps.resolve.outputs.branch }}
+        title: 'release-prep: ${{ steps.resolve.outputs.version }}'
+        body: ${{ steps.pr-body.outputs.body }}
+        commit-message: 'release-prep: ${{ steps.resolve.outputs.version }}'
+        author: 'openemr-release-bot <release-bot@openemr.invalid>'
+        committer: 'openemr-release-bot <release-bot@openemr.invalid>'
+        draft: true
+        delete-branch: false
 
     - name: Dispatch rel-cut / rel-update to consumers
-      if: steps.diff.outputs.changed == 'true'
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
         rel_branch='${{ steps.resolve.outputs.branch }}'
         version='${{ steps.resolve.outputs.version }}'
@@ -176,6 +159,7 @@ jobs:
       contents: read
     strategy:
       matrix:
+        # Same rationale as the prep job above.
         php-version:
         - '8.2'
     steps:
@@ -197,18 +181,16 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
 
-    - name: Install conductor sub-package deps
-      working-directory: tools/release
-      run: composer install --no-interaction --prefer-dist --no-progress
-
     - name: Resolve version from base branch
       id: resolve
       env:
         BASE_REF: ${{ github.event.pull_request.base.ref }}
       run: |
-        version="$(php tools/release/bin/branch-to-version.php "${BASE_REF}")"
-        printf 'branch=%s\n' "${BASE_REF}" >> "$GITHUB_OUTPUT"
-        printf 'version=%s\n' "${version}" >> "$GITHUB_OUTPUT"
+        {
+          echo "branch=${BASE_REF}"
+          printf 'version='
+          php tools/release/bin/branch-to-version.php "${BASE_REF}"
+        } >> "$GITHUB_OUTPUT"
 
     - name: Create annotated tag
       env:
@@ -229,7 +211,7 @@ jobs:
       run: |
         version='${{ steps.resolve.outputs.version }}'
         rel_branch='${{ steps.resolve.outputs.branch }}'
-        tag_name="v$(printf '%s' "${version}" | tr '.' '_')"
+        tag_name="v${version//./_}"
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
           --sha='${{ github.event.pull_request.merge_commit_sha }}' \
