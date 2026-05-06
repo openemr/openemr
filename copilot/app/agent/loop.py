@@ -16,6 +16,7 @@ outside.
 from __future__ import annotations
 
 import asyncio
+import json
 import time
 from dataclasses import dataclass, field
 from typing import Any
@@ -147,7 +148,18 @@ async def run_turn(
     question: str,
     proposed_drug: str | None = None,
     prior_turns: list[PriorTurn] | None = None,
+    seed_tool_results: list[dict[str, Any]] | None = None,
 ) -> AgentTurnOutput:
+    """Run one agent turn.
+
+    ``seed_tool_results`` (W2 KR1 fix): pre-fetched tool outputs that the
+    LangGraph workers (intake_extractor, evidence_retriever) accumulated
+    BEFORE this composer node ran. They are (a) prepended to the
+    conversation as a compact context primer so the LLM can use them and
+    (b) merged into ``raw_tool_results`` so Layer-1 ``verify`` accepts
+    citations against their record_ids. Without this seed, the workers'
+    fan-out is purely decorative — the LLM never sees what they fetched.
+    """
     started = time.perf_counter()
     adapter = get_adapter(settings)
     tool_defs = _tool_defs_for_loop()
@@ -162,6 +174,11 @@ async def run_turn(
         tool_failures={},
     )
     raw_tool_results: list[dict] = []
+    if seed_tool_results:
+        # Layer-1 verify scans `raw_tool_results` for known record_ids; seeding
+        # them here means citations to the workers' pre-fetched evidence pass
+        # the gate even though no tool_use call was made in THIS turn.
+        raw_tool_results.extend(seed_tool_results)
 
     # Resume replay: prepend the last N turns as compact (user → assistant
     # text) pairs. We do NOT replay tool_use / tool_result blocks — the
@@ -174,6 +191,29 @@ async def run_turn(
                 adapter.initial_user_message(_user_prefix(session, t.question))
             )
             conversation.append(adapter.assistant_text_message(t.assistant_prose))
+
+    # W2 KR1 fix: surface seed_tool_results as a compact context primer so the
+    # LLM sees what the supervisor / workers pre-fetched. Provider-agnostic —
+    # we don't synthesize tool_use blocks (those need matched tool_use_id
+    # pairs), just summarize the data inline as a user-message primer +
+    # assistant ack, prepended before the user's actual question.
+    if seed_tool_results:
+        seed_lines: list[str] = []
+        for tr in seed_tool_results:
+            tool_name = tr.get("tool", "?")
+            data_blob = json.dumps(tr.get("data"), default=str)
+            if len(data_blob) > 1500:
+                data_blob = data_blob[:1500] + "…(truncated)"
+            seed_lines.append(f"[{tool_name}] {data_blob}")
+        seed_text = (
+            "Pre-fetched evidence from upstream graph workers (cite by "
+            "record_id when relevant):\n" + "\n".join(seed_lines)
+        )
+        conversation.append(adapter.initial_user_message(seed_text))
+        conversation.append(adapter.assistant_text_message(
+            "Acknowledged — I will use the pre-fetched evidence where it answers the question."
+        ))
+
     conversation.append(adapter.initial_user_message(_user_prefix(session, question)))
 
     # Pass 1

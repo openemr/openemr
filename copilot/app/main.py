@@ -397,6 +397,29 @@ async def chat(body: ChatRequest, settings: Settings = Depends(get_settings)):
     except Exception:  # noqa: BLE001
         logger.exception("failed to load prior turns; continuing without history")
 
+    # W2 KR1 fix (codex review): seed the evidence_retriever for guideline-
+    # flavored questions so the supervisor actually routes through the
+    # retrieval+rerank path. Without this seed every turn falls through to
+    # supervisor → answer_composer and `retrieval_hit_ids`/`rerank_scores`
+    # stay empty in the trace. The keyword set is conservative — extending
+    # it is cheap (a BM25 search adds ~200ms; identity reranker is free).
+    retrieval_seed_query: str | None = None
+    qlow = body.question.lower()
+    if any(
+        kw in qlow
+        for kw in (
+            "guideline",
+            "recommend",
+            "uspstf",
+            "ada ",
+            " aha",
+            "evidence",
+            "best practice",
+            "standard of care",
+        )
+    ):
+        retrieval_seed_query = body.question
+
     initial_state: AgentGraphState = {
         "settings": settings,
         "fhir": fhir,
@@ -407,6 +430,7 @@ async def chat(body: ChatRequest, settings: Settings = Depends(get_settings)):
         "tool_results": [],
         "routing_path": [],
         "retry_count": 0,
+        "retrieval_seed_query": retrieval_seed_query,
     }
     final_state = await app.state.agent_graph.ainvoke(initial_state)
     response = final_state["response"]

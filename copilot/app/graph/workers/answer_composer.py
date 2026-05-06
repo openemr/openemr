@@ -23,14 +23,18 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
     """Run the W1 agent loop against the current state.
 
     Required state keys: ``settings``, ``fhir``, ``session``, ``question``.
-    Optional keys: ``proposed_drug``, ``prior_turns``.
+    Optional keys: ``proposed_drug``, ``prior_turns``, ``tool_results``
+    (pre-fetched by upstream workers).
 
-    Returns a partial state dict (LangGraph merges into the running
-    state) with ``response``, ``trace``, and ``tool_results`` populated.
-    Pre-existing ``tool_results`` from upstream workers are extended,
-    not overwritten, so the answer_composer can build on
-    intake_extractor / evidence_retriever output.
+    W2 KR1 (codex-review fix): pre-fetched ``tool_results`` from upstream
+    graph workers are passed into ``run_turn`` as ``seed_tool_results``
+    so (a) the LLM sees them as conversation context, and (b) Layer-1
+    verify accepts citations against their record_ids. Before this fix,
+    the workers' fan-out was purely decorative — the LLM never saw what
+    they fetched. ``output.raw_tool_results`` returned by ``run_turn``
+    already includes the seed, so we use it directly without re-merging.
     """
+    seed_tool_results = list(state.get("tool_results") or []) or None
     output = await run_turn(
         settings=state["settings"],
         fhir=state["fhir"],
@@ -38,10 +42,12 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
         question=state["question"],
         proposed_drug=state.get("proposed_drug"),
         prior_turns=state.get("prior_turns"),
+        seed_tool_results=seed_tool_results,
     )
 
-    existing_tool_results = list(state.get("tool_results") or [])
-    existing_tool_results.extend(output.raw_tool_results)
+    # ``run_turn`` already merged seed_tool_results into output.raw_tool_results,
+    # so the final tool_results IS output.raw_tool_results — no re-merge needed.
+    final_tool_results = list(output.raw_tool_results)
 
     existing_routing = list(state.get("routing_path") or [])
     existing_routing.append("answer_composer")
@@ -52,7 +58,7 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
         output.trace.routing_path = list(existing_routing)
     if hasattr(output.trace, "documents_attached"):
         output.trace.documents_attached = sum(
-            1 for tr in existing_tool_results if tr.get("tool") == "attach_and_extract"
+            1 for tr in final_tool_results if tr.get("tool") == "attach_and_extract"
         )
     ext_conf = state.get("extraction_confidence_min")
     if ext_conf is not None and hasattr(output.trace, "extraction_confidence_min"):
@@ -71,7 +77,7 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
     return {
         "response": output.response,
         "trace": output.trace,
-        "tool_results": existing_tool_results,
+        "tool_results": final_tool_results,
         "routing_path": existing_routing,
     }
 
