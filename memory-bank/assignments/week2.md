@@ -4,7 +4,7 @@
 **Subtitle:** *Multimodal Evidence Agent — seeing clinical documents, routing work, and gating changes with evals*
 **Window:** 2026-05-04 → 2026-05-10 (kickoff Mon 2026-05-04; Final Sun 2026-05-10 noon CT)
 **Active branch:** `w2-mvp` (HEAD `971affe8d` as of 2026-05-05)
-**Status:** ✅ Tier-1 + Tier-2-LITE shipped on `feat/w2-early-submission` (head `5b9af3243`, 24 task-commits, night-shift run `2026-05-06-0104`); manual smoke-test + deploy + Final-scope items pending
+**Status:** ✅ Tier-1 + Tier-2-LITE + 4 polish KRs + 8 rounds of codex review hardening on `feat/w2-early-submission` (head `2cb643af9`, ~37 commits since `78d0672c7`). Night-shift run `2026-05-06-0104` shipped the implementation; 8 follow-on `codex review` rounds closed 18 distinct findings (3 P1 + 15 P2). 163 tests pass, 50/50 eval cases at 100%, ruff clean. Manual smoke-test + push + grading submission pending.
 
 **Companion docs (already on `w2-mvp`):**
 - `copilot/W2_ARCHITECTURE.md` — design-of-record (baseline `f5b385f97`)

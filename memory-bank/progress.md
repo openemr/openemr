@@ -195,6 +195,26 @@ Branch `feat/w2-early-submission` (head `5b9af3243`), 24 commits since `78d0672c
 
 **Next: deploy + manual smoke-test (instructions in `activeContext.md`); Final-scope items below.**
 
+### Codex review hardening — 8 rounds, 18 findings fixed (2026-05-06 evening, post night-shift)
+
+After the night-shift wrote per-task `code-review.txt` files marked `CODEX UNAVAILABLE — SELF-REVIEW` (codex CLI wasn't installed at run time), the user installed `@openai/codex` (v0.128.0) and ran 8 successive `codex review --base 56c467c70 -c 'model_reasoning_effort="high"'` passes against the branch. **Every reported P1 / P2 was fixed and re-verified by the next round.** Round 9 hit the daily quota cap (resets ~4:23 PM); decision was to pause iteration there since rounds 7-8 were down to UX edge cases.
+
+**Cumulative findings across all rounds:** 3 P1 + 15 P2 = 18 distinct issues. Per-round catalog in `.night-shift/runs/2026-05-06-0104/external-reviews/triage.md`. Selected highlights:
+
+- **F3 (P1)** — `check_evidence_chunk_in_corpus` split chunk_ids on `#`, but corpus chunk_ids ALREADY embed `#sec-N.M` (e.g. `uspstf-statin-2022#sec-2.1`). The split truncated to `uspstf-statin-2022`, failed the membership test, and the critic refused every guideline-citing answer in production.
+- **F12 (P1)** — Round-5 FHIR preview fallback only verified the QUERY-PARAM `patient_id` was on the caller's panel; never checked that the FETCHED `DocumentReference.subject.reference` matched. **Cross-patient PHI leak.** Fixed: subject-reference equality check (with absolute-ref normalization in F17).
+- **F5 (P1)** — CI's `ruff check .` step was failing with 24 F401 unused-import violations across the copilot tree (mix of new + pre-existing). The W2 50-case eval gate could never even start running on PRs until this cleared.
+- **F1 / F2 (P2)** — LangGraph workers' tool_results were appended AFTER `run_turn` finished, so the LLM never saw them. And `/v1/chat` never seeded `retrieval_seed_query`, so the supervisor never routed through `evidence_retriever`. Both made the "fan-out" decorative. Fixed: `seed_tool_results` plumbed into `run_turn`; keyword heuristic in `/v1/chat`.
+- **F4 (P2)** — Reranker reordered results into trace fields but the answer_composer kept seeding the LLM with the original BM25 order. Fixed: replace `tool_result.data` with the reordered list before append.
+- **F8 / F14 / F16 / F17 (P2)** — pending_intakes endpoint successively pivoted from local-SQLite (empty in production) to FHIR DocumentReference (with `date=ge…` recency filter), gained `user/Binary.read` OAuth scope for the preview fallback, and absolute-ref normalization for FHIR servers that emit `https://host/.../Patient/{id}`.
+- **F10 / F18 (P2)** — Eager `ensureSession()` could race with the first chat submit (fixed: in-flight Promise cache); also created persisted conversation rows that polluted the resume offer (fixed: `AND turn_count > 0` in `find_recent`).
+- **F15 (P2)** — Pre-push hook ignored git's stdin protocol and used fragile `@{u}` / `HEAD~1..HEAD` heuristics. Fixed: read pushed refs from stdin per the git pre-push contract.
+- **F13 (P2)** — Retrieval prefetch could 500 the chat on FTS5 syntax errors (e.g. hyphenated queries). Fixed: try/except around dispatch + rerank, log + skip seed on failure.
+- **F6 / F7 / F9 (P2)** — pending_intakes filtered to `front_desk_scan` source_path that no production writer records → permanently empty banner; `CohereReranker` selection raised mid-request when `cohere` wasn't installed; `FAST_SUBSET` had zero `cross` cases and `pass_rates_by_category` reports empty categories as 100%, so the README repro was silently green in eval-fast.
+- **F11 (P2)** — Banner surfaced FHIR DocumentReferences but the bbox modal only knew the local SQLite store → modal 404s for the very docs the banner advertised. Fixed: preview falls back to FHIR DocumentReference + Binary.
+
+**Branch tip after the codex hardening: `2cb643af9`. 163 tests pass (was 140 at end-of-night-shift, +23 fix-related tests added). 50/50 eval cases at 100%. Ruff clean. `make eval-fast` runs in ~2s. ~37 commits since `78d0672c7`.**
+
 ---
 
 ## 📋 Pending

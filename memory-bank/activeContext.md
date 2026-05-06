@@ -1,6 +1,6 @@
 # Active Context
 
-**Last updated:** 2026-05-06 (autonomous night-shift run `2026-05-06-0104` shipped W2 Tier 1 + Tier 2-lite onto branch `feat/w2-early-submission`, head `5b9af3243`, 24 task-commits; Tier 1 covers LangGraph state machine, 50-case eval gate + pre-push hook, TurnTrace 6-field extension + Langfuse generation spans, Reranker scaffolding; Tier 2-lite covers `GET /v1/sessions/{id}/pending_intakes` + iframe banner + `Front Office` ACL grant — all 140 tests + 50/50 eval cases green).
+**Last updated:** 2026-05-06 evening (W2 Early-Submission scope shipped + hardened on `feat/w2-early-submission`, head `2cb643af9`, ~37 task-commits since `78d0672c7`). Tier 1 + Tier 2-lite + 4 polish KRs landed via the autonomous night-shift run `2026-05-06-0104` (KR1 LangGraph state machine, KR2 50-case eval gate + pre-push hook, KR3 TurnTrace 6-field extension + Langfuse generation spans, KR4 Reranker scaffolding, KR5 pending-intake notification + ACL grant, KR6 memory-bank refresh, KR7 regression-gate meta-tests, KR8 `vlm_cost_estimate_usd` populator, KR9 README review summary). The shift was followed by 8 rounds of `codex review --base 56c467c70` that found 18 distinct issues (3 P1 + 15 P2) — all fixed in 8 follow-on commits. **163 tests pass, 50/50 eval cases at 100%, ruff clean.** Codex quota hit on round 9 — branch is in shippable shape.
 
 ---
 
@@ -8,7 +8,7 @@
 
 Spec read and digested: `~/Desktop/Gauntlet/Week2/Week 2 - AgentForge Clinical Co-Pilot.pdf`. Full breakdown in `assignments/week2.md`. **Key headline:** the W2 hard gate is an **eval-driven CI gate that graders will trip with a regression** — if the gate doesn't fail, the whole build doesn't pass. Everything else in W2 (vision, multi-agent, RAG) is additive; the eval gate is the deliverable that must be airtight.
 
-**Active branch:** `master` (HEAD `78d0672c7`). The `w2-mvp` working branch was fast-forward merged; the `w2-mvp` tag was deleted. Code is real and deployed to Railway.
+**Active branch:** `feat/w2-early-submission` (HEAD `2cb643af9`). Fork point `56c467c70` (cleaned-up master tip after pre-night-shift commits). 37 commits ahead of `78d0672c7` (W2 MVP master tip). NOT yet pushed to GitHub (Railway auto-deploys from GitHub master, so the deployed Co-Pilot is still the W2-MVP `78d0672c7`).
 
 ---
 
@@ -25,29 +25,34 @@ Spec read and digested: `~/Desktop/Gauntlet/Week2/Week 2 - AgentForge Clinical C
 
 ## Immediate next steps
 
-W2 Early-Submission scope is **shipped** on `feat/w2-early-submission`. Manual demo prep + final deploy + remaining Final-scope items are next. **Nothing is on the local main/master beyond `78d0672c7` yet** — branch must be merged or PR'd.
+W2 Early-Submission scope is **shipped + codex-hardened** on `feat/w2-early-submission` (head `2cb643af9`). 9 KRs landed via the night-shift; 8 rounds of `codex review` then closed 18 distinct findings (3 P1 + 15 P2). The branch is in shippable shape — the remaining work is human-in-the-loop validation + push + grading.
 
-**Manual steps the night-shift agent can't perform:**
+**Manual steps the agent can't perform (left for the human):**
 
-1. Inspect the branch — `git log master..feat/w2-early-submission` (24 commits).
-2. Open the iframe locally and verify the bbox modal renders the PDF underneath the rectangle (W2 MVP carry-over fix).
-3. Open the iframe with Mariela / Dana and verify the pending-intake banner appears once a doc is uploaded as a Front Office user via the OpenEMR Documents Zend module.
-4. Run the regression-repro recipe in `copilot/README.md` ("Verifying the W2 eval gate") to confirm the gate fires.
-5. Optional: run `bash copilot/scripts/install-hooks.sh` to install the local pre-push hook.
-6. Push the branch when ready (`git push origin feat/w2-early-submission`); Railway auto-deploys from GitHub master, so wait until the user is ready to merge.
-7. Submit to the cohort grader.
+1. **Inspect the branch** — `git log 56c467c70..HEAD --oneline` shows ~37 commits. Top-of-file summary in `copilot/README.md` and the "Implementation log" at the top of `copilot/W2_EARLY_IMPLEMENTATION.md` give two compact reviewing surfaces.
+2. **Smoke-test the iframe locally** — `cd copilot && docker compose up --build`, open the iframe, drop `evals/fixtures/documents/lab-lipid-small.pdf`, click a citation chip → bbox modal must render the PDF page with a red rectangle. Repeat with PNG fixture and a `Guideline/{chunk_id}` citation.
+3. **Verify the pending-intake banner** by uploading a doc as a Front Office user via OpenEMR's stock Documents Zend module, then opening the iframe for that patient.
+4. **Run the regression-repro recipe** in `copilot/README.md` ("Verifying the W2 eval gate") — comment out a Layer-2 rule, run `make eval-fast`, confirm exit 1 + cross category drops; revert.
+5. **Optional**: re-trigger `/security-review` (the user-interrupted second-leg pass over the new attack surface — FHIR preview fallback, ACL grant, banner JS).
+6. **Optional**: install the pre-push hook locally with `bash copilot/scripts/install-hooks.sh` (rewrite reads stdin per git's pre-push protocol; runs `make eval-fast` on copilot/-touching pushes).
+7. **Push + open PR** — `git push origin feat/w2-early-submission`. Railway auto-deploys from GitHub master, so prod stays at `78d0672c7` until the PR merges.
+8. **Submit for cohort grading.**
 
-**Final-deferred (Sunday 2026-05-10) — none of these were touched by the night-shift run:**
+**Codex review trail:** every finding-and-fix cycle is captured in `.night-shift/runs/2026-05-06-0104/external-reviews/{triage.md, codex-full-diff.txt, codex-full-diff-round2..9.txt}`. Round 9 hit the daily quota cap; reset is ~4:23 PM local. Marginal value of further rounds is low — rounds 7-8 were down to UX edge cases.
 
-- Real `POST /fhir/DocumentReference` (replace `971affe8d` stub) + round-trip eval.
+**Final-deferred (next sprint, `W2_FINAL_IMPLEMENTATION.md`) — untouched:**
+
+- Real `POST /fhir/DocumentReference` (replace `971affe8d` stub) + round-trip eval test (upload lab → re-fetch via `get_recent_labs` → correct `derivedFrom`).
 - Full `_verify_patient_in_facility` Python helper + facility-aware variants of `copilot-finder-scope.php` + `copilot-demographics-gate.php`.
 - `scripts/seed_w2_dataset.py` — Synthea bulk import to 18-20 patients across 2 facilities + 2 front-desk users.
-- `processed_documents.acknowledged_by_physician_at` + persistent dismiss tracking.
-- `vlm_cost_estimate_usd` populator (TurnTrace field exists; populator stayed null).
-- Dense retrieval (OpenAI embeddings + numpy cosine).
-- Cost & latency report; demo video; source-grounded UI polish.
+- `processed_documents.acknowledged_by_physician_at` column + persistent banner-dismiss tracking across sessions.
+- Dense retrieval (OpenAI embeddings + numpy cosine over BLOB).
+- Cost & latency report (extend `copilot/COST.md`, p50/p95 + bottleneck analysis); 3-5 min demo video; source-grounded UI polish.
 
-**Night-shift run pointer:** `.night-shift/runs/2026-05-06-0104/` (state.json, handoff.md, per-KR codex-approval.txt + decomp-adversarial.txt + per-task code-review.txt; all marked `CODEX UNAVAILABLE — SELF-REVIEW`/`SELF-ADVERSARIAL REVIEW` because `codex` CLI was missing on the host).
+**Run pointers:**
+- Night-shift state + handoff + per-KR/per-task review artifacts: `.night-shift/runs/2026-05-06-0104/`
+- Codex review outputs (8 rounds + triage): `.night-shift/runs/2026-05-06-0104/external-reviews/`
+- Per-task `code-review.txt` files all marked `CODEX UNAVAILABLE — SELF-REVIEW` (the night-shift's per-task gate ran without the codex CLI installed). The post-shift 8-round codex pass was the real adversarial eyes.
 
 ---
 
