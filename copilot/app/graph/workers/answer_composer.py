@@ -46,6 +46,15 @@ async def compose(state: AgentGraphState) -> dict[str, Any]:
     existing_routing = list(state.get("routing_path") or [])
     existing_routing.append("answer_composer")
 
+    # W2 KR3: surface graph-level audit trail into the trace so
+    # observability + the no-PHI rubric scan it.
+    if hasattr(output.trace, "routing_path"):
+        output.trace.routing_path = list(existing_routing)
+    if hasattr(output.trace, "documents_attached"):
+        output.trace.documents_attached = sum(
+            1 for tr in existing_tool_results if tr.get("tool") == "attach_and_extract"
+        )
+
     return {
         "response": output.response,
         "trace": output.trace,

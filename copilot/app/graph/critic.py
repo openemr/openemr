@@ -49,6 +49,18 @@ async def critique(state: AgentGraphState) -> dict[str, Any]:
     routing: list[str] = list(state.get("routing_path") or [])
     routing.append("critic")
 
+    # W2 KR3: keep trace.routing_path in sync with state.routing_path so the
+    # final TurnTrace reflects every visited node, including critic itself.
+    trace = state.get("trace")
+    if trace is not None and hasattr(trace, "routing_path"):
+        trace.routing_path = list(routing)
+        if rejections:
+            # Surface critic-side rejection reasons (post-W1 rules) into the
+            # existing domain_rule_rejections list so observability sees them.
+            for r in rejections:
+                if r not in trace.domain_rule_rejections:
+                    trace.domain_rule_rejections.append(r)
+
     if response is None:
         # Defensive — answer_composer should always populate ``response``.
         return {"routing_path": routing, "rejections": rejections}
@@ -83,6 +95,10 @@ async def critique(state: AgentGraphState) -> dict[str, Any]:
         )
         if not rule_result.passed:
             rejections.extend(rule_result.rejection_reasons)
+            if trace is not None and hasattr(trace, "domain_rule_rejections"):
+                for r in rule_result.rejection_reasons:
+                    if r not in trace.domain_rule_rejections:
+                        trace.domain_rule_rejections.append(r)
             # Replace with refusal — covers the case where run_turn somehow
             # let a violation through (defense in depth).
             return {
@@ -90,6 +106,12 @@ async def critique(state: AgentGraphState) -> dict[str, Any]:
                 "rejections": rejections,
                 "response": rule_result.final,
             }
+
+    # Surface any Layer-1 unanchored ids into trace too (sync at end of node).
+    if trace is not None and hasattr(trace, "verification_rejections"):
+        for r in rejections:
+            if r not in trace.verification_rejections:
+                trace.verification_rejections.append(r)
 
     return {"routing_path": routing, "rejections": rejections}
 
