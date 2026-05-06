@@ -204,7 +204,7 @@ function SaveAudit($pid, $amts, $cc)
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
         $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptStandard(is_string($cc) ? $cc : null);
+        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -238,7 +238,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['action_user'] = $session->get('authUserID', "0");
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
         $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptStandard(is_string($cc) ? $cc : null);
+        $audit['checksum'] = $cryptoGen->encryptForDatabase(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
