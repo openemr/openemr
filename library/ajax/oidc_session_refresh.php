@@ -20,6 +20,7 @@ use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Auth\Oidc\Audit\DatabaseOidcRefreshAuditLogger;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
+use OpenEMR\Common\Auth\Oidc\Discovery\SsrfSafeHttpClient;
 use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionRefreshHandler;
@@ -113,7 +114,6 @@ if (!is_dir($cacheDir)) {
     mkdir($cacheDir, 0o755, true);
 }
 
-$httpClient = new GuzzleHttp\Client(['timeout' => 10]);
 $cache = new Psr16Cache(new FilesystemAdapter('', 0, $cacheDir));
 $clock = new SystemClock(new \DateTimeZone('UTC'));
 
@@ -123,6 +123,17 @@ $strictUrlPolicy = !$globals->getKernel()->isDev();
 $urlValidator = new OidcUrlValidator(
     requireHttps: $strictUrlPolicy,
     blockPrivateIps: $strictUrlPolicy,
+);
+
+// Wrap the Guzzle client in SsrfSafeHttpClient so every outbound request
+// resolves DNS once via the validator and pins the connection (cURL
+// CURLOPT_RESOLVE) to the validated IPs — closing the rebinding/TOCTOU
+// window between the validator's DNS check and Guzzle's connect-time
+// lookup. Redirects are disabled by the wrapper to prevent a 3xx hop
+// from re-opening the window for a fresh hostname.
+$httpClient = new SsrfSafeHttpClient(
+    new GuzzleHttp\Client(['timeout' => 10]),
+    $urlValidator,
 );
 
 $handler = new OidcSessionRefreshHandler(

@@ -35,6 +35,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
+use OpenEMR\Common\Auth\Oidc\Discovery\SsrfSafeHttpClient;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
@@ -112,7 +113,17 @@ class JWTClientAuthenticationService
     public function getHttpClient(): ClientInterface
     {
         if (!isset($this->httpClient)) {
-            $this->httpClient = new Client();
+            // If a URL validator was injected (production wiring), wrap the
+            // lazy-default Guzzle client in SsrfSafeHttpClient so DNS
+            // resolution and the network connection use the same validated
+            // IPs (CURLOPT_RESOLVE pin) — closing the rebinding/TOCTOU gap.
+            // Without a validator (older test paths) we keep the bare
+            // Guzzle client; tests pinning a mocked client via setHttpClient()
+            // are unaffected.
+            $client = new Client();
+            $this->httpClient = $this->urlValidator !== null
+                ? new SsrfSafeHttpClient($client, $this->urlValidator)
+                : $client;
         }
         return $this->httpClient;
     }

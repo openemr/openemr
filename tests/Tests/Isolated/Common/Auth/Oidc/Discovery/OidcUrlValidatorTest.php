@@ -153,4 +153,58 @@ final class OidcUrlValidatorTest extends TestCase
 
         $validator->validateDiscoveryUrl('https://this-host-definitely-does-not-exist.invalid/foo');
     }
+
+    public function testResolveAndAssertReturnsIpLiteralWithoutDns(): void
+    {
+        // Permissive on private IPs so the loopback literal isn't rejected
+        // — the point of this test is to confirm the IP-literal short-circuit.
+        $validator = new OidcUrlValidator(blockPrivateIps: false);
+
+        // No DNS lookup is attempted; the literal flows through unchanged.
+        self::assertSame(['127.0.0.1'], $validator->resolveAndAssert('127.0.0.1'));
+        self::assertSame(['203.0.113.7'], $validator->resolveAndAssert('203.0.113.7'));
+    }
+
+    public function testResolveAndAssertStripsBracketsFromIpv6Literal(): void
+    {
+        $validator = new OidcUrlValidator(blockPrivateIps: false);
+
+        self::assertSame(['::1'], $validator->resolveAndAssert('[::1]'));
+        self::assertSame(['2001:db8::1'], $validator->resolveAndAssert('[2001:db8::1]'));
+    }
+
+    public function testResolveAndAssertRejectsIpLiteralInPrivateRangeUnderStrictPolicy(): void
+    {
+        $validator = new OidcUrlValidator();
+
+        $this->expectException(OidcUrlValidationException::class);
+        $this->expectExceptionMessage('private/local');
+
+        $validator->resolveAndAssert('169.254.169.254');
+    }
+
+    public function testResolveAndAssertReturnsIpsForPublicHostUnderStrictPolicy(): void
+    {
+        $validator = new OidcUrlValidator();
+
+        // example.com is IANA-reserved with public DNS records. Use it as
+        // the canonical "definitely-resolves-to-something-public" host.
+        // The non-empty-list return type means the bare "is non-empty"
+        // check would be redundant; assert each entry parses as a real IP.
+        $ips = $validator->resolveAndAssert('example.com');
+
+        foreach ($ips as $ip) {
+            self::assertNotFalse(filter_var($ip, FILTER_VALIDATE_IP), "Expected a valid IP, got: {$ip}");
+        }
+    }
+
+    public function testResolveAndAssertThrowsOnEmptyHost(): void
+    {
+        $validator = new OidcUrlValidator(blockPrivateIps: false);
+
+        $this->expectException(OidcUrlValidationException::class);
+        $this->expectExceptionMessage('host is required');
+
+        $validator->resolveAndAssert('');
+    }
 }

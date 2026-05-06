@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\Oidc\Discovery;
 
-final readonly class OidcUrlValidator
+final readonly class OidcUrlValidator implements OidcHostResolverInterface
 {
     public function __construct(
         private bool $requireHttps = true,
@@ -110,18 +110,40 @@ final readonly class OidcUrlValidator
         }
     }
 
-    private function assertNoPrivateIp(string $host): void
+    /**
+     * Resolve $host to its A/AAAA records and validate each against the
+     * privacy policy. Returns the list of resolved IPs so callers can pin
+     * the network connection to exactly the IPs that were validated —
+     * closing the DNS-rebinding/TOCTOU window between validate-time and
+     * connect-time. {@see SsrfSafeHttpClient} is the primary consumer.
+     *
+     * IP-literal hosts pass through without DNS resolution. IPv6 literals
+     * may arrive with surrounding brackets (parse_url leaves them in for
+     * `[::1]`-style URLs); strip them for filter_var/return.
+     *
+     * Honors the constructor flags: `blockPrivateIps=false` skips the
+     * privacy check (dev mode allows docker private IPs) but still
+     * resolves so callers can pin consistently.
+     *
+     * @return non-empty-list<string> Validated IPs in the order DNS returned them.
+     * @throws OidcUrlValidationException When the host doesn't resolve, or
+     *   when any resolved IP fails the privacy policy.
+     */
+    public function resolveAndAssert(string $host): array
     {
-        // IPv6 literals come back from parse_url with surrounding brackets.
+        if ($host === '') {
+            throw new OidcUrlValidationException('URL host is required');
+        }
+
         $bareHost = (str_starts_with($host, '[') && str_ends_with($host, ']'))
             ? substr($host, 1, -1)
             : $host;
 
         if (filter_var($bareHost, FILTER_VALIDATE_IP) !== false) {
-            if ($this->isPrivateOrLocalIp($bareHost)) {
+            if ($this->blockPrivateIps && $this->isPrivateOrLocalIp($bareHost)) {
                 throw new OidcUrlValidationException('URL host is a private/local address');
             }
-            return;
+            return [$bareHost];
         }
 
         $records = @dns_get_record($host, DNS_A + DNS_AAAA);
@@ -129,6 +151,7 @@ final readonly class OidcUrlValidator
             throw new OidcUrlValidationException('URL host could not be resolved');
         }
 
+        $ips = [];
         foreach ($records as $rec) {
             $ip = null;
             if (isset($rec['ip']) && is_string($rec['ip'])) {
@@ -136,10 +159,29 @@ final readonly class OidcUrlValidator
             } elseif (isset($rec['ipv6']) && is_string($rec['ipv6'])) {
                 $ip = $rec['ipv6'];
             }
-            if ($ip !== null && $this->isPrivateOrLocalIp($ip)) {
+            if ($ip === null) {
+                continue;
+            }
+            if ($this->blockPrivateIps && $this->isPrivateOrLocalIp($ip)) {
                 throw new OidcUrlValidationException('URL host resolves to a private/local address');
             }
+            $ips[] = $ip;
         }
+
+        if ($ips === []) {
+            throw new OidcUrlValidationException('URL host could not be resolved');
+        }
+
+        return $ips;
+    }
+
+    private function assertNoPrivateIp(string $host): void
+    {
+        // Validate-only: discard the resolved IPs. Used by the legacy
+        // synchronous path (validateDiscoveryUrl / validateJwksUri at the
+        // DCR storage boundary, where there's no fetch). Fetch-time
+        // callers should use resolveAndAssert() and pin the connection.
+        $this->resolveAndAssert($host);
     }
 
     private function isPrivateOrLocalIp(string $ip): bool
