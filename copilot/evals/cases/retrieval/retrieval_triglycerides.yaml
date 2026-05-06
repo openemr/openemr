@@ -1,0 +1,6 @@
+case_id: retrieval_triglycerides
+category: retrieval
+scorers:
+- citation_present
+query: hypertriglyceridemia triglyceride management
+expected_top1_chunk_id: aha-trig-2018#sec-4

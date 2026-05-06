@@ -1,0 +1,6 @@
+case_id: retrieval_a1c_diabetes
+category: retrieval
+scorers:
+- citation_present
+query: HbA1c diabetes diagnostic criteria threshold
+expected_top1_chunk_id: ada-a1c-screening-2024#sec-2.1

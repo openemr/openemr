@@ -1,0 +1,6 @@
+case_id: retrieval_statin_high_ldl
+category: retrieval
+scorers:
+- citation_present
+query: statin adults 40 75 years no history cardiovascular disease primary prevention
+expected_top1_chunk_id: uspstf-statin-2022#sec-2.1

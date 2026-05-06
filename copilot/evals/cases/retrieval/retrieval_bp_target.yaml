@@ -1,0 +1,6 @@
+case_id: retrieval_bp_target
+category: retrieval
+scorers:
+- citation_present
+query: blood pressure treatment target goal
+expected_top1_chunk_id: aha-bp-target-2017#sec-8.1

@@ -1,0 +1,6 @@
+case_id: retrieval_metformin_first_line
+category: retrieval
+scorers:
+- citation_present
+query: metformin firstline type 2 diabetes pharmacotherapy
+expected_top1_chunk_id: ada-metformin-first-line-2024#sec-9.4

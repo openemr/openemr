@@ -1,0 +1,6 @@
+case_id: retrieval_statin_monitoring
+category: retrieval
+scorers:
+- citation_present
+query: statin therapy monitoring liver function
+expected_top1_chunk_id: uspstf-stating-monitoring-2022#sec-4.3

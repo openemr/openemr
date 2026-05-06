@@ -1,0 +1,6 @@
+case_id: retrieval_htn_screening
+category: retrieval
+scorers:
+- citation_present
+query: hypertension blood pressure screening interval
+expected_top1_chunk_id: uspstf-htn-2024#sec-3.2

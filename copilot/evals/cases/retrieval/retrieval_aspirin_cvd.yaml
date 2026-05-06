@@ -1,0 +1,6 @@
+case_id: retrieval_aspirin_cvd
+category: retrieval
+scorers:
+- citation_present
+query: aspirin primary prevention cardiovascular
+expected_top1_chunk_id: uspstf-aspirin-cvd-2022#sec-1

@@ -1,0 +1,6 @@
+case_id: retrieval_shellfish_iodine_ambiguity
+category: retrieval
+scorers:
+- citation_present
+query: shellfish iodine allergy ambiguous intake
+expected_top1_chunk_id: intake-redflag-shellfish-iodine-2024#sec-1

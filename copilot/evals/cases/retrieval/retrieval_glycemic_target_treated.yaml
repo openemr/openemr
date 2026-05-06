@@ -1,0 +1,6 @@
+case_id: retrieval_glycemic_target_treated
+category: retrieval
+scorers:
+- citation_present
+query: glycemic target diabetes pharmacologically treated
+expected_top1_chunk_id: ada-a1c-target-treated-2024#sec-6.5
