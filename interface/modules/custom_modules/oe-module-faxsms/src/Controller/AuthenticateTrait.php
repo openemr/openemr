@@ -99,14 +99,14 @@ trait AuthenticateTrait
             }
 
             $json = $this->crypto->decryptFromFilesystem($contents);
-            $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+            $data = json_decode((string) $json, true, flags: JSON_THROW_ON_ERROR);
 
             if (!$this->isValidCachedAuth($data)) {
                 $error = true;
                 return [];
             }
             return $data;
-        } catch (CryptoGenException $e) {
+        } catch (CryptoGenException) {
             $error = true;
             return [];
         } finally {
