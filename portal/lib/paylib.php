@@ -56,9 +56,13 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
 }
 
 if ($_POST['mode'] == 'Sphere') {
-    $cryptoGen = ServiceContainer::getCrypto();
-    $dataTrans = $cryptoGen->decryptStandard(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
-    $dataTrans = json_decode($dataTrans, true);
+    $dataTrans = $session->get('sphere_payment_result');
+    SessionUtil::unsetSession('sphere_payment_result');
+    if ($dataTrans === null) {
+        http_response_code(400);
+        echo 'Missing payment data';
+        exit();
+    }
 
     $form_pid = $dataTrans['get']['patient_id_cc'];
 

@@ -114,20 +114,14 @@ class SpherePayment
     private function renderSphereJsPatientFront(): string
     {
         return "
-            function sphereSuccess(encData) {
+            function sphereSuccess() {
                 let oForm = document.forms['payment-form'];
                 oForm.elements['mode'].value = 'Sphere';
 
                 let inv_values = JSON.stringify(getFormObj('invoiceForm'));
                 document.getElementById('invValues').value = inv_values;
 
-                let hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'enc_data');
-                hiddenInput.setAttribute('value', encData);
-                oForm.appendChild(hiddenInput);
-
-                // Submit payment to server
+                // Submit payment to server (payment data is in server session)
                 fetch('./lib/paylib.php', {
                     method: 'POST',
                     body: new FormData(oForm)
