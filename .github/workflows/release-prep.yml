@@ -103,6 +103,17 @@ jobs:
             branch="${INPUT_BRANCH}"
             version="${INPUT_VERSION}"
             test_mode="${INPUT_TEST}"
+            # Production runs must dispatch against the same ref they target,
+            # otherwise the mutators run on the dispatched ref's tree but
+            # peter-evans opens the PR against base=inputs.branch, producing
+            # a confusing diff. Test runs intentionally diverge: they
+            # dispatch against a feature branch (to pick up new conductor
+            # logic) while targeting a real test branch.
+            ref_branch="${REF#refs/heads/}"
+            if [ "${test_mode}" != 'true' ] && [ "${ref_branch}" != "${branch}" ]; then
+              echo "::error::workflow dispatched with --ref '${ref_branch}' but --branch='${branch}'; production runs must dispatch against the target branch. Set test=true if you intentionally want a feature-branch ref."
+              exit 1
+            fi
             ;;
           *)
             branch="${REF#refs/heads/}"
