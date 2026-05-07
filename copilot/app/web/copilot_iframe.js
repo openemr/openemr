@@ -277,7 +277,7 @@
     }
   }
 
-  async function renderPdfPreview(arrayBuffer, page, bbox) {
+  async function renderPdfPreview(arrayBuffer, page, bbox, rawText) {
     if (!window.pdfjsLib) {
       throw new Error("pdfjs_not_loaded");
     }
@@ -289,7 +289,49 @@
     modalCanvas.height = viewport.height;
     const ctx = modalCanvas.getContext("2d");
     await pdfPage.render({ canvasContext: ctx, viewport }).promise;
-    drawBboxOverlay(ctx, bbox, viewport.width, viewport.height);
+    const snapped = rawText
+      ? await _snapBboxToText(pdfPage, viewport, rawText)
+      : null;
+    drawBboxOverlay(ctx, snapped || bbox, viewport.width, viewport.height);
+  }
+
+  async function _snapBboxToText(pdfPage, viewport, rawText) {
+    // Find a PDF text-content item whose `str` matches `rawText` and convert
+    // its PDF-space rect to a normalized [0,1] viewport rect that
+    // drawBboxOverlay expects. Returns null when no good match exists or any
+    // step throws — caller falls back to the VLM-emitted bbox.
+    const target = (rawText || "").trim();
+    if (!target) return null;
+    try {
+      const tc = await pdfPage.getTextContent();
+      for (const item of tc.items) {
+        const s = (item.str || "").trim();
+        if (!s) continue;
+        if (s === target || s.includes(target) || target.includes(s)) {
+          const tx = item.transform;
+          const x = tx[4];
+          const y = tx[5];
+          const w = item.width || tx[0];
+          const h = item.height || tx[3];
+          const [vx1, vy1, vx2, vy2] = viewport.convertToViewportRectangle(
+            [x, y, x + w, y + h]
+          );
+          const minX = Math.min(vx1, vx2);
+          const maxX = Math.max(vx1, vx2);
+          const minY = Math.min(vy1, vy2);
+          const maxY = Math.max(vy1, vy2);
+          return [
+            minX / viewport.width,
+            minY / viewport.height,
+            (maxX - minX) / viewport.width,
+            (maxY - minY) / viewport.height,
+          ];
+        }
+      }
+    } catch (e) {
+      console.warn("text-snap failed; using VLM bbox", e);
+    }
+    return null;
   }
 
   async function openBboxModal(recordId) {
@@ -314,6 +356,7 @@
     const fragParams = new URLSearchParams(fragment || "");
     const page = parseInt(fragParams.get("page") || "1", 10);
     const bbox = (fragParams.get("bbox") || "").split(",").map(Number);
+    const rawText = decodeURIComponent(fragParams.get("q") || "");
 
     modal.showModal();
     drawTextFallback(ctx, `Loading ${docId} page ${page}…`);
@@ -332,7 +375,7 @@
       if (contentType.startsWith("image/")) {
         await renderImagePreview(await r.blob(), page, bbox);
       } else if (contentType.startsWith("application/pdf")) {
-        await renderPdfPreview(await r.arrayBuffer(), page, bbox);
+        await renderPdfPreview(await r.arrayBuffer(), page, bbox, rawText);
       } else {
         drawTextFallback(ctx, `(unsupported preview type: ${contentType})`);
         drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);

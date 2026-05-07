@@ -406,21 +406,31 @@ def encode_record_id_for_vlm(
     page: int,
     bbox: BoundingBox,
     field_or_chunk_id: str,
+    raw_text: str | None = None,
 ) -> str:
     """Build the Week 2 record_id used by `Claim.record_id` for VLM-extracted facts.
 
-    Shape: `DocumentReference/{doc_id}#page={N}&bbox={x},{y},{w},{h}&field={path}`.
+    Shape: `DocumentReference/{doc_id}#page={N}&bbox={x},{y},{w},{h}&field={path}`
+    (or with `&q={url-encoded raw_text}` appended when `raw_text` is provided).
 
     The verification gate at `app/verification/attribution.py::verify` is a
     string-set membership test against `tool_results[*].record_ids`, so the
     encoding only needs to be stable and reproducible — workers emit the
     same string in their `record_ids` list and the composer cites it.
+
+    The optional `raw_text` carries the verbatim digits/text the bbox covers
+    (e.g. "142", "shellfish?? maybe iodine") so the iframe can text-snap the
+    overlay rectangle against the PDF text layer without a server round-trip.
     """
+    from urllib.parse import quote
     bbox_str = f"{bbox.x:.4f},{bbox.y:.4f},{bbox.w:.4f},{bbox.h:.4f}"
-    return (
+    base = (
         f"DocumentReference/{doc_id}"
         f"#page={page}&bbox={bbox_str}&field={field_or_chunk_id}"
     )
+    if raw_text:
+        base += f"&q={quote(raw_text, safe='')}"
+    return base
 
 
 def field_id_for_lab_result(lab: "LabResult", fallback_index: int) -> str:

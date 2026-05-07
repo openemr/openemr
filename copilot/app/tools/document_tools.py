@@ -92,6 +92,7 @@ def _flatten_extraction_to_data_items(
                 page=lab.source_citation.page,
                 bbox=lab.source_citation.bbox,
                 field_or_chunk_id=field_id_for_lab_result(lab, idx),
+                raw_text=lab.source_citation.raw_text,
             )
             per_fact_record_ids.append(rid)
             data_items.append(
@@ -139,6 +140,7 @@ def _flatten_extraction_to_data_items(
                 page=med.source_citation.page,
                 bbox=med.source_citation.bbox,
                 field_or_chunk_id=f"medications[{i}]",
+                raw_text=med.source_citation.raw_text,
             )
             per_fact_record_ids.append(rid)
             data_items.append(
@@ -160,6 +162,7 @@ def _flatten_extraction_to_data_items(
                 page=allergy.source_citation.page,
                 bbox=allergy.source_citation.bbox,
                 field_or_chunk_id=f"allergies[{i}].substance",
+                raw_text=allergy.source_citation.raw_text,
             )
             per_fact_record_ids.append(rid)
             data_items.append(
@@ -183,6 +186,7 @@ def _flatten_extraction_to_data_items(
                 page=fh.source_citation.page,
                 bbox=fh.source_citation.bbox,
                 field_or_chunk_id=f"family_history[{i}]",
+                raw_text=fh.source_citation.raw_text,
             )
             per_fact_record_ids.append(rid)
             data_items.append(
