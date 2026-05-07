@@ -185,6 +185,7 @@
   }
 
   const overlayCache = {};
+  const evidenceCache = {};
 
   form.onsubmit = async (e) => {
     e.preventDefault();
@@ -215,6 +216,10 @@
       return;
     }
     const data = await r.json();
+    const ev = data.response?.evidence_records || {};
+    for (const [rid, rec] of Object.entries(ev)) {
+      evidenceCache[rid] = rec;
+    }
     appendMessageWithCitations(data.response?.prose ?? data.prose ?? "", data.response?.claims ?? data.claims ?? []);
   };
 
@@ -334,22 +339,41 @@
     return null;
   }
 
+  const modalCard = document.getElementById("bbox-modal-card");
+
+  function _showCanvasMode() {
+    modalCard.hidden = true;
+    modalCard.replaceChildren();
+    modalCanvas.hidden = false;
+  }
+
+  function _showCardMode() {
+    modalCanvas.hidden = true;
+    modalCard.hidden = false;
+    modalCard.replaceChildren();
+  }
+
   async function openBboxModal(recordId) {
     // record_id formats:
     //   DocumentReference/{doc_id}#page={N}&bbox={x},{y},{w},{h}&field={...}
+    //   Observation/{id}, MedicationRequest/{id}, AllergyIntolerance/{id},
+    //   Condition/{id}, Encounter/{id}, Patient/{id}
     //   Guideline/{chunk_id}
     //   QuestionnaireResponse/{qr_id}#linkId={...}
     modalLabel.textContent = recordId;
+    if (recordId.startsWith("DocumentReference/")) {
+      _showCanvasMode();
+      return openDocumentModal(recordId);
+    }
+    _showCardMode();
+    return openEvidenceCardModal(recordId, evidenceCache[recordId]);
+  }
+
+  async function openDocumentModal(recordId) {
     const ctx = modalCanvas.getContext("2d");
     modalCanvas.width = 800;
     modalCanvas.height = 1000;
     ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
-
-    if (!recordId.startsWith("DocumentReference/")) {
-      drawTextFallback(ctx, `(non-document citation: ${recordId})`);
-      modal.showModal();
-      return;
-    }
 
     const [docPart, fragment] = recordId.split("#");
     const docId = docPart.split("/")[1];
@@ -390,5 +414,175 @@
       );
       drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
     }
+  }
+
+  function openEvidenceCardModal(recordId, ev) {
+    modal.showModal();
+    if (!ev) {
+      const empty = document.createElement("div");
+      empty.className = "card-empty";
+      empty.textContent =
+        "Evidence record not available in cache. " +
+        "Resume the chat to re-fetch.";
+      modalCard.appendChild(empty);
+      _appendRecordIdFooter(recordId);
+      return;
+    }
+    const kind = ev.kind || "unknown";
+    const data = ev.data || {};
+    const renderers = {
+      observation: renderObservation,
+      medication: renderMedication,
+      allergy: renderAllergy,
+      condition: renderCondition,
+      encounter: renderEncounter,
+      patient: renderPatient,
+      guideline: renderGuideline,
+      questionnaire: renderQuestionnaire,
+    };
+    const fn = renderers[kind] || renderUnknown;
+    fn(recordId, data);
+    _appendRecordIdFooter(recordId);
+  }
+
+  function _appendRecordIdFooter(recordId) {
+    const rid = document.createElement("div");
+    rid.className = "card-rid";
+    rid.textContent = recordId;
+    modalCard.appendChild(rid);
+  }
+
+  function _row(dl, label, value) {
+    if (value === undefined || value === null || value === "") return;
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = String(value);
+    dl.appendChild(dt);
+    dl.appendChild(dd);
+  }
+
+  function _heading(text) {
+    const h = document.createElement("h3");
+    h.textContent = text;
+    modalCard.appendChild(h);
+  }
+
+  function renderObservation(_rid, d) {
+    _heading(d.test_name || d.display || "Observation");
+    const dl = document.createElement("dl");
+    const value = d.value !== undefined && d.unit ? `${d.value} ${d.unit}` : d.value;
+    _row(dl, "Value", value);
+    _row(dl, "Reference", d.reference_range);
+    _row(dl, "Abnormal", d.abnormal_flag);
+    _row(dl, "Date", d.collection_date || d.effective_datetime);
+    _row(dl, "LOINC", d.loinc_code);
+    modalCard.appendChild(dl);
+  }
+
+  function renderMedication(_rid, d) {
+    _heading(d.drug_name || d.name || d.display || "Medication");
+    const dl = document.createElement("dl");
+    _row(dl, "Dose", d.dosage_text || d.dose);
+    _row(dl, "Frequency", d.frequency);
+    _row(dl, "Status", d.status || d.clinical_status);
+    _row(dl, "Authored", d.authored_on || d.start);
+    _row(dl, "RxNorm", d.rxnorm_code);
+    modalCard.appendChild(dl);
+  }
+
+  function renderAllergy(_rid, d) {
+    _heading(d.display || d.coded_substance || d.verbatim_substance || "Allergy");
+    const dl = document.createElement("dl");
+    if (d.verbatim_substance && d.verbatim_substance !== d.display) {
+      _row(dl, "Verbatim", d.verbatim_substance);
+    }
+    const reaction = Array.isArray(d.reaction) ? d.reaction.join(", ") : d.reaction;
+    _row(dl, "Reaction", reaction);
+    _row(dl, "Severity", d.severity);
+    _row(dl, "Criticality", d.criticality);
+    _row(dl, "Status", d.clinical_status);
+    if (d.ambiguity_note) _row(dl, "Note", d.ambiguity_note);
+    modalCard.appendChild(dl);
+  }
+
+  function renderCondition(_rid, d) {
+    _heading(d.display || d.condition || "Condition");
+    const dl = document.createElement("dl");
+    _row(dl, "Onset", d.onset_datetime || d.onset);
+    _row(dl, "Status", d.clinical_status || d.status);
+    _row(dl, "Verification", d.verification_status);
+    modalCard.appendChild(dl);
+  }
+
+  function renderEncounter(_rid, d) {
+    _heading(d.type_display || "Encounter");
+    const dl = document.createElement("dl");
+    _row(dl, "Reason", d.reason_text || d.reason);
+    _row(dl, "Start", d.start);
+    _row(dl, "End", d.end);
+    _row(dl, "Status", d.status);
+    modalCard.appendChild(dl);
+  }
+
+  function renderPatient(_rid, d) {
+    _heading(`Patient ${d.id || ""}`.trim());
+    const dl = document.createElement("dl");
+    _row(dl, "Age", d.age);
+    _row(dl, "Gender", d.gender);
+    if (d.chief_concern) _row(dl, "Chief concern", d.chief_concern);
+    _row(dl, "Active", d.active);
+    _row(dl, "Deceased", d.deceased);
+    modalCard.appendChild(dl);
+  }
+
+  function renderGuideline(_rid, d) {
+    _heading(d.source || d.guideline_title || "Guideline");
+    const dl = document.createElement("dl");
+    _row(dl, "Section", d.section || d.heading);
+    _row(dl, "Chunk", d.chunk_id);
+    _row(dl, "Last updated", d.last_updated);
+    if (d.url) {
+      const dt = document.createElement("dt");
+      dt.textContent = "Link";
+      const dd = document.createElement("dd");
+      const a = document.createElement("a");
+      a.href = d.url;
+      a.target = "_blank";
+      a.rel = "noreferrer";
+      a.textContent = d.url;
+      dd.appendChild(a);
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    }
+    modalCard.appendChild(dl);
+    if (d.text || d.chunk_text) {
+      const pre = document.createElement("pre");
+      pre.textContent = d.text || d.chunk_text;
+      modalCard.appendChild(pre);
+    }
+  }
+
+  function renderQuestionnaire(rid, d) {
+    _heading("Questionnaire answer");
+    const dl = document.createElement("dl");
+    const linkId = (rid.split("#linkId=")[1] || d.link_id || "").trim();
+    if (linkId) _row(dl, "Question", linkId);
+    _row(dl, "Answer", d.value || d.raw_text || d.answer);
+    _row(dl, "Status", d.status);
+    modalCard.appendChild(dl);
+  }
+
+  function renderUnknown(_rid, d) {
+    _heading("Evidence");
+    const dl = document.createElement("dl");
+    for (const [k, v] of Object.entries(d)) {
+      if (k === "record_id" || k === "subject_pseudonym") continue;
+      const display = Array.isArray(v) ? v.join(", ")
+                    : typeof v === "object" && v !== null ? JSON.stringify(v)
+                    : v;
+      _row(dl, k, display);
+    }
+    modalCard.appendChild(dl);
   }
 })();

@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 from anthropic import AsyncAnthropic
 
+from app.agent.evidence import extract_evidence_records
 from app.agent.loop import run_turn  # kept for monkeypatch compatibility in tests
 from app.agent.prewarm import prewarm
 from app.agent.schemas import PriorTurn
@@ -435,6 +436,13 @@ async def chat(body: ChatRequest, settings: Settings = Depends(get_settings)):
     final_state = await app.state.agent_graph.ainvoke(initial_state)
     response = final_state["response"]
     trace = final_state["trace"]
+    # W2 polish: attach per-record_id evidence map for the iframe citation
+    # modal. Filtered down to claim-cited records only. UI-only — not
+    # persisted to the conversation store below (re-derivable on resume).
+    response.evidence_records = extract_evidence_records(
+        final_state.get("tool_results") or [],
+        response.claims,
+    )
     payload = {
         "response": response.model_dump(),
         "trace": trace.model_dump(),

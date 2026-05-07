@@ -1,6 +1,8 @@
 """Pydantic schemas for the agent loop's structured I/O."""
 from __future__ import annotations
 
+from typing import Any, Literal
+
 from pydantic import BaseModel, Field
 
 
@@ -20,10 +22,39 @@ class Claim(BaseModel):
     )
 
 
+EvidenceKind = Literal[
+    "document",
+    "observation",
+    "medication",
+    "allergy",
+    "condition",
+    "encounter",
+    "patient",
+    "guideline",
+    "questionnaire",
+    "unknown",
+]
+
+
+class EvidenceRecord(BaseModel):
+    """Per-record_id payload shipped to the iframe so the modal can render
+    a formatted card for non-DocumentReference citations.
+
+    Data is the SAME PHI-minimized slice that went into the LLM context
+    (came through ``app/phi/minimizer.py``). No new PHI surfaces.
+    """
+
+    kind: EvidenceKind
+    data: dict[str, Any]
+
+
 class AgentResponse(BaseModel):
     prose: str
     claims: list[Claim] = Field(default_factory=list)
     data_gaps: list[str] = Field(default_factory=list)
+    # W2 polish: per-record_id evidence map for the citation modal. UI-only;
+    # not persisted to the conversation store. Keyed by Claim.record_id.
+    evidence_records: dict[str, EvidenceRecord] = Field(default_factory=dict)
 
 
 class PriorTurn(BaseModel):

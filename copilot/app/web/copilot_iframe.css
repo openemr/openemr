@@ -66,3 +66,20 @@ dialog#bbox-modal h2 { margin: 0; font-size: 14px; }
 #pending-intakes-list li:hover { text-decoration: underline; }
 #pending-intakes-list li.acknowledged { color: #6a737d; text-decoration: line-through;
                                         cursor: default; }
+
+/* W2 polish: per-type evidence card for non-DocumentReference citations. */
+#bbox-modal-card { padding: 16px; color: #1f2328; font-size: 13px;
+                   line-height: 1.5; max-width: 720px; }
+#bbox-modal-card h3 { margin: 0 0 8px 0; font-size: 14px; color: #57606a; }
+#bbox-modal-card dl { display: grid; grid-template-columns: 140px 1fr;
+                      gap: 4px 12px; margin: 0; }
+#bbox-modal-card dt { font-weight: 600; color: #57606a; }
+#bbox-modal-card dd { margin: 0; color: #1f2328; word-break: break-word; }
+#bbox-modal-card pre { background: #f6f8fa; padding: 8px; border-radius: 4px;
+                       white-space: pre-wrap; margin: 8px 0 0 0;
+                       font-family: ui-monospace, SFMono-Regular, monospace;
+                       font-size: 12px; }
+#bbox-modal-card .card-rid { color: #6a737d; font-size: 11px;
+                             font-family: ui-monospace, SFMono-Regular, monospace;
+                             margin-top: 8px; word-break: break-all; }
+#bbox-modal-card .card-empty { color: #6a737d; font-style: italic; }
