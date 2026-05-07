@@ -270,7 +270,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $patientRef = $json['patient']['reference'] ?? null;
         if (is_string($patientRef) && $patientRef !== '') {
             $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
-            if (!empty($parsed['uuid'])) {
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
                 $data['puuid'] = $parsed['uuid'];
             }
         }
@@ -328,7 +328,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $recorderRef = $json['recorder']['reference'] ?? null;
         if (is_string($recorderRef) && $recorderRef !== '') {
             $parsed = UtilsService::parseReferenceString($recorderRef, 'Practitioner');
-            if (!empty($parsed['uuid'])) {
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
                 $data['practitioner_uuid'] = $parsed['uuid'];
             }
         }

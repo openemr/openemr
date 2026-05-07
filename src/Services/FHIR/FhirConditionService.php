@@ -153,7 +153,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $subjectRef = $json['subject']['reference'] ?? null;
         if (is_string($subjectRef) && $subjectRef !== '') {
             $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
-            if (!empty($parsed['uuid'])) {
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
                 $data['puuid'] = $parsed['uuid'];
             }
         }
