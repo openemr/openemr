@@ -134,6 +134,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("AllergyIntolerance");
         $controller->addAclRestrictions("patients", "med");
         return $controller->post($data);
     },
@@ -181,6 +182,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirAllergyIntoleranceService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("AllergyIntolerance");
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
     },
@@ -219,6 +221,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirAppointmentService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Appointment");
         $controller->addAclRestrictions("patients", "appt");
         return $controller->post($data);
     },
@@ -410,6 +413,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->setExpectedResourceType("Condition");
         $controller->addAclRestrictions("patients", "med");
         return $controller->post($data);
     },
@@ -457,6 +461,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
+        $controller->setExpectedResourceType("Condition");
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
     },
@@ -719,6 +724,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
+        $controller->setExpectedResourceType("Encounter");
         $controller->addAclRestrictions("encounters", "auth_a");
         return $controller->post($data);
     },
@@ -766,6 +772,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirEncounterService(), $globalsBag);
+        $controller->setExpectedResourceType("Encounter");
         $controller->addAclRestrictions("encounters", "auth_a");
         return $controller->put($uuid, $data);
     },
@@ -959,6 +966,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Immunization");
         $controller->addAclRestrictions("patients", "med");
         return $controller->post($data);
     },
@@ -1006,6 +1014,7 @@ return [
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirImmunizationService($request->getApiBaseFullUrl()), $globalsBag);
+        $controller->setExpectedResourceType("Immunization");
         $controller->addAclRestrictions("patients", "med");
         return $controller->put($uuid, $data);
     },

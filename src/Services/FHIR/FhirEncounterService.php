@@ -20,6 +20,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIREncounter;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -343,7 +344,7 @@ class FhirEncounterService extends FhirServiceBase implements
                     continue;
                 }
                 $parsed = UtilsService::parseReferenceString($reference, 'Practitioner');
-                if (empty($parsed['uuid'])) {
+                if (empty($parsed['uuid']) || !\OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
                     continue;
                 }
                 $practitionerUuid = $parsed['uuid'];
@@ -382,7 +383,7 @@ class FhirEncounterService extends FhirServiceBase implements
         $serviceProviderRef = $json['serviceProvider']['reference'] ?? null;
         if (is_string($serviceProviderRef) && $serviceProviderRef !== '') {
             $parsed = UtilsService::parseReferenceString($serviceProviderRef, 'Organization');
-            if (!empty($parsed['uuid'])) {
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
                 $facilityUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($parsed['uuid']);
                 $facilityId = $this->encounterService->getIdByUuid($facilityUuidBytes, 'facility', 'id');
                 if ($facilityId) {
@@ -486,23 +487,54 @@ class FhirEncounterService extends FhirServiceBase implements
     /**
      * Resolves provider and referrer UUIDs to their numeric IDs.
      *
+     * Authorization: a caller may only attribute an encounter to a provider
+     * other than themselves if they hold the admin/users ACL. Without it, a
+     * client-supplied provider/referrer UUID is dropped (silently — the
+     * encounter is still created, but attribution falls through to whatever
+     * EncounterService picks). This prevents a user with encounter-write
+     * permission from spoofing attribution to arbitrary practitioners.
+     *
      * @param array &$record The OpenEMR record to modify in place
      */
     private function resolveProviderUuids(array &$record): void
     {
-        if (!empty($record['provider_uuid']) && empty($record['provider_id'])) {
+        $session = $this->getSession();
+        $authUserRaw = $session?->get('authUser');
+        $authUser = is_string($authUserRaw) ? $authUserRaw : '';
+        $authUserIdRaw = $session?->get('authUserID');
+        $authUserId = is_scalar($authUserIdRaw) ? (string) $authUserIdRaw : '';
+        $canAssignAnyProvider = $authUser !== ''
+            && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
+
+        if (
+            !empty($record['provider_uuid'])
+            && empty($record['provider_id'])
+            && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($record['provider_uuid'])
+        ) {
             $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($record['provider_uuid']);
             $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
-            if ($providerId) {
+            // Only honour the assignment if the caller is admin/users, or the
+            // requested provider IS the caller. Otherwise drop it.
+            if (
+                $providerId !== false
+                && ($canAssignAnyProvider || ($authUserId !== '' && (string) $providerId === $authUserId))
+            ) {
                 $record['provider_id'] = $providerId;
             }
         }
         unset($record['provider_uuid']);
 
-        if (!empty($record['referrer_uuid']) && empty($record['referring_provider_id'])) {
+        if (
+            !empty($record['referrer_uuid'])
+            && empty($record['referring_provider_id'])
+            && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($record['referrer_uuid'])
+        ) {
             $referrerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($record['referrer_uuid']);
             $referrerId = $this->encounterService->getIdByUuid($referrerUuidBytes, 'users', 'id');
-            if ($referrerId) {
+            if (
+                $referrerId !== false
+                && ($canAssignAnyProvider || ($authUserId !== '' && (string) $referrerId === $authUserId))
+            ) {
                 $record['referring_provider_id'] = $referrerId;
             }
         }

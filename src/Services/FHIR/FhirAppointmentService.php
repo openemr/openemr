@@ -320,6 +320,12 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                     continue;
                 }
 
+                // Reject malformed UUIDs before touching UuidRegistry — uuidToBytes()
+                // throws on invalid input, which would surface as a 500 to the client.
+                if (!UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                    continue;
+                }
+
                 if ($parsed['type'] === 'Patient') {
                     $data['puuid'] = $parsed['uuid'];
                     // Resolve patient uuid to pid

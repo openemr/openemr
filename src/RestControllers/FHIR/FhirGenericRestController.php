@@ -35,6 +35,14 @@ class FhirGenericRestController implements IGlobalsAware {
 
     private array $aclChecks = [];
 
+    /**
+     * Expected FHIR resourceType for write operations on this route. Set by the
+     * route handler so deserializeFhirResource() can reject any payload whose
+     * resourceType does not match the route's bound resource. Required for
+     * post() and put(); not used for read paths.
+     */
+    private ?string $expectedResourceType = null;
+
     private ResourceConstraintFilterer $resourcePolicyEnforcementDecisionChecker;
 
     public function __construct(protected HttpRestRequest $request, protected FhirServiceBase $fhirService, OEGlobalsBag $globalsBag)
@@ -55,6 +63,17 @@ class FhirGenericRestController implements IGlobalsAware {
 
     public function addAclRestrictions(string $section, string $subSection = '', string $aclPermission = '') : void {
         $this->aclChecks[] = ['section' => $section, 'subSection' => $subSection, 'aclPermission' => $aclPermission];
+    }
+
+    /**
+     * Sets the FHIR resourceType this route accepts for writes. Required for
+     * post() and put() — the request body's resourceType must match this value
+     * exactly, otherwise the request is rejected with 400. This prevents a POST
+     * to one resource endpoint from instantiating a different FHIR class.
+     */
+    public function setExpectedResourceType(string $resourceType): void
+    {
+        $this->expectedResourceType = $resourceType;
     }
 
     protected function getFhirResourcesService(): FhirResourcesService
@@ -241,14 +260,27 @@ class FhirGenericRestController implements IGlobalsAware {
     }
 
     /**
-     * Deserializes a FHIR JSON array into a FHIRDomainResource, validating that the
-     * resourceType is non-empty and resolves to a known FHIR class.
+     * Deserializes a FHIR JSON array into a FHIRDomainResource. The payload's
+     * resourceType must exactly match the route's expected type (set via
+     * setExpectedResourceType). The class to instantiate is taken from a
+     * static map (not from user input), so untrusted JSON cannot trigger
+     * autoload of an arbitrary class.
      *
      * @param array $fhirJson The FHIR resource as a JSON-decoded array
      * @return FHIRDomainResource|Response The deserialized resource, or a 400 Response on error
      */
     private function deserializeFhirResource(array $fhirJson): FHIRDomainResource|Response
     {
+        if ($this->expectedResourceType === null) {
+            // Misconfigured route: a write controller without an expected type
+            // would fall back to dynamic class resolution. Refuse to proceed.
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'exception', 'Server misconfiguration'),
+                null,
+                500
+            );
+        }
+
         $resourceType = $fhirJson['resourceType'] ?? '';
         if ($resourceType === '' || !is_string($resourceType)) {
             return RestControllerHelper::responseHandler(
@@ -258,29 +290,30 @@ class FhirGenericRestController implements IGlobalsAware {
             );
         }
 
-        // Validate resourceType format to prevent path traversal or namespace injection.
-        // FHIR resource types are PascalCase identifiers without special characters.
-        if (preg_match('/^[A-Z][A-Za-z0-9]*$/', $resourceType) !== 1) {
+        // Strict equality against the route-bound type. Rejects payloads that
+        // try to switch the FHIR class (e.g. POST /Appointment with
+        // resourceType: "Patient") and avoids any string-derived class lookup.
+        if ($resourceType !== $this->expectedResourceType) {
             return RestControllerHelper::responseHandler(
-                UtilsService::createOperationOutcomeResource('error', 'invalid', 'Invalid resourceType format'),
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'invalid',
+                    'resourceType must be ' . $this->expectedResourceType
+                ),
                 null,
                 400
             );
         }
 
-        // Use class_exists with autoload disabled to avoid triggering autoloader with untrusted input
-        $className = 'OpenEMR\\FHIR\\R4\\FHIRDomainResource\\FHIR' . $resourceType;
-        if (!class_exists($className, false)) {
-            // Class not already loaded - check if it's a known FHIR resource by loading explicitly
-            $classFile = __DIR__ . '/../../../FHIR/R4/FHIRDomainResource/FHIR' . $resourceType . '.php';
-            if (!file_exists($classFile)) {
-                return RestControllerHelper::responseHandler(
-                    UtilsService::createOperationOutcomeResource('error', 'invalid', 'Unknown resourceType: ' . $resourceType),
-                    null,
-                    400
-                );
-            }
-            require_once $classFile;
+        $className = 'OpenEMR\\FHIR\\R4\\FHIRDomainResource\\FHIR' . $this->expectedResourceType;
+        if (!class_exists($className)) {
+            // The expected type is set by trusted route code, so a missing
+            // class is a server misconfiguration rather than client error.
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'exception', 'Unsupported resource type'),
+                null,
+                500
+            );
         }
 
         unset($fhirJson['resourceType']);
