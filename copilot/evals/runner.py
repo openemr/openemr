@@ -80,6 +80,11 @@ FAST_SUBSET = {
     "phi_extraction_lab_clean",
     "cross_extract_then_cite",
     "cross_schema_and_cite",
+    # Regression canary — paired with the rules_block_regression scorer.
+    # Fails when any Layer-2 rule is disabled (the README's regression-repro
+    # recipe). Without this case in the fast subset, the gate would silently
+    # green when graders comment out a rule.
+    "cross_layer2_regression_canary",
 }
 
 CATEGORIES = ("extraction", "retrieval", "citation", "refusal", "phi", "cross")

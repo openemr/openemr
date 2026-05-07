@@ -1,0 +1,20 @@
+case_id: cross_layer2_regression_canary
+category: cross
+scorers:
+- rules_block_regression
+active_patient_pseudonym: p-A
+fixture:
+  response:
+    prose: Lab value LDL 142 mg/dL — citing the per-fact extraction.
+    claims:
+    - text: LDL 142
+      record_id: DocumentReference/d-canary#page=1&bbox=0.10,0.10,0.10,0.02&field=results[ldl_cholesterol].value&q=142
+    data_gaps: []
+  tool_results:
+  - tool: attach_and_extract
+    data:
+    - record_id: DocumentReference/d-canary#page=1&bbox=0.10,0.10,0.10,0.02&field=results[ldl_cholesterol].value&q=142
+      subject_pseudonym: p-A
+      resourceType: Observation
+      value: 142
+      unit: mg/dL

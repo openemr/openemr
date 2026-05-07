@@ -256,37 +256,51 @@ the agent loop, and the citation contract that Week 2 builds on.
 
 ## Verifying the W2 eval gate
 
-The W2 eval gate is the PRD-mandated regression-blocking suite (50 cases ×
-5 boolean rubrics: `schema_valid`, `citation_present`, `factually_consistent`,
-`safe_refusal`, `no_phi_in_logs`). It runs locally via `make eval`, on every
-PR via `.github/workflows/copilot-ci.yml`, and pre-push via
-`.git/hooks/pre-push` (installed once by `bash copilot/scripts/install-hooks.sh`).
+The W2 eval gate is the PRD-mandated regression-blocking suite (53 cases —
+50 baseline + 2 informational/applied citation cases + 1 Layer-2 regression
+canary — across six boolean rubrics: `schema_valid`, `citation_present`,
+`factually_consistent`, `safe_refusal`, `no_phi_in_logs`,
+`rules_block_regression`). It runs locally via `make eval`, on every PR via
+`.github/workflows/copilot-ci.yml`, and pre-push via `.git/hooks/pre-push`
+(installed once by `bash copilot/scripts/install-hooks.sh`).
 
 **Threshold:** any category dropping below 0.95 OR more than 5pp from
 `evals/baseline.json` exits 1.
 
-**Reproducing a regression so you can confirm the gate fires:**
+**How a Layer-2 disable becomes a category drop.** The 50 happy-path cases
+are fixture-driven (canned response + tool_results), so they don't directly
+exercise `apply_rules` at runtime. The single canary case
+`cross_layer2_regression_canary` plus the `rules_block_regression` scorer
+fill that gap: the canary's fixture is engineered to trigger
+`check_extracted_fact_has_source_doc` (a fragment-only `DocumentReference`
+citation whose parent doc is absent from `tool_results`). The scorer
+asserts that `apply_rules` returns `passed=False` for this fixture. With
+the rule active, it does → scorer passes. With the rule disabled, it
+doesn't → scorer fails → cross category drops → runner exits 1.
 
-1. Comment out one of the new W2 Layer-2 rules in
-   `copilot/app/verification/rules.py`:
+**Reproducing the regression so you can confirm the gate fires:**
+
+1. Comment out the W2 Layer-2 rule call in
+   `copilot/app/verification/rules.py:198`:
 
    ```python
-   rejections.extend(
-       check_extracted_fact_has_source_doc(response, tool_results)
-   )
+   # rejections.extend(
+   #     check_extracted_fact_has_source_doc(response, tool_results)
+   # )
    ```
 
-   (Comment that line.)
+2. Run `make eval-fast` (the pre-push subset, ~2s in Docker). Expect:
 
-2. Run `make eval-fast` (the pre-push subset, ~2s in Docker). The
-   regression weakens the citation contract enforced on extracted-fact
-   record_ids; `evals/RESULTS.md` shows the `cross` category dropping
-   and the runner exits 1.
+   - `14/15 cases passed`
+   - `cross  66.7%  (baseline 100.0%)`
+   - `FAIL: cross: 66.67% < 95% floor`
+   - `make: *** [eval-fast] Error 1` (non-zero exit)
 
 3. Try `git push` — the pre-push hook re-runs `make eval-fast` and blocks
    the push with the same exit code.
 
-4. Revert the comment, run `make eval-fast` again, push succeeds.
+4. Revert the comment, run `make eval-fast` again — `15/15 cases passed`,
+   exit 0, push succeeds.
 
 To re-freeze the baseline (e.g., after intentional case additions):
 `make eval-baseline`.
