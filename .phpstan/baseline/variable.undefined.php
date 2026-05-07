@@ -1932,16 +1932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$token_database might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$token_encrypt might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.php',
@@ -2073,11 +2063,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$defaultLangName might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$one_time might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/index.php',
 ];

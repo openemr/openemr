@@ -5932,11 +5932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/index.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) instead of sqlQueryNoLog\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:sqlStatementThrowException\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlStatement\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/index.php',

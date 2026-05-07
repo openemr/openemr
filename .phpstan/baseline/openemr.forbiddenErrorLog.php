@@ -288,11 +288,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
