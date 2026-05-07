@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 539
+-- v_database: 540
 --
 
 --
@@ -14244,7 +14244,7 @@ CREATE TABLE `jwt_grant_history` (
  , `jti_exp` TIMESTAMP NULL DEFAULT NULL COMMENT 'jwt exp claim when the jwt expires'
  , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
  , PRIMARY KEY (`id`)
- , KEY `jti` (`jti`)
+ , UNIQUE KEY `uq_jti` (`jti`)
 ) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 
 DROP TABLE IF EXISTS `document_templates`;

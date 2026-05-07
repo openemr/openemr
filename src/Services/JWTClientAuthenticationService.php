@@ -466,7 +466,25 @@ class JWTClientAuthenticationService
 
             $jti = $token->claims()->get('jti');
 
-            $this->jwtRepository->saveJwtHistory($jti, $clientId, $exp);
+            // saveJwtHistory uses INSERT IGNORE against the UNIQUE KEY on
+            // jwt_grant_history.jti and returns false when the unique
+            // constraint blocked the row — a concurrent client-assertion
+            // submission slipped past UniqueID::assert()'s SELECT and
+            // already inserted. Treat as replay (fail closed).
+            $inserted = $this->jwtRepository->saveJwtHistory($jti, $clientId, $exp);
+            if (!$inserted) {
+                $this->logger->error(
+                    'JWT client assertion replay detected via uq_jti race-victim signal',
+                    ['client_id' => $clientId, 'jti' => $jti],
+                );
+                $oauthException = new OAuthServerException(
+                    'Client authentication failed',
+                    4,
+                    'invalid_client',
+                    400,
+                );
+                throw $oauthException;
+            }
 
             $this->logger->debug(
                 'Saved JWT history for replay prevention',

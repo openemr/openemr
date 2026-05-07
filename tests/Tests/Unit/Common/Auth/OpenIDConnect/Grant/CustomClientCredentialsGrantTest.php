@@ -174,6 +174,73 @@ class CustomClientCredentialsGrantTest extends TestCase
     }
 
     /**
+     * Aisle finding (CWE-362). Even when UniqueID::assert()'s
+     * SELECT pre-check finds nothing, a concurrent client-assertion
+     * submission can already have inserted by the time saveJwtHistory()
+     * runs. With the new UNIQUE KEY uq_jti, the second INSERT IGNORE
+     * skips silently and the repo returns false — the JWTClientAuthentication
+     * Service must translate that race-victim signal into a 400
+     * invalid_client response instead of silently accepting the duplicate.
+     *
+     * @throws \Exception
+     */
+    public function testReplayDetectedWhenSaveJwtHistoryReportsRaceVictim(): void
+    {
+        // Helper has no return type declaration; narrow to keep PHPStan happy
+        // without bumping baselined "method on mixed" counts. Same shape as
+        // assertSsrfJwksUriRejected().
+        /** @var ClientEntity $clientEntity */
+        $clientEntity = $this->getClientEntityForTest();
+        $clientId = $clientEntity->getIdentifier();
+        assert(is_string($clientId) && $clientId !== '');
+        $jwks = $this->loadJSONFile("jwk-public-valid.json");
+        assert(is_string($jwks));
+        $clientEntity->setJwks($jwks);
+
+        $jwt = $this->createJWTForKeys($clientId, self::AUDIENCE);
+
+        // Mock JWTRepository so saveJwtHistory reports the race-victim
+        // signal (false) — simulating a concurrent request that already
+        // inserted the same jti while we were validating.
+        /** @var JWTRepository&MockObject $jwtRepo */
+        $jwtRepo = $this->createMock(JWTRepository::class);
+        $jwtRepo->method('getJwtGrantHistoryForJTI')->willReturn([]);
+        $jwtRepo->method('saveJwtHistory')->willReturn(false);
+
+        /** @var ClientRepository&MockObject $clientRepository */
+        $clientRepository = $this->getMockClientRepository($clientEntity);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
+        /** @var UserService&MockObject $userService */
+        $userService = $this->getMockUserService();
+        $grant->setUserService($userService);
+        $grant->setPrivateKey($this->createMock(CryptKey::class));
+        $grant->setClientRepository($clientRepository);
+        /** @var AccessTokenRepository&MockObject $accessTokenRepo */
+        $accessTokenRepo = $this->getMockAccessTokenRepository(new AccessTokenEntity());
+        $grant->setAccessTokenRepository($accessTokenRepo);
+        /** @var ScopeRepositoryInterface&MockObject $scopeRepo */
+        $scopeRepo = $this->getMockScopeRepository();
+        $grant->setScopeRepository($scopeRepo);
+        $grant->setJWTAuthenticationService(
+            new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $jwtRepo),
+        );
+
+        $response = $this->createMock(ResponseTypeInterface::class);
+        $response->expects($this->never())->method('setAccessToken');
+
+        $this->expectException(OAuthServerException::class);
+        $this->expectExceptionMessage(self::OAUTH_INVALID_CLIENT_MESSAGE);
+
+        /** @var ServerRequestInterface&MockObject $serverRequest */
+        $serverRequest = $this->getMockServerRequestForJWT($jwt);
+        $grant->respondToAccessTokenRequest(
+            $serverRequest,
+            $response,
+            new \DateInterval('PT300S'),
+        );
+    }
+
+    /**
      * Aisle round-2 finding #5 / round-1 finding #2 (CWE-294). Without `exp`,
      * the assertion's saveJwtHistory() call would store `jti_exp = NULL`
      * and the replay-lookup filter `jti_exp > FROM_UNIXTIME(?)` would
@@ -392,6 +459,10 @@ class CustomClientCredentialsGrantTest extends TestCase
     public function getMockJwtRepository(): \PHPUnit\Framework\MockObject\MockObject
     {
         $repo = $this->createMock(JWTRepository::class);
+        // saveJwtHistory now returns bool; the happy-path default is "row
+        // inserted successfully". Tests exercising the race-victim signal
+        // override this with willReturn(false).
+        $repo->method('saveJwtHistory')->willReturn(true);
         return $repo;
     }
 

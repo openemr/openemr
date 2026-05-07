@@ -138,6 +138,40 @@ final class JWTRepositoryTest extends TestCase
         );
     }
 
+    /**
+     * Aisle finding (CWE-362) regression. Replay protection used
+     * to be a check-then-insert sequence on a non-UNIQUE column, so two
+     * concurrent presentations of the same JWT could both pass the SELECT
+     * and both INSERT. The fix adds `UNIQUE KEY uq_jti (jti)` and switches
+     * the INSERT to `INSERT IGNORE`; the second insert is silently skipped
+     * (affected_rows = 0) and saveJwtHistory returns false — the canonical
+     * "race victim" signal callers translate to a replay rejection.
+     */
+    public function testSaveJwtHistoryReturnsFalseOnDuplicateJti(): void
+    {
+        $jti = 'jwt-repo-test-uq-' . bin2hex(random_bytes(4));
+        $exp = time() + 3600;
+
+        self::assertTrue(
+            $this->repository->saveJwtHistory($jti, 'jwt-repo-test-uq', $exp),
+            'First insert must succeed and report it inserted the row',
+        );
+
+        self::assertFalse(
+            $this->repository->saveJwtHistory($jti, 'jwt-repo-test-uq', $exp),
+            'Second insert with same jti must be blocked by UNIQUE KEY uq_jti '
+            . 'and return false (the race-victim signal callers convert to a '
+            . 'replay rejection).',
+        );
+
+        // Belt-and-braces: only one row exists despite two insert attempts.
+        $rows = QueryUtils::fetchRecords(
+            'SELECT id FROM jwt_grant_history WHERE jti = ?',
+            [$jti],
+        );
+        self::assertCount(1, $rows, 'UNIQUE constraint must block the second insert');
+    }
+
     public function testPurgeExpiredDropsPastRowsAndKeepsFutureRows(): void
     {
         $futureJti = 'jwt-repo-test-purge-keep-' . bin2hex(random_bytes(4));

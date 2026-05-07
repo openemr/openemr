@@ -198,7 +198,19 @@ readonly class OidcTokenValidator
         $issuerClaim = $token->claims()->get('iss');
         $issuerForRecord = is_string($issuerClaim) ? $issuerClaim : $parameters->expectedIssuer;
         // exp is now guaranteed DateTimeImmutable by the explicit guard above.
-        $this->jwtRepository->saveJwtHistory($replayKey, $issuerForRecord, $exp->getTimestamp());
+        // saveJwtHistory uses INSERT IGNORE against the UNIQUE KEY on
+        // jwt_grant_history.jti and returns false when the unique
+        // constraint blocked the row — i.e., a concurrent request slipped
+        // past the SELECT above and inserted first. Treat that as the same
+        // replay condition: fail closed.
+        $inserted = $this->jwtRepository->saveJwtHistory(
+            $replayKey,
+            $issuerForRecord,
+            $exp->getTimestamp(),
+        );
+        if (!$inserted) {
+            throw new OidcTokenValidationException('ID token has already been used (replay detected)');
+        }
 
         // Step 10: Map claims to NormalizedIdentity
         $claims = $this->extractClaims($token);

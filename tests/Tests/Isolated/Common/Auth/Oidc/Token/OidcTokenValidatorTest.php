@@ -738,6 +738,28 @@ final class OidcTokenValidatorTest extends TestCase
         self::assertSame('literal-jti-xyz', $result->jti);
         self::assertSame('literal-jti-xyz', $result->revocationKey);
     }
+
+    /**
+     * Aisle finding (CWE-362). Even a token that's never been
+     * seen by *this* request can race against a concurrent one that
+     * already finished saveJwtHistory. The pre-validation SELECT happens
+     * first and finds nothing, but by the time we INSERT IGNORE, the other
+     * request has already committed its row — the UNIQUE constraint blocks
+     * us, the repo returns false, and the validator must reject as replay.
+     *
+     * Simulated here by flipping the in-memory stub's race-victim flag so
+     * saveJwtHistory returns false even on a fresh jti.
+     */
+    public function testReplayDetectedWhenStorageReportsRaceVictim(): void
+    {
+        $jwt = $this->buildToken(jti: 'race-victim-jti');
+        $this->jwtRepository->simulateRaceVictim = true;
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('replay detected');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
 }
 
 /**
@@ -796,21 +818,39 @@ final class InMemoryJwtRepository extends JWTRepository
         ));
     }
 
+    /** Test-only override: simulate a duplicate-key race-victim signal. */
+    public bool $simulateRaceVictim = false;
+
     /**
      * @param mixed $jti
      * @param mixed $client_id
      * @param mixed $expiration
      */
-    public function saveJwtHistory($jti, $client_id, $expiration): void
+    public function saveJwtHistory($jti, $client_id, $expiration): bool
     {
         if (!is_string($jti) || !is_string($client_id)) {
-            return;
+            return false;
         }
+
+        if ($this->simulateRaceVictim) {
+            // Mirrors what the real repo returns when INSERT IGNORE skips
+            // a row because the UNIQUE KEY uq_jti constraint already
+            // matched another row inserted by a concurrent request.
+            return false;
+        }
+
+        if (isset($this->history[$jti])) {
+            // Mirror the production UNIQUE constraint: a second insert
+            // with the same jti must report "already there".
+            return false;
+        }
+
         $this->history[$jti][] = [
             'jti' => $jti,
             'client_id' => $client_id,
             'jti_exp' => is_int($expiration) ? $expiration : null,
         ];
+        return true;
     }
 
     /**

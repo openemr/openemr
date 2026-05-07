@@ -47,16 +47,31 @@ class JWTRepository
     }
 
     /**
-     * Saves off a historical record of the JWT unique id that was used for requesting a grant access token.  By saving
-     * off the client's requesting JTI and the date the JWT is valid for we can avoid replay attacks.
-     * @param $jti string The unique JWT token id that was used for requesting a grant access token
-     * @param $client_id string the client id that the jwt was requested from
-     * @param $expiration int|null Unix timestamp (seconds since epoch) of when the jti should expire.
+     * Saves off a historical record of the JWT unique id that was used for
+     * requesting a grant access token. By saving off the client's requesting
+     * JTI and the date the JWT is valid for we can avoid replay attacks.
+     *
+     * Uses `INSERT IGNORE` against the table's `UNIQUE KEY uq_jti (jti)` so
+     * concurrent presentations of the same JWT race-safely converge on a
+     * single row. Returns true when this call inserted the row, false when
+     * the unique constraint blocked it (i.e. the same jti was already
+     * present — the canonical "race victim" / replay signal). Other errors
+     * (connection lost, permissions, etc.) still throw so infrastructure
+     * problems aren't silently misread as replays.
+     *
+     * @param $jti        string   The unique JWT token id that was used for
+     *                             requesting a grant access token
+     * @param $client_id  string   The client id that the jwt was requested from
+     * @param $expiration int|null Unix timestamp (seconds since epoch) of when
+     *                             the jti should expire.
+     * @return bool true if the row was inserted, false if a duplicate-key
+     *              skip occurred (caller treats this as replay detected).
      */
-    public function saveJwtHistory($jti, $client_id, $expiration)
+    public function saveJwtHistory($jti, $client_id, $expiration): bool
     {
-        $sql = "INSERT INTO jwt_grant_history (jti, client_id, `jti_exp`, `creation_date`) VALUES(?, ?, FROM_UNIXTIME(?), NOW())";
+        $sql = "INSERT IGNORE INTO jwt_grant_history (jti, client_id, `jti_exp`, `creation_date`) VALUES(?, ?, FROM_UNIXTIME(?), NOW())";
         QueryUtils::sqlStatementThrowException($sql, [$jti, $client_id, $expiration], true);
+        return QueryUtils::affectedRows() === 1;
     }
 
     /**
