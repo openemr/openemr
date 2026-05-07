@@ -126,7 +126,7 @@ if (str_starts_with($hidden_mode, 'add')) {
             QueryUtils::sqlStatementThrowException("DELETE FROM {$tbl_camos_subcategory} WHERE id = ?", [$to_delete_id]);
         }
     } elseif ($hidden_selection == 'change_item') {
-        $select_item = filter_input(INPUT_POST, 'select_item', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        $select_item = filter_input(INPUT_POST, 'select_item', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
         if (is_array($select_item) && count($select_item) > 1) {
             foreach ($select_item as $v) {
                 $itemId = filter_var($v, FILTER_VALIDATE_INT);

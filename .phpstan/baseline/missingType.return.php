@@ -5667,11 +5667,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Events\\\\NotificationEventListener\\:\\:renderPhoneButton\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function oe_module_priorauth_add_menu_item\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/openemr.bootstrap.php',
@@ -9572,26 +9567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/CouchDB.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:can_patient_access\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:change_patient\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:documents_factory\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:getDocumentForUuid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:get_categories\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -9657,11 +9632,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:get_hash_algo_title\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:get_id\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -9712,11 +9682,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:get_thumb_name\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:get_thumb_url\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -9747,172 +9712,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:is_encrypted\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:persist\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:postPatientNote\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:process_deleted\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_couch_docid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_couch_revid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_date\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_deleted\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_docdate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_drive_uuid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_encounter_check\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_encounter_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_encrypted\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_foreign_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_foreign_reference_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_foreign_reference_table\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_hash\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_imported\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_list_id\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_mimetype\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_name\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_owner\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_pages\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_path_depth\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_revision\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_size\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_storagemethod\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_thumb_url\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_type\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_url\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:set_uuid\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:toString\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:update_imported\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
@@ -22873,11 +22678,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:setContextArgument\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:setTwigTemplate\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
 ];

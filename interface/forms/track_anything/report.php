@@ -98,8 +98,9 @@ function track_anything_report($pid, $encounter, $cols, $id): void
     //--------------------------------------------------------------
     // Graph-Button row
     //-------------------------------
-        echo "<tr>";
-        echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>";
+    $showbutton = 0;
+    echo "<tr>";
+    echo "<td class='check'><div class='navigateLink'>" . xlt('Check items to graph') . "</div></td>";
     for ($col_i = 0; $col_i < $col; $col_i++) {
         echo "<td class='check'><div class='navigateLink'>";
         for ($row_b = 0; $row_b < $row; $row_b++) {

@@ -3,10 +3,22 @@
 ALTER TABLE `module_faxsms_credentials` ADD `updated` DATETIME DEFAULT CURRENT_TIMESTAMP;
 #EndIf
 
-#IfNotIndex oe_faxsms_queue uniq_account_job_id
+#IfIndex oe_faxsms_queue uniq_account_job_id
+ALTER TABLE `oe_faxsms_queue` DROP INDEX `uniq_account_job_id`;
+#EndIf
+
+#IfNotColumnType oe_faxsms_queue account varchar(63)
+ALTER TABLE `oe_faxsms_queue` MODIFY `account` VARCHAR(63) DEFAULT NULL;
+#EndIf
+
+#IfNotColumnType oe_faxsms_queue job_id varchar(128)
+ALTER TABLE `oe_faxsms_queue` MODIFY `job_id` VARCHAR(128) DEFAULT NULL COMMENT 'Guid of fax';
+#EndIf
+
+#IfNotIndex oe_faxsms_queue uniq_account_job_id_v2
 DELETE FROM `oe_faxsms_queue` WHERE `job_id` IS NULL OR TRIM(`job_id`) = '' OR TRIM(`job_id`) = 'NULL';
 DELETE FROM oe_faxsms_queue WHERE id NOT IN ( SELECT id FROM ( SELECT MIN(id) AS id FROM oe_faxsms_queue GROUP BY account, job_id) keep);
-ALTER TABLE `oe_faxsms_queue` ADD UNIQUE KEY `uniq_account_job_id` (`account`(255), `job_id`(255));
+ALTER TABLE `oe_faxsms_queue` ADD UNIQUE KEY `uniq_account_job_id_v2` (`account`, `job_id`);
 #EndIf
 
 #IfMissingColumn oe_faxsms_queue status

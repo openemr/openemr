@@ -9,11 +9,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/SpectacleRx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/new.php',
 ];
 $ignoreErrors[] = [
@@ -25,11 +20,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/track_anything/history.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',

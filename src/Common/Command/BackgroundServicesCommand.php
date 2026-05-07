@@ -127,11 +127,11 @@ class BackgroundServicesCommand extends Command implements IGlobalsAware
         }
         $force = $name !== null && $forceRequested;
 
-        // Capture the name as a non-nullable local before the run so the
-        // JSON emit path below has a definite string fallback for the
-        // "service not found / empty results" case. The early return
-        // above guarantees name is non-null whenever $json is true.
-        if ($json && $name !== null) {
+        // The early return at the top of this method guarantees $name is
+        // non-null whenever $json is true, so the JSON emit path below has
+        // a definite string fallback for the "service not found / empty
+        // results" case.
+        if ($json) {
             $result = $this->createRunner()->run($name, $force)[0] ?? ['name' => $name, 'status' => 'error'];
             return $this->emitJsonResult($result, $io);
         }

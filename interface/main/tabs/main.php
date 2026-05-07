@@ -37,8 +37,8 @@ use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Tabs\DefaultTabsFilter;
 use OpenEMR\Telemetry\TelemetryService;
-use Symfony\Component\Filesystem\Path;
 
 const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
 
@@ -412,26 +412,28 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
 
     <script>
         <?php
-        if ($session->get('default_open_tabs')) :
-            // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
-            $visible = "true";
-            $default_open_tabs = $session->get('default_open_tabs');
-            foreach ($default_open_tabs as $i => $tab) :
-                $fileroot = OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot();
-                $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, $fileroot)) {
-                    unset($default_open_tabs[$i]);
-                    $session->set('default_open_tabs', $default_open_tabs);
-                    continue;
-                }
-                $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
-                $target = json_encode($tab['option_id']);
-                $label = json_encode(xl("Loading") . " " . $tab['title']);
-                $loading = xlj("Loading");
-                echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
-                $visible = "false";
-            endforeach;
-        endif;
+        $default_open_tabs = $session->get('default_open_tabs');
+        $valid_tabs = (new DefaultTabsFilter())->filter(
+            $default_open_tabs,
+            OEGlobalsBag::getInstance()->getKernel()->getProjectDir(),
+        );
+        // Persist the filtered/normalized list back to the session if any
+        // entries were dropped or the legacy `id`/`label` keys were
+        // rewritten to the modern `option_id`/`title` shape, so the next
+        // load doesn't have to redo the work.
+        if ($valid_tabs !== $default_open_tabs) {
+            $session->set('default_open_tabs', $valid_tabs);
+        }
+        // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
+        $visible = "true";
+        foreach ($valid_tabs as $tab) {
+            $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
+            $target = json_encode($tab['option_id']);
+            $label = json_encode(xl("Loading") . " " . $tab['title']);
+            $loading = xlj("Loading");
+            echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
+            $visible = "false";
+        }
         ?>
 
         app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($session->get("authUser"))

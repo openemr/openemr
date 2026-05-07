@@ -43,6 +43,8 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
     if ($data) {
         $vitals .= "<table><tr>";
 
+        $bps = '';
+        $bpd = '';
         foreach ($data as $key => $value) {
             if (
                 in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||

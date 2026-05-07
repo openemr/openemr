@@ -25,8 +25,11 @@ use OpenEMR\Core\Header;
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
-if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    AccessDeniedHelper::deny('Editing physical exam diagnoses is not authorized');
+if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate(
+        'Editing physical exam diagnoses is not authorized',
+        xl('Access Denied'),
+    );
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();

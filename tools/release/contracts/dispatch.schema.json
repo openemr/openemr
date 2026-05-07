@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/openemr/openemr-devops/blob/master/tools/release/contracts/dispatch.schema.json",
+  "title": "OpenEMR release dispatch payload",
+  "description": "Cross-repo repository_dispatch payloads emitted between openemr/openemr (conductor) and openemr/openemr-devops, openemr/website-openemr, openemr/website-openemr-files (consumers). See openemr/openemr-devops#664. The canonical copy lives here; consumers vendor it and CI fails on drift via tools/release/bin/check-vendored.php.",
+  "type": "object",
+  "required": [
+    "event",
+    "repo",
+    "sha",
+    "actor",
+    "dispatched_at",
+    "data"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "event": {
+      "description": "Dispatch event name. Conductor emits the first three; website-openemr emits openemr-docs-binaries to website-openemr-files.",
+      "type": "string",
+      "enum": [
+        "openemr-rel-cut",
+        "openemr-rel-update",
+        "openemr-tag",
+        "openemr-docs-binaries"
+      ]
+    },
+    "repo": {
+      "description": "Source repo in owner/name form.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9._-]+$"
+    },
+    "sha": {
+      "description": "40-character lowercase hex commit SHA the event refers to.",
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "actor": {
+      "description": "Identity that produced the dispatch (App slug or login).",
+      "type": "string",
+      "minLength": 1
+    },
+    "dispatched_at": {
+      "description": "ISO 8601 UTC timestamp, e.g. 2026-04-29T12:00:00Z.",
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+    },
+    "data": {
+      "type": "object"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "event": {
+          "const": "openemr-rel-cut"
+        },
+        "data": {
+          "$ref": "#/definitions/relCutData"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event": {
+          "const": "openemr-rel-update"
+        },
+        "data": {
+          "$ref": "#/definitions/relUpdateData"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event": {
+          "const": "openemr-tag"
+        },
+        "data": {
+          "$ref": "#/definitions/tagData"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event": {
+          "const": "openemr-docs-binaries"
+        },
+        "data": {
+          "$ref": "#/definitions/docsBinariesData"
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "version": {
+      "description": "Hugo version param shape (MAJOR.MINOR.PATCH).",
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "branch": {
+      "description": "Release branch name. Per #664 spec: rel-<MAJOR><MINOR>0.",
+      "type": "string",
+      "pattern": "^rel-\\d+\\d0$"
+    },
+    "tag": {
+      "description": "Release tag name. Per #664 spec: v<MAJOR>_<MINOR>_<PATCH>.",
+      "type": "string",
+      "pattern": "^v\\d+_\\d+_\\d+$"
+    },
+    "relCutData": {
+      "type": "object",
+      "required": [
+        "branch",
+        "version",
+        "prev_release"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "$ref": "#/definitions/branch"
+        },
+        "version": {
+          "$ref": "#/definitions/version"
+        },
+        "prev_release": {
+          "$ref": "#/definitions/version"
+        }
+      }
+    },
+    "relUpdateData": {
+      "type": "object",
+      "required": [
+        "branch",
+        "version",
+        "prev_release"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "$ref": "#/definitions/branch"
+        },
+        "version": {
+          "$ref": "#/definitions/version"
+        },
+        "prev_release": {
+          "$ref": "#/definitions/version"
+        }
+      }
+    },
+    "tagData": {
+      "type": "object",
+      "required": [
+        "tag",
+        "branch",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "tag": {
+          "$ref": "#/definitions/tag"
+        },
+        "branch": {
+          "$ref": "#/definitions/branch"
+        },
+        "version": {
+          "$ref": "#/definitions/version"
+        }
+      }
+    },
+    "docsBinariesData": {
+      "type": "object",
+      "required": [
+        "version",
+        "branch",
+        "files"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "$ref": "#/definitions/version"
+        },
+        "branch": {
+          "$ref": "#/definitions/branch"
+        },
+        "files": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

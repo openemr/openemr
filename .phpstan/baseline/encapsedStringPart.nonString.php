@@ -467,119 +467,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/aftercare_plan/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/aftercare_plan/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/aftercare_plan/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/ankleinjury/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/ankleinjury/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/ankleinjury/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/bronchitis/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/bronchitis/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/bronchitis/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/care_plan/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/clinic_note/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/clinic_note/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/clinical_instructions/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/clinical_instructions/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/clinical_notes/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/clinical_notes/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/dictation/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/dictation/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/dictation/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$LENS_MATERIAL \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/SpectacleRx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/SpectacleRx.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/help.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$providerID \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -590,16 +480,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$providerNAME \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/js/eye_base.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/js/eye_base.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$OE_SITE_DIR \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -630,31 +510,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$field_id \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/taskman.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$v_js_includes \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/contraception_products/initialize_contraception_products.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$web_root \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/contraception_products/initialize_contraception_products.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$_POST\\[\'form_checksum\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -692,51 +547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_search_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/functional_cognitive_status/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/functional_cognitive_status/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/gad7/gad7.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/gad7/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/misc_billing_options/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/forms/misc_billing_options/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/misc_billing_options/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/common.php',
@@ -745,71 +555,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/newGroupEncounter/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/newpatient/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/note/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/note/print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/note/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/note/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -827,36 +572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/observation/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/phq9/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/phq9/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/prior_auth/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/prior_auth/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/prior_auth/view.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$account \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
@@ -872,16 +587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$tmp \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
@@ -889,132 +594,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/delete.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/requisition/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/reviewofs/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/reviewofs/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/reviewofs/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/ros/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/ros/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/ros/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/sdoh/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/sdoh/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/soap/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/soap/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/soap/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/track_anything/create.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/track_anything/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/transfer_summary/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/transfer_summary/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/transfer_summary/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$rootdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/treatment_plan/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/treatment_plan/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/treatment_plan/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/vitals/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/vitals/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/vitals/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$dir\\[\'directory\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

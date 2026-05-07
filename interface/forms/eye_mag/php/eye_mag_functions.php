@@ -34,6 +34,8 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
     global $priors;
     global $form_id;
     global $earlier;
+    $output = '';
+    $i = 0;
 
     if ($type == "canvas") {
         $zone .= "_canvas";
@@ -169,7 +171,7 @@ function priors_select($zone, $orig_id, $id_to_show, $pid, $type = 'text')
                 id="PRIOR_' . attr($zone) . '"
                 style="padding:0 0;font-size:1.2em;"
                 class="PRIORS">
-                ' . ($output ?? '') . '
+                ' . $output . '
         </select>
                   &nbsp;
         <span onclick=\'$("#PRIOR_' . attr($zone) . '").val("' . attr($priors[$later]['id']) . '").trigger("change");\'
@@ -236,6 +238,40 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     form_eye_base.id=?";
     $result = sqlQuery($query, [$pid,$id_to_show]);
     @extract($result);
+    $ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null;
+    $ACT10SCNEAR ??= null; $ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null;
+    $ACT11SCNEAR ??= null; $ACT1CCDIST ??= null; $ACT1CCNEAR ??= null; $ACT1SCDIST ??= null;
+    $ACT1SCNEAR ??= null; $ACT2CCDIST ??= null; $ACT2CCNEAR ??= null; $ACT2SCDIST ??= null;
+    $ACT2SCNEAR ??= null; $ACT3CCDIST ??= null; $ACT3CCNEAR ??= null; $ACT3SCDIST ??= null;
+    $ACT3SCNEAR ??= null; $ACT4CCDIST ??= null; $ACT4CCNEAR ??= null; $ACT4SCDIST ??= null;
+    $ACT4SCNEAR ??= null; $ACT5CCDIST ??= null; $ACT5CCNEAR ??= null; $ACT5SCDIST ??= null;
+    $ACT5SCNEAR ??= null; $ACT6CCDIST ??= null; $ACT6CCNEAR ??= null; $ACT6SCDIST ??= null;
+    $ACT6SCNEAR ??= null; $ACT7CCDIST ??= null; $ACT7CCNEAR ??= null; $ACT7SCDIST ??= null;
+    $ACT7SCNEAR ??= null; $ACT8CCDIST ??= null; $ACT8CCNEAR ??= null; $ACT8SCDIST ??= null;
+    $ACT8SCNEAR ??= null; $ACT9CCDIST ??= null; $ACT9CCNEAR ??= null; $ACT9SCDIST ??= null;
+    $ACT9SCNEAR ??= null; $ANTSEG_COMMENTS ??= null; $ATROPINE ??= null; $CACCDIST ??= null;
+    $CACCNEAR ??= null; $CYCLOGYL ??= null; $CYCLOMYDRIL ??= null; $DACCDIST ??= null; $DACCNEAR ??= null;
+    $DIL_MEDS ??= null; $EXT_COMMENTS ??= null; $HERTELBASE ??= null; $LADNEXA ??= null; $LBROW ??= null;
+    $LCAROTID ??= null; $LCNV ??= null; $LCNVII ??= null; $LLF ??= null; $LLL ??= null; $LMCT ??= null;
+    $LMRD ??= null; $LTEMPART ??= null; $LUL ??= null; $LVFISSURE ??= null; $MOTILITYNORMAL ??= null;
+    $MOTILITY_LI ??= null; $MOTILITY_LL ??= null; $MOTILITY_LLIO ??= null; $MOTILITY_LLSO ??= null;
+    $MOTILITY_LR ??= null; $MOTILITY_LRIO ??= null; $MOTILITY_LRSO ??= null; $MOTILITY_LS ??= null;
+    $MOTILITY_RI ??= null; $MOTILITY_RL ??= null; $MOTILITY_RLIO ??= null; $MOTILITY_RLSO ??= null;
+    $MOTILITY_RR ??= null; $MOTILITY_RRIO ??= null; $MOTILITY_RRSO ??= null; $MOTILITY_RS ??= null;
+    $NEO25 ??= null; $NEURO_COMMENTS ??= null; $NPC ??= null; $ODAC ??= null; $ODCMT ??= null;
+    $ODCOINS ??= null; $ODCOLOR ??= null; $ODCONJ ??= null; $ODCORNEA ??= null; $ODCUP ??= null;
+    $ODDISC ??= null; $ODGONIO ??= null; $ODHERTEL ??= null; $ODIRIS ??= null; $ODKTHICKNESS ??= null;
+    $ODLENS ??= null; $ODMACULA ??= null; $ODNPA ??= null; $ODPERIPH ??= null; $ODREDDESAT ??= null;
+    $ODSCHIRMER1 ??= null; $ODSCHIRMER2 ??= null; $ODTBUT ??= null; $ODVESSELS ??= null;
+    $ODVITREOUS ??= null; $OSAC ??= null; $OSCMT ??= null; $OSCOINS ??= null; $OSCOLOR ??= null;
+    $OSCONJ ??= null; $OSCORNEA ??= null; $OSCUP ??= null; $OSDISC ??= null; $OSGONIO ??= null;
+    $OSHERTEL ??= null; $OSIRIS ??= null; $OSKTHICKNESS ??= null; $OSLENS ??= null; $OSMACULA ??= null;
+    $OSNPA ??= null; $OSPERIPH ??= null; $OSREDDESAT ??= null; $OSSCHIRMER1 ??= null; $OSSCHIRMER2 ??= null;
+    $OSTBUT ??= null; $OSVESSELS ??= null; $OSVITREOUS ??= null; $RADNEXA ??= null; $RBROW ??= null;
+    $RCAROTID ??= null; $RCNV ??= null; $RCNVII ??= null; $RETINA_COMMENTS ??= null; $RLF ??= null;
+    $RLL ??= null; $RMCT ??= null; $RMRD ??= null; $RTEMPART ??= null; $RUL ??= null; $RVFISSURE ??= null;
+    $STEREOPSIS ??= null; $TROPICAMIDE ??= null; $VERTFUSAMPS ??= null; $display_PMSFH ??= null;
+    $here ??= null; $i ??= null; $k ??= null; $output ??= null;
     ob_start();
     if ($zone == "REFRACTIONS") {
         //TODO maybe just sql _refraction+acuity
@@ -2052,6 +2088,10 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     global $PMSFH;
     global $pid;
     global $PMSFH_titles;
+    $count = [];
+    $total_PMSFH = 0;
+    $header1 = '';
+    $display_PMSFH = [];
     if (!($PMFSH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
@@ -2104,7 +2144,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
     }
 
     $counter = "0";
-    $column_max = round(($total_PMSFH ?? null) / $rows) + 1;
+    $column_max = round($total_PMSFH / $rows) + 1;
     if ($column_max < "25") {
         $column_max = '20';
     }
@@ -2668,6 +2708,8 @@ function show_PMSFH_report($PMSFH): void
 {
     global $pid;
     global $ISSUE_TYPES;
+    $count = [];
+    $total_PMSFH = 0;
 
     //4 panels
     $rows = '4';
@@ -2722,8 +2764,8 @@ function show_PMSFH_report($PMSFH): void
     }
 
     $counter = "0";
-    $column_max = round(($total_PMSFH ?? null) / $rows) ;
-    $panel_size = round(($total_PMSFH ?? null) / $rows) ;
+    $column_max = round($total_PMSFH / $rows) ;
+    $panel_size = round($total_PMSFH / $rows) ;
 
     //<!-- POH -->
     $counter++;
@@ -2986,6 +3028,8 @@ function display_QP($zone, $provider_id)
         return;
     }
 
+    $here = [];
+    $action = '';
     ob_start();
     $query  = "SELECT * FROM list_options where list_id =?  ORDER BY seq";
     $result = sqlStatement($query, ["Eye_QP_" . $zone . "_$provider_id"]);
@@ -3808,6 +3852,10 @@ function build_CODING_items($pid, $encounter)
  */
 function document_engine($pid)
 {
+    $categories = [];
+    $my_name = [];
+    $children_names = [];
+    $zones = [];
     $sql1 =  sqlStatement("Select * from categories");
     while ($row1 = sqlFetchArray($sql1)) {
         $categories[] = $row1;
@@ -4249,6 +4297,7 @@ function menu_overhaul_bottom($pid, $encounter): void
  */
 function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
 {
+    $all = [];
     $sql = "SELECT category, nickname, name, state, directory, id, sql_run, " .
       "unpackaged, date FROM registry WHERE " .
       "state LIKE ? ORDER BY category, priority, name";
@@ -4374,6 +4423,13 @@ function start_your_engines($FIELDS)
     global $pid;
     global $codes_found;
     global $PMSFH;
+    $clinical_terms = [];
+    $hit_RVO = [];
+    $code = '';
+    $DM_code = '';
+    $DX = '';
+    $sub_term = '';
+    $count = 0;
     if (!($PMFSH ?? '')) {
         $PMSFH = build_PMSFH($pid);
     }
@@ -4850,6 +4906,15 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
     global $encounter_data;
     global $dated;
     global $visit_date;
+    $OCT_date = []; $VF_date = []; $VISITS_date = []; $time_OU = []; $GONIO_date = [];
+    $GONIO = []; $ODIOP = []; $OSIOP = []; $ODIOPTARGETS = []; $OSIOPTARGETS = [];
+    $GONIO_values = []; $OCT_values = []; $VF_values = []; $OD_values = []; $OS_values = [];
+    $OD_methods = []; $OS_methods = []; $ODIOPTARGET_values = []; $OSIOPTARGET_values = [];
+    $OD_time_values = []; $OS_time_values = [];
+    $current_OCT = ''; $current_VF = ''; $old_OCTs = ''; $old_VFs = '';
+    $FAILED_drug = ''; $FAILED_drugs = ''; $gonios = ''; $hideme = ''; $time = '';
+    $count = 0;
+    $ODIOPTARGET = ''; $OSIOPTARGET = '';
 
     if (!$documents) {
         [$documents] = document_engine($pid);
@@ -4968,10 +5033,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
             $OSIOP[$i]['time'] = $time;
 
         if ($encounter_data['ODIOPAP'] > '') {
-            if (!is_int($encounter_data['ODIOPAP'])) {
-                $ODIOP[$k]['IOP'] = '';
-            } else {
-                $ODIOP[$i]['IOP'] = $encounter_data['ODIOPAP']; }
+            $ODIOP[$i]['IOP'] = !is_int($encounter_data['ODIOPAP']) ? '' : $encounter_data['ODIOPAP'];
             $ODIOP[$i]['method'] = "AP";
         } elseif ($encounter_data['ODIOPTPN'] > '') {
             $ODIOP[$i]['IOP'] = $encounter_data['ODIOPTPN'];
@@ -4979,10 +5041,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
         }
 
         if ($encounter_data['OSIOPAP'] > '') {
-            if (!is_int($encounter_data['OSIOPAP'])) {
-                $OSIOP[$k]['IOP'] = '';
-            } else {
-                $OSIOP[$i]['IOP'] = $encounter_data['OSIOPAP']; }
+            $OSIOP[$i]['IOP'] = !is_int($encounter_data['OSIOPAP']) ? '' : $encounter_data['OSIOPAP'];
             $OSIOP[$i]['method'] = "AP";
         } elseif ($encounter_data['OSIOPTPN'] > '') {
             $OSIOP[$i]['IOP'] = $encounter_data['OSIOPTPN'];
@@ -5012,10 +5071,10 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
 
     //can't merge empty arrays
     $list = [];
-    $arrs[] = $OCT_date ?? '';
-    $arrs[] = $VF_date ?? '';
-    $arrs[] = $GONIO_date ?? '';
-    $arrs[] = $VISITS_date ?? '';
+    $arrs[] = $OCT_date;
+    $arrs[] = $VF_date;
+    $arrs[] = $GONIO_date;
+    $arrs[] = $VISITS_date;
 
     foreach ($arrs as $arr) {
         if (is_array($arr)) {
@@ -5168,17 +5227,17 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                         <?php  ($no_drugs ?? null) ? ($meds_here = '') : $meds_here = xlt('Start'); ?>
                     <td class="GFS_title" style="text-align:center;"><?php echo $meds_here; ?></td>
                     <?php
-                    if ($FAILED_drugs ?? null) {
+                    if ($FAILED_drugs !== '') {
                         echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     } ?>
                 </tr>
                 <?php
                 echo $current_drugs ?? '';
-                if ($FAILED_drugs ?? null) {
+                if ($FAILED_drugs !== '') {
                     echo '<tr class="' . $hideme . '"><td class="GFS_title" colspan="1">' . xlt('Prior Eye Meds') . '</td><td class="GFS_title" style="text-align:center;">' . xlt('Start') . '</td><td  style="text-align:center;" class="GFS_title">End</td></tr>';
                 }
 
-                echo $FAILED_drugs ?? '';
+                echo $FAILED_drugs;
 
                 //start VF section
                 if ($count_VF > '0') { //need to decide how many to show on open, and hide the rest?  For now the first only.
@@ -5207,12 +5266,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                 <tr class="GFS_tr">
                     <td colspan="3" class="GFS_title"><?php echo xlt('Visual Fields'); ?>:
                     <?php
-                    if ($old_VFs ?? null) {
+                    if ($old_VFs !== '') {
                         echo '<td><span class="top right" id="toggle_VFs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     }
                     ?>
                 </tr>
-                <?php echo $current_VF . ($old_VFs ?? '');
+                <?php echo $current_VF . $old_VFs;
                 //end VF section
 
                 //start Optic Nerve section
@@ -5247,12 +5306,12 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday'): string
                             $current_OCT = "<tr><td colspan='3' class='GFS_td_1' style='text-align:center;'>" . xlt('Not documented') . "</td></tr>";
                         }
 
-                        if ($old_OCTs ?? null) {
+                        if ($old_OCTs !== '') {
                             echo '<td><span class="top right " id="toggle_OCTs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                         }
 
                         echo "</tr>";
-                        echo $current_OCT . ($old_OCTs ?? '');
+                        echo $current_OCT . $old_OCTs;
 
                         $count = 0;
                         $hideme = '';
@@ -6362,6 +6421,27 @@ function generate_specRx($W)
 function display_refractive_data($encounter_data): void
 {
     @extract($encounter_data);
+    $ARNEARODVA ??= null; $ARNEAROSVA ??= null; $ARODADD ??= null; $ARODAXIS ??= null; $ARODCYL ??= null;
+    $ARODPRISM ??= null; $ARODSPH ??= null; $ARODVA ??= null; $AROSADD ??= null; $AROSAXIS ??= null;
+    $AROSCYL ??= null; $AROSPRISM ??= null; $AROSSPH ??= null; $AROSVA ??= null; $CONTRASTODVA ??= null;
+    $CRNEARODVA ??= null; $CRNEAROSVA ??= null; $CRODADD ??= null; $CRODAXIS ??= null; $CRODCYL ??= null;
+    $CRODPRISM ??= null; $CRODSPH ??= null; $CRODVA ??= null; $CROSADD ??= null; $CROSAXIS ??= null;
+    $CROSCYL ??= null; $CROSPRISM ??= null; $CROSSPH ??= null; $CROSVA ??= null; $CTLBRANDOD ??= null;
+    $CTLBRANDOS ??= null; $CTLMANUFACTUREROD ??= null; $CTLMANUFACTUREROS ??= null; $CTLODADD ??= null;
+    $CTLODAXIS ??= null; $CTLODBC ??= null; $CTLODCYL ??= null; $CTLODDIAM ??= null; $CTLODSPH ??= null;
+    $CTLODVA ??= null; $CTLOSADD ??= null; $CTLOSAXIS ??= null; $CTLOSBC ??= null; $CTLOSCYL ??= null;
+    $CTLOSDIAM ??= null; $CTLOSSPH ??= null; $CTLOSVA ??= null; $CTLSUPPLIEROD ??= null;
+    $CTLSUPPLIEROS ??= null; $GLAREODVA ??= null; $GLAREOSVA ??= null; $LIODVA ??= null; $LIOSVA ??= null;
+    $MRNEARODVA ??= null; $MRNEAROSVA ??= null; $MRODADD ??= null; $MRODAXIS ??= null; $MRODCYL ??= null;
+    $MRODPRISM ??= null; $MRODSPH ??= null; $MRODVA ??= null; $MROSADD ??= null; $MROSAXIS ??= null;
+    $MROSCYL ??= null; $MROSPRISM ??= null; $MROSSPH ??= null; $MROSVA ??= null; $ODACD ??= null;
+    $ODAXIALLENGTH ??= null; $ODECL ??= null; $ODK1 ??= null; $ODK2 ??= null; $ODK2AXIS ??= null;
+    $ODLT ??= null; $ODPDMeasured ??= null; $ODVA ??= null; $ODW2W ??= null; $OSACD ??= null;
+    $OSAXIALLENGTH ??= null; $OSECL ??= null; $OSK1 ??= null; $OSK2 ??= null; $OSK2AXIS ??= null;
+    $OSLT ??= null; $OSPDMeasured ??= null; $OSVA ??= null; $OSW2W ??= null; $PAMODBA ??= null;
+    $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null; $PHOSVA ??= null; $RX_TYPE ??= null;
+    $VABINOC ??= null; $date ??= null; $display_Add ??= null; $i ??= null; $id ??= null; $pend ??= null;
+    $pid ??= null;
     $count_rx = '0';
 
     $query = "select * from form_eye_mag_wearing where PID=? and FORM_ID=? ORDER BY RX_NUMBER";
@@ -6736,6 +6816,8 @@ function in_array_r($needle, $haystack, $strict = false)
              */
 function getIOPTARGETS($pid, $id, $provider_id)
 {
+    $ODIOPTARGET = '';
+    $OSIOPTARGET = '';
     //iterate through this patient's encounters to find IOPTARGETS.
     //if none use provider's default value, or 21.
     //If a practice is loading old visits into OpenEMR, the visit date and id will not correlate linearly.

@@ -76,7 +76,7 @@ class CsrfUtils
         bool $dieOnFail = false,
     ): void {
         $session ??= SessionWrapperFactory::getInstance()->getActiveSession();
-        $token = filter_input($inputType, $key, FILTER_DEFAULT, FILTER_REQUIRE_SCALAR);
+        $token = filter_input($inputType, $key, FILTER_UNSAFE_RAW, FILTER_REQUIRE_SCALAR);
         if (!self::verifyCsrfToken($token, $session, $subject)) {
             if ($dieOnFail) {
                 self::csrfNotVerified();

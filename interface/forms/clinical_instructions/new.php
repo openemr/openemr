@@ -13,13 +13,19 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
 
 $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);

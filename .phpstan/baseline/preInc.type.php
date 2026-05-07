@@ -39,11 +39,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/physical_exam/edit_diagnoses.php',
 ];
 $ignoreErrors[] = [
@@ -118,7 +113,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [

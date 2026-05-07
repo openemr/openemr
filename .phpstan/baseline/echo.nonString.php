@@ -23,11 +23,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../controllers/C_Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
@@ -93,62 +88,37 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/ankleinjury/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/ankleinjury/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/bronchitis/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/bronchitis/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 21,
+    'count' => 20,
     'path' => __DIR__ . '/../../interface/forms/care_plan/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/clinic_note/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/clinic_note/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/clinical_instructions/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/dictation/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/dictation/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/SpectacleRx.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
@@ -158,17 +128,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 48,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
@@ -178,32 +143,17 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/code_choice/initialize_code_choice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/contraception_products/initialize_contraception_products.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 14,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 9,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/initialize_review.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/views/review.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 12,
+    'count' => 11,
     'path' => __DIR__ . '/../../interface/forms/functional_cognitive_status/new.php',
 ];
 $ignoreErrors[] = [
@@ -215,11 +165,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/gad7/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/group_attendance/new.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
@@ -249,11 +194,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/prior_auth/new.php',
 ];
 $ignoreErrors[] = [
@@ -274,22 +214,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/delete.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/reviewofs/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/reviewofs/view.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
@@ -308,11 +233,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/sdoh/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/soap/new.php',
 ];
@@ -328,17 +248,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/forms/track_anything/create.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/track_anything/history.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/track_anything/new.php',
 ];
 $ignoreErrors[] = [

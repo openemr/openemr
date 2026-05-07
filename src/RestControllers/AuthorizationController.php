@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -26,6 +28,7 @@ use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7Server\ServerRequestCreator;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
@@ -53,6 +56,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -878,6 +882,20 @@ class AuthorizationController
             //Check the validity of the authentication token
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
                 if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
+                    // Log failed MFA authentication attempt
+                    $rawMfaType = $request->request->getString('mfa_type');
+                    $mfaType = in_array($rawMfaType, [MfaUtils::TOTP, MfaUtils::U2F], true) ? $rawMfaType : 'unknown';
+                    $userService = new UserService();
+                    $userRow = $this->userId !== null ? $userService->getUser($this->userId) : false;
+                    $mfaUsername = ($userRow !== false && isset($userRow['username'])) ? $userRow['username'] : null;
+                    $mfaAuthGroup = '';
+                    if ($mfaUsername !== null) {
+                        $resolvedGroup = $userService->getAuthGroupForUser($mfaUsername);
+                        if (is_string($resolvedGroup)) {
+                            $mfaAuthGroup = $resolvedGroup;
+                        }
+                    }
+                    EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::mfa(), $mfaUsername, $mfaAuthGroup, "OAuth2 MFA ($mfaType) code incorrect");
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
@@ -921,7 +939,10 @@ class AuthorizationController
         return $this->createServerResponse()->withStatus(Response::HTTP_TEMPORARY_REDIRECT)->withHeader("Location", $redirect);
     }
 
-    private function renderTwigPage($pageName, $template, $templateVars): ResponseInterface
+    /**
+     * @param array<string, mixed> $templateVars
+     */
+    private function renderTwigPage(string $pageName, string $template, array $templateVars): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);

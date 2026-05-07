@@ -9322,16 +9322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:authenticate\\(\\) has parameter \\$acl with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:cacheAuthData\\(\\) has parameter \\$platform with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\EtherFaxClient\\:\\:__construct\\(\\) has parameter \\$account with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
@@ -9468,11 +9458,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Events\\\\NotificationEventListener\\:\\:emailNotification\\(\\) has parameter \\$file with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Events\\\\NotificationEventListener\\:\\:getRCCredentials\\(\\) has parameter \\$serviceType with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
 ];
@@ -17213,11 +17198,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:get_ccr_type\\(\\) has parameter \\$doc_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:get_thumb_name\\(\\) has parameter \\$file_name with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
@@ -26417,11 +26397,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function rmdir_recursive\\(\\) has parameter \\$dir with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function rxnorm_import\\(\\) has parameter \\$is_windows_flag with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/standard_tables_capture.inc.php',
@@ -30827,16 +30802,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:decodePortalOneTime\\(\\) has parameter \\$redirect_token with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:encodeLink\\(\\) has parameter \\$encrypted_redirect with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:encodeLink\\(\\) has parameter \\$site_addr with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
@@ -30893,11 +30858,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:insertOnetime\\(\\) has parameter \\$scope with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OneTimeAuth\\:\\:processOnetime\\(\\) has parameter \\$redirect_token with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OneTimeAuth.php',
 ];
@@ -33187,11 +33147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:__construct\\(\\) has parameter \\$twigTemplate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent\\:\\:__construct\\(\\) has parameter \\$twigVariables with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
@@ -33948,21 +33903,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:isSMARTAuthorizationEndPoint\\(\\) has parameter \\$end_point with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$pageName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$template with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$templateVars with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
@@ -35290,41 +35230,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\PatientContextSearchController\\:\\:searchPatients\\(\\) has parameter \\$userUUID with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/SMART/PatientContextSearchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$defaultTemplate with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$pageName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$template with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigJson\\(\\) has parameter \\$templateVars with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$pageName with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$template with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:renderTwigPage\\(\\) has parameter \\$templateVars with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\TransactionRestController\\:\\:CreateTransaction\\(\\) has parameter \\$data with no type specified\\.$#',

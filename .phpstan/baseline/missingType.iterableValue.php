@@ -1082,21 +1082,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:getCachedAuth\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:getCredentials\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:isValidCachedAuth\\(\\) has parameter \\$authData with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\EtherFaxClient\\:\\:clientHttpGet\\(\\) has parameter \\$get with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
@@ -1105,11 +1090,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\EtherFaxClient\\:\\:clientHttpPost\\(\\) has parameter \\$post with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Events\\\\NotificationEventListener\\:\\:getRCCredentials\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var for variable \\$module has no value type specified in iterable type array\\.$#',
@@ -1900,11 +1880,6 @@ $ignoreErrors[] = [
     'message' => '#^Function sortAppointments\\(\\) has parameter \\$appointments with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Document\\:\\:documents_factory_for_foreign_reference\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:getDocumentsForPatient\\(\\) return type has no value type specified in iterable type array\\.$#',
