@@ -40,7 +40,7 @@ use Symfony\Component\HttpClient\HttpClient;
     ->setName('create-tag')
     ->setDescription('Create an annotated release tag via the GitHub API')
     ->addOption('repo', null, InputOption::VALUE_REQUIRED, 'owner/name of the target repo')
-    ->addOption('version', null, InputOption::VALUE_REQUIRED, 'MAJOR.MINOR.PATCH release version')
+    ->addOption('release-version', null, InputOption::VALUE_REQUIRED, 'MAJOR.MINOR.PATCH release version')
     ->addOption('commit-sha', null, InputOption::VALUE_REQUIRED, '40-hex merge commit SHA')
     ->addOption('conductor-pr-url', null, InputOption::VALUE_REQUIRED, 'URL of the conductor release-prep PR')
     ->addOption(
@@ -65,7 +65,7 @@ use Symfony\Component\HttpClient\HttpClient;
         try {
             $request = new TagCreationRequest(
                 repo: $opts->string('repo'),
-                version: $opts->string('version'),
+                version: $opts->string('release-version'),
                 commitSha: $opts->string('commit-sha'),
                 conductorPrUrl: $opts->string('conductor-pr-url'),
                 appToken: $token,

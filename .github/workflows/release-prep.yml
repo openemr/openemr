@@ -158,7 +158,7 @@ jobs:
           --sha="${PUSH_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \
-          --version="${VERSION}" \
+          --release-version="${VERSION}" \
           --prev-release="${prev_release}"
 
   finalize:
@@ -215,7 +215,7 @@ jobs:
       run: |
         php tools/release/bin/create-tag.php \
           --repo="${REPO}" \
-          --version="${VERSION}" \
+          --release-version="${VERSION}" \
           --commit-sha="${MERGE_SHA}" \
           --conductor-pr-url="${PR_URL}"
 
@@ -243,5 +243,5 @@ jobs:
           --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \
-          --version="${VERSION}" \
+          --release-version="${VERSION}" \
           --tag="${tag_name}"

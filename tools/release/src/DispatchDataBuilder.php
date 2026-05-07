@@ -32,13 +32,13 @@ final readonly class DispatchDataBuilder
         return match ($event) {
             DispatchRequest::EVENT_REL_CUT, DispatchRequest::EVENT_REL_UPDATE => [
                 'branch' => $this->opts->string('branch'),
-                'version' => $this->opts->string('version'),
+                'version' => $this->opts->string('release-version'),
                 'prev_release' => $this->opts->string('prev-release'),
             ],
             DispatchRequest::EVENT_TAG => [
                 'tag' => $this->opts->string('tag'),
                 'branch' => $this->opts->string('branch'),
-                'version' => $this->opts->string('version'),
+                'version' => $this->opts->string('release-version'),
             ],
             DispatchRequest::EVENT_PROBE => [
                 'note' => 'release-permissions-probe; ignored by consumers',

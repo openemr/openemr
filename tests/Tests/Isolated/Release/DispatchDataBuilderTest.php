@@ -26,7 +26,7 @@ final class DispatchDataBuilderTest extends TestCase
     {
         $builder = new DispatchDataBuilder($this->reader([
             '--branch' => 'rel-810',
-            '--version' => '8.1.0',
+            '--release-version' => '8.1.0',
             '--prev-release' => '8.0.0',
         ]));
         self::assertSame(
@@ -40,7 +40,7 @@ final class DispatchDataBuilderTest extends TestCase
         $builder = new DispatchDataBuilder($this->reader([
             '--tag' => 'v8_1_0',
             '--branch' => 'rel-810',
-            '--version' => '8.1.0',
+            '--release-version' => '8.1.0',
         ]));
         self::assertSame(
             ['tag' => 'v8_1_0', 'branch' => 'rel-810', 'version' => '8.1.0'],
@@ -63,7 +63,7 @@ final class DispatchDataBuilderTest extends TestCase
     {
         $definition = new InputDefinition([
             new InputOption('branch', null, InputOption::VALUE_REQUIRED),
-            new InputOption('version', null, InputOption::VALUE_REQUIRED),
+            new InputOption('release-version', null, InputOption::VALUE_REQUIRED),
             new InputOption('prev-release', null, InputOption::VALUE_REQUIRED),
             new InputOption('tag', null, InputOption::VALUE_REQUIRED),
         ]);
