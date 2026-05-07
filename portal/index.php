@@ -166,18 +166,9 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 
-    $crypto = ServiceContainer::getCrypto();
-    $forwardEmailVerify = is_string($_GET['forward_email_verify']) ? $_GET['forward_email_verify'] : null;
-    if (!$crypto->cryptCheckStandard($forwardEmailVerify)) {
-        ServiceContainer::getLogger()->debug("illegal token, so stopped attempt to use forward_email_verify token");
-        SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w&u');
-        exit();
-    }
-
-    $token_one_time = $crypto->decryptStandard($forwardEmailVerify, minimumVersion: 6);
-    if (empty($token_one_time)) {
-        ServiceContainer::getLogger()->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
+    $token_one_time = is_string($_GET['forward_email_verify']) ? $_GET['forward_email_verify'] : '';
+    if (strlen($token_one_time) !== 32 || !ctype_alnum($token_one_time)) {
+        ServiceContainer::getLogger()->debug("invalid token format, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
@@ -254,15 +245,9 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
     $auth = false;
-    if (strlen((string) $_GET['forward']) >= 64) {
-        $crypto = ServiceContainer::getCrypto();
-        $forwardToken = is_string($_GET['forward']) ? $_GET['forward'] : null;
-        if ($crypto->cryptCheckStandard($forwardToken)) {
-            $one_time = $crypto->decryptStandard($forwardToken, minimumVersion: 6);
-            if (!empty($one_time)) {
-                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
-            }
-        }
+    $one_time = is_string($_GET['forward']) ? $_GET['forward'] : '';
+    if (strlen($one_time) === 32 && ctype_alnum($one_time)) {
+        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
     }
     if ($auth === false) {
         error_log("PORTAL ERROR: " . errorLogEscape('One time reset:' . $_GET['forward']), 0);
