@@ -102,9 +102,9 @@
       "pattern": "^rel-[A-Za-z0-9]+$"
     },
     "tag": {
-      "description": "Release tag name. Per #664 spec: v<MAJOR>_<MINOR>_<PATCH>.",
+      "description": "Release tag name. Per #664 spec real releases use v<MAJOR>_<MINOR>_<PATCH>. Test runs append -test.<shortSha> (7 hex chars) so a test merge does not collide with a real release tag.",
       "type": "string",
-      "pattern": "^v\\d+_\\d+_\\d+$"
+      "pattern": "^v\\d+_\\d+_\\d+(-test\\.[0-9a-f]{7})?$"
     },
     "relCutData": {
       "type": "object",

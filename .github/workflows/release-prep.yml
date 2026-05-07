@@ -10,8 +10,12 @@ name: Release Prep Conductor
 
 on:
   push:
+    # Production rel-* branches only. branch-to-version.php on the push
+    # path requires rel-<MAJOR><MINOR>0 and would crash on a stray push
+    # to a test branch like rel-test. Test runs come in via
+    # workflow_dispatch instead.
     branches:
-    - 'rel-*'
+    - 'rel-[0-9]*0'
     paths-ignore:
     - 'docs/**'
   pull_request:
@@ -29,6 +33,11 @@ on:
         description: 'Release branch (rel-NNN)'
         required: true
         type: string
+      test:
+        description: 'Test mode: open the prep PR under release-prep-test/<branch> so its merge produces a v{M}_{m}_{p}-test.{shortSha} tag instead of a real release tag. Use to exercise the conductor end-to-end without cutting a real release.'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -87,19 +96,52 @@ jobs:
         REF: ${{ github.ref }}
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.target-version }}
+        INPUT_TEST: ${{ inputs.test }}
       run: |
         case "${EVENT_NAME}" in
           workflow_dispatch)
-            echo "branch=${INPUT_BRANCH}"
-            echo "version=${INPUT_VERSION}"
+            branch="${INPUT_BRANCH}"
+            version="${INPUT_VERSION}"
+            test_mode="${INPUT_TEST}"
+            # Production runs must dispatch against the same ref they target,
+            # otherwise the mutators run on the dispatched ref's tree but
+            # peter-evans opens the PR against base=inputs.branch, producing
+            # a confusing diff. Test runs intentionally diverge: they
+            # dispatch against a feature branch (to pick up new conductor
+            # logic) while targeting a real test branch.
+            ref_branch="${REF#refs/heads/}"
+            if [ "${test_mode}" != 'true' ] && [ "${ref_branch}" != "${branch}" ]; then
+              echo "::error::workflow dispatched with --ref '${ref_branch}' but --branch='${branch}'; production runs must dispatch against the target branch. Set test=true if you intentionally want a feature-branch ref."
+              exit 1
+            fi
             ;;
           *)
             branch="${REF#refs/heads/}"
-            echo "branch=${branch}"
-            printf 'version='
-            php tools/release/bin/branch-to-version.php "${branch}"
+            # The push glob (rel-[0-9]*0) is broader than what
+            # branch-to-version.php accepts (^rel-(\d+)(\d)0$, i.e.
+            # >=3 digits ending in 0). Guard explicitly so an off-pattern
+            # match like rel-10 surfaces a workflow-level ::error:: rather
+            # than a bare PHP stderr buried in the step log.
+            if ! version="$(php tools/release/bin/branch-to-version.php "${branch}" 2>&1)"; then
+              echo "::error::push trigger matched branch '${branch}' but branch-to-version rejected it: ${version}"
+              exit 1
+            fi
+            test_mode='false'
             ;;
-        esac >> "$GITHUB_OUTPUT"
+        esac
+        {
+          echo "branch=${branch}"
+          echo "version=${version}"
+        } >> "$GITHUB_OUTPUT"
+        # Encode test mode in the prep PR's head branch name so the finalize
+        # job can detect it from pull_request.head.ref alone (no API call).
+        if [ "${test_mode}" = 'true' ]; then
+          echo "prep-prefix=release-prep-test"
+          echo "title-prefix=[TEST] "
+        else
+          echo "prep-prefix=release-prep"
+          echo "title-prefix="
+        fi >> "$GITHUB_OUTPUT"
 
     - name: Render PR body
       id: pr-body
@@ -129,11 +171,11 @@ jobs:
       uses: peter-evans/create-pull-request@v8
       with:
         token: ${{ steps.app-token.outputs.token }}
-        branch: release-prep/${{ steps.resolve.outputs.branch }}
+        branch: ${{ steps.resolve.outputs.prep-prefix }}/${{ steps.resolve.outputs.branch }}
         base: ${{ steps.resolve.outputs.branch }}
-        title: 'release-prep: ${{ steps.resolve.outputs.version }}'
+        title: '${{ steps.resolve.outputs.title-prefix }}release-prep: ${{ steps.resolve.outputs.version }}'
         body: ${{ steps.pr-body.outputs.body }}
-        commit-message: 'release-prep: ${{ steps.resolve.outputs.version }}'
+        commit-message: '${{ steps.resolve.outputs.title-prefix }}release-prep: ${{ steps.resolve.outputs.version }}'
         author: 'openemr-release-bot <release-bot@openemr.invalid>'
         committer: 'openemr-release-bot <release-bot@openemr.invalid>'
         draft: true
@@ -172,7 +214,8 @@ jobs:
     if: |
       github.event_name == 'pull_request'
       && github.event.pull_request.merged == true
-      && startsWith(github.event.pull_request.head.ref, 'release-prep/')
+      && (startsWith(github.event.pull_request.head.ref, 'release-prep/')
+          || startsWith(github.event.pull_request.head.ref, 'release-prep-test/'))
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -205,41 +248,69 @@ jobs:
       with:
         php-version: ${{ matrix.php-version }}
 
-    - name: Resolve version from base branch
+    - name: Resolve version, test-mode, and branch from merged PR
       id: resolve
       env:
         BASE_REF: ${{ github.event.pull_request.base.ref }}
+        HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
+        # The prep job encodes test-mode into the PR head ref
+        # (release-prep-test/<rel-branch>) and the version into the PR
+        # title ('[TEST] release-prep: <version>'). Branch-to-version
+        # only handles production rel-NNN0 branches, so test-mode reads
+        # the version straight out of the title we authored.
+        if [[ "${HEAD_REF}" == release-prep-test/* ]]; then
+          test_mode='true'
+          # Extract MAJOR.MINOR.PATCH explicitly so an edited PR title
+          # surfaces a clear failure here instead of a downstream
+          # InvalidArgumentException from TagCreationRequest.
+          if [[ "${PR_TITLE}" =~ release-prep:[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            version="${BASH_REMATCH[1]}"
+          else
+            echo "::error::could not parse MAJOR.MINOR.PATCH from PR title: ${PR_TITLE}"
+            exit 1
+          fi
+        else
+          test_mode='false'
+          version="$(php tools/release/bin/branch-to-version.php "${BASE_REF}")"
+        fi
         {
           echo "branch=${BASE_REF}"
-          printf 'version='
-          php tools/release/bin/branch-to-version.php "${BASE_REF}"
+          echo "version=${version}"
+          echo "test=${test_mode}"
         } >> "$GITHUB_OUTPUT"
 
     - name: Create annotated tag
+      id: tag
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         REPO: ${{ github.repository }}
         VERSION: ${{ steps.resolve.outputs.version }}
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         PR_URL: ${{ github.event.pull_request.html_url }}
+        TEST_MODE: ${{ steps.resolve.outputs.test }}
       run: |
-        php tools/release/bin/create-tag.php \
-          --repo="${REPO}" \
-          --release-version="${VERSION}" \
-          --commit-sha="${MERGE_SHA}" \
+        args=(
+          --repo="${REPO}"
+          --release-version="${VERSION}"
+          --commit-sha="${MERGE_SHA}"
           --conductor-pr-url="${PR_URL}"
+        )
+        if [ "${TEST_MODE}" = 'true' ]; then
+          args+=(--test)
+        fi
+        php tools/release/bin/create-tag.php "${args[@]}"
 
     - name: Verify annotated tag
       env:
-        VERSION: ${{ steps.resolve.outputs.version }}
+        TAG_NAME: ${{ steps.tag.outputs.tag-name }}
       run: |
-        tag_name="v${VERSION//./_}"
         # The tag was just created via the API; the local checkout
         # doesn't have it yet. Fetch it before handing the local repo
         # to TagVerifier.
         git fetch --tags --quiet
-        php tools/release/bin/verify-tag.php "${tag_name}"
+        php tools/release/bin/verify-tag.php "${TAG_NAME}"
 
     - name: Dispatch openemr-tag to consumers
       env:
@@ -247,12 +318,12 @@ jobs:
         VERSION: ${{ steps.resolve.outputs.version }}
         REL_BRANCH: ${{ steps.resolve.outputs.branch }}
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        TAG_NAME: ${{ steps.tag.outputs.tag-name }}
       run: |
-        tag_name="v${VERSION//./_}"
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
           --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \
           --release-version="${VERSION}" \
-          --tag="${tag_name}"
+          --tag="${TAG_NAME}"

@@ -94,6 +94,22 @@ final class TagCreatorTest extends TestCase
         ));
     }
 
+    public function testTestModeTagAppendsShortShaSuffix(): void
+    {
+        $request = new TagCreationRequest(
+            repo: 'openemr/openemr',
+            version: '8.1.0',
+            commitSha: 'abcdef0' . str_repeat('1', 33),
+            conductorPrUrl: 'https://example.test',
+            appToken: 'token',
+            date: '2026-04-29',
+            test: true,
+        );
+
+        self::assertSame('v8_1_0-test.abcdef0', $request->tagName());
+        self::assertStringContainsString('test-release tag (not a real release)', $request->renderMessage());
+    }
+
     public function testRequestRejectsBadVersion(): void
     {
         $this->expectException(\InvalidArgumentException::class);

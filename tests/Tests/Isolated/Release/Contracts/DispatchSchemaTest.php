@@ -34,6 +34,7 @@ final class DispatchSchemaTest extends TestCase
         yield 'openemr-rel-cut'       => ['good-rel-cut.json'];
         yield 'openemr-rel-update'    => ['good-rel-update.json'];
         yield 'openemr-tag'           => ['good-tag.json'];
+        yield 'openemr-tag (test)'    => ['good-tag-test.json'];
         yield 'openemr-docs-binaries' => ['good-docs-binaries.json'];
     }
 

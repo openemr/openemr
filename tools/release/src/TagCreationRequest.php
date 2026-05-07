@@ -26,6 +26,7 @@ final readonly class TagCreationRequest
         public string $conductorPrUrl,
         public string $appToken,
         public string $date,
+        public bool $test = false,
         public string $taggerName = 'openemr-release-bot',
         public string $taggerEmail = 'release-bot@openemr.invalid',
     ) {
@@ -48,13 +49,20 @@ final readonly class TagCreationRequest
 
     public function tagName(): string
     {
-        return 'v' . str_replace('.', '_', $this->version);
+        $base = 'v' . str_replace('.', '_', $this->version);
+        if (!$this->test) {
+            return $base;
+        }
+        return $base . '-test.' . substr($this->commitSha, 0, 7);
     }
 
     public function renderMessage(): string
     {
-        $template = <<<'TPL'
-        OpenEMR %s released %s
+        $headline = $this->test
+            ? 'OpenEMR %s test-release tag (not a real release) cut %s'
+            : 'OpenEMR %s released %s';
+        $template = <<<TPL
+        {$headline}
 
         Conductor PR: %s
         Merge commit: %s
