@@ -147,18 +147,18 @@ class OneTimeAuth
         $t_info = [];
 
         $one_time = is_string($onetime_token) ? $onetime_token : '';
+        $tokenFingerprint = $one_time !== '' ? substr($one_time, 0, 6) . '...' : '<empty>';
         if (strlen($one_time) === RandomGenUtils::DEFAULT_TOKEN_LENGTH && ctype_alnum($one_time)) {
             $t_info = $this->getOnetime($one_time);
             if (!empty($t_info['pid'] ?? 0)) {
                 $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
             }
         } else {
-            $this->systemLogger->error("Onetime token invalid format.");
+            $this->systemLogger->error("Onetime token invalid format", ['token' => $tokenFingerprint]);
         }
         if (!$auth) {
-            $rtn['error'] = "Onetime decode failed Onetime auth: " . $onetime_token;
-            $this->systemLogger->error($rtn['error']);
-            throw new OneTimeAuthException($rtn['error']);
+            $this->systemLogger->error("Onetime decode failed", ['token' => $tokenFingerprint]);
+            throw new OneTimeAuthException("Onetime decode failed");
         }
 
         $validate = $t_info['expires'];
@@ -180,7 +180,7 @@ class OneTimeAuth
 
         if ($logUpdate) {
             $this->updateOnetime($auth['pid'], $one_time);
-            $this->systemLogger->debug("Onetime successfully decoded. $one_time");
+            $this->systemLogger->debug("Onetime successfully decoded", ['token' => $tokenFingerprint]);
         }
 
         return $rtn;
