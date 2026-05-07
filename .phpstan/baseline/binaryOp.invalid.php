@@ -12463,12 +12463,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Patient credential…\' and mixed results in an error\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Patient password…\' and mixed results in an error\\.$#',
-    'count' => 8,
+    'count' => 7,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
@@ -12503,7 +12503,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 19,
+    'count' => 17,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
 ];
 $ignoreErrors[] = [
