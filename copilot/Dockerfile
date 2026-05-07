@@ -8,9 +8,17 @@ RUN pip install --no-cache-dir --prefix=/install \
     "anthropic>=0.40" "openai>=1.50" "pydantic>=2.9" "pydantic-settings>=2.5" \
     "langfuse>=2.50,<3" "python-dotenv>=1.0" "sse-starlette>=2.1" \
     "aiosqlite>=0.20" "python-multipart>=0.0.9" \
-    "langgraph>=0.2,<0.3" "pyyaml>=6.0"
+    "langgraph>=0.2,<0.3" "pyyaml>=6.0" \
+    "pytesseract>=0.3.10" "Pillow>=10.0"
 
 FROM python:3.11-slim
+# tesseract-ocr is the OCR engine pytesseract wraps. Used at extraction
+# time to snap VLM-emitted bboxes onto the actual on-page glyph rectangles
+# for image (PNG/JPG) labs — Claude vision is approximate at pixel
+# localization on rasterized photos. See app/ingestion/ocr.py.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tesseract-ocr \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /srv
 COPY --from=builder /install /usr/local
 COPY app/ ./app/

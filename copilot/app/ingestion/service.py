@@ -14,6 +14,7 @@ from typing import Any
 
 from app.fhir.client import FhirClient
 from app.ingestion.fhir_writer import write_extraction
+from app.ingestion.ocr import ocr_items, snap_bbox
 from app.ingestion.schemas import (
     BoundingBox,
     DocType,
@@ -64,6 +65,35 @@ def _walk_citations(payload: Any):
                     yield from _walk_citations(item)
             elif hasattr(child, "model_fields"):
                 yield from _walk_citations(child)
+
+
+async def _ocr_snap_extraction(extraction: Any, image_bytes: bytes) -> None:
+    """Mutate ``extraction.*.source_citation.bbox`` in place using OCR.
+
+    Runs Tesseract once on the full image (synchronous CPU work, dispatched
+    to a worker thread so the event loop stays responsive), then walks every
+    SourceCitation with a bbox+raw_text and snaps the bbox to the OCR-
+    detected glyph rect when a confident match exists. No-ops when OCR is
+    unavailable or no item matches — the VLM bbox is preserved.
+    """
+    import asyncio
+    items = await asyncio.to_thread(ocr_items, image_bytes)
+    if not items:
+        return
+    for cite, _parent in _walk_citations(extraction):
+        if cite.bbox is None or not cite.raw_text:
+            continue
+        snapped = snap_bbox(items, cite.raw_text, cite.bbox)
+        if snapped is None:
+            continue
+        x, y, w, h = snapped
+        # Clamp to [0, 1] in case OCR rounding pushes us a hair outside.
+        cite.bbox = BoundingBox(
+            x=max(0.0, min(1.0, x)),
+            y=max(0.0, min(1.0, y)),
+            w=max(0.0, min(1.0, w)),
+            h=max(0.0, min(1.0, h)),
+        )
 
 
 def _bbox_overlay(extraction: Any, doc_id: str) -> list[BboxOverlayItem]:
@@ -140,6 +170,14 @@ class IngestionService:
             doc_id=doc_id,
         )
         latency_ms = (_t.perf_counter() - t0) * 1000.0
+
+        # OCR-snap for image extractions: Claude vision is approximate at
+        # pixel localization on rasterized photos. Run Tesseract once and
+        # rewrite each fact's bbox to the OCR-detected glyph rect.
+        # PDFs have a text layer the iframe snaps to client-side and don't
+        # need this pass.
+        if mime_type.startswith("image/"):
+            await _ocr_snap_extraction(extraction, file_bytes)
 
         await write_extraction(
             extraction,
