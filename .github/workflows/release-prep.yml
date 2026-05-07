@@ -135,12 +135,16 @@ jobs:
         } >> "$GITHUB_OUTPUT"
         # Encode test mode in the prep PR's head branch name so the finalize
         # job can detect it from pull_request.head.ref alone (no API call).
+        # The PR title is rendered as a Conventional Commits subject below
+        # so the conventional-commits PR-title check passes; test runs add
+        # a trailing [TEST] marker (still inside the subject and therefore
+        # still valid conventional grammar).
         if [ "${test_mode}" = 'true' ]; then
           echo "prep-prefix=release-prep-test"
-          echo "title-prefix=[TEST] "
+          echo "title-suffix= [TEST]"
         else
           echo "prep-prefix=release-prep"
-          echo "title-prefix="
+          echo "title-suffix="
         fi >> "$GITHUB_OUTPUT"
 
     - name: Render PR body
@@ -173,9 +177,9 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
         branch: ${{ steps.resolve.outputs.prep-prefix }}/${{ steps.resolve.outputs.branch }}
         base: ${{ steps.resolve.outputs.branch }}
-        title: '${{ steps.resolve.outputs.title-prefix }}release-prep: ${{ steps.resolve.outputs.version }}'
+        title: 'chore(release): prep ${{ steps.resolve.outputs.version }}${{ steps.resolve.outputs.title-suffix }}'
         body: ${{ steps.pr-body.outputs.body }}
-        commit-message: '${{ steps.resolve.outputs.title-prefix }}release-prep: ${{ steps.resolve.outputs.version }}'
+        commit-message: 'chore(release): prep ${{ steps.resolve.outputs.version }}${{ steps.resolve.outputs.title-suffix }}'
         author: 'openemr-release-bot <release-bot@openemr.invalid>'
         committer: 'openemr-release-bot <release-bot@openemr.invalid>'
         draft: true
@@ -257,7 +261,7 @@ jobs:
       run: |
         # The prep job encodes test-mode into the PR head ref
         # (release-prep-test/<rel-branch>) and the version into the PR
-        # title ('[TEST] release-prep: <version>'). Branch-to-version
+        # title ('chore(release): prep <version> [TEST]'). Branch-to-version
         # only handles production rel-NNN0 branches, so test-mode reads
         # the version straight out of the title we authored.
         if [[ "${HEAD_REF}" == release-prep-test/* ]]; then
@@ -265,7 +269,7 @@ jobs:
           # Extract MAJOR.MINOR.PATCH explicitly so an edited PR title
           # surfaces a clear failure here instead of a downstream
           # InvalidArgumentException from TagCreationRequest.
-          if [[ "${PR_TITLE}" =~ release-prep:[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          if [[ "${PR_TITLE}" =~ prep[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             version="${BASH_REMATCH[1]}"
           else
             echo "::error::could not parse MAJOR.MINOR.PATCH from PR title: ${PR_TITLE}"
