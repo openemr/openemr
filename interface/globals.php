@@ -730,24 +730,38 @@ if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_
 //   1. $ignoreAuth — explicitly public pages (login screen, portal, API
 //      entrypoints) that may call into module-registered hooks.
 //   2. An authenticated session already exists — the request will run
-//      to completion and likely hit module code.
-//   3. A login/logout submission — we need the OIDC login listener
-//      registered so auth.inc.php can dispatch to it.
+//      to completion and likely hit module code. Logouts also fall in
+//      this branch: the session still has `authUser` at this point;
+//      `auth.inc.php` invalidates it later in the request.
+//   3. A real login submission (POST + the `new_login_session_management`
+//      hidden field that the login form emits) — we need the OIDC login
+//      listener registered before `auth.inc.php` dispatches the event.
 //
-// Any other request (no session, no login action, not a public page)
+// Any other request (no session, no login submission, not a public page)
 // is guaranteed to short-circuit at auth.inc.php via authLoginScreen(),
 // which redirects before touching module code. Skipping bootstrap here
 // means the attacker hits a cheap session check + redirect instead of
 // the full module pipeline.
 //
+// Aisle finding (CWE-400). The previous gate trusted bare
+// `?auth=login` / `?auth=logout` GET parameters, which an attacker can
+// append to any protected URL to force the expensive bootstrap. Require
+// POST + the form's hidden field so only the actual login submission
+// trips the bootstrap. Logout no longer has its own gate clause: a real
+// logout (GET `?auth=logout` from the menu) is covered by
+// $hasAuthenticatedSession; an attacker hitting `?auth=logout` without
+// a session falls through to the cheap redirect path.
+//
 // upgrade fails for versions prior to 4.2.0 since no modules table
 $authAction = $_GET['auth'] ?? null; // @phpstan-ignore openemr.forbiddenRequestGlobals
 $sessionAuthUser = $session->get('authUser');
 $hasAuthenticatedSession = is_string($sessionAuthUser) && $sessionAuthUser !== '';
+$isLoginSubmission = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+    && $authAction === 'login'
+    && filter_input(INPUT_POST, 'new_login_session_management') !== null;
 $needsPreAuthModules = $ignoreAuth
     || $hasAuthenticatedSession
-    || $authAction === 'login'
-    || $authAction === 'logout';
+    || $isLoginSubmission;
 
 $checkModulesTableExists = $needsPreAuthModules && QueryUtils::existsTable('modules');
 
