@@ -50,6 +50,12 @@ use Symfony\Component\HttpClient\HttpClient;
         'GitHub App installation token (or set RELEASE_APP_TOKEN)',
     )
     ->addOption('date', null, InputOption::VALUE_REQUIRED, 'Release date (YYYY-MM-DD; defaults to today UTC)')
+    ->addOption(
+        'test',
+        null,
+        InputOption::VALUE_NONE,
+        'Format the tag as v{M}_{m}_{p}-test.{shortSha} so a test merge does not collide with a real release tag',
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $opts = new OptionReader($input);
         $token = $opts->string('app-token');
@@ -70,6 +76,7 @@ use Symfony\Component\HttpClient\HttpClient;
                 conductorPrUrl: $opts->string('conductor-pr-url'),
                 appToken: $token,
                 date: $date,
+                test: (bool) $input->getOption('test'),
             );
         } catch (\InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
@@ -85,6 +92,17 @@ use Symfony\Component\HttpClient\HttpClient;
         }
 
         $output->writeln(sprintf('<info>Created tag %s (sha: %s)</info>', $result->tagName, $result->tagSha));
+        // Emit GitHub Actions step outputs when running under Actions so the
+        // workflow's verify and dispatch steps consume the canonical tag name
+        // instead of recomputing it (which would diverge in test mode).
+        $githubOutput = getenv('GITHUB_OUTPUT');
+        if (is_string($githubOutput) && $githubOutput !== '') {
+            file_put_contents(
+                $githubOutput,
+                sprintf("tag-name=%s\ntag-sha=%s\n", $result->tagName, $result->tagSha),
+                FILE_APPEND,
+            );
+        }
         return 0;
     })
     ->run();
