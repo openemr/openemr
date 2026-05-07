@@ -295,42 +295,80 @@
     const ctx = modalCanvas.getContext("2d");
     await pdfPage.render({ canvasContext: ctx, viewport }).promise;
     const snapped = rawText
-      ? await _snapBboxToText(pdfPage, viewport, rawText)
+      ? await _snapBboxToText(pdfPage, viewport, rawText, bbox)
       : null;
     drawBboxOverlay(ctx, snapped || bbox, viewport.width, viewport.height);
   }
 
-  async function _snapBboxToText(pdfPage, viewport, rawText) {
-    // Find a PDF text-content item whose `str` matches `rawText` and convert
-    // its PDF-space rect to a normalized [0,1] viewport rect that
-    // drawBboxOverlay expects. Returns null when no good match exists or any
-    // step throws — caller falls back to the VLM-emitted bbox.
+  function _itemToNormalizedRect(item, viewport) {
+    const tx = item.transform;
+    const x = tx[4];
+    const y = tx[5];
+    const w = item.width || tx[0];
+    const h = item.height || tx[3];
+    const [vx1, vy1, vx2, vy2] = viewport.convertToViewportRectangle(
+      [x, y, x + w, y + h]
+    );
+    const minX = Math.min(vx1, vx2);
+    const maxX = Math.max(vx1, vx2);
+    const minY = Math.min(vy1, vy2);
+    const maxY = Math.max(vy1, vy2);
+    return [
+      minX / viewport.width,
+      minY / viewport.height,
+      (maxX - minX) / viewport.width,
+      (maxY - minY) / viewport.height,
+    ];
+  }
+
+  async function _snapBboxToText(pdfPage, viewport, rawText, fallbackBbox) {
+    // Snap the bbox overlay to the PDF text layer. Returns a normalized
+    // [x,y,w,h] rect or null. Caller uses fallbackBbox on null.
+    //
+    // Strategy:
+    //   1. If rawText contains a numeric token (lab values, vitals), prefer
+    //      to snap to that token specifically — and disambiguate when the
+    //      number appears in multiple rows by picking the candidate whose
+    //      vertical center is closest to the VLM-emitted bbox.
+    //   2. Otherwise fall back to an exact-string match against a single
+    //      text-item (intake answers, allergies).
+    // We DO NOT use loose substring matching against multi-word raw_text
+    // because PDF.js usually splits rows into many items and the FIRST
+    // match (e.g. "LDL") would land miles from the actual value.
     const target = (rawText || "").trim();
     if (!target) return null;
+    const numMatch = target.match(/-?\d+(?:\.\d+)?/);
+    const numToken = numMatch ? numMatch[0] : null;
+    const fbCenterY =
+      Array.isArray(fallbackBbox) && fallbackBbox.length === 4
+        ? fallbackBbox[1] + fallbackBbox[3] / 2
+        : null;
     try {
       const tc = await pdfPage.getTextContent();
+      if (numToken) {
+        const candidates = [];
+        for (const item of tc.items) {
+          const s = (item.str || "").trim();
+          if (!s.includes(numToken)) continue;
+          const rect = _itemToNormalizedRect(item, viewport);
+          const itemCenterY = rect[1] + rect[3] / 2;
+          const dy = fbCenterY !== null ? Math.abs(itemCenterY - fbCenterY) : 0;
+          candidates.push({ rect, dy, exact: s === numToken });
+        }
+        if (candidates.length > 0) {
+          // Prefer exact-token matches over substring; then the y-closest one.
+          candidates.sort((a, b) => {
+            if (a.exact !== b.exact) return a.exact ? -1 : 1;
+            return a.dy - b.dy;
+          });
+          return candidates[0].rect;
+        }
+      }
+      // Exact whole-string match fallback (intake answers, allergy strings).
       for (const item of tc.items) {
         const s = (item.str || "").trim();
-        if (!s) continue;
-        if (s === target || s.includes(target) || target.includes(s)) {
-          const tx = item.transform;
-          const x = tx[4];
-          const y = tx[5];
-          const w = item.width || tx[0];
-          const h = item.height || tx[3];
-          const [vx1, vy1, vx2, vy2] = viewport.convertToViewportRectangle(
-            [x, y, x + w, y + h]
-          );
-          const minX = Math.min(vx1, vx2);
-          const maxX = Math.max(vx1, vx2);
-          const minY = Math.min(vy1, vy2);
-          const maxY = Math.max(vy1, vy2);
-          return [
-            minX / viewport.width,
-            minY / viewport.height,
-            (maxX - minX) / viewport.width,
-            (maxY - minY) / viewport.height,
-          ];
+        if (s && s === target) {
+          return _itemToNormalizedRect(item, viewport);
         }
       }
     } catch (e) {

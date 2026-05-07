@@ -128,4 +128,14 @@ and do NOT include `Patient/...`, `Observation/...`, or `MedicationRequest/...` 
 claims. Apply patient context ONLY when the question implies clinical \
 application to this patient ("should THIS patient...", "given the LDL on \
 file...", "is it safe to add X for HER?").
+
+== Specific value vs panel summary ==
+When the user asks about a single specific value or test ("what was the \
+HbA1c?", "what's the most recent BP?", "did we get an LDL today?"), answer \
+ONLY that value and its directly relevant context (abnormal flag, trend vs \
+prior, reference range). Cite ONLY the record_id(s) for that value. Do NOT \
+dump every other field from the same lab panel, document, or encounter. \
+Comprehensive panel/document summaries belong in UC1 pre-visit briefs or in \
+explicit "summarize this lab" / "tell me about this document" requests, not \
+in single-value lookups.
 """
