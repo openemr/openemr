@@ -138,7 +138,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         $attempt = 0;
         do {
             $attempt++;
-            $token = RandomGenUtils::createUniqueToken(32);
+            $token = RandomGenUtils::createUniqueToken(RandomGenUtils::DEFAULT_TOKEN_LENGTH);
             $sqlVerify = sqlQueryNoLog("SELECT `id` FROM `verify_email` WHERE `token_onetime` LIKE BINARY ?", [$token . '%']);
             $isUnique = empty($sqlVerify['id']);
             if (!$isUnique) {
@@ -377,7 +377,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $expiry = new DateTime('NOW');
     $expiry->add(new DateInterval('PT01H'));
 
-    $token = RandomGenUtils::createUniqueToken(32);
+    $token = RandomGenUtils::createUniqueToken(RandomGenUtils::DEFAULT_TOKEN_LENGTH);
     $pin = RandomGenUtils::createUniqueToken(6);
     if (!$resetPass) {
         $clear_pass = RandomGenUtils::generatePortalPassword();
