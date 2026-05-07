@@ -117,6 +117,7 @@ jobs:
         VERSION: ${{ steps.resolve.outputs.version }}
       run: |
         php bin/console openemr:release-prep \
+          --skip-globals \
           --target-version="${VERSION}" \
           --scope=rel
 
