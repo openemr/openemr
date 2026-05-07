@@ -100,18 +100,28 @@ jobs:
       run: |
         case "${EVENT_NAME}" in
           workflow_dispatch)
-            echo "branch=${INPUT_BRANCH}"
-            echo "version=${INPUT_VERSION}"
+            branch="${INPUT_BRANCH}"
+            version="${INPUT_VERSION}"
             test_mode="${INPUT_TEST}"
             ;;
           *)
             branch="${REF#refs/heads/}"
-            echo "branch=${branch}"
-            printf 'version='
-            php tools/release/bin/branch-to-version.php "${branch}"
+            # The push glob (rel-[0-9]*0) is broader than what
+            # branch-to-version.php accepts (^rel-(\d+)(\d)0$, i.e.
+            # >=3 digits ending in 0). Guard explicitly so an off-pattern
+            # match like rel-10 surfaces a workflow-level ::error:: rather
+            # than a bare PHP stderr buried in the step log.
+            if ! version="$(php tools/release/bin/branch-to-version.php "${branch}" 2>&1)"; then
+              echo "::error::push trigger matched branch '${branch}' but branch-to-version rejected it: ${version}"
+              exit 1
+            fi
             test_mode='false'
             ;;
-        esac >> "$GITHUB_OUTPUT"
+        esac
+        {
+          echo "branch=${branch}"
+          echo "version=${version}"
+        } >> "$GITHUB_OUTPUT"
         # Encode test mode in the prep PR's head branch name so the finalize
         # job can detect it from pull_request.head.ref alone (no API call).
         if [ "${test_mode}" = 'true' ]; then
