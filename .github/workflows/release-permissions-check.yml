@@ -43,6 +43,11 @@ jobs:
       with:
         app-id: ${{ secrets.RELEASE_APP_ID }}
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        # Scope the installation token to this repo plus the dispatch
+        # targets, otherwise repository_dispatch to the consumer repos
+        # returns 403 "Resource not accessible by integration".
+        owner: ${{ github.repository_owner }}
+        repositories: openemr,openemr-devops,website-openemr
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
