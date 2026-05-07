@@ -237,6 +237,55 @@ final class JsonWebKeySetSigningKeyTest extends TestCase
             self::assertSame(0, $this->httpClient->getRequestCount(), 'No HTTP request should be made for an unsafe URL');
         }
     }
+
+    /**
+     * Aisle finding (CWE-248) regression. Before the fix,
+     * json_decode of malformed content returned null and the
+     * property_exists($jwks, 'keys') call hit PHP 8's TypeError
+     * ("argument must be of type object|string, null given") — which
+     * downstream catches don't handle, leaking as an unhandled fatal.
+     * Now the constructor throws JWKValidatorException, which the
+     * existing OidcTokenValidator and JWTClientAuthenticationService
+     * catches translate to invalid_client / token-validation-failed.
+     */
+    public function testRejectsMalformedJsonInJwksContent(): void
+    {
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('Malformed JWKS: invalid JSON');
+
+        new JsonWebKeySet($this->httpClient, null, 'not json at all', new NullLogger());
+    }
+
+    public function testRejectsJwksDocumentWithoutKeysProperty(): void
+    {
+        // Valid JSON object but no `keys` field. Catches IdP responses
+        // that return an envelope or error shape instead of JWKS.
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('Malformed JWKS: missing or invalid keys');
+
+        new JsonWebKeySet($this->httpClient, null, '{"foo": "bar"}', new NullLogger());
+    }
+
+    public function testRejectsJwksDocumentWithNonArrayKeysProperty(): void
+    {
+        // `keys` exists but isn't an array. Without this check, extractKeys()
+        // would silently return an empty list and the bad shape would only
+        // surface much later as "no signing key found for kid".
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('Malformed JWKS: missing or invalid keys');
+
+        new JsonWebKeySet($this->httpClient, null, '{"keys": "not_an_array"}', new NullLogger());
+    }
+
+    public function testRejectsJwksDocumentWithEmptyKeysArray(): void
+    {
+        // Same shape problem as above but with an actual array — empty.
+        // Fail closed at construction so the broken state doesn't propagate.
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('Malformed JWKS: no valid keys');
+
+        new JsonWebKeySet($this->httpClient, null, '{"keys": []}', new NullLogger());
+    }
 }
 
 /**

@@ -87,12 +87,34 @@ class JsonWebKeySet implements Key
             $content = $this->getJWKFromUriWithCache($jwks_uri);
         }
 
-        // grab the keys array from the content
-        $jwks = json_decode((string) $content);
-        if (!property_exists($jwks, 'keys')) {
-            throw new JWKValidatorException("Malformed jwks missing keys property");
+        // Decode + validate the JWKS document defensively. Aisle finding
+        // (CWE-248): the previous code called
+        // property_exists($jwks, 'keys') without first checking that
+        // json_decode actually returned an object. Malformed/empty JSON
+        // makes json_decode return null, and PHP 8+ throws TypeError on
+        // property_exists(null, ...), turning any malformed-JWKS response
+        // into an unhandled fatal — an availability issue if an attacker
+        // controls or influences the JWKS content (DCR-supplied jwks_uri,
+        // upstream provider returning garbage, etc.). Three guards in
+        // order, mirroring the existing pattern in refresh():
+        //   1. decoded value must be an object;
+        //   2. it must have a `keys` property that's an array;
+        //   3. the extracted key list must be non-empty.
+        // All three throw the same exception class downstream callers
+        // (OidcTokenValidator, JWTClientAuthenticationService) already
+        // handle uniformly; this just converts deferred "no signing key
+        // found for kid" surprises into upfront "malformed JWKS".
+        $decoded = json_decode((string) $content);
+        if (!is_object($decoded)) {
+            throw new JWKValidatorException('Malformed JWKS: invalid JSON');
         }
-        $this->jwks = $this->extractKeys($jwks);
+        if (!property_exists($decoded, 'keys') || !is_array($decoded->keys)) {
+            throw new JWKValidatorException('Malformed JWKS: missing or invalid keys');
+        }
+        $this->jwks = $this->extractKeys($decoded);
+        if ($this->jwks === []) {
+            throw new JWKValidatorException('Malformed JWKS: no valid keys');
+        }
 
         $this->content = $content;
         $this->passphrase = $passphrase;
