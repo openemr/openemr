@@ -10,8 +10,12 @@ name: Release Prep Conductor
 
 on:
   push:
+    # Production rel-* branches only. branch-to-version.php on the push
+    # path requires rel-<MAJOR><MINOR>0 and would crash on a stray push
+    # to a test branch like rel-test. Test runs come in via
+    # workflow_dispatch instead.
     branches:
-    - 'rel-*'
+    - 'rel-[0-9]*0'
     paths-ignore:
     - 'docs/**'
   pull_request:
@@ -237,7 +241,15 @@ jobs:
         # the version straight out of the title we authored.
         if [[ "${HEAD_REF}" == release-prep-test/* ]]; then
           test_mode='true'
-          version="${PR_TITLE##*release-prep: }"
+          # Extract MAJOR.MINOR.PATCH explicitly so an edited PR title
+          # surfaces a clear failure here instead of a downstream
+          # InvalidArgumentException from TagCreationRequest.
+          if [[ "${PR_TITLE}" =~ release-prep:[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            version="${BASH_REMATCH[1]}"
+          else
+            echo "::error::could not parse MAJOR.MINOR.PATCH from PR title: ${PR_TITLE}"
+            exit 1
+          fi
         else
           test_mode='false'
           version="$(php tools/release/bin/branch-to-version.php "${BASE_REF}")"
