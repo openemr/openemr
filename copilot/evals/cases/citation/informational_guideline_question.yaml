@@ -1,0 +1,18 @@
+case_id: informational_guideline_question
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: USPSTF (2022) recommends a statin for adults 40-75 with one CVD risk factor and a 10-yr CVD risk >= 10%.
+    claims:
+    - text: USPSTF statin primary-prevention recommendation
+      record_id: Guideline/uspstf-statin-2022#sec-2.1
+    data_gaps: []
+  tool_results:
+  - tool: search_guidelines
+    data:
+    - record_id: Guideline/uspstf-statin-2022#sec-2.1
+      chunk_id: uspstf-statin-2022#sec-2.1
+expected_record_ids:
+- Guideline/uspstf-statin-2022#sec-2.1

@@ -1,0 +1,36 @@
+case_id: applied_guideline_question
+category: citation
+scorers:
+- citation_present
+fixture:
+  response:
+    prose: Per USPSTF, this 58-year-old patient with LDL 190 mg/dL meets the threshold for statin initiation.
+    claims:
+    - text: USPSTF statin recommendation
+      record_id: Guideline/uspstf-statin-2022#sec-2.1
+    - text: LDL 190
+      record_id: Observation/obs-ldl
+    - text: 58yo F
+      record_id: Patient/p-applied
+    data_gaps: []
+  tool_results:
+  - tool: search_guidelines
+    data:
+    - record_id: Guideline/uspstf-statin-2022#sec-2.1
+      chunk_id: uspstf-statin-2022#sec-2.1
+  - tool: get_recent_labs
+    data:
+    - record_id: Observation/obs-ldl
+      subject_pseudonym: p-A
+      value: 190
+      unit: mg/dL
+  - tool: get_patient_summary
+    data:
+    - record_id: Patient/p-applied
+      subject_pseudonym: p-A
+      age: 58
+      gender: F
+expected_record_ids:
+- Guideline/uspstf-statin-2022#sec-2.1
+- Observation/obs-ldl
+- Patient/p-applied

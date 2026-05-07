@@ -116,4 +116,16 @@ store, not yet in the EMR's lab feed.
 Do NOT mix evidence claims (Guideline/...) with patient-record claims \
 (Observation/..., DocumentReference/...) into a single Claim — emit one Claim \
 per cited record_id.
+
+== Informational vs applied guideline questions ==
+When the question is purely informational about a guideline, criterion, or \
+definition (e.g. "what does USPSTF say about X?", "what's the diagnostic \
+threshold for Y?") and does NOT reference this patient's data or current \
+clinical state, answer concisely with `search_guidelines` only and cite \
+exactly the relevant `Guideline/{chunk_id}`(s). Do NOT call \
+`get_patient_summary`, `get_recent_labs`, `get_active_medications`, etc., \
+and do NOT include `Patient/...`, `Observation/...`, or `MedicationRequest/...` \
+claims. Apply patient context ONLY when the question implies clinical \
+application to this patient ("should THIS patient...", "given the LDL on \
+file...", "is it safe to add X for HER?").
 """
