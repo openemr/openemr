@@ -21,6 +21,7 @@ use OpenEMR\Common\Auth\IpLoginRateLimiter;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLogoutEvent;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
+use OpenEMR\Common\Auth\TrustedProxyClientIpResolver;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
@@ -58,14 +59,23 @@ if (
     $login_success = false;
 
     // IP-based rate limiting for the OIDC path (password path handles its own via AuthUtils).
-    // Key the rate limiter on REMOTE_ADDR only ($ip['ip']), NOT the concatenated
-    // $ip['ip_string'] (which embeds HTTP_X_FORWARDED_FOR). XFF is attacker-controlled
-    // unless a trusted-proxy mechanism strips/normalizes it, so using ip_string would
-    // let an attacker bypass throttling by varying the header per request (CWE-807).
-    // The full ip_string is still used in audit-log messages below for forensic value.
+    // The rate-limit key is computed by TrustedProxyClientIpResolver:
+    //   - With no trusted proxies configured: returns REMOTE_ADDR
+    //     (round-2 #3 / CWE-807 — XFF is attacker-controlled, ignore it).
+    //   - With trusted proxies configured AND REMOTE_ADDR matching one:
+    //     returns the right-most untrusted XFF entry (round-3 #4 /
+    //     CWE-400 — proxy deployments must not collapse all clients onto
+    //     a single bucket which would be a DoS amplifier).
+    // The full $ip['ip_string'] is still used in audit-log messages
+    // below for forensic value (it preserves what the proxy claimed).
     $ipRateLimiter = new IpLoginRateLimiter();
     $ip = collectIpAddresses();
-    $ipForRateLimit = $ip['ip'];
+    $trustedProxiesConfig = OEGlobalsBag::getInstance()->getString('trusted_proxies');
+    $ipForRateLimit = TrustedProxyClientIpResolver::fromConfigString($trustedProxiesConfig)
+        ->resolveClientIp(
+            $ip['ip'],
+            $ip['forward_ip'] !== '' ? $ip['forward_ip'] : null,
+        );
     $ipRateLimiter->ensureTracked($ipForRateLimit);
 
     $oidcIdToken = filter_input(INPUT_POST, 'oidc_id_token') ?? '';

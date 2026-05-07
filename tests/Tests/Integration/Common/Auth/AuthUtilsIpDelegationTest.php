@@ -211,4 +211,76 @@ final class AuthUtilsIpDelegationTest extends TestCase
         );
         self::assertSame([], $orphanRows, 'No XFF-tagged ip_tracking rows must be created');
     }
+
+    /**
+     * Aisle round-3 finding #4 (CWE-400) regression. When OpenEMR sits
+     * behind a configured trusted proxy (CDN, load balancer, NAT egress),
+     * the rate limiter must key on the X-Forwarded-For client IP — not
+     * REMOTE_ADDR — so one bad client behind the proxy can't lock out
+     * everyone sharing it.
+     *
+     * Mirror of testFailedAttemptsAggregateOnRemoteAddrIgnoringXForwardedFor
+     * but with `trusted_proxies` set to TEST_IP. The same three XFF values
+     * must now land in three SEPARATE ip_tracking buckets — proving the
+     * trusted-proxy resolver bypasses round-2 #3's "REMOTE_ADDR-only"
+     * default when the operator has explicitly configured it.
+     */
+    public function testFailedAttemptsKeyOnXffWhenBehindTrustedProxy(): void
+    {
+        $globalsBag = \OpenEMR\Core\OEGlobalsBag::getInstance();
+        $previousTrustedProxies = $globalsBag->getString('trusted_proxies');
+        $globalsBag->set('trusted_proxies', self::TEST_IP);
+
+        $xffClientIps = ['198.51.100.10', '198.51.100.20', '198.51.100.30'];
+
+        try {
+            foreach ($xffClientIps as $clientIp) {
+                $_SERVER['HTTP_X_FORWARDED_FOR'] = $clientIp;
+                $password = 'wrong-' . $clientIp;
+                (new AuthUtils('api'))->confirmPassword('admin', $password);
+            }
+
+            // Each XFF client IP must have its own ip_tracking row at
+            // counter=1 — definitive proof the rate limiter resolved
+            // through the trusted proxy and bucketed by client IP.
+            foreach ($xffClientIps as $clientIp) {
+                $rows = QueryUtils::fetchRecords(
+                    'SELECT `ip_login_fail_counter` FROM `ip_tracking` WHERE `ip_string` = ?',
+                    [$clientIp],
+                );
+                self::assertCount(
+                    1,
+                    $rows,
+                    "Client IP {$clientIp} must have its own ip_tracking row when "
+                    . "REMOTE_ADDR is a trusted proxy — otherwise one client behind "
+                    . "the proxy can lock out all others (CWE-400).",
+                );
+                // assertEquals (not assertSame) because DBAL returns the
+                // counter as int while existing tests with typed array
+                // helpers see it as int|string|null. PHPStan is happy with
+                // the mixed comparison.
+                self::assertEquals(1, $rows[0]['ip_login_fail_counter']);
+            }
+
+            // The TEST_IP (proxy) bucket must NOT have aggregated counts —
+            // the resolver should never have used REMOTE_ADDR while
+            // trusted_proxies was configured to match it.
+            $proxyRow = $this->getIpTrackingRow();
+            self::assertNull(
+                $proxyRow,
+                'No ip_tracking row should exist for the trusted proxy itself — '
+                . 'the resolver must have keyed on the resolved client IPs.',
+            );
+        } finally {
+            // Restore trusted_proxies for sibling tests. getString returns
+            // string (never null), so no null-coalesce needed.
+            $globalsBag->set('trusted_proxies', $previousTrustedProxies);
+
+            // Clean up the per-client-IP rows this test created.
+            QueryUtils::sqlStatementThrowException(
+                'DELETE FROM `ip_tracking` WHERE `ip_string` IN (?, ?, ?)',
+                $xffClientIps,
+            );
+        }
+    }
 }
