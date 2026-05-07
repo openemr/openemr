@@ -756,7 +756,7 @@ if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_
 $authAction = $_GET['auth'] ?? null; // @phpstan-ignore openemr.forbiddenRequestGlobals
 $sessionAuthUser = $session->get('authUser');
 $hasAuthenticatedSession = is_string($sessionAuthUser) && $sessionAuthUser !== '';
-$isLoginSubmission = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+$isLoginSubmission = filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST'
     && $authAction === 'login'
     && filter_input(INPUT_POST, 'new_login_session_management') !== null;
 $needsPreAuthModules = $ignoreAuth
