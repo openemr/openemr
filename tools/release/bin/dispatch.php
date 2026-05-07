@@ -63,7 +63,7 @@ use Symfony\Component\HttpClient\HttpClient;
         'openemr/openemr-devops,openemr/website-openemr',
     )
     ->addOption('branch', null, InputOption::VALUE_REQUIRED, 'rel-* branch name (rel-cut/update/tag events)')
-    ->addOption('version', null, InputOption::VALUE_REQUIRED, 'MAJOR.MINOR.PATCH release version')
+    ->addOption('release-version', null, InputOption::VALUE_REQUIRED, 'MAJOR.MINOR.PATCH release version')
     ->addOption('prev-release', null, InputOption::VALUE_REQUIRED, 'Previous release version (rel-cut/update)')
     ->addOption('tag', null, InputOption::VALUE_REQUIRED, 'Tag name (openemr-tag event)')
     ->addOption('probe', null, InputOption::VALUE_NONE, 'Bypass schema validation (permissions-check probe)')

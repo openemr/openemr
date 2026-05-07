@@ -38,6 +38,37 @@ docker compose up --detach --wait
 - **Login:** `admin` / `pass`
 - **phpMyAdmin:** http://localhost:8310/
 
+## Working in a git worktree
+
+OpenEMR supports concurrent development across branches via git worktrees
+managed by `openemr-cmd worktree` (see `CONTRIBUTING.md` for the full feature
+set). Skip this section if the working directory does not match
+`*/openemr-wt-<slug>/` — that path is the signal you are inside a managed
+worktree, where `<slug>` is the branch label. `openemr-cmd worktree list`
+confirms.
+
+**Never use raw `git worktree add`, `git worktree remove`, or
+`git worktree move` against this repo.** The `openemr-cmd worktree` script
+owns state that bare git does not: a JSON state file tracking each worktree,
+a per-worktree compose override with its assigned port offset, and a
+generated `.env`. Bypassing it leaves orphaned state files, port collisions
+between worktrees, and broken compose stacks that the script can no longer
+recover. Always use `openemr-cmd worktree` subcommands instead — `add`,
+`remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`.
+
+When running commands against a worktree's containers, use
+`openemr-cmd worktree exec <branch> <cmd>` rather than
+`cd docker/development-easy && docker compose exec openemr ...`. The `exec`
+subcommand resolves the worktree's `openemr` container by compose project
+labels; the bare `docker compose` form will hit the wrong stack (or none)
+because each worktree has a distinct compose project name and port offset.
+Any standard `openemr-cmd` command works through `exec` — `ut`, `at`, `et`,
+`php-log`, `shell`, `drid`, etc.
+
+For short pauses, prefer `worktree stop` / `worktree start` over
+`worktree down` / `worktree up`. `stop`/`start` pause and resume existing
+containers (data preserved, much faster); `down`/`up` recreates them.
+
 ## Testing
 
 Tests run inside Docker via devtools. Run from `docker/development-easy/`:

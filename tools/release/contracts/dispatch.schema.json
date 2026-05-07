@@ -97,9 +97,9 @@
       "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "branch": {
-      "description": "Release branch name. Per #664 spec: rel-<MAJOR><MINOR>0.",
+      "description": "Release branch name. Per #664 spec real releases use rel-<MAJOR><MINOR>0 (e.g. rel-810). Pattern is widened to rel-<alphanumeric> so test branches like rel-test can exercise the same workflow end-to-end without a real release-cut.",
       "type": "string",
-      "pattern": "^rel-\\d+\\d0$"
+      "pattern": "^rel-[A-Za-z0-9]+$"
     },
     "tag": {
       "description": "Release tag name. Per #664 spec: v<MAJOR>_<MINOR>_<PATCH>.",
