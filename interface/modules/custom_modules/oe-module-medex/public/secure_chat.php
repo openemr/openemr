@@ -272,9 +272,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $sendJson(['success' => false, 'error' => 'Failed to create chat tokens'], 500);
             }
             
-            // Canonical fallback URL if MedEx short link registration is unavailable.
-            $chatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($chatToken);
-            $providerChatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($providerToken);
+            // Force x-0.me URLs for secure chat links
+            $chatUrl = 'https://x-0.me/index.php?route=information/chat_patient&token=' . rawurlencode($chatToken);
+            $providerChatUrl = 'https://x-0.me/index.php?route=information/chat_patient&token=' . rawurlencode($providerToken);
             $shareUrl = html_entity_decode($chatUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             $providerShareUrl = html_entity_decode($providerChatUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
             
@@ -297,16 +297,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $providerRegistration = $medex->registerSecureChatTokenDetailed($pid, $providerToken, $expiresAt, true, 'provider', $providerInfo);
                 $tokenRegistered = !empty($patientRegistration['success']);
                 $providerTokenRegistered = !empty($providerRegistration['success']);
-                if (!empty($patientRegistration['short_url'])) {
-                    $shareUrl = html_entity_decode((string)$patientRegistration['short_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                } elseif (!empty($patientRegistration['chat_url'])) {
-                    $shareUrl = html_entity_decode((string)$patientRegistration['chat_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                }
-                if (!empty($providerRegistration['short_url'])) {
-                    $providerShareUrl = html_entity_decode((string)$providerRegistration['short_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                } elseif (!empty($providerRegistration['chat_url'])) {
-                    $providerShareUrl = html_entity_decode((string)$providerRegistration['chat_url'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
-                }
+                
+                // Force x-0.me URLs - don't use SaaS-generated URLs that may still use old domain
+                // Keep $shareUrl and $providerShareUrl as already set above with x-0.me
                 if (!$tokenRegistered) {
                     error_log("[MedEx Secure Chat] Warning: Failed to register patient token on MedEx side, but continuing with send");
                 }
@@ -433,7 +426,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 [$pid]
             );
             if (!empty($activeToken['token'])) {
-                $providerChatUrl = $medexApiUrl . '/index.php?route=information/chat_patient&token=' . rawurlencode($activeToken['token']);
+                $providerChatUrl = 'https://x-0.me/index.php?route=information/chat_patient&token=' . rawurlencode($activeToken['token']);
                 $sendJson(['success' => true, 'provider_url' => $providerChatUrl]);
             } else {
                 $sendJson(['success' => true, 'provider_url' => null]);

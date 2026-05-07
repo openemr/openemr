@@ -629,6 +629,105 @@ require_once __DIR__ . '/src/ComponentLoader.php';
 $medexBootstrapState = \medexBootstrapState();
 \medexLoadEnabledComponentBootstraps((array)($medexBootstrapState['enabled_services'] ?? []));
 
+// Inject MedEx SMS Zone tab + content + scripts into messages.php via output buffering.
+// messages.php has no hook points, so we capture its output and post-process it.
+if (
+    !empty($medexBootstrapState['module_enabled']) &&
+    strpos(($_SERVER['REQUEST_URI'] ?? ''), 'messages/messages.php') !== false &&
+    empty($_REQUEST['go']) &&
+    empty($_SERVER['HTTP_X_REQUESTED_WITH'])
+) {
+    $medexWebroot = (string)($GLOBALS['webroot'] ?? '');
+    ob_start(function (string $buf) use ($medexWebroot): string {
+        // 1. Inject SMS Zone tab <li> inside #main-nav-pills before </ul>
+        $smsTab = "\n                    "
+            . '<li class="nav-item" id="li-sms" role="presentation">'
+            . '<a href="#sms-div" id="sms-li" class="nav-link" data-toggle="pill"'
+            . ' role="tab" aria-controls="SMS Zone" aria-selected="false">SMS Zone</a>'
+            . '</li>';
+        $buf = preg_replace(
+            '/(id=["\']main-nav-pills["\'][^>]*>)([\s\S]*?)(<\/ul>)/m',
+            '$1$2' . $smsTab . '$3',
+            $buf,
+            1
+        );
+
+        // 2. Inject SMS Zone content div at the start of #content (tab-content wrapper)
+        $smsDiv = ''
+            . "\n            "
+            . '<div class="row tab-pane" role="tabpanel" id="sms-div">'
+            . "\n                "
+            . '<div class="col-sm-4 col-md-4 col-lg-4 mt-3">'
+            . "\n                    "
+            . '<h4>SMS Zone</h4>'
+            . "\n                    "
+            . '<div class="input-group">'
+            . '<select id="SMS_patient" class="form-control m-0 w-100" placeholder="Patient Name"></select>'
+            . '<span class="input-group-addon" onclick="SMS_direct();" style="cursor:pointer;padding:6px 12px;">'
+            . '<i id="open-sms-tooltip" class="fas fa-2x fa-phone"></i>'
+            . '</span>'
+            . '<input type="hidden" id="sms_pid" />'
+            . '<input type="hidden" id="sms_mobile" value="" />'
+            . '<input type="hidden" id="sms_allow" value="" />'
+            . '</div>'
+            . "\n                "
+            . '</div>'
+            . "\n            "
+            . '</div>';
+        $buf = preg_replace(
+            '/(<div[^>]+id=["\']content["\'][^>]*>)/',
+            '$1' . $smsDiv,
+            $buf,
+            1
+        );
+
+        // 3. Inject SMS_direct() function + Select2 patient search before </body>
+        $saveUrl = htmlspecialchars($medexWebroot . '/interface/main/messages/save.php', ENT_QUOTES);
+        $smsPopupUrl = htmlspecialchars($medexWebroot . '/interface/modules/custom_modules/oe-module-medex/public/sms_bot_list.php', ENT_QUOTES);
+        $scripts = ''
+            . "\n<script>\n"
+            . "function SMS_direct() {\n"
+            . "    var pid = \$(\"#sms_pid\").val();\n"
+            . "    var m = \$(\"#sms_mobile\").val();\n"
+            . "    var allow = \$(\"#sms_allow\").val();\n"
+            . "    if (!pid || !m) { alert('MedEx needs a valid mobile number to send SMS messages...'); return; }\n"
+            . "    if (allow === 'NO') { alert('This patient does not allow SMS messaging!'); return; }\n"
+            . "    var url = '{$smsPopupUrl}?pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m) + '&nomenu=1';\n"
+            . "    window.open(url, '_blank', 'width=450,height=800,resizable=1,scrollbars=1');\n"
+            . "}\n"
+            . "\$(function () {\n"
+            . "    \$(\"#SMS_patient\").select2({\n"
+            . "        ajax: {\n"
+            . "            url: '{$saveUrl}',\n"
+            . "            dataType: 'json',\n"
+            . "            data: function(p) { return { go: 'sms_search', term: p.term }; },\n"
+            . "            processResults: function(data) {\n"
+            . "                return { results: \$.map(data, function(item, i) {\n"
+            . "                    return { text: item.value, id: i, pid: item.pid, mobile: item.mobile, allow: item.allow };\n"
+            . "                }) };\n"
+            . "            }\n"
+            . "        },\n"
+            . "        minimumInputLength: 2, dropdownAutoWidth: true,\n"
+            . "        placeholder: 'Search for patient...', theme: 'bootstrap4'\n"
+            . "    });\n"
+            . "    \$(\"#SMS_patient\").on('select2:select', function(e) {\n"
+            . "        \$(\"#sms_pid\").val(e.params.data.pid);\n"
+            . "        \$(\"#sms_mobile\").val(e.params.data.mobile);\n"
+            . "        \$(\"#sms_allow\").val(e.params.data.allow);\n"
+            . "        \$(\"#SMS_patient\").val(e.params.data.text);\n"
+            . "    });\n"
+            . "    \$(\"#open-sms-tooltip\").attr({ title: 'Click to open SMS for patient', 'data-toggle': 'tooltip', 'data-placement': 'bottom' }).tooltip();\n"
+            . "});\n"
+            . "</script>\n";
+        $buf = str_replace('</body>', $scripts . '</body>', $buf, $count);
+        if (!$count) {
+            $buf .= $scripts;
+        }
+
+        return $buf;
+    });
+}
+
 if (!class_exists('OpenEMR\\Modules\\MedEx\\Bootstrap')) {
     class Bootstrap
     {
@@ -1127,6 +1226,29 @@ JS;
 
     if ($isModuleInstalled) {
         medex_auto_reset_smarty_cache_for_version(Bootstrap::MODULE_VERSION);
+
+        // Run any pending DB migrations (OpenEMR-side only; no MedEx SaaS changes).
+        // Guard: compare the newest migration filename on disk to the newest one
+        // recorded in medex_migrations — skips the UpdateManager entirely when in sync.
+        try {
+            $migrationsDir = __DIR__ . '/migrations';
+            $migFiles = glob($migrationsDir . '/*.php');
+            if (!empty($migFiles)) {
+                sort($migFiles);
+                $latestFile = basename(end($migFiles));
+                $recorded = sqlQuery(
+                    "SELECT migration_name FROM medex_migrations ORDER BY migration_name DESC LIMIT 1"
+                );
+                $latestRecorded = $recorded['migration_name'] ?? '';
+                if ($latestFile !== $latestRecorded) {
+                    require_once __DIR__ . '/src/UpdateManager.php';
+                    (new \OpenEMR\Modules\MedEx\UpdateManager())->runMigrations();
+                }
+            }
+        } catch (\Throwable $t) {
+            error_log('[MedEx] Auto-migration failed: ' . $t->getMessage());
+        }
+
         $eventDispatcher->addListener(MenuEvent::MENU_UPDATE, '\\oe_module_medex_add_menu_item');
         $eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, static function ($event): void {
             \oe_module_medex_add_user_settings($event);

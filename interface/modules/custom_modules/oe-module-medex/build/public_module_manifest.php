@@ -42,6 +42,7 @@ return [
         'src/API/OEGlobalsBag_polyfill.php',
         'src/ComponentLoader.php',
         'src/CriticalPatchNotifier.php',
+        'src/Listeners/AppointmentSlotListener.php',
         'src/MedExAPI.php',
         'src/MedExConfig.php',
         'src/MedExDirectoryManager.php',

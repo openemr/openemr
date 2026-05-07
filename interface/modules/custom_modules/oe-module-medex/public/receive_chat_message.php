@@ -20,6 +20,9 @@ $sessionAllowWrite = false;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once($GLOBALS['srcdir'] . "/patient.inc.php");
 require_once(__DIR__ . "/../../.././../portal/lib/portal_mail.inc.php");
+require_once(__DIR__ . '/../src/MedExHmac.php');
+
+use OpenEMR\Modules\MedEx\MedExHmac;
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -54,24 +57,24 @@ $pid = $data['pid'];
 $message = $data['message'];
 $from = $data['from']; // 'PATIENT' or 'PROVIDER'
 $msg_uid = $data['msg_uid'];
-$api_key = $data['api_key'] ?? '';
 
-// Verify API key (simple shared secret approach)
-// In production, use the practice's MedEx API key stored in medex_prefs
-$sql = "SELECT mp_value FROM medex_prefs WHERE mp_key = 'medex_api_key' AND mp_practice = ?";
+// Fetch expected API key
+$sql = "SELECT ME_api_key FROM medex_prefs WHERE MedEx_id = ? LIMIT 1";
 $result = sqlQuery($sql, [$practice_id]);
 
-if (!$result || empty($result['mp_value'])) {
+if (empty($result['ME_api_key'])) {
     error_log("[MedEx Chat Receiver] No API key configured for practice {$practice_id}");
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'API key not configured']);
     exit;
 }
 
-if ($api_key !== $result['mp_value']) {
-    error_log("[MedEx Chat Receiver] Invalid API key for practice {$practice_id}");
+// HMAC validation — replay-safe, timing-safe
+[$hmacOk, $hmacErr] = MedExHmac::validate($input, $result['ME_api_key']);
+if (!$hmacOk) {
+    error_log("[MedEx Chat Receiver] HMAC validation failed for practice {$practice_id}: {$hmacErr}");
     http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Invalid API key']);
+    echo json_encode(['success' => false, 'error' => 'Authentication failed']);
     exit;
 }
 

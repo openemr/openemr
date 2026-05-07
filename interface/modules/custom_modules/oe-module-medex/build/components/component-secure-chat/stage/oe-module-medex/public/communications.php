@@ -49,6 +49,8 @@ $medex = new MedExAPI();
 $medexActive     = $medex->isActive();
 $hasChatService  = $medexActive && $medex->hasServiceEntitlement('secure_chat');
 $hasSMSService   = $medexActive && $medex->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages']);
+$hasTeleHealth   = $medexActive && $medex->hasAnyServiceEntitlement(['TeleHealth', 'telehealth']);
+$hasMedexTab     = $hasSMSService || $hasChatService || $hasTeleHealth;
 $medexBaseUrl    = rtrim(\OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(), '/');
 
 // ── CSRF ─────────────────────────────────────────────────────────────────────
@@ -308,8 +310,16 @@ $portalManagerUrl = $GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-
 $portalInboxUrl = $GLOBALS['webroot'] . '/portal/messaging/messages.php';
 
 $activeTab = htmlspecialchars($_GET['tab'] ?? 'messages', ENT_QUOTES, 'UTF-8');
-if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) || ($activeTab === 'portal' && !$portalTabVisible)) {
+// Map legacy tab names to the unified MedEx tab
+if ($activeTab === 'chat' || $activeTab === 'sms') {
+    $activeTab = 'medex';
+}
+if (!in_array($activeTab, ['messages', 'medex', 'portal', 'admin'], true) || ($activeTab === 'portal' && !$portalTabVisible)) {
     $activeTab = 'messages';
+}
+$medexSubTab = htmlspecialchars($_GET['sub'] ?? 'sms', ENT_QUOTES, 'UTF-8');
+if (!in_array($medexSubTab, ['sms', 'secchat', 'telemed', 'other'], true)) {
+    $medexSubTab = 'sms';
 }
 ?>
 <!DOCTYPE html>
@@ -333,8 +343,11 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
         .chat-badge { font-size: 0.7rem; }
         .section-toolbar { background: #f8f9fa; border-bottom: 1px solid #dee2e6; padding: 8px 12px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
         .admin-stat-table th { background: #343a40; color: #fff; font-size: 0.75rem; }
-        .embedded-pane { height: 760px; border: 1px solid #dee2e6; border-radius: .25rem; overflow: hidden; background: #fff; }
-        .embedded-pane iframe { width: 100%; height: 100%; border: 0; }
+        .comms-iframe { width: 100%; height: calc(100vh - 290px); min-height: 420px; border: 0; display: block; }
+        .medex-sub-nav { background: #fff; border-bottom: 2px solid #dee2e6; padding: 0 12px; }
+        .medex-sub-nav .nav-link { font-size: 0.82rem; padding: .35rem .9rem; color: #495057; border-bottom: 2px solid transparent; margin-bottom: -2px; border-radius: 0; }
+        .medex-sub-nav .nav-link.active { color: #007bff; border-bottom-color: #007bff; font-weight: 600; background: none; }
+        .medex-sub-nav .nav-link:hover:not(.active) { color: #343a40; border-bottom-color: #adb5bd; background: none; }
         .flash-msg { position: sticky; top: 0; z-index: 200; }
         .pager-bar { display: flex; gap: 6px; align-items: center; }
         @media (max-width: 576px) {
@@ -417,22 +430,11 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
                 <?php endif; ?>
             </a>
         </li>
-        <?php if ($hasChatService): ?>
+        <?php if ($hasMedexTab): ?>
         <li class="nav-item">
-            <a class="nav-link <?php echo $activeTab === 'chat' ? 'active' : ''; ?>"
-               href="?tab=chat" id="tab-chat" role="tab">
-                <?php echo xlt('Secure Chat'); ?>
-                <?php if (count($chatSessions) > 0): ?>
-                    <span class="badge badge-success ml-1"><?php echo count($chatSessions); ?></span>
-                <?php endif; ?>
-            </a>
-        </li>
-        <?php endif; ?>
-        <?php if ($hasSMSService): ?>
-        <li class="nav-item">
-            <a class="nav-link <?php echo $activeTab === 'sms' ? 'active' : ''; ?>"
-               href="?tab=sms" id="tab-sms" role="tab">
-                <?php echo xlt('SMS Bot'); ?>
+            <a class="nav-link <?php echo $activeTab === 'medex' ? 'active' : ''; ?>"
+               href="?tab=medex&sub=<?php echo attr($medexSubTab); ?>" id="tab-medex" role="tab">
+                <?php echo xlt('MedEx'); ?>
             </a>
         </li>
         <?php endif; ?>
@@ -626,131 +628,127 @@ if (!in_array($activeTab, ['messages', 'chat', 'sms', 'portal', 'admin'], true) 
         </div><!-- /pane-messages -->
 
         <!-- ═══════════════════════════════════════════════════════════════════
-             TAB 2 — SECURE CHAT
+             MEDEX TAB — SMS / SECURE CHAT / TELEHEALTH / OTHER
              ═══════════════════════════════════════════════════════════════════ -->
-        <?php if ($hasChatService): ?>
-        <div class="tab-pane <?php echo $activeTab === 'chat' ? 'show active' : ''; ?>" id="pane-chat">
-            <div class="section-toolbar">
-                <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
-                   class="btn btn-primary btn-sm" onclick="top.restoreSession()">
-                    <?php echo xlt('New Chat / Send Link'); ?>
-                </a>
-                <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
-                   class="btn btn-outline-secondary btn-sm" target="_blank" onclick="top.restoreSession()">
-                    <?php echo xlt('Open in New Window'); ?>
-                </a>
-                <span class="text-muted small ml-2"><?php echo xlt('Patients with recent Secure Chat activity'); ?></span>
-                <span class="ml-auto text-muted small"><?php echo xlt('Synced from MedEx portal mailbox'); ?></span>
-            </div>
+        <?php if ($hasMedexTab): ?>
+        <div class="tab-pane p-0 <?php echo $activeTab === 'medex' ? 'show active' : ''; ?>" id="pane-medex">
 
-            <div class="embedded-pane m-3 mt-0">
-                <iframe src="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
-                        title="<?php echo xla('Secure Chat'); ?>"></iframe>
-            </div>
-
-            <?php if (empty($chatSessions)): ?>
-                <p class="text-muted p-3 mb-0"><?php echo xlt('No secure chat sessions found. Send a chat link to a patient to get started.'); ?></p>
-            <?php else: ?>
-            <div class="table-responsive">
-            <table class="table table-sm table-hover mb-0">
-                <thead>
-                    <tr>
-                        <th style="font-size:.78rem;text-transform:uppercase;background:#f8f9fa"><?php echo xlt('Patient'); ?></th>
-                        <th style="font-size:.78rem;text-transform:uppercase;background:#f8f9fa" class="hide-xs"><?php echo xlt('Last Activity'); ?></th>
-                        <th style="font-size:.78rem;text-transform:uppercase;background:#f8f9fa"><?php echo xlt('Messages'); ?></th>
-                        <th style="font-size:.78rem;text-transform:uppercase;background:#f8f9fa"><?php echo xlt('Status'); ?></th>
-                        <th style="font-size:.78rem;text-transform:uppercase;background:#f8f9fa"><?php echo xlt('Actions'); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($chatSessions as $cs):
-                    $csName     = trim(($cs['fname'] ?? '') . ' ' . ($cs['lname'] ?? ''));
-                    if ($csName === '') {
-                        $csName = 'PID ' . (int)$cs['pid'];
-                    }
-                    $lastAct    = $cs['last_activity'] ?? '';
-                    $isRecent   = $lastAct && strtotime($lastAct) > strtotime('-24 hours');
-                    $isToday    = $lastAct && date('Y-m-d', strtotime($lastAct)) === date('Y-m-d');
-                    $chatUrl    = attr($GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php?pid=' . (int)$cs['pid']);
-                ?>
-                <tr class="chat-row" onclick="top.restoreSession();window.location='<?php echo $chatUrl; ?>'">
-                    <td>
-                        <strong><?php echo text($csName); ?></strong>
-                        <small class="text-muted d-block">PID <?php echo (int)$cs['pid']; ?></small>
-                    </td>
-                    <td class="hide-xs text-nowrap">
-                        <?php
-                        if ($lastAct) {
-                            echo text(date('M j, Y g:ia', strtotime($lastAct)));
-                        }
-                        ?>
-                    </td>
-                    <td>
-                        <span class="badge badge-secondary chat-badge"><?php echo (int)$cs['msg_count']; ?></span>
-                    </td>
-                    <td>
-                        <?php if ($isToday): ?>
-                            <span class="badge badge-success">Today</span>
-                        <?php elseif ($isRecent): ?>
-                            <span class="badge badge-info"><?php echo xlt('Recent'); ?></span>
-                        <?php else: ?>
-                            <span class="badge badge-light"><?php echo xlt('Past'); ?></span>
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <a href="<?php echo $chatUrl; ?>" class="btn btn-outline-primary btn-sm"
-                           onclick="top.restoreSession(); event.stopPropagation();">
-                            <?php echo xlt('Open Chat'); ?>
+            <!-- Sub-tab nav -->
+            <nav class="medex-sub-nav">
+                <ul class="nav" role="tablist">
+                    <?php if ($hasSMSService): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo $medexSubTab === 'sms' ? 'active' : ''; ?>"
+                           href="?tab=medex&sub=sms">
+                            <i class="fa fa-comments mr-1"></i><?php echo xlt('SMS'); ?>
                         </a>
-                        <?php if ($cs['pid'] > 0): ?>
-                        <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo attr_url((int)$cs['pid']); ?>"
-                           class="btn btn-outline-secondary btn-sm hide-xs"
-                           onclick="top.restoreSession(); event.stopPropagation();">
-                            <?php echo xlt('Chart'); ?>
+                    </li>
+                    <?php endif; ?>
+                    <?php if ($hasChatService): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo $medexSubTab === 'secchat' ? 'active' : ''; ?>"
+                           href="?tab=medex&sub=secchat">
+                            <i class="fa fa-lock mr-1"></i><?php echo xlt('Secure Chat'); ?>
+                            <?php if (count($chatSessions) > 0): ?>
+                                <span class="badge badge-success ml-1" style="font-size:0.65rem;"><?php echo count($chatSessions); ?></span>
+                            <?php endif; ?>
                         </a>
-                        <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-            </div>
-            <?php endif; ?>
-        </div><!-- /pane-chat -->
-        <?php endif; ?>
+                    </li>
+                    <?php endif; ?>
+                    <?php if ($hasTeleHealth): ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?php echo $medexSubTab === 'telemed' ? 'active' : ''; ?>"
+                           href="?tab=medex&sub=telemed">
+                            <i class="fa fa-video-camera mr-1"></i><?php echo xlt('TeleMed'); ?>
+                        </a>
+                    </li>
+                    <?php endif; ?>
+                    <li class="nav-item ml-auto">
+                        <a class="nav-link <?php echo $medexSubTab === 'other' ? 'active' : ''; ?>"
+                           href="?tab=medex&sub=other">
+                            <i class="fa fa-ellipsis-h mr-1"></i><?php echo xlt('Other'); ?>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
 
-        <!-- ═══════════════════════════════════════════════════════════════════
-             TAB 3 — SMS BOT
-             ═══════════════════════════════════════════════════════════════════ -->
-        <?php if ($hasSMSService): ?>
-        <div class="tab-pane <?php echo $activeTab === 'sms' ? 'show active' : ''; ?>" id="pane-sms">
-            <div class="section-toolbar">
-                <span class="text-muted small"><?php echo xlt('MedEx SMS Bot — select a patient in the main chart to launch their SMS thread, or open the full SMS dashboard below.'); ?></span>
-                <?php if ($ssoToken): ?>
-                <span class="ml-auto">
-                    <a href="<?php echo attr($medexBaseUrl . '/cart/upload/index.php?route=information/sms_zone&token=' . urlencode($ssoToken)); ?>" target="_blank" class="btn btn-outline-primary btn-sm">
-                        <?php echo xlt('Open SMS Bot in New Window'); ?>
-                    </a>
-                </span>
-                <?php endif; ?>
-            </div>
-            <?php if ($ssoToken): ?>
-            <?php
-            $smsDashUrl = $medexBaseUrl . '/cart/upload/index.php?route=information/sms_zone&token=' . urlencode($ssoToken);
-            ?>
-            <div style="height:600px;overflow:hidden;">
-                <iframe src="<?php echo attr($smsDashUrl); ?>"
-                        style="width:100%;height:100%;border:none;"
-                        title="<?php echo xla('MedEx SMS Dashboard'); ?>"></iframe>
+            <!-- ── SMS sub-pane ── -->
+            <?php if ($medexSubTab === 'sms'): ?>
+            <?php if ($ssoToken && $hasSMSService): ?>
+            <?php $smsDashUrl = $medexBaseUrl . '/cart/upload/index.php?route=information/SmsHub&token=' . urlencode($ssoToken); ?>
+            <iframe src="<?php echo attr($smsDashUrl); ?>"
+                    class="comms-iframe"
+                    title="<?php echo xla('MedEx SMS Dashboard'); ?>"></iframe>
+            <?php elseif (!$hasSMSService): ?>
+            <div class="p-4 text-center text-muted">
+                <i class="fa fa-comments fa-3x mb-3 d-block"></i>
+                <?php echo xlt('SMS Bot is not enabled for this account. Contact MedEx to activate SMS messaging.'); ?>
             </div>
             <?php else: ?>
             <div class="p-3">
-                <p class="text-muted"><?php echo xlt('MedEx session unavailable. Please check your MedEx connection in Admin → Settings.'); ?></p>
+                <p class="text-muted"><?php echo xlt('MedEx session unavailable. Please check your MedEx connection in Admin â Settings.'); ?></p>
                 <a href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/admin/settings.php"
                    class="btn btn-secondary btn-sm"><?php echo xlt('MedEx Settings'); ?></a>
             </div>
             <?php endif; ?>
-        </div><!-- /pane-sms -->
+            <?php endif; ?>
+
+            <!-- ── Secure Chat sub-pane ── -->
+            <?php if ($medexSubTab === 'secchat'): ?>
+            <?php if ($hasChatService): ?>
+            <iframe src="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php"
+                    class="comms-iframe"
+                    title="<?php echo xla('Secure Chat'); ?>"></iframe>
+            <?php else: ?>
+            <div class="p-4 text-center text-muted">
+                <i class="fa fa-lock fa-3x mb-3 d-block"></i>
+                <?php echo xlt('Secure Chat is not enabled for this account. Contact MedEx to activate.'); ?>
+            </div>
+            <?php endif; ?>
+            <?php endif; ?>
+
+            <!-- ── TeleMed sub-pane ── -->
+            <?php if ($medexSubTab === 'telemed'): ?>
+            <?php if ($hasTeleHealth): ?>
+            <iframe src="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/public/telehealth.php"
+                    class="comms-iframe"
+                    title="<?php echo xla('TeleMed'); ?>"></iframe>
+            <?php else: ?>
+            <div class="p-4 text-center text-muted">
+                <i class="fa fa-video-camera fa-3x mb-3 d-block"></i>
+                <?php echo xlt('TeleHealth is not enabled for this account. Contact MedEx to activate.'); ?>
+            </div>
+            <?php endif; ?>
+            <?php endif; ?>
+
+            <!-- ── Other channels sub-pane ── -->
+            <?php if ($medexSubTab === 'other'): ?>
+            <div class="p-4">
+                <h6 class="mb-3"><?php echo xlt('Other Communication Channels'); ?></h6>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="comm-card">
+                            <div class="comm-lbl mb-2"><i class="fa fa-envelope mr-1"></i><?php echo xlt('Email'); ?></div>
+                            <p class="text-muted small mb-0"><?php echo xlt('Email-based patient communication â contact MedEx to configure.'); ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="comm-card">
+                            <div class="comm-lbl mb-2"><i class="fa fa-whatsapp mr-1"></i><?php echo xlt("What's App"); ?></div>
+                            <p class="text-muted small mb-0"><?php echo xlt("WhatsApp Business messaging integration â contact MedEx to configure."); ?></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="comm-card">
+                            <div class="comm-lbl mb-2"><i class="fa fa-plus mr-1"></i><?php echo xlt('More'); ?></div>
+                            <p class="text-muted small mb-0"><?php echo xlt('Additional channels including voice, fax, and patient portal integrations coming soon.'); ?></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
+        </div><!-- /pane-medex -->
         <?php endif; ?>
 
         <!-- ═══════════════════════════════════════════════════════════════════

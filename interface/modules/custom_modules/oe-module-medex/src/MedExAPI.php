@@ -2224,10 +2224,60 @@ class MedExAPI
                 return false;
             }
 
+            // Initialize variables for all methods
+            $mediaUrl = '';
+            $senderInfo = '';
+            $locationInfo = '';
+
             // Build message
             if ($method === 'sms') {
-                $message = "Hello {$patient['fname']}, {$practiceName} has sent you a secure message. Click here to view: {$chatUrl}";
+                // Enhanced SMS with sender info and practice location
+                $facilityAddress = sqlQuery(
+                    "SELECT street, city, state, postal_code, phone FROM facility WHERE primary_business_entity = 1 ORDER BY id LIMIT 1"
+                );
+                if (!empty($facilityAddress)) {
+                    $city = trim((string)($facilityAddress['city'] ?? ''));
+                    $state = trim((string)($facilityAddress['state'] ?? ''));
+                    $phone = trim((string)($facilityAddress['phone'] ?? ''));
+                    
+                    if ($city !== '' && $state !== '') {
+                        $locationInfo = "\n{$city}, {$state}";
+                    }
+                    if ($phone !== '') {
+                        $locationInfo .= "\n{$phone}";
+                    }
+                }
+
+                // Enhanced message with sender and location info
+                $senderInfo = '';
+                $currentUser = sqlQuery("SELECT fname, lname FROM users WHERE id = ?", [$_SESSION['authUserID'] ?? 0]);
+                $senderFullName = trim(($currentUser['fname'] ?? '') . ' ' . ($currentUser['lname'] ?? ''));
+                if ($senderFullName !== '') {
+                    $senderInfo = " from {$senderFullName}";
+                } elseif ($userInitials !== '') {
+                    $senderInfo = " from {$userInitials}";
+                }
+                
+                $message = "Hello {$patient['fname']}, {$practiceName}{$senderInfo} has sent you a secure message.{$locationInfo}\n\nClick here to view: {$chatUrl}\n\nLink expires in 72 hours";
                 $htmlMessage = '';
+                
+                // Generate shorter URL for SMS
+                $shortUrl = $this->generateShortUrl($chatUrl, $practiceId, $token);
+                if ($shortUrl) {
+                    $chatUrl = $shortUrl;
+                }
+                
+                // Add MMS image support - practice logo or fallback caduceus
+                $mediaUrl = '';
+                $fallbackCaduceusUrl = 'https://api.hipaabank.net/cart/upload/image/catalog/medex/caduceus-medical-symbol.png'; // Reliable fallback caduceus image
+                
+                if ($logoUrl !== '' && filter_var($logoUrl, FILTER_VALIDATE_URL)) {
+                    // Use practice logo if available and valid
+                    $mediaUrl = $logoUrl;
+                } else {
+                    // Use fallback caduceus image
+                    $mediaUrl = $fallbackCaduceusUrl;
+                }
             } else {
                 $safePatientName = htmlspecialchars((string)$patient['fname'], ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 $safePracticeName = htmlspecialchars((string)$practiceName, ENT_QUOTES | ENT_HTML5, 'UTF-8');
@@ -2280,6 +2330,9 @@ class MedExAPI
                     . '</div>';
             }
 
+            // Update message to use shortened URL
+            $message = "Hello {$patient['fname']}, {$practiceName}{$senderInfo} has sent you a secure message.{$locationInfo}\n\nClick here to view: {$chatUrl}\n\nLink expires in 72 hours";
+
             // Send via MedEx API
             $data = [
                 'practice_id' => $practiceId,
@@ -2297,7 +2350,12 @@ class MedExAPI
                 'website_url' => $websiteUrl,
                 'type' => 'secure_chat_link',
                 'token' => $token,  // Pass token if provided
-                'user_initials' => $userInitials  // Pass user initials for message tracking
+                'user_initials' => $userInitials,  // Pass user initials for message tracking
+                'media_url' => $mediaUrl,  // MMS image support for SMS
+                'sender_info' => $senderInfo,  // Enhanced sender information
+                'location_info' => $locationInfo,  // Practice location details
+                'sms_type' => 'mms',  // Force MMS for image support
+                'image_attachment' => $mediaUrl  // Alternative MMS image parameter
             ];
 
             $response = $this->makeRequest('/index.php?route=api/send_secure_chat_link', $data, 'POST');
@@ -2529,5 +2587,44 @@ class MedExAPI
         $urlHash  = substr(md5($this->baseUrl ?? ''), 0, 8);
         $cacheKey = 'medex_services_cache_' . $urlHash;
         unset($_SESSION[$cacheKey]);
+    }
+
+    /**
+     * Generate a short URL for secure chat links
+     *
+     * @param string $longUrl The original long URL
+     * @param string $practiceId Practice identifier
+     * @param string $token The secure chat token
+     * @return string|null Short URL or null if generation failed
+     */
+    private function generateShortUrl(string $longUrl, string $practiceId, string $token): ?string
+    {
+        try {
+            // Use the MedEx API to generate short URLs
+            $data = [
+                'practice_id' => $practiceId,
+                'long_url' => $longUrl,
+                'token' => $token,
+                'type' => 'secure_chat'
+            ];
+
+            $response = $this->makeRequest('/index.php?route=api/generate_short_url', $data, 'POST');
+
+            if ($response && isset($response['success']) && $response['success']) {
+                $shortUrl = $response['short_url'] ?? null;
+                if ($shortUrl && filter_var($shortUrl, FILTER_VALIDATE_URL)) {
+                    // Force x-0.me domain for short URLs too
+                    $shortUrl = str_replace('api.hipaabank.net', 'x-0.me', $shortUrl);
+                    return $shortUrl;
+                }
+            }
+
+            error_log("[MedEx Secure Chat] Failed to generate short URL: " . ($response['error'] ?? 'Unknown error'));
+            return null;
+
+        } catch (\Exception $e) {
+            error_log("[MedEx Secure Chat] Exception generating short URL: " . $e->getMessage());
+            return null;
+        }
     }
 }
