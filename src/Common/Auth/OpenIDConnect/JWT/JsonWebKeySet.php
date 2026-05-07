@@ -40,6 +40,31 @@ class JsonWebKeySet implements Key
     /** Default TTL for cached JWKS documents in seconds. */
     private const DEFAULT_CACHE_TTL_SECONDS = 86400;
 
+    // Bounds against attacker-controlled JWKS content (CWE-400). DCR and
+    // admin-supplied jwks_uri are the reachable surfaces; SsrfSafeHttpClient
+    // confines the destination, but doesn't bound what comes back. Real
+    // JWKS documents are tiny (Auth0 ~10KB, Google ~5KB, 50 rotated keys
+    // ~30KB), so generous caps below are well above any legitimate value
+    // while rejecting obviously-pathological responses.
+
+    /** 256 KiB — ample for ~400 RSA JWKs in JSON form. */
+    private const MAX_JWKS_BYTES = 262144;
+
+    /** Real-world JWKS documents publish 1–5 keys; 50 is 10× headroom. */
+    private const MAX_JWKS_KEYS = 50;
+
+    /** Decoded modulus byte cap. 1024 bytes = 8192-bit RSA — well above the 4096-bit ceiling most providers use. */
+    private const MAX_RSA_MODULUS_BYTES = 1024;
+
+    /** Decoded exponent byte cap. RSA exponents are tiny (65537 = 3 bytes); 32 is overkill protection. */
+    private const MAX_RSA_EXPONENT_BYTES = 32;
+
+    /** Encoded-length cap for `n`. Protects the base64url-decode buffer allocation itself. ceil(1024 * 4 / 3) = 1366. */
+    private const MAX_RSA_MODULUS_BASE64URL_LEN = 1366;
+
+    /** Encoded-length cap for `e`. ceil(32 * 4 / 3) = 44. */
+    private const MAX_RSA_EXPONENT_BASE64URL_LEN = 44;
+
     /**
      * @var string
      */
@@ -129,6 +154,17 @@ class JsonWebKeySet implements Key
     {
         if (!is_object($decoded) || !property_exists($decoded, 'keys') || !is_array($decoded->keys)) {
             return [];
+        }
+
+        // Cap the key count: a real JWKS document publishes 1-5 keys
+        // (current + previous for rotation). A document with many more is
+        // either misconfigured or hostile (CWE-400).
+        // Reject before iterating — the loop body is cheap individually
+        // but cumulative work scales with this list.
+        if (count($decoded->keys) > self::MAX_JWKS_KEYS) {
+            throw new JWKValidatorException(
+                'JWKS contains too many keys (max ' . self::MAX_JWKS_KEYS . ')',
+            );
         }
 
         $keys = [];
@@ -245,8 +281,30 @@ class JsonWebKeySet implements Key
             throw new JWKValidatorException('RSA JWK missing "n" or "e" parameter');
         }
 
-        $bigN = new BigInteger(HttpUtils::base64url_decode($n), 256);
-        $bigE = new BigInteger(HttpUtils::base64url_decode($e), 256);
+        // Round-3 finding #5 (CWE-400). Cap RSA modulus and exponent
+        // sizes so an attacker-supplied JWK can't drive expensive
+        // BigInteger / PublicKeyLoader::load work. Two checks per
+        // value: the encoded-string length is checked first (bounds the
+        // base64url-decode buffer allocation itself), then the decoded
+        // byte length (the actual semantic limit phpseclib will see).
+        if (
+            strlen($n) > self::MAX_RSA_MODULUS_BASE64URL_LEN
+            || strlen($e) > self::MAX_RSA_EXPONENT_BASE64URL_LEN
+        ) {
+            throw new JWKValidatorException('RSA JWK parameters exceed permitted size');
+        }
+
+        $decodedN = HttpUtils::base64url_decode($n);
+        $decodedE = HttpUtils::base64url_decode($e);
+        if (
+            strlen($decodedN) > self::MAX_RSA_MODULUS_BYTES
+            || strlen($decodedE) > self::MAX_RSA_EXPONENT_BYTES
+        ) {
+            throw new JWKValidatorException('RSA JWK parameters exceed permitted size');
+        }
+
+        $bigN = new BigInteger($decodedN, 256);
+        $bigE = new BigInteger($decodedE, 256);
 
         /** @var \phpseclib3\Crypt\RSA\PublicKey $rsaKey */
         $rsaKey = PublicKeyLoader::load(['n' => $bigN, 'e' => $bigE]);
@@ -307,9 +365,42 @@ class JsonWebKeySet implements Key
 
         try {
             $request = new Request('GET', $jwk_uri);
-            $body = $this->httpClient->sendRequest($request)->getBody();
-            $json = $body->getContents();
+            $response = $this->httpClient->sendRequest($request);
+
+            // Round-3 finding #5 (CWE-400). Bound the response body so an
+            // attacker-controlled jwks_uri can't drive memory exhaustion
+            // by returning a huge document. Two checks for belt-and-braces:
+            //   1. Honest server with Content-Length: bail before reading.
+            //   2. Chunked / lying server: read up to MAX+1 bytes from the
+            //      stream and detect overflow. PSR-7 read() may return
+            //      fewer bytes than requested per call, so loop until EOF
+            //      or the cap.
+            $contentLength = $response->getHeaderLine('Content-Length');
+            if ($contentLength !== '' && (int) $contentLength > self::MAX_JWKS_BYTES) {
+                throw new JWKValidatorException(
+                    'JWKS response too large (Content-Length ' . $contentLength . ')',
+                );
+            }
+
+            $stream = $response->getBody();
+            $json = '';
+            while (!$stream->eof() && strlen($json) <= self::MAX_JWKS_BYTES) {
+                $chunk = $stream->read(8192);
+                if ($chunk === '') {
+                    break;
+                }
+                $json .= $chunk;
+            }
+            if (strlen($json) > self::MAX_JWKS_BYTES) {
+                throw new JWKValidatorException(
+                    'JWKS response too large (body exceeded ' . self::MAX_JWKS_BYTES . ' bytes)',
+                );
+            }
             return $json;
+        } catch (JWKValidatorException $exception) {
+            // Already shaped correctly; re-throw without re-wrapping so
+            // the size-limit message reaches the caller intact.
+            throw $exception;
         } catch (RequestException | ConnectException $exception) {
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         } catch (\Throwable $exception) {

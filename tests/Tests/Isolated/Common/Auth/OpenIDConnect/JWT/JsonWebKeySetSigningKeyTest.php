@@ -286,6 +286,123 @@ final class JsonWebKeySetSigningKeyTest extends TestCase
 
         new JsonWebKeySet($this->httpClient, null, '{"keys": []}', new NullLogger());
     }
+
+    /**
+     * Aisle round-3 finding #5 (CWE-400) regression. Server is honest
+     * about the body size via Content-Length — bail before touching the
+     * stream so a hostile endpoint can't drive memory exhaustion just by
+     * advertising a huge response.
+     */
+    public function testRejectsJwksBodyAdvertisingHugeContentLength(): void
+    {
+        $this->httpClient->setNextResponse(200, '{}', ['Content-Length' => '9999999']);
+
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('JWKS response too large (Content-Length');
+
+        new JsonWebKeySet($this->httpClient, self::JWKS_URI, null, new NullLogger());
+    }
+
+    /**
+     * Same finding, chunked / lying-server path: Content-Length absent or
+     * misreported, but the actual body exceeds the cap. The streaming
+     * read loop must detect overflow and fail closed.
+     */
+    public function testRejectsJwksBodyExceedingMaxBytesViaStreamRead(): void
+    {
+        // 300 KiB > 256 KiB cap. Body is just padding — never decoded as
+        // JSON because the read loop bails first.
+        $oversized = str_repeat('x', 300_000);
+        $this->httpClient->setNextResponse(200, $oversized);
+
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('JWKS response too large');
+
+        new JsonWebKeySet($this->httpClient, self::JWKS_URI, null, new NullLogger());
+    }
+
+    /**
+     * Round-3 #5 — too many keys. Real-world JWKS documents publish 1-5;
+     * 51 is pathological. Reject before iterating to bound cumulative
+     * per-key parsing cost.
+     */
+    public function testRejectsJwksWithTooManyKeys(): void
+    {
+        // Synthetic dummy keys — content doesn't matter; the count check
+        // runs before per-key extraction.
+        $keys = [];
+        for ($i = 0; $i < 51; $i++) {
+            $keys[] = [
+                'kty' => 'RSA',
+                'kid' => 'key-' . $i,
+                'n' => $this->jwkComponents['n'],
+                'e' => $this->jwkComponents['e'],
+            ];
+        }
+        $json = json_encode(['keys' => $keys]);
+        self::assertIsString($json);
+
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('JWKS contains too many keys');
+
+        new JsonWebKeySet($this->httpClient, null, $json, new NullLogger());
+    }
+
+    /**
+     * Round-3 #5 — RSA modulus exceeds permitted size. Caps the input
+     * BEFORE phpseclib's BigInteger / PublicKeyLoader::load runs; both
+     * scale poorly with input size.
+     */
+    public function testRejectsJwkWithOversizedRsaModulus(): void
+    {
+        // 2000 chars > 1366-char base64url cap (which corresponds to
+        // 8192-bit RSA, well above the 4096-bit common ceiling).
+        $oversizedN = str_repeat('A', 2000);
+        $jwksJson = json_encode([
+            'keys' => [[
+                'kty' => 'RSA',
+                'kid' => self::KID,
+                'n' => $oversizedN,
+                'e' => $this->jwkComponents['e'],
+            ]],
+        ]);
+        self::assertIsString($jwksJson);
+        // Need two queued responses: rotation refetch fires on kid miss.
+        $this->httpClient->setNextResponse(200, $jwksJson);
+        $this->httpClient->setNextResponse(200, $jwksJson);
+
+        $set = new JsonWebKeySet($this->httpClient, self::JWKS_URI, null, new NullLogger());
+
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('RSA JWK parameters exceed permitted size');
+        $set->getSigningKeyAsPem(self::KID, 'RS256');
+    }
+
+    /**
+     * Round-3 #5 — RSA exponent exceeds permitted size. Real exponents
+     * are 3 bytes (65537); 100 base64url chars is pathological.
+     */
+    public function testRejectsJwkWithOversizedRsaExponent(): void
+    {
+        $oversizedE = str_repeat('A', 100); // > 44-char cap
+        $jwksJson = json_encode([
+            'keys' => [[
+                'kty' => 'RSA',
+                'kid' => self::KID,
+                'n' => $this->jwkComponents['n'],
+                'e' => $oversizedE,
+            ]],
+        ]);
+        self::assertIsString($jwksJson);
+        $this->httpClient->setNextResponse(200, $jwksJson);
+        $this->httpClient->setNextResponse(200, $jwksJson);
+
+        $set = new JsonWebKeySet($this->httpClient, self::JWKS_URI, null, new NullLogger());
+
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('RSA JWK parameters exceed permitted size');
+        $set->getSigningKeyAsPem(self::KID, 'RS256');
+    }
 }
 
 /**
@@ -298,14 +415,19 @@ final class JsonWebKeySetSigningKeyTest extends TestCase
  */
 final class QueueingHttpClient implements ClientInterface
 {
-    /** @var list<array{int, string}> */
+    /** @var list<array{int, string, array<string, string>}> */
     private array $responses = [];
 
     private int $requestCount = 0;
 
-    public function setNextResponse(int $statusCode, string $body): void
+    /**
+     * @param array<string, string> $extraHeaders Additional response headers
+     *   merged with the default Content-Type. Used by size-cap tests that
+     *   need to assert behavior under specific Content-Length values.
+     */
+    public function setNextResponse(int $statusCode, string $body, array $extraHeaders = []): void
     {
-        $this->responses[] = [$statusCode, $body];
+        $this->responses[] = [$statusCode, $body, $extraHeaders];
     }
 
     public function sendRequest(RequestInterface $request): ResponseInterface
@@ -315,8 +437,9 @@ final class QueueingHttpClient implements ClientInterface
         if ($index < 0) {
             return new Response(200, [], '{}');
         }
-        [$status, $body] = $this->responses[$index];
-        return new Response($status, ['Content-Type' => 'application/json'], $body);
+        [$status, $body, $extraHeaders] = $this->responses[$index];
+        $headers = array_merge(['Content-Type' => 'application/json'], $extraHeaders);
+        return new Response($status, $headers, $body);
     }
 
     public function getRequestCount(): int
