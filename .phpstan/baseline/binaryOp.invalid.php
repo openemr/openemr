@@ -12732,17 +12732,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/import_template_ui.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'One time reset\\:\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:invalid one time\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/index.php',
 ];
