@@ -20,6 +20,4 @@ return [
 
     // FIXME: this works only for the CLI path, not actual multi-site.
     'OPENEMR_SITE' => env('OPENEMR_SITE', 'default'),
-
-    'OPENEMR__ENVIRONMENT' => env('OPENEMR__ENVIRONMENT', ''),
 ];
