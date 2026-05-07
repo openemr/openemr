@@ -692,7 +692,7 @@ function generate_form_field($frow, $currvalue): void
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", (string) $currvalue);
-            if (!preg_match('/^comment_/', (string) $currvalue) || (count($selectedValues) == 1)) {
+            if (!str_starts_with((string) $currvalue, 'comment_') || (count($selectedValues) == 1)) {
                 $display = "display:none";
                 $comment = "";
             } else {
@@ -718,7 +718,13 @@ function generate_form_field($frow, $currvalue): void
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'
+        // Use type="email" for fields with email validation for native browser validation
+        $fieldValidation = null;
+        if (is_array($frow) && array_key_exists('validation', $frow) && is_string($frow['validation'])) {
+            $fieldValidation = $frow['validation'];
+        }
+        $inputType = ($fieldValidation === 'email') ? 'email' : 'text';
+        echo "<input type='{$inputType}'
             class='form-control{$smallform}'
             name='form_{$field_id_esc}'
             id='form_{$field_id_esc}'
@@ -1528,7 +1534,7 @@ function generate_form_field($frow, $currvalue): void
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
                 // If defined this is the filename of the default starting image.
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
@@ -2281,7 +2287,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2777,7 +2783,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -4282,7 +4288,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             }
         } elseif ($data_type == 46) {
             $reslist = trim((string) $_POST["$prefix$field_id"]);
-            if (preg_match('/^comment_/', $reslist)) {
+            if (str_starts_with($reslist, 'comment_')) {
                 $res_comment = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = $reslist . "|" . $res_comment;
             } else {
@@ -4437,7 +4443,7 @@ function generate_layout_validation($form_id): void
  *                           use '0' for "unspecified facility"
  *                           use '' for "All facilities" (the default)
  * @param string $name - the name/id for select form (defaults to "form_facility")
- * @param boolean $allow_unspecified - include an option for "unspecified" facility
+ * @param bool $allow_unspecified - include an option for "unspecified" facility
  *                                     defaults to true
  * @return void - just echo the html encoded string
  *
@@ -4548,16 +4554,16 @@ function dropdown_facility(
  * This forms the header and functionality component of the widget. The information that is displayed
  * then follows this function followed by a closing div tag
  *
- * @var $title is the title of the section (already translated)
- * @var $label is identifier used in the tag id's and sql columns
- * @var $buttonLabel is the button label text (already translated)
- * @var $buttonLink is the button link information
- * @var $buttonClass is any additional needed class elements for the button tag
- * @var $linkMethod is the button link method ('javascript' vs 'html')
- * @var $bodyClass is to set class(es) of the body
- * @var $auth is a flag to decide whether to show the button
- * @var $fixedWidth is to flag whether width is fixed
- * @var $forceExpandAlways is a flag to force the widget to always be expanded
+ * @param mixed $title is the title of the section (already translated)
+ * @param mixed $label is identifier used in the tag id's and sql columns
+ * @param mixed $buttonLabel is the button label text (already translated)
+ * @param mixed $buttonLink is the button link information
+ * @param mixed $buttonClass is any additional needed class elements for the button tag
+ * @param mixed $linkMethod is the button link method ('javascript' vs 'html')
+ * @param mixed $bodyClass is to set class(es) of the body
+ * @param mixed $auth is a flag to decide whether to show the button
+ * @param mixed $fixedWidth is to flag whether width is fixed
+ * @param mixed $forceExpandAlways is a flag to force the widget to always be expanded
  *
  * @todo Convert to a modern layout
  */
@@ -4797,7 +4803,7 @@ function lbf_current_value($frow, $formid, $encounter)
 
 function signer_head()
 {
-    return "<link href=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
+    return "<link href=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using
@@ -4806,7 +4812,7 @@ function signer_head()
 //
 function lbf_canvas_head($small = true)
 {
-    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/js/literallycanvas.min.js\"></script>";
+    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/js/literallycanvas.min.js\"></script>";
     if ($small) {
         $s .= <<<EOD
 <style>
@@ -4853,9 +4859,9 @@ EOD;
 /**
  *  Test if modifier($test) is in array of options for data type.
  * @deprecated use LayoutsUtils::isOption
- * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
+ * @param array $options json ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
- * @return boolean
+ * @return bool
  */
 function isOption($options, string $test): bool
 {

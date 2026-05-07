@@ -15,6 +15,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
@@ -188,31 +189,38 @@ class CareExperiencePreferenceViewCard extends CardModel
 
     private function handlePost(): void
     {
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        $request = HttpRestRequest::createFromGlobals();
+
+        if ($request->getMethod() !== 'POST') {
             return;
         }
-        if (($_POST['pref_type'] ?? '') !== 'care_experience') {
+        if ($request->request->getString('pref_type') !== 'care_experience') {
             return;
         }
         CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
 
-        $action = $_POST['action'] ?? '';
-        if ($action === 'save') {
-            $id   = isset($_POST['id']) && $_POST['id'] !== '' ? (int)$_POST['id'] : null;
-            $data = $this->collectPost($_POST);  // note: returns patient_id
-            if ($id) {
-                $this->service->update($id, $data);
-                $this->flashMessage = xl('Preference updated');
-            } else {
-                $this->service->insert($data);   // ← was create()
-                $this->flashMessage = xl('Preference saved');
-            }
-        } elseif ($action === 'delete') {
-            $id = (int)($_POST['id'] ?? 0);
-            if ($id) {
-                $this->service->delete($id);     // method exists
-                $this->flashMessage = xl('Preference deleted');
-            }
+        switch ($request->request->getString('action')) {
+            case 'save':
+                $idInput = $request->request->getString('id');
+                $id = $idInput !== ''
+                    ? filter_var($idInput, FILTER_VALIDATE_INT, FILTER_NULL_ON_FAILURE)
+                    : null;
+                $data = $this->collectPost($request->request->all());
+                if ($id) {
+                    $this->service->update($id, $data);
+                    $this->flashMessage = xl('Preference updated');
+                } else {
+                    $this->service->insert($data);
+                    $this->flashMessage = xl('Preference saved');
+                }
+                break;
+            case 'delete':
+                $id = $request->request->getInt('id');
+                if ($id) {
+                    $this->service->delete($id);
+                    $this->flashMessage = xl('Preference deleted');
+                }
+                break;
         }
     }
 

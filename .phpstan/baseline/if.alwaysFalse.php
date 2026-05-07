@@ -68,6 +68,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
 ];
@@ -110,6 +115,11 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/add_edit_issue.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',

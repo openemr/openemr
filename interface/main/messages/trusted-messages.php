@@ -51,7 +51,7 @@ $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail
 <head>
     <meta charset="utf-8" />
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
-    <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/messages/css/reminder_style.css?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>">
 
     <?php
 

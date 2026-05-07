@@ -48,6 +48,8 @@ class eRxGlobals
         if (array_key_exists($key, $this->configuration)) {
             return $this->configuration[$key];
         }
+
+        return null;
     }
 
     /**
@@ -61,7 +63,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx service
-     * @return boolean Ensora eRx service enabled state
+     * @return bool Ensora eRx service enabled state
      */
     public function getEnabled()
     {
@@ -88,7 +90,7 @@ class eRxGlobals
 
     /**
      * Return the Ensora eRx allergies time-to-live
-     * @return integer Time-to-live in seconds for Ensora eRx allergies
+     * @return int Time-to-live in seconds for Ensora eRx allergies
      */
     public function getTTLSoapAllergies()
     {
@@ -97,7 +99,7 @@ class eRxGlobals
 
     /**
      * Return the Ensora eRx medications time-to-live
-     * @return integer Time-to-live in seconds for Ensora eRx medications
+     * @return int Time-to-live in seconds for Ensora eRx medications
      */
     public function getTTLSoapMedications()
     {
@@ -144,7 +146,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx only upload prescriptions
-     * @return boolean Ensora eRx only upload prescriptions enabled state
+     * @return bool Ensora eRx only upload prescriptions enabled state
      */
     public function getUploadActive()
     {
@@ -153,7 +155,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx import status message
-     * @return boolean Ensora eRx import status message enabled state
+     * @return bool Ensora eRx import status message enabled state
      */
     public function getImportStatusMessage()
     {
@@ -162,7 +164,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx display medications uploaded
-     * @return boolean Ensora eRx display medications uploaded enabled state
+     * @return bool Ensora eRx display medications uploaded enabled state
      */
     public function getDisplayMedication()
     {
@@ -171,7 +173,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx display allergies uploaded
-     * @return boolean Ensora eRx display allergies uploaded enabled state
+     * @return bool Ensora eRx display allergies uploaded enabled state
      */
     public function getDisplayAllergy()
     {
@@ -202,7 +204,7 @@ class eRxGlobals
 
     /**
      * Return Debug Ensora eRx settings
-     * @return integer Debug settings: flags [ 1 = XML, 2 = RESULT ]
+     * @return int Debug settings: flags [ 1 = XML, 2 = RESULT ]
      */
     public function getDebugSetting()
     {

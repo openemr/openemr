@@ -16,8 +16,8 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ButtonIF.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ViewableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ButtonIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ViewableIF.php';
 
 class Encounter_Button implements ButtonIF
 {
@@ -37,7 +37,7 @@ class Encounter_Button implements ButtonIF
 
     public function getViewScript()
     {
-        return OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/views/encounter/esign_button.php';
+        return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/encounter/esign_button.php';
     }
 
     public function render(?SignableIF $signable = null)

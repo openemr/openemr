@@ -116,7 +116,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      * Compliant with US Core 8.0 and USCDI v5
      *
      * @param array   $dataRecord The source OpenEMR data record
-     * @param boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCoverage
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

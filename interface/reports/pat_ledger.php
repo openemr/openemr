@@ -17,9 +17,9 @@
  */
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -311,6 +311,7 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
+$last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - 1);
 if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'Y')) {
     $ledger_time = substr((string) OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
@@ -421,13 +422,13 @@ if ($_REQUEST['form_csvexport']) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
     </script>
     <script>
-    <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
+    <?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal?>
     </script>
     <?php
     if ($type_form == '0') {
@@ -464,7 +465,7 @@ if ($_REQUEST['form_csvexport']) {
             <div class="col-sm-12">
                 <?php
                 if ($type_form != '0') {
-                    require_once("$include_root/patient_file/summary/dashboard_header.php");
+                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/summary/dashboard_header.php");
                 } else {
                     echo  $oemr_ui->pageHeading() . "\r\n";
                 } ?>
@@ -746,8 +747,9 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     $prev_encounter_id = -1;
     $hdr_printed = false;
     $prev_row = [];
+    $effectiveInsurances = [];
     while ($erow = sqlFetchArray($res)) {
-        $effectiveInsurances = getEffectiveInsurances($pid, $erow['date']);
+        $effectiveInsurances = getEffectiveInsurances(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid'), $erow['date']);
         $print = '';
         $csv = '';
         if ($erow['encounter'] != $prev_encounter_id) {

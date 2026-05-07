@@ -23,11 +23,10 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/forms.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/pnotes.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pnotes.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -1340,7 +1339,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         $ares['document_id'] = $d->get_id();
                     }
                 } // @todo suspect below!!
-                $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
+                $ares['date'] = $arep['date_report'] ?? ''; // $arep is left over from the OBR logic.
                 // Append this result to those for the most recent report.
                 // Note the 'procedure_report_id' item is not yet present.
                 //$amain[count($amain) - 1]['res'][] = $ares;
@@ -1441,7 +1440,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $ares['document_id'] = $d->get_id();
             }
 
-            $ares['date'] = $arep['date_report']; // $arep is left over from the OBR logic.
+            $ares['date'] = $arep['date_report'] ?? ''; // $arep is left over from the OBR logic.
             // Append this result to those for the most recent report.
             // Note the 'procedure_report_id' item is not yet present.
             $amain[count($amain) - 1]['res'][] = $ares;
@@ -1949,9 +1948,5 @@ function poll_hl7_results(&$info, $labs = 0)
  */
 function hl7Crypt($content)
 {
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $content = (ServiceContainer::getCrypto())->encryptStandard($content, keySource: KeySource::Database);
-    }
-
-    return $content;
+    return ServiceContainer::getCrypto()->encryptForFilesystem($content);
 }

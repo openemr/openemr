@@ -83,6 +83,17 @@ initialize_openemr() {
     install_configure
     "${HOME}/bin/openemr-cmd" pc inferno-files/files/resources/openemr-snapshots/2025-06-25-inferno-baseline.tgz
     "${HOME}/bin/openemr-cmd" rs 2025-06-25-inferno-baseline
+    #  Snapshot is from 7.0.3; run migrations to create any new tables
+    docker compose exec -T openemr php "${OPENEMR_DIR}/sql_upgrade.php" --from=7.0.3
+    # (may need to configure api globals here)
+    # Prevent password expiration from blocking OAuth password grant
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users_secure SET last_update_password = NOW()"
+    # Fix user to qualify as Practitioner: NPI AND (username OR valid abook_type)
+    # Snapshot predates commit 4af4c827f which added username/abook_type filtering
+    # See https://github.com/openemr/openemr/issues/11831#issuecomment-4341049367
+    docker compose exec -T openemr mysql -u openemr --password=openemr -h mysql openemr \
+        -e "UPDATE users SET abook_type = 'external_provider', npi = '0123456789' WHERE uuid = UNHEX(REPLACE('96889cb7-0f90-4d9e-9a6c-ac0e70c01cb1', '-', ''))"
 
     # Configure coverage after containers are running and OpenEMR is initialized
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
@@ -160,19 +171,7 @@ collect_inferno_coverage() {
     echo 'Inferno coverage collection completed'
 }
 
-fix_redis_permissions() {
-     docker run --rm -v "${PWD}/onc-certification-g10-test-kit/data/redis:/data" redis chown -R redis:redis /data
-}
-
-cleanup() {
-    echo 'Performing cleanup...'
-    docker compose down -v || true
-    echo 'Cleanup completed'
-}
-
 main() {
-    # Set up trap for cleanup on exit
-    trap cleanup EXIT
     # Compose Bake will either be ignored or it will make builds faster.
     export COMPOSE_BAKE=1
     # BuildKit accepts platform arguments.
@@ -209,7 +208,6 @@ main() {
     initialize_inferno
     check_inferno
     initialize_openemr
-    fix_redis_permissions
 
     # Run the test suite and capture exit code
     # shellcheck disable=SC2310

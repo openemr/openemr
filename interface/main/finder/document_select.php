@@ -161,7 +161,7 @@ foreach ($searchResult as $docResult) {
                        title='<?php echo xla('Any part of the document name'); ?>' />
                 <div class="col">
                     <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
-                    <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif" /></div>
+                    <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif" /></div>
                 </div>
             </div>
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />

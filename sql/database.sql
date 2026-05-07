@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 537
+-- v_database: 538
 --
 
 --
@@ -15382,3 +15382,14 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('org
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'cg', 'Community Group', 100);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 110);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'other', 'Other', 120);
+
+-- Doctrine Migrations tracking
+-- Their tooling will create this automatically, but having it here simplifies
+-- schema comparisons.
+DROP TABLE IF EXISTS `migrations`;
+CREATE TABLE `migrations` (
+    `version` varchar(191) NOT NULL,
+    `executed_at` datetime DEFAULT NULL,
+    `execution_duration_ms` int DEFAULT NULL,
+    PRIMARY KEY (`version`)
+) ENGINE=InnoDB;

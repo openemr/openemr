@@ -67,6 +67,22 @@ function postcalendar_adminapi_addCategories($args)
     if (!isset($name)) {
         return false;
     }
+    $constantid ??= '';
+    $desc ??= '';
+    $color ??= '';
+    $repeat ??= '';
+    $spec ??= '';
+    $recurrfreq ??= '';
+    $duration ??= 0;
+    $limitid ??= 0;
+    $end_date_flag ??= 0;
+    $end_date_type ??= 0;
+    $end_date_freq ??= 0;
+    $end_all_day ??= 0;
+    $value_cat_type ??= 0;
+    $active ??= 0;
+    $sequence ??= 0;
+    $aco ??= '';
 
     $conn = pnDBGetConn();
     $pntable = pnDBGetTables();

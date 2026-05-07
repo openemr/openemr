@@ -47,7 +47,7 @@ readonly class Metadata implements JsonSerializable
     }
 
     /**
-     * @param array{
+     * @param mixed $data array{
      *   formatVersion: int,
      *   patientId: string,
      *   encounters: array<int, array{id: string, code: string, codeType: string, amount: array{amount: numeric-string, currency: non-empty-string}}>,

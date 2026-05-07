@@ -1230,7 +1230,7 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'encounters' => ['notes', 'relaxed'],
-                'patients' => ['demo', 'med', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'],
+                'patients' => ['demo', 'docs', 'notes','trans', 'reminder', 'alert', 'disclosure', 'rx', 'amendment', 'lab'],
                 'sensitivities' => ['normal']
             ],
             null,
@@ -1243,6 +1243,20 @@ $config = 1; /////////////
             'Things that clinicians can read and enter but not modify'
         );
         // xl('Things that clinicians can read and enter but not modify')
+        $gacl->add_acl(
+            [
+                'patients' => ['med']
+            ],
+            null,
+            [$clin],
+            null,
+            null,
+            1,
+            1,
+            'write',
+            'Things that clinicians can read and modify'
+        );
+        // xl('Things that clinicians can read and modify')
         $gacl->add_acl(
             [
                 'placeholder' => ['filler']

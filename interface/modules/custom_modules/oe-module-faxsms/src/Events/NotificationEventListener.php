@@ -16,10 +16,7 @@ use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -30,24 +27,12 @@ class NotificationEventListener implements EventSubscriberInterface
     private readonly bool $isSmsEnabled;
     private readonly bool $isEmailEnabled;
     private readonly bool $isFaxEnabled;
-    private readonly bool $isVoiceEnabled;
 
-    /**
-     * @var \Twig\Environment The twig rendering environment
-     */
-    private $twig;
-
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
         $this->isSmsEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? 0);
         $this->isFaxEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? 0);
         $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
-        $this->isVoiceEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? 0);
-
-        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
-        $twig = new TwigContainer($this->getTemplatePath(), $kernel);
-        $twigEnv = $twig->getTwig();
-        $this->twig = $twigEnv;
     }
 
     public function getTemplatePath(): string
@@ -74,52 +59,6 @@ class NotificationEventListener implements EventSubscriberInterface
         $this->eventDispatcher->addListener('sendNotification.service.universal.onetime', $this->onNotifyUniversalOneTime(...));
         $this->eventDispatcher->addListener(SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST, $this->notificationButton(...));
         $this->eventDispatcher->addListener(SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST, $this->notificationDialogFunction(...));
-        if ($this->isVoiceEnabled) {
-            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_NAV, $this->renderPhoneButton(...));
-            $this->eventDispatcher->addListener(RenderEvent::EVENT_BODY_RENDER_POST, $this->renderPhoneWidget(...));
-        }
-    }
-
-    public function renderPhoneButton()
-    {
-        $loginCred = $this->getRCCredentials('voice');
-        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt'] && OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? false) {
-            echo '
-            <button id="rc-toggle-exe" class="btn btn-outline-danger btn-sm" onclick="toggleRCWidget()">
-                <span id="btn-text"><i id="rc-toggle-btn" class="fa-solid fa-phone"></i></span>
-            </button>';
-        }
-    }
-
-    public function renderPhoneWidget(RenderEvent $event): void
-    {
-        $serviceType = 'voice';
-        $loginCred = $this->getRCCredentials($serviceType);
-        $moduleBaseUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-faxsms";
-        $context = [
-            'clientId' => $loginCred['appKey'],
-            'clientSecret' => $loginCred['appSecret'],
-            'jwt' => $loginCred['jwt'],
-        ];
-        // Render using Twig
-        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt']) {
-            echo $this->twig->render('phone_widget.html.twig', $context);
-        }
-    }
-
-    private function getRCCredentials($serviceType = 'voice'): array
-    {
-        AppDispatch::setModuleType($serviceType);
-        try {
-            $clientApp = AppDispatch::getApiService($serviceType);
-        } catch (\Throwable $e) {
-            ServiceContainer::getLogger()->warning(
-                "FaxSMS: failed to load service",
-                ['type' => $serviceType, 'message' => $e->getMessage()]
-            );
-            return ['appKey' => '', 'appSecret' => '', 'jwt' => ''];
-        }
-        return $clientApp->getCredentials();
     }
 
     /**
@@ -149,7 +88,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => OEGlobalsBag::getInstance()->get('web_root') . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
+            'redirect_link' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
                 "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
                 "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
             'email' => '',
@@ -205,7 +144,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *   'expiry_interval' => "P2D", // valid for 2 days.
      *   'text_message' => "Please make a payment for your appointment.",
      *   'html_message' => "",
-     *   'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode($session->get('site_id')) . "&landOn=MakePayment",
+     *   'redirect_url' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode($session->get('site_id')) . "&landOn=MakePayment",
      *   'actions' => [
      *      'enforce_onetime_use' => true,
      *      'enforce_auth_pin' => true,
@@ -225,7 +164,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -318,11 +257,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $status = '';
 
-        if (empty($data['alt_content'] ?? '')) {
-            xl("Please follow below link to complete the requested document.");
-        } else {
-            $message = $data['alt_content'];
-        }
+        $message = ($data['alt_content'] ?? '') ?: xl("Please follow below link to complete the requested document.");
 
         if ($patient['hipaa_allowsms'] == 'YES') {
             $clientApp = AppDispatch::getApiService('sms');
@@ -332,11 +267,7 @@ class NotificationEventListener implements EventSubscriberInterface
                 $message,
                 null // will get the "from" phone # from credentials
             );
-            if ($status_api !== true) {
-                $status .= text($status_api);
-            } else {
-                $status .= xlt("Message sent.");
-            }
+            $status .= $status_api === true ? xlt("Message sent.") : text($status_api);
         }
 
         if (!empty($patient['email']) && ($data['include_email'] ?? false) && ($patient['hipaa_allowemail'] == 'YES')) {

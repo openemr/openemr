@@ -14,7 +14,7 @@
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
-require_once("$srcdir/registry.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/registry.inc.php");
 require_once("batchcom.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -23,6 +23,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+$form_err = '';
 
 if (!AclMain::aclCheckCore('admin', 'batchcom')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/batchcom: BatchCom", xl("BatchCom"));
@@ -140,7 +142,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
         }
 
         switch ($_POST['process_type']) :
-            case $choices[1]: // Email
+            case $process_choices[1]: // Email
                 $sql .= " and patient_data.email IS NOT NULL ";
                 break;
         endswitch;
@@ -295,7 +297,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     })();

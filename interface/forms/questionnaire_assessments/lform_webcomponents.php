@@ -4,7 +4,7 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 
-$root =  OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/questionnaire_assessments";
+$root =  OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/questionnaire_assessments";
 
 $style = "<link href='$root/assets/styles/styles_openemr_lforms.css' media='screen' rel='stylesheet' />" . "\n";
 $style_lform = "<link href='$root/lforms/webcomponent/styles.css' media='screen' rel='stylesheet' />" . "\n";

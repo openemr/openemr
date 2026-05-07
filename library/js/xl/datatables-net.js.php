@@ -6,7 +6,7 @@
  *
  * Example code in script:
  *    $translationsDatatablesOverride = array('search'=>(xla('Search all columns') . ':')) (optional php command)
- *    require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); (php command)
+ *    require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); (php command)
  *
  * Note there is a optional mechanism to override translations via the
  *  $translationsDatatablesOverride array.

@@ -13,6 +13,7 @@
  */
 
 require_once("../../globals.php");
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -37,7 +38,7 @@ if ($is_lbf) {
 
 //Bring in the style sheet
 ?>
-<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -166,11 +167,11 @@ $(function () {
 <?php
 if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.
-    include_once("$incdir/forms/LBF/new.php");
+    include_once($webserver_root . "/interface/forms/LBF/new.php");
 } else {
   // ensure the path variable has no illegal characters
     check_file_dir_name($formname);
 
-    include_once("$incdir/forms/$formname/new.php");
+    include_once($webserver_root . "/interface/forms/$formname/new.php");
 }
 ?>

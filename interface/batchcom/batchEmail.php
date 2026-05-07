@@ -20,9 +20,19 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+// This script is meant to be required from batchcom.php, which sets $res
+// (the SQL result of the patient query). Direct access has nothing to send.
+if (!isset($res)) {
+    require_once(__DIR__ . '/batchcom.php');
+    exit;
+}
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+$m_error = false;
+$m_error_count = 0;
 
 ?>
 <html>
@@ -71,7 +81,7 @@ CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     </ul>
     <?php
     if ($m_error) {
-        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text($m_error_count) . ' ' . xlt('emails not sent') . '</div>';
+        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text((string) $m_error_count) . ' ' . xlt('emails not sent') . '</div>';
     }
     ?>
 </main>

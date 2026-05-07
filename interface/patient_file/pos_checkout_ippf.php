@@ -49,11 +49,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/checkout_receipt_array.inc.php");
-require_once("$srcdir/appointment_status.inc.php");
+require_once($srcdir . "/checkout_receipt_array.inc.php");
+require_once($srcdir . "/appointment_status.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
@@ -71,6 +73,15 @@ $facilityService = new FacilityService();
 $recorder = new Recorder();
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+
+// load_taxes() (called via write_form_headers()) sets these as globals.
+// Initialize defaults so PHPStan can verify top-level usage below.
+$num_optional_columns = 0;
+$form_num_type_columns = 2;
+$form_num_method_columns = 1;
+$form_num_ref_columns = 1;
+$form_num_amount_columns = 1;
 
 // Change this to get the old appearance.
 $TAXES_AFTER_ADJUSTMENT = true;
@@ -429,9 +440,10 @@ function receiptPaymentLineIppf($paydate, $amount, $description = '', $method = 
     }
     echo " <tr>\n";
     echo "  <td";
-    if (!empty($billtime) && !str_starts_with((string) $billtime, '0000')) {
+    $billtimeStr = (string) $billtime;
+    if ($billtimeStr !== '' && !str_starts_with($billtimeStr, '0000')) {
         echo " title='" . xla('Entered') . ' ' .
-            text(oeFormatShortDate($billtime)) . attr(substr((string) $billtime, 10)) . "'";
+            text(oeFormatShortDate($billtime)) . attr(substr($billtimeStr, 10)) . "'";
     }
     echo ">" . text(oeFormatShortDate($paydate)) . "</td>\n";
     echo "  <td colspan='2'>" . text($refno) . "</td>\n";
@@ -539,7 +551,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
 
     <script>
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     $(function () {
         var win = top.printLogSetup ? top : opener.top;
@@ -1638,10 +1650,11 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
     // Post discount.
     if ($_POST['form_discount'] != 0) {
+        $discount = trim((string) $_POST['form_discount']);
         if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
-            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']));
+            $amount  = formatMoneyNumber($discount);
         } else {
-            $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
+            $amount  = formatMoneyNumber($discount * $form_amount / 100);
         }
         $memo = trimPost('form_discount_type');
         $recorder = new Recorder();
@@ -1747,6 +1760,9 @@ if ($patient_id && !empty($_GET['enc'])) {
             $checkout_times = craGetTimestamps($patient_id, $_GET['enc']);
             $billtime = empty($checkout_times) ? '' : $checkout_times[count($checkout_times) - 1];
         }
+        if (!function_exists('generateCheckoutReceipt')) {
+            throw new \RuntimeException('The custom receipt include does not define generateCheckoutReceipt().');
+        }
         generateCheckoutReceipt($patient_id, $_GET['enc'], $billtime);
     }
     exit();
@@ -1837,7 +1853,7 @@ while ($urow = sqlFetchArray($ures)) {
 <script>
     var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     // This clears tax amounts in preparation for recomputing taxes.
     // TBD: Probably don't need this at all.
@@ -2003,9 +2019,10 @@ while ($urow = sqlFetchArray($ures)) {
         "list_id = 'chargecats' AND activity = 1"
     );
     while ($tmprow = sqlFetchArray($tmpres)) {
+        $notes = (string) $tmprow['notes'];
         if (
-            preg_match('/ADJ=(\w+)/', (string) $tmprow['notes'], $matches) ||
-            preg_match('/ADJ="(.*?)"/', (string) $tmprow['notes'], $matches)
+            preg_match('/ADJ=(\w+)/', $notes, $matches) ||
+            preg_match('/ADJ="(.*?)"/', $notes, $matches)
         ) {
             echo "  if (customer == " . js_escape($tmprow['option_id']) . ") ret = " . js_escape($matches[1]) . ";\n";
         }
@@ -2147,7 +2164,7 @@ while ($urow = sqlFetchArray($ures)) {
             $.ajax({
                 dataType: "json",
                 async: false, // We cannot continue without an answer.
-                url: "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/check_szf_referrals_ajax.php",
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/check_szf_referrals_ajax.php",
                 data: {
                     "pid": <?php echo intval($patient_id); ?>,
                     "encounter": <?php echo intval($encounter_id); ?>,
@@ -2387,13 +2404,13 @@ while ($brow = sqlFetchArray($bres)) {
             if ($codetype !== 'IPPF2') {
                 continue;
             }
-            if (preg_match('/^211/', $code)) {
+            if (str_starts_with($code, '211')) {
                 $gcac_related_visit = true;
                 if (
-                    preg_match('/^211313030110/', $code) // Medical
-                    || preg_match('/^211323030230/', $code) // Surgical
-                    || preg_match('/^211403030110/', $code) // Incomplete Medical
-                    || preg_match('/^211403030230/', $code) // Incomplete Surgical
+                    str_starts_with($code, '211313030110') // Medical
+                    || str_starts_with($code, '211323030230') // Surgical
+                    || str_starts_with($code, '211403030110') // Incomplete Medical
+                    || str_starts_with($code, '211403030230') // Incomplete Surgical
                 ) {
                     $gcac_service_provided = true;
                 }
@@ -2505,6 +2522,7 @@ echo "   <td class='bold' colspan='$form_num_amount_columns' align='right' nowra
 echo "  </tr>\n";
 
 $lino = 0;
+$thisdate = '';
 
 // Write co-pays.
 foreach ($aCopays as $brow) {
@@ -2819,8 +2837,9 @@ if (OEGlobalsBag::getInstance()->get('ippf_specific')) {
     // o If there is an initial contraceptive consult, make sure a LBFccicon form exists with that method on it.
     // o If a LBFccicon form exists with a new method on it, make sure the TS initial consult exists.
 
-    require_once("$srcdir/contraception_billing_scan.inc.php");
+    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/contraception_billing_scan.inc.php");
     contraception_billing_scan($patient_id, $encounter_id);
+    $contraception_billing_code = OEGlobalsBag::getInstance()->get('contraception_billing_code', '');
 
     $csrow = sqlQuery(
         "SELECT field_value FROM shared_attributes WHERE pid = ? AND encounter = ? AND field_id = 'cgen_MethAdopt'",

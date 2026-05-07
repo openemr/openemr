@@ -71,7 +71,7 @@ class FhirPractitionerRoleService extends FhirServiceBase implements IResourceUS
      * Parses an OpenEMR practitionerRole record, returning the equivalent FHIR PractitionerRole Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRPractitionerRole
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

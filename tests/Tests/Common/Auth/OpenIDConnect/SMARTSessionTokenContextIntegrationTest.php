@@ -90,6 +90,9 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         $webserverRoot = OEGlobalsBag::getInstance()->getProjectDir() ?: '/var/www/openemr';
         $GLOBALS['kernel'] = new Kernel($webserverRoot, '/openemr');
         $this->serverConfig = new ServerConfig();
+        // ServerConfig reads site_id from SessionWrapperFactory at construction time,
+        // but that session may have been reset by earlier tests. Set it explicitly.
+        $this->serverConfig->setSiteId('default');
         // Use a real session with mock storage for integration testing
         $this->session = new Session(new MockArraySessionStorage());
         $this->session->set('site_id', 'default');
@@ -610,7 +613,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
             ->method('error')
             ->with(
                 $this->stringContains('Failed to decode launch context parameter'),
-                $this->arrayHasKey('error')
+                $this->arrayHasKey('exception')
             );
 
         $this->expectException(OAuthServerException::class);

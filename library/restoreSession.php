@@ -130,7 +130,7 @@ function printLogPrint(elem) {
 <?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_print_log_option'))) { ?>
  comments = win.printlogdata || win.document.body.innerHTML;
  top.restoreSession();
- $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/log_print_action_ajax.php",
+ $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/log_print_action_ajax.php",
   {
     comments: comments,
     csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>

@@ -15,7 +15,11 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/layout.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/layout.inc.php");
+
+/** @var array<int,string> $datatypes */
+/** @var list<int> $typesUsingList */
+/** @var array<string,string> $sources */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -1950,7 +1954,7 @@ $(function () {
             minimumResultsForSearch: 'Infinity',
             containerCssClass: ':all:',
             allowClear: false,
-            <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/select2.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
         });
     });
       // Populate field option selects

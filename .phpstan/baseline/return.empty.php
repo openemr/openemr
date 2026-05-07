@@ -17,16 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormHidden\\(\\) should return string but empty return statement found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method pnHTML\\:\\:FormSelectMultiple\\(\\) should return string but empty return statement found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnModAPILoad\\(\\) should return true but empty return statement found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',

@@ -16,6 +16,7 @@ class eRxPage
     const DEBUG_XML    = 1;
     const DEBUG_RESULT = 2;
 
+    /** @var ?eRxXMLBuilder */
     private $xmlBuilder;
     private $authUserId;
     private $destination;
@@ -32,8 +33,8 @@ class eRxPage
 
     /**
      * Set XMLBuilder to handle eRx XML
-     * @param  object  $xmlBuilder The eRx XMLBuilder object to use for processing
-     * @return eRxPage             This object is returned for method chaining
+     * @param  eRxXMLBuilder $xmlBuilder The eRx XMLBuilder object to use for processing
+     * @return eRxPage                   This object is returned for method chaining
      */
     public function setXMLBuilder($xmlBuilder)
     {
@@ -44,7 +45,7 @@ class eRxPage
 
     /**
      * Get XMLBuilder for handling eRx XML
-     * @return object The eRx XMLBuilder object to use for processing
+     * @return eRxXMLBuilder The eRx XMLBuilder object to use for processing
      */
     public function getXMLBuilder()
     {
@@ -53,7 +54,7 @@ class eRxPage
 
     /**
      * Set the Id of the authenticated user
-     * @param  integer $userId The Id for the authenticated user
+     * @param int $userId The Id for the authenticated user
      * @return eRxPage         This object is returned for method chaining
      */
     public function setAuthUserId($userId)
@@ -65,7 +66,7 @@ class eRxPage
 
     /**
      * Get the Id of the authenticated user
-     * @return integer The Id of the authenticated user
+     * @return int The Id of the authenticated user
      */
     public function getAuthUserId()
     {
@@ -95,7 +96,7 @@ class eRxPage
 
     /**
      * Set the Patient Id for the page request
-     * @param  integer $patientId The Patient Id for the page request
+     * @param int $patientId The Patient Id for the page request
      * @return eRxPage            This object is returned for method chaining
      */
     public function setPatientId($patientId)

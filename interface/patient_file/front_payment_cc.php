@@ -12,6 +12,8 @@
 
 $ignoreAuth = false;
 require_once(__DIR__ . "/../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
@@ -28,6 +30,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
+        /** @var \Omnipay\AuthorizeNetApi\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -44,7 +47,8 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         $cc['zip'] = $_POST["zip"];
         $ccaudit = json_encode($cc);
     } catch (\Throwable $ex) {
-        return $ex->getMessage();
+        echo $ex->getMessage();
+        exit();
     }
 
     if (!$response->isSuccessful()) {
@@ -75,6 +79,7 @@ if ($_POST['mode'] == 'Stripe') {
         'Invoice Total' => $transaction['amount']
     ];
     try {
+        /** @var \Omnipay\Stripe\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -88,10 +93,11 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['transId'] = $response->getTransactionReference();
         $cc['cardNumber'] = "******** " . $r['last4'];
         $cc['cc_type'] = $r['brand'];
-        $cc['zip'] = $r->address_zip;
+        $cc['zip'] = $r['address_zip'] ?? null;
         $ccaudit = json_encode($cc);
     } catch (\Throwable $ex) {
         echo $ex->getMessage();
+        exit();
     }
 
     if (!$response->isSuccessful()) {

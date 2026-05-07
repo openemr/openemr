@@ -11,9 +11,9 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -23,6 +23,9 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
+
+/** @var array<int, array<int|string, mixed>> $insurance_data_array */
+/** @var array<int, array<int|string, mixed>> $patient_data_array */
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Superbill", xl("Superbill"));
@@ -158,7 +161,7 @@ if (empty($form_patient)) {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
@@ -281,6 +284,7 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
         $res_query .=     " order by date DESC" ;
         $res = sqlStatement($res_query, $sqlBindArray);
 
+    $pids = [];
     while ($result = sqlFetchArray($res)) {
         if ($result["form_name"] == "New Patient Encounter") {
             $newpatient[] = $result["form_id"] . ":" . $result["encounter"];
@@ -296,13 +300,6 @@ if (!(empty($_POST['start']) || empty($_POST['end']))) {
     }
 
     foreach ($newpatient as $patient) {
-        /*
-        $inclookupres = sqlStatement("select distinct formdir from forms where pid='".$pids[$iCounter]."'");
-        while($result = sqlFetchArray($inclookupres)) {
-        include_once("{$GLOBALS['incdir']}/forms/" . $result["formdir"] . "/report.php");
-        }
-        */
-
         print "<div id='superbill_patientdata'>";
         print "<h1>" . xlt('Patient Data') . ":</h1>";
         printRecDataOne($patient_data_array, getRecPatientData($pids[$iCounter]), $N);

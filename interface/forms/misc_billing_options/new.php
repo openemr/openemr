@@ -20,18 +20,27 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/user.inc.php");
-require_once("$srcdir/pid.inc.php");
-require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/user.inc.php");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/encounter.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -390,7 +399,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

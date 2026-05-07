@@ -16,14 +16,19 @@ require_once("./ub04_dispose.php");
 
 /* $isAuthorized tells us if the form is for user UI or claim processing and provides another security check */
 global $isAuthorized;
-if ($isAuthorized !== true) {
+$isAuthorized = $isAuthorized === true ? 1 : 0;
+$pid ??= '0';
+$encounter ??= '0';
+$ub04id ??= '';
+if ($isAuthorized === 1) {
+    $imgurl = "../../../../public/images";
+} else {
     ub04_dispose();
-    $isAuthorized = 0;
     $pid = $_REQUEST['pid'] ?: '0';
     $encounter = $_REQUEST['enc'] ?: '0';
     $action = $_REQUEST['action'] ?? false ?: false;
     $payerid = $_REQUEST['id'] ?? '0' ?: '0';
-    $imgurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative');
+    $imgurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getImagesRelative();
     if ($action == 'payer_defaults') {
         $ub04id = get_payer_defaults($payerid);
     } elseif ($pid && $encounter) {
@@ -31,8 +36,6 @@ if ($isAuthorized !== true) {
     } else {
         exit(xlt("Sorry! Not Authorized."));
     }
-} else {
-    $imgurl = "../../../../public/images";
 }
 
 use OpenEMR\Core\Header;
@@ -44,7 +47,7 @@ use OpenEMR\Core\OEGlobalsBag;
 <head>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <meta charset="utf-8" />
-<?php if ($isAuthorized !== true) {
+<?php if ($isAuthorized !== 1) {
     Header::setupHeader(['no_main-theme', 'opener', 'common', 'datetime-picker', 'jquery-ui']);
     ?>
 
@@ -54,7 +57,7 @@ $(function() {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php echo(",validateOnBlur: false, formatDate: 'mdy', format: 'mdy'") ?>
     });
 
@@ -204,8 +207,8 @@ var isTemplate;
 var ub04id = new Array();
 payerid = <?php echo js_escape($payerid ?? ''); ?>;
 pid = <?php echo js_escape($pid);?>;
-encounter = <?php echo js_escape($encounter ?? null);?>;
-isTemplate = <?php echo js_escape((int) ($isAuthorized === true ? $isAuthorized : false)); ?>;
+encounter = <?php echo js_escape($encounter);?>;
+isTemplate = <?php echo $isAuthorized; ?>;
 ub04id = <?php echo $ub04id;?>
 
 function adjustForm()
@@ -247,7 +250,7 @@ function adjustForm()
  });
  return false;
 }
-<?php if ($isAuthorized !== true) {?>
+<?php if ($isAuthorized !== 1) {?>
 var formChanged = false;
 
 function rewrite(ub04id){
@@ -947,7 +950,7 @@ textarea{
 </head>
 <body onload="adjustForm();">
 <div class="container" id="formContainer">
-<?php if ($isAuthorized !== true) {?>
+<?php if ($isAuthorized !== 1) {?>
 <h3 class='formhide'><em><?php echo xlt('Claim Edit') ?> </em><button class="btn btn-sm btn-warning" onclick="myZoom()" ><?php echo xlt('Zoom'); ?></button></h3>
 <div class="navbar-fixed-top formhide" id='menu'>
     <?php if ($pid && $encounter) {?>

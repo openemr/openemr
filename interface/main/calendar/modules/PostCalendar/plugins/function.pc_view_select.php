@@ -28,22 +28,9 @@
 function smarty_function_pc_view_select($args): void
 {
     @define('_PC_FORM_TEMPLATE', true);
-    $Date = postcalendar_getDate();
-    if (!isset($y)) {
-        $y = substr((string) $Date, 0, 4);
-    }
-
-    if (!isset($m)) {
-        $m = substr((string) $Date, 4, 2);
-    }
-
-    if (!isset($d)) {
-        $d = substr((string) $Date, 6, 2);
-    }
-
     $tplview = pnVarCleanFromInput('tplview');
     $viewtype = pnVarCleanFromInput('viewtype');
-    if (!isset($viewtype)) {
+    if ($viewtype === null || $viewtype === '') {
         $viewtype = _SETTING_DEFAULT_VIEW;
     }
 
@@ -68,6 +55,7 @@ function smarty_function_pc_view_select($args): void
     closedir($handle);
     sort($viewlist);
     $tcount = count($viewlist);
+    $t = 0;
     //$options = "<select id=\"tplview\" name=\"tplview\" class=\"$args[class]\">"; - pennfirm
     $options = "<select id=\"tplview\" name=\"viewtype\" class=\"$args[class]\">";
     $selected = $tplview;

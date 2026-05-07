@@ -64,7 +64,4 @@ return RectorConfig::configure()
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()
-    ->withSkip([
-        __DIR__ . '/sites/default/documents/smarty'
-    ])
     ->withTypeCoverageLevel(5);

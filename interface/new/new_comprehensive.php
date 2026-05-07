@@ -61,7 +61,7 @@ $fres = getLayoutRes($SHORT_FORM);
 }
 </style>
 
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.js.php"); ?>
 
 <script><!--
 //Visolve - sync the radio buttons - Start
@@ -775,7 +775,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         </div>
     </div> <!--end of container div -->
 <!-- include support for the list-add selectbox feature -->
-<?php require(OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"); ?>
 <script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
@@ -858,7 +858,7 @@ $(function () {
         ?>
         <?php if ((OEGlobalsBag::getInstance()->get('full_new_patient_form') == '4') && (checkIfPatientValidationHookIsActive())) :?>
             // Use zend module patient validation hook to open the controller and send the dup-checker fields.
-            var url ='<?php echo OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
+            var url ='<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/zend_modules/public/patientvalidation"; ?>';
         <?php else :?>
             // Build and invoke the URL to create the dup-checker dialog.
             var url = 'new_search_popup.php';
@@ -908,7 +908,7 @@ while ($lrow = sqlFetchArray($lres)) {
         theme: "bootstrap4",
         dropdownAutoWidth: true,
         width: 'resolve',
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
     });
     if (typeof error !== 'undefined') {
         if (error) {
@@ -922,7 +922,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
@@ -931,7 +931,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-past').datetimepicker({
@@ -940,7 +940,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-past').datetimepicker({
@@ -949,7 +949,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-future').datetimepicker({
@@ -958,7 +958,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-future').datetimepicker({
@@ -967,7 +967,7 @@ while ($lrow = sqlFetchArray($lres)) {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 

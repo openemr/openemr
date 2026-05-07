@@ -40,7 +40,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Generate HL7 for the specified procedure order.
      *
-     * @param integer  $orderid Procedure order ID.
+     * @param int $orderid Procedure order ID.
      * @param string  &$out     Container for target HL7 text.
      * @return string            Error text, or empty if no errors.
      */
@@ -141,6 +141,9 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         $cntDx = 0;
+        $D = [];
+        $C = [];
+        $T = [];
         $vvalue = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper((string) $_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         // $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
@@ -690,6 +693,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($altCharScheme), // POS 20
             $this->buildHL7Field("ELINCS_MT-OML-1_1.0"), // POS 21
         ];
+        $segment = '';
         foreach ($fields as $field) {
             $segment .= $this->fieldSeparator . $field;
         }
@@ -700,7 +704,7 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Transmit HL7 for the specified lab.
      *
-     * @param integer $ppid Procedure provider ID.
+     * @param int $ppid Procedure provider ID.
      * @param string  $out  The HL7 text to be sent.
      * @return string         Error text, or empty if no errors.
      */

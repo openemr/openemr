@@ -276,6 +276,37 @@ To regenerate the baseline after fixing violations:
 composer phpstan-baseline
 ```
 
+To wipe and rebuild the baseline from scratch (ignoring whatever is currently on disk):
+
+```bash
+composer phpstan-baseline-reset
+```
+
+This deletes every file under `.phpstan/baseline/`, writes a minimal empty `loader.php`, and then runs `composer phpstan-baseline` to rebuild the per-identifier files from the current codebase. Use this instead of `composer phpstan-baseline` when you want a clean regeneration — for example, when the baseline has drifted, or when the existing files are in a state PHPStan can't even load (leftover merge conflict markers, a truncated file, etc.).
+
+### Fatal-category caps
+
+Certain baseline files hold errors for code that cannot run at load or call time. `.phpstan/fatal-baseline-caps.php` records the current count per file and `tests/Tests/Isolated/PHPStan/FatalBaselineCapsIsolatedTest.php` asserts the actual count equals the cap. Two modes:
+
+- **Whole-file (`all`)** — every baseline entry counts. Used for identifiers where each entry is a symbol that simply doesn't exist:
+  - `class.notFound`, `method.notFound`, `staticMethod.notFound`, `trait.notFound`, `interface.notFound`
+  - `function.notFound`
+  - `classConstant.notFound`, `constant.notFound`
+  - `include.fileNotFound`, `includeOnce.fileNotFound`, `requireOnce.fileNotFound`, `require.fileNotFound`
+  - `return.missing`, `variable.undefined`
+
+- **Confident non-object (`confidentNonObject`)** — only entries whose reported type narrows to a definitely-non-object (e.g. `on bool`, `on null`, `on array`) count. PHPStan also fires `*.nonObject` on `mixed` and class-union types like `SomeClass|null`; those aren't certain crashes and are excluded. Covered identifiers:
+  - `method.nonObject`, `staticMethod.nonObject`
+  - `property.nonObject`, `classConstant.nonObject`
+  - `clone.nonObject`
+
+If you regenerate the baseline and a count changes:
+
+- **Count went down** — lower the cap in `fatal-baseline-caps.php` to match.
+- **Count went up** — fix the underlying code instead of raising the cap. Each entry resolves to one of four fixes: delete dead code, wrap optional code in `class_exists()` / `function_exists()` / `defined()`, add a PHPStan stub, or install the missing dependency.
+
+See openemr/openemr#11792 for the plan to drive every cap to zero.
+
 ## Running PHPStan
 
 ```bash

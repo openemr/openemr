@@ -50,7 +50,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
 
 class EncounterccdadispatchTable
 {
@@ -1279,6 +1279,7 @@ class EncounterccdadispatchTable
     {
         $information_recipient = '';
         $field_name = [];
+        $query = '';
         $details = $this->getDetails('hie_recipient_id');
 
         if ($recipients == 'hie') {
@@ -1662,6 +1663,8 @@ class EncounterccdadispatchTable
 
             $active = $row['active'] > 0 ? 'active' : 'completed';
 
+            $start_date = '';
+            $start_date_formatted = '';
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
                 $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
@@ -2259,6 +2262,7 @@ class EncounterccdadispatchTable
             $problem = '';
             $primary_diagnosis = '';
             $issue_codes = '';
+            $encounter_diagnosis = '';
             if (count($res_issues ?? []) > 0) {
                 $i = 0;
                 foreach ($res_issues as $issue) {
@@ -3409,7 +3413,10 @@ class EncounterccdadispatchTable
      */
     public function getDetails($field_name): ?array
     {
-        if ($field_name == 'hie_custodian_id') {
+        if (!is_string($field_name) && !is_int($field_name)) {
+            return null;
+        }
+        if ($field_name === 'hie_custodian_id') {
             $query = "SELECT f.name AS organization, f.street, f.city, f.state, f.postal_code AS zip, f.phone as phonew1, f.uuid, f.oid AS facility_oid, f.facility_npi
         FROM facility AS f
         JOIN modules AS mo ON mo.mod_directory='Carecoordination'
@@ -3622,70 +3629,51 @@ class EncounterccdadispatchTable
                         }
                     }
                 }
-            } elseif ($formTables_details[0] == 2) {//Fetching the values from an LBF form
-                if (!$formTables_details[1]) {//Fetching the complete LBF
-                    foreach ($form_ids as $row) {
-                        foreach ($row as $value) {
-                            //This section will be used to fetch complete LBF. This has to be completed. We are working on this.
+            } elseif ($formTables_details[0] == 2 && $formTables_details[1] && $formTables_details[3]) {
+                // Fetching specific fields from an LBF form. Collect every
+                // form_id / encounter value across all rows into a single flat
+                // list, then implode with commas for the IN (...) clause below.
+                // The is_int/is_string guard narrows the mixed fetchRecords
+                // values to the scalar types implode accepts.
+                $flat_ids = [];
+                foreach ($form_ids as $row) {
+                    foreach ($row as $value) {
+                        if (is_int($value) || is_string($value)) {
+                            $flat_ids[] = $value;
                         }
                     }
-                } elseif (!$formTables_details[3]) {//Fetching the complete group from an LBF
-                    foreach ($form_ids as $row) {//Fetching the values of each encounters
-                        foreach ($row as $value) {
-                            ob_start();
-                            ?>
-                            <table>
-                                <?php
-                                display_layout_rows_group_new($formDir, '', '', $pid, $value, [$formTables_details[1]], '');
-                                ?>
-                            </table>
-                            <?php
-                            $res[0][$value] = ob_get_clean();
-                        }
-                    }
-                } else {
-                    $formid_list = "";
-                    foreach ($form_ids as $row) {//Fetching the values of each forms
-                        foreach ($row as $value) {
-                            if ($formid_list) {
-                                $formid_list .= ',';
-                            }
+                }
 
-                            $formid_list .= $value;
-                        }
-                    }
+                $formid_list = implode(',', $flat_ids) ?: "''";
+                $lbf = "lbf_data";
+                $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
+                $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
+                if ($filename !== false) {
+                    include_once($filename);
+                }
 
-                    $formid_list = $formid_list ?: "''";
-                    $lbf = "lbf_data";
-                    $srcBaseDir = OEGlobalsBag::getInstance()->getSrcDir();
-                    $filename = SafeIncludeResolver::resolve($srcBaseDir, $formDir . "/" . $formDir . "_db.php");
-                    if ($filename !== false) {
-                        include_once($filename);
+                $field_ids = explode(',', (string)$formTables_details[3]);
+                $fields_str = implode(',', array_map(fn($v) => "'$v'", $field_ids));
+
+                $query = <<<SQL
+                    SELECT *
+                    FROM {$lbf}
+                    JOIN forms AS f
+                    ON f.pid = ?
+                    AND f.form_id = {$lbf}.form_id
+                    AND f.formdir = ?
+                    AND {$lbf}.field_id IN ({$fields_str})
+                    WHERE deleted = 0
+                    SQL;
+                $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
+
+                foreach ($result as $row) {
+                    preg_match('/\.$/', trim((string)$row['field_value']), $matches);
+                    if (count($matches) == 0) {
+                        $row['field_value'] .= ". ";
                     }
 
-                    $field_ids = explode(',', (string)$formTables_details[3]);
-                    $fields_str = '';
-                    foreach ($field_ids as $value) {
-                        if ($fields_str != '') {
-                            $fields_str .= ",";
-                        }
-
-                        $fields_str .= "'$value'";
-                    }
-
-                    $query = "select * from " . $lbf . "
-                    join forms as f on f.pid = ? AND f.form_id = " . $lbf . ".form_id AND f.formdir = ? AND " . $lbf . ".field_id IN (" . $fields_str . ")
-                    where deleted = 0";
-                                        $result = QueryUtils::fetchRecords($query, [$pid, $formDir]);
-
-                    foreach ($result as $row) {
-                        preg_match('/\.$/', trim((string)$row['field_value']), $matches);
-                        if (count($matches) == 0) {
-                            $row['field_value'] .= ". ";
-                        }
-
-                        $res[0][$row['field_id']] .= $row['field_value'];
-                    }
+                    $res[0][$row['field_id']] .= $row['field_value'];
                 }
             } elseif ($formTables_details[0] == 3) {//Fetching documents from mapped folders
                 $query = "SELECT c.id, c.name, d.id AS document_id, d.type, d.mimetype, d.url, d.docdate
@@ -3773,6 +3761,7 @@ class EncounterccdadispatchTable
         /*Saving Demographics to locked data*/
         $query_patient_data = "SELECT * FROM patient_data WHERE pid = ?";
                 $result_patient_data = QueryUtils::fetchRecords($query_patient_data, [$pid]);
+        $row_patient_data = [];
         foreach ($result_patient_data as $row_patient_data) {
         }
 
@@ -3789,6 +3778,7 @@ class EncounterccdadispatchTable
         $query_saved_forms = "SELECT formid FROM combined_encountersaved_forms WHERE pid = ? AND encounter = ?";
                 $result_saved_forms = QueryUtils::fetchRecords($query_saved_forms, [$pid, $encounter]);
         $count = 0;
+        $forms = [];
         foreach ($result_saved_forms as $row_saved_forms) {
             $form_dir = '';
             $form_type = 0;
@@ -3856,6 +3846,7 @@ class EncounterccdadispatchTable
     {
         $query = "select count(*) as count from combination_form where pid = ? and encounter = ? and form_dir = ? and form_type = ? and form_id = ?";
                 $result = QueryUtils::fetchRecords($query, [$pid, $encounter, $formdir, $formtype, $formid]);
+        $count = ['count' => 0];
         foreach ($result as $count) {
         }
 
@@ -4003,6 +3994,7 @@ class EncounterccdadispatchTable
 
         // this query is only true if the referral was inserted as part of the ccda generation process.  This is code migrated from EncountermanagerTable
         $refs = QueryUtils::fetchRecords("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", [$pid]);
+        $trans_id = null;
         if (count($refs) == 0) {
             // the choose the most recent transaction to link this up...  This could create problems in the
             // future if multiple referrals are created BEFORE sending the CCDA.
@@ -4075,6 +4067,7 @@ class EncounterccdadispatchTable
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }

@@ -93,8 +93,8 @@ function process_cols_escape($s)
  *
  * @param   string|array        $s       sql column name(s) variable to be escaped/sanitized.
  * @param   array         $tables  The table(s) that the sql columns is from (in an array).
- * @param   boolean       $long    Use long form (ie. table.colname) vs short form (ie. colname).
- * @param   boolean       $throwException Whether to throw a SQL exception instead of dying
+ * @param bool $long Use long form (ie. table.colname) vs short form (ie. colname).
+ * @param bool $throwException Whether to throw a SQL exception instead of dying
  * @return  string                 Escaped table name variable.
  */
 function escape_sql_column_name($s, $tables, $long = false, $throwException = false)
@@ -138,14 +138,21 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     $columns_options = [];
     foreach ($tables_escaped as $table_escaped) {
         $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
+        // Strip backticks for whitelist comparison; input won't have them
+        $table_for_whitelist = trim($table_escaped, '`');
         while ($row = sqlFetchArray($res)) {
-            $columns_options[] = $long ? $table_escaped . "." . $row['Field'] : $row['Field'];
+            $columns_options[] = $long ? $table_for_whitelist . "." . $row['Field'] : $row['Field'];
         }
     }
 
     // Whitelist against actual columns, then backtick-quote to keep in identifier context
     $dieIfNoMatch = !$throwException;
     $column = escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
+    // For table.column format, backtick each part separately
+    if ($long && str_contains($column, '.')) {
+        [$table, $col] = explode('.', $column, 2);
+        return sprintf('`%s`.`%s`', $table, $col);
+    }
     return sprintf('`%s`', $column);
 }
 
@@ -192,12 +199,12 @@ function escape_table_name($s)
  *  may not always be the case.
  *
  * @param   string       $s                Sql identifier variable to be escaped/sanitized.
- * @param   array/string $whitelist_items  Items used in whitelisting method (See function description for details of whitelisting method).
+ * @param array|string $whitelist_items Items used in whitelisting method (See function description for details of whitelisting method).
  *                                          Standard use is to use a array. If use a string, then should be regex expression of allowed
  *                                          characters (for example 'a-zA-Z0-9_').
- * @param   boolean      $die_if_no_match  If there is no match in the whitelist, then die and echo an error to screen and log.
- * @param   boolean      $case_sens_match  Use case sensitive match (this is default).
- * @param   boolean      $throw_exception_if_no_match If there is no match in the whitelist then throw an exception
+ * @param bool $die_if_no_match If there is no match in the whitelist, then die and echo an error to screen and log.
+ * @param bool $case_sens_match Use case sensitive match (this is default).
+ * @param bool $throw_exception_if_no_match If there is no match in the whitelist then throw an exception
  * @return  string                         Escaped/sanitized sql identifier variable.
  */
 function escape_identifier($s, $whitelist_items, $die_if_no_match = false, $case_sens_match = true, $throw_exception_if_no_match = false)

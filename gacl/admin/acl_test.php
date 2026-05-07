@@ -26,6 +26,10 @@ $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
 
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 
 $smarty->assign('current','acl_test');

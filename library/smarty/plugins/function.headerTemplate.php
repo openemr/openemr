@@ -23,8 +23,8 @@ use OpenEMR\Core\Header;
  * Name:     headerTemplate<br />
  * Purpose:  headerTemplate in OpenEMR - Smarty templates<br />
  *
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  */
 function smarty_function_headerTemplate($params, &$smarty)
 {

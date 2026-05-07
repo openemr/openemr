@@ -97,16 +97,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property pnHTML\\:\\:\\$header \\(string\\) does not accept array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property pnHTML\\:\\:\\$output \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Smarty_Legacy\\:\\:\\$caching \\(int\\) does not accept false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
@@ -297,26 +287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$carecoordinationTable \\(Carecoordination\\\\Controller\\\\Carecoordination\\\\Model\\\\CarecoordinationTable\\) does not accept Carecoordination\\\\Model\\\\CarecoordinationTable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$documentsController \\(Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\) does not accept Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:\\$listenerObject \\(Carecoordination\\\\Controller\\\\Application\\\\Listener\\\\Listener\\) does not accept Application\\\\Listener\\\\Listener\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$documentsController \\(Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\) does not accept Documents\\\\Controller\\\\DocumentsController\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Model\\\\CcdaGlobalsConfiguration\\:\\:\\$ccdaSections \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGlobalsConfiguration.php',
@@ -427,22 +397,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$APP_ROOT \\(app\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_app_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$ROUTE_MAP \\(routemap\\) does not accept array\\<string, array\\<string, array\\<string, int\\>\\|bool\\|string\\>\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_app_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$TEMPLATE_ENGINE \\(specify\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/_app_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$TEMPLATE_PATH \\(template\\) does not accept mixed\\.$#',
+    'message' => '#^Static property GlobalConfig\\:\\:\\$APP_ROOT \\(string\\) does not accept string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/_app_config.php',
 ];
@@ -462,12 +417,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$ROOT_URL \\(root\\) does not accept string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property GlobalConfig\\:\\:\\$WEB_ROOT \\(root\\) does not accept mixed\\.$#',
+    'message' => '#^Static property GlobalConfig\\:\\:\\$WEB_ROOT \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/_machine_config.php',
 ];
@@ -537,11 +487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Phreezer\\:\\:\\$_mapCache \\(array\\) does not accept CacheRam\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property VerySimpleStringUtil\\:\\:\\$CONTROL_CODE_CHARS \\(characters\\) does not accept array\\<string, string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/String/VerySimpleStringUtil.php',
@@ -572,22 +517,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$AuthorizeSignedTime \\(date\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$AuthorizedSignature \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$AuthorizingSignator \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$CreateDate \\(timestamp\\) does not accept string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
@@ -622,12 +557,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$FullDocument \\(blob\\) does not accept mixed\\.$#',
+    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$FullDocument \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$FullDocument \\(blob\\) does not accept null\\.$#',
+    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$FullDocument \\(string\\) does not accept null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
@@ -642,22 +577,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$PatientSignedTime \\(date\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$Pid \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$Provider \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteDocumentDAO\\:\\:\\$ReviewDate \\(date\\) does not accept string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
@@ -672,11 +597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$ActionTakenTime \\(date\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$ActionUser \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
@@ -687,17 +607,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Checksum \\(longtext\\) does not accept mixed\\.$#',
+    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Checksum \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Date \\(date\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Narrative \\(longtext\\) does not accept mixed\\.$#',
+    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$Narrative \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
@@ -722,12 +637,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$TableAction \\(longtext\\) does not accept mixed\\.$#',
+    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$TableAction \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$TableArgs \\(longtext\\) does not accept mixed\\.$#',
+    'message' => '#^Property OnsitePortalActivityDAO\\:\\:\\$TableArgs \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
@@ -777,12 +692,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Date \\(date\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Dob \\(date\\) does not accept mixed\\.$#',
+    'message' => '#^Property PatientDAO\\:\\:\\$Dob \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
@@ -877,7 +787,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Occupation \\(longtext\\) does not accept mixed\\.$#',
+    'message' => '#^Property PatientDAO\\:\\:\\$Occupation \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
@@ -943,11 +853,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property PatientDAO\\:\\:\\$Referrerid \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PatientDAO\\:\\:\\$Regdate \\(date\\) does not accept string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
@@ -1580,11 +1485,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\SMARTLaunchToken\\:\\:\\$patient \\(string\\|null\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Menu\\\\MainMenuRole\\:\\:\\$dispatcher \\(OpenEMR\\\\Menu\\\\EventDispatcher\\) does not accept Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SphereRevert\\:\\:\\$custid \\(string\\) does not accept string\\|false\\.$#',

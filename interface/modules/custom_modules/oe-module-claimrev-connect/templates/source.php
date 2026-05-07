@@ -8,6 +8,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/** @var \stdClass|null $source */
+
 if ($source != null) {
     ?>
         <div class="card">

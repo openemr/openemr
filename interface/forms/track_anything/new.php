@@ -13,11 +13,22 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
 
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 formHeader("Form: Track anything");
 
@@ -46,7 +57,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

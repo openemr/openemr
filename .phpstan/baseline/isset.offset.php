@@ -12,7 +12,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'limit\' on non\\-empty\\-array\\<\'address_purpose\'\\|\'city\'\\|\'country_code\'\\|\'enumeration_type\'\\|\'first_name\'\\|\'last_name\'\\|\'limit\'\\|\'number\'\\|\'organization_name\'\\|\'postal_code\'\\|\'skip\'\\|\'state\'\\|\'taxonomy_description\'\\|\'version\', string\\> in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'limit\' on array\\{number\\?\\: string, enumeration_type\\?\\: string, taxonomy_description\\?\\: string, first_name\\?\\: string, last_name\\?\\: string, organization_name\\?\\: string, address_purpose\\?\\: string, city\\?\\: string, \\.\\.\\.\\} in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/npi_lookup.php',
 ];
@@ -30,16 +30,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset 1 on non\\-empty\\-list\\<string\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 1 on non\\-empty\\-list\\<string\\> in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'post_sftp\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'blank\\-nav\\-button\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',

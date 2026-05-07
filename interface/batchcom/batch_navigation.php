@@ -21,7 +21,7 @@ use OpenEMR\Core\OEGlobalsBag;
         <?php
         if (AclMain::aclCheckCore('admin', 'batchcom')) { ?>
             <li class="nav-item" role="presentation" title="<?php echo xla('BatchCom'); ?>">
-                <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->get('rootdir'); ?>/batchcom/batchcom.php">
+                <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/batchcom/batchcom.php">
                     <?php echo xlt('BatchCom'); ?>
                 </a>
             </li>
@@ -30,7 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
         if (AclMain::aclCheckCore('admin', 'notification')) { ?>
             <li class="nav-item" role="presentation" title="<?php echo xla('SMS Notification'); ?>">
-                <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->get('rootdir'); ?>/batchcom/smsnotification.php">
+                <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/batchcom/smsnotification.php">
                     <?php echo xlt('SMS Notification'); ?>
                 </a>
             </li>
@@ -38,12 +38,12 @@ use OpenEMR\Core\OEGlobalsBag;
         }
         ?>
         <li class="nav-item" role="presentation" title="<?php echo xla('Email Notification'); ?>">
-            <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->get('rootdir'); ?>/batchcom/emailnotification.php">
+            <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/batchcom/emailnotification.php">
                 <?php echo xlt('Email Notification'); ?>
             </a>
         </li>
         <li class="nav-item" role="presentation" title="<?php echo xla('SMS/Email Alert Settings'); ?>">
-            <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->get('rootdir'); ?>/batchcom/settingsnotification.php">
+            <a class="nav-link text-body" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/batchcom/settingsnotification.php">
                 <?php echo xlt('SMS/Email Alert Settings'); ?>
             </a>
         </li>

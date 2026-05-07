@@ -44,7 +44,7 @@ td { font-size:10pt; }
 
 <script>
 
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';
@@ -52,7 +52,7 @@ var current_sel_name = '';
 // This invokes the "dynamic" find-code popup.
 function sel_related(elem, codetype) {
  current_sel_name = elem ? elem.name : '';
- var url = '<?php echo $rootdir ?>/patient_file/encounter/find_code_dynamic.php';
+ var url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface" ?>/patient_file/encounter/find_code_dynamic.php';
  if (codetype) url += '?codetype=' + encodeURIComponent(codetype);
  dlgopen(url, '_blank', 800, 500);
 }

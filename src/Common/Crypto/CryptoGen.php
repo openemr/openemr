@@ -49,10 +49,17 @@ class CryptoGen implements CryptoInterface
 
     private readonly string $siteDir;
 
-    public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
-    {
+    private readonly bool $shouldEncryptForFilesystem;
+
+    public function __construct(
+        ?LoggerInterface $logger = null,
+        ?string $siteDir = null,
+        ?bool $shouldEncryptForFilesystem = null,
+    ) {
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $this->shouldEncryptForFilesystem = $shouldEncryptForFilesystem
+            ?? OEGlobalsBag::getInstance()->getBoolean('drive_encryption');
     }
 
     /**
@@ -130,6 +137,67 @@ class CryptoGen implements CryptoInterface
         } catch (\ValueError) {
             return false;
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function encryptForDatabase(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        return $this->encryptStandard($value, keySource: KeySource::Drive);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function encryptForFilesystem(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->shouldEncryptForFilesystem) {
+            return $value;
+        }
+        return $this->encryptStandard($value, keySource: KeySource::Database);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->cryptCheckStandard($value)) {
+            return $value;
+        }
+        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
+        if ($result === false) {
+            throw new CryptoGenException('Decryption failed');
+        }
+        return $result;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function decryptFromFilesystem(?string $value): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+        if (!$this->cryptCheckStandard($value)) {
+            return $value;
+        }
+        $result = $this->decryptStandard($value, keySource: KeySource::Database);
+        if ($result === false) {
+            throw new CryptoGenException('Decryption failed');
+        }
+        return $result;
     }
 
     /**

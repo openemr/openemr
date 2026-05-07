@@ -19,6 +19,28 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class PatientSessionUtil
 {
+    /**
+     * Read the active patient ID from the session, normalized to int.
+     *
+     * Mirrors `interface/globals.php`: missing or non-numeric pid collapses
+     * to 0, signalling "no patient context".
+     */
+    public static function getPid(): int
+    {
+        $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
+        return is_numeric($raw) ? (int) $raw : 0;
+    }
+
+    /**
+     * Read the active user's "authorized" flag from the session, normalized
+     * to int. Mirrors `interface/globals.php`: empty/missing collapses to 0.
+     */
+    public static function getUserAuthorized(): int
+    {
+        $raw = SessionWrapperFactory::getInstance()->getActiveSession()->get('userauthorized');
+        return is_numeric($raw) ? (int) $raw : 0;
+    }
+
     public static function setPid($new_pid)
     {
         global $pid, $encounter;

@@ -16,8 +16,8 @@ use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
 function US_weight($pounds, $mode = 1)
 {
@@ -43,6 +43,8 @@ function vitals_report($pid, $encounter, $cols, $id, $print = true)
     if ($data) {
         $vitals .= "<table><tr>";
 
+        $bps = '';
+        $bpd = '';
         foreach ($data as $key => $value) {
             if (
                 in_array($key, ["uuid", "id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||

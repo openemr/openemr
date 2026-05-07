@@ -15,12 +15,12 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**
- * @global OpenEMR\Core\ModulesClassLoader $classLoader
+ * @var \OpenEMR\Core\ModulesClassLoader $classLoader
  */
 $classLoader->registerNamespaceIfNotExists('Comlink\\OpenEMR\\Modules\\TeleHealthModule\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 /**
- * @global EventDispatcher $eventDispatcher Injected by the OpenEMR module loader;
+ * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher Injected by the OpenEMR module loader;
  */
 
 $bootstrap = new Bootstrap($eventDispatcher, OEGlobalsBag::getInstance()->getKernel());

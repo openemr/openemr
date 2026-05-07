@@ -1026,17 +1026,18 @@ $GLOBALS_METADATA = [
         ],
 
         'drive_encryption' => [
-            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
+            xl('Enable Encryption of Items Stored on Drive/CouchDB (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
             xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ],
 
+        // Unused as of #12000. Leaving in UI so people can update
         'couchdb_encryption' => [
-            xl('Enable Encryption of Items Stored on CouchDB'),
+            xl('UNUSED: Enable Encryption of Items Stored on CouchDB'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on CouchDB.')
+            xl('This setting has no effect! Use `drive_encryption` instead.'),
         ],
 
         'hide_document_encryption' => [
@@ -2178,10 +2179,10 @@ $GLOBALS_METADATA = [
         ],
 
         'password_expiration_days' => [
-            xl('Default Password Expiration Days'),
+            xl('Password Expiration Days'),
             'num',                            // data type
             '180',                            // default
-            xl('Default password expiration period in days. 0 means this feature is disabled.')
+            xl('Password expiration period in days. 0 means this feature is disabled.')
         ],
 
         'password_grace_time' => [

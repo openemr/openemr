@@ -13,13 +13,13 @@
 // TODO: Code cleanup
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // This may be more appropriate to move to the library
 // later
@@ -28,6 +28,7 @@ function getInsuranceCompanies($pid)
     $res = sqlStatement("SELECT * FROM insurance_data WHERE pid = ? " .
     "ORDER BY type ASC, date DESC", [$pid]);
     $prevtype = '';
+    $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         if (strcmp((string) $row['type'], (string) $prevtype) == 0) {
             continue;

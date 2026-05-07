@@ -38,6 +38,7 @@ class GenHl7OrderBase
 
     public function buildHl7Segment($segmentName, $fields)
     {
+        $segment = '';
         foreach ($fields as $field) {
             $segment .= $this->fieldSeparator . $field;
         }
@@ -219,7 +220,7 @@ class GenHl7OrderBase
      * Get array of insurance payers for the specified patient as of the specified
      * date. If no date is passed then the current date is used.
      *
-     * @param integer $pid Patient ID.
+     * @param int $pid Patient ID.
      * @param string  $date
      * @return array   Array containing an array of data for each payer.
      */

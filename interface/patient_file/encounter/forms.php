@@ -15,6 +15,7 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
 
 /**
  * @var string $srcdir
@@ -26,12 +27,12 @@ require_once(__DIR__ . "/../../globals.php");
  * @var int $therapy_group
  */
 
-require_once("$srcdir/encounter.inc.php");
-require_once("$srcdir/group.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/amc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php');
-require_once("$srcdir/../controllers/C_Document.class.php");
+require_once($srcdir . "/encounter.inc.php");
+require_once($srcdir . "/group.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/amc.php");
+require_once($srcdir . '/ESign/Api.php');
+require_once($srcdir . "/../controllers/C_Document.class.php");
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
@@ -48,6 +49,7 @@ use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 $expand_default = (int)OEGlobalsBag::getInstance()->getBoolean('expand_form') ? 'show' : 'hide';
 $reviewMode = false;
@@ -57,9 +59,7 @@ if (!empty($_REQUEST['review_id'])) {
 }
 
 $is_group = ($attendant_type == 'gid') ? true : false;
-if ($attendant_type == 'gid') {
-    $groupId = $therapy_group;
-}
+$groupId = ($attendant_type == 'gid') ? $therapy_group : null;
 $attendant_id = $attendant_type == 'pid' ? $pid : $therapy_group;
 if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write'])) {
     echo xlt("access not allowed");
@@ -75,7 +75,7 @@ $formLocator = new FormLocator();
 <head>
 
 <title class="title"></title>
-<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
+<?php require $srcdir . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader(['common', 'esign', 'dygraphs', 'utility']); ?>
 
@@ -88,8 +88,8 @@ if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     </script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/forms/track_anything/report.js"></script>
-    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/forms/track_anything/style.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/report.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/track_anything/style.css">
 <?php } ?>
 
 <?php
@@ -123,7 +123,7 @@ if (!empty($_GET['attachid'])) {
 // If google sign-in enable then add scripts.
 if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) { ?>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/gSignIn.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/gSignIn.js"></script>
 <?php } ?>
 
 <script>
@@ -528,7 +528,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
 <body>
 <nav>
     <?php //DYNAMIC FORM RETRIEVAL
-    require_once("$srcdir/registry.inc.php");
+    require_once($srcdir . "/registry.inc.php");
 
     $reg = getFormsByCategory();
     $old_category = '';
@@ -658,7 +658,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         // so we pass that information to the template instead of blocking menu rendering entirely.
         'menuArray' => $menu->getMenuData(),
         'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
-        'pid' => (int) $pid,
+        'pid' => $pid,
         'encounterLocked' => $encounterLocked,
     ]);
     ?>
@@ -861,7 +861,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                     ?>
                     <a href="<?php echo $doc_url; ?>" style="font-size: small;" onsubmit="return top.restoreSession()"><?php echo text($doc_iter['document_name']) . ": " . text(basename((string) $doc_iter['name'])); ?></a>
                     <?php if ($note != '') { ?>
-                        <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/info.png" /></a>
+                        <a href="javascript:void(0);" title="<?php echo attr($note); ?>"><img src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getImagesRelative(); ?>/info.png" /></a>
                     <?php } ?>
                 <?php } ?>
             </div>

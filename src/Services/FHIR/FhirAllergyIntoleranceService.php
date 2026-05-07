@@ -74,7 +74,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * Parses an OpenEMR allergyIntolerance record, returning the equivalent FHIR AllergyIntolerance Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRAllergyIntolerance
      */
     public function createProvenanceResource($dataRecord, $encode = false)
@@ -95,7 +95,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
      * Parses an OpenEMR allergyIntolerance record, returning the equivalent FHIR AllergyIntolerance Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRAllergyIntolerance
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

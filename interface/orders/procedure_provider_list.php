@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -83,6 +83,7 @@ function doedclick_edit(ppid) {
 </head>
 <body>
     <?php
+    $help_icon = '';
     if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {

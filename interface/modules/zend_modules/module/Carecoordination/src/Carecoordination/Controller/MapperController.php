@@ -18,6 +18,9 @@ use Laminas\View\Model\ViewModel;
 
 // TODO: this class appears to be deprecated as nothing else refers to it.  It looks like it does the same thing as the SetupController does...
 // Recommend removing this if it's not used.
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class MapperController extends AbstractActionController
 {
     protected $mapperTable;

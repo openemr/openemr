@@ -16,8 +16,8 @@
  * @link http://smarty.php.net/manual/en/language.function.fetch.php {fetch}
  *       (Smarty online manual)
  * @author Monte Ohrt <monte at ohrt dot com>
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  * @return string|null if the assign parameter is passed, Smarty assigns the
  *                     result to a template variable
  */
@@ -207,10 +207,11 @@ function smarty_function_fetch($params, &$smarty)
 
 
     if (!empty($params['assign'])) {
-        $smarty->assign($params['assign'],$content);
-    } else {
-        return $content;
+        $smarty->assign($params['assign'], $content);
+        return null;
     }
+
+    return $content;
 }
 
 /* vim: set expandtab: */

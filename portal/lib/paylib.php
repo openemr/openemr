@@ -14,6 +14,7 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -50,6 +51,10 @@ if ($session->get('portal_init') !== true) {
 
 SessionUtil::setSession('portal_init', false);
 
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
+
 if ($_POST['mode'] == 'Sphere') {
     $cryptoGen = ServiceContainer::getCrypto();
     $dataTrans = $cryptoGen->decryptStandard(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
@@ -83,6 +88,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
     $transaction['opaqueDataDescriptor'] = $_POST['dataDescriptor'];
     $transaction['opaqueDataValue'] = $_POST['dataValue'];
     try {
+        /** @var \Omnipay\AuthorizeNetApi\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -120,6 +126,7 @@ if ($_POST['mode'] == 'Stripe') {
     $transaction['currency'] = "USD";
     $transaction['token'] = $_POST['stripeToken'];
     try {
+        /** @var \Omnipay\Stripe\Message\Response|string $response */
         $response = $pay->submitPaymentToken($transaction);
         if (is_string($response)) {
             echo $response;
@@ -133,7 +140,7 @@ if ($_POST['mode'] == 'Stripe') {
         $cc['transId'] = $response->getTransactionReference();
         $cc['cardNumber'] = "******** " . $r['last4'];
         $cc['cc_type'] = $r['brand'];
-        $cc['zip'] = $r->address_zip;
+        $cc['zip'] = $r['address_zip'] ?? null;
         $ccaudit = json_encode($cc);
         $invoice = $_POST['invValues'] ?? '';
     } catch (\Throwable $ex) {

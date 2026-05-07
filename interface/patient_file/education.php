@@ -13,15 +13,14 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$educationdir = "$OE_SITE_DIR/documents/education";
+$educationdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/education";
 
 $codetype  = empty($_REQUEST['type'    ]) ? '' : $_REQUEST['type'    ];
 $codevalue = empty($_REQUEST['code'    ]) ? '' : $_REQUEST['code'    ];
@@ -84,9 +83,7 @@ if (!empty($_POST['bn_submit'])) {
 
             // Decrypt file, if applicable.
             $cryptoGen = ServiceContainer::getCrypto();
-            if ($cryptoGen->cryptCheckStandard($fileData)) {
-                $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
-            }
+            $fileData = $cryptoGen->decryptFromFilesystem($fileData);
 
             header('Content-Description: File Transfer');
             header('Content-Transfer-Encoding: binary');

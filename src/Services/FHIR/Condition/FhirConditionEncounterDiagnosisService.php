@@ -282,7 +282,7 @@ class FhirConditionEncounterDiagnosisService extends FhirServiceBase implements 
      * Parses an OpenEMR condition record, returning the equivalent FHIR Condition Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCondition|string
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false): FHIRCondition|string

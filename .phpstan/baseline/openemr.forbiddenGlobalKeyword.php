@@ -112,6 +112,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/admin/about.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$db\\)\\. Use dependency injection instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../gacl/admin/object_search.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$where, \\$eracount, \\$eraname\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/era_payments.php',
@@ -148,11 +153,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$STMT_TEMP_FILE_PDF\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$srcdir\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
@@ -417,11 +417,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$web_root, \\$webserver_root\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$PDF_OUTPUT\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
@@ -452,6 +447,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$table_name, \\$id\\)\\. Use dependency injection instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$tmp_files_remove\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
@@ -465,11 +465,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$web_root\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$web_root, \\$webserver_root\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$PDF_OUTPUT\\)\\. Use dependency injection instead\\.$#',
@@ -744,7 +739,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$bTestRun\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification_helpers.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$pid\\)\\. Use dependency injection instead\\.$#',
@@ -1182,7 +1177,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/inventory_transactions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$product, \\$productcyp, \\$producttotal, \\$productqty, \\$grandtotal, \\$grandqty\\)\\. Use dependency injection instead\\.$#',
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$product, \\$productleft, \\$productcyp, \\$producttotal, \\$productqty, \\$grandtotal, \\$grandqty\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_cyp_report.php',
 ];

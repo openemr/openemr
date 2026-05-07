@@ -29,6 +29,9 @@ function smarty_function_pc_filter($args, &$smarty): void
 {
     extract($args);
     unset($args);
+    $class ??= '';
+    $catoptions ??= '';
+    $useroptions ??= '';
 
     if (empty($type)) {
         trigger_error("pc_filter: missing 'type' parameter", E_USER_WARNING);
@@ -58,7 +61,6 @@ function smarty_function_pc_filter($args, &$smarty): void
 
     $types = explode(',', (string) $type);
     $output = new pnHTML();
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $modinfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
     $mdir = pnVarPrepForOS($modinfo['directory']);
     unset($modinfo);
@@ -164,6 +166,6 @@ function smarty_function_pc_filter($args, &$smarty): void
     }
 
     if (!in_array('user', $types)) {
-        echo $output->FormHidden('pc_username', $pc_username);
+        echo $output->generateFormHidden('pc_username', $pc_username);
     }
 }

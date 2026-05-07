@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Isolated\BC\Crypto;
 
 use OpenEMR\BC\Crypto\Crypto;
 use OpenEMR\BC\Crypto\Key;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
@@ -43,7 +44,7 @@ final class CryptoTest extends TestCase
     {
         $this->fixtures = new CryptoFixtureManager('/dev/null');
         $this->keychain = $this->buildKeychain();
-        $this->crypto = new Crypto($this->keychain, new NullLogger());
+        $this->crypto = new Crypto($this->keychain, new NullLogger(), shouldEncryptForFilesystem: true);
     }
 
     private function buildKeychain(): Keychain
@@ -65,18 +66,20 @@ final class CryptoTest extends TestCase
             ),
         );
 
-        // v4+: AES-256-CBC with HMAC-SHA384 (drive keys only)
+        // v4+: AES-256-CBC with HMAC-SHA384
         foreach (['four', 'five', 'six', 'seven'] as $version) {
-            $keychain->registerCipher(
-                Key::fromCryptoGen(
-                    KeyVersion::fromString($version),
-                    KeySource::Drive,
-                )->getId(),
-                new Aes256CbcHmacSha384(
-                    key: new KeyMaterial($this->fixtures->getTestKey($version . 'a')),
-                    hmacKey: new KeyMaterial($this->fixtures->getTestKey($version . 'b')),
-                ),
-            );
+            foreach ([KeySource::Drive, KeySource::Database] as $keySource) {
+                $keychain->registerCipher(
+                    Key::fromCryptoGen(
+                        KeyVersion::fromString($version),
+                        $keySource,
+                    )->getId(),
+                    new Aes256CbcHmacSha384(
+                        key: new KeyMaterial($this->fixtures->getTestKey($version . 'a')),
+                        hmacKey: new KeyMaterial($this->fixtures->getTestKey($version . 'b')),
+                    ),
+                );
+            }
         }
 
         return $keychain;
@@ -236,5 +239,167 @@ final class CryptoTest extends TestCase
         $encrypted = $this->crypto->encryptStandard('test data');
 
         self::assertTrue($this->crypto->cryptCheckStandard($encrypted));
+    }
+
+    public function testEncryptForDatabaseReturnsEncryptedString(): void
+    {
+        $plaintext = 'test data for encryption';
+
+        $encrypted = $this->crypto->encryptForDatabase($plaintext);
+
+        self::assertNotSame($plaintext, $encrypted);
+        self::assertStringStartsWith('007', $encrypted);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->encryptForDatabase(null));
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->encryptForDatabase(''));
+    }
+
+    public function testDecryptFromDatabaseDecryptsEncryptedValue(): void
+    {
+        $plaintext = 'encrypted test data';
+        $encrypted = $this->crypto->encryptForDatabase($plaintext);
+
+        $result = $this->crypto->decryptFromDatabase($encrypted);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromDatabasePassesThroughPlaintext(): void
+    {
+        $plaintext = 'this is not encrypted';
+
+        $result = $this->crypto->decryptFromDatabase($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromDatabaseReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromDatabase(null));
+    }
+
+    public function testDecryptFromDatabaseReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromDatabase(''));
+    }
+
+    public function testDecryptFromDatabaseThrowsOnCorruptedCiphertext(): void
+    {
+        $encrypted = $this->crypto->encryptForDatabase('test data');
+
+        // Corrupt the actual binary data by decoding, flipping a bit, and re-encoding.
+        // This guarantees corruption regardless of the random encryption output.
+        $prefix = substr($encrypted, 0, 3);
+        $base64Part = substr($encrypted, 3);
+        $binary = base64_decode($base64Part, true);
+        self::assertIsString($binary);
+        $binary[10] = chr(ord($binary[10]) ^ 0x01);
+        $tampered = $prefix . base64_encode($binary);
+
+        $this->expectException(CryptoGenException::class);
+
+        $this->crypto->decryptFromDatabase($tampered);
+    }
+
+    public function testEncryptForDatabaseRoundTrip(): void
+    {
+        $plaintext = CryptoFixtureManager::PLAINTEXT;
+
+        $encrypted = $this->crypto->encryptForDatabase($plaintext);
+        $decrypted = $this->crypto->decryptFromDatabase($encrypted);
+
+        self::assertSame($plaintext, $decrypted);
+    }
+
+    public function testEncryptForFilesystemReturnsEncryptedString(): void
+    {
+        $plaintext = 'test data for filesystem encryption';
+
+        $encrypted = $this->crypto->encryptForFilesystem($plaintext);
+
+        self::assertNotSame($plaintext, $encrypted);
+        self::assertStringStartsWith('007', $encrypted);
+    }
+
+    public function testEncryptForFilesystemReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->encryptForFilesystem(null));
+    }
+
+    public function testEncryptForFilesystemReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->encryptForFilesystem(''));
+    }
+
+    public function testEncryptForFilesystemPassesThroughPlaintextWhenDisabled(): void
+    {
+        $crypto = new Crypto($this->keychain, new NullLogger(), shouldEncryptForFilesystem: false);
+        $plaintext = 'plaintext data that should not be encrypted';
+
+        $result = $crypto->encryptForFilesystem($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromFilesystemDecryptsEncryptedValue(): void
+    {
+        $plaintext = 'encrypted filesystem test data';
+        $encrypted = $this->crypto->encryptForFilesystem($plaintext);
+
+        $result = $this->crypto->decryptFromFilesystem($encrypted);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromFilesystemPassesThroughPlaintext(): void
+    {
+        $plaintext = 'this is not encrypted';
+
+        $result = $this->crypto->decryptFromFilesystem($plaintext);
+
+        self::assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromFilesystemReturnsEmptyStringForNull(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromFilesystem(null));
+    }
+
+    public function testDecryptFromFilesystemReturnsEmptyStringForEmptyString(): void
+    {
+        self::assertSame('', $this->crypto->decryptFromFilesystem(''));
+    }
+
+    public function testDecryptFromFilesystemThrowsOnCorruptedCiphertext(): void
+    {
+        $encrypted = $this->crypto->encryptForFilesystem('test data');
+
+        $prefix = substr($encrypted, 0, 3);
+        $base64Part = substr($encrypted, 3);
+        $binary = base64_decode($base64Part, true);
+        self::assertIsString($binary);
+        $binary[10] = chr(ord($binary[10]) ^ 0x01);
+        $tampered = $prefix . base64_encode($binary);
+
+        $this->expectException(CryptoGenException::class);
+
+        $this->crypto->decryptFromFilesystem($tampered);
+    }
+
+    public function testEncryptForFilesystemRoundTrip(): void
+    {
+        $plaintext = CryptoFixtureManager::PLAINTEXT;
+
+        $encrypted = $this->crypto->encryptForFilesystem($plaintext);
+        $decrypted = $this->crypto->decryptFromFilesystem($encrypted);
+
+        self::assertSame($plaintext, $decrypted);
     }
 }

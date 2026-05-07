@@ -20,6 +20,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once('gacl_admin.inc.php');
 
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
+
 // GET takes precedence.
 $group_type = empty($_GET['group_type']) ? $_POST['group_type'] : $_GET['group_type'];
 
@@ -43,6 +47,7 @@ switch ($postAction) {
 
         if (count($_POST['delete_group']) > 0) {
             //Always reparent children when deleting a group.
+            $retry = [];
             foreach ($_POST['delete_group'] as $group_id) {
                 $gacl_api->debug_text('Deleting group_id: '. $group_id);
 

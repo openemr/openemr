@@ -17,10 +17,10 @@
 
 namespace ESign;
 
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Abstract/Controller.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Configuration.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Factory.php';
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Log.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Abstract/Controller.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Configuration.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Factory.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Form/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -73,7 +73,7 @@ class Form_Controller extends Abstract_Controller
 
     /**
      *
-     * @return multitype:string
+     * @return string[]
      */
     public function esign_form_submit()
     {

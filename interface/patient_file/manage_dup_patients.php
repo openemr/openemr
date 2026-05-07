@@ -17,20 +17,20 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $first_time = true;
 $group = 1;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @param bool $first_time

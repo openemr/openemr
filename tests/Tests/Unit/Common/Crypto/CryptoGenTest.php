@@ -379,8 +379,6 @@ final class CryptoGenTest extends TestCase
 
     public function testDecryptStandardAllVersions(): void
     {
-        // Variables to ensure all versions tested
-        $currentVersionTested = false;
         $totalVersionsTested = 0;
 
         // Test all supported decryption versions
@@ -392,7 +390,6 @@ final class CryptoGenTest extends TestCase
                 $this->assertIsString($encrypted);
                 $decrypted = $this->cryptoGen->decryptStandard($encrypted);
                 $this->assertEquals($testData, $decrypted);
-                $currentVersionTested = true;
             } else {
                 // Test prior versions routing by manually creating version prefixes
                 // Note: These test the routing logic, not actual decryption since we don't have legacy encrypted data
@@ -403,9 +400,6 @@ final class CryptoGenTest extends TestCase
             }
             $totalVersionsTested++;
         }
-
-        // Ensure current version was tested
-        $this->assertTrue($currentVersionTested, 'Current version must be tested');
 
         // Ensure all versions were tested
         $this->assertEquals(count(KeyVersion::cases()), $totalVersionsTested, 'All versions should be tested');
@@ -1003,5 +997,109 @@ final class CryptoGenTest extends TestCase
                 );
             }
         }
+    }
+
+    public function testEncryptForDatabaseReturnsEncryptedString(): void
+    {
+        $plaintext = 'test data for encryption';
+
+        $encrypted = $this->cryptoGen->encryptForDatabase($plaintext);
+
+        $this->assertNotSame($plaintext, $encrypted);
+        $this->assertStringStartsWith(KeyVersion::CURRENT->toPaddedString(), $encrypted);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForNull(): void
+    {
+        $result = $this->cryptoGen->encryptForDatabase(null);
+
+        $this->assertSame('', $result);
+    }
+
+    public function testEncryptForDatabaseReturnsEmptyStringForEmptyString(): void
+    {
+        $result = $this->cryptoGen->encryptForDatabase('');
+
+        $this->assertSame('', $result);
+    }
+
+    public function testEncryptForDatabaseProducesDecryptableOutput(): void
+    {
+        $plaintext = 'roundtrip test data';
+
+        $encrypted = $this->cryptoGen->encryptForDatabase($plaintext);
+        $decrypted = $this->cryptoGen->decryptFromDatabase($encrypted);
+
+        $this->assertSame($plaintext, $decrypted);
+    }
+
+    public function testDecryptFromDatabaseDecryptsEncryptedValue(): void
+    {
+        $plaintext = 'encrypted test data';
+        $encrypted = $this->cryptoGen->encryptForDatabase($plaintext);
+
+        $result = $this->cryptoGen->decryptFromDatabase($encrypted);
+
+        $this->assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromDatabasePassesThroughPlaintext(): void
+    {
+        $plaintext = 'this is not encrypted';
+
+        $result = $this->cryptoGen->decryptFromDatabase($plaintext);
+
+        $this->assertSame($plaintext, $result);
+    }
+
+    public function testDecryptFromDatabaseReturnsEmptyStringForNull(): void
+    {
+        $result = $this->cryptoGen->decryptFromDatabase(null);
+
+        $this->assertSame('', $result);
+    }
+
+    public function testDecryptFromDatabaseReturnsEmptyStringForEmptyString(): void
+    {
+        $result = $this->cryptoGen->decryptFromDatabase('');
+
+        $this->assertSame('', $result);
+    }
+
+    public function testDecryptFromDatabaseThrowsOnCorruptedCiphertext(): void
+    {
+        $encrypted = $this->cryptoGen->encryptForDatabase('test data');
+
+        // Corrupt the actual binary data by decoding, flipping a bit, and re-encoding.
+        // This guarantees corruption regardless of the random encryption output.
+        $prefix = substr($encrypted, 0, 3);
+        $base64Part = substr($encrypted, 3);
+        $binary = base64_decode($base64Part, true);
+        self::assertIsString($binary);
+        $binary[10] = chr(ord($binary[10]) ^ 0x01);
+        $tampered = $prefix . base64_encode($binary);
+
+        $this->expectException(CryptoGenException::class);
+
+        $this->cryptoGen->decryptFromDatabase($tampered);
+    }
+
+    public function testDecryptFromDatabaseRespectsMinimumVersion(): void
+    {
+        $encrypted = $this->cryptoGen->encryptForDatabase('test data');
+
+        $result = $this->cryptoGen->decryptFromDatabase($encrypted, minimumVersion: 7);
+
+        $this->assertSame('test data', $result);
+    }
+
+    public function testDecryptFromDatabaseThrowsWhenBelowMinimumVersion(): void
+    {
+        $encrypted = $this->cryptoGen->encryptForDatabase('test data');
+
+        $this->expectException(CryptoGenException::class);
+
+        // v7 ciphertext should fail when minimumVersion=8 (tests the path)
+        $this->cryptoGen->decryptFromDatabase($encrypted, minimumVersion: 8);
     }
 }

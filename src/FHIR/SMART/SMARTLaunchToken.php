@@ -137,6 +137,7 @@ class SMARTLaunchToken
      * @param $serialized
      * @return self
      * @throws \JsonException
+     * @throws \InvalidArgumentException
      */
     public static function deserializeToken($serialized): self
     {
@@ -149,6 +150,7 @@ class SMARTLaunchToken
      * @param $serialized
      * @return void
      * @throws \JsonException
+     * @throws \InvalidArgumentException
      */
     public function deserialize($serialized)
     {

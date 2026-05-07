@@ -12,6 +12,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
@@ -138,7 +139,7 @@ class ContactService extends BaseService
 
             $this->getLogger()->info("Contact deleted", ['id' => $contactId]);
             $processingResult->addData(['deleted' => true, 'id' => $contactId]);
-        } catch (\Throwable $e) {
+        } catch (SqlQueryException $e) {
             $this->getLogger()->error("Error deleting contact", [
                 'id' => $contactId,
                 'error' => $e->getMessage()

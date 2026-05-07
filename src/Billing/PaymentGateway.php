@@ -13,6 +13,7 @@
 namespace OpenEMR\Billing;
 
 use Omnipay\Common\CreditCard;
+use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Omnipay;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
@@ -75,7 +76,7 @@ class PaymentGateway
 
     /**
      * @param $pay
-     * @return bool|string
+     * @return ResponseInterface|string returns the response object on success, or a string message on redirect/failure/error.
      */
     public function submitPaymentCard($pay)
     {
@@ -105,7 +106,7 @@ class PaymentGateway
 
     /**
      * @param $pay
-     * @return bool|string
+     * @return ResponseInterface|string returns the response object on success, or a string message on redirect/failure/error.
      */
     public function submitPaymentToken($pay)
     {
