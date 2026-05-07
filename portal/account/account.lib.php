@@ -133,25 +133,24 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         ServiceContainer::getLogger()->debug("verifyEmail function: the email will be used to register the patient");
 
         // create token (1 hour expiry) and ensure the token is unique
-        $unique = false;
-        for ($i = 1; $i <= 10; $i++) {
-            $expiry = new DateTime('NOW');
-            $expiry->add(new DateInterval('PT01H'));
+        $expiry = new DateTime('NOW');
+        $expiry->add(new DateInterval('PT01H'));
+        $attempt = 0;
+        do {
+            $attempt++;
             $token = RandomGenUtils::createUniqueToken(32);
-            $token_database = $token . bin2hex($expiry->format('U'));
-
             $sqlVerify = sqlQueryNoLog("SELECT `id` FROM `verify_email` WHERE `token_onetime` LIKE BINARY ?", [$token . '%']);
-            if (empty($sqlVerify['id'])) {
-                $unique = true;
-                break;
-            } else {
+            $isUnique = empty($sqlVerify['id']);
+            if (!$isUnique) {
                 ServiceContainer::getLogger()->error("was unable to create a unique token in verifyEmail function, which is very odd, so will try again (will try up to 10 times)");
             }
-        }
-        if (!$unique) {
+        } while (!$isUnique && $attempt < 10);
+
+        if (!$isUnique) {
             ServiceContainer::getLogger()->error("was unable to create a unique token in verifyEmail function, so failed");
             return false;
         }
+        $token_database = $token . bin2hex($expiry->format('U'));
 
         // place/replace database entry
         $sql = sqlQuery("SELECT `id` FROM `verify_email` WHERE `email` = ?", [$email]);
