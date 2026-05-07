@@ -137,16 +137,10 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         for ($i = 1; $i <= 10; $i++) {
             $expiry = new DateTime('NOW');
             $expiry->add(new DateInterval('PT01H'));
-            $token_raw = RandomGenUtils::createUniqueToken(32);
-            $token_encrypt = (ServiceContainer::getCrypto())->encryptStandard($token_raw);
-            if (empty($token_encrypt)) {
-                // Serious issue if this is case, so return that something bad happened.
-                ServiceContainer::getLogger()->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
-                return false;
-            }
-            $token_database = $token_raw . bin2hex($expiry->format('U'));
+            $token = RandomGenUtils::createUniqueToken(32);
+            $token_database = $token . bin2hex($expiry->format('U'));
 
-            $sqlVerify = sqlQueryNoLog("SELECT `id` FROM `verify_email` WHERE `token_onetime` LIKE BINARY ?", [$token_raw . '%']);
+            $sqlVerify = sqlQueryNoLog("SELECT `id` FROM `verify_email` WHERE `token_onetime` LIKE BINARY ?", [$token . '%']);
             if (empty($sqlVerify['id'])) {
                 $unique = true;
                 break;
@@ -194,12 +188,12 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         $site_id = $session->get('site_id');
         if (stripos($site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
-                'forward_email_verify' => $token_encrypt,
+                'forward_email_verify' => $token,
                 'site' => $site_id
             ]));
         } else {
             $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
-                'forward_email_verify' => $token_encrypt
+                'forward_email_verify' => $token
             ]));
         }
         $template = 'verify-success';
@@ -384,26 +378,11 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $expiry = new DateTime('NOW');
     $expiry->add(new DateInterval('PT01H'));
 
-    $token_new = RandomGenUtils::createUniqueToken(32);
+    $token = RandomGenUtils::createUniqueToken(32);
     $pin = RandomGenUtils::createUniqueToken(6);
     if (!$resetPass) {
         $clear_pass = RandomGenUtils::generatePortalPassword();
         $uname = $newpd['fname'] . $newpd['id'];
-    }
-
-    // Will send a link to user with encrypted token
-    $token = (ServiceContainer::getCrypto())->encryptStandard($token_new);
-    if (empty($token)) {
-        // Serious issue if this is case, so exit.
-        if ($resetPass) {
-            EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
-            ServiceContainer::getLogger()->error("Error : Token encryption failed during patient password reset - exiting");
-            return false;
-        } else { // !$resetPass
-            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
-            ServiceContainer::getLogger()->error("Error : Token encryption failed during patient registration - exiting");
-            return false;
-        }
     }
     $site_addr = $globalsBag->getString('portal_onsite_two_address');
     $site_id = $session->get('site_id');
@@ -428,8 +407,8 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
 
-    // Will store unencrypted token in database with the pin and expiration date
-    $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
+    // Store token in database with the pin and expiration date
+    $one_time = $token . $pin . bin2hex($expiry->format('U'));
     if ($resetPass) {
         // already confirmed there is an entry in patient_access_onsite in previously called resetPassword function
         // (note that portal_username, portal_pwd_status and portal_pwd are not touched here since password needs to remain valid until patient
