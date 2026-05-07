@@ -138,14 +138,21 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
     $columns_options = [];
     foreach ($tables_escaped as $table_escaped) {
         $res = sqlStatementNoLog("SHOW COLUMNS FROM " . $table_escaped);
+        // Strip backticks for whitelist comparison; input won't have them
+        $table_for_whitelist = trim($table_escaped, '`');
         while ($row = sqlFetchArray($res)) {
-            $columns_options[] = $long ? $table_escaped . "." . $row['Field'] : $row['Field'];
+            $columns_options[] = $long ? $table_for_whitelist . "." . $row['Field'] : $row['Field'];
         }
     }
 
     // Whitelist against actual columns, then backtick-quote to keep in identifier context
     $dieIfNoMatch = !$throwException;
     $column = escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
+    // For table.column format, backtick each part separately
+    if ($long && str_contains($column, '.')) {
+        [$table, $col] = explode('.', $column, 2);
+        return sprintf('`%s`.`%s`', $table, $col);
+    }
     return sprintf('`%s`', $column);
 }
 
