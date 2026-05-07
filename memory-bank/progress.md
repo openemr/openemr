@@ -1,6 +1,6 @@
 # Progress
 
-**Last reviewed:** 2026-05-05 evening
+**Last reviewed:** 2026-05-07
 
 ---
 
@@ -9,7 +9,7 @@
 | Week | Window | State |
 |---|---|---|
 | Week 1 | 2026-04-21 → 2026-05-04 | ✅ Complete — all four checkpoints submitted, all AI Interviews completed (closed 2026-05-05) |
-| Week 2 | 2026-05-04 → 2026-05-10 | 🟡 MVP shipped (Tue 2026-05-05) — deployed at `https://copilot-production-b532.up.railway.app`, master tip `78d0672c7`. Early Submission (Thu) and Final (Sun) ahead. |
+| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified on `feat/w2-early-submission` head `f19f43514` (44 commits ahead of master `78d0672c7`). 174 tests / 53/53 eval cases. Push + PR + grading remain. Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
 | Week 3+ | TBD | 📋 Not started |
 
 ---
@@ -214,6 +214,35 @@ After the night-shift wrote per-task `code-review.txt` files marked `CODEX UNAVA
 - **F11 (P2)** — Banner surfaced FHIR DocumentReferences but the bbox modal only knew the local SQLite store → modal 404s for the very docs the banner advertised. Fixed: preview falls back to FHIR DocumentReference + Binary.
 
 **Branch tip after the codex hardening: `2cb643af9`. 163 tests pass (was 140 at end-of-night-shift, +23 fix-related tests added). 50/50 eval cases at 100%. Ruff clean. `make eval-fast` runs in ~2s. ~37 commits since `78d0672c7`.**
+
+### Post-MVP polish sweep — 2026-05-07
+
+Live smoke-test of the rebuilt iframe (against local OpenEMR after fixing `sqlconf.php` to point at `mysql:3306` and flipping `$config=1`) surfaced three real defects that survived the codex hardening:
+
+1. **Over-citation on informational guideline questions** — "what does USPSTF say about X" pulled every Observation/Patient/Med citation even when the question was purely informational.
+2. **Bbox red rectangle in the wrong position on PDF/PNG previews** — VLM-emitted bboxes routinely covered the entire row instead of the value digits.
+3. **Citation chips for non-`DocumentReference/` record_ids opened a "blank" modal** — the JS early-returned with tiny "(non-document citation: …)" text on a 800x1000 white canvas.
+
+Then a fourth issue surfaced when the user re-tested:
+
+4. **Single-value question over-share** — "What was the HbA1c?" returned HbA1c + fasting glucose + eGFR (the whole panel).
+
+And a fifth defect when running the documented regression-repro:
+
+5. **The "comment out a Layer-2 rule, run `make eval-fast`, see exit 1" recipe was silently green** — the runner is fixture-driven and never invokes `apply_rules`.
+
+**Five commits closed all five:**
+
+| Commit | What it ships |
+|---|---|
+| `f40cf3880` | `feat(agent,evals): scope guideline questions — informational vs applied` (Phase A) — situational paragraph in `app/agent/prompt.py` + 2 fixture cases in `evals/cases/citation/` (`informational_guideline_question.yaml`, `applied_guideline_question.yaml`). |
+| `053c5451d` | `fix(ingestion,ui): tighten VLM bbox + PDF text-snap overlay` (Phase B) — `_LAB_PROMPT` and `_INTAKE_PROMPT` rewritten to bind only the printed value; `encode_record_id_for_vlm` gains optional `raw_text` kwarg appended as `&q=` URL fragment; iframe `_snapBboxToText` helper text-snaps via `pdfPage.getTextContent()`. |
+| `0948b78ff` | `feat(agent,ui): per-type evidence cards for non-DocumentReference citations` (Phase C) — `EvidenceKind` / `EvidenceRecord` + `AgentResponse.evidence_records`; new `app/agent/evidence.py::extract_evidence_records()`; iframe modal router + 9 per-type renderers (Observation / Medication / Allergy / Condition / Encounter / Patient / Guideline / QuestionnaireResponse / Unknown); HTML/CSS card mode. |
+| `e21497fdc` | `fix(ui,agent): smarter PDF text-snap + scope single-value questions` (Phase B+) — text-snap matcher prefers numeric tokens disambiguated by y-proximity (the loose `target.includes(s)` clause was matching first-substring like "LDL"); prompt addition for "specific value vs panel summary" pattern. |
+| `b35e7bce6` | `feat(ingestion): server-side OCR-snap for image (PNG/JPG) bboxes` (Phase D) — new `app/ingestion/ocr.py` with `ocr_items()` + `snap_bbox()`; wired into `app/ingestion/service.py::_ocr_snap_extraction()` (mutates `source_citation.bbox` in place after VLM, in a worker thread); Dockerfile gains `tesseract-ocr` apt + `pytesseract>=0.3.10` + `Pillow>=10.0` deps. |
+| `f19f43514` | `feat(evals): make the documented Layer-2 regression-repro actually fire` — root cause: `make eval-fast` invokes scorers (`schema_valid`, `citation_present`, …) which never call `apply_rules`. Fix: `evals/scorers/rules_block_regression.py` (calls `apply_rules` and asserts `result.passed is False` on a fixture engineered to trigger `check_extracted_fact_has_source_doc`) + `evals/cases/cross/cross_layer2_regression_canary.yaml` (the canary fixture) + `FAST_SUBSET` registration. README rewritten with the actual expected output. |
+
+**Branch tip: `f19f43514`. 174 tests pass (was 163 + 5 evidence + 6 OCR-snap), 53/53 eval cases at 100% across all 6 PRD-named categories, ruff clean. `make eval-fast` exits 0 with rule active, exit 2 with rule commented (cross drops to 66.7%). 44 commits since `78d0672c7`.**
 
 ---
 

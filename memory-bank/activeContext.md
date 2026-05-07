@@ -1,6 +1,6 @@
 # Active Context
 
-**Last updated:** 2026-05-06 evening (W2 Early-Submission scope shipped + hardened on `feat/w2-early-submission`, head `2cb643af9`, ~37 task-commits since `78d0672c7`). Tier 1 + Tier 2-lite + 4 polish KRs landed via the autonomous night-shift run `2026-05-06-0104` (KR1 LangGraph state machine, KR2 50-case eval gate + pre-push hook, KR3 TurnTrace 6-field extension + Langfuse generation spans, KR4 Reranker scaffolding, KR5 pending-intake notification + ACL grant, KR6 memory-bank refresh, KR7 regression-gate meta-tests, KR8 `vlm_cost_estimate_usd` populator, KR9 README review summary). The shift was followed by 8 rounds of `codex review --base 56c467c70` that found 18 distinct issues (3 P1 + 15 P2) — all fixed in 8 follow-on commits. **163 tests pass, 50/50 eval cases at 100%, ruff clean.** Codex quota hit on round 9 — branch is in shippable shape.
+**Last updated:** 2026-05-07 (W2 Early-Submission scope + smoke-test polish sweep + working regression-repro shipped on `feat/w2-early-submission`, head `f19f43514`, 44 task-commits since `78d0672c7`). The base branch (through `2cb643af9`) covers Tier 1 + Tier 2-lite + 4 polish KRs from the autonomous night-shift run `2026-05-06-0104` (KR1 LangGraph state machine, KR2 50-case eval gate + pre-push hook, KR3 TurnTrace 6-field extension + Langfuse generation spans, KR4 Reranker scaffolding, KR5 pending-intake notification + ACL grant, KR6 memory-bank refresh, KR7 regression-gate meta-tests, KR8 `vlm_cost_estimate_usd` populator, KR9 README review summary), then 8 rounds of `codex review --base 56c467c70` closing 18 findings (3 P1 + 15 P2). On 2026-05-07 the live smoke test surfaced three more defects, all fixed in a four-phase polish sweep (A: informational-vs-applied + single-value prompt rules + 2 fixture cases; B: VLM bbox tighten + PDF text-snap via `&q=` URL fragment; C: per-type evidence cards for non-DocumentReference citations; D: server-side OCR-snap for image bboxes via Tesseract). Then a fifth fix (`f19f43514`) made the documented regression-repro actually fire — the runner is fixture-driven and never invoked `apply_rules`, so the README's "comment out a rule" recipe was silently green. Added `evals/scorers/rules_block_regression.py` + `evals/cases/cross/cross_layer2_regression_canary.yaml` to make a Layer-2 disable trip the gate. **174 tests pass, 53/53 eval cases at 100%, ruff clean.** Branch is in shippable shape.
 
 ---
 
@@ -8,7 +8,18 @@
 
 Spec read and digested: `~/Desktop/Gauntlet/Week2/Week 2 - AgentForge Clinical Co-Pilot.pdf`. Full breakdown in `assignments/week2.md`. **Key headline:** the W2 hard gate is an **eval-driven CI gate that graders will trip with a regression** — if the gate doesn't fail, the whole build doesn't pass. Everything else in W2 (vision, multi-agent, RAG) is additive; the eval gate is the deliverable that must be airtight.
 
-**Active branch:** `feat/w2-early-submission` (HEAD `2cb643af9`). Fork point `56c467c70` (cleaned-up master tip after pre-night-shift commits). 37 commits ahead of `78d0672c7` (W2 MVP master tip). NOT yet pushed to GitHub (Railway auto-deploys from GitHub master, so the deployed Co-Pilot is still the W2-MVP `78d0672c7`).
+**Active branch:** `feat/w2-early-submission` (HEAD `f19f43514`). Fork point `56c467c70` (cleaned-up master tip after pre-night-shift commits). 44 commits ahead of `78d0672c7` (W2 MVP master tip). NOT yet pushed to GitHub (Railway auto-deploys from GitHub master, so the deployed Co-Pilot is still the W2-MVP `78d0672c7`).
+
+**New modules + schema additions on this branch (post-MVP polish):**
+- `app/agent/evidence.py` — `extract_evidence_records()` filters tool_results down to claim-cited records and tags each by FHIR family (8 kinds + `unknown`).
+- `app/agent/schemas.py` — `EvidenceKind` literal, `EvidenceRecord` model, `AgentResponse.evidence_records` map.
+- `app/ingestion/ocr.py` — `ocr_items()` + `snap_bbox()` for Tesseract-based bbox snap on image extractions.
+- `app/ingestion/service.py` — `_ocr_snap_extraction()` runs after VLM extraction for `image/*` mime types; mutates `source_citation.bbox` in place.
+- `app/ingestion/schemas.py::encode_record_id_for_vlm` — gained optional `raw_text` kwarg appending `&q={url-encoded}` to the record_id fragment.
+- `app/web/copilot_iframe.js` — modal router + per-type renderers (Observation / Medication / Allergy / Condition / Encounter / Patient / Guideline / QuestionnaireResponse / Unknown), `_snapBboxToText()` PDF text-layer helper, `evidenceCache` per-turn map.
+- `app/web/copilot_iframe.{html,css}` — `<div id="bbox-modal-card">` toggle + ~10 LOC styling.
+- `evals/scorers/rules_block_regression.py` + `evals/cases/cross/cross_layer2_regression_canary.yaml` — make the documented regression-repro actually fire.
+- Dockerfile gains `tesseract-ocr` apt + `pytesseract>=0.3.10` + `Pillow>=10.0` deps.
 
 ---
 
@@ -18,25 +29,26 @@ Spec read and digested: `~/Desktop/Gauntlet/Week2/Week 2 - AgentForge Clinical C
 |---|---|---|
 | Architecture Defense (4h) | ✅ done | `W2_ARCHITECTURE.md` is design-of-record at `f5b385f97`. **Appendix C** added at `160820b57` documenting the deployed-MVP delta vs the §1–§10 design. Defense .pptx in `~/Desktop/Gauntlet/Week2/AgentForge_W2_Architecture_Defense.pptx`. |
 | MVP (Tue 2026-05-05) | ✅ shipped, demoable end-to-end | All 14 tasks of `W2_IMPLEMENTATION.md` landed. Deployed at `https://copilot-production-b532.up.railway.app`. Demo path verified live: drop lab PDF → "Extracted N fact(s)" → ask "What was the LDL?" → grounded answer with bbox-modal-clickable citations → ask "What guideline applies?" → guideline citation. 75 tests passing (W1: 42 + W2 MVP: 33). README rewritten for W2 in `78d0672c7`; `IMPLEMENTATION.md` renamed to `W1_IMPLEMENTATION.md`. |
-| Early Submission (Thu ≈ 2026-05-07) | ⏳ next | LangGraph supervisor + workers, critic node, 50-case eval, PR-blocking pre-push hook, full Cohere/dense rerank, TurnTrace 6-field extension, Langfuse per-LLM-call generation spans — none yet on branch. Plan file `W2_EARLY_IMPLEMENTATION.md` not yet authored. |
+| Early Submission (Thu ≈ 2026-05-07) | ✅ shipped + polished + canary-verified | Tier 1 + Tier 2-lite + 4 polish KRs landed via night-shift `2026-05-06-0104`; 8 codex rounds closed 18 findings; 4-phase smoke-test polish sweep on 2026-05-07 fixed informational-vs-applied + single-value scoping, PDF text-snap, evidence cards, OCR-snap. Working regression-repro shipped at `f19f43514` — `make eval-fast` exits non-zero when a Layer-2 rule is commented. 174 tests / 53/53 eval cases. |
 | Final (Sun ≈ 2026-05-10 noon) | 📋 not started | Real FHIR writes (replacing stubs from `971affe8d`), cost/latency report, demo video, source-grounded UI polish. |
 
 ---
 
 ## Immediate next steps
 
-W2 Early-Submission scope is **shipped + codex-hardened** on `feat/w2-early-submission` (head `2cb643af9`). 9 KRs landed via the night-shift; 8 rounds of `codex review` then closed 18 distinct findings (3 P1 + 15 P2). The branch is in shippable shape — the remaining work is human-in-the-loop validation + push + grading.
+W2 Early-Submission scope is **shipped + codex-hardened + smoke-tested + canary-verified** on `feat/w2-early-submission` (head `f19f43514`). 9 KRs landed via the night-shift; 8 codex rounds closed 18 findings; 4-phase polish sweep + canary fix completed 2026-05-07. The branch is shippable — the remaining work is push + open PR + grading submission.
 
-**Manual steps the agent can't perform (left for the human):**
+**Pre-push validation already complete on 2026-05-07:**
+- ✅ Smoke-test PDF + PNG paths against live local OpenEMR (UUID `a1a5a6d3-3edd-4341-9281-017568b3c36e`, physician `admin`). PDF text-snap hugs the value digits; PNG OCR-snap hugs glyphs after Tesseract pass; non-DocumentReference citations render formatted cards (Observation / Medication / Guideline / etc.).
+- ✅ Regression-repro recipe verified end-to-end: rule active → `make eval-fast` 15/15 exit 0; rule commented → 14/15 with `cross 66.7%` and `make: *** [eval-fast] Error 1` (exit 2).
+- ✅ Local OpenEMR `sqlconf.php` fix (host=mysql, config=1) — note: container-only mutation; recreated containers will revert it. Not on disk in the repo.
 
-1. **Inspect the branch** — `git log 56c467c70..HEAD --oneline` shows ~37 commits. Top-of-file summary in `copilot/README.md` and the "Implementation log" at the top of `copilot/W2_EARLY_IMPLEMENTATION.md` give two compact reviewing surfaces.
-2. **Smoke-test the iframe locally** — `cd copilot && docker compose up --build`, open the iframe, drop `evals/fixtures/documents/lab-lipid-small.pdf`, click a citation chip → bbox modal must render the PDF page with a red rectangle. Repeat with PNG fixture and a `Guideline/{chunk_id}` citation.
-3. **Verify the pending-intake banner** by uploading a doc as a Front Office user via OpenEMR's stock Documents Zend module, then opening the iframe for that patient.
-4. **Run the regression-repro recipe** in `copilot/README.md` ("Verifying the W2 eval gate") — comment out a Layer-2 rule, run `make eval-fast`, confirm exit 1 + cross category drops; revert.
-5. **Optional**: re-trigger `/security-review` (the user-interrupted second-leg pass over the new attack surface — FHIR preview fallback, ACL grant, banner JS).
-6. **Optional**: install the pre-push hook locally with `bash copilot/scripts/install-hooks.sh` (rewrite reads stdin per git's pre-push protocol; runs `make eval-fast` on copilot/-touching pushes).
-7. **Push + open PR** — `git push origin feat/w2-early-submission`. Railway auto-deploys from GitHub master, so prod stays at `78d0672c7` until the PR merges.
-8. **Submit for cohort grading.**
+**Remaining steps:**
+
+1. **Optional**: re-trigger `/security-review` over the new attack surface (FHIR preview fallback, ACL grant, banner JS, OCR pass on uploaded bytes, evidence_records map shape).
+2. **Optional**: install the pre-push hook locally with `bash copilot/scripts/install-hooks.sh`.
+3. **Push + open PR** — `git push origin feat/w2-early-submission`. Railway auto-deploys from GitHub master, so prod stays at `78d0672c7` until the PR merges.
+4. **Submit for cohort grading.**
 
 **Codex review trail:** every finding-and-fix cycle is captured in `.night-shift/runs/2026-05-06-0104/external-reviews/{triage.md, codex-full-diff.txt, codex-full-diff-round2..9.txt}`. Round 9 hit the daily quota cap; reset is ~4:23 PM local. Marginal value of further rounds is low — rounds 7-8 were down to UX edge cases.
 
