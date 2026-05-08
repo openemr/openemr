@@ -91,7 +91,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:0480a7583f876944d10c112177309d1d7bd4f1bf76770c6e7cb04706d4e36375
+    image: phpmyadmin:5.2.3@sha256:f11d965a2e0b75b7ea7f0f629c99fd36c2c6ec2b2a089a95d213d4b9e6b8cc5c
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
