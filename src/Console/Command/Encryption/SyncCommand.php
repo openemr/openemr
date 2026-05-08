@@ -117,12 +117,17 @@ class SyncCommand extends Command
                 continue;
             }
             $key = $row['gl_name'];
+            $value = $row['gl_value'];
 
-            // TODO: this will _always_ cause a change even if it's at the
-            // preferred format. CryptoInterface needs a specific "is this at
-            // the preferred format" check.
-            $plain = $this->crypto->decryptFromDatabase($row['gl_value']);
-            $updated = $this->crypto->encryptForDatabase($plain);
+            if ($this->crypto->isDatabaseValueLatest($value)) {
+                $output->writeln("Globals: $key is current");
+                continue;
+            }
+
+            // Rebuild into current target state
+            $updated = $this->crypto->encryptForDatabase(
+                $this->crypto->decryptFromDatabase($value)
+            );
 
             if ($dryRun) {
                 $output->writeln("Dry-run: would update $key");
