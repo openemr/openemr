@@ -25,6 +25,9 @@ use UnexpectedValueException;
  */
 readonly class PlaintextKeyInDbKeysTable implements KeyStorageInterface
 {
+    // Note: depending where we land on SQL logging, this may need
+    // a ConnectionManager instead of the raw Connection. Or ORM's
+    // EntityManager directly.
     public function __construct(
         private Connection $conn,
     ) {
