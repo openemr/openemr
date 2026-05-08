@@ -43,6 +43,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
+use OpenEMR\Common\Auth\OpenIDConnect\Logging\OAuthLogContext;
 use OpenEMR\Common\Auth\OpenIDConnect\OEIdTokenResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
@@ -615,7 +616,14 @@ class AuthorizationController
             $session->set('nonce', $httpRequest->getQueryParam('nonce'));
         }
 
-        $logger->debug("AuthorizationController->oauthAuthorizationFlow() request query params ", ["queryParams" => $request->getQueryParams()]);
+        // Round-4 finding #2 (CWE-532): the previous payload dumped the
+        // raw query params, including state (CSRF), nonce, code_challenge,
+        // and the raw SMART launch token. Replace with a redacted summary
+        // — keys + OAuth-public params + has_* presence flags.
+        $logger->debug(
+            "AuthorizationController->oauthAuthorizationFlow() request query params",
+            OAuthLogContext::forAuthorizeQueryParams($request->getQueryParams()),
+        );
 
         $this->grantType = 'authorization_code';
         $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
@@ -638,7 +646,16 @@ class AuthorizationController
             }
             $session->set('launch', $request->getQueryParams()['launch'] ?? null);
             $session->set('redirect_uri', $authRequest->getRedirectUri() ?? null);
-            $logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $this->session->all()]);
+            // Round-4 finding #2 (CWE-532): never log the raw session bag.
+            // At this point in the flow it carries csrf, the raw SMART
+            // launch token, redirect_uri, scopes — every value an attacker
+            // would need to forge an authorization. Log a sanitized
+            // fingerprint instead so debug-level operators can still see
+            // "did the session populate the expected slots".
+            $logger->debug(
+                "AuthorizationController->oauthAuthorizationFlow() session updated",
+                OAuthLogContext::forSession($this->session),
+            );
             if (!empty($session->get('launch')) && $this->shouldSkipAuthorizationFlow($authRequest)) {
                 $userUuid = $this->getLoggedInCoreUserUuid($httpRequest);
                 if (!empty($userUuid)) {
@@ -1447,9 +1464,17 @@ class AuthorizationController
                 // TODO: @adunsulag should we throw an exception here?
             }
 
+            // Round-4 finding #2 (CWE-532): the prior payload dumped the
+            // entire restored session, which at this point holds csrf,
+            // nonce, the raw SMART launch token, the PKCE codeChallenge
+            // (inside authRequestSerial), and the authenticated user's
+            // PII (user_id, username, email). Log a redacted fingerprint
+            // — sufficient to debug "did the session_cache deserialize"
+            // without persisting any value an attacker reading the log
+            // could replay.
             $this->getLogger()->debug(
-                "AuthorizationController->oauthAuthorizeToken() restored session user from code ",
-                ['session' => $this->session->all()]
+                "AuthorizationController->oauthAuthorizeToken() restored session user from code",
+                OAuthLogContext::forSession($this->session),
             );
         }
         $leagueRequest = $this->convertHttpRestRequestToServerRequest($request);
