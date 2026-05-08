@@ -107,25 +107,30 @@ class SyncCommand extends Command
         // Handle globals
         $qb = $this->conn->createQueryBuilder();
         $qb->select('gl_name', 'gl_value')
-            ->from('`globals`')
+            ->from('globals')
             ->where('gl_name IN (:names)')
             ->setParameter('names', $this->encryptedGlobals, ArrayParameterType::STRING);
         $result = $qb->executeQuery();
-        $updates = [];
+
         foreach ($result->fetchAllAssociative() as $row) {
             if ($row['gl_value'] === '') {
                 continue;
             }
+            $key = $row['gl_name'];
+
             // TODO: this will _always_ cause a change even if it's at the
             // preferred format. CryptoInterface needs a specific "is this at
             // the preferred format" check.
             $plain = $this->crypto->decryptFromDatabase($row['gl_value']);
             $updated = $this->crypto->encryptForDatabase($plain);
 
-            $updates[$row['gl_name']] = $updated;
+            if ($dryRun) {
+                $output->writeln("Dry-run: would update $key");
+            } else {
+                $output->writeln("Updating $key");
+                $this->conn->update(table: 'globals', data: ['gl_value' => $updated] , criteria: ['gl_name' => $key]);
+            }
         }
-        print_r($updates);
-        // $data = $this->conn->s
 
 
         // files: again, its own thing
