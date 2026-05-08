@@ -44,9 +44,12 @@ use Throwable;
  */
 final readonly class Crypto implements CryptoInterface
 {
+    use CheckLatestEncryptionValueTrait;
+
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
+        private bool $shouldEncryptForDatabase,
         private bool $shouldEncryptForFilesystem,
     ) {
     }
@@ -139,6 +142,9 @@ final readonly class Crypto implements CryptoInterface
     {
         if ($value === null || $value === '') {
             return '';
+        }
+        if (!$this->shouldEncryptForDatabase) {
+            return $value;
         }
         return $this->encryptStandard($value, keySource: KeySource::Drive);
     }
