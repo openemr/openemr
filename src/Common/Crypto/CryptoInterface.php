@@ -86,4 +86,12 @@ interface CryptoInterface
      * @throws CryptoGenException If decryption of encrypted data fails
      */
     public function decryptFromFilesystem(?string $value): string;
+
+    /**
+     * Indicates if the value reflects the current DB encryption state (on/off,
+     * key at latest version if on). This does not verify the value is usable,
+     * only that the prefix indicates the preferred state.
+     */
+    public function isDatabaseValueLatest(string $value): bool;
+    public function isFilesystemValueLatest(string $value): bool;
 }
