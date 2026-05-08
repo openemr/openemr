@@ -514,6 +514,12 @@ class PendingIntakeItem(BaseModel):
     doc_type: str
     uploaded_at: str
     mime_type: str | None = None
+    # True when this item came from the local Co-Pilot front-desk-pending
+    # store (filed via /v1/documents/attach in defer mode) and still needs
+    # VLM extraction. The iframe POSTs /v1/documents/{doc_id}/process before
+    # opening the bbox modal for these. False for items sourced from FHIR
+    # DocumentReference (already-extracted or stock OpenEMR uploads).
+    is_pending: bool = False
 
 
 class PendingIntakesResponse(BaseModel):
@@ -621,6 +627,39 @@ async def get_pending_intakes(
                 doc_type=doc_type,
                 uploaded_at=uploaded_at,
                 mime_type=mime_type,
+                is_pending=False,  # FHIR-sourced docs are already extracted
+            )
+        )
+
+    # W2 LITE deferred-extraction merge: also surface local front-desk
+    # uploads filed via the iframe drop-zone with COPILOT_FRONT_DESK_USERS.
+    # These rows live in processed_documents with a ``_pending`` marker
+    # until the physician opens the chart and triggers extraction via the
+    # banner click handler (POST /v1/documents/{doc_id}/process).
+    cutoff_dt = datetime.now(timezone.utc) - timedelta(days=7)
+    try:
+        store: ProcessedDocumentStore = app.state.processed_documents
+        pending_rows = await store.list_pending_uploads(
+            patient_pseudonym=session.active_patient_id,
+            since=cutoff_dt,
+        )
+    except Exception:  # noqa: BLE001 — banner must not break iframe load.
+        logger.exception("failed to read local pending uploads (non-fatal)")
+        pending_rows = []
+    # Avoid double-counting if the same canonical_doc_id is also present in
+    # the FHIR-sourced items (defensive — shouldn't happen given the
+    # ``copilot-`` synthesized id scheme, but cheap to guard).
+    seen_ids = {it.doc_id for it in items}
+    for row in pending_rows:
+        if row.canonical_doc_id in seen_ids:
+            continue
+        items.append(
+            PendingIntakeItem(
+                doc_id=row.canonical_doc_id,
+                doc_type=row.doc_type,
+                uploaded_at=row.extracted_at.isoformat(),
+                mime_type=row.mime_type,
+                is_pending=True,
             )
         )
 
@@ -697,6 +736,20 @@ async def sessions_end(session_id: str):
     return {"ok": True}
 
 
+def _is_front_desk_user(physician_user_id: str, settings: Settings) -> bool:
+    """True when the uploader matches ``COPILOT_FRONT_DESK_USERS`` (comma-list).
+
+    Front-desk users get the W2 LITE deferred-extraction path: bypass the
+    panel gate (front desk can file to any patient) and skip VLM at upload
+    time (physician triggers extraction later via the pending-intake banner).
+    """
+    raw = (settings.copilot_front_desk_users or "").strip()
+    if not raw:
+        return False
+    allowed = {u.strip() for u in raw.split(",") if u.strip()}
+    return physician_user_id in allowed
+
+
 @app.post("/v1/documents/attach")
 async def attach_document(
     file: UploadFile = File(...),
@@ -706,7 +759,20 @@ async def attach_document(
     physician_user_id: str = Form(...),
     settings: Settings = Depends(get_settings),
 ):
-    """Accept a multipart document upload, run panel check, then ingest via VLM."""
+    """Accept a multipart document upload.
+
+    Two flows, branched on ``physician_user_id``:
+
+    * **Physician (default):** panel gate enforced; full VLM extraction +
+      derived FHIR writes happen synchronously. Returns ``extraction`` +
+      ``bbox_overlay`` so the iframe can immediately render citation chips.
+    * **Front desk** (``physician_user_id`` in ``COPILOT_FRONT_DESK_USERS``):
+      panel gate skipped (front desk files to any chart by definition);
+      file stored with a ``_pending`` marker; VLM deferred. Returns
+      ``is_pending=True`` and an empty ``bbox_overlay``. The physician's
+      iframe later POSTs ``/v1/documents/{doc_id}/process`` to run extraction
+      on demand.
+    """
     # Re-validate via the same Pydantic model the architecture documents.
     try:
         AttachDocumentRequest(doc_type=doc_type, mime_type=mime_type)
@@ -714,25 +780,43 @@ async def attach_document(
         raise HTTPException(status_code=422, detail=str(e))
 
     fhir: FhirClient = app.state.fhir
-    await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
+    is_front_desk = _is_front_desk_user(physician_user_id, settings)
+    if not is_front_desk:
+        await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
 
     file_bytes = await file.read()
     if not file_bytes:
         raise HTTPException(status_code=400, detail="empty_file")
 
     svc = app.state.ingestion_service
-    result = await svc.attach_and_extract(
-        patient_fhir_id=patient_id,
-        patient_pseudonym=patient_id,  # MVP: pseudonym == fhir_id; rotated in post-MVP
-        doc_type=doc_type,             # type: ignore[arg-type]  validated above
-        mime_type=mime_type,           # type: ignore[arg-type]
-        file_bytes=file_bytes,
-        physician_user_id=physician_user_id,
-    )
+    if is_front_desk:
+        result = await svc.attach_only(
+            patient_fhir_id=patient_id,
+            patient_pseudonym=patient_id,  # MVP: pseudonym == fhir_id
+            doc_type=doc_type,             # type: ignore[arg-type]  validated above
+            mime_type=mime_type,           # type: ignore[arg-type]
+            file_bytes=file_bytes,
+            physician_user_id=physician_user_id,
+        )
+    else:
+        result = await svc.attach_and_extract(
+            patient_fhir_id=patient_id,
+            patient_pseudonym=patient_id,  # MVP: pseudonym == fhir_id; rotated in post-MVP
+            doc_type=doc_type,             # type: ignore[arg-type]  validated above
+            mime_type=mime_type,           # type: ignore[arg-type]
+            file_bytes=file_bytes,
+            physician_user_id=physician_user_id,
+        )
+
     return {
         "doc_id": result.doc_id,
         "was_dedup_hit": result.was_dedup_hit,
-        "extraction": result.extraction.model_dump(mode="json"),
+        "is_pending": result.is_pending,
+        "extraction": (
+            result.extraction.model_dump(mode="json")
+            if result.extraction is not None
+            else None
+        ),
         "bbox_overlay": [
             {
                 "page": item.page,
@@ -865,4 +949,68 @@ async def get_document_extractions(
         "doc_type": row.doc_type,
         "extracted_at": row.extracted_at.isoformat(),
         "extraction": row.extracted_facts,
+    }
+
+
+@app.post("/v1/documents/{doc_id}/process")
+async def process_pending_document(
+    doc_id: str,
+    patient_id: str,
+    physician_user_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    """Run VLM on a previously-filed front-desk pending row.
+
+    The W2 LITE deferred-extraction path: the front desk uploads a
+    document via ``/v1/documents/attach`` (in defer mode); ``attach_only``
+    stores the file with a ``_pending`` marker and skips VLM. When the
+    physician later clicks the pending banner item in the iframe, the
+    iframe POSTs here to run extraction on demand.
+
+    Idempotent — calling against an already-extracted row returns the
+    cached extraction without re-running VLM.
+
+    Panel-gated: only physicians on the patient's panel may trigger
+    extraction. Front-desk users cannot self-trigger (they shouldn't
+    be reviewing chart docs).
+    """
+    fhir: FhirClient = app.state.fhir
+    await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
+
+    store: ProcessedDocumentStore = app.state.processed_documents
+    row = await store.lookup_by_doc_id(
+        patient_pseudonym=patient_id, canonical_doc_id=doc_id
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="document_not_found")
+
+    svc = app.state.ingestion_service
+    try:
+        result = await svc.process_pending(
+            row=row, physician_user_id=physician_user_id
+        )
+    except ValueError as e:
+        # Pending row missing bytes/mime — corrupt fixture; surface as 422
+        # rather than 500 so the caller can present a clean error.
+        raise HTTPException(status_code=422, detail=str(e)) from e
+
+    return {
+        "doc_id": result.doc_id,
+        "was_dedup_hit": result.was_dedup_hit,
+        "is_pending": result.is_pending,
+        "extraction": (
+            result.extraction.model_dump(mode="json")
+            if result.extraction is not None
+            else None
+        ),
+        "bbox_overlay": [
+            {
+                "page": item.page,
+                "bbox": item.bbox.model_dump(),
+                "field_or_chunk_id": item.field_or_chunk_id,
+                "record_id": item.record_id,
+                "raw_text": item.raw_text,
+            }
+            for item in result.bbox_overlay
+        ],
     }

@@ -25,6 +25,7 @@ from app.ingestion.schemas import (
 from app.ingestion.vlm import VlmExtractor
 from app.observability.vlm_span import vlm_span_output
 from app.persistence.processed_documents import (
+    ProcessedDocument,
     ProcessedDocumentStore,
     hash_bytes,
 )
@@ -42,7 +43,10 @@ class BboxOverlayItem:
 @dataclass
 class IngestionResult:
     doc_id: str
-    extraction: LabPDFExtraction | IntakeFormExtraction
+    # ``None`` when the result represents a deferred-extraction (pending) row
+    # produced by ``IngestionService.attach_only``. Callers must handle the
+    # pending case before serializing.
+    extraction: LabPDFExtraction | IntakeFormExtraction | None
     bbox_overlay: list[BboxOverlayItem]
     was_dedup_hit: bool
     span_output: dict[str, Any] | None  # for the caller's tracer
@@ -50,6 +54,10 @@ class IngestionResult:
     # this was a cache hit (no fresh VLM call) or when the model_id isn't
     # in the cost table (`app.observability.cost`).
     cost_estimate_usd: float | None = None
+    # True when the row carries a ``_pending`` marker — set by
+    # ``attach_only``. Lets the HTTP route shape the response without
+    # checking the extraction field's truthiness.
+    is_pending: bool = False
 
 
 def _walk_citations(payload: Any):
@@ -224,4 +232,173 @@ class IngestionService:
             was_dedup_hit=False,
             span_output=span_output,
             cost_estimate_usd=cost_usd,
+        )
+
+    async def attach_only(
+        self,
+        *,
+        patient_fhir_id: str,
+        patient_pseudonym: str,
+        doc_type: DocType,
+        mime_type: MimeType,
+        file_bytes: bytes,
+        physician_user_id: str,
+    ) -> IngestionResult:
+        """W2 LITE — front-desk skip-extraction path.
+
+        Hashes the file, dedups, and stores the raw bytes plus a
+        ``{"_pending": True}`` marker in ``processed_documents`` so the
+        physician's pending-intake banner surfaces it. Skips VLM, OCR, and
+        derived FHIR writes — those run later when the physician clicks
+        the banner item and ``process_pending`` is invoked via
+        ``/v1/documents/{doc_id}/process``.
+
+        Returns an ``IngestionResult`` with ``is_pending=True`` and
+        ``extraction=None``.
+        """
+        sha = hash_bytes(file_bytes)
+        prior = await self._store.lookup(
+            patient_pseudonym=patient_pseudonym, hash=sha
+        )
+        if prior is not None:
+            # Already filed (front-desk re-uploaded the same scan, or admin
+            # already extracted). Surface as deduped — no rework.
+            cached_facts = prior.extracted_facts
+            still_pending = (
+                isinstance(cached_facts, dict) and cached_facts.get("_pending")
+            )
+            return IngestionResult(
+                doc_id=prior.canonical_doc_id,
+                extraction=None,
+                bbox_overlay=[],
+                was_dedup_hit=True,
+                span_output=None,
+                is_pending=bool(still_pending),
+            )
+
+        # Mirror the synthesized id scheme used by FhirClient.create_document_reference
+        # (currently a stub — see app/fhir/client.py:116-139). Stable across
+        # restarts because it derives from the file hash.
+        doc_id = f"copilot-{sha[:16]}"
+        await self._store.record(
+            patient_pseudonym=patient_pseudonym,
+            hash=sha,
+            canonical_doc_id=doc_id,
+            doc_type=doc_type,
+            extracted_facts={"_pending": True},
+            source_path="front_desk_scan",
+            file_bytes=file_bytes,
+            mime_type=mime_type,
+        )
+        return IngestionResult(
+            doc_id=doc_id,
+            extraction=None,
+            bbox_overlay=[],
+            was_dedup_hit=False,
+            span_output=None,
+            is_pending=True,
+        )
+
+    async def process_pending(
+        self,
+        *,
+        row: "ProcessedDocument",
+        physician_user_id: str,
+    ) -> IngestionResult:
+        """Run VLM + persist extraction for a row that was filed by ``attach_only``.
+
+        Idempotent: if the row no longer carries the ``_pending`` marker
+        (already processed), reconstruct the cached extraction and return
+        it without re-running VLM.
+
+        Mirrors the post-DocumentReference half of ``attach_and_extract``:
+        VLM extract → OCR snap (image/* only) → derived FHIR writes →
+        update ``processed_documents`` with the real ``extracted_facts``.
+        """
+        # Idempotent fast-path: already extracted.
+        facts = row.extracted_facts
+        if not (isinstance(facts, dict) and facts.get("_pending")):
+            cls = (
+                LabPDFExtraction if row.doc_type == "lab_doc"
+                else IntakeFormExtraction
+            )
+            cached = cls.model_validate(facts)
+            return IngestionResult(
+                doc_id=row.canonical_doc_id,
+                extraction=cached,
+                bbox_overlay=_bbox_overlay(cached, row.canonical_doc_id),
+                was_dedup_hit=True,
+                span_output=None,
+                is_pending=False,
+            )
+
+        if not row.file_bytes:
+            raise ValueError(
+                f"pending row {row.canonical_doc_id!r} has no stored bytes"
+            )
+        if not row.mime_type:
+            raise ValueError(
+                f"pending row {row.canonical_doc_id!r} has no mime_type"
+            )
+
+        # Type-narrow doc_type to a known DocType. ``attach_only`` only ever
+        # stores the validated form, but row.doc_type is typed as ``str`` on
+        # the way back so re-assert here.
+        doc_type: DocType = row.doc_type  # type: ignore[assignment]
+        mime_type: MimeType = row.mime_type  # type: ignore[assignment]
+
+        import time as _t
+        t0 = _t.perf_counter()
+        extraction, vlm_meta = await self._vlm.extract(
+            file_bytes=row.file_bytes,
+            mime_type=mime_type,
+            doc_type=doc_type,
+            doc_id=row.canonical_doc_id,
+        )
+        latency_ms = (_t.perf_counter() - t0) * 1000.0
+
+        if mime_type.startswith("image/"):
+            await _ocr_snap_extraction(extraction, row.file_bytes)
+
+        await write_extraction(
+            extraction,
+            fhir=self._fhir,
+            patient_fhir_id=row.patient_pseudonym,  # MVP: pseudonym == fhir_id
+            doc_id=row.canonical_doc_id,
+            physician_user_id=physician_user_id,
+        )
+
+        await self._store.replace_extraction(
+            patient_pseudonym=row.patient_pseudonym,
+            canonical_doc_id=row.canonical_doc_id,
+            extracted_facts=extraction.model_dump(mode="json"),
+            doc_type=doc_type,
+        )
+
+        span_output = vlm_span_output(
+            extraction,
+            doc_id=row.canonical_doc_id,
+            doc_type=doc_type,
+            mime_type=mime_type,
+            model_id=vlm_meta.model_id,
+            latency_ms=latency_ms,
+        )
+
+        from app.observability.cost import estimate_anthropic_cost_usd
+        cost_usd = estimate_anthropic_cost_usd(
+            model_id=vlm_meta.model_id,
+            input_tokens=vlm_meta.input_tokens,
+            output_tokens=vlm_meta.output_tokens,
+            cache_read_tokens=vlm_meta.cache_read_tokens,
+            cache_write_tokens=vlm_meta.cache_creation_tokens,
+        )
+
+        return IngestionResult(
+            doc_id=row.canonical_doc_id,
+            extraction=extraction,
+            bbox_overlay=_bbox_overlay(extraction, row.canonical_doc_id),
+            was_dedup_hit=False,
+            span_output=span_output,
+            cost_estimate_usd=cost_usd,
+            is_pending=False,
         )

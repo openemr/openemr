@@ -162,6 +162,98 @@ def test_pending_intakes_handles_fhir_error_gracefully(
     assert r.json() == {"items": [], "count": 0}
 
 
+def test_pending_intakes_merges_local_front_desk_pending(
+    app_client, monkeypatch
+) -> None:
+    """W2 LITE deferred-extraction: local pending uploads (filed via
+    ``/v1/documents/attach`` in defer mode) are merged into the banner
+    alongside FHIR-sourced items.
+    """
+    from datetime import datetime, timezone
+    from unittest.mock import AsyncMock
+
+    from app.persistence.processed_documents import ProcessedDocument
+
+    client, main_module = app_client
+    _patch_fhir_search(main_module, monkeypatch, {"entry": []})
+
+    pending_row = ProcessedDocument(
+        patient_pseudonym=PATIENT_ID,
+        hash="0" * 128,
+        canonical_doc_id="copilot-pending-fd-1",
+        doc_type="intake_form_doc",
+        extracted_facts={"_pending": True},
+        source_path="front_desk_scan",
+        extracted_at=datetime.now(timezone.utc),
+        file_bytes=b"%PDF-1.4 fake",
+        mime_type="application/pdf",
+    )
+    main_module.app.state.processed_documents.list_pending_uploads = AsyncMock(
+        return_value=[pending_row]
+    )
+
+    sid = _start(client)
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["count"] == 1
+    item = body["items"][0]
+    assert item["doc_id"] == "copilot-pending-fd-1"
+    assert item["doc_type"] == "intake_form_doc"
+    assert item["mime_type"] == "application/pdf"
+    assert item["is_pending"] is True
+
+
+def test_pending_intakes_local_merge_skips_duplicates(
+    app_client, monkeypatch
+) -> None:
+    """When the same doc_id appears in both FHIR and local pending, the FHIR
+    item wins (no double-counting). FHIR items carry ``is_pending=False``.
+    """
+    from datetime import datetime, timezone
+    from unittest.mock import AsyncMock
+
+    from app.persistence.processed_documents import ProcessedDocument
+
+    client, main_module = app_client
+    bundle = {
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "shared-doc-id",
+                    "type": {"text": "Lab Report"},
+                    "date": "2026-05-06T08:30:00Z",
+                    "content": [{"attachment": {"contentType": "application/pdf"}}],
+                }
+            }
+        ]
+    }
+    _patch_fhir_search(main_module, monkeypatch, bundle)
+
+    pending_row = ProcessedDocument(
+        patient_pseudonym=PATIENT_ID,
+        hash="0" * 128,
+        canonical_doc_id="shared-doc-id",  # same id as FHIR entry
+        doc_type="lab_doc",
+        extracted_facts={"_pending": True},
+        source_path="front_desk_scan",
+        extracted_at=datetime.now(timezone.utc),
+        file_bytes=b"%PDF-1.4 fake",
+        mime_type="application/pdf",
+    )
+    main_module.app.state.processed_documents.list_pending_uploads = AsyncMock(
+        return_value=[pending_row]
+    )
+
+    sid = _start(client)
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["count"] == 1
+    assert body["items"][0]["is_pending"] is False  # FHIR wins
+
+
 def test_pending_intakes_response_shape_is_stable(app_client, monkeypatch) -> None:
     """The response must always have items + count keys, even when empty."""
     client, main_module = app_client

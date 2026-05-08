@@ -112,6 +112,16 @@ class Settings(BaseSettings):
     # Claude vision model used by VlmExtractor.
     vlm_model_id: str = "claude-sonnet-4-6"
 
+    # --- Front-desk role (W2 LITE — deferred extraction) ---
+    # Comma-separated OpenEMR usernames that play the front-desk role.
+    # When `physician_user_id` matches one of these, `/v1/documents/attach`
+    # bypasses the per-physician panel gate (front desk is allowed to file
+    # documents to any patient) and skips agent extraction at upload time.
+    # The physician later triggers extraction by clicking the resulting
+    # pending-intake banner item, which POSTs `/v1/documents/{doc_id}/process`.
+    # Empty string (default) preserves the legacy single-role behavior.
+    copilot_front_desk_users: str = ""
+
 
 @lru_cache
 def get_settings() -> Settings:

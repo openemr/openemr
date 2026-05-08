@@ -77,7 +77,8 @@
     list.replaceChildren();
     for (const item of visible) {
       const li = document.createElement("li");
-      li.textContent = `${item.doc_type} — ${item.doc_id} (${item.uploaded_at.slice(0, 10)})`;
+      const pendingTag = item.is_pending ? " [needs review]" : "";
+      li.textContent = `${item.doc_type} — ${item.doc_id} (${item.uploaded_at.slice(0, 10)})${pendingTag}`;
       li.dataset.docId = item.doc_id;
       li.onclick = () => onPendingIntakeClick(item, li);
       list.appendChild(li);
@@ -89,7 +90,39 @@
     };
   }
 
-  function onPendingIntakeClick(item, listItemEl) {
+  async function onPendingIntakeClick(item, listItemEl) {
+    // For W2 LITE deferred-extraction items, run extraction on-demand
+    // before opening the modal. Idempotent server-side — re-clicks no-op.
+    if (item.is_pending && PATIENT_ID) {
+      const originalText = listItemEl.textContent;
+      listItemEl.textContent = `${originalText} (extracting…)`;
+      listItemEl.dataset.state = "processing";
+      try {
+        const url = `/v1/documents/${encodeURIComponent(item.doc_id)}/process`
+          + `?patient_id=${encodeURIComponent(PATIENT_ID)}`
+          + `&physician_user_id=${encodeURIComponent(PHYSICIAN)}`;
+        const r = await fetch(url, { method: "POST" });
+        if (!r.ok) {
+          listItemEl.textContent = `${originalText} (extraction failed: ${r.status})`;
+          listItemEl.dataset.state = "error";
+          return;
+        }
+        const data = await r.json();
+        // Cache the freshly-computed overlay so the bbox modal can render
+        // citations without a second fetch.
+        overlayCache[data.doc_id] = { overlay: data.bbox_overlay };
+        listItemEl.textContent = originalText;
+        listItemEl.dataset.state = "idle";
+        // Mark item so subsequent clicks don't re-process; matches the
+        // banner's was-already-extracted item shape.
+        item.is_pending = false;
+      } catch (err) {
+        listItemEl.textContent = `${originalText} (extraction error)`;
+        listItemEl.dataset.state = "error";
+        return;
+      }
+    }
+
     // Open the existing bbox modal pointed at this doc's parent record.
     // The user can then click into specific fields if extractions exist.
     const recordId = `DocumentReference/${item.doc_id}`;
@@ -175,6 +208,22 @@
       return;
     }
     const data = await r.json();
+    if (data.is_pending) {
+      // W2 LITE deferred-extraction path — front-desk upload. The doc is
+      // filed; the physician will trigger extraction by clicking the
+      // pending-intake banner on chart open.
+      const dedup = data.was_dedup_hit ? " (already filed earlier)" : "";
+      appendMessage(
+        "system",
+        `Filed pending intake for ${file.name}${dedup}. Physician will review.`
+      );
+      // Refresh the banner so the new pending row shows up immediately
+      // when the front-desk user opens the rail again on this chart.
+      if (sessionId !== null) {
+        refreshPendingIntakes(sessionId).catch(() => {});
+      }
+      return;
+    }
     const dedup = data.was_dedup_hit ? " (deduped — already extracted)" : "";
     appendMessage(
       "system",

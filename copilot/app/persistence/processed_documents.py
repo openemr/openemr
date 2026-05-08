@@ -223,3 +223,100 @@ class ProcessedDocumentStore:
                 ),
             )
             await db.commit()
+
+    async def list_pending_uploads(
+        self, *, patient_pseudonym: str, since: datetime | None = None
+    ) -> list[ProcessedDocument]:
+        """Return rows representing front-desk uploads that haven't been
+        extracted yet (W2 LITE deferred-extraction path).
+
+        A pending row carries ``source_path = 'front_desk_scan'`` AND a
+        ``"_pending": true`` marker inside ``extracted_facts``. The marker
+        is dropped when the physician clicks the banner item and the
+        ``/v1/documents/{doc_id}/process`` route runs VLM + writes the real
+        extraction back via ``replace_extraction``.
+
+        Optional ``since`` clamps to a recency window (matches the 7-day
+        window the FHIR-side banner uses).
+        """
+        params: list[Any] = [patient_pseudonym]
+        sql = (
+            "SELECT patient_pseudonym, hash, canonical_doc_id, doc_type, "
+            "extracted_facts, source_path, extracted_at, file_bytes, mime_type "
+            "FROM processed_documents "
+            "WHERE patient_pseudonym = ? AND source_path = 'front_desk_scan' "
+        )
+        if since is not None:
+            sql += "AND extracted_at >= ? "
+            params.append(since.isoformat())
+        sql += "ORDER BY extracted_at DESC"
+
+        async with aiosqlite.connect(self._db_path) as db:
+            db.row_factory = aiosqlite.Row
+            cur = await db.execute(sql, params)
+            rows = await cur.fetchall()
+        out: list[ProcessedDocument] = []
+        for r in rows:
+            facts = json.loads(r["extracted_facts"])
+            # In-Python pending filter — keeps the SQL portable across
+            # SQLite's limited JSON support.
+            if not isinstance(facts, dict) or not facts.get("_pending"):
+                continue
+            out.append(
+                ProcessedDocument(
+                    patient_pseudonym=r["patient_pseudonym"],
+                    hash=r["hash"],
+                    canonical_doc_id=r["canonical_doc_id"],
+                    doc_type=r["doc_type"],
+                    extracted_facts=facts,
+                    source_path=r["source_path"],
+                    extracted_at=datetime.fromisoformat(r["extracted_at"]),
+                    file_bytes=r["file_bytes"],
+                    mime_type=r["mime_type"],
+                )
+            )
+        return out
+
+    async def replace_extraction(
+        self,
+        *,
+        patient_pseudonym: str,
+        canonical_doc_id: str,
+        extracted_facts: dict[str, Any],
+        doc_type: str | None = None,
+    ) -> None:
+        """Promote a pending row to extracted by overwriting ``extracted_facts``.
+
+        Called by ``IngestionService.process_pending`` after VLM completes.
+        ``doc_type`` updates the marker label (e.g., ``pending_intake`` →
+        ``intake_form_doc``) when supplied.
+        """
+        async with aiosqlite.connect(self._db_path) as db:
+            if doc_type is not None:
+                await db.execute(
+                    """
+                    UPDATE processed_documents
+                       SET extracted_facts = ?, doc_type = ?
+                     WHERE patient_pseudonym = ? AND canonical_doc_id = ?
+                    """,
+                    (
+                        json.dumps(extracted_facts, sort_keys=True),
+                        doc_type,
+                        patient_pseudonym,
+                        canonical_doc_id,
+                    ),
+                )
+            else:
+                await db.execute(
+                    """
+                    UPDATE processed_documents
+                       SET extracted_facts = ?
+                     WHERE patient_pseudonym = ? AND canonical_doc_id = ?
+                    """,
+                    (
+                        json.dumps(extracted_facts, sort_keys=True),
+                        patient_pseudonym,
+                        canonical_doc_id,
+                    ),
+                )
+            await db.commit()
