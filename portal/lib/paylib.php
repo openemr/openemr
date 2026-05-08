@@ -60,9 +60,9 @@ if ($_POST['mode'] === 'Sphere') {
     if (!isset($pid)) {
         http_response_code(403);
         echo 'Unauthorized';
-    } else {
-        handleSpherePayment($session, (int) $pid);
+        exit;
     }
+    handleSpherePayment($session, (int) $pid);
 }
 
 /**
