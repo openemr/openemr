@@ -857,6 +857,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$Table might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$TypeCode might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
@@ -15150,11 +15155,6 @@ $ignoreErrors[] = [
     'message' => '#^Undefined variable\\: \\$string$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/OFX.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$b2 might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$cmapkey might not be defined\\.$#',
