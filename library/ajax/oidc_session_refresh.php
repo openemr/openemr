@@ -18,6 +18,7 @@ require_once(__DIR__ . "/../../interface/globals.php");
 
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Auth\Oidc\Audit\DatabaseOidcRefreshAuditLogger;
+use OpenEMR\Common\Auth\Oidc\Cache\OidcCacheDirectoryFactory;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\Oidc\Discovery\SsrfSafeHttpClient;
@@ -108,11 +109,15 @@ if ($sessionSubject === null || $sessionSubject === '') {
 
 // 7. Build the handler and delegate
 $globals = OEGlobalsBag::getInstance();
-$tempDir = $globals->getString('temporary_files_dir');
-$cacheDir = $tempDir . DIRECTORY_SEPARATOR . 'oidc_cache';
-if (!is_dir($cacheDir)) {
-    mkdir($cacheDir, 0o755, true);
-}
+// Build / validate the OIDC filesystem-cache directory through the
+// hardened factory (refuses symlinks, canonicalizes the base via
+// realpath, restricts perms to 0700, fails loudly on mkdir errors).
+// Any RuntimeException propagates to the global ErrorHandler installed
+// in globals.php, which logs and responds. See OidcCacheDirectoryFactory
+// for the threat model (CWE-377 — round-3 finding #6).
+$cacheDir = (new OidcCacheDirectoryFactory())->create(
+    $globals->getString('temporary_files_dir'),
+);
 
 $cache = new Psr16Cache(new FilesystemAdapter('', 0, $cacheDir));
 $clock = new SystemClock(new \DateTimeZone('UTC'));
