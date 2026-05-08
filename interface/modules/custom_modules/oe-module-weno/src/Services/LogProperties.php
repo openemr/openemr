@@ -39,7 +39,7 @@ class LogProperties
      */
     private $key;
     /**
-     * @var false|string
+     * @var string
      */
     private $enc_key;
     /**
@@ -47,7 +47,7 @@ class LogProperties
      */
     private $weno_admin_email;
     /**
-     * @var false|string
+     * @var string
      */
     private $weno_admin_password;
     private readonly CryptoInterface $cryptoGen;
