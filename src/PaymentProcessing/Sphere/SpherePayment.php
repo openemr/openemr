@@ -119,23 +119,19 @@ class SpherePayment
     private function renderSphereJsPatientFront(): string
     {
         return "
-            function sphereSuccess(encData) {
+            function sphereSuccess() {
                 let oForm = document.forms['payment-form'];
                 oForm.elements['mode'].value = 'Sphere';
 
                 let inv_values = JSON.stringify(getFormObj('invoiceForm'));
                 document.getElementById('invValues').value = inv_values;
 
-                let hiddenInput = document.createElement('input');
-                hiddenInput.setAttribute('type', 'hidden');
-                hiddenInput.setAttribute('name', 'enc_data');
-                hiddenInput.setAttribute('value', encData);
-                oForm.appendChild(hiddenInput);
-
-                // Submit payment to server
+                // Submit payment to server (payment data is in server session, keyed by ticket)
+                let formData = new FormData(oForm);
+                formData.append('sphere_ticket', window.spherePaymentTicket || '');
                 fetch('./lib/paylib.php', {
                     method: 'POST',
-                    body: new FormData(oForm)
+                    body: formData
                 }).then(function(response) {
                     if (!response.ok) {
                         throw Error(response.statusText);
@@ -208,6 +204,8 @@ class SpherePayment
                     error.log('Dynamic javascript ticket creation failed, so using backup ticket.');
                     ticket = backupTicket;
                 }
+                // Store ticket for sphereSuccess() to retrieve
+                window.spherePaymentTicket = ticket;
 
                 let responseUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php';
                 let cancelUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php?cancel=cancel&ticket=' + encodeURIComponent(ticket) + '&front=' + encodeURIComponent(front) + '&patient_id_cc=' + " . js_escape($this->patientIdCc) . " + '&csrf_token=' + " . js_escape(CsrfUtils::collectCsrfToken($session, 'sphere')) .  ";

@@ -55,21 +55,42 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
-if ($_POST['mode'] == 'Sphere') {
-    $cryptoGen = ServiceContainer::getCrypto();
-    $dataTrans = $cryptoGen->decryptStandard(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
-    $dataTrans = json_decode($dataTrans, true);
+if ($_POST['mode'] === 'Sphere') {
+    // Sphere patient portal payments require an authenticated portal session
+    if (!isset($pid) || !is_int($pid)) {
+        http_response_code(403);
+        echo 'Unauthorized';
+        exit;
+    }
 
-    $form_pid = $dataTrans['get']['patient_id_cc'];
+    $ticket = filter_input(INPUT_POST, 'sphere_ticket') ?? '';
+    $sessionKey = 'sphere_payment_result_' . $ticket;
 
-    $cc = [];
-    $cc["cardHolderName"] = $dataTrans['post']['name'];
-    $cc['status'] = $dataTrans['post']['status_name'];
-    $cc['authCode'] = $dataTrans['post']['authcode'];
-    $cc['transId'] = $dataTrans['post']['transid'];
-    $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
-    $cc['cc_type'] = $dataTrans['post']['ccBrand'];
-    $cc['zip'] = '';
+    $paymentResult = $session->get($sessionKey);
+    SessionUtil::unsetSession($sessionKey);
+
+    if (!is_array($paymentResult)) {
+        http_response_code(400);
+        echo 'Missing or invalid payment data';
+        exit;
+    }
+
+    $form_pid = $paymentResult['patient_id'] ?? 0;
+    if ($form_pid <= 0 || $form_pid !== $pid) {
+        http_response_code(403);
+        echo 'Unauthorized';
+        exit;
+    }
+
+    $cc = [
+        'cardHolderName' => $paymentResult['name'] ?? '',
+        'status' => $paymentResult['status_name'] ?? '',
+        'authCode' => $paymentResult['authcode'] ?? '',
+        'transId' => $paymentResult['transid'] ?? '',
+        'cardNumber' => '******** ' . ($paymentResult['cc'] ?? ''),
+        'cc_type' => $paymentResult['ccBrand'] ?? '',
+        'zip' => '',
+    ];
     $ccaudit = json_encode($cc);
     $invoice = $_POST['invValues'] ?? '';
 
@@ -78,6 +99,7 @@ if ($_POST['mode'] == 'Sphere') {
     SaveAudit($form_pid, $invoice, $ccaudit);
 
     echo 'ok';
+    exit;
 }
 
 if ($_POST['mode'] == 'AuthorizeNet') {
