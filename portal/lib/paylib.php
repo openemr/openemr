@@ -57,22 +57,12 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
 
 if ($_POST['mode'] === 'Sphere') {
     // Sphere patient portal payments require an authenticated portal session
-    if (!isset($pid)) {
+    if (!isset($pid) || !is_int($pid)) {
         http_response_code(403);
         echo 'Unauthorized';
         exit;
     }
-    handleSpherePayment($session, (int) $pid);
-}
 
-/**
- * Handle Sphere payment completion.
- *
- * Retrieves payment result from session (keyed by ticket), validates patient
- * authorization, and saves the audit record.
- */
-function handleSpherePayment(Symfony\Component\HttpFoundation\Session\SessionInterface $session, int $sessionPid): void
-{
     $ticket = filter_input(INPUT_POST, 'sphere_ticket') ?? '';
     $sessionKey = 'sphere_payment_result_' . $ticket;
 
@@ -82,14 +72,14 @@ function handleSpherePayment(Symfony\Component\HttpFoundation\Session\SessionInt
     if (!is_array($paymentResult)) {
         http_response_code(400);
         echo 'Missing or invalid payment data';
-        return;
+        exit;
     }
 
     $form_pid = $paymentResult['patient_id'] ?? 0;
-    if ($form_pid <= 0 || $form_pid !== $sessionPid) {
+    if ($form_pid <= 0 || $form_pid !== $pid) {
         http_response_code(403);
         echo 'Unauthorized';
-        return;
+        exit;
     }
 
     $cc = [
@@ -109,6 +99,7 @@ function handleSpherePayment(Symfony\Component\HttpFoundation\Session\SessionInt
     SaveAudit($form_pid, $invoice, $ccaudit);
 
     echo 'ok';
+    exit;
 }
 
 if ($_POST['mode'] == 'AuthorizeNet') {
