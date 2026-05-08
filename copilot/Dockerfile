@@ -44,7 +44,8 @@ RUN mkdir -p /data && chmod 700 /data
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PORT=8080 \
-    CONVERSATION_DB_PATH=/data/copilot.db
+    CONVERSATION_DB_PATH=/data/copilot.db \
+    COPILOT_DOCS_DB_PATH=/data/copilot_docs.db
 
 EXPOSE 8080
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

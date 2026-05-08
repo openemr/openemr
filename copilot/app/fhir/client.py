@@ -82,6 +82,77 @@ class FhirClient:
         r.raise_for_status()
         return r.json()
 
+    def _rest_base(self) -> str:
+        """Derive OpenEMR's non-FHIR REST API base from the configured FHIR base.
+
+        OpenEMR exposes ``/apis/default/fhir`` and ``/apis/default/api``
+        side-by-side under the same OAuth realm. We swap the trailing
+        ``/fhir`` segment so we can post documents through the REST API
+        for the W2 Plan B confirm-and-write-back flow.
+        """
+        fhir_base = self._settings.openemr_fhir_base.rstrip("/")
+        if fhir_base.endswith("/fhir"):
+            return fhir_base[:-len("/fhir")] + "/api"
+        # Fall back to a sensible guess if someone overrode the env directly
+        # to a non-default suffix; the explicit error in callers will surface
+        # the misconfig clearly.
+        return fhir_base + "/../api"
+
+    async def post_document_via_rest_api(
+        self,
+        *,
+        patient_uuid: str,
+        file_bytes: bytes,
+        mime_type: str,
+        filename: str,
+        category: str,
+        physician_user_id: str,
+    ) -> dict[str, Any]:
+        """W2 Plan B — write a confirmed front-desk PDF back to OpenEMR.
+
+        Uses OpenEMR's non-FHIR REST API at
+        ``POST /apis/default/api/patient/{puuid}/document`` because OpenEMR's
+        FHIR R4 endpoints don't accept POST. Multipart form: `document`
+        (file) + `category` (folder name).
+
+        Returns the OpenEMR response JSON (typically `{id: ..., uuid: ..., ...}`).
+        Raises ``FhirError`` on auth/network/upstream failure — the caller
+        (``/v1/documents/{doc_id}/confirm``) wraps this so a failed
+        write-back doesn't block the local confirm.
+
+        Same OAuth bearer as FHIR — REST and FHIR share the realm.
+        """
+        url = f"{self._rest_base()}/patient/{patient_uuid}/document"
+        files = {"document": (filename, file_bytes, mime_type)}
+        data = {"category": category}
+        try:
+            r = await self._http.post(
+                url,
+                headers=await self._headers(physician_user_id),
+                files=files,
+                data=data,
+            )
+        except httpx.TimeoutException as e:
+            raise FhirError("OpenEMR REST timeout posting document") from e
+        if r.status_code in (401, 403):
+            raise FhirError(
+                f"OpenEMR REST access denied posting document",
+                status=r.status_code,
+            )
+        if r.status_code not in (200, 201):
+            raise FhirError(
+                f"OpenEMR REST document POST returned {r.status_code}: {r.text[:200]}",
+                status=r.status_code,
+            )
+        try:
+            return r.json()
+        except ValueError as e:
+            # Some OpenEMR REST endpoints return plaintext on success;
+            # surface the body so the caller can record what happened.
+            raise FhirError(
+                f"OpenEMR REST document POST returned non-JSON: {r.text[:200]}"
+            ) from e
+
     async def _post(
         self,
         resource_type: str,

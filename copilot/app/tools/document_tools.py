@@ -252,7 +252,12 @@ GET_RECENT_UPLOADS_SCHEMA: dict[str, Any] = {
         "iframe (e.g. 'what was the LDL on the lab I just uploaded?'). The "
         "extracted facts include lab values, allergies, medications, and "
         "intake demographics — all anchored to the source DocumentReference "
-        "so claims you make can cite them."
+        "so claims you make can cite them. "
+        "When the user asks 'what's new', 'what changed', or 'what's "
+        "different since the last visit', set ``confirmed_only=true`` so "
+        "only physician-accepted intakes (not pending or rejected) drive "
+        "the answer; cross-reference against prior FHIR Observations / "
+        "Conditions / Medications / Allergies to surface what's different."
     ),
     "input_schema": {
         "type": "object",
@@ -262,6 +267,24 @@ GET_RECENT_UPLOADS_SCHEMA: dict[str, Any] = {
                 "minimum": 1,
                 "maximum": 10,
                 "default": 3,
+            },
+            "confirmed_only": {
+                "type": "boolean",
+                "description": (
+                    "If true, return ONLY documents the physician has "
+                    "explicitly confirmed via the pending-intake banner. "
+                    "Default false (returns all extracted documents)."
+                ),
+                "default": False,
+            },
+            "since_days": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 365,
+                "description": (
+                    "Recency window in days. Only used when "
+                    "``confirmed_only=true`` (filters by confirmation date)."
+                ),
             },
         },
     },
@@ -275,14 +298,30 @@ async def run_get_recent_uploads(
     args: dict[str, Any],
 ) -> ToolResult:
     limit = int(args.get("limit") or 3)
+    confirmed_only = bool(args.get("confirmed_only") or False)
     # The HTTP attach route stores rows keyed by raw FHIR uuid (no session
     # context at upload time). The session's `patient_pseudonym()` is a
     # randomized "Patient-XXXX" label used for trace minimization, NOT the
     # storage key. Use `active_patient_id` (the real FHIR uuid this session
     # is scoped to) so the lookup matches what the route stored.
-    docs = await store.list_recent_for_patient(
-        patient_pseudonym=session.active_patient_id, limit=limit
-    )
+    if confirmed_only:
+        from datetime import datetime, timedelta, timezone
+        since_days = args.get("since_days")
+        since = (
+            datetime.now(timezone.utc) - timedelta(days=int(since_days))
+            if since_days is not None
+            else None
+        )
+        docs = await store.list_confirmed_recent(
+            patient_pseudonym=session.active_patient_id, since=since
+        )
+        # Mirror the limit semantics — list_confirmed_recent returns
+        # newest-first.
+        docs = docs[:limit]
+    else:
+        docs = await store.list_recent_for_patient(
+            patient_pseudonym=session.active_patient_id, limit=limit
+        )
     data_items: list[dict[str, Any]] = []
     record_ids: list[str] = []
     subject_pseudonym = session.patient_pseudonym()

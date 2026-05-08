@@ -520,6 +520,12 @@ class PendingIntakeItem(BaseModel):
     # opening the bbox modal for these. False for items sourced from FHIR
     # DocumentReference (already-extracted or stock OpenEMR uploads).
     is_pending: bool = False
+    # W2 Plan B confirm/reject UX (2026-05-08): ISO timestamps populated
+    # when the physician has acted on this row. ``confirmed_at`` set ⇒
+    # banner item shows "[confirmed]" tag; ``rejected_at`` set ⇒ hidden
+    # from default view (the iframe filters these client-side).
+    confirmed_at: str | None = None
+    rejected_at: str | None = None
 
 
 class PendingIntakesResponse(BaseModel):
@@ -637,8 +643,8 @@ async def get_pending_intakes(
     # until the physician opens the chart and triggers extraction via the
     # banner click handler (POST /v1/documents/{doc_id}/process).
     cutoff_dt = datetime.now(timezone.utc) - timedelta(days=7)
+    store: ProcessedDocumentStore = app.state.processed_documents
     try:
-        store: ProcessedDocumentStore = app.state.processed_documents
         pending_rows = await store.list_pending_uploads(
             patient_pseudonym=session.active_patient_id,
             since=cutoff_dt,
@@ -646,6 +652,18 @@ async def get_pending_intakes(
     except Exception:  # noqa: BLE001 — banner must not break iframe load.
         logger.exception("failed to read local pending uploads (non-fatal)")
         pending_rows = []
+    # W2 Plan B: also surface recently-confirmed front-desk uploads so the
+    # banner shows a "[confirmed]" state for ~7 days. Lets the physician
+    # re-open the modal if they need to revisit the doc; the agent's
+    # "what changed" tool reads from the same store.
+    try:
+        confirmed_rows = await store.list_confirmed_recent(
+            patient_pseudonym=session.active_patient_id,
+            since=cutoff_dt,
+        )
+    except Exception:  # noqa: BLE001
+        logger.exception("failed to read local confirmed uploads (non-fatal)")
+        confirmed_rows = []
     # Avoid double-counting if the same canonical_doc_id is also present in
     # the FHIR-sourced items (defensive — shouldn't happen given the
     # ``copilot-`` synthesized id scheme, but cheap to guard).
@@ -662,6 +680,25 @@ async def get_pending_intakes(
                 is_pending=True,
             )
         )
+        seen_ids.add(row.canonical_doc_id)
+    for row in confirmed_rows:
+        if row.canonical_doc_id in seen_ids:
+            continue
+        items.append(
+            PendingIntakeItem(
+                doc_id=row.canonical_doc_id,
+                doc_type=row.doc_type,
+                uploaded_at=row.extracted_at.isoformat(),
+                mime_type=row.mime_type,
+                is_pending=False,
+                confirmed_at=(
+                    row.confirmed_at.isoformat()
+                    if row.confirmed_at is not None
+                    else None
+                ),
+            )
+        )
+        seen_ids.add(row.canonical_doc_id)
 
     return PendingIntakesResponse(items=items, count=len(items))
 
@@ -949,6 +986,141 @@ async def get_document_extractions(
         "doc_type": row.doc_type,
         "extracted_at": row.extracted_at.isoformat(),
         "extraction": row.extracted_facts,
+    }
+
+
+@app.post("/v1/documents/{doc_id}/confirm")
+async def confirm_document(
+    doc_id: str,
+    patient_id: str,
+    physician_user_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    """W2 Plan B — physician accepts a front-desk-uploaded intake.
+
+    Marks the row ``confirmed_at`` in the local Co-Pilot store AND attempts
+    to write the original file back to OpenEMR's MySQL ``documents`` table
+    via the non-FHIR REST API. The returned ``external_doc_id`` is the
+    OpenEMR-side documents.id, queryable via FHIR
+    ``GET /DocumentReference/<id>`` once the write lands.
+
+    Fail-soft: if the OpenEMR write errors (auth expired, endpoint missing,
+    network blip), we still mark ``confirmed_at`` locally and return
+    ``{ok: true, openemr_doc_id: null, openemr_write_error: <message>}`` so
+    the physician's review action isn't lost. The agent's "what changed"
+    tool reads from the local store, not OpenEMR, so confirm semantics are
+    preserved either way.
+
+    Panel-gated. Idempotent on ``confirmed_at`` (re-confirm keeps the
+    original timestamp).
+    """
+    fhir: FhirClient = app.state.fhir
+    await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
+
+    store: ProcessedDocumentStore = app.state.processed_documents
+    row = await store.lookup_by_doc_id(
+        patient_pseudonym=patient_id, canonical_doc_id=doc_id
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="document_not_found")
+
+    # Attempt the OpenEMR write-back. Fail-soft: log + record the error
+    # in the response, but still apply the local confirm.
+    external_doc_id: str | None = None
+    write_error: str | None = None
+    if row.file_bytes and row.mime_type and row.external_doc_id is None:
+        # Map our internal doc_type to a sensible OpenEMR document
+        # category. ``Medical Record`` is a default category in stock
+        # OpenEMR installs.
+        category = "Medical Record"
+        filename = f"{row.canonical_doc_id}.pdf" if row.mime_type == "application/pdf" else f"{row.canonical_doc_id}"
+        try:
+            resp = await fhir.post_document_via_rest_api(
+                patient_uuid=patient_id,
+                file_bytes=row.file_bytes,
+                mime_type=row.mime_type,
+                filename=filename,
+                category=category,
+                physician_user_id=physician_user_id,
+            )
+            # OpenEMR returns the new document's id under various shapes
+            # depending on minor version; check the most common ones.
+            ext_id = resp.get("id") or resp.get("uuid") or resp.get("data", {}).get("id")
+            if ext_id is not None:
+                external_doc_id = str(ext_id)
+        except FhirError as e:
+            write_error = str(e)
+            logger.warning(
+                "OpenEMR write-back failed for doc=%s patient=%s: %s",
+                doc_id, patient_id, e,
+            )
+
+    await store.mark_confirmed(
+        patient_pseudonym=patient_id,
+        canonical_doc_id=doc_id,
+        confirmed_by=physician_user_id,
+        external_doc_id=external_doc_id,
+    )
+
+    # Re-read so the response carries the canonical confirmed_at value.
+    refreshed = await store.lookup_by_doc_id(
+        patient_pseudonym=patient_id, canonical_doc_id=doc_id
+    )
+    return {
+        "ok": True,
+        "doc_id": doc_id,
+        "openemr_doc_id": (
+            refreshed.external_doc_id if refreshed is not None else external_doc_id
+        ),
+        "confirmed_at": (
+            refreshed.confirmed_at.isoformat()
+            if refreshed is not None and refreshed.confirmed_at is not None
+            else None
+        ),
+        "openemr_write_error": write_error,
+    }
+
+
+@app.post("/v1/documents/{doc_id}/reject")
+async def reject_document(
+    doc_id: str,
+    patient_id: str,
+    physician_user_id: str,
+    settings: Settings = Depends(get_settings),
+):
+    """W2 Plan B — physician rejects a front-desk-uploaded intake.
+
+    Soft-delete: the row stays in the store for audit, but
+    ``rejected_at`` is set so the agent's "what changed" tool will skip
+    it and the banner item shows a "[rejected]" tag. Panel-gated.
+    Idempotent on ``rejected_at``.
+    """
+    fhir: FhirClient = app.state.fhir
+    await _verify_patient_in_panel(fhir, physician_user_id, patient_id, settings)
+
+    store: ProcessedDocumentStore = app.state.processed_documents
+    row = await store.lookup_by_doc_id(
+        patient_pseudonym=patient_id, canonical_doc_id=doc_id
+    )
+    if row is None:
+        raise HTTPException(status_code=404, detail="document_not_found")
+
+    await store.mark_rejected(
+        patient_pseudonym=patient_id,
+        canonical_doc_id=doc_id,
+        rejected_by=physician_user_id,
+    )
+    refreshed = await store.lookup_by_doc_id(
+        patient_pseudonym=patient_id, canonical_doc_id=doc_id
+    )
+    return {
+        "ok": True,
+        "doc_id": doc_id,
+        "rejected_at": (
+            refreshed.rejected_at.isoformat()
+            if refreshed is not None and refreshed.rejected_at is not None
+            else None
+        ),
     }
 
 

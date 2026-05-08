@@ -77,8 +77,17 @@
     list.replaceChildren();
     for (const item of visible) {
       const li = document.createElement("li");
-      const pendingTag = item.is_pending ? " [needs review]" : "";
-      li.textContent = `${item.doc_type} — ${item.doc_id} (${item.uploaded_at.slice(0, 10)})${pendingTag}`;
+      let stateTag = "";
+      if (item.is_pending) {
+        stateTag = " [needs review]";
+      } else if (item.confirmed_at) {
+        stateTag = " [confirmed]";
+        li.classList.add("confirmed");
+      } else if (item.rejected_at) {
+        stateTag = " [rejected]";
+        li.classList.add("rejected");
+      }
+      li.textContent = `${item.doc_type} — ${item.doc_id} (${item.uploaded_at.slice(0, 10)})${stateTag}`;
       li.dataset.docId = item.doc_id;
       li.onclick = () => onPendingIntakeClick(item, li);
       list.appendChild(li);
@@ -91,6 +100,10 @@
   }
 
   async function onPendingIntakeClick(item, listItemEl) {
+    // Track whether this click was the trigger that flipped the row from
+    // pending → extracted. Confirm/Reject footer only shows in that case.
+    let wasJustExtracted = false;
+
     // For W2 LITE deferred-extraction items, run extraction on-demand
     // before opening the modal. Idempotent server-side — re-clicks no-op.
     if (item.is_pending && PATIENT_ID) {
@@ -116,6 +129,7 @@
         // Mark item so subsequent clicks don't re-process; matches the
         // banner's was-already-extracted item shape.
         item.is_pending = false;
+        wasJustExtracted = true;
       } catch (err) {
         listItemEl.textContent = `${originalText} (extraction error)`;
         listItemEl.dataset.state = "error";
@@ -127,10 +141,24 @@
     // The user can then click into specific fields if extractions exist.
     const recordId = `DocumentReference/${item.doc_id}`;
     openBboxModal(recordId);
-    // In-memory dismiss: mark this doc acknowledged so the banner shrinks.
-    acknowledgedDocIds.add(item.doc_id);
-    listItemEl.classList.add("acknowledged");
-    listItemEl.onclick = null;
+
+    // W2 Plan B: when the click triggered the extraction (or the item
+    // was already extracted but not yet confirmed/rejected), surface
+    // the Confirm/Reject footer so the physician can save to chart.
+    const alreadyHandled = item.confirmed_at || item.rejected_at
+      || handledDocIds.has(item.doc_id);
+    if (!alreadyHandled && (wasJustExtracted || !item.is_pending)) {
+      showConfirmFooter(item.doc_id);
+    }
+
+    // For non-confirmable items (already handled or non-pending FHIR docs),
+    // dismiss inline like the prior behavior.
+    if (alreadyHandled) {
+      acknowledgedDocIds.add(item.doc_id);
+      listItemEl.classList.add("acknowledged");
+      listItemEl.onclick = null;
+    }
+
     // Re-derive the count locally (avoid round-trip).
     const remaining = document.querySelectorAll(
       "#pending-intakes-list li:not(.acknowledged)"
@@ -160,9 +188,80 @@
   const modalCanvas = document.getElementById("bbox-modal-canvas");
   const modalLabel = document.getElementById("bbox-source-label");
   const modalClose = document.getElementById("bbox-modal-close");
+  const modalFooter = document.getElementById("bbox-modal-footer");
+  const modalConfirmBtn = document.getElementById("bbox-modal-confirm");
+  const modalRejectBtn = document.getElementById("bbox-modal-reject");
+  const modalStatus = document.getElementById("bbox-modal-status");
+
+  // W2 Plan B: docId currently shown in the modal (when applicable). When
+  // not null, the Confirm / Reject buttons act on this id.
+  let modalActiveDocId = null;
+  // Per-iframe-load cache of confirmed/rejected state for items the user
+  // already acted on this session — used to suppress already-handled
+  // banner items immediately rather than waiting for a refresh.
+  const handledDocIds = new Set();
 
   modalClose.onclick = () => modal.close();
   modal.addEventListener("cancel", (e) => { e.preventDefault(); modal.close(); });
+  modal.addEventListener("close", () => {
+    // Reset footer state when the dialog closes so the next open starts clean.
+    modalActiveDocId = null;
+    modalFooter.hidden = true;
+    modalConfirmBtn.disabled = false;
+    modalRejectBtn.disabled = false;
+    modalStatus.textContent = "";
+  });
+
+  function showConfirmFooter(docId) {
+    modalActiveDocId = docId;
+    modalConfirmBtn.disabled = false;
+    modalRejectBtn.disabled = false;
+    modalStatus.textContent = "Filed by front desk — confirm to save to chart.";
+    modalFooter.hidden = false;
+  }
+
+  async function handleConfirmReject(action) {
+    if (!modalActiveDocId || !PATIENT_ID) return;
+    modalConfirmBtn.disabled = true;
+    modalRejectBtn.disabled = true;
+    modalStatus.textContent = action === "confirm" ? "Saving to chart…" : "Rejecting…";
+    const url = `/v1/documents/${encodeURIComponent(modalActiveDocId)}/${action}`
+      + `?patient_id=${encodeURIComponent(PATIENT_ID)}`
+      + `&physician_user_id=${encodeURIComponent(PHYSICIAN)}`;
+    try {
+      const r = await fetch(url, { method: "POST" });
+      if (!r.ok) {
+        modalStatus.textContent = `${action === "confirm" ? "Confirm" : "Reject"} failed: ${r.status}`;
+        modalConfirmBtn.disabled = false;
+        modalRejectBtn.disabled = false;
+        return;
+      }
+      const data = await r.json();
+      if (action === "confirm") {
+        if (data.openemr_doc_id) {
+          modalStatus.textContent = `Saved to chart (OpenEMR doc id ${data.openemr_doc_id}).`;
+        } else if (data.openemr_write_error) {
+          modalStatus.textContent = `Confirmed locally; OpenEMR write failed: ${data.openemr_write_error}`;
+        } else {
+          modalStatus.textContent = "Confirmed.";
+        }
+      } else {
+        modalStatus.textContent = "Rejected.";
+      }
+      handledDocIds.add(modalActiveDocId);
+      // Refresh the banner so the state tag updates without a full reload.
+      if (sessionId !== null) {
+        refreshPendingIntakes(sessionId).catch(() => {});
+      }
+    } catch (err) {
+      modalStatus.textContent = `${action === "confirm" ? "Confirm" : "Reject"} error: ${err.message}`;
+      modalConfirmBtn.disabled = false;
+      modalRejectBtn.disabled = false;
+    }
+  }
+
+  modalConfirmBtn.onclick = () => handleConfirmReject("confirm");
+  modalRejectBtn.onclick = () => handleConfirmReject("reject");
 
   paperclip.onclick = () => fileInput.click();
   fileInput.onchange = () => {

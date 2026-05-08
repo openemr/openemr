@@ -170,3 +170,92 @@ async def test_get_recent_uploads_data_items_pass_cross_patient_leakage_check():
         assert obs_items[0]["value"] == pytest.approx(38.0)
     finally:
         os.unlink(db_path)
+
+
+async def test_get_recent_uploads_confirmed_only_excludes_pending_and_rejected():
+    """W2 Plan B 'what changed' tool path — confirmed_only must drop both
+    pending (`_pending=True`) and rejected (rejected_at not null) rows so
+    only physician-accepted intakes drive the answer."""
+    fd, db_path = tempfile.mkstemp(suffix=".db")
+    os.close(fd)
+    store = ProcessedDocumentStore(db_path)
+    await store.init()
+    try:
+        confirmed_extraction = LabPDFExtraction(
+            results=[
+                LabResult(
+                    test_name="HDL", analyte_key="hdl_cholesterol", loinc_code=None,
+                    value=42.0, unit="mg/dL", reference_range=">40",
+                    collection_date=date(2026, 5, 6), abnormal_flag="N",
+                    source_citation=SourceCitation(
+                        source_doc_id="DocumentReference/copilot-confirmed",
+                        page=1,
+                        bbox=BoundingBox(x=0.1, y=0.16, w=0.42, h=0.025),
+                        raw_text="HDL 42", confidence=0.9, source_kind="document",
+                        field_or_chunk_id="results[hdl_cholesterol].value",
+                    ),
+                )
+            ],
+            document_date=date(2026, 5, 6),
+        )
+        # 1) Confirmed row (should appear).
+        await store.record(
+            patient_pseudonym="patient-7",
+            hash="confirmed",
+            canonical_doc_id="copilot-confirmed",
+            doc_type="lab_doc",
+            extracted_facts=confirmed_extraction.model_dump(mode="json"),
+            source_path="front_desk_scan",
+        )
+        await store.mark_confirmed(
+            patient_pseudonym="patient-7",
+            canonical_doc_id="copilot-confirmed",
+            confirmed_by="dr_who",
+        )
+        # 2) Pending row (should be excluded — _pending marker still set).
+        await store.record(
+            patient_pseudonym="patient-7",
+            hash="pending",
+            canonical_doc_id="copilot-pending",
+            doc_type="lab_doc",
+            extracted_facts={"_pending": True},
+            source_path="front_desk_scan",
+        )
+        # 3) Rejected row (should be excluded — rejected_at non-null).
+        await store.record(
+            patient_pseudonym="patient-7",
+            hash="rejected",
+            canonical_doc_id="copilot-rejected",
+            doc_type="lab_doc",
+            extracted_facts=confirmed_extraction.model_dump(mode="json"),
+            source_path="front_desk_scan",
+        )
+        await store.mark_confirmed(
+            patient_pseudonym="patient-7",
+            canonical_doc_id="copilot-rejected",
+            confirmed_by="dr_who",
+        )
+        await store.mark_rejected(
+            patient_pseudonym="patient-7",
+            canonical_doc_id="copilot-rejected",
+            rejected_by="dr_who",
+        )
+
+        session = MagicMock()
+        session.physician_user_id = "dr_who"
+        session.active_patient_id = "patient-7"
+        session.patient_pseudonym = MagicMock(return_value="Patient-XYZ")
+
+        result = await run_get_recent_uploads(
+            store=store,
+            session=session,
+            args={"confirmed_only": True, "since_days": 30},
+        )
+
+        # Only the confirmed row's DocumentReference should appear in record_ids.
+        doc_rids = [rid for rid in result.record_ids if rid.startswith("DocumentReference/")]
+        assert "DocumentReference/copilot-confirmed" in doc_rids
+        assert "DocumentReference/copilot-pending" not in doc_rids
+        assert "DocumentReference/copilot-rejected" not in doc_rids
+    finally:
+        os.unlink(db_path)
