@@ -13,7 +13,6 @@
 namespace OpenEMR\PaymentProcessing;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 class PaymentProcessing
@@ -142,11 +141,7 @@ class PaymentProcessing
             }
 
             // decrypt the audit data
-            try {
-                $auditDataRaw = $cryptoGen->decryptFromDatabase(is_string($row['audit_data']) ? $row['audit_data'] : null);
-            } catch (CryptoGenException) {
-                continue;
-            }
+            $auditDataRaw = $cryptoGen->decryptFromDatabase(is_string($row['audit_data']) ? $row['audit_data'] : null);
             $auditData = json_decode($auditDataRaw, true);
 
             // Collect the error message if not success
