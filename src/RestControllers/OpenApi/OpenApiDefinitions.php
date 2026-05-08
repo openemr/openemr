@@ -14,7 +14,7 @@ namespace OpenEMR\RestControllers\OpenApi;
 
 use OpenApi\Attributes as OA;
 
-#[OA\Info(title: 'OpenEMR API', version: '8.1.4')]
+#[OA\Info(title: 'OpenEMR API', version: '8.1.5')]
 #[OA\Server(url: '/apis/default/')]
 
 #[OA\SecurityScheme(
