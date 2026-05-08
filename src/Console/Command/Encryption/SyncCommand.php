@@ -30,6 +30,54 @@ class SyncCommand extends Command
         'comlink_telehealth_auth' => ['auth_token'],
     ];
 
+    // TODO: can this be pulled straight from GLOBALS_METADATA?
+    private array $encryptedGlobals = [
+        // Payment Gateways
+        'gateway_api_key',
+        'gateway_public_key',
+        'gateway_transaction_key',
+        'rainforest_api_key',
+        'rainforest_webhook_secret',
+
+        // Sphere Payment Processing
+        'sphere_patientfront_trxcustid',
+        'sphere_patientfront_trxcustid_licensekey',
+        'sphere_clinicfront_trxcustid',
+        'sphere_clinicfront_trxcustid_licensekey',
+        'sphere_clinicfront_retail_trxcustid',
+        'sphere_clinicfront_retail_trxcustid_licensekey',
+        'sphere_ecomm_tc_link_pass',
+        'sphere_retail_tc_link_pass',
+        'sphere_moto_tc_link_pass',
+
+        // Email / Messaging
+        'SMTP_PASS',
+        'phimail_password',
+        'phone_gateway_password',
+
+        // External Services
+        'couchdb_pass',
+        'google_recaptcha_secret_key',
+        'erx_account_password',
+        'easipro_pass',
+        'usps_apiv3_client_id',
+        'usps_apiv3_client_secret',
+
+        // Weno eRx Module
+        'weno_admin_password',
+        'weno_encryption_key',
+        'weno_provider_password',
+
+        // Comlink Telehealth Module
+        'comlink_telehealth_user_password',
+
+        // DORN Module
+        'oe_dorn_config_clientsecret',
+
+        // ClaimRev Module
+        'oe_claimrev_config_clientsecret',
+    ];
+
     public function __invoke(
         OutputInterface $output,
         #[Option(description: 'Do not write changes')] bool $dryRun = false,
