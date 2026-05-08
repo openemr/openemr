@@ -12,9 +12,11 @@
 
 declare(strict_types=1);
 
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
+    Types\Type,
 };
 use Doctrine\Migrations\Configuration\{
     Connection\ConnectionLoader,
@@ -35,10 +37,15 @@ use Doctrine\ORM\{
     ORMSetup,
 };
 use Firehed\Container\TypedContainerInterface as TC;
+use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\{
+    Doctrine\UuidBinaryType,
+    UuidInterface,
+};
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 return [
@@ -79,6 +86,13 @@ return [
     ),
 
     // ORM
+    TypedFieldMapper::class => function (): TypedFieldMapper {
+        Type::addType(UuidBinaryType::NAME, UuidBinaryType::class);
+        return new DefaultTypedFieldMapper([
+            UuidInterface::class => UuidBinaryType::NAME,
+        ]);
+    },
+
     Configuration::class => function (TC $c) {
         $paths = [
             'src/Entities',
@@ -98,7 +112,7 @@ return [
         // Automatically translates classes and properties from UpperCamelCase
         // in PHP to snake_case in the database.
         $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
-        // Future: TypedFieldMapper for custom types.
+        $config->setTypedFieldMapper($c->get(TypedFieldMapper::class));
 
         // These are only used in PHP <= 8.3 where native lazy objects aren't
         // supported or enabled.
@@ -109,6 +123,19 @@ return [
         return $config;
     },
 
-    EntityManager::class,
+    // TODO: config 1.x fixing autowiring or redo EM
+    EntityManager::class => fn (TC $c) => new EntityManager(
+        conn: $c->get(Connection::class),
+        config: $c->get(Configuration::class),
+        eventManager: $c->get(EventManager::class),
+    ),
     EntityManagerInterface::class => EntityManager::class,
+    EventManager::class => function (TC $c): EventManager {
+        $manager = new EventManager();
+        $manager->addEventListener(
+            events: [Events::prePersist, Events::preUpdate],
+            listener: $c->get(AutoValueSubscriber::class),
+        );
+        return $manager;
+    },
 ];
