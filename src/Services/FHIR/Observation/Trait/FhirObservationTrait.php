@@ -53,6 +53,22 @@ trait FhirObservationTrait
     const US_CORE_CODESYSTEM_CATEGORY_URI = 'http://hl7.org/fhir/us/core/CodeSystem/us-core-category';
     const US_CORE_CODESYSTEM_CATEGORY = ['sdoh', 'functional-status', 'disability-status', 'cognitive-status', 'treatment-intervention-preference', 'care-experience-preference', 'observation-adi-documentation'];
 
+    /**
+     * Official display values for observation category codes.
+     * @see http://terminology.hl7.org/CodeSystem/observation-category
+     */
+    private const CATEGORY_DISPLAY = [
+        'social-history' => 'Social History',
+        'vital-signs' => 'Vital Signs',
+        'imaging' => 'Imaging',
+        'laboratory' => 'Laboratory',
+        'procedure' => 'Procedure',
+        'survey' => 'Survey',
+        'exam' => 'Exam',
+        'therapy' => 'Therapy',
+        'activity' => 'Activity',
+    ];
+
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-simple-observation';
     const USCGI_SCREENING_ASSESSMENT_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-screening-assessment';
     const OBSERVATION_VALID_STATII = ['registered', 'preliminary', 'final', 'amended', 'corrected', 'cancelled', 'entered-in-error', 'unknown'];
@@ -281,11 +297,12 @@ trait FhirObservationTrait
     {
         $obType = $dataRecord['ob_type'] ?? null;
         // Required survey category slice (mustSupport, min 1..1)
-        $catCode = $obType ?? 'survey';
+        $catCode = is_string($obType) ? $obType : 'survey';
+        $display = self::CATEGORY_DISPLAY[$catCode] ?? ucfirst($catCode);
         $observation->addCategory(UtilsService::createCodeableConcept([
             $catCode => [
                 'code' => $catCode,
-                'description' => $obType ?? 'Survey',
+                'description' => $display,
                 'system' => FhirCodeSystemConstants::HL7_CATEGORY_OBSERVATION
             ]
         ]));
@@ -295,21 +312,23 @@ trait FhirObservationTrait
         // we can only have ONE category from the self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY.  If the observation's primary category is
         // NOT survey then we skip adding the screening category otherwise we could have two codes from that code system
         // and that fails validation
-        if ($obType == 'survey' && !empty($dataRecord['screening_category_code']) && $dataRecord['screening_category_code'] !== $catCode) {
-            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY)) {
+        $screeningCategoryCode = $dataRecord['screening_category_code'] ?? null;
+        if ($obType == 'survey' && is_string($screeningCategoryCode) && $screeningCategoryCode !== $catCode) {
+            if (in_array($screeningCategoryCode, self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY, true)) {
                 $systemUri = self::US_CORE_CODESYSTEM_OBSERVATION_CATEGORY_URI;
             }
-            if (in_array($dataRecord['screening_category_code'], self::US_CORE_CODESYSTEM_CATEGORY)) {
+            if (in_array($screeningCategoryCode, self::US_CORE_CODESYSTEM_CATEGORY, true)) {
                 $systemUri = self::US_CORE_CODESYSTEM_CATEGORY_URI;
             }
             if (empty($systemUri)) {
-                $this->getSystemLogger()->warning("Observation screening category code {$dataRecord['screening_category_code']} not in supported code systems");
+                $this->getSystemLogger()->warning("Observation screening category code {$screeningCategoryCode} not in supported code systems");
                 return;
             }
+            $screeningDisplay = self::CATEGORY_DISPLAY[$screeningCategoryCode] ?? $dataRecord['screening_category_display'] ?? ucfirst($screeningCategoryCode);
             $observation->addCategory(UtilsService::createCodeableConcept([
-                $dataRecord['screening_category_code'] => [
-                    'code' => $dataRecord['screening_category_code'],
-                    'description' => $dataRecord['screening_category_display'] ?? '',
+                $screeningCategoryCode => [
+                    'code' => $screeningCategoryCode,
+                    'description' => $screeningDisplay,
                     'system' => $systemUri
                 ]
             ]));
