@@ -254,6 +254,19 @@ for what's deployed vs what's deferred.
 See [`W1_IMPLEMENTATION.md`](./W1_IMPLEMENTATION.md) for the Week 1 status,
 the agent loop, and the citation contract that Week 2 builds on.
 
+## Demo sample documents
+
+Four ready-to-upload synthetic PDFs in [`sample-documents/`](./sample-documents/)
+that match the deployed Railway OpenEMR's two demo-hero patients:
+
+- **Mariela Anguiano (47F, pid 5)** — `mariela-intake.pdf` + `mariela-lipid-renal.pdf` (LDL 190, creatinine 2.72, drives UC1/UC2)
+- **Dana Pollich (2y, pid 9)** — `dana-intake.pdf` + `dana-pediatric-cbc.pdf` (10 allergies including aspirin, drives UC3 hard-block)
+
+Drop them on the Co-Pilot iframe rail (right side of any patient's
+demographics page) to exercise extraction → citation → bbox modal →
+agent answers. See [`sample-documents/README.md`](./sample-documents/README.md)
+for usage + suggested demo questions.
+
 ## Verifying the W2 eval gate
 
 The W2 eval gate is the PRD-mandated regression-blocking suite (53 cases —
