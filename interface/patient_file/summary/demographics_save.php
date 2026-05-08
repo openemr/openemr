@@ -26,6 +26,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Events\Patient\PatientUpdatedEventNotifier;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
@@ -187,6 +188,13 @@ while ($frow = sqlFetchArray($fres)) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
+
+// Capture the pre-update patient_data row so the modern PatientUpdatedEvent
+// (dispatched after the save below) can carry both before and after snapshots,
+// matching what PatientService::databaseUpdate() emits. sqlQuery() returns
+// false when no row exists; PatientUpdatedEventNotifier handles that case.
+$pidInt = is_numeric($pid) ? (int) $pid : 0;
+$dataBeforeUpdate = $pidInt > 0 ? getPatientData($pidInt) : false;
 
 // Save patient and employer data
 try {
@@ -454,6 +462,18 @@ try {
     $logger->error("Error dispatching event", [
         'error' => $e->getMessage()
     ]);
+}
+
+// Dispatch the modern PatientUpdatedEvent so listeners that subscribe to
+// the canonical patient lifecycle event (e.g. those wired through
+// PatientService::databaseUpdate()) see chart-UI patient edits too. Done
+// alongside PatientUpdatedEventAux for backward compatibility with
+// existing aux subscribers.
+if ($pidInt > 0 && is_array($newdata['patient_data'] ?? null)) {
+    (new PatientUpdatedEventNotifier(
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(),
+        $logger,
+    ))->notify($pidInt, $dataBeforeUpdate, $newdata['patient_data']);
 }
 
 include_once("demographics.php");
