@@ -241,6 +241,85 @@ class CustomClientCredentialsGrantTest extends TestCase
     }
 
     /**
+     * Aisle round-4 finding #1 (CWE-400). The JWT client-assertion path
+     * previously ran signature verification through a custom signer that
+     * resolved the JWK via JsonWebKeySet's legacy getJSONWebKey() method,
+     * which bypassed all of round-3 #5's caps (RSA modulus / exponent
+     * length, use=sig requirement, alg-match). After the refactor to
+     * pre-resolve the PEM via getSigningKeyAsPem() at the call site,
+     * an attacker-controlled inline JWKS with an oversized RSA modulus
+     * is rejected at JWK resolution time, BEFORE phpseclib does any
+     * BigInteger work.
+     *
+     * Pin the regression: a client with a hostile inline JWKS (giant
+     * `n`) must produce `invalid_client`. If a future change ever flips
+     * this path back to the legacy resolver, this test fires.
+     *
+     * @throws \Exception
+     */
+    public function testRejectsClientAssertionWithOversizedRsaModulus(): void
+    {
+        /** @var ClientEntity $clientEntity */
+        $clientEntity = $this->getClientEntityForTest();
+        $clientId = $clientEntity->getIdentifier();
+        assert(is_string($clientId) && $clientId !== '');
+
+        // Inline JWKS with a 2000-char base64url-shaped `n`, which
+        // exceeds round-3 #5's MAX_RSA_MODULUS_BASE64URL_LEN cap (1366).
+        // The kid must match what createJWTForKeys puts in the JWT
+        // header so we exercise the cap branch, not the kid-mismatch
+        // branch.
+        $oversizedJwks = json_encode([
+            'keys' => [[
+                'kty' => 'RSA',
+                'kid' => '5c17409c-87f0-4713-814f-c864bfe876bc',
+                'alg' => 'RS384',
+                'use' => 'sig',
+                'n' => str_repeat('A', 2000),
+                'e' => 'AQAB',
+            ]],
+        ]);
+        assert(is_string($oversizedJwks));
+        $clientEntity->setJwks($oversizedJwks);
+
+        $jwt = $this->createJWTForKeys($clientId, self::AUDIENCE);
+
+        /** @var ClientRepository&MockObject $clientRepository */
+        $clientRepository = $this->getMockClientRepository($clientEntity);
+        $grant = new CustomClientCredentialsGrant($this->createMock(SessionInterface::class), self::AUDIENCE);
+        /** @var UserService&MockObject $userService */
+        $userService = $this->getMockUserService();
+        $grant->setUserService($userService);
+        $grant->setPrivateKey($this->createMock(CryptKey::class));
+        $grant->setClientRepository($clientRepository);
+        /** @var AccessTokenRepository&MockObject $accessTokenRepo */
+        $accessTokenRepo = $this->getMockAccessTokenRepository(new AccessTokenEntity());
+        $grant->setAccessTokenRepository($accessTokenRepo);
+        /** @var ScopeRepositoryInterface&MockObject $scopeRepo */
+        $scopeRepo = $this->getMockScopeRepository();
+        $grant->setScopeRepository($scopeRepo);
+        /** @var JWTRepository&MockObject $jwtRepo */
+        $jwtRepo = $this->getMockJwtRepository();
+        $grant->setJWTAuthenticationService(
+            new JWTClientAuthenticationService(self::AUDIENCE, $clientRepository, $jwtRepo),
+        );
+
+        $response = $this->createMock(ResponseTypeInterface::class);
+        $response->expects($this->never())->method('setAccessToken');
+
+        $this->expectException(OAuthServerException::class);
+        $this->expectExceptionMessage(self::OAUTH_INVALID_CLIENT_MESSAGE);
+
+        /** @var ServerRequestInterface&MockObject $serverRequest */
+        $serverRequest = $this->getMockServerRequestForJWT($jwt);
+        $grant->respondToAccessTokenRequest(
+            $serverRequest,
+            $response,
+            new \DateInterval('PT300S'),
+        );
+    }
+
+    /**
      * Aisle round-2 finding #5 / round-1 finding #2 (CWE-294). Without `exp`,
      * the assertion's saveJwtHistory() call would store `jti_exp = NULL`
      * and the replay-lookup filter `jti_exp > FROM_UNIXTIME(?)` would
@@ -554,7 +633,13 @@ class CustomClientCredentialsGrantTest extends TestCase
             // Configures a new claim, called "uid"
             ->withClaim('uid', 1)
             // Configures a new header, called "foo"
-            ->withHeader('foo', 'bar');
+            ->withHeader('foo', 'bar')
+            // SMART Backend Services / RFC 7515 §4.1.4: kid is required
+            // so the verifier can resolve the right JWK from the JWKS.
+            // Matches the kid in tests/data/.../jwk-public-valid.json.
+            // Round-4 #1's hardened resolver requires this; the legacy
+            // path silently fell back to "first matching key".
+            ->withHeader('kid', '5c17409c-87f0-4713-814f-c864bfe876bc');
 
         // Configures the expiration time of the token (exp claim). Tests
         // exercising the "missing exp" guard pass includeExp=false.

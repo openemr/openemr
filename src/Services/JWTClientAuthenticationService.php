@@ -19,6 +19,7 @@ use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
 use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Rsa\Sha384 as LcobucciRsaSha384;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\Parser;
@@ -39,7 +40,6 @@ use OpenEMR\Common\Auth\Oidc\Discovery\SsrfSafeHttpClient;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\RsaSha384Signer;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
@@ -70,6 +70,13 @@ class JWTClientAuthenticationService
      * Maximum allowed clock drift (1 minute)
      */
     const MAX_CLOCK_DRIFT_MINUTES = 1;
+
+    /**
+     * Required JWT `alg` header value for SMART Backend Services /
+     * RFC 7523 client assertions. Hardcoded so unrelated providers
+     * can't downgrade to a weaker (or `none`) algorithm.
+     */
+    private const ALG_RS384 = 'RS384';
 
     /**
      * JWTClientAuthenticationService constructor
@@ -279,6 +286,45 @@ class JWTClientAuthenticationService
                 urlValidator: $this->urlValidator,
             );
 
+            // Parse the JWT before constructing constraints. We need the
+            // `kid` header to resolve the right JWK, which the lcobucci
+            // Signer interface (verify(expected, payload, key)) can't
+            // access — the key has to be pre-resolved at the call site.
+            // (This is Aisle round-4 finding #1 / CWE-400. The previous
+            // shape passed the JsonWebKeySet to a custom signer that
+            // tried to read kid from its `$this->headers`, which is only
+            // populated during signing — empty during verification — so
+            // it fell through to the legacy `getJSONWebKey()` resolver
+            // that bypassed all of round-3 #5's size/use/alg caps.)
+            $token = (new Parser(new JoseEncoder()))->parse($jwt);
+
+            $this->logger->debug(
+                'Parsed JWT token',
+                [
+                    'claims' => $token->claims()->all(),
+                    'headers' => $token->headers()->all()
+                ]
+            );
+
+            // SMART Backend Services / RFC 7515 §4.1.4: kid is required so
+            // the verifier can resolve the right JWK. Reject up front
+            // before any validation so the error message is precise.
+            $kid = $token->headers()->get('kid');
+            if (!is_string($kid) || $kid === '') {
+                $this->logger->error(
+                    'JWT client assertion missing required kid header',
+                    ['client_id' => $clientId],
+                );
+                throw new JWKValidatorException('JWT missing kid header');
+            }
+
+            // Resolve the signing key through the hardened path. This
+            // applies all of round-3 #5's caps (RSA modulus / exponent
+            // length, use=sig, alg-match) and round-3 #6's strict kid
+            // matching. Returns a PEM that lcobucci's stock Sha384
+            // signer accepts directly via Key\InMemory.
+            $publicKey = $jsonWebKeySet->getSigningKeyAsPem($kid, self::ALG_RS384);
+
             // Single SystemClock shared by both LooseValidAt (for the iat/nbf/exp
             // window) and UniqueID (for the replay-history "still within validity"
             // lookup). UniqueID needs the clock to compare against current time —
@@ -294,8 +340,12 @@ class JWTClientAuthenticationService
                     $clock,
                     new DateInterval('PT' . self::MAX_CLOCK_DRIFT_MINUTES . 'M')
                 ),
-                // 2. Signature validation using RS384
-                new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
+                // 2. Signature validation using RS384 against the
+                // pre-resolved PEM. Uses lcobucci's stock signer; the
+                // legacy custom RsaSha384Signer was removed because it
+                // couldn't access JWT headers during verification (see
+                // pre-resolution comment above).
+                new SignedWith(new LcobucciRsaSha384(), $publicKey),
                 // 3. Issuer must be the client_id
                 new IssuedBy($clientId),
                 // 4. Audience must be the token endpoint
@@ -303,17 +353,6 @@ class JWTClientAuthenticationService
                 // 5. JTI uniqueness check for replay prevention
                 new UniqueID($this->jwtRepository, $clock),
             ];
-
-            // Parse the JWT
-            $token = (new Parser(new JoseEncoder()))->parse($jwt);
-
-            $this->logger->debug(
-                'Parsed JWT token',
-                [
-                    'claims' => $token->claims()->all(),
-                    'headers' => $token->headers()->all()
-                ]
-            );
 
             // AI Generated - Start
             // Additional validations per SMART Backend Services
