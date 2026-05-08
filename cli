@@ -10,6 +10,7 @@ use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
 use OpenEMR\Console\Command\{
+    Encryption,
     InstallCommand,
 };
 use Symfony\Component\Console\Application;
@@ -28,6 +29,7 @@ file_put_contents(
 );
 
 $application = new Application();
+$application->addCommand($container->get(Encryption\SyncCommand::class));
 $application->addCommand($container->get(InstallCommand::class));
 
 // Doctrine Migrations integration
