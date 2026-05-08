@@ -1,6 +1,6 @@
 # Progress
 
-**Last reviewed:** 2026-05-07 late evening
+**Last reviewed:** 2026-05-08 late evening
 
 ---
 
@@ -9,7 +9,7 @@
 | Week | Window | State |
 |---|---|---|
 | Week 1 | 2026-04-21 → 2026-05-04 | ✅ Complete — all four checkpoints submitted, all AI Interviews completed (closed 2026-05-05) |
-| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** on `feat/w2-early-submission` head `5e63e5fb9` (47 commits ahead of master `78d0672c7`; pushed to GitHub + GitLab). **182 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (commit `5e63e5fb9`, env var `COPILOT_FRONT_DESK_USERS=Reception Desk`). Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
+| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** + **confirm/reject UX + OpenEMR REST write-back + persistence fix** on master at `c2534e416` (49 commits ahead of `78d0672c7`; pushed to GitHub + GitLab; Railway-deployed). **189 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (`5e63e5fb9`); confirm/reject buttons + write-back to OpenEMR's MySQL `documents` table via the non-FHIR REST API shipped at `c2534e416`. **W2 surprise challenge** (port the patient dashboard to a modern framework, document defense in `PATIENT_DASHBOARD_MIGRATION.md`) **not yet started**. Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
 | Week 3+ | TBD | 📋 Not started |
 
 ---
@@ -265,6 +265,28 @@ The deferred Documents-tab UI item (per `copilot/HANDOFF.md`) was closed by re-a
 | `evals/agent/test_pending_intakes.py` | Extended (+2 tests for local-pending merge) |
 
 **Branch tip: `5e63e5fb9`. 182 tests pass (was 174). `make eval-fast` 15/15 100% across all 6 categories — no regression. 47 commits since `78d0672c7`. Pushed to GitHub `rikkiiwang/openemr` and GitLab `labs.gauntletai.com/ruijingwang/openemr`. Railway env var `COPILOT_FRONT_DESK_USERS=Reception Desk` set on the copilot service; `/healthz` 200.**
+
+---
+
+### Confirm/Reject UX + OpenEMR REST write-back + persistence fix — 2026-05-08 late evening
+
+Live testing of the front-desk arc surfaced two issues: (1) repeat uploads of the same file weren't deduping — root cause: `processed_documents` SQLite at `./copilot_docs.db` resolves to `/srv/copilot_docs.db` on Railway (writable layer, NOT the `/data` volume), so every redeploy wiped the table; (2) the click-to-extract flow ended with the banner item silently disappearing — no clear "saved to chart" affordance, and the agent couldn't answer "what's new for this patient?" because confirmed-vs-pending state wasn't tracked.
+
+**Resolution at `c2534e416`** (Plan B per the 2026-05-08 plan):
+
+| File | Change |
+|---|---|
+| `copilot/Dockerfile` | Add `COPILOT_DOCS_DB_PATH=/data/copilot_docs.db` to ENV — moves SQLite to volume |
+| `copilot/app/persistence/processed_documents.py` | New `confirmed_at` / `rejected_at` / `confirmed_by` / `external_doc_id` columns (idempotent ALTER); new `mark_confirmed` / `mark_rejected` / `list_confirmed_recent` methods; refactored row inflation behind `_row_to_doc` helper + `_SELECT_COLUMNS` constant |
+| `copilot/app/fhir/client.py` | New `post_document_via_rest_api` method — calls OpenEMR's non-FHIR REST API at `POST /apis/default/api/patient/{puuid}/document` using the same OAuth bearer the FHIR client already carries |
+| `copilot/app/main.py` | New `POST /v1/documents/{doc_id}/confirm` (orchestrates OpenEMR write-back + local mark; fail-soft on REST errors) and `POST /v1/documents/{doc_id}/reject` (local-only soft-delete); pending-intakes banner merge surfaces confirmed-recent rows alongside pending ones; `PendingIntakeItem` model gains `confirmed_at` / `rejected_at` |
+| `copilot/app/web/copilot_iframe.{html,js,css}` | Modal footer with `[Confirm & save to chart]` / `[Reject]` buttons; banner state coloring (`[needs review]` / `[confirmed]` / `[rejected]`); button handlers POST to the new endpoints with status feedback |
+| `copilot/app/tools/document_tools.py` | `get_recent_uploads` schema gains `confirmed_only: bool` + `since_days: int` args; routes to `list_confirmed_recent` when `confirmed_only=true` |
+| `copilot/app/agent/prompt.py` | New paragraph: "What changed?" / "What's new for this patient?" — guidance to call `get_recent_uploads(confirmed_only=true)` and contrast with prior FHIR data |
+| `copilot/evals/ingestion/test_confirm_reject.py` | NEW — 6 tests (happy path + fail-soft + 404 + panel-gate × confirm/reject) |
+| `copilot/evals/tools/test_document_tool.py` | Extended +1 test verifying `confirmed_only=true` excludes pending AND rejected rows |
+
+**Branch tip: master at `c2534e416`. 189 tests pass (was 182 — 7 new). `make eval-fast` 15/15 100%. 49 commits since `78d0672c7`. Master + feat both at `c2534e416` on GitHub + GitLab; Railway redeployed; new code probed live (`/static/copilot_iframe.js` contains `bbox-modal-confirm`; `/v1/documents/test/confirm` returns 403 panel-gate, not 404 — endpoint is registered).**
 
 ---
 
