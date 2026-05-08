@@ -121,10 +121,12 @@ class SpherePayment
                 let inv_values = JSON.stringify(getFormObj('invoiceForm'));
                 document.getElementById('invValues').value = inv_values;
 
-                // Submit payment to server (payment data is in server session)
+                // Submit payment to server (payment data is in server session, keyed by ticket)
+                let formData = new FormData(oForm);
+                formData.append('sphere_ticket', window.spherePaymentTicket || '');
                 fetch('./lib/paylib.php', {
                     method: 'POST',
-                    body: new FormData(oForm)
+                    body: formData
                 }).then(function(response) {
                     if (!response.ok) {
                         throw Error(response.statusText);
@@ -197,6 +199,8 @@ class SpherePayment
                     error.log('Dynamic javascript ticket creation failed, so using backup ticket.');
                     ticket = backupTicket;
                 }
+                // Store ticket for sphereSuccess() to retrieve
+                window.spherePaymentTicket = ticket;
 
                 let responseUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php';
                 let cancelUrl = " . js_escape($this->serverSite) . " + '/sphere/initial_response.php?cancel=cancel&ticket=' + encodeURIComponent(ticket) + '&front=' + encodeURIComponent(front) + '&patient_id_cc=' + " . js_escape($this->patientIdCc) . " + '&csrf_token=' + " . js_escape(CsrfUtils::collectCsrfToken($session, 'sphere')) .  ";

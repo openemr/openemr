@@ -55,25 +55,52 @@ if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
     CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
 }
 
-if ($_POST['mode'] == 'Sphere') {
-    $dataTrans = $session->get('sphere_payment_result');
-    SessionUtil::unsetSession('sphere_payment_result');
-    if ($dataTrans === null) {
+if ($_POST['mode'] === 'Sphere') {
+    // Sphere patient portal payments require an authenticated portal session
+    if (!isset($pid)) {
+        http_response_code(403);
+        echo 'Unauthorized';
+    } else {
+        handleSpherePayment($session, (int) $pid);
+    }
+}
+
+/**
+ * Handle Sphere payment completion.
+ *
+ * Retrieves payment result from session (keyed by ticket), validates patient
+ * authorization, and saves the audit record.
+ */
+function handleSpherePayment(Symfony\Component\HttpFoundation\Session\SessionInterface $session, int $sessionPid): void
+{
+    $ticket = filter_input(INPUT_POST, 'sphere_ticket') ?? '';
+    $sessionKey = 'sphere_payment_result_' . $ticket;
+
+    $paymentResult = $session->get($sessionKey);
+    SessionUtil::unsetSession($sessionKey);
+
+    if (!is_array($paymentResult)) {
         http_response_code(400);
-        echo 'Missing payment data';
-        exit();
+        echo 'Missing or invalid payment data';
+        return;
     }
 
-    $form_pid = $dataTrans['get']['patient_id_cc'];
+    $form_pid = $paymentResult['patient_id'] ?? 0;
+    if ($form_pid <= 0 || $form_pid !== $sessionPid) {
+        http_response_code(403);
+        echo 'Unauthorized';
+        return;
+    }
 
-    $cc = [];
-    $cc["cardHolderName"] = $dataTrans['post']['name'];
-    $cc['status'] = $dataTrans['post']['status_name'];
-    $cc['authCode'] = $dataTrans['post']['authcode'];
-    $cc['transId'] = $dataTrans['post']['transid'];
-    $cc['cardNumber'] = "******** " . $dataTrans['post']['cc'];
-    $cc['cc_type'] = $dataTrans['post']['ccBrand'];
-    $cc['zip'] = '';
+    $cc = [
+        'cardHolderName' => $paymentResult['name'] ?? '',
+        'status' => $paymentResult['status_name'] ?? '',
+        'authCode' => $paymentResult['authcode'] ?? '',
+        'transId' => $paymentResult['transid'] ?? '',
+        'cardNumber' => '******** ' . ($paymentResult['cc'] ?? ''),
+        'cc_type' => $paymentResult['ccBrand'] ?? '',
+        'zip' => '',
+    ];
     $ccaudit = json_encode($cc);
     $invoice = $_POST['invValues'] ?? '';
 
