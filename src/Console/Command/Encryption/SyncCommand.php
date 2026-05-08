@@ -43,6 +43,12 @@ class SyncCommand extends Command
         // - UPDATE
         //
         //
+
+        // globals: its own thing
+
+
+        // files: again, its own thing
+
         return 0;
     }
 }
