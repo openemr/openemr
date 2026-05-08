@@ -4,15 +4,18 @@ declare(strict_types=1);
 
 namespace OpenEMR\Console\Command\Encryption;
 
-use OpenEMR\Common\Installer\InstallerInterface;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use Doctrine\DBAL\{
+    ArrayParameterType,
+    Connection,
+};
+use OpenEMR\Common\Crypto\CryptoInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Logger\ConsoleLogger;
+// use Symfony\Component\Console\Input\InputInterface;
+// use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+// use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'encryption:sync', description: 'sync encryption')]
 class SyncCommand extends Command
@@ -78,6 +81,13 @@ class SyncCommand extends Command
         'oe_claimrev_config_clientsecret',
     ];
 
+    public function __construct(
+        private Connection $conn,
+        private CryptoInterface $crypto,
+    ) {
+        parent::__construct();
+    }
+
     public function __invoke(
         OutputInterface $output,
         #[Option(description: 'Do not write changes')] bool $dryRun = false,
@@ -92,7 +102,30 @@ class SyncCommand extends Command
         //
         //
 
-        // globals: its own thing
+        // print_r($this->crypto);
+
+        // Handle globals
+        $qb = $this->conn->createQueryBuilder();
+        $qb->select('gl_name', 'gl_value')
+            ->from('`globals`')
+            ->where('gl_name IN (:names)')
+            ->setParameter('names', $this->encryptedGlobals, ArrayParameterType::STRING);
+        $result = $qb->executeQuery();
+        $updates = [];
+        foreach ($result->fetchAllAssociative() as $row) {
+            if ($row['gl_value'] === '') {
+                continue;
+            }
+            // TODO: this will _always_ cause a change even if it's at the
+            // preferred format. CryptoInterface needs a specific "is this at
+            // the preferred format" check.
+            $plain = $this->crypto->decryptFromDatabase($row['gl_value']);
+            $updated = $this->crypto->encryptForDatabase($plain);
+
+            $updates[$row['gl_name']] = $updated;
+        }
+        print_r($updates);
+        // $data = $this->conn->s
 
 
         // files: again, its own thing
