@@ -1,6 +1,6 @@
 # Progress
 
-**Last reviewed:** 2026-05-07
+**Last reviewed:** 2026-05-07 late evening
 
 ---
 
@@ -9,7 +9,7 @@
 | Week | Window | State |
 |---|---|---|
 | Week 1 | 2026-04-21 → 2026-05-04 | ✅ Complete — all four checkpoints submitted, all AI Interviews completed (closed 2026-05-05) |
-| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified on `feat/w2-early-submission` head `f19f43514` (44 commits ahead of master `78d0672c7`). 174 tests / 53/53 eval cases. Push + PR + grading remain. Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
+| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** on `feat/w2-early-submission` head `5e63e5fb9` (47 commits ahead of master `78d0672c7`; pushed to GitHub + GitLab). **182 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (commit `5e63e5fb9`, env var `COPILOT_FRONT_DESK_USERS=Reception Desk`). Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
 | Week 3+ | TBD | 📋 Not started |
 
 ---
@@ -246,6 +246,28 @@ And a fifth defect when running the documented regression-repro:
 
 ---
 
+### Front-desk deferred-extraction upload path — 2026-05-07 late evening
+
+The deferred Documents-tab UI item (per `copilot/HANDOFF.md`) was closed by re-architecting the front-desk arc instead of fighting the upstream `openemr/openemr:latest` Zend module. The native Documents tab on the deployed image renders an empty Uploader/Viewer because the supporting CSS (`<theme>/documents.css` defining `doc-doc-ls-*` classes) and Angular controllers (`documents.js`, `documentsController.js`) are absent from our fork — sourcing them from an older upstream tag would have been brittle.
+
+**New flow** (commit `5e63e5fb9`): the front desk drops files onto the existing Co-Pilot iframe rail; the server detects the front-desk role via `COPILOT_FRONT_DESK_USERS` env, bypasses the per-physician panel gate, stores the raw file with a `{"_pending": True}` marker, and skips VLM. The physician's pending-intake banner surfaces the row with `is_pending=true`; clicking it POSTs `/v1/documents/{doc_id}/process` which runs VLM on demand (panel-gated, idempotent) and updates the row in place.
+
+**What shipped:**
+
+| File | Change |
+|---|---|
+| `app/config.py` | New `copilot_front_desk_users` setting |
+| `app/ingestion/service.py` | `attach_only` (skip-VLM path) + `process_pending` (lazy on-demand extraction); `IngestionResult.extraction` now `Optional` with `is_pending: bool` flag |
+| `app/persistence/processed_documents.py` | `list_pending_uploads(patient_pseudonym, since)` + `replace_extraction(...)` |
+| `app/main.py` | `/v1/documents/attach` defer logic; pending-intakes banner merges local `_pending` rows; new `POST /v1/documents/{doc_id}/process` endpoint |
+| `app/web/copilot_iframe.js` | Pending-aware system message; banner click handler runs `/process` before opening modal |
+| `evals/ingestion/test_attach_defer.py` | NEW (6 tests) |
+| `evals/agent/test_pending_intakes.py` | Extended (+2 tests for local-pending merge) |
+
+**Branch tip: `5e63e5fb9`. 182 tests pass (was 174). `make eval-fast` 15/15 100% across all 6 categories — no regression. 47 commits since `78d0672c7`. Pushed to GitHub `rikkiiwang/openemr` and GitLab `labs.gauntletai.com/ruijingwang/openemr`. Railway env var `COPILOT_FRONT_DESK_USERS=Reception Desk` set on the copilot service; `/healthz` 200.**
+
+---
+
 ## 📋 Pending
 
 ### Week 3+
@@ -278,6 +300,8 @@ And a fifth defect when running the documented regression-repro:
 | 9 | PHI plaintext at rest (audit §5.5) | medium long-term | Out of W1 scope. CipherSuite exists in OpenEMR but is unused for `patient_data` SSN/license/phone/email. Agent does not exacerbate (no new plaintext PHI written). |
 | 10 | Synthea FHIR import returns HTTP 500 | low | Known upstream shape mismatch; CCDA path works and is the data-load path. |
 | 11 | Demo-script `LLM_PROVIDER` mismatch documentation drift | very low | `IMPLEMENTATION.md` is verbose about live-state vs. architectural-primary; once the env is flipped, simplify the prose. |
+| 12 | Upstream `openemr/openemr:latest` Documents tab renders empty Uploader/Viewer | accepted limitation | Missing `<theme>/documents.css` + `documents.js` + `documentsController.js` in our fork (verified 2026-05-07). Routed around in `5e63e5fb9` by shipping the front-desk arc through the Co-Pilot iframe drop-zone with a defer flag. The native tab is no longer on the demo path. |
+| 13 | Reception Desk can upload but cannot chat (`/v1/chat` returns 404 because `/v1/sessions` 403s on the Co-Pilot panel-gate) | accepted limitation, fix is one-line | Reception Desk is a front-desk role and shouldn't need to chat per the W2 Tier-2-LITE design. To enable chat for Reception Desk, set `PHYSICIAN_PATIENT_PANEL` Railway env var to include `"Reception Desk": ["*"]`. Not done by default — the role split is intentional. |
 
 ---
 
