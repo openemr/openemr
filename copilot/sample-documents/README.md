@@ -54,3 +54,13 @@ docker run --rm -v "$(pwd):/srv" -w /srv copilot-copilot \
 ```
 
 Source: `scripts/generate_demo_fixtures.py`. Output is deterministic.
+
+## Also see — cohort-provided examples
+
+[`cohort-examples/`](./cohort-examples/) contains the eight reference
+documents distributed by the AgentForge cohort organizers (4 patients
+× lab + intake, mix of PDFs and PNG photos). These are interchangeable
+with the demo-hero PDFs above for testing — drop any of them on the
+iframe to exercise extraction + bbox modal flows. The PNG samples
+specifically exercise the server-side Tesseract OCR-snap path that
+PDF text-layer snap can't cover.
