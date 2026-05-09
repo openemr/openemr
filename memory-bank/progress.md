@@ -327,13 +327,19 @@ night-shift run `2026-05-09-0213`. Not yet merged/pushed.
 | KR2 | Bootstrap pinned Next.js 15 / React 19 skeleton | 3 | 52 min | KR1 codex-rejected for unpinned scaffold |
 | KR4 | OAuth/PKCE login + FHIR proxy (no panel-scope) | 4 | 73 min | KR3 codex-rejected for bundled middleware |
 | KR5 | Patient header + six clinical cards | 4 | 9 min | Allergies, Problems, Meds, Rx, CareTeam, Encounters |
-| KR6 | Co-Pilot iframe rail component | 1 | 3 min | sandboxed; no physician_user_id (deferred) |
+| KR6 | Co-Pilot iframe rail component | 1 | 3 min | sandboxed; physician_user_id added later in KR10 task 1 |
 | KR7 | CI workflow + defense doc + memory bank | 3 | 8 min | dashboard-ci.yml + PATIENT_DASHBOARD_MIGRATION.md |
 | KR8 | Panel-scope authorization in the FHIR proxy | 2 | 10 min | ID-token decode + panel-scope gate (closes KR3-rejected gap) |
 | KR9 | Doc sync + fetch-rejection guard | 2 | 4 min | Reflect KR8 in docs + small reliability fix |
 | KR10 | Auth completeness — physician_user_id + logout POST | 2 | 3 min | Threading session-user to Co-Pilot iframe + CSRF hardening |
 | KR11 | Deployment + security headers (Dockerfile + CSP) | 2 | 5 min | Closes plan §8 Dockerfile + adds CSP/X-Frame-Options/etc |
-| KR12 | Doc sync — KR10 + KR11 | 1 | (in progress) | Defense doc + memory bank keep up with shipped surface |
+| KR12 | Doc sync — KR10 + KR11 | 1 | 1 min | Defense doc + memory bank reflect KR10/11 |
+| KR13 | Deployment polish — .dockerignore + frontend README expansion | 1 | 1 min | Lean Docker context + accurate dev-onboarding doc |
+| KR14 | Final deliverable accuracy + verification (Codex round-1 counter) | 1 | 1 min | Migration doc commit/test/dep claims + state.test_results captured |
+| KR15 | Final accuracy pass — stale numbers per Codex round 2 | 1 | 1 min | "25 → 26", "17 → 16 files", "109 → 151 tests" |
+| KR16 | Fact-resilient commit-count phrasing | 1 | 1 min | Replaced hardcoded counts with `git rev-list` instruction |
+| KR17 | Codex round-3 cleanups — README count | 1 | 0 min | frontend/README.md last hardcoded "24 commits" → git-rev-list |
+| KR18 | Memory-bank handoff accounting refresh | 1 | (in progress) | Codex round-4 P2 fix |
 
 **Stack pinned exact:** next 15.5.18 · react/react-dom 19.2.6 · typescript 5.9.3 · tailwindcss 4.3.0 · vitest 4.1.5 · jsdom 29.1.1 · @types/node 25.6.2.
 

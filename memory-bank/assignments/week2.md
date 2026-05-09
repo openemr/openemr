@@ -208,7 +208,7 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 - File location: `frontend/` under existing OpenEMR fork root (single repo, single PR).
 - **Zero existing source-files modified** — verified during planning that neither root `Dockerfile` nor root `.gitignore` need touching.
 
-**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` produced 13 successful KRs (KR2, 4-16, with KR1 + KR3 codex-rejected revisions); for the exact commit count run `git rev-list --count master..feat/dashboard-modernize`.
+**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` produced 15 successful KRs (KR2 + KR4-17, with KR1 + KR3 codex-rejected revisions); for the exact commit count run `git rev-list --count master..feat/dashboard-modernize`.
 
 **Key results delivered:**
 
