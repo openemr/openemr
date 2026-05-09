@@ -55,3 +55,5 @@ copilot/var/
 
 # Synthea log blobs (local-only)
 sites/default/documents/logs_and_misc/methods/
+
+.claude/
