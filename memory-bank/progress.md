@@ -328,7 +328,9 @@ night-shift run `2026-05-09-0213`. Not yet merged/pushed.
 | KR4 | OAuth/PKCE login + FHIR proxy (no panel-scope) | 4 | 73 min | KR3 codex-rejected for bundled middleware |
 | KR5 | Patient header + six clinical cards | 4 | 9 min | Allergies, Problems, Meds, Rx, CareTeam, Encounters |
 | KR6 | Co-Pilot iframe rail component | 1 | 3 min | sandboxed; no physician_user_id (deferred) |
-| KR7 | CI workflow + defense doc + memory bank | 3 | (in progress) | dashboard-ci.yml + PATIENT_DASHBOARD_MIGRATION.md |
+| KR7 | CI workflow + defense doc + memory bank | 3 | 8 min | dashboard-ci.yml + PATIENT_DASHBOARD_MIGRATION.md |
+| KR8 | Panel-scope authorization in the FHIR proxy | 2 | 10 min | ID-token decode + panel-scope gate (closes KR3-rejected gap) |
+| KR9 | Doc sync + fetch-rejection guard | 2 | (in progress) | Reflect KR8 in docs + small reliability fix |
 
 **Stack pinned exact:** next 15.5.18 · react/react-dom 19.2.6 · typescript 5.9.3 · tailwindcss 4.3.0 · vitest 4.1.5 · jsdom 29.1.1 · @types/node 25.6.2.
 
@@ -341,8 +343,9 @@ night-shift run `2026-05-09-0213`. Not yet merged/pushed.
 **Codex review state:** Rounds 1-N codex-reviewed for KR2/KR4 tasks (clean after iterations). Codex hit usage limit ~03:50 PT during Task 4.4 round 6 → all subsequent reviews use rigorous self-adversarial reviews per skill protocol (`CODEX UNAVAILABLE — SELF-REVIEW` headered files in `.night-shift/runs/2026-05-09-0213/key-results/*/tasks/*/code-review.txt`).
 
 **Deferred (explicit out-of-scope; documented in `PATIENT_DASHBOARD_MIGRATION.md` §5):**
-- Panel-scope authorization inside the proxy (was rejected from KR3 v1; needs to land before patient access goes wide).
-- ID-token decode at OAuth callback to extract OpenEMR username → store in session cookie → pass to Co-Pilot iframe as `physician_user_id`.
+- ~~Panel-scope authorization inside the proxy~~ — **shipped in KR8** (`f31b016f1`). Mirrors the Co-Pilot's `_verify_patient_in_panel` semantics including empty-GP fallthrough; `STRICT_PANEL_SCOPE=true` env opts into strict deny.
+- ~~ID-token decode at OAuth callback~~ — **shipped in KR8 task 1** (`bca9fa47b`). Username stored in token-store (NOT yet in session cookie / iframe URL — that's the remaining piece).
+- Pass `physician_user_id` to the Co-Pilot iframe URL (token-store has it; just needs to be threaded into CopilotRail props).
 - Patient finder / search.
 - Edit forms (legacy `demographics_full.php` keeps serving these).
 - Live FHIR e2e (Playwright not installed; manual smoke against deployed Railway).

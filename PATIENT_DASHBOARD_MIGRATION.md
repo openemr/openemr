@@ -23,9 +23,18 @@ Railway service** that runs alongside.
 Surface delivered by the new tree under `frontend/`:
 
 - Login flow: `/api/auth/{login,callback,logout}` with PKCE, signed
-  session cookie, in-memory token store.
+  session cookie, in-memory token store; OIDC ID token decoded at
+  callback to extract OpenEMR username.
 - FHIR proxy: `/api/fhir/[...path]` injecting the bearer token server-side
   so the browser never holds it.
+- **Panel-scope authorization gate** inside the FHIR proxy: every
+  patient-targeting request (path `Patient/{id}` or query `?patient=`/
+  `?subject=`) verifies the signed-in clinician matches the patient's
+  `Patient.generalPractitioner` (admin-bypass via `COPILOT_ADMIN_USERS`).
+  Decision cached per (session, patient) for 60s. Mirrors the Co-Pilot's
+  `_verify_patient_in_panel` semantics, including the empty-GP
+  fallthrough (Synthea / OpenEMR's R4 transformer often leave it empty;
+  `STRICT_PANEL_SCOPE=true` env turns fallthrough into 403).
 - Patient view: `/patient/[id]` rendering the **patient header** (name,
   DOB, sex, MRN, active status) + the **six required clinical cards**
   (Allergies, Problem List, Medications, Prescriptions, Care Team) plus
@@ -97,7 +106,8 @@ Per the PRD wording ("you are not touching the backend"):
 | Next.js opinionatedness (App Router, Server Components) vs Vite raw flexibility | Some Next-specific patterns to learn (e.g. async params, `cookies()` from `next/headers`) | App Router's RSC primitives map onto our data-fetch shape so well that the resulting code is dramatically smaller than a SPA equivalent. |
 | Webpack `next build` (not Turbopack) for production | 339 kB First Load JS vs 127 kB with Turbopack | Production Turbopack is still beta in Next 15.5; webpack is stable. Bundle size revisitable when Turbopack stabilizes. |
 | In-memory token store (single-replica only) | No horizontal scale; user re-logs in on Railway redeploy | Acceptable for a clinical pilot; Redis-backed store is a follow-up well before a 500-bed deployment. |
-| Sandboxed Co-Pilot iframe with no `physician_user_id` query param | Co-Pilot relies on its `COPILOT_ADMIN_USERS` bypass list for the demo | Decoding the OAuth ID token at callback to extract the username is straightforward but not on the critical path for showing the dashboard works. Tracked as a follow-up. |
+| Sandboxed Co-Pilot iframe with no `physician_user_id` query param | Co-Pilot relies on its `COPILOT_ADMIN_USERS` bypass list for the demo | The dashboard now decodes the OAuth ID token to extract the username (used by the panel-scope gate) but doesn't yet pass it to the iframe URL. Trivial follow-up. |
+| Panel-scope GP-empty fallthrough (default permissive) | Synthea data and OpenEMR's R4 transformer often leave `Patient.generalPractitioner` empty; strict deny would 403 the demo | `STRICT_PANEL_SCOPE=true` env turns fallthrough into deny once GP assignments are reliable in production. Documented in `.env.example`. |
 
 ## 5. What was explicitly deferred (do not silently expand)
 
@@ -110,12 +120,6 @@ These were called out at planning time and remain deferred:
   explicit URL or the existing OpenEMR finder. The legacy
   `dynamic_finder_ajax.php` (with its awk-injected scope filter) keeps
   working unchanged.
-- **Panel-scope authorization.** The first revision of the auth+proxy KR
-  bundled this with the OAuth spine; Codex review correctly identified
-  the coupling as risky (Edge runtime middleware can't read the
-  Node-runtime token store) and asked for it to be a follow-up KR. The
-  proxy now ships without panel-scope; OAuth-scoped tokens are the only
-  guard. A follow-up KR will add it inside the proxy handler.
 - **`physician_user_id` in the iframe URL.** Documented above.
 - **Mobile / tablet layouts beyond Tailwind defaults.** Clinical use is
   desktop.
@@ -227,17 +231,22 @@ The dashboard port replaces a 2,126-line PHP file plus ~25 fragment
 includes plus ~23 Twig templates with a Next.js 15 App Router app whose
 load-bearing primitive is a server-side OAuth proxy: the browser never
 holds the FHIR bearer token, so PHI requests to the EHR cannot be
-forged from a leaked cookie or XSS. The framework choice is Next.js
-because it gives that exact pattern (Route Handlers in Node runtime
-with httpOnly session cookie + module-scope token store) as a
-first-class primitive, and because Server Components let the patient
-page compose seven parallel FHIR fetches (Patient + 6 cards) without a
-client-side waterfall. The PHP backend is untouched; all six required
-cards plus Encounters render against unmodified `apis/dispatch.php`
-endpoints. The Co-Pilot rail is embedded as a sandboxed iframe so the
-agent surface ports forward unchanged. 109 vitest unit tests cover the
-auth helpers, signed cookies, FHIR proxy, URL traversal protection,
-patient-name parsing, and identifier matching. Items intentionally
-deferred (panel-scope hardening inside the proxy, ID-token decode for
-`physician_user_id`, real e2e against a live OpenEMR) are listed
-explicitly above so future work has a clear pickup list.
+forged from a leaked cookie or XSS. A panel-scope authorization gate
+inside that same proxy verifies that every patient-targeting request
+matches the signed-in clinician's general practitioner (admin-bypass +
+empty-GP fallthrough mirroring the Co-Pilot's working semantics). The
+framework choice is Next.js because it gives both patterns (Route
+Handlers in Node runtime with httpOnly session cookie + module-scope
+token store + module-scope panel-scope decision cache) as first-class
+primitives, and because Server Components let the patient page compose
+seven parallel FHIR fetches (Patient + 6 cards) without a client-side
+waterfall. The PHP backend is untouched; all six required cards plus
+Encounters render against unmodified `apis/dispatch.php` endpoints.
+The Co-Pilot rail is embedded as a sandboxed iframe so the agent
+surface ports forward unchanged. 135 vitest unit tests cover the auth
+helpers, signed cookies, FHIR proxy, URL traversal protection,
+patient-name parsing, identifier matching, and panel-scope decisions.
+Items intentionally deferred (`physician_user_id` plumbing into the
+Co-Pilot iframe URL, real e2e against a live OpenEMR, front-desk
+facility scope) are listed above so future work has a clear pickup
+list.
