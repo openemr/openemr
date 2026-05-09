@@ -158,21 +158,18 @@
       }
     }
 
-    // Open the existing bbox modal pointed at this doc's parent record.
-    // The user can then click into specific fields if extractions exist.
-    const recordId = `DocumentReference/${item.doc_id}`;
-    openBboxModal(recordId);
-
-    // W2 Plan B: when the click triggered the extraction (or the item
-    // was already extracted but not yet confirmed/rejected), surface
-    // the Confirm/Reject footer so the physician can save to chart.
+    // Open the bbox modal. The Confirm/Reject footer is bundled into the
+    // openBboxModal flow via opts.confirmableDocId so it can NEVER leak
+    // onto chat citation chip clicks — those pass no opts.
     const alreadyHandled = item.confirmed_at || item.rejected_at
       || handledDocIds.has(item.doc_id);
-    if (!alreadyHandled
-        && item.is_front_desk_filed
-        && (wasJustExtracted || !item.is_pending)) {
-      showConfirmFooter(item.doc_id);
-    }
+    const shouldShowConfirm = !alreadyHandled
+      && item.is_front_desk_filed
+      && (wasJustExtracted || !item.is_pending);
+    const recordId = `DocumentReference/${item.doc_id}`;
+    await openBboxModal(recordId, {
+      confirmableDocId: shouldShowConfirm ? item.doc_id : null,
+    });
 
     // For non-confirmable items (already handled or non-pending FHIR docs),
     // dismiss inline like the prior behavior.
@@ -576,6 +573,52 @@
     await _renderAtCurrentScale();
   }
 
+  function _stripPunct(s) {
+    // Strip trailing ,.;: so "shellfish," matches "shellfish". pdf.js often
+    // glues punctuation to the preceding token, so naive equality misses
+    // what is visually the same word.
+    return (s || "").replace(/[,.;:]+$/, "");
+  }
+
+  function _padBbox([x, y, w, h], padFactor = 0.18, padFloor = 0.004) {
+    // Lift the red stroke off the text glyphs. padY is proportional to
+    // row height; padX is half (rows read wider than tall, so horizontal
+    // slack is more visually noisy). Clamp to [0, 1].
+    const padY = Math.max(h * padFactor, padFloor);
+    const padX = Math.max(h * (padFactor / 2), padFloor / 2);
+    const x0 = Math.max(0, x - padX);
+    const y0 = Math.max(0, y - padY);
+    const x1 = Math.min(1, x + w + padX);
+    const y1 = Math.min(1, y + h + padY);
+    return [x0, y0, x1 - x0, y1 - y0];
+  }
+
+  function _rowUnion(winnerRect, items, viewport) {
+    // Expand winnerRect (a [x,y,w,h] in normalized coords) to cover the
+    // full row — for lab values, gives clinical context (test name +
+    // value + units) and moves the red stroke off the digits.
+    const wy = winnerRect[1];
+    const wh = winnerRect[3];
+    const winCy = wy + wh / 2;
+    const tol = wh * 0.7;
+    let xMin = winnerRect[0];
+    let yMin = wy;
+    let xMax = winnerRect[0] + winnerRect[2];
+    let yMax = wy + wh;
+    for (const item of items) {
+      const s = (item.str || "").trim();
+      if (!s) continue;
+      const rect = _itemToNormalizedRect(item, viewport);
+      const cy = rect[1] + rect[3] / 2;
+      if (Math.abs(cy - winCy) > tol) continue;
+      if (rect[0] < xMin) xMin = rect[0];
+      if (rect[1] < yMin) yMin = rect[1];
+      if (rect[0] + rect[2] > xMax) xMax = rect[0] + rect[2];
+      if (rect[1] + rect[3] > yMax) yMax = rect[1] + rect[3];
+    }
+    return [xMin, yMin, xMax - xMin, yMax - yMin];
+  }
+
   function _itemToNormalizedRect(item, viewport) {
     const tx = item.transform;
     const x = tx[4];
@@ -602,12 +645,19 @@
     // [x,y,w,h] rect or null. Caller uses fallbackBbox on null.
     //
     // Strategy:
-    //   1. If rawText contains a numeric token (lab values, vitals), prefer
-    //      to snap to that token specifically — and disambiguate when the
-    //      number appears in multiple rows by picking the candidate whose
-    //      vertical center is closest to the VLM-emitted bbox.
-    //   2. Otherwise fall back to an exact-string match against a single
-    //      text-item (intake answers, allergies).
+    //   1. Numeric-token branch (lab values, vitals): pick the OCR/PDF
+    //      item containing the number, disambiguate by vertical proximity
+    //      to the VLM bbox. Then expand to the full row for clinical
+    //      context (label + value + units), and pad so the stroke does
+    //      not overlap the digits.
+    //   2. Whole-string fallback (single-word intake answers, allergies):
+    //      exact text-item match, padded.
+    //   3. Multi-token fallback (free-text intake answers, "John Doe",
+    //      "shellfish, peanuts"): tokenize, strip trailing punctuation,
+    //      find each token in the same y-row as the VLM bbox (tolerance
+    //      = 1.0 row height), require >= ceil(60%) of tokens to match,
+    //      union the matched rects. Reject the union if it's wider than
+    //      1.5x the VLM bbox (sanity guard against drift).
     // We DO NOT use loose substring matching against multi-word raw_text
     // because PDF.js usually splits rows into many items and the FIRST
     // match (e.g. "LDL") would land miles from the actual value.
@@ -615,10 +665,10 @@
     if (!target) return null;
     const numMatch = target.match(/-?\d+(?:\.\d+)?/);
     const numToken = numMatch ? numMatch[0] : null;
-    const fbCenterY =
-      Array.isArray(fallbackBbox) && fallbackBbox.length === 4
-        ? fallbackBbox[1] + fallbackBbox[3] / 2
-        : null;
+    const fbValid = Array.isArray(fallbackBbox) && fallbackBbox.length === 4;
+    const fbCenterY = fbValid ? fallbackBbox[1] + fallbackBbox[3] / 2 : null;
+    const fbHeight = fbValid ? fallbackBbox[3] : 0;
+    const fbWidth = fbValid ? fallbackBbox[2] : 1;
     try {
       const tc = await pdfPage.getTextContent();
       if (numToken) {
@@ -637,14 +687,59 @@
             if (a.exact !== b.exact) return a.exact ? -1 : 1;
             return a.dy - b.dy;
           });
-          return candidates[0].rect;
+          return _padBbox(_rowUnion(candidates[0].rect, tc.items, viewport));
         }
       }
-      // Exact whole-string match fallback (intake answers, allergy strings).
+      // Exact whole-string match fallback (single-word intake answers,
+      // allergy strings).
       for (const item of tc.items) {
         const s = (item.str || "").trim();
         if (s && s === target) {
-          return _itemToNormalizedRect(item, viewport);
+          return _padBbox(_itemToNormalizedRect(item, viewport));
+        }
+      }
+      // Multi-token fallback (free-text intake answers).
+      const tokens = target
+        .split(/\s+/)
+        .map(_stripPunct)
+        .filter((t) => t.length > 0);
+      if (tokens.length >= 2 && fbCenterY !== null) {
+        const required = Math.max(2, Math.ceil(tokens.length * 0.6));
+        const matchedRects = [];
+        const matchedTokens = new Set();
+        for (const tok of tokens) {
+          let best = null;
+          for (const item of tc.items) {
+            const s = _stripPunct((item.str || "").trim());
+            if (s !== tok) continue;
+            const rect = _itemToNormalizedRect(item, viewport);
+            const itemCenterY = rect[1] + rect[3] / 2;
+            const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
+            const dy = Math.abs(itemCenterY - fbCenterY);
+            if (dy > rowTol) continue;
+            if (best === null || dy < best.dy) best = { rect, dy };
+          }
+          if (best !== null) {
+            matchedRects.push(best.rect);
+            matchedTokens.add(tok);
+          }
+        }
+        if (matchedTokens.size >= required) {
+          let xMin = Infinity;
+          let yMin = Infinity;
+          let xMax = -Infinity;
+          let yMax = -Infinity;
+          for (const r of matchedRects) {
+            if (r[0] < xMin) xMin = r[0];
+            if (r[1] < yMin) yMin = r[1];
+            if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
+            if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
+          }
+          // Drift guard: a union that's much wider than the VLM hint is
+          // usually picking up unrelated tokens. Bail to fallback.
+          if (xMax - xMin <= fbWidth * 1.5) {
+            return _padBbox([xMin, yMin, xMax - xMin, yMax - yMin]);
+          }
         }
       }
     } catch (e) {
@@ -667,23 +762,31 @@
     modalCard.replaceChildren();
   }
 
-  async function openBboxModal(recordId) {
+  async function openBboxModal(recordId, opts = {}) {
     // record_id formats:
     //   DocumentReference/{doc_id}#page={N}&bbox={x},{y},{w},{h}&field={...}
     //   Observation/{id}, MedicationRequest/{id}, AllergyIntolerance/{id},
     //   Condition/{id}, Encounter/{id}, Patient/{id}
     //   Guideline/{chunk_id}
     //   QuestionnaireResponse/{qr_id}#linkId={...}
-    // W2 Phase 5 (Issue 2b hardening, 2026-05-09): defensively reset the
-    // Confirm/Reject footer at every modal-open so showConfirmFooter is
-    // the only path that can unhide it. Belt-and-suspenders against any
-    // close-handler edge case where the footer is left visible.
+    //
+    // opts.confirmableDocId (optional): when set, the Confirm/Reject footer
+    // is shown for that doc_id AFTER the modal finishes opening. Only
+    // onPendingIntakeClick passes this — chip clicks pass nothing, which
+    // makes it architecturally impossible for chat citations to surface
+    // the footer. This supersedes the W2 Phase 5 defensive reset that
+    // was racy with onPendingIntakeClick's separate showConfirmFooter
+    // call.
     modalFooter.hidden = true;
     modalStatus.textContent = "";
     modalLabel.textContent = recordId;
     if (recordId.startsWith("DocumentReference/")) {
       _showCanvasMode();
-      return openDocumentModal(recordId);
+      await openDocumentModal(recordId);
+      if (opts.confirmableDocId) {
+        showConfirmFooter(opts.confirmableDocId);
+      }
+      return;
     }
     _showCardMode();
     return openEvidenceCardModal(recordId, evidenceCache[recordId]);
