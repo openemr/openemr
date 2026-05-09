@@ -196,7 +196,7 @@ async def _verify_patient_in_panel(
          UUID (e.g. demo_physician_user_id `admin`) is allowed
          unconditionally — matches OpenEMR's UI behavior.
     """
-    # Primary: env-driven panel.
+    # Primary: env-driven panel (advisory).
     env_panel = _env_panel_for(settings, physician)
     if env_panel is not None:
         # Wildcard "*" entry means this physician can access any patient.
@@ -215,11 +215,24 @@ async def _verify_patient_in_panel(
                 "panel allow (env): physician=%s patient=%s", physician, patient_id
             )
             return
+        # 2026-05-08 demote env-panel to advisory: when the patient isn't in
+        # the physician's listed UUIDs, log a warning and fall through to
+        # the FHIR-derived check below. The OpenEMR-side awk-injected
+        # ``copilot-demographics-gate.php`` already enforces real
+        # per-physician scope using the OpenEMR DB directly, so the
+        # Co-Pilot env-panel is at best a hint when its list is incomplete
+        # (e.g., demo deploys where front-desk uploads created chart-time
+        # mappings the env-panel doesn't yet know about). Without this
+        # fall-through, any clinician whose OpenEMR-side scope passes but
+        # whose env-panel entry doesn't include the patient would 403 from
+        # the iframe — the user-reported "physicians can't see the pending
+        # banner" symptom.
         logger.warning(
-            "panel deny (env): physician=%s patient=%s panel_size=%d",
+            "panel miss (env, fall-through): physician=%s patient=%s "
+            "panel_size=%d — falling through to FHIR-derived check; "
+            "OpenEMR-side demographics gate is the active enforcement.",
             physician, patient_id, len(env_panel),
         )
-        raise HTTPException(status_code=403, detail="patient_out_of_panel")
 
     # Secondary: FHIR-derived panel (currently a no-op vs Railway OpenEMR).
     practitioner_uuid = await fhir._oauth.resolve_practitioner_uuid(

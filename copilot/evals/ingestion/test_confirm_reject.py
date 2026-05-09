@@ -154,8 +154,20 @@ def test_confirm_returns_404_for_unknown_doc(client: TestClient) -> None:
     assert r.status_code == 404
 
 
-def test_confirm_panel_gated(client: TestClient) -> None:
-    """Confirm fires the panel gate before any store/FHIR action."""
+def test_confirm_panel_gated(client: TestClient, monkeypatch) -> None:
+    """Confirm forwards the panel-gate decision to the caller.
+
+    Stubs ``_verify_patient_in_panel`` to a 403 — pins the endpoint
+    contract; the gate's own semantics are exercised in
+    ``evals/agent/test_panel_scope.py``.
+    """
+    from app import main as main_module
+    from fastapi import HTTPException
+
+    async def _deny(*args, **kwargs):
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _deny)
+
     with client:
         r = client.post(
             "/v1/documents/anything/confirm"
@@ -196,7 +208,14 @@ def test_reject_marks_rejected_at(client: TestClient) -> None:
     client.app.state.processed_documents.mark_rejected.assert_awaited_once()
 
 
-def test_reject_panel_gated(client: TestClient) -> None:
+def test_reject_panel_gated(client: TestClient, monkeypatch) -> None:
+    from app import main as main_module
+    from fastapi import HTTPException
+
+    async def _deny(*args, **kwargs):
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _deny)
+
     with client:
         r = client.post(
             "/v1/documents/anything/reject"

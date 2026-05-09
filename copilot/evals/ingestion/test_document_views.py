@@ -59,8 +59,20 @@ def test_preview_returns_pdf_bytes(client: TestClient) -> None:
     assert r.content == b"%PDF-1.4 fake"
 
 
-def test_preview_rejects_out_of_panel_patient(client: TestClient) -> None:
-    """Preview must return 403 when the patient is outside the physician's panel."""
+def test_preview_rejects_out_of_panel_patient(client: TestClient, monkeypatch) -> None:
+    """Preview forwards a panel-gate deny to the caller as 403.
+
+    Stubs ``_verify_patient_in_panel`` to a 403 — pins the endpoint
+    contract; the gate's own semantics (env-panel advisory + FHIR
+    fallback) are exercised in ``evals/agent/test_panel_scope.py``.
+    """
+    from app import main as main_module
+    from fastapi import HTTPException
+
+    async def _deny(*args, **kwargs):
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _deny)
+
     with client:
         r = client.get(
             "/v1/documents/doc-99/preview",
@@ -281,21 +293,18 @@ def test_extractions_returns_cached_extraction(client: TestClient) -> None:
     assert body["doc_type"] == "lab_doc"
 
 
-def test_extractions_rejects_out_of_panel_patient(client: TestClient) -> None:
-    """Extractions must return 403 when the patient is outside the physician's panel."""
+def test_extractions_rejects_out_of_panel_patient(
+    client: TestClient, monkeypatch
+) -> None:
+    """Extractions forwards a panel-gate deny to the caller as 403."""
+    from app import main as main_module
+    from fastapi import HTTPException
+
+    async def _deny(*args, **kwargs):
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _deny)
+
     with client:
-        client.app.state.fhir_client.get_resource = AsyncMock(return_value={})
-        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
-            return_value=ProcessedDocument(
-                patient_pseudonym="patient-99",
-                hash="abc",
-                canonical_doc_id="doc-99",
-                doc_type="lab_doc",
-                extracted_facts={"results": [], "document_date": None},
-                source_path="attach_route",
-                extracted_at=datetime.now(timezone.utc),
-            )
-        )
         r = client.get(
             "/v1/documents/doc-99/extractions",
             params={"patient_id": "patient-99", "physician_user_id": "dr_who"},

@@ -239,25 +239,29 @@ def test_resume_404_after_session_ended(app_client):
         assert r.status_code in (404, 410)
 
 
-def test_sessions_create_403_when_patient_not_in_panel(monkeypatch, tmp_path):
-    """End-to-end A.7 deny: a patient outside the env panel must 403.
+def test_sessions_create_403_when_panel_gate_denies(monkeypatch, tmp_path):
+    """End-to-end deny: when the panel gate raises 403, /v1/sessions
+    forwards it to the caller.
 
-    The plain `app_client` fixture stubs the panel gate; this test
-    deliberately does NOT, so the real `_verify_patient_in_panel` runs
-    against the env panel. Asserts the docstring/README claim
-    ("out-of-panel patient → 403 at /v1/sessions") is actually wired up.
+    2026-05-08 — env-panel was demoted to advisory; the deny path now
+    runs through the FHIR-derived check. To pin /v1/sessions's
+    contract (forwards the panel-gate exception) without mounting the
+    full OAuth+FHIR mock chain, we stub ``_verify_patient_in_panel``
+    to a 403. The gate's own deny semantics are exercised in
+    ``evals/agent/test_panel_scope.py``.
     """
     monkeypatch.setenv("CONVERSATION_DB_PATH", str(tmp_path / "copilot.db"))
-    # Panel allows ONLY a different patient — our PATIENT_ID is out of panel.
-    monkeypatch.setenv(
-        "PHYSICIAN_PATIENT_PANEL",
-        json.dumps({PHYSICIAN: ["some-other-uuid-not-the-test-patient"]}),
-    )
     from app.config import get_settings
     get_settings.cache_clear()
     session_store._map.clear()  # type: ignore[attr-defined]
 
     from app import main as main_module
+    from fastapi import HTTPException
+
+    async def _deny(*args, **kwargs):
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _deny)
+
     with TestClient(main_module.app) as client:
         r = client.post(
             "/v1/sessions",

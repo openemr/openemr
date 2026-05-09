@@ -98,7 +98,29 @@ def test_attach_route_returns_doc_id_and_overlay(client: TestClient) -> None:
     assert body["bbox_overlay"][0]["field_or_chunk_id"] == "results[ldl_cholesterol].value"
 
 
-def test_attach_route_rejects_out_of_panel_patient(client: TestClient) -> None:
+def test_attach_route_falls_through_when_patient_outside_env_panel(
+    client: TestClient, monkeypatch
+) -> None:
+    """2026-05-08 — env-panel is now advisory; when the patient isn't in
+    the physician's listed UUIDs, the panel-gate falls through to the
+    FHIR-derived check instead of hard-denying. This is the
+    'physicians can't see the pending banner' fix.
+
+    With the FHIR fallback (already relaxed) returning an empty
+    ``Patient.generalPractitioner``, the request succeeds. The
+    OpenEMR-side awk-injected demographics gate is the authoritative
+    scope check.
+    """
+    # Stub the panel verification to a no-op so we can test the route
+    # contract without standing up a full FHIR mock for the OAuth + Patient
+    # fetch chain. The gate's behavior is exercised end-to-end in
+    # evals/agent/test_panel_scope.py with respx.
+    from app import main as main_module
+
+    async def _noop(*args, **kwargs):
+        return None
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _noop)
+
     with client:
         client.app.state.ingestion_service.attach_and_extract = AsyncMock(
             return_value=_result_with_one_lab()
@@ -106,12 +128,12 @@ def test_attach_route_rejects_out_of_panel_patient(client: TestClient) -> None:
         r = client.post(
             "/v1/documents/attach",
             data={
-                "patient_id": "patient-99",  # not in panel
+                "patient_id": "patient-99",  # not in PHYSICIAN_PATIENT_PANEL[dr_who]
                 "doc_type": "lab_doc",
                 "mime_type": "application/pdf",
                 "physician_user_id": "dr_who",
             },
             files={"file": ("x.pdf", b"%PDF-1.4 fake", "application/pdf")},
         )
-    assert r.status_code == 403
-    assert "out_of_panel" in r.json()["detail"]
+    assert r.status_code == 200, r.text
+    assert r.json()["doc_id"] == "doc-1"

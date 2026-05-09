@@ -228,10 +228,24 @@ def test_process_pending_returns_404_when_doc_missing(client: TestClient) -> Non
     assert r.json()["detail"] == "document_not_found"
 
 
-def test_process_pending_rejects_out_of_panel_physician(client: TestClient) -> None:
-    """``/process`` is panel-gated — an unrelated physician can't trigger extraction."""
+def test_process_pending_rejects_out_of_panel_physician(
+    client: TestClient, monkeypatch
+) -> None:
+    """``/process`` honors whatever the panel gate decides.
+
+    Stubs ``_verify_patient_in_panel`` to raise a 403 so this test
+    pins the endpoint contract (forwards the panel-gate exception)
+    rather than the gate's internal semantics — those are covered by
+    ``evals/agent/test_panel_scope.py``.
+    """
+    from app import main as main_module
+    from fastapi import HTTPException
+
+    async def _deny(*args, **kwargs):
+        raise HTTPException(status_code=403, detail="patient_out_of_panel")
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _deny)
+
     with client:
-        # No need to mock store/service — the panel gate fires first.
         r = client.post(
             "/v1/documents/copilot-anything/process"
             "?patient_id=some-other-patient&physician_user_id=" + PHYSICIAN

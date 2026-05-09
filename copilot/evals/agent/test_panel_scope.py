@@ -213,6 +213,51 @@ async def test_fhir_panel_allows_when_general_practitioner_empty(fhir, monkeypat
 
 
 @respx.mock
+async def test_env_panel_miss_falls_through_to_fhir_check(fhir, monkeypatch):
+    """2026-05-08 — env-panel is advisory: a physician listed in
+    PHYSICIAN_PATIENT_PANEL who tries to access a patient NOT in their
+    listed UUIDs no longer hard-403s. They fall through to the
+    FHIR-derived check, which (on Railway / Synthea data) sees an empty
+    ``generalPractitioner`` and allows.
+
+    Regression test for the 2026-05-08 'physicians can't see the
+    pending banner' bug — the env-panel had Mariela only in admin's
+    list, so every other clinician was 403'd before reaching the FHIR
+    fallback.
+    """
+    from app.main import _verify_patient_in_panel
+
+    settings = get_settings()
+    # dr_alvarez is listed but only with PATIENT_ID_OTHER, not PATIENT_ID
+    monkeypatch.setattr(
+        settings,
+        "physician_patient_panel",
+        json.dumps({"dr_alvarez": ["some-other-uuid-not-our-patient"]}),
+    )
+
+    respx.post(settings.openemr_oauth_base + "/token").mock(
+        return_value=Response(
+            200,
+            json={
+                "access_token": "tok-alvarez",
+                "expires_in": 300,
+                "id_token": _id_token(ALVAREZ_PRACTITIONER_UUID),
+            },
+        )
+    )
+    # Patient resource returned with NO generalPractitioner — the
+    # Synthea/Railway reality the FHIR-fallback relax was built for.
+    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
+        return_value=Response(200, json=_patient_resource(None))
+    )
+
+    # Pre-fix: this would 403 on the env miss.
+    # Post-fix: env miss logs a warning, falls through to FHIR, FHIR sees
+    # empty owners, allows.
+    await _verify_patient_in_panel(fhir, "dr_alvarez", PATIENT_ID, settings)
+
+
+@respx.mock
 async def test_fhir_panel_still_denies_when_general_practitioner_lists_others(
     fhir, monkeypatch
 ):
