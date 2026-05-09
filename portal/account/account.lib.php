@@ -19,6 +19,7 @@
 use GuzzleHttp\Client;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -58,7 +59,12 @@ function processRecaptcha($gRecaptchaResponse): bool
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
-    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
+    try {
+        $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
+    } catch (CryptoGenException) {
+        ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key decryption failed, so unable to verify recaptcha");
+        return false;
+    }
     if (empty($googleRecaptchaSecretKey)) {
         ServiceContainer::getLogger()->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;

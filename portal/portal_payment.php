@@ -88,7 +88,8 @@ $edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : nul
 $ccdata = [];
 $invdata = [];
 if ($edata) {
-    $ccdata = json_decode($cryptoGen->decryptStandard(is_string($edata['checksum']) ? $edata['checksum'] : null), true);
+    $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
+    $ccdata = json_decode($ccdataRaw, true);
     $invdata = json_decode((string) $edata['table_args'], true);
     echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
 }
@@ -451,7 +452,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->getString('gateway_public_key')) ? $globalsBag->getString('gateway_public_key') : null)); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -1208,7 +1209,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->getString('gateway_api_key')) ? $globalsBag->getString('gateway_api_key') : null)); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>

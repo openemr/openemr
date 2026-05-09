@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -335,10 +336,10 @@ if (!empty($_GET)) {
                                                         $comments = $encryptVersionInt < 3
                                                             ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
                                                             : $iterComments;
-                                                        $trans_comments = $cryptoGen->decryptStandard($comments);
-                                                        if (is_string($trans_comments)) {
+                                                        try {
+                                                            $trans_comments = $cryptoGen->decryptFromDatabase($comments);
                                                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                                                        } else {
+                                                        } catch (CryptoGenException) {
                                                             $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
                                                         }
                                                     }

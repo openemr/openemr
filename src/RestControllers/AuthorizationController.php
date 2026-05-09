@@ -50,6 +50,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
@@ -495,7 +496,11 @@ class AuthorizationController
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid _request', Response::HTTP_FORBIDDEN);
             }
             $params['client_id'] = $client['client_id'];
-            $params['client_secret'] = $this->cryptoGen->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
+            try {
+                $params['client_secret'] = $this->cryptoGen->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+            } catch (CryptoGenException) {
+                throw new OAuthServerException('Client secret decryption failed', 0, 'server_error', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             $params['contacts'] = explode('|', (string) $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];

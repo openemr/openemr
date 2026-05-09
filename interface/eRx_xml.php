@@ -37,7 +37,7 @@ function getErxCredentials()
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_name');
     $cryptoGen = ServiceContainer::getCrypto();
-    $cred[] = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('erx_account_password'));
+    $cred[] = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('erx_account_password'));
 
     return $cred;
 }

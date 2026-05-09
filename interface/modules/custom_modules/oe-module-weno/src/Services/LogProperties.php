@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use Exception;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -38,7 +39,7 @@ class LogProperties
      */
     private $key;
     /**
-     * @var false|string
+     * @var string
      */
     private $enc_key;
     /**
@@ -46,7 +47,7 @@ class LogProperties
      */
     private $weno_admin_email;
     /**
-     * @var false|string
+     * @var string
      */
     private $weno_admin_password;
     private readonly CryptoInterface $cryptoGen;
@@ -75,11 +76,19 @@ class LogProperties
         if (!is_dir($logDir)) {
             mkdir($logDir, 0775, true);
         }
-        $this->enc_key = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
+        try {
+            $this->enc_key = $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
+        } catch (CryptoGenException) {
+            $this->enc_key = '';
+        }
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
         $this->weno_admin_email = OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
-        $this->weno_admin_password = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
+        try {
+            $this->weno_admin_password = $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
+        } catch (CryptoGenException) {
+            $this->weno_admin_password = '';
+        }
     }
 
     public function fetchLogSyncDates(): array
@@ -265,14 +274,25 @@ class LogProperties
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($session->get('authUser')) {
             if (!empty(OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
-                return $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_provider_password'));
+                try {
+                    return $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_provider_password'));
+                } catch (CryptoGenException) {
+                    echo xlt('Weno Prescriber Password decryption failed');
+                    error_log("Weno Prescriber Password decryption failed");
+                    die;
+                }
             } else {
                 echo xlt('Weno Prescriber Password is missing');
                 error_log("Weno Prescriber Password is missing");
                 die;
             }
         } elseif (OEGlobalsBag::getInstance()->get('weno_admin_password')) {
-            return $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password'));
+            try {
+                return $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password'));
+            } catch (CryptoGenException) {
+                error_log("Admin password decryption failed");
+                exit;
+            }
         } else {
             error_log("Admin password not set");
             exit;

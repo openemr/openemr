@@ -13,6 +13,7 @@
 namespace OpenEMR\PaymentProcessing\Sphere;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -46,27 +47,31 @@ class SpherePayment
 
         // Collect the correct trxcustid and trxcustid_licensekey and url
         $cryptoGen = ServiceContainer::getCrypto();
-        if ($this->front == 'patient') {
-            $frontSpecific = 'patient';
-            $trxcustid = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
-            $trxcustidLicensekey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid_licensekey'));
-            if ($testing) {
-                $url = Sphere::PATIENTFRONT_TESTING_URL;
-            } else {
-                $url = Sphere::PATIENTFRONT_PRODUCTION_URL;
+        try {
+            if ($this->front == 'patient') {
+                $frontSpecific = 'patient';
+                $trxcustid = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
+                $trxcustidLicensekey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid_licensekey'));
+                if ($testing) {
+                    $url = Sphere::PATIENTFRONT_TESTING_URL;
+                } else {
+                    $url = Sphere::PATIENTFRONT_PRODUCTION_URL;
+                }
+            } else { //$this->front == 'clinic'
+                $frontSpecific = 'clinic-phone';
+                $frontSpecificRetail = 'clinic-retail';
+                $trxcustid = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
+                $trxcustidLicensekey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid_licensekey'));
+                $trxcustidRetail = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
+                $trxcustidRetailLicensekey = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid_licensekey'));
+                if ($testing) {
+                    $url = Sphere::CLINICFRONT_TESTING_URL;
+                } else {
+                    $url = Sphere::CLINICFRONT_PRODUCTION_URL;
+                }
             }
-        } else { //$this->front == 'clinic'
-            $frontSpecific = 'clinic-phone';
-            $frontSpecificRetail = 'clinic-retail';
-            $trxcustid = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
-            $trxcustidLicensekey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid_licensekey'));
-            $trxcustidRetail = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
-            $trxcustidRetailLicensekey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid_licensekey'));
-            if ($testing) {
-                $url = Sphere::CLINICFRONT_TESTING_URL;
-            } else {
-                $url = Sphere::CLINICFRONT_PRODUCTION_URL;
-            }
+        } catch (CryptoGenException) {
+            throw new \RuntimeException('Failed to decrypt Sphere credentials');
         }
 
         // Calculate the OpenEMR server
