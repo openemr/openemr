@@ -44,7 +44,7 @@ use Throwable;
  */
 final readonly class Crypto implements CryptoInterface
 {
-    use CheckLatestEncryptionValueTrait;
+    use ContextualEncryptionTrait;
 
     public function __construct(
         private KeychainInterface $keychain,
@@ -62,6 +62,7 @@ final readonly class Crypto implements CryptoInterface
         return new Crypto(
             $keychain,
             $logger,
+            shouldEncryptForDatabase: true, // See #11973
             shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
         );
     }
@@ -136,57 +137,5 @@ final readonly class Crypto implements CryptoInterface
         } catch (Throwable) {
             return false;
         }
-    }
-
-    public function encryptForDatabase(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->shouldEncryptForDatabase) {
-            return $value;
-        }
-        return $this->encryptStandard($value, keySource: KeySource::Drive);
-    }
-
-    public function encryptForFilesystem(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->shouldEncryptForFilesystem) {
-            return $value;
-        }
-        return $this->encryptStandard($value, keySource: KeySource::Database);
-    }
-
-    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->cryptCheckStandard($value)) {
-            return $value;
-        }
-        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
-        if ($result === false) {
-            throw new CryptoGenException('Decryption failed');
-        }
-        return $result;
-    }
-
-    public function decryptFromFilesystem(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->cryptCheckStandard($value)) {
-            return $value;
-        }
-        $result = $this->decryptStandard($value, keySource: KeySource::Database);
-        if ($result === false) {
-            throw new CryptoGenException('Decryption failed');
-        }
-        return $result;
     }
 }
