@@ -27,13 +27,24 @@
  * implementation instead validates the post-state via `lstat()`,
  * which does NOT follow symlinks — there is no second check to race.
  *
+ * Aisle round-4 finding #6 (CWE-732) extended the perms guarantee
+ * to *pre-existing* directories: the round-3 mkdir-with-0o700 path
+ * only enforces perms on the create path. A legacy 0o755 deployment,
+ * or an attacker pre-creating the directory in a shared world-
+ * writable temp dir, would have left looser permissions in place.
+ * The factory now chmods to 0o700 on every call. `chmod()` requires
+ * ownership or root, so this also acts as the de-facto ownership
+ * check for builds without the posix extension (where
+ * `posix_geteuid()` isn't available).
+ *
  * This factory hardens the creation:
  *
  *   - canonicalize the base via `realpath()` so a pathological
  *     `temporary_files_dir = /tmp/../etc` trick can't escape;
  *   - call `mkdir()` once, then `lstat()` the result and demand it
  *     be a real directory (S_IFDIR), refusing symlinks/files/fifos;
- *   - use `0700` so only the PHP process user can access entries;
+ *   - enforce 0700 on every call (chmod-on-mismatch), so a
+ *     pre-existing dir with looser perms is tightened or rejected;
  *   - handle the concurrent-create race naturally — `lstat()` of an
  *     already-created directory still returns S_IFDIR, so a benign
  *     race is indistinguishable from a clean create;
@@ -64,6 +75,9 @@ final readonly class OidcCacheDirectoryFactory
 
     /** POSIX `S_IFDIR` — value of the file-type nibble for a real directory. */
     private const STAT_MODE_DIRECTORY = 0o040000;
+
+    /** Permission-bits mask — extracts the rwx triplets from `stat['mode']`. */
+    private const STAT_MODE_PERMISSION_MASK = 0o777;
 
     /**
      * Validate (or create) the cache directory under `$baseTempDir`.
@@ -114,6 +128,24 @@ final readonly class OidcCacheDirectoryFactory
                 . '(possibly a symlink, regular file, or other dirent): '
                 . $cacheDir,
             );
+        }
+
+        // Round-4 #6 (CWE-732). The mkdir above only sets 0700 on the
+        // creation path; a pre-existing directory (legacy 0755 deploy,
+        // or hostile pre-create in a shared world-writable temp dir)
+        // would otherwise keep its looser perms and the cache would
+        // write JWKS/discovery metadata into a world-readable dir.
+        // chmod() requires ownership or root — if a third user owns
+        // the directory, this fails, and we throw, which is the
+        // de-facto ownership check (posix_geteuid() isn't loaded in
+        // this build, so we can't inspect $stat['uid'] meaningfully).
+        if (($stat['mode'] & self::STAT_MODE_PERMISSION_MASK) !== self::DIRECTORY_PERMISSIONS) {
+            if (!chmod($cacheDir, self::DIRECTORY_PERMISSIONS)) {
+                throw new RuntimeException(
+                    'oidc_cache directory has loose permissions and chmod to 0700 failed: '
+                    . $cacheDir,
+                );
+            }
         }
 
         return $cacheDir;

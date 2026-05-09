@@ -164,6 +164,63 @@ final class OidcCacheDirectoryFactoryTest extends TestCase
         $factory->create($this->baseTempDir);
     }
 
+    /**
+     * Aisle round-4 #6 (CWE-732) regression. Round-3's mkdir-with-0700
+     * only set perms on the creation path; a pre-existing directory
+     * (legacy 0755 deploy, or hostile pre-create in a shared /tmp)
+     * kept its looser perms and the cache would write JWKS/discovery
+     * metadata into a world-readable dir. The factory now chmods to
+     * 0700 on every call.
+     *
+     * Pre-existing-loose case: cache dir already there with 0755 →
+     * after factory call, must be 0700. This is the exact legacy-
+     * deployment migration path the finding describes.
+     */
+    public function testTightensPermsOnPreexistingLooseDirectory(): void
+    {
+        $cachePath = $this->baseTempDir . DIRECTORY_SEPARATOR . OidcCacheDirectoryFactory::DIRECTORY_NAME;
+        mkdir($cachePath, 0o755, true);
+        // Some umasks would have stripped bits during mkdir; force the
+        // exact mode the legacy deployments left behind.
+        chmod($cachePath, 0o755);
+        self::assertSame(0o755, fileperms($cachePath) & 0o777, 'Test fixture: pre-existing dir should be 0755');
+
+        $factory = new OidcCacheDirectoryFactory();
+
+        $result = $factory->create($this->baseTempDir);
+
+        self::assertSame($cachePath, $result);
+        clearstatcache(true, $cachePath);
+        self::assertSame(
+            0o700,
+            fileperms($cachePath) & 0o777,
+            'Pre-existing dir must be tightened to 0700 — otherwise cached JWKS leak to other local users',
+        );
+    }
+
+    /**
+     * Belt-and-braces companion to the loose-perms test: the perms-
+     * already-correct branch must be a no-op. If a future refactor
+     * accidentally chmods unconditionally, this test still passes; if
+     * it accidentally introduces a path that *changes* perms when
+     * they're already right (e.g. by way of touching mtime via a
+     * superfluous chmod), this test pins the no-op contract.
+     */
+    public function testLeavesAlreadyCorrectPermsAlone(): void
+    {
+        $cachePath = $this->baseTempDir . DIRECTORY_SEPARATOR . OidcCacheDirectoryFactory::DIRECTORY_NAME;
+        mkdir($cachePath, 0o700, true);
+        chmod($cachePath, 0o700);
+
+        $factory = new OidcCacheDirectoryFactory();
+
+        $result = $factory->create($this->baseTempDir);
+
+        self::assertSame($cachePath, $result);
+        clearstatcache(true, $cachePath);
+        self::assertSame(0o700, fileperms($cachePath) & 0o777);
+    }
+
     public function testConcurrentCreateRaceIsHandledIdempotently(): void
     {
         // Simulate the race: another process won and created the dir
