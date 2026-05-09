@@ -104,8 +104,12 @@ async def _ocr_snap_extraction(extraction: Any, image_bytes: bytes) -> None:
         )
 
 
-async def _ocr_snap_pdf_extraction(extraction: Any, pdf_bytes: bytes) -> None:
-    """PDF analogue of ``_ocr_snap_extraction``.
+_PAGE_WIDE_BBOX = BoundingBox(x=0.0, y=0.0, w=1.0, h=1.0)
+
+
+async def _ocr_snap_pdf_extraction(extraction: Any, pdf_bytes: bytes) -> bool:
+    """PDF analogue of ``_ocr_snap_extraction``. Returns True if any
+    citation's bbox was modified.
 
     Born-digital PDFs (e.g. synthea intake forms) often render text via
     subsetted fonts whose Unicode round-tripping fails — pdf.js's
@@ -116,41 +120,72 @@ async def _ocr_snap_pdf_extraction(extraction: Any, pdf_bytes: bytes) -> None:
     row union. Page rasterizations are cached per-extraction so two
     citations on the same page share the work.
 
-    No-ops when pypdfium2 / Tesseract are unavailable, when a citation
-    has no VLM bbox to anchor the snap, or when no OCR row matches —
-    the VLM bbox is preserved in those cases.
+    For citations the VLM left WITHOUT a bbox (low-confidence narrative
+    answers like "Ankle swelling in the past 2 weeks" — the iframe's
+    "exact location not detected" indicator), this also tries a
+    page-wide search: snap_bbox is run with a full-page fallback
+    anchor, so a multi-token match anywhere on the page can backfill
+    the missing bbox. Misses leave the bbox as ``None`` and the
+    indicator continues to render.
     """
     import asyncio
 
-    citations: list[Any] = []
+    citations_with_bbox: list[Any] = []
+    citations_without_bbox: list[Any] = []
     pages_needed: set[int] = set()
     for cite, _parent in _walk_citations(extraction):
-        if cite.bbox is None or not cite.raw_text or cite.page is None:
+        if not cite.raw_text or cite.page is None:
             continue
-        citations.append(cite)
         # PDF pages are 1-indexed in the schema; pdfium is 0-indexed.
-        pages_needed.add(int(cite.page) - 1)
+        page_index = int(cite.page) - 1
+        if page_index < 0:
+            continue
+        pages_needed.add(page_index)
+        if cite.bbox is None:
+            citations_without_bbox.append(cite)
+        else:
+            citations_with_bbox.append(cite)
 
-    if not citations:
-        return
+    if not citations_with_bbox and not citations_without_bbox:
+        return False
 
     page_items: dict[int, list] = {}
     for page_index in pages_needed:
-        if page_index < 0:
-            continue
         items = await asyncio.to_thread(pdf_page_ocr_items, pdf_bytes, page_index)
         if items:
             page_items[page_index] = items
 
     if not page_items:
-        return
+        return False
 
-    for cite in citations:
+    mutated = False
+    for cite in citations_with_bbox:
         page_index = int(cite.page) - 1
         items = page_items.get(page_index)
         if not items:
             continue
         snapped = snap_bbox(items, cite.raw_text, cite.bbox)
+        if snapped is None:
+            continue
+        x, y, w, h = snapped
+        new_bbox = BoundingBox(
+            x=max(0.0, min(1.0, x)),
+            y=max(0.0, min(1.0, y)),
+            w=max(0.0, min(1.0, w)),
+            h=max(0.0, min(1.0, h)),
+        )
+        if new_bbox != cite.bbox:
+            cite.bbox = new_bbox
+            mutated = True
+
+    for cite in citations_without_bbox:
+        page_index = int(cite.page) - 1
+        items = page_items.get(page_index)
+        if not items:
+            continue
+        # No VLM anchor — let the snap pick the best-matching row
+        # anywhere on the page (page-wide fallback bbox).
+        snapped = snap_bbox(items, cite.raw_text, _PAGE_WIDE_BBOX)
         if snapped is None:
             continue
         x, y, w, h = snapped
@@ -160,6 +195,9 @@ async def _ocr_snap_pdf_extraction(extraction: Any, pdf_bytes: bytes) -> None:
             w=max(0.0, min(1.0, w)),
             h=max(0.0, min(1.0, h)),
         )
+        mutated = True
+
+    return mutated
 
 
 def _bbox_overlay(extraction: Any, doc_id: str) -> list[BboxOverlayItem]:
@@ -209,6 +247,22 @@ class IngestionService:
             # Reconstruct the typed extraction from the stored JSON for overlay rebuild.
             cls = LabPDFExtraction if prior.doc_type == "lab_doc" else IntakeFormExtraction
             cached = cls.model_validate(prior.extracted_facts)
+            # Forms ingested before the PDF OCR snap pipeline existed
+            # have stale/missing bboxes. Re-snap on cache hit and
+            # persist the corrected ``extracted_facts`` so subsequent
+            # cache hits skip the OCR cost. Idempotent: a cache hit
+            # whose bboxes are already snapped won't mutate.
+            if (
+                prior.mime_type == "application/pdf"
+                and prior.file_bytes is not None
+            ):
+                mutated = await _ocr_snap_pdf_extraction(cached, prior.file_bytes)
+                if mutated:
+                    await self._store.replace_extraction(
+                        patient_pseudonym=patient_pseudonym,
+                        canonical_doc_id=prior.canonical_doc_id,
+                        extracted_facts=cached.model_dump(),
+                    )
             return IngestionResult(
                 doc_id=prior.canonical_doc_id,
                 extraction=cached,
@@ -386,6 +440,19 @@ class IngestionService:
                 else IntakeFormExtraction
             )
             cached = cls.model_validate(facts)
+            # Re-snap PDFs cached before the OCR pipeline existed.
+            # Idempotent — already-snapped bboxes won't mutate.
+            if (
+                row.mime_type == "application/pdf"
+                and row.file_bytes is not None
+            ):
+                mutated = await _ocr_snap_pdf_extraction(cached, row.file_bytes)
+                if mutated:
+                    await self._store.replace_extraction(
+                        patient_pseudonym=row.patient_pseudonym,
+                        canonical_doc_id=row.canonical_doc_id,
+                        extracted_facts=cached.model_dump(mode="json"),
+                    )
             return IngestionResult(
                 doc_id=row.canonical_doc_id,
                 extraction=cached,
@@ -422,6 +489,8 @@ class IngestionService:
 
         if mime_type.startswith("image/"):
             await _ocr_snap_extraction(extraction, row.file_bytes)
+        elif mime_type == "application/pdf":
+            await _ocr_snap_pdf_extraction(extraction, row.file_bytes)
 
         await write_extraction(
             extraction,
