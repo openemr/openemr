@@ -41,6 +41,9 @@ use Throwable;
  */
 final class LegacyKeychainLoader
 {
+    /**
+     * Loads the keychain using default legacy storage engines.
+     */
     public static function load(): KeychainInterface
     {
         $bag = OEGlobalsBag::getInstance();
@@ -52,6 +55,26 @@ final class LegacyKeychainLoader
         $pkod = new Storage\PlaintextKeyOnDisk($storageDir);
         $pkidb = new Storage\PlaintextKeyInDbKeysTableQueryUtils();
 
+        return self::loadWithEngines(
+            filesystemStorage: $pkod,
+            databaseStorage: $pkidb,
+            storageDir: $storageDir,
+        );
+    }
+
+    /**
+     * Loads the keychain using provided storage engines.
+     *
+     * This allows injecting alternative storage implementations for testing or
+     * when using different database connection strategies.
+     */
+    public static function loadWithEngines(
+        Storage\KeyStorageInterface $filesystemStorage,
+        Storage\KeyStorageInterface $databaseStorage,
+        string $storageDir,
+    ): KeychainInterface {
+        $pkod = $filesystemStorage;
+        $pkidb = $databaseStorage;
         $keychain = new EagerKeychain();
         // v1: broken crypto (no hmac)
         $one = self::tryLoadKey(new Storage\KeyMaterialId('one'), $pkod);
