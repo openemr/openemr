@@ -558,6 +558,13 @@ class PendingIntakeItem(BaseModel):
     # from default view (the iframe filters these client-side).
     confirmed_at: str | None = None
     rejected_at: str | None = None
+    # W2 Phase 5 (2026-05-09): True when the row originated from the
+    # local Co-Pilot front-desk-pending store (filed via /v1/documents/attach
+    # in defer mode). False for items sourced from FHIR DocumentReference.
+    # The iframe uses this flag to gate the Confirm/Reject footer — only
+    # rows that flowed through the front-desk-LITE path are confirmable;
+    # already-archived FHIR docs are read-only.
+    is_front_desk_filed: bool = False
 
 
 class PendingIntakesResponse(BaseModel):
@@ -588,6 +595,11 @@ async def get_pending_intakes(
     session = sessions.get(session_id)
     if session is None:
         raise HTTPException(status_code=404, detail="session not found or expired")
+
+    if _is_front_desk_user(session.physician_user_id, settings):
+        # Banner is a physician-only surface; front-desk users upload via
+        # the drop-zone and don't review pending intakes.
+        return PendingIntakesResponse(items=[], count=0)
 
     fhir: FhirClient = app.state.fhir
     await _verify_patient_in_panel(
@@ -666,6 +678,7 @@ async def get_pending_intakes(
                 uploaded_at=uploaded_at,
                 mime_type=mime_type,
                 is_pending=False,  # FHIR-sourced docs are already extracted
+                is_front_desk_filed=False,
             )
         )
 
@@ -710,6 +723,7 @@ async def get_pending_intakes(
                 uploaded_at=row.extracted_at.isoformat(),
                 mime_type=row.mime_type,
                 is_pending=True,
+                is_front_desk_filed=True,
             )
         )
         seen_ids.add(row.canonical_doc_id)
@@ -728,6 +742,7 @@ async def get_pending_intakes(
                     if row.confirmed_at is not None
                     else None
                 ),
+                is_front_desk_filed=True,
             )
         )
         seen_ids.add(row.canonical_doc_id)
@@ -1030,18 +1045,12 @@ async def confirm_document(
 ):
     """W2 Plan B — physician accepts a front-desk-uploaded intake.
 
-    Marks the row ``confirmed_at`` in the local Co-Pilot store AND attempts
-    to write the original file back to OpenEMR's MySQL ``documents`` table
-    via the non-FHIR REST API. The returned ``external_doc_id`` is the
-    OpenEMR-side documents.id, queryable via FHIR
-    ``GET /DocumentReference/<id>`` once the write lands.
-
-    Fail-soft: if the OpenEMR write errors (auth expired, endpoint missing,
-    network blip), we still mark ``confirmed_at`` locally and return
-    ``{ok: true, openemr_doc_id: null, openemr_write_error: <message>}`` so
-    the physician's review action isn't lost. The agent's "what changed"
-    tool reads from the local store, not OpenEMR, so confirm semantics are
-    preserved either way.
+    Marks the row ``confirmed_at`` in the local Co-Pilot store. The
+    OpenEMR REST write-back has been deferred to a Final-scope follow-up
+    (the api:oemr scope is unavailable in our dev fork and the native
+    Documents tab is broken — see W2_IMPLEMENTATION.md Phase 4 / Phase 5).
+    The agent's "what changed" tool reads from the local store, so
+    confirm semantics are preserved without the round-trip.
 
     Panel-gated. Idempotent on ``confirmed_at`` (re-confirm keeps the
     original timestamp).
@@ -1056,42 +1065,12 @@ async def confirm_document(
     if row is None:
         raise HTTPException(status_code=404, detail="document_not_found")
 
-    # Attempt the OpenEMR write-back. Fail-soft: log + record the error
-    # in the response, but still apply the local confirm.
-    external_doc_id: str | None = None
-    write_error: str | None = None
-    if row.file_bytes and row.mime_type and row.external_doc_id is None:
-        # Map our internal doc_type to a sensible OpenEMR document
-        # category. ``Medical Record`` is a default category in stock
-        # OpenEMR installs.
-        category = "Medical Record"
-        filename = f"{row.canonical_doc_id}.pdf" if row.mime_type == "application/pdf" else f"{row.canonical_doc_id}"
-        try:
-            resp = await fhir.post_document_via_rest_api(
-                patient_uuid=patient_id,
-                file_bytes=row.file_bytes,
-                mime_type=row.mime_type,
-                filename=filename,
-                category=category,
-                physician_user_id=physician_user_id,
-            )
-            # OpenEMR returns the new document's id under various shapes
-            # depending on minor version; check the most common ones.
-            ext_id = resp.get("id") or resp.get("uuid") or resp.get("data", {}).get("id")
-            if ext_id is not None:
-                external_doc_id = str(ext_id)
-        except FhirError as e:
-            write_error = str(e)
-            logger.warning(
-                "OpenEMR write-back failed for doc=%s patient=%s: %s",
-                doc_id, patient_id, e,
-            )
-
+    # W2 Phase 5 — local stamp only; OpenEMR REST write-back deferred (api:oemr scope unavailable; native Documents tab broken in fork — see W2_IMPLEMENTATION.md Phase 4).
     await store.mark_confirmed(
         patient_pseudonym=patient_id,
         canonical_doc_id=doc_id,
         confirmed_by=physician_user_id,
-        external_doc_id=external_doc_id,
+        external_doc_id=None,
     )
 
     # Re-read so the response carries the canonical confirmed_at value.
@@ -1101,15 +1080,11 @@ async def confirm_document(
     return {
         "ok": True,
         "doc_id": doc_id,
-        "openemr_doc_id": (
-            refreshed.external_doc_id if refreshed is not None else external_doc_id
-        ),
         "confirmed_at": (
             refreshed.confirmed_at.isoformat()
             if refreshed is not None and refreshed.confirmed_at is not None
             else None
         ),
-        "openemr_write_error": write_error,
     }
 
 

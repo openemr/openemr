@@ -92,6 +92,15 @@
       li.onclick = () => onPendingIntakeClick(item, li);
       list.appendChild(li);
     }
+    // W2 Phase 5 — pre-warm extraction so a banner click is near-instant.
+    // process_pending is idempotent server-side, so racing the click is safe.
+    for (const item of visible) {
+      if (!item.is_pending || !PATIENT_ID) continue;
+      const url = `/v1/documents/${encodeURIComponent(item.doc_id)}/process`
+        + `?patient_id=${encodeURIComponent(PATIENT_ID)}`
+        + `&physician_user_id=${encodeURIComponent(PHYSICIAN)}`;
+      fetch(url, { method: "POST" }).catch(() => {});
+    }
     toggle.onclick = () => {
       const expanded = toggle.getAttribute("aria-expanded") === "true";
       toggle.setAttribute("aria-expanded", expanded ? "false" : "true");
@@ -147,7 +156,9 @@
     // the Confirm/Reject footer so the physician can save to chart.
     const alreadyHandled = item.confirmed_at || item.rejected_at
       || handledDocIds.has(item.doc_id);
-    if (!alreadyHandled && (wasJustExtracted || !item.is_pending)) {
+    if (!alreadyHandled
+        && item.is_front_desk_filed
+        && (wasJustExtracted || !item.is_pending)) {
       showConfirmFooter(item.doc_id);
     }
 
@@ -324,15 +335,8 @@
         modalRejectBtn.disabled = false;
         return;
       }
-      const data = await r.json();
       if (action === "confirm") {
-        if (data.openemr_doc_id) {
-          modalStatus.textContent = `Saved to chart (OpenEMR doc id ${data.openemr_doc_id}).`;
-        } else if (data.openemr_write_error) {
-          modalStatus.textContent = `Confirmed locally; OpenEMR write failed: ${data.openemr_write_error}`;
-        } else {
-          modalStatus.textContent = "Confirmed.";
-        }
+        modalStatus.textContent = "Confirmed.";
       } else {
         modalStatus.textContent = "Rejected.";
       }

@@ -1,8 +1,7 @@
 """W2 Plan B confirm/reject endpoint tests.
 
 Covers:
-- /confirm happy path with mocked OpenEMR REST write success
-- /confirm fail-soft (write errors but local mark still applies)
+- /confirm happy path (local stamp only — OpenEMR REST write-back deferred per W2 Phase 5)
 - /confirm idempotency
 - /reject soft-delete
 - Panel-gate enforcement on both endpoints
@@ -19,7 +18,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import main as main_module
-from app.fhir.client import FhirError
 from app.persistence.processed_documents import ProcessedDocument
 
 
@@ -64,13 +62,15 @@ def _seed_pending_row(client: TestClient, doc_id: str = "copilot-pending-1") -> 
     return row
 
 
-def test_confirm_writes_to_openemr_and_marks_local(client: TestClient) -> None:
+def test_confirm_marks_local_only(client: TestClient) -> None:
+    """W2 Phase 5: /confirm stamps the local store and returns the canonical
+    confirmed_at. The OpenEMR REST write-back has been deferred (api:oemr
+    scope unavailable in the dev fork — see W2_IMPLEMENTATION.md Phase 4),
+    so the response carries only ``ok``, ``doc_id``, ``confirmed_at``.
+    """
     with client:
         _seed_pending_row(client)
         client.app.state.processed_documents.mark_confirmed = AsyncMock(return_value=None)
-        client.app.state.fhir.post_document_via_rest_api = AsyncMock(
-            return_value={"id": "openemr-doc-42"}
-        )
         # Refreshed read after mark — return a confirmed row.
         confirmed_row = ProcessedDocument(
             patient_pseudonym=PATIENT_ID,
@@ -84,7 +84,7 @@ def test_confirm_writes_to_openemr_and_marks_local(client: TestClient) -> None:
             mime_type="application/pdf",
             confirmed_at=datetime.now(timezone.utc),
             confirmed_by=PHYSICIAN,
-            external_doc_id="openemr-doc-42",
+            external_doc_id=None,
         )
         client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
             side_effect=[_seed_pending_row(client), confirmed_row]
@@ -95,50 +95,10 @@ def test_confirm_writes_to_openemr_and_marks_local(client: TestClient) -> None:
         )
     assert r.status_code == 200, r.text
     body = r.json()
+    assert set(body.keys()) == {"ok", "doc_id", "confirmed_at"}
     assert body["ok"] is True
-    assert body["openemr_doc_id"] == "openemr-doc-42"
+    assert body["doc_id"] == "copilot-pending-1"
     assert body["confirmed_at"] is not None
-    assert body["openemr_write_error"] is None
-    client.app.state.fhir.post_document_via_rest_api.assert_awaited_once()
-    client.app.state.processed_documents.mark_confirmed.assert_awaited_once()
-
-
-def test_confirm_fails_soft_when_openemr_write_errors(client: TestClient) -> None:
-    """OpenEMR write fails (auth expired, endpoint missing, etc.) — local
-    mark still applies, response includes the error message."""
-    with client:
-        _seed_pending_row(client)
-        client.app.state.processed_documents.mark_confirmed = AsyncMock(return_value=None)
-        client.app.state.fhir.post_document_via_rest_api = AsyncMock(
-            side_effect=FhirError("OpenEMR REST 404", status=404)
-        )
-        confirmed_row_no_external = ProcessedDocument(
-            patient_pseudonym=PATIENT_ID,
-            hash="0" * 128,
-            canonical_doc_id="copilot-pending-1",
-            doc_type="lab_doc",
-            extracted_facts={"results": []},
-            source_path="front_desk_scan",
-            extracted_at=datetime.now(timezone.utc),
-            file_bytes=b"%PDF-1.4 fake",
-            mime_type="application/pdf",
-            confirmed_at=datetime.now(timezone.utc),
-            confirmed_by=PHYSICIAN,
-            external_doc_id=None,
-        )
-        client.app.state.processed_documents.lookup_by_doc_id = AsyncMock(
-            side_effect=[_seed_pending_row(client), confirmed_row_no_external]
-        )
-        r = client.post(
-            f"/v1/documents/copilot-pending-1/confirm"
-            f"?patient_id={PATIENT_ID}&physician_user_id={PHYSICIAN}"
-        )
-    assert r.status_code == 200, r.text
-    body = r.json()
-    assert body["ok"] is True
-    assert body["openemr_doc_id"] is None
-    assert body["confirmed_at"] is not None
-    assert "OpenEMR REST 404" in body["openemr_write_error"]
     client.app.state.processed_documents.mark_confirmed.assert_awaited_once()
 
 

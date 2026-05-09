@@ -264,6 +264,193 @@ def test_pending_intakes_response_shape_is_stable(app_client, monkeypatch) -> No
     assert set(body.keys()) == {"items", "count"}
 
 
+def test_pending_intakes_returns_empty_for_front_desk_user(
+    app_client, monkeypatch
+) -> None:
+    """W2 KR5 fix: the pending-intakes banner is a physician-only surface.
+    Front-desk users (COPILOT_FRONT_DESK_USERS) upload via the drop-zone and
+    must not see the review banner — even when there ARE in-scope FHIR
+    DocumentReferences and local pending rows for the patient.
+    """
+    from datetime import datetime, timezone
+    from unittest.mock import AsyncMock
+
+    from app.config import get_settings
+    from app.persistence.processed_documents import ProcessedDocument
+
+    # Configure the test physician_user_id as a front-desk user.
+    monkeypatch.setenv("COPILOT_FRONT_DESK_USERS", PHYSICIAN)
+    get_settings.cache_clear()
+
+    client, main_module = app_client
+
+    # Seed BOTH a FHIR DocumentReference and a local pending row so the
+    # gate is what produces the empty response — not an empty store.
+    bundle = {
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "doc-front-desk-banner-gate",
+                    "type": {"text": "Lab Report"},
+                    "date": "2026-05-06T08:30:00Z",
+                    "content": [
+                        {"attachment": {"contentType": "application/pdf"}}
+                    ],
+                }
+            }
+        ]
+    }
+    _patch_fhir_search(main_module, monkeypatch, bundle)
+
+    pending_row = ProcessedDocument(
+        patient_pseudonym=PATIENT_ID,
+        hash="0" * 128,
+        canonical_doc_id="copilot-pending-banner-gate",
+        doc_type="intake_form_doc",
+        extracted_facts={"_pending": True},
+        source_path="front_desk_scan",
+        extracted_at=datetime.now(timezone.utc),
+        file_bytes=b"%PDF-1.4 fake",
+        mime_type="application/pdf",
+    )
+    main_module.app.state.processed_documents.list_pending_uploads = AsyncMock(
+        return_value=[pending_row]
+    )
+
+    sid = _start(client)
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["count"] == 0
+    assert body["items"] == []
+
+
+def test_pending_intakes_allows_non_front_desk_user(
+    app_client, monkeypatch
+) -> None:
+    """Boundary test for the front-desk gate: when the physician_user_id is
+    NOT in COPILOT_FRONT_DESK_USERS, the existing happy-path behavior holds
+    and FHIR-sourced items flow through.
+    """
+    from app.config import get_settings
+
+    # A different user is configured as front-desk; the test physician is not.
+    monkeypatch.setenv("COPILOT_FRONT_DESK_USERS", "someone_else,front_desk_bob")
+    get_settings.cache_clear()
+
+    client, main_module = app_client
+    bundle = {
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "doc-non-front-desk-1",
+                    "type": {"text": "Lab Report"},
+                    "date": "2026-05-06T08:30:00Z",
+                    "content": [
+                        {"attachment": {"contentType": "application/pdf"}}
+                    ],
+                }
+            }
+        ]
+    }
+    _patch_fhir_search(main_module, monkeypatch, bundle)
+
+    sid = _start(client)
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["count"] == 1
+    assert body["items"][0]["doc_id"] == "doc-non-front-desk-1"
+
+
+def test_pending_intakes_flags_is_front_desk_filed_per_source(
+    app_client, monkeypatch
+) -> None:
+    """W2 Phase 5 (Issue 2b): ``is_front_desk_filed`` distinguishes items
+    that flowed through the front-desk-LITE path (local pending /
+    confirmed rows) from items sourced from FHIR DocumentReference. The
+    iframe gates the Confirm/Reject footer on this flag — only
+    front-desk-filed rows are confirmable; archived FHIR docs are
+    read-only on re-open.
+    """
+    from datetime import datetime, timezone
+    from unittest.mock import AsyncMock
+
+    from app.persistence.processed_documents import ProcessedDocument
+
+    client, main_module = app_client
+
+    # (a) one FHIR DocumentReference
+    bundle = {
+        "entry": [
+            {
+                "resource": {
+                    "resourceType": "DocumentReference",
+                    "id": "fhir-doc-archived-1",
+                    "type": {"text": "Lab Report"},
+                    "date": "2026-05-06T08:30:00Z",
+                    "content": [
+                        {"attachment": {"contentType": "application/pdf"}}
+                    ],
+                }
+            }
+        ]
+    }
+    _patch_fhir_search(main_module, monkeypatch, bundle)
+
+    # (b) one local pending row
+    pending_row = ProcessedDocument(
+        patient_pseudonym=PATIENT_ID,
+        hash="0" * 128,
+        canonical_doc_id="copilot-fd-pending-1",
+        doc_type="intake_form_doc",
+        extracted_facts={"_pending": True},
+        source_path="front_desk_scan",
+        extracted_at=datetime.now(timezone.utc),
+        file_bytes=b"%PDF-1.4 fake",
+        mime_type="application/pdf",
+    )
+    main_module.app.state.processed_documents.list_pending_uploads = AsyncMock(
+        return_value=[pending_row]
+    )
+
+    # (c) one local confirmed row
+    confirmed_row = ProcessedDocument(
+        patient_pseudonym=PATIENT_ID,
+        hash="1" * 128,
+        canonical_doc_id="copilot-fd-confirmed-1",
+        doc_type="lab_doc",
+        extracted_facts={"results": []},
+        source_path="front_desk_scan",
+        extracted_at=datetime.now(timezone.utc),
+        file_bytes=b"%PDF-1.4 fake",
+        mime_type="application/pdf",
+        confirmed_at=datetime.now(timezone.utc),
+        confirmed_by=PHYSICIAN,
+    )
+    main_module.app.state.processed_documents.list_confirmed_recent = AsyncMock(
+        return_value=[confirmed_row]
+    )
+
+    sid = _start(client)
+    r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+    assert r.status_code == 200
+    body = r.json()
+    items_by_id = {i["doc_id"]: i for i in body["items"]}
+
+    # FHIR-sourced item must NOT be marked front-desk-filed.
+    assert items_by_id["fhir-doc-archived-1"]["is_front_desk_filed"] is False
+    # Local pending row IS front-desk-filed.
+    assert items_by_id["copilot-fd-pending-1"]["is_front_desk_filed"] is True
+    assert items_by_id["copilot-fd-pending-1"]["is_pending"] is True
+    # Local confirmed row IS front-desk-filed.
+    assert items_by_id["copilot-fd-confirmed-1"]["is_front_desk_filed"] is True
+    assert items_by_id["copilot-fd-confirmed-1"]["is_pending"] is False
+    assert items_by_id["copilot-fd-confirmed-1"]["confirmed_at"] is not None
+
+
 def test_pending_intakes_constrains_to_recent_uploads(
     app_client, monkeypatch
 ) -> None:
