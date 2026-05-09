@@ -37,6 +37,12 @@
   <dialog id="bbox-modal">
     <header>
       <h2 id="bbox-modal-title">Source: <span id="bbox-source-label"></span></h2>
+      <div id="bbox-modal-toolbar" hidden>
+        <button id="bbox-modal-zoom-out" type="button" aria-label="Zoom out" title="Zoom out">−</button>
+        <button id="bbox-modal-zoom-in" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+        <button id="bbox-modal-fit-width" type="button" title="Fit width">Fit width</button>
+        <button id="bbox-modal-fit-page" type="button" title="Fit page">Fit page</button>
+      </div>
       <button id="bbox-modal-close" aria-label="Close">×</button>
     </header>
     <div id="bbox-modal-canvas-wrapper">

@@ -101,3 +101,15 @@ dialog#bbox-modal h2 { margin: 0; font-size: 14px; }
 #pending-intakes-list li.confirmed { color: #1a7f37; }
 #pending-intakes-list li.confirmed::after { content: " ✓"; }
 #pending-intakes-list li.rejected { color: #6a737d; text-decoration: line-through; }
+
+/* W2 modal viewer UX (2026-05-08) — zoom toolbar in the modal header. */
+#bbox-modal-toolbar { display: flex; gap: 4px; align-items: center; }
+#bbox-modal-toolbar button { padding: 4px 10px; font-size: 13px;
+                              background: #fff; color: #1f2328;
+                              border: 1px solid #d0d7de; border-radius: 4px;
+                              cursor: pointer; min-width: 28px; }
+#bbox-modal-toolbar button:hover { background: #f3f4f6; }
+#bbox-modal-toolbar button:active { background: #e5e7eb; }
+#bbox-modal-toolbar #bbox-modal-zoom-out,
+#bbox-modal-toolbar #bbox-modal-zoom-in { font-size: 16px; line-height: 1;
+                                          padding: 2px 8px; min-width: 28px; }

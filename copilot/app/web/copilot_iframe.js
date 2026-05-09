@@ -204,13 +204,101 @@
   modalClose.onclick = () => modal.close();
   modal.addEventListener("cancel", (e) => { e.preventDefault(); modal.close(); });
   modal.addEventListener("close", () => {
-    // Reset footer state when the dialog closes so the next open starts clean.
+    // Reset footer + zoom state when the dialog closes so the next open
+    // starts clean.
     modalActiveDocId = null;
     modalFooter.hidden = true;
     modalConfirmBtn.disabled = false;
     modalRejectBtn.disabled = false;
     modalStatus.textContent = "";
+    docPreviewState = null;
+    if (modalToolbar) modalToolbar.hidden = true;
+    // Tell the parent OpenEMR page to shrink the iframe rail back to its
+    // resting 400px width. The rail listener in copilot-rail-fragment.php
+    // toggles ``body.copilot-doc-open`` based on this message type.
+    try {
+      window.parent?.postMessage({ type: "copilot-doc-modal-close" }, "*");
+    } catch (_) { /* parent unreachable in standalone preview — ignore */ }
   });
+
+  // W2 modal viewer (2026-05-08): zoom toolbar elements + per-doc state
+  // for re-rendering at different scales.
+  const modalToolbar = document.getElementById("bbox-modal-toolbar");
+  const zoomInBtn = document.getElementById("bbox-modal-zoom-in");
+  const zoomOutBtn = document.getElementById("bbox-modal-zoom-out");
+  const fitWidthBtn = document.getElementById("bbox-modal-fit-width");
+  const fitPageBtn = document.getElementById("bbox-modal-fit-page");
+  // Caches the currently-open doc's source so the zoom buttons can
+  // re-render without re-fetching. Cleared on modal close.
+  // Shape: { kind: "pdf"|"image", pdfPage?, img?, bbox, rawText, scale,
+  //          baseWidth, baseHeight }
+  let docPreviewState = null;
+
+  function _wrapperSize() {
+    const wrapper = document.getElementById("bbox-modal-canvas-wrapper");
+    if (!wrapper) return { w: 800, h: 1000 };
+    return { w: wrapper.clientWidth || 800, h: wrapper.clientHeight || 1000 };
+  }
+
+  function _fitWidthScale() {
+    if (!docPreviewState) return 1.5;
+    const { w } = _wrapperSize();
+    // Leave a small inner margin so the canvas doesn't touch the scrollbar.
+    const target = Math.max(200, w - 24);
+    return Math.max(0.4, Math.min(4, target / docPreviewState.baseWidth));
+  }
+
+  function _fitPageScale() {
+    if (!docPreviewState) return 1.5;
+    const { w, h } = _wrapperSize();
+    const sw = (w - 24) / docPreviewState.baseWidth;
+    const sh = (h - 24) / docPreviewState.baseHeight;
+    return Math.max(0.4, Math.min(4, Math.min(sw, sh)));
+  }
+
+  async function _renderAtCurrentScale() {
+    if (!docPreviewState) return;
+    const ctx = modalCanvas.getContext("2d");
+    const scale = docPreviewState.scale;
+    if (docPreviewState.kind === "pdf") {
+      const { pdfPage, bbox, rawText } = docPreviewState;
+      const viewport = pdfPage.getViewport({ scale });
+      modalCanvas.width = viewport.width;
+      modalCanvas.height = viewport.height;
+      await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+      const snapped = rawText
+        ? await _snapBboxToText(pdfPage, viewport, rawText, bbox)
+        : null;
+      drawBboxOverlay(ctx, snapped || bbox, viewport.width, viewport.height);
+    } else if (docPreviewState.kind === "image") {
+      const { img, bbox } = docPreviewState;
+      modalCanvas.width = Math.round(img.naturalWidth * scale);
+      modalCanvas.height = Math.round(img.naturalHeight * scale);
+      ctx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
+      drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
+    }
+  }
+
+  zoomInBtn.onclick = async () => {
+    if (!docPreviewState) return;
+    docPreviewState.scale = Math.min(4, docPreviewState.scale * 1.25);
+    await _renderAtCurrentScale();
+  };
+  zoomOutBtn.onclick = async () => {
+    if (!docPreviewState) return;
+    docPreviewState.scale = Math.max(0.4, docPreviewState.scale / 1.25);
+    await _renderAtCurrentScale();
+  };
+  fitWidthBtn.onclick = async () => {
+    if (!docPreviewState) return;
+    docPreviewState.scale = _fitWidthScale();
+    await _renderAtCurrentScale();
+  };
+  fitPageBtn.onclick = async () => {
+    if (!docPreviewState) return;
+    docPreviewState.scale = _fitPageScale();
+    await _renderAtCurrentScale();
+  };
 
   function showConfirmFooter(docId) {
     modalActiveDocId = docId;
@@ -420,11 +508,19 @@
         el.onerror = () => reject(new Error("image_load_failed"));
         el.src = url;
       });
-      modalCanvas.width = img.naturalWidth;
-      modalCanvas.height = img.naturalHeight;
-      const ctx = modalCanvas.getContext("2d");
-      ctx.drawImage(img, 0, 0);
-      drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
+      docPreviewState = {
+        kind: "image",
+        img,
+        bbox,
+        rawText: null,
+        scale: 1,
+        baseWidth: img.naturalWidth,
+        baseHeight: img.naturalHeight,
+      };
+      // Default to fit-width on open so the user sees the whole image
+      // without horizontal scrolling. Clamps to [0.4, 4] inside _fitWidthScale.
+      docPreviewState.scale = _fitWidthScale();
+      await _renderAtCurrentScale();
     } finally {
       URL.revokeObjectURL(url);
     }
@@ -437,15 +533,20 @@
     const pdf = await window.pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const pageNum = Math.min(Math.max(page || 1, 1), pdf.numPages);
     const pdfPage = await pdf.getPage(pageNum);
-    const viewport = pdfPage.getViewport({ scale: 1.5 });
-    modalCanvas.width = viewport.width;
-    modalCanvas.height = viewport.height;
-    const ctx = modalCanvas.getContext("2d");
-    await pdfPage.render({ canvasContext: ctx, viewport }).promise;
-    const snapped = rawText
-      ? await _snapBboxToText(pdfPage, viewport, rawText, bbox)
-      : null;
-    drawBboxOverlay(ctx, snapped || bbox, viewport.width, viewport.height);
+    // Establish unscaled page dimensions so fit-width / fit-page can scale
+    // relative to the modal's actual viewport size.
+    const baseViewport = pdfPage.getViewport({ scale: 1 });
+    docPreviewState = {
+      kind: "pdf",
+      pdfPage,
+      bbox,
+      rawText,
+      scale: 1.5,  // overridden on the next line
+      baseWidth: baseViewport.width,
+      baseHeight: baseViewport.height,
+    };
+    docPreviewState.scale = _fitWidthScale();
+    await _renderAtCurrentScale();
   }
 
   function _itemToNormalizedRect(item, viewport) {
@@ -568,6 +669,14 @@
     const bbox = (fragParams.get("bbox") || "").split(",").map(Number);
     const rawText = decodeURIComponent(fragParams.get("q") || "");
 
+    // W2 modal viewer: zoom toolbar applies only to canvas-mode (PDF/PNG).
+    if (modalToolbar) modalToolbar.hidden = false;
+    // Tell the parent OpenEMR page to widen the iframe rail so the modal
+    // has room to render the doc at a useful size. Listener lives in
+    // copilot-rail-fragment.php.
+    try {
+      window.parent?.postMessage({ type: "copilot-doc-modal-open" }, "*");
+    } catch (_) { /* parent unreachable in standalone preview — ignore */ }
     modal.showModal();
     drawTextFallback(ctx, `Loading ${docId} page ${page}…`);
 
@@ -603,6 +712,13 @@
   }
 
   function openEvidenceCardModal(recordId, ev) {
+    // Card mode (non-DocumentReference): no PDF/PNG to render, so the
+    // zoom toolbar stays hidden. We still widen the rail because the
+    // structured card reads better with more horizontal room.
+    if (modalToolbar) modalToolbar.hidden = true;
+    try {
+      window.parent?.postMessage({ type: "copilot-doc-modal-open" }, "*");
+    } catch (_) { /* parent unreachable in standalone preview — ignore */ }
     modal.showModal();
     if (!ev) {
       const empty = document.createElement("div");

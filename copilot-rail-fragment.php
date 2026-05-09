@@ -38,15 +38,21 @@ if (!empty($copilotPatientUuid)) :
             transition: right 0.2s ease;
         }
         body.copilot-open #copilot-toggle { right: 400px; }
+        body.copilot-doc-open #copilot-toggle { right: 80vw; }
         #copilot-rail {
             position: fixed; top: 0; right: 0;
             width: 400px; height: 100vh;
             border: 0; border-left: 1px solid #30363d;
             z-index: 9999; background: #0e1116;
             transform: translateX(100%);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, width 0.2s ease;
         }
         body.copilot-open #copilot-rail { transform: translateX(0); }
+        /* When the iframe signals a doc/bbox modal opened, widen the rail
+           so PDF/PNG previews are actually readable. The iframe sends a
+           postMessage on modal open/close (handled below). */
+        body.copilot-doc-open #copilot-rail { width: 80vw; }
+        body.copilot-doc-open { padding-right: 80vw !important; }
     </style>
     <button id="copilot-toggle" type="button"
             onclick="document.body.classList.toggle('copilot-open')"
@@ -54,4 +60,23 @@ if (!empty($copilotPatientUuid)) :
     <iframe id="copilot-rail"
             src="<?php echo attr($copilotIframeSrc); ?>"
             title="Clinical Co-Pilot"></iframe>
+    <script>
+        // Listen for bbox-modal open/close pings from the Co-Pilot iframe
+        // and widen/narrow the rail so the modal has room to render PDFs
+        // and PNGs at a useful size. Origin guard: only accept from the
+        // rail iframe's contentWindow — spoofing requires same-origin
+        // scripting which already has full DOM access.
+        (function () {
+            window.addEventListener('message', function (e) {
+                var rail = document.getElementById('copilot-rail');
+                if (!rail || e.source !== rail.contentWindow) return;
+                var t = e.data && e.data.type;
+                if (t === 'copilot-doc-modal-open') {
+                    document.body.classList.add('copilot-doc-open');
+                } else if (t === 'copilot-doc-modal-close') {
+                    document.body.classList.remove('copilot-doc-open');
+                }
+            }, false);
+        })();
+    </script>
 <?php endif; ?>
