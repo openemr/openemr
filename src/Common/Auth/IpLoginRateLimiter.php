@@ -32,6 +32,18 @@ final class IpLoginRateLimiter
      * Ensure the given IP address has a tracking record.
      *
      * Must be called before any check/increment operations for that IP.
+     *
+     * Concurrency: uses an atomic upsert with a no-op ON DUPLICATE KEY
+     * UPDATE clause. The previous SELECT-then-INSERT pattern was racy
+     * — two parallel requests for an unseen IP could both observe
+     * "no row" and both attempt INSERT; the loser would throw on the
+     * UNIQUE(ip_string) constraint and surface as a 500, providing a
+     * cheap login-time DoS vector (Aisle round-4 #4 / CWE-362). The
+     * `ip_string = ip_string` clause is intentionally a no-op: it
+     * suppresses the duplicate-key error without overwriting any
+     * existing fail counter, last-fail timestamp, or block flags on
+     * the row — turning the upsert into "insert if absent, do nothing
+     * if present", matching the original semantics safely under load.
      */
     public function ensureTracked(string $ipString): void
     {
@@ -39,17 +51,11 @@ final class IpLoginRateLimiter
             $ipString = 'blank';
         }
 
-        $rows = QueryUtils::fetchRecords(
-            'SELECT `ip_string` FROM `' . self::TABLE . '` WHERE `ip_string` = ?',
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `' . self::TABLE . '` (`ip_string`) VALUES (?)'
+            . ' ON DUPLICATE KEY UPDATE `ip_string` = `ip_string`',
             [$ipString],
         );
-
-        if ($rows === []) {
-            QueryUtils::sqlStatementThrowException(
-                'INSERT INTO `' . self::TABLE . '` (`ip_string`) VALUES (?)',
-                [$ipString],
-            );
-        }
     }
 
     /**

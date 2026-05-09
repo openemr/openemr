@@ -75,6 +75,52 @@ final class IpLoginRateLimiterTest extends TestCase
         self::assertCount(1, $rows);
     }
 
+    /**
+     * Aisle round-4 #4 (CWE-362) regression. The fix swaps a racy
+     * SELECT-then-INSERT for an `INSERT ... ON DUPLICATE KEY UPDATE`
+     * upsert. The clause MUST stay a no-op — if a future refactor
+     * turns it into a `VALUES(...)`-style overwrite, every login
+     * attempt for an already-tracked IP would silently reset the
+     * fail counter, last-fail timestamp, and block flags, neutering
+     * the rate limiter without any visible failure. This test pins
+     * the no-op contract: pre-populate a row with non-default state,
+     * call `ensureTracked()`, assert the state survives.
+     */
+    public function testEnsureTrackedPreservesExistingCounters(): void
+    {
+        // Seed a row with a populated counter, a recent fail timestamp,
+        // and the auto-block-emailed flag set — exactly the state a
+        // real attacker-blocked IP would carry.
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `ip_tracking`'
+            . ' (`ip_string`, `total_ip_login_fail_counter`, `ip_login_fail_counter`,'
+            . ' `ip_last_login_fail`, `ip_force_block`, `ip_auto_block_emailed`)'
+            . ' VALUES (?, 7, 3, NOW(), 1, 1)',
+            [self::TEST_IP],
+        );
+
+        $this->rateLimiter->ensureTracked(self::TEST_IP);
+
+        $rows = QueryUtils::fetchRecords(
+            'SELECT `total_ip_login_fail_counter`, `ip_login_fail_counter`,'
+            . ' `ip_force_block`, `ip_auto_block_emailed`,'
+            . ' `ip_last_login_fail` IS NOT NULL AS `has_last_fail`'
+            . ' FROM `ip_tracking` WHERE `ip_string` = ?',
+            [self::TEST_IP],
+        );
+
+        self::assertCount(1, $rows, 'still exactly one row for this IP');
+        // MySQL returns numeric columns as decimal strings; assertEquals
+        // does loose comparison (`7 == '7'`) which is the right shape for
+        // this regression test, and avoids casting `mixed` to `int`.
+        $row = $rows[0];
+        self::assertEquals(7, $row['total_ip_login_fail_counter'], 'total counter preserved');
+        self::assertEquals(3, $row['ip_login_fail_counter'], 'fail counter preserved');
+        self::assertEquals(1, $row['ip_force_block'], 'force-block flag preserved');
+        self::assertEquals(1, $row['ip_auto_block_emailed'], 'email-sent flag preserved');
+        self::assertEquals(1, $row['has_last_fail'], 'last-fail timestamp preserved (not nulled)');
+    }
+
     public function testEnsureTrackedHandlesEmptyString(): void
     {
         $this->rateLimiter->ensureTracked('');
