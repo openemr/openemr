@@ -1,4 +1,5 @@
 import { fhirGet, FhirError } from "@/lib/fhir/client";
+import { getSessionUser } from "@/lib/auth/session";
 import { PatientHeader } from "@/components/PatientHeader";
 import { Allergies } from "@/components/cards/Allergies";
 import { Problems } from "@/components/cards/Problems";
@@ -31,6 +32,7 @@ export default async function PatientPage({ params }: PageProps) {
     throw err;
   }
   const copilotUrl = process.env.COPILOT_URL ?? "";
+  const sessionUser = await getSessionUser();
   return (
     <div className="flex min-h-screen">
       <main className="mx-auto flex max-w-5xl flex-1 flex-col gap-4 p-6">
@@ -44,7 +46,13 @@ export default async function PatientPage({ params }: PageProps) {
           <Encounters patientId={id} />
         </div>
       </main>
-      {copilotUrl && <CopilotRail patientId={id} copilotUrl={copilotUrl} />}
+      {copilotUrl && (
+        <CopilotRail
+          patientId={id}
+          copilotUrl={copilotUrl}
+          physicianUserId={sessionUser.openemrUsername}
+        />
+      )}
     </div>
   );
 }

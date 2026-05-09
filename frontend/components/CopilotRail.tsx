@@ -1,6 +1,13 @@
 interface CopilotRailProps {
   patientId: string;
   copilotUrl: string;
+  /**
+   * OpenEMR username for the signed-in clinician. When provided, it's
+   * appended to the iframe URL as `&physician_user_id=...` so the
+   * Co-Pilot service can scope the session to this clinician's panel
+   * (otherwise Co-Pilot falls back to its COPILOT_ADMIN_USERS bypass).
+   */
+  physicianUserId?: string | null;
 }
 
 /**
@@ -18,9 +25,13 @@ interface CopilotRailProps {
  * and store the username in the dashboard_session cookie so this
  * component can pass it.
  */
-export function CopilotRail({ patientId, copilotUrl }: CopilotRailProps) {
+export function CopilotRail({ patientId, copilotUrl, physicianUserId }: CopilotRailProps) {
   const trimmed = copilotUrl.replace(/\/+$/, "");
-  const src = `${trimmed}/iframe?patient_id=${encodeURIComponent(patientId)}`;
+  const params = new URLSearchParams({ patient_id: patientId });
+  if (physicianUserId) {
+    params.set("physician_user_id", physicianUserId);
+  }
+  const src = `${trimmed}/iframe?${params.toString()}`;
   return (
     <aside
       className="hidden w-[400px] shrink-0 border-l border-gray-200 dark:border-gray-700 lg:block"
