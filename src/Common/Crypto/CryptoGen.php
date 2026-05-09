@@ -32,12 +32,17 @@
 
 namespace OpenEMR\Common\Crypto;
 
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\{
+    Crypto\ContextualEncryptionTrait,
+    ServiceContainer,
+};
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
 class CryptoGen implements CryptoInterface
 {
+    use ContextualEncryptionTrait;
+
     /**
      * Key cache to optimize key collection, which avoids numerous repeat
      * calls to collect the key sets (and repeat decryption of the key set
@@ -48,6 +53,10 @@ class CryptoGen implements CryptoInterface
     private readonly LoggerInterface $logger;
 
     private readonly string $siteDir;
+
+    // This is intentionally not settable from the outside yet. Will change
+    // once more testing is complete. Needed for trait.
+    private bool $shouldEncryptForDatabase = true;
 
     private readonly bool $shouldEncryptForFilesystem;
 
