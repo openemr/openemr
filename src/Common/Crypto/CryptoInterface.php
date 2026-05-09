@@ -93,5 +93,11 @@ interface CryptoInterface
      * only that the prefix indicates the preferred state.
      */
     public function isDatabaseValueLatest(string $value): bool;
+
+    /**
+     * Indicates if the value reflects the current FS encryption state (on/off,
+     * key at latest version if on). This does not verify the value is usable,
+     * only that the prefix indicates the preferred state.
+     */
     public function isFilesystemValueLatest(string $value): bool;
 }
