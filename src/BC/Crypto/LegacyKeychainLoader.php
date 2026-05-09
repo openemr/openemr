@@ -41,7 +41,10 @@ use Throwable;
  */
 final class LegacyKeychainLoader
 {
-    // Loads the keychain tooling with pure-legacy default
+    /**
+     * Loads the keychain using default legacy storage engines. This will
+     * create keys at the current version if they do not exist.
+     */
     public static function load(): KeychainInterface
     {
         $bag = OEGlobalsBag::getInstance();
@@ -56,10 +59,16 @@ final class LegacyKeychainLoader
         return self::loadWithEngines(
             filesystemStorage: $pkod,
             databaseStorage: $pkidb,
+            storageDir: $storageDir,
         );
     }
 
-    // Loads the keychain tooling using legacy naming conventions
+    /**
+     * Loads the keychain using provided storage engines. This will create keys
+     * at the current version if they do not exist.
+     *
+     * Important: this is still directly coupled to the filesystem
+     */
     public static function loadWithEngines(
         Storage\KeyStorageInterface $filesystemStorage,
         Storage\KeyStorageInterface $databaseStorage,
