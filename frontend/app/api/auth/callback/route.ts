@@ -2,6 +2,7 @@ import { Buffer } from "node:buffer";
 import { randomUUID, timingSafeEqual } from "node:crypto";
 import { signCookieValue, verifyCookieValue, cookieAttrs, clearCookieAttrs } from "@/lib/auth/cookies";
 import * as tokenStore from "@/lib/auth/token-store";
+import { extractPreferredUsername } from "@/lib/auth/id-token";
 
 export const runtime = "nodejs";
 
@@ -92,6 +93,7 @@ export async function GET(req: Request) {
     access_token: string;
     refresh_token?: string;
     expires_in: number;
+    id_token?: string;
   };
 
   const sessionId = randomUUID();
@@ -103,6 +105,12 @@ export async function GET(req: Request) {
     // Session-bound eviction matching the cookie TTL — prevents indefinite
     // token retention for users who never explicitly log out.
     sessionExpiresAt: now + SESSION_TTL_MS,
+    // OIDC ID token (when scope includes `openid`, which we always request)
+    // carries the OpenEMR username in `preferred_username`. We extract and
+    // store it so the FHIR proxy's panel-scope gate can match it against
+    // Patient.generalPractitioner references. Trust comes from the TLS POST
+    // to the token endpoint, not from JWT signature verification.
+    openemrUsername: extractPreferredUsername(tokenJson.id_token),
   });
 
   const sessionCookie = signCookieValue({ sessionId }, cookieSecret, SESSION_TTL_MS);

@@ -33,6 +33,12 @@ export interface TokenEntry {
    */
   sessionExpiresAt: number;
   /**
+   * OpenEMR username extracted from the OIDC ID token's `preferred_username`
+   * claim at OAuth callback. Used by the FHIR proxy's panel-scope gate to
+   * compare against `Patient.generalPractitioner` references.
+   */
+  openemrUsername?: string;
+  /**
    * In-flight refresh promise. Set when a refresh is underway; concurrent
    * callers `await` the same promise to avoid double-fetching the token
    * endpoint (single-flight refresh).
@@ -173,6 +179,7 @@ async function doRefresh(
       refresh: json.refresh_token ?? entry.refresh,
       expiresAt: Date.now() + json.expires_in * 1000,
       sessionExpiresAt: entry.sessionExpiresAt, // preserve original session bound
+      openemrUsername: entry.openemrUsername,    // preserve username across refresh
     };
     store.set(sessionId, next);
     return next;
