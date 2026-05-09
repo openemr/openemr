@@ -1,8 +1,12 @@
 /**
  * Three at-a-glance stat tiles for the home page (Patients, Encounters,
- * Active Medications). Uses FHIR `_summary=count` to fetch only the
- * Bundle.total without entries — much cheaper than dragging full payloads
- * across the proxy just to count them.
+ * Active Medications).
+ *
+ * Counts via `_count=1` (returns Bundle.total + 1 entry). We previously
+ * tried `_summary=count` which is the FHIR-spec-blessed way to get a
+ * total-only response, but OpenEMR's R4 implementation doesn't honor it
+ * (returns Bundle.total = undefined or 0), which surfaced as "—" in the
+ * Patients tile even when patients clearly existed in the list below.
  *
  * Each tile renders independently of the others; one failed fetch shows
  * "—" in just that tile rather than tearing down the whole row.
@@ -20,7 +24,7 @@ interface StatTile {
 
 async function countOf(query: string): Promise<number | null> {
   try {
-    const bundle = await fhirGet<Bundle<unknown>>(`${query}${query.includes("?") ? "&" : "?"}_summary=count`);
+    const bundle = await fhirGet<Bundle<unknown>>(`${query}${query.includes("?") ? "&" : "?"}_count=1`);
     return typeof bundle.total === "number" ? bundle.total : null;
   } catch {
     return null;

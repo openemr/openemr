@@ -58,17 +58,17 @@ describe("StatCards", () => {
     expect(html).toContain("—"); // failed tile shows em-dash, page does not crash
   });
 
-  it("requests _summary=count to avoid pulling full bundles", async () => {
+  it("requests _count=1 to keep responses tiny while still getting Bundle.total (OpenEMR doesn't honor _summary=count)", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async () => totalsBundle(0));
     await StatCards();
     const calledUrls = fetchMock.mock.calls.map((c) => String(c[0]));
     for (const url of calledUrls) {
-      expect(url).toMatch(/_summary=count/);
+      expect(url).toMatch(/_count=1/);
     }
     // Patient and Encounter use ? prefix; MedicationRequest already has ?status=, should use &
-    expect(calledUrls.some((u) => u.endsWith("/Patient?_summary=count"))).toBe(true);
-    expect(calledUrls.some((u) => u.endsWith("/Encounter?_summary=count"))).toBe(true);
-    expect(calledUrls.some((u) => u.endsWith("MedicationRequest?status=active&_summary=count"))).toBe(true);
+    expect(calledUrls.some((u) => u.endsWith("/Patient?_count=1"))).toBe(true);
+    expect(calledUrls.some((u) => u.endsWith("/Encounter?_count=1"))).toBe(true);
+    expect(calledUrls.some((u) => u.endsWith("MedicationRequest?status=active&_count=1"))).toBe(true);
   });
 
   it("shows em-dash when Bundle.total is missing", async () => {
