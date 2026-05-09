@@ -1,17 +1,23 @@
-"""OCR-based bbox snap for image (PNG/JPG) extractions.
+"""OCR-based bbox snap for image and PDF extractions.
 
 Claude vision (the VLM) emits approximate bboxes on rasterized photos —
-documented model behavior. PDF extractions can rescue this in the iframe
-via PDF.js's text layer (see ``app/web/copilot_iframe.js::_snapBboxToText``),
-but images have no equivalent. This module fills that gap server-side:
+documented model behavior. The same problem hits born-digital PDFs whose
+text is rendered through subsetted fonts/CMaps where pdf.js's text-layer
+output doesn't match the VLM's ``raw_text`` verbatim (e.g. synthea-
+generated intake forms). This module addresses both:
 
-  1. ``ocr_items(image_bytes)`` runs Tesseract once over the image and
-     returns every detected text item normalized to [0, 1] over the image
-     dimensions (matching the BoundingBox schema).
-  2. ``snap_bbox(items, raw_text, fallback_bbox)`` searches for the OCR
-     item that best matches ``raw_text`` (preferring the numeric token,
-     disambiguated by vertical proximity to ``fallback_bbox``) and
-     returns its rect. Caller falls back to ``fallback_bbox`` on None.
+  1. ``ocr_items(image_bytes)`` runs Tesseract once on an image and
+     returns every detected text item normalized to [0, 1].
+  2. ``pdf_page_ocr_items(pdf_bytes, page_index)`` rasterizes a single
+     PDF page via pypdfium2 and OCRs that page with Tesseract — same
+     ``OcrItem`` shape, same [0, 1] frame, but cached per-page since
+     multiple citations on one page share a rasterization.
+  3. ``snap_bbox(items, raw_text, fallback_bbox)`` snaps the VLM bbox.
+     For multi-word ``raw_text`` it picks the y-row that contains ≥60%
+     of the tokens and returns the union rect (so a med-name citation
+     highlights the whole "Amlodipine 5mg PO daily" row, not just one
+     numeric token in the wrong place). For single-token raw_text the
+     existing tight-snap behavior (numeric or whole-string) is kept.
 
 The caller mutates ``source_citation.bbox`` in place at extraction time
 so both the SQLite store and the bbox_overlay payload carry the snapped
@@ -22,6 +28,7 @@ from __future__ import annotations
 
 import io
 import logging
+import math
 import re
 from dataclasses import dataclass
 
@@ -98,44 +105,147 @@ def ocr_items(image_bytes: bytes) -> list[OcrItem]:
     return items
 
 
+def pdf_page_ocr_items(
+    pdf_bytes: bytes, page_index: int, *, scale: float = 2.0
+) -> list[OcrItem]:
+    """Rasterize one PDF page and OCR it. Returns ``[]`` on any error.
+
+    ``scale=2.0`` ≈ 144 DPI (PDFium native is 72 DPI), a good Tesseract
+    sweet spot — higher slows OCR without much accuracy gain on typed
+    forms. Coordinates are normalized to [0, 1] over the page so the
+    returned ``OcrItem``s share the same frame as the VLM's bbox.
+    """
+    if not _ocr_available():
+        return []
+    try:
+        import pypdfium2 as pdfium
+        import pytesseract
+    except Exception as e:
+        logger.warning("PDF OCR disabled: %s", e)
+        return []
+
+    pdf = None
+    try:
+        pdf = pdfium.PdfDocument(pdf_bytes)
+        if page_index < 0 or page_index >= len(pdf):
+            return []
+        page = pdf[page_index]
+        img = page.render(scale=scale).to_pil()
+        if img.mode not in ("L", "RGB"):
+            img = img.convert("RGB")
+        page_w, page_h = img.size
+        if page_w <= 0 or page_h <= 0:
+            return []
+        data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+    except Exception as e:
+        logger.warning("PDF page OCR failed (page %d): %s", page_index, e)
+        return []
+    finally:
+        if pdf is not None:
+            try:
+                pdf.close()
+            except Exception:
+                pass
+
+    items: list[OcrItem] = []
+    for i in range(len(data.get("text", []))):
+        text = (data["text"][i] or "").strip()
+        if not text:
+            continue
+        try:
+            x = float(data["left"][i]) / page_w
+            y = float(data["top"][i]) / page_h
+            w = float(data["width"][i]) / page_w
+            h = float(data["height"][i]) / page_h
+        except (TypeError, ValueError, ZeroDivisionError):
+            continue
+        items.append(OcrItem(text=text, x=x, y=y, w=w, h=h))
+    return items
+
+
 _NUMERIC_TOKEN = re.compile(r"-?\d+(?:\.\d+)?")
-_TRAILING_PUNCT = ",.;:"
+_PUNCT_LEAD = re.compile(r"^[^A-Za-z0-9]+")
+_PUNCT_TRAIL = re.compile(r"[,.;:'\-)]+$")
 
 
 def _strip_punct(s: str) -> str:
-    """Strip trailing ``,.;:`` so ``"shellfish,"`` matches ``"shellfish"``.
-
-    Tesseract and pdf.js commonly glue punctuation to the preceding
-    token, so naive equality misses what is visually the same word.
+    """Mirror the iframe ``_stripPunct``: drop leading non-alphanumeric and
+    trailing ``,.;:'-)``. Tokens like ``"(Amlodipine)"`` → ``"Amlodipine"``,
+    ``"shellfish,"`` → ``"shellfish"`` line up with the form text.
     """
-    return s.rstrip(_TRAILING_PUNCT)
+    return _PUNCT_TRAIL.sub("", _PUNCT_LEAD.sub("", s or ""))
 
 
-def _row_union(
-    winner: OcrItem, items: list[OcrItem]
-) -> tuple[float, float, float, float]:
-    """Expand ``winner``'s rect to cover the full row containing it.
+def _multi_token_snap(
+    items: list[OcrItem],
+    tokens: list[str],
+    fallback_bbox,
+) -> tuple[float, float, float, float] | None:
+    """Find the y-row matching ≥60% of ``tokens`` and return the union rect.
 
-    Used after the numeric branch picks a value (e.g. ``"142"``) to give
-    the citation rectangle clinical context — the row carries the test
-    name and units (``"LDL Cholesterol 142 mg/dL"``), so the user can
-    audit the citation without losing visual context.
-
-    Row band is ``winner.h * 0.7`` around ``winner``'s y-center, tight
-    enough that adjacent rows in a tabular lab report do not bleed in.
+    Used for multi-word ``raw_text`` like ``"Amlodipine 5 mg daily"``
+    or ``"Ankle swelling in the past 2 weeks"`` where no single OCR
+    item contains the whole phrase. Mirrors the iframe's
+    ``trySnapMultiToken`` so client and server behavior stay aligned.
     """
-    win_cy = winner.y + winner.h / 2
-    tol = winner.h * 0.7
-    row = [it for it in items if abs((it.y + it.h / 2) - win_cy) <= tol]
-    if not row:
-        return (winner.x, winner.y, winner.w, winner.h)
-    xs = [it.x for it in row]
-    ys = [it.y for it in row]
-    x2s = [it.x + it.w for it in row]
-    y2s = [it.y + it.h for it in row]
-    x = min(xs)
-    y = min(ys)
-    return (x, y, max(x2s) - x, max(y2s) - y)
+    if not tokens or len(tokens) < 2 or not items:
+        return None
+    fb_w = max(fallback_bbox.w, 0.05)
+    fb_cy = fallback_bbox.y + fallback_bbox.h / 2
+    required = max(2, math.ceil(len(tokens) * 0.6))
+
+    tokens_lower = [t.lower() for t in tokens if t]
+    if not tokens_lower:
+        return None
+
+    matches: list[tuple[OcrItem, set[int]]] = []
+    for item in items:
+        item_text = _strip_punct(item.text).lower()
+        if not item_text:
+            continue
+        matched: set[int] = set()
+        for i, tok in enumerate(tokens_lower):
+            if tok and tok in item_text:
+                matched.add(i)
+        if matched:
+            matches.append((item, matched))
+    if not matches:
+        return None
+
+    best: tuple[tuple[int, float], tuple[float, float, float, float]] | None = None
+    for anchor, _ in matches:
+        anchor_cy = anchor.y + anchor.h / 2
+        # Per-anchor row tolerance: half the anchor's height. Tesseract's
+        # per-line rect heights track the actual line height, so this
+        # admits tokens on the same baseline (intra-row variation in
+        # bbox top/bottom is fractions of a glyph) while excluding the
+        # next row (typically ≥1× line-height away). Hard min keeps
+        # fast/sparse OCR rows from collapsing.
+        row_tol = max(0.005, min(0.02, anchor.h * 0.6))
+        cluster = [
+            (it, idx)
+            for it, idx in matches
+            if abs((it.y + it.h / 2) - anchor_cy) <= row_tol
+        ]
+        all_idx: set[int] = set()
+        for _, idx in cluster:
+            all_idx.update(idx)
+        if len(all_idx) < required:
+            continue
+        x_min = min(it.x for it, _ in cluster)
+        x_max = max(it.x + it.w for it, _ in cluster)
+        y_min = min(it.y for it, _ in cluster)
+        y_max = max(it.y + it.h for it, _ in cluster)
+        # Drift guard: union width should not balloon past 1.5× the VLM
+        # hint width — keeps stray cross-row substring matches out.
+        if x_max - x_min > fb_w * 1.5:
+            continue
+        # Score: more tokens matched wins; ties broken by closer y to fb_cy.
+        score = (len(all_idx), -abs(anchor_cy - fb_cy))
+        rect = (x_min, y_min, x_max - x_min, y_max - y_min)
+        if best is None or score > best[0]:
+            best = (score, rect)
+    return best[1] if best else None
 
 
 def snap_bbox(
@@ -143,94 +253,72 @@ def snap_bbox(
     raw_text: str,
     fallback_bbox,  # BoundingBox; uses .x/.y/.w/.h
 ) -> tuple[float, float, float, float] | None:
-    """Snap ``raw_text`` to the best-matching OCR item(s); return (x, y, w, h).
+    """Snap ``raw_text`` to the best-matching OCR item; return (x, y, w, h).
 
-    Same disambiguation strategy as the PDF text-snap helper:
+    Order is shape-aware (mirrors the iframe ``_snapBboxToText``):
 
-      * If ``raw_text`` contains a numeric token (lab values, vitals),
-        prefer items containing that token, picking the one whose
-        vertical center is closest to ``fallback_bbox``'s center.
-      * Otherwise fall back to whole-string equality (single-word
-        intake answers, allergy strings).
-      * Multi-token fallback for free-text intake answers (``"John Doe"``,
-        ``"shellfish, peanuts"``): tokenize on whitespace, strip
-        trailing punctuation, find a per-token match in the same y-row
-        as ``fallback_bbox``, and return the union rect — but only if
-        at least two distinct tokens matched. A one-token "match"
-        masquerading as the whole answer is worse than the VLM bbox.
-      * Returns ``None`` if no candidate matches — caller keeps the VLM
-        bbox.
+      * **First token is numeric** (lab values like ``"142 mg/dL"``,
+        vitals like ``"5.6 mg/dL"``): tight-snap to the numeric token,
+        falling back to multi-token row union, then whole-string. Keeps
+        existing tight highlight on the value.
+      * **First token is non-numeric** (med names like ``"Amlodipine 5
+        mg daily"``, intake answers like ``"Ankle swelling in the past
+        2 weeks"``): try multi-token row-union first so the rectangle
+        spans the relevant text. The numeric branch is deliberately
+        skipped — for med names the embedded ``"5"`` is incidental and
+        snapping to a stray ``"5"`` elsewhere on the page is worse than
+        falling back to ``None``.
+      * **Single non-numeric token** (``"penicillin"``): whole-string
+        equality.
 
-    OCR coordinates are already normalized to the image (see
-    ``ocr_items``), so the returned rect is in the same [0, 1] frame as
-    ``fallback_bbox``.
+    Returns ``None`` if no strategy matches — caller keeps the VLM bbox.
+    OCR coordinates are already normalized (see ``ocr_items`` /
+    ``pdf_page_ocr_items``), so the returned rect is in the same [0, 1]
+    frame as ``fallback_bbox``.
     """
     target = (raw_text or "").strip()
     if not target or not items:
         return None
 
     fb_cy = fallback_bbox.y + fallback_bbox.h / 2
+    stripped_tokens = [_strip_punct(t) for t in target.split()]
+    stripped_tokens = [t for t in stripped_tokens if t]
+    first_token_is_numeric = bool(
+        stripped_tokens and _NUMERIC_TOKEN.fullmatch(stripped_tokens[0])
+    )
 
-    candidates: list[tuple[OcrItem, float, bool]] = []
-    num_match = _NUMERIC_TOKEN.search(target)
-    if num_match:
+    def _try_numeric() -> tuple[float, float, float, float] | None:
+        num_match = _NUMERIC_TOKEN.search(target)
+        if not num_match:
+            return None
         num_token = num_match.group(0)
+        cands: list[tuple[OcrItem, float, bool]] = []
         for it in items:
             if num_token not in it.text:
                 continue
             cy = it.y + it.h / 2
-            candidates.append((it, abs(cy - fb_cy), it.text == num_token))
+            cands.append((it, abs(cy - fb_cy), it.text == num_token))
+        if not cands:
+            return None
+        cands.sort(key=lambda c: (not c[2], c[1]))
+        it = cands[0][0]
+        return (it.x, it.y, it.w, it.h)
 
-    if not candidates:
+    def _try_whole_string() -> tuple[float, float, float, float] | None:
+        cands: list[tuple[OcrItem, float]] = []
         for it in items:
             if it.text == target:
                 cy = it.y + it.h / 2
-                candidates.append((it, abs(cy - fb_cy), True))
+                cands.append((it, abs(cy - fb_cy)))
+        if not cands:
+            return None
+        cands.sort(key=lambda c: c[1])
+        it = cands[0][0]
+        return (it.x, it.y, it.w, it.h)
 
-    if candidates:
-        # Prefer exact-token matches over substring; then the y-closest one.
-        candidates.sort(key=lambda c: (not c[2], c[1]))
-        winner = candidates[0][0]
-        # Expand to the full row when the winner came from the numeric
-        # branch — the row gives clinical context (test name, units)
-        # without obscuring the value, and the red stroke now sits on
-        # the row gutters instead of overlapping the digits.
-        if num_match is not None:
-            return _row_union(winner, items)
-        return (winner.x, winner.y, winner.w, winner.h)
+    def _try_multi_token() -> tuple[float, float, float, float] | None:
+        return _multi_token_snap(items, stripped_tokens, fallback_bbox)
 
-    # Multi-token fallback. Tokenize raw_text and try to assemble a union
-    # of per-token matches on the same row as fallback_bbox.
-    tokens = [_strip_punct(t) for t in target.split() if _strip_punct(t)]
-    if len(tokens) < 2:
-        return None
-
-    matched_rects: list[tuple[float, float, float, float]] = []
-    matched_tokens: set[str] = set()
-    for tok in tokens:
-        best: tuple[OcrItem, float] | None = None
-        for it in items:
-            if _strip_punct(it.text) != tok:
-                continue
-            it_cy = it.y + it.h / 2
-            row_tol = max(fallback_bbox.h, it.h) * 1.5
-            if abs(it_cy - fb_cy) > row_tol:
-                continue
-            dy = abs(it_cy - fb_cy)
-            if best is None or dy < best[1]:
-                best = (it, dy)
-        if best is not None:
-            it = best[0]
-            matched_rects.append((it.x, it.y, it.w, it.h))
-            matched_tokens.add(tok)
-
-    if len(matched_tokens) < 2:
-        return None
-
-    xs = [r[0] for r in matched_rects]
-    ys = [r[1] for r in matched_rects]
-    x2s = [r[0] + r[2] for r in matched_rects]
-    y2s = [r[1] + r[3] for r in matched_rects]
-    x = min(xs)
-    y = min(ys)
-    return (x, y, max(x2s) - x, max(y2s) - y)
+    if first_token_is_numeric:
+        return _try_numeric() or _try_multi_token() or _try_whole_string()
+    return _try_multi_token() or _try_whole_string()

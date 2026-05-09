@@ -28,6 +28,7 @@ dependencies = [
   "pyyaml>=6.0",
   "pytesseract>=0.3.10",
   "Pillow>=10.0",
+  "pypdfium2>=4.30",
 ]
 
 [project.optional-dependencies]

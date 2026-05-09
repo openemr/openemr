@@ -14,7 +14,7 @@ from typing import Any
 
 from app.fhir.client import FhirClient
 from app.ingestion.fhir_writer import write_extraction
-from app.ingestion.ocr import ocr_items, snap_bbox
+from app.ingestion.ocr import ocr_items, pdf_page_ocr_items, snap_bbox
 from app.ingestion.schemas import (
     BoundingBox,
     DocType,
@@ -104,6 +104,64 @@ async def _ocr_snap_extraction(extraction: Any, image_bytes: bytes) -> None:
         )
 
 
+async def _ocr_snap_pdf_extraction(extraction: Any, pdf_bytes: bytes) -> None:
+    """PDF analogue of ``_ocr_snap_extraction``.
+
+    Born-digital PDFs (e.g. synthea intake forms) often render text via
+    subsetted fonts whose Unicode round-tripping fails — pdf.js's
+    text-layer output then doesn't match the VLM's ``raw_text``
+    verbatim and the iframe's client-side snap bails. We rasterize each
+    page that has at least one citation once with pypdfium2, OCR with
+    Tesseract, and snap each citation's VLM bbox to the multi-token
+    row union. Page rasterizations are cached per-extraction so two
+    citations on the same page share the work.
+
+    No-ops when pypdfium2 / Tesseract are unavailable, when a citation
+    has no VLM bbox to anchor the snap, or when no OCR row matches —
+    the VLM bbox is preserved in those cases.
+    """
+    import asyncio
+
+    citations: list[Any] = []
+    pages_needed: set[int] = set()
+    for cite, _parent in _walk_citations(extraction):
+        if cite.bbox is None or not cite.raw_text or cite.page is None:
+            continue
+        citations.append(cite)
+        # PDF pages are 1-indexed in the schema; pdfium is 0-indexed.
+        pages_needed.add(int(cite.page) - 1)
+
+    if not citations:
+        return
+
+    page_items: dict[int, list] = {}
+    for page_index in pages_needed:
+        if page_index < 0:
+            continue
+        items = await asyncio.to_thread(pdf_page_ocr_items, pdf_bytes, page_index)
+        if items:
+            page_items[page_index] = items
+
+    if not page_items:
+        return
+
+    for cite in citations:
+        page_index = int(cite.page) - 1
+        items = page_items.get(page_index)
+        if not items:
+            continue
+        snapped = snap_bbox(items, cite.raw_text, cite.bbox)
+        if snapped is None:
+            continue
+        x, y, w, h = snapped
+        cite.bbox = BoundingBox(
+            x=max(0.0, min(1.0, x)),
+            y=max(0.0, min(1.0, y)),
+            w=max(0.0, min(1.0, w)),
+            h=max(0.0, min(1.0, h)),
+        )
+
+
 def _bbox_overlay(extraction: Any, doc_id: str) -> list[BboxOverlayItem]:
     items: list[BboxOverlayItem] = []
     for cite, _ in _walk_citations(extraction):
@@ -179,13 +237,18 @@ class IngestionService:
         )
         latency_ms = (_t.perf_counter() - t0) * 1000.0
 
-        # OCR-snap for image extractions: Claude vision is approximate at
-        # pixel localization on rasterized photos. Run Tesseract once and
-        # rewrite each fact's bbox to the OCR-detected glyph rect.
-        # PDFs have a text layer the iframe snaps to client-side and don't
-        # need this pass.
+        # OCR-snap: Claude vision is approximate at pixel localization on
+        # rasterized photos AND on born-digital PDFs whose text uses
+        # subsetted fonts (e.g. synthea intake forms — pdf.js's text
+        # layer there doesn't round-trip Unicode and the iframe's
+        # client-side snap can't help). Run Tesseract once on the
+        # rasterized page(s) and rewrite each citation's bbox to the
+        # OCR-detected row union. The snap is per-citation but caches
+        # page rasterizations within the call.
         if mime_type.startswith("image/"):
             await _ocr_snap_extraction(extraction, file_bytes)
+        elif mime_type == "application/pdf":
+            await _ocr_snap_pdf_extraction(extraction, file_bytes)
 
         await write_extraction(
             extraction,
