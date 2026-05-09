@@ -12,10 +12,23 @@ class ClientCredentialsAssertionGenerator
     /**
      * @param non-empty-string $oauthTokenUrl
      * @param non-empty-string $clientId
+     * @param non-empty-string|null $kid Optional JWK `kid` to embed in
+     *   the JWT header. SMART Backend Services / RFC 7515 §4.1.4 require
+     *   `kid` so the OAuth server can resolve the right JWK from the
+     *   client's registered set; OpenEMR's
+     *   `JWTClientAuthenticationService` rejects assertions without it.
+     *   Left optional so isolated tests that exercise just the
+     *   generator (and don't round-trip through validation) can keep
+     *   working without supplying a fixture kid.
      * @return non-empty-string
      */
-    public static function generateAssertion(Key $privateKey, Key $publicKey, string $oauthTokenUrl, string $clientId): string
-    {
+    public static function generateAssertion(
+        Key $privateKey,
+        Key $publicKey,
+        string $oauthTokenUrl,
+        string $clientId,
+        ?string $kid = null,
+    ): string {
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
@@ -27,7 +40,7 @@ class ClientCredentialsAssertionGenerator
         $jti = Uuid::uuid4()->toString();
 
         $now   = new \DateTimeImmutable();
-        $token = $configuration->builder()
+        $builder = $configuration->builder()
             // Configures the issuer (iss claim)
             ->issuedBy($clientId)
             // Configures the audience (aud claim)
@@ -40,8 +53,13 @@ class ClientCredentialsAssertionGenerator
             ->canOnlyBeUsedAfter($now)
             // Configures the expiration time of the token (exp claim)
             ->expiresAt($now->modify('+60 seconds'))
-            ->relatedTo($clientId)
-            ->getToken($configuration->signer(), $configuration->signingKey());
+            ->relatedTo($clientId);
+
+        if ($kid !== null) {
+            $builder = $builder->withHeader('kid', $kid);
+        }
+
+        $token = $builder->getToken($configuration->signer(), $configuration->signingKey());
         return $token->toString(); // The string representation of the object is a JWT string
     }
 }

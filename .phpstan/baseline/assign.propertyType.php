@@ -1027,21 +1027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthException.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\AccessTokenEntity\\:\\:\\$issuer \\(string\\) does not accept string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/AccessTokenEntity.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OAuth2KeyConfig\\:\\:\\$oaEncryptionKey \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OAuth2KeyConfig\\:\\:\\$passphrase \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\:\\:\\$contacts \\(array\\<string\\>\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ClientEntity.php',

@@ -80,11 +80,39 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
             $this->printUsage($context);
             return;
         }
+        // SMART Backend Services / RFC 7515 §4.1.4: the OpenEMR OAuth
+        // server's JWT validator requires a `kid` header. Pull it from
+        // the same fixture JWKS the public/private keys come from so
+        // the generated assertion is server-acceptable out of the box.
+        $kid = null;
+        $jwksRaw = @file_get_contents($keyLocation . "jwk-public-valid.json");
+        if (is_string($jwksRaw)) {
+            $decoded = json_decode($jwksRaw, true);
+            // Step through the structure with intermediate variables so
+            // PHPStan can narrow `mixed` at each level — chained
+            // subscripts on `mixed` trip `offsetAccess.nonOffsetAccessible`.
+            $keys = is_array($decoded) && isset($decoded['keys']) && is_array($decoded['keys'])
+                ? $decoded['keys']
+                : null;
+            $firstKey = $keys !== null && isset($keys[0]) && is_array($keys[0])
+                ? $keys[0]
+                : null;
+            if (
+                $firstKey !== null
+                && isset($firstKey['kid'])
+                && is_string($firstKey['kid'])
+                && $firstKey['kid'] !== ''
+            ) {
+                $kid = $firstKey['kid'];
+            }
+        }
+
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             InMemory::file($keyLocation . "openemr-rsa384-private.key"),
             InMemory::file($keyLocation . "openemr-rsa384-public.pem"),
             $oauthTokenUrl,
-            $clientId
+            $clientId,
+            $kid,
         );
         echo "Generated Client Credentials Assertion\n";
         echo $assertion . "\n";
