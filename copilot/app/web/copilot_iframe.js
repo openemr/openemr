@@ -52,6 +52,13 @@
   // Per-session in-memory dismissal set. Persistent ack is Final-scope.
   const acknowledgedDocIds = new Set();
 
+  // W2 Phase 5 (Issue 2b hardening, 2026-05-09): map of live banner-item
+  // closures keyed by doc_id. Lets handleConfirmReject mutate the very
+  // ``item`` object the li.onclick closure captured, so the next click
+  // sees fresh ``confirmed_at`` / ``rejected_at`` even if the followup
+  // ``refreshPendingIntakes`` is slow / fails / hasn't returned yet.
+  const liveItemByDocId = new Map();
+
   async function refreshPendingIntakes(sid) {
     const banner = document.getElementById("pending-intakes-banner");
     const list = document.getElementById("pending-intakes-list");
@@ -75,6 +82,7 @@
     banner.hidden = false;
     countEl.textContent = String(visible.length);
     list.replaceChildren();
+    liveItemByDocId.clear();
     for (const item of visible) {
       const li = document.createElement("li");
       let stateTag = "";
@@ -91,6 +99,10 @@
       li.dataset.docId = item.doc_id;
       li.onclick = () => onPendingIntakeClick(item, li);
       list.appendChild(li);
+      // Map the live ``item`` so handleConfirmReject can mutate it
+      // synchronously after a successful confirm/reject without waiting
+      // for the next refreshPendingIntakes cycle.
+      liveItemByDocId.set(item.doc_id, item);
     }
     // W2 Phase 5 — pre-warm extraction so a banner click is near-instant.
     // process_pending is idempotent server-side, so racing the click is safe.
@@ -335,10 +347,21 @@
         modalRejectBtn.disabled = false;
         return;
       }
+      // W2 Phase 5 (Issue 2b hardening, 2026-05-09): parse the response so
+      // we can mutate the LIVE banner-item closure with the canonical
+      // confirmed_at / rejected_at the server just persisted. Without
+      // this, the OLD li.onclick closure still captures item.confirmed_at
+      // = undefined, and a second click would re-show the Confirm/Reject
+      // footer (because alreadyHandled would only be true via
+      // handledDocIds, which resets across iframe reloads).
+      const data = await r.json().catch(() => ({}));
+      const liveItem = liveItemByDocId.get(modalActiveDocId);
       if (action === "confirm") {
         modalStatus.textContent = "Confirmed.";
+        if (liveItem) liveItem.confirmed_at = data.confirmed_at || "confirmed";
       } else {
         modalStatus.textContent = "Rejected.";
+        if (liveItem) liveItem.rejected_at = data.rejected_at || "rejected";
       }
       handledDocIds.add(modalActiveDocId);
       // Refresh the banner so the state tag updates without a full reload.
@@ -651,6 +674,12 @@
     //   Condition/{id}, Encounter/{id}, Patient/{id}
     //   Guideline/{chunk_id}
     //   QuestionnaireResponse/{qr_id}#linkId={...}
+    // W2 Phase 5 (Issue 2b hardening, 2026-05-09): defensively reset the
+    // Confirm/Reject footer at every modal-open so showConfirmFooter is
+    // the only path that can unhide it. Belt-and-suspenders against any
+    // close-handler edge case where the footer is left visible.
+    modalFooter.hidden = true;
+    modalStatus.textContent = "";
     modalLabel.textContent = recordId;
     if (recordId.startsWith("DocumentReference/")) {
       _showCanvasMode();

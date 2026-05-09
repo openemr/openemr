@@ -182,3 +182,92 @@ def test_reject_panel_gated(client: TestClient, monkeypatch) -> None:
             "?patient_id=other-patient&physician_user_id=" + PHYSICIAN
         )
     assert r.status_code == 403
+    assert "out_of_panel" in r.json()["detail"]
+
+
+def test_e2e_confirm_then_pending_intakes_carries_confirmed_at(
+    client: TestClient, monkeypatch
+) -> None:
+    """W2 Phase 5 regression for Issue 2b — end-to-end against the real
+    persistence layer (no mocks for ``mark_confirmed`` /
+    ``list_confirmed_recent``). After the physician confirms a row,
+    re-fetching ``/pending_intakes`` must surface that row with
+    ``confirmed_at`` populated and ``is_front_desk_filed=True`` so the
+    iframe's ``alreadyHandled`` gate hides the Confirm/Reject footer
+    on re-open.
+
+    This pins the bug the user reported on 2026-05-09: buttons
+    re-appearing on second click of a just-confirmed intake.
+    """
+    import asyncio
+    from app import main as main_module
+
+    DOC_ID = "copilot-e2e-confirm-1"
+
+    async def _empty_search(*args, **kwargs):
+        return {"entry": []}
+
+    async def _noop_panel(*args, **kwargs):
+        return None
+
+    monkeypatch.setattr(main_module, "_verify_patient_in_panel", _noop_panel)
+
+    with client:
+        store = main_module.app.state.processed_documents
+        # Mock FHIR search so the merge only contains local-store items.
+        monkeypatch.setattr(main_module.app.state.fhir, "search", _empty_search)
+
+        # 1. Seed a row mid-flow: through attach_only + process_pending.
+        #    extracted_facts no longer carries the `_pending` marker.
+        asyncio.run(store.record(
+            patient_pseudonym=PATIENT_ID,
+            hash="0" * 128,
+            canonical_doc_id=DOC_ID,
+            doc_type="lab_doc",
+            extracted_facts={"results": [], "document_date": "2026-05-09"},
+            source_path="front_desk_scan",
+            file_bytes=b"%PDF-1.4 fake",
+            mime_type="application/pdf",
+        ))
+
+        # 2. Confirm via the REAL route (real mark_confirmed + real read).
+        r = client.post(
+            f"/v1/documents/{DOC_ID}/confirm"
+            f"?patient_id={PATIENT_ID}&physician_user_id={PHYSICIAN}"
+        )
+        assert r.status_code == 200, r.text
+        confirm_body = r.json()
+        assert confirm_body["confirmed_at"] is not None, (
+            f"/confirm did not return confirmed_at: {confirm_body}"
+        )
+
+        # 3. Open a session and fetch the banner.
+        r = client.post(
+            "/v1/sessions",
+            json={"patient_id": PATIENT_ID, "physician_user_id": PHYSICIAN},
+        )
+        assert r.status_code == 200, r.text
+        sid = r.json()["session_id"]
+
+        r = client.get(f"/v1/sessions/{sid}/pending_intakes")
+        assert r.status_code == 200, r.text
+        body = r.json()
+
+    # 4. The just-confirmed row MUST appear with confirmed_at populated
+    # and is_front_desk_filed=True. Failing this assertion proves the
+    # iframe's alreadyHandled gate cannot be relying on the API state.
+    matching = [i for i in body["items"] if i["doc_id"] == DOC_ID]
+    assert len(matching) == 1, (
+        f"Expected 1 banner item for {DOC_ID}, got {len(matching)}: "
+        f"{body['items']}"
+    )
+    item = matching[0]
+    assert item["confirmed_at"] is not None, (
+        f"Banner item is missing confirmed_at — Issue 2b root cause: {item}"
+    )
+    assert item["is_front_desk_filed"] is True, (
+        f"Banner item is missing is_front_desk_filed=True: {item}"
+    )
+    assert item["is_pending"] is False, (
+        f"Banner item still marked is_pending=True: {item}"
+    )
