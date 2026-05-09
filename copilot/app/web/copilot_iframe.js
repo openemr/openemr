@@ -612,9 +612,14 @@
   }
 
   function _stripPunct(s) {
-    // Strip trailing ,.;: so "shellfish," matches "shellfish". pdf.js and
-    // Tesseract commonly glue punctuation to the preceding token.
-    return (s || "").replace(/[,.;:]+$/, "");
+    // Strip leading non-alphanumeric AND trailing ,.;:'-) so tokens like
+    // "(Amlodipine)" → "Amlodipine", "shellfish," → "shellfish",
+    // "Mom's" → "Mom", "5'8\"" / "3-day" line up with the form text.
+    // pdf.js can glue/split punctuation inconsistently between the
+    // VLM raw_text and the rendered text-layer items.
+    return (s || "")
+      .replace(/^[^A-Za-z0-9]+/, "")
+      .replace(/[,.;:'\-)]+$/, "");
   }
 
   function _rowUnion(winnerRect, items, viewport) {
@@ -726,7 +731,9 @@
           if (s !== tok) continue;
           const rect = _itemToNormalizedRect(item, viewport);
           const itemCenterY = rect[1] + rect[3] / 2;
-          const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
+          // Cap at 0.04 (~½ inch on a letter page) so a tall VLM bbox
+          // doesn't sweep in tokens from rows above and below.
+          const rowTol = Math.min(0.04, Math.max(fbHeight, rect[3]) * 1.0);
           const dy = Math.abs(itemCenterY - fbCenterY);
           if (dy > rowTol) continue;
           if (best === null || dy < best.dy) best = { rect, dy };
@@ -763,9 +770,14 @@
 
     try {
       const tc = await pdfPage.getTextContent();
-      // Order: numeric-first for "142 mg/dL"-shaped lab values; multi-token
-      // first for names/meds where the leading word IS the citation target
-      // and an embedded number would mis-route the snap.
+      // Order:
+      //   numeric-first ("142 mg/dL"): numeric → multi-token → whole-string.
+      //   non-numeric-first ("Amlodipine 5 mg daily", "Maria Lopez"):
+      //     multi-token → whole-string → null. The numeric branch is
+      //     DELIBERATELY SKIPPED — for med names / intake answers the
+      //     embedded "5" is incidental, and snapping to the first "5"
+      //     elsewhere on the page is worse than letting the caller draw
+      //     the (centered) VLM fallback bbox.
       if (firstTokenIsNumeric) {
         return (
           trySnapNumeric(tc.items)
@@ -775,7 +787,6 @@
       }
       return (
         trySnapMultiToken(tc.items)
-        ?? trySnapNumeric(tc.items)
         ?? trySnapWholeString(tc.items)
       );
     } catch (e) {
