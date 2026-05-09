@@ -1,5 +1,8 @@
 import { fhirGet, FhirError } from "@/lib/fhir/client";
 import { PatientHeader } from "@/components/PatientHeader";
+import { Allergies } from "@/components/cards/Allergies";
+import { Problems } from "@/components/cards/Problems";
+import { Medications } from "@/components/cards/Medications";
 import type { Patient } from "@/lib/fhir/types";
 
 interface PageProps {
@@ -26,7 +29,12 @@ export default async function PatientPage({ params }: PageProps) {
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6">
       <PatientHeader patient={patient} />
-      {/* Cards land in subsequent tasks (5.2 / 5.3). */}
+      <div className="grid gap-3 md:grid-cols-2">
+        <Allergies patientId={id} />
+        <Problems patientId={id} />
+        <Medications patientId={id} />
+        {/* Prescriptions, CareTeam, Encounters land in 5.3. */}
+      </div>
     </main>
   );
 }
