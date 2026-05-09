@@ -220,17 +220,24 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 | KR6 | Co-Pilot iframe rail component | 1 | `63d087097` |
 | KR7 | CI workflow + defense doc + memory bank | 3 | `b9d8017ba`, `af4df2904`, `0abd66b8c` |
 | KR8 | Panel-scope authorization in the FHIR proxy | 2 | `bca9fa47b`, `f31b016f1` |
-| KR9 | Doc sync + panel-scope fetch-rejection guard | 2 | `ac7dab7e8`, (this commit) |
+| KR9 | Doc sync + panel-scope fetch-rejection guard | 2 | `ac7dab7e8`, `ddabba7dc` |
+| KR10 | Auth completeness — physician_user_id + logout POST | 2 | `8a065a40b`, `b1488a2a6` |
+| KR11 | Deployment + security headers (Dockerfile + CSP) | 2 | `1c0e99456`, `0018a86f5` |
+| KR12 | Doc sync — KR10 + KR11 | 1 | (this commit) |
 
 (KR1 and KR3 codex-rejected during proposal — KR1 for unpinned scaffold, KR3 for bundled middleware/panel-scope. See `.night-shift/runs/2026-05-09-0213/key-results/{1,3}/codex-approval.txt`.)
 
 **Stack pinned exact:** next 15.5.18, react/react-dom 19.2.6, typescript 5.9.3, tailwindcss 4.3.0, vitest 4.1.5, jsdom 29.1.1.
 
-**Tests:** 135 unit tests across 16 files (auth helpers, signed cookies, PKCE, token store, FHIR proxy, URL traversal protection, panel-scope decisions, ID-token decode, patient-name parsing, identifier matching, CopilotRail). Live e2e against real OpenEMR is out of autonomous scope.
+**Tests:** 151 unit tests across 17 files (auth helpers, signed cookies, PKCE, token store, FHIR proxy, URL traversal protection, panel-scope decisions, ID-token decode, patient-name parsing, identifier matching, CopilotRail, security headers/CSP). Live e2e against real OpenEMR is out of autonomous scope.
 
 **Out of scope (deferred):**
 - ~~Panel-scope authorization inside the FHIR proxy~~ — **shipped in KR8** (`f31b016f1`).
-- ~~ID-token decode at OAuth callback~~ — **shipped in KR8 task 1** (`bca9fa47b`); username sits in token-store. Threading it into the Co-Pilot iframe URL is still pending (CopilotRail still omits `physician_user_id` query param).
+- ~~ID-token decode at OAuth callback~~ — **shipped in KR8 task 1** (`bca9fa47b`).
+- ~~`physician_user_id` threading into Co-Pilot iframe URL~~ — **shipped in KR10 task 1** (`8a065a40b`).
+- ~~Logout CSRF hardening~~ — **shipped in KR10 task 2** (`b1488a2a6`).
+- ~~`frontend/Dockerfile` for Railway~~ — **shipped in KR11 task 1** (`1c0e99456`).
+- ~~Security response headers (CSP)~~ — **shipped in KR11 task 2** (`0018a86f5`).
 - Patient finder / search.
 - Edit forms (legacy `demographics_full.php` keeps serving these).
 - TanStack Query for action-driven refresh.
