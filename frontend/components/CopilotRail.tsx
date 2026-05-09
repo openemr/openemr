@@ -17,13 +17,12 @@ interface CopilotRailProps {
  * with the right query parameters so the agent session opens against
  * the correct patient.
  *
- * Known compromise: physician_user_id query param is omitted because
- * the dashboard's session does not yet expose the OpenEMR username
- * to client code. The Co-Pilot side falls back to its admin-bypass
- * list (COPILOT_ADMIN_USERS env on the copilot service) — sufficient
- * for the demo. Follow-up: decode the OAuth ID token at /api/auth/callback
- * and store the username in the dashboard_session cookie so this
- * component can pass it.
+ * The iframe URL carries `patient_id` (always) and `physician_user_id`
+ * (when the session has it — see `lib/auth/session.ts::getSessionUser`,
+ * which extracts it from the OIDC ID-token's `preferred_username` claim
+ * stored in the server-side token-store). When `physician_user_id` is
+ * absent, the Co-Pilot service's `COPILOT_ADMIN_USERS` bypass list takes
+ * over.
  */
 export function CopilotRail({ patientId, copilotUrl, physicianUserId }: CopilotRailProps) {
   const trimmed = copilotUrl.replace(/\/+$/, "");

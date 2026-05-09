@@ -2,7 +2,7 @@
 
 This is the graded defense document for the W2 surprise-challenge port of
 OpenEMR's patient dashboard from PHP/Smarty/jQuery/Angular to Next.js 15.
-The full port lives on branch `feat/dashboard-modernize` (13 commits since
+The full port lives on branch `feat/dashboard-modernize` (25 commits since
 the master branch's W2 MVP merge, all under `frontend/` plus this file +
 `.github/workflows/dashboard-ci.yml`).
 
@@ -63,7 +63,7 @@ Surface delivered by the new tree under `frontend/`:
   hint to navigate to `/patient/<id>` when logged in.
 - Health probe: `/api/health` returning a static placeholder shape (real
   reachability check is Final-scope).
-- 109 vitest unit tests across 13 files.
+- 151 vitest unit tests across 17 files.
 
 ## 2. Why Next.js 15 (App Router) + React 19 + TypeScript
 
@@ -208,7 +208,7 @@ npm run dev                     # turbopack dev server on :3000
 # In another shell:
 npm run lint                    # ESLint flat config
 npm run typecheck               # next typegen && tsc --noEmit
-npm run test                    # vitest run (109 unit tests)
+npm run test                    # vitest run (151 unit tests)
 npm run build                   # production build
 npm run start                   # serve the production build
 ```
@@ -235,8 +235,8 @@ frontend/
 ├── lib/
 │   ├── auth/{pkce,cookies,token-store}.ts          # PKCE, signed cookies, single-flight refresh
 │   └── fhir/{types,client,bundle,patient-name,upstream-url}.ts
-├── tests/unit/                                     # 109 tests
-├── package.json, package-lock.json                 # all direct deps pinned exact
+├── tests/unit/                                     # 151 tests
+├── package.json, package-lock.json                 # direct deps pinned exact (the one exception is `eslint`, left as `^9` so eslint-config-next can peer-resolve it)
 ├── tsconfig.json, next.config.ts, eslint.config.mjs, postcss.config.mjs
 ├── vitest.config.ts                                # @vitejs/plugin-react + tsx tests
 ├── .env.example, .gitignore, .nvmrc, README.md
