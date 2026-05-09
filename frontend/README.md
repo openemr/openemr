@@ -81,6 +81,7 @@ build on every PR touching `frontend/**`.
 
 ## Branch / status
 
-`feat/dashboard-modernize` (24 commits ahead of master after the
-night-shift run `2026-05-09-0213`). Not yet pushed/merged. Manual
-follow-up steps are listed in `memory-bank/assignments/week2.md §7`.
+`feat/dashboard-modernize` (off master `073e66388`; for the exact
+commit count run `git rev-list --count master..feat/dashboard-modernize`)
+shipped by night-shift run `2026-05-09-0213`. Not yet pushed/merged.
+Manual follow-up steps are listed in `memory-bank/assignments/week2.md §7`.
