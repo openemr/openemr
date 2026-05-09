@@ -9,7 +9,7 @@ RUN pip install --no-cache-dir --prefix=/install \
     "langfuse>=2.50,<3" "python-dotenv>=1.0" "sse-starlette>=2.1" \
     "aiosqlite>=0.20" "python-multipart>=0.0.9" \
     "langgraph>=0.2,<0.3" "pyyaml>=6.0" \
-    "pytesseract>=0.3.10" "Pillow>=10.0"
+    "pytesseract>=0.3.10" "Pillow>=10.0" "pypdfium2>=4.30"
 
 FROM python:3.11-slim
 # tesseract-ocr is the OCR engine pytesseract wraps. Used at extraction

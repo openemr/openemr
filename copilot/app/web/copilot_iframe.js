@@ -302,13 +302,13 @@
       const snapped = rawText
         ? await _snapBboxToText(pdfPage, viewport, rawText, bbox)
         : null;
-      drawBboxOverlay(ctx, snapped || bbox, viewport.width, viewport.height);
+      drawBboxOverlay(ctx, snapped || bbox, viewport.width, viewport.height, { rawText });
     } else if (docPreviewState.kind === "image") {
-      const { img, bbox } = docPreviewState;
+      const { img, bbox, rawText } = docPreviewState;
       modalCanvas.width = Math.round(img.naturalWidth * scale);
       modalCanvas.height = Math.round(img.naturalHeight * scale);
       ctx.drawImage(img, 0, 0, modalCanvas.width, modalCanvas.height);
-      drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height);
+      drawBboxOverlay(ctx, bbox, modalCanvas.width, modalCanvas.height, { rawText });
     }
   }
 
@@ -514,8 +514,32 @@
     li.scrollIntoView({ block: "end" });
   }
 
-  function drawBboxOverlay(ctx, bbox, width, height) {
-    if (bbox.length !== 4 || bbox.some(Number.isNaN)) return;
+  function drawBboxOverlay(ctx, bbox, width, height, opts = {}) {
+    // When the VLM emitted no bbox (low-confidence narrative answers
+    // like "Ankle swelling in the past 2 weeks") or it round-tripped
+    // as NaN, render a soft "approximate" indicator instead of
+    // silently drawing nothing — the user still needs to know the
+    // citation opened the right doc.
+    if (bbox.length !== 4 || bbox.some(Number.isNaN) || (bbox[2] <= 0 && bbox[3] <= 0)) {
+      ctx.save();
+      ctx.fillStyle = "rgba(220, 60, 60, 0.06)";
+      ctx.fillRect(0, 0, width, height);
+      ctx.strokeStyle = "rgba(220, 60, 60, 0.7)";
+      ctx.setLineDash([8, 6]);
+      ctx.lineWidth = 2;
+      ctx.strokeRect(4, 4, width - 8, height - 8);
+      const label = opts.rawText
+        ? `Source: "${opts.rawText}" — exact location not detected`
+        : "Source: exact location not detected";
+      ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
+      ctx.fillRect(8, 8, Math.min(width - 16, 12 + label.length * 7), 28);
+      ctx.fillStyle = "#7a1f1f";
+      ctx.font = "13px sans-serif";
+      ctx.fillText(label, 14, 26);
+      ctx.restore();
+      return;
+    }
     const [x, y, w, h] = bbox;
     ctx.strokeStyle = "rgba(220, 60, 60, 0.9)";
     ctx.lineWidth = 3;
@@ -530,7 +554,7 @@
     ctx.fillText(message, 20, 30);
   }
 
-  async function renderImagePreview(blob, page, bbox) {
+  async function renderImagePreview(blob, page, bbox, rawText) {
     const url = URL.createObjectURL(blob);
     try {
       const img = await new Promise((resolve, reject) => {
@@ -543,7 +567,7 @@
         kind: "image",
         img,
         bbox,
-        rawText: null,
+        rawText: rawText || null,
         scale: 1,
         baseWidth: img.naturalWidth,
         baseHeight: img.naturalHeight,
@@ -863,7 +887,7 @@
       }
       const contentType = (r.headers.get("Content-Type") || "").toLowerCase();
       if (contentType.startsWith("image/")) {
-        await renderImagePreview(await r.blob(), page, bbox);
+        await renderImagePreview(await r.blob(), page, bbox, rawText);
       } else if (contentType.startsWith("application/pdf")) {
         await renderPdfPreview(await r.arrayBuffer(), page, bbox, rawText);
       } else {
