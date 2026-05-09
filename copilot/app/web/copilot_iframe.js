@@ -597,6 +597,37 @@
     ];
   }
 
+  function _stripPunct(s) {
+    // Strip trailing ,.;: so "shellfish," matches "shellfish". pdf.js and
+    // Tesseract commonly glue punctuation to the preceding token.
+    return (s || "").replace(/[,.;:]+$/, "");
+  }
+
+  function _rowUnion(winnerRect, items, viewport) {
+    // Expand winnerRect (a [x,y,w,h] in normalized coords) to cover the
+    // full row — gives clinical context for lab values (test name +
+    // value + units) and moves the red stroke off the digits.
+    const [, wy, , wh] = winnerRect;
+    const winCy = wy + wh / 2;
+    const tol = wh * 0.7;
+    let xMin = winnerRect[0];
+    let yMin = winnerRect[1];
+    let xMax = winnerRect[0] + winnerRect[2];
+    let yMax = winnerRect[1] + winnerRect[3];
+    for (const item of items) {
+      const s = (item.str || "").trim();
+      if (!s) continue;
+      const rect = _itemToNormalizedRect(item, viewport);
+      const cy = rect[1] + rect[3] / 2;
+      if (Math.abs(cy - winCy) > tol) continue;
+      if (rect[0] < xMin) xMin = rect[0];
+      if (rect[1] < yMin) yMin = rect[1];
+      if (rect[0] + rect[2] > xMax) xMax = rect[0] + rect[2];
+      if (rect[1] + rect[3] > yMax) yMax = rect[1] + rect[3];
+    }
+    return [xMin, yMin, xMax - xMin, yMax - yMin];
+  }
+
   async function _snapBboxToText(pdfPage, viewport, rawText, fallbackBbox) {
     // Snap the bbox overlay to the PDF text layer. Returns a normalized
     // [x,y,w,h] rect or null. Caller uses fallbackBbox on null.
@@ -607,7 +638,13 @@
     //      number appears in multiple rows by picking the candidate whose
     //      vertical center is closest to the VLM-emitted bbox.
     //   2. Otherwise fall back to an exact-string match against a single
-    //      text-item (intake answers, allergies).
+    //      text-item (single-word intake answers, allergies).
+    //   3. Multi-token fallback for free-text intake answers ("John Doe",
+    //      "shellfish, peanuts"): tokenize on whitespace, strip trailing
+    //      punctuation, find a per-token match in the same y-row as the
+    //      VLM bbox, and union the matched rects — but only if at least
+    //      two distinct tokens matched. A one-token "match" pretending to
+    //      be the whole answer is worse than the VLM bbox.
     // We DO NOT use loose substring matching against multi-word raw_text
     // because PDF.js usually splits rows into many items and the FIRST
     // match (e.g. "LDL") would land miles from the actual value.
@@ -619,6 +656,10 @@
       Array.isArray(fallbackBbox) && fallbackBbox.length === 4
         ? fallbackBbox[1] + fallbackBbox[3] / 2
         : null;
+    const fbHeight =
+      Array.isArray(fallbackBbox) && fallbackBbox.length === 4
+        ? fallbackBbox[3]
+        : 0;
     try {
       const tc = await pdfPage.getTextContent();
       if (numToken) {
@@ -637,14 +678,58 @@
             if (a.exact !== b.exact) return a.exact ? -1 : 1;
             return a.dy - b.dy;
           });
-          return candidates[0].rect;
+          // Numeric branch: expand to the full row so the citation has
+          // clinical context (test name + value + units) and the stroke
+          // does not overlap the digits.
+          return _rowUnion(candidates[0].rect, tc.items, viewport);
         }
       }
-      // Exact whole-string match fallback (intake answers, allergy strings).
+      // Exact whole-string match fallback (single-word intake answers,
+      // allergy strings).
       for (const item of tc.items) {
         const s = (item.str || "").trim();
         if (s && s === target) {
           return _itemToNormalizedRect(item, viewport);
+        }
+      }
+      // Multi-token fallback. Tokenize on whitespace and assemble a union
+      // of per-token matches on the same row as the VLM bbox.
+      const tokens = target
+        .split(/\s+/)
+        .map(_stripPunct)
+        .filter((t) => t.length > 0);
+      if (tokens.length >= 2 && fbCenterY !== null) {
+        const matchedRects = [];
+        const matchedTokens = new Set();
+        for (const tok of tokens) {
+          let best = null;
+          for (const item of tc.items) {
+            const s = _stripPunct((item.str || "").trim());
+            if (s !== tok) continue;
+            const rect = _itemToNormalizedRect(item, viewport);
+            const itemCenterY = rect[1] + rect[3] / 2;
+            const rowTol = Math.max(fbHeight, rect[3]) * 1.5;
+            const dy = Math.abs(itemCenterY - fbCenterY);
+            if (dy > rowTol) continue;
+            if (best === null || dy < best.dy) best = { rect, dy };
+          }
+          if (best !== null) {
+            matchedRects.push(best.rect);
+            matchedTokens.add(tok);
+          }
+        }
+        if (matchedTokens.size >= 2) {
+          let xMin = Infinity;
+          let yMin = Infinity;
+          let xMax = -Infinity;
+          let yMax = -Infinity;
+          for (const r of matchedRects) {
+            if (r[0] < xMin) xMin = r[0];
+            if (r[1] < yMin) yMin = r[1];
+            if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
+            if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
+          }
+          return [xMin, yMin, xMax - xMin, yMax - yMin];
         }
       }
     } catch (e) {

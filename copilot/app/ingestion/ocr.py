@@ -99,6 +99,43 @@ def ocr_items(image_bytes: bytes) -> list[OcrItem]:
 
 
 _NUMERIC_TOKEN = re.compile(r"-?\d+(?:\.\d+)?")
+_TRAILING_PUNCT = ",.;:"
+
+
+def _strip_punct(s: str) -> str:
+    """Strip trailing ``,.;:`` so ``"shellfish,"`` matches ``"shellfish"``.
+
+    Tesseract and pdf.js commonly glue punctuation to the preceding
+    token, so naive equality misses what is visually the same word.
+    """
+    return s.rstrip(_TRAILING_PUNCT)
+
+
+def _row_union(
+    winner: OcrItem, items: list[OcrItem]
+) -> tuple[float, float, float, float]:
+    """Expand ``winner``'s rect to cover the full row containing it.
+
+    Used after the numeric branch picks a value (e.g. ``"142"``) to give
+    the citation rectangle clinical context — the row carries the test
+    name and units (``"LDL Cholesterol 142 mg/dL"``), so the user can
+    audit the citation without losing visual context.
+
+    Row band is ``winner.h * 0.7`` around ``winner``'s y-center, tight
+    enough that adjacent rows in a tabular lab report do not bleed in.
+    """
+    win_cy = winner.y + winner.h / 2
+    tol = winner.h * 0.7
+    row = [it for it in items if abs((it.y + it.h / 2) - win_cy) <= tol]
+    if not row:
+        return (winner.x, winner.y, winner.w, winner.h)
+    xs = [it.x for it in row]
+    ys = [it.y for it in row]
+    x2s = [it.x + it.w for it in row]
+    y2s = [it.y + it.h for it in row]
+    x = min(xs)
+    y = min(ys)
+    return (x, y, max(x2s) - x, max(y2s) - y)
 
 
 def snap_bbox(
@@ -106,15 +143,21 @@ def snap_bbox(
     raw_text: str,
     fallback_bbox,  # BoundingBox; uses .x/.y/.w/.h
 ) -> tuple[float, float, float, float] | None:
-    """Snap ``raw_text`` to the best-matching OCR item; return (x, y, w, h).
+    """Snap ``raw_text`` to the best-matching OCR item(s); return (x, y, w, h).
 
     Same disambiguation strategy as the PDF text-snap helper:
 
       * If ``raw_text`` contains a numeric token (lab values, vitals),
         prefer items containing that token, picking the one whose
         vertical center is closest to ``fallback_bbox``'s center.
-      * Otherwise fall back to whole-string equality (intake answers,
-        allergy strings).
+      * Otherwise fall back to whole-string equality (single-word
+        intake answers, allergy strings).
+      * Multi-token fallback for free-text intake answers (``"John Doe"``,
+        ``"shellfish, peanuts"``): tokenize on whitespace, strip
+        trailing punctuation, find a per-token match in the same y-row
+        as ``fallback_bbox``, and return the union rect — but only if
+        at least two distinct tokens matched. A one-token "match"
+        masquerading as the whole answer is worse than the VLM bbox.
       * Returns ``None`` if no candidate matches — caller keeps the VLM
         bbox.
 
@@ -144,10 +187,50 @@ def snap_bbox(
                 cy = it.y + it.h / 2
                 candidates.append((it, abs(cy - fb_cy), True))
 
-    if not candidates:
+    if candidates:
+        # Prefer exact-token matches over substring; then the y-closest one.
+        candidates.sort(key=lambda c: (not c[2], c[1]))
+        winner = candidates[0][0]
+        # Expand to the full row when the winner came from the numeric
+        # branch — the row gives clinical context (test name, units)
+        # without obscuring the value, and the red stroke now sits on
+        # the row gutters instead of overlapping the digits.
+        if num_match is not None:
+            return _row_union(winner, items)
+        return (winner.x, winner.y, winner.w, winner.h)
+
+    # Multi-token fallback. Tokenize raw_text and try to assemble a union
+    # of per-token matches on the same row as fallback_bbox.
+    tokens = [_strip_punct(t) for t in target.split() if _strip_punct(t)]
+    if len(tokens) < 2:
         return None
 
-    # Prefer exact-token matches over substring; then the y-closest one.
-    candidates.sort(key=lambda c: (not c[2], c[1]))
-    it = candidates[0][0]
-    return (it.x, it.y, it.w, it.h)
+    matched_rects: list[tuple[float, float, float, float]] = []
+    matched_tokens: set[str] = set()
+    for tok in tokens:
+        best: tuple[OcrItem, float] | None = None
+        for it in items:
+            if _strip_punct(it.text) != tok:
+                continue
+            it_cy = it.y + it.h / 2
+            row_tol = max(fallback_bbox.h, it.h) * 1.5
+            if abs(it_cy - fb_cy) > row_tol:
+                continue
+            dy = abs(it_cy - fb_cy)
+            if best is None or dy < best[1]:
+                best = (it, dy)
+        if best is not None:
+            it = best[0]
+            matched_rects.append((it.x, it.y, it.w, it.h))
+            matched_tokens.add(tok)
+
+    if len(matched_tokens) < 2:
+        return None
+
+    xs = [r[0] for r in matched_rects]
+    ys = [r[1] for r in matched_rects]
+    x2s = [r[0] + r[2] for r in matched_rects]
+    y2s = [r[1] + r[3] for r in matched_rects]
+    x = min(xs)
+    y = min(ys)
+    return (x, y, max(x2s) - x, max(y2s) - y)
