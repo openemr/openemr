@@ -365,7 +365,11 @@ class TokenIntrospectionRestController {
                         throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }
 
-                    if (intval($client['is_enabled']) !== 1) {
+                    // `$client` is array<string, mixed> from the
+                    // repository — narrow `is_enabled` to scalar before
+                    // casting so phpstan doesn't flag intval(mixed).
+                    $isEnabled = $client['is_enabled'] ?? 0;
+                    if (!is_scalar($isEnabled) || (int) $isEnabled !== 1) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }
 
@@ -387,8 +391,10 @@ class TokenIntrospectionRestController {
                 if (empty($clientSecret) && !empty($client['is_confidential'])) {
                     throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
                 }
-                // lets verify secret to prevent bad guys.
-                if (intval($client['is_enabled']) !== 1) {
+                // Same narrow-then-cast pattern as the JWT-assertion
+                // path above; `$client['is_enabled']` is mixed.
+                $isEnabled = $client['is_enabled'] ?? 0;
+                if (!is_scalar($isEnabled) || (int) $isEnabled !== 1) {
                     // client is disabled and we don't allow introspection of tokens for disabled clients.
                     throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                 }
