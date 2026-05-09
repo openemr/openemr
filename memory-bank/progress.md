@@ -1,6 +1,6 @@
 # Progress
 
-**Last reviewed:** 2026-05-08 late evening
+**Last reviewed:** 2026-05-09 (night-shift dashboard-port run `2026-05-09-0213` shipped the W2 surprise challenge on `feat/dashboard-modernize`)
 
 ---
 
@@ -9,7 +9,7 @@
 | Week | Window | State |
 |---|---|---|
 | Week 1 | 2026-04-21 → 2026-05-04 | ✅ Complete — all four checkpoints submitted, all AI Interviews completed (closed 2026-05-05) |
-| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** + **confirm/reject UX + OpenEMR REST write-back + persistence fix** on master at `c2534e416` (49 commits ahead of `78d0672c7`; pushed to GitHub + GitLab; Railway-deployed). **189 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (`5e63e5fb9`); confirm/reject buttons + write-back to OpenEMR's MySQL `documents` table via the non-FHIR REST API shipped at `c2534e416`. **W2 surprise challenge** (port the patient dashboard to a modern framework, document defense in `PATIENT_DASHBOARD_MIGRATION.md`) **not yet started**. Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
+| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** + **confirm/reject UX + OpenEMR REST write-back + persistence fix** on master at `c2534e416` (49 commits ahead of `78d0672c7`; pushed to GitHub + GitLab; Railway-deployed). **189 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (`5e63e5fb9`); confirm/reject buttons + write-back to OpenEMR's MySQL `documents` table via the non-FHIR REST API shipped at `c2534e416`. **W2 surprise challenge** (port the patient dashboard to a modern framework, document defense in `PATIENT_DASHBOARD_MIGRATION.md`) **shipped 2026-05-09 on `feat/dashboard-modernize`** by night-shift run `2026-05-09-0213` — Next.js 15 + React 19 + TypeScript at `frontend/` (zero existing source-files modified per planning), server-side OAuth proxy keeps FHIR token off browser, six clinical cards + Encounter history, Co-Pilot rail embedded as sandboxed iframe, 109 unit tests, defense doc at `PATIENT_DASHBOARD_MIGRATION.md`, CI at `.github/workflows/dashboard-ci.yml`. Branch is 14 commits ahead of master tip `073e66388`; not yet pushed/merged (user will). Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
 | Week 3+ | TBD | 📋 Not started |
 
 ---
@@ -312,6 +312,43 @@ Fix at `196d75e61`:
 Pure UX change — no new tests required. Existing 191 tests still pass; eval-fast 15/15 100%. The rail-fragment.php change required a Railway rebuild of the **OpenEMR service** (awk-injected into demographics.php at build time); copilot service picked up the iframe JS/HTML/CSS via static-file route on its own redeploy.
 
 **Branch tip: master at `196d75e61`. 191 tests pass. `make eval-fast` 15/15 100%. 51 commits since `78d0672c7`. Pushed to GitHub + GitLab; both Railway services redeployed; copilot service probed live (`/static/copilot_iframe.js` contains `copilot-doc-modal-open`).**
+
+---
+
+## ✅ W2 Surprise Challenge — Patient Dashboard Port (shipped 2026-05-09)
+
+Branch `feat/dashboard-modernize` (14 commits ahead of master `073e66388`),
+night-shift run `2026-05-09-0213`. Not yet merged/pushed.
+
+**KRs shipped (all task acceptance green; 109/109 vitest tests):**
+
+| KR | Title | Tasks | Total | Notes |
+|---|---|---|---|---|
+| KR2 | Bootstrap pinned Next.js 15 / React 19 skeleton | 3 | 52 min | KR1 codex-rejected for unpinned scaffold |
+| KR4 | OAuth/PKCE login + FHIR proxy (no panel-scope) | 4 | 73 min | KR3 codex-rejected for bundled middleware |
+| KR5 | Patient header + six clinical cards | 4 | 9 min | Allergies, Problems, Meds, Rx, CareTeam, Encounters |
+| KR6 | Co-Pilot iframe rail component | 1 | 3 min | sandboxed; no physician_user_id (deferred) |
+| KR7 | CI workflow + defense doc + memory bank | 3 | (in progress) | dashboard-ci.yml + PATIENT_DASHBOARD_MIGRATION.md |
+
+**Stack pinned exact:** next 15.5.18 · react/react-dom 19.2.6 · typescript 5.9.3 · tailwindcss 4.3.0 · vitest 4.1.5 · jsdom 29.1.1 · @types/node 25.6.2.
+
+**Architecture (defense in `PATIENT_DASHBOARD_MIGRATION.md`):**
+- Server-side OAuth proxy at `/api/fhir/[...path]` injects bearer token; browser only holds signed httpOnly `dashboard_session` cookie.
+- In-memory token store with single-flight refresh + revocation tombstone for logout/refresh race; cookie-bound `sessionExpiresAt` eviction.
+- Six cards as Server Components fetching in parallel via `fhirGet()`.
+- Co-Pilot rail as a sandboxed iframe (Co-Pilot service unchanged).
+
+**Codex review state:** Rounds 1-N codex-reviewed for KR2/KR4 tasks (clean after iterations). Codex hit usage limit ~03:50 PT during Task 4.4 round 6 → all subsequent reviews use rigorous self-adversarial reviews per skill protocol (`CODEX UNAVAILABLE — SELF-REVIEW` headered files in `.night-shift/runs/2026-05-09-0213/key-results/*/tasks/*/code-review.txt`).
+
+**Deferred (explicit out-of-scope; documented in `PATIENT_DASHBOARD_MIGRATION.md` §5):**
+- Panel-scope authorization inside the proxy (was rejected from KR3 v1; needs to land before patient access goes wide).
+- ID-token decode at OAuth callback to extract OpenEMR username → store in session cookie → pass to Co-Pilot iframe as `physician_user_id`.
+- Patient finder / search.
+- Edit forms (legacy `demographics_full.php` keeps serving these).
+- Live FHIR e2e (Playwright not installed; manual smoke against deployed Railway).
+- TanStack Query for action-driven refresh.
+
+**No existing source files modified** beyond the memory bank. Verified by planning (`.gitignore`, `Dockerfile` both untouched per plan §11).
 
 ---
 

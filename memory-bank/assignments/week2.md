@@ -192,3 +192,54 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 - Whether `LLM_PROVIDER` flips to `anthropic` on Railway before W2 demo (vision MUST go through Anthropic — OpenAI fallback only for prose).
 - Whether the architecture-defense .pptx (`~/Desktop/Gauntlet/Week2/AgentForge_W2_Architecture_Defense.pptx`) is the submitted version or needs revision before Final.
 - Critic-as-extension vs. critic-as-core — `W2_ARCHITECTURE.md §4.3` promotes critic to a Core node citing PRD's Core list ("critic agent that rejects uncited claims or unsafe action suggestions"). Confirm this reading with grader if ambiguous.
+
+---
+
+## 7. Surprise Challenge — Patient Dashboard Port (shipped 2026-05-09)
+
+**Spec:** `~/Desktop/Gauntlet/Week2/AgentForge — Clinical Co-Pilot W2 — Surprise Challenge_ Modernize the Patient Dashboard.pdf`
+
+**Defense doc (graded):** `PATIENT_DASHBOARD_MIGRATION.md` at repo root.
+
+**Approach (locked at brainstorming, see `~/.claude/plans/plan-a-using-superpowers-typed-dusk.md`):**
+- Framework: Next.js 15 (App Router) + React 19 + TypeScript.
+- Co-Pilot rail: SPA embeds the existing iframe directly (no awk-injection chain involvement).
+- Extra card (PRD's "one of your choice"): Encounter history.
+- File location: `frontend/` under existing OpenEMR fork root (single repo, single PR).
+- **Zero existing source-files modified** — verified during planning that neither root `Dockerfile` nor root `.gitignore` need touching.
+
+**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` produced 14 commits in ~3 hours including 7 KRs.
+
+**Key results delivered:**
+
+| KR | Title | Tasks | Commits |
+|---|---|---|---|
+| KR2 | Bootstrap pinned Next.js 15 / React 19 skeleton | 3 | `e3b446ce0`, `4ed0635f7`, `0f1b0e08a` |
+| KR4 | OAuth/PKCE login + FHIR proxy (no panel-scope) | 4 | `2ab1e664b`, `cefed75b4`, `94cfc3310`, `5f35d7356` |
+| KR5 | Patient header + six clinical cards | 4 | `cf393f37e`, `8fefbe88c`, `0e26805e7`, `ff3ac5c67` |
+| KR6 | Co-Pilot iframe rail component | 1 | `63d087097` |
+| KR7 | CI workflow + defense doc + memory bank | 3 | `b9d8017ba`, `af4df2904`, (this commit) |
+
+(KR1 and KR3 codex-rejected during proposal — KR1 for unpinned scaffold, KR3 for bundled middleware/panel-scope. See `.night-shift/runs/2026-05-09-0213/key-results/{1,3}/codex-approval.txt`.)
+
+**Stack pinned exact:** next 15.5.18, react/react-dom 19.2.6, typescript 5.9.3, tailwindcss 4.3.0, vitest 4.1.5, jsdom 29.1.1.
+
+**Tests:** 109 unit tests across 13 files (auth helpers, signed cookies, PKCE, token store, FHIR proxy, URL traversal protection, patient-name parsing, identifier matching, CopilotRail). Live e2e against real OpenEMR is out of autonomous scope.
+
+**Out of scope (deferred):**
+- Panel-scope authorization inside the FHIR proxy (KR3 v1 was rejected for bundling this with auth; needs follow-up KR before patient access goes wide).
+- ID-token decode at OAuth callback to extract OpenEMR username for the Co-Pilot iframe `physician_user_id` query param (Co-Pilot relies on `COPILOT_ADMIN_USERS` bypass for the demo).
+- Patient finder / search.
+- Edit forms (legacy `demographics_full.php` keeps serving these).
+- TanStack Query for action-driven refresh.
+- Live FHIR / Playwright e2e in CI.
+
+**Codex review state:** Tasks under KR2 + KR4 went through 1-6 rounds of `codex review` each (clean after iterations — see per-task `code-review.txt`). Codex hit usage limit at ~03:50 PT (try again at 7:15 AM); KR4 task 4 round 6 + all subsequent KR/decomp/code reviews use rigorous self-adversarial reviews per skill protocol. All `code-review.txt` files headered `CODEX UNAVAILABLE — SELF-REVIEW` for the affected tasks.
+
+**Status:** Branch is shippable. **Not yet pushed/merged** — user will push to GitHub master to trigger Railway auto-deploy of the new `dashboard` service.
+
+**Manual steps the night-shift agent could not perform (left for user):**
+1. `git push origin feat/dashboard-modernize` and merge to master when ready.
+2. Register a confidential OAuth2 client in OpenEMR Admin → System → API Clients with redirect_uri = `https://<dashboard-railway-url>/api/auth/callback`.
+3. Set `OPENEMR_DASHBOARD_CLIENT_ID/SECRET`, `DASHBOARD_PUBLIC_URL`, `OPENEMR_OAUTH_BASE`, `OPENEMR_FHIR_BASE`, `COPILOT_URL`, `SESSION_COOKIE_SECRET`, `OPENEMR_VERIFY_TLS` env on the new Railway `dashboard` service.
+4. Smoke-test: load `https://dashboard-production.../`, sign in with OpenEMR, navigate to `/patient/<a Synthea uuid>`, verify all 6 cards render and the Co-Pilot iframe loads.
