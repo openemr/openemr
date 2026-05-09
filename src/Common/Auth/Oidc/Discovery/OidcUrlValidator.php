@@ -26,9 +26,24 @@ namespace OpenEMR\Common\Auth\Oidc\Discovery;
 
 final readonly class OidcUrlValidator implements OidcHostResolverInterface
 {
+    /**
+     * Maximum number of distinct IPs accepted from DNS for a single
+     * host (Aisle round-4 #5 / CWE-400). Real-world A+AAAA RR sets
+     * for production OIDC providers are well under 10 even with
+     * dual-stack and anycast rotations. 16 leaves comfortable margin
+     * while keeping the worst-case `CURLOPT_RESOLVE` string under a
+     * kilobyte. Anything above this is treated as adversarial: an
+     * attacker who controls authoritative DNS for an allow-listed
+     * host could otherwise publish thousands of records to inflate
+     * the per-IP validation loop and the resolve-entry string the
+     * SSRF-safe HTTP client builds.
+     */
+    public const MAX_IPS_PER_HOST = 16;
+
     public function __construct(
         private bool $requireHttps = true,
         private bool $blockPrivateIps = true,
+        private OidcDnsResolverInterface $dnsResolver = new SystemOidcDnsResolver(),
     ) {
     }
 
@@ -146,12 +161,16 @@ final readonly class OidcUrlValidator implements OidcHostResolverInterface
             return [$bareHost];
         }
 
-        $records = @dns_get_record($host, DNS_A + DNS_AAAA);
+        $records = $this->dnsResolver->getRecords($host);
         if ($records === false || $records === []) {
             throw new OidcUrlValidationException('URL host could not be resolved');
         }
 
-        $ips = [];
+        // Dedup keyed by IP — `dns_get_record` can legitimately return
+        // duplicates (CNAME chains, rotating answers in caches) and an
+        // attacker controlling DNS for an allow-listed host can pad the
+        // answer with repeats to inflate the loop. Round-4 #5.
+        $ipSet = [];
         foreach ($records as $rec) {
             $ip = null;
             if (isset($rec['ip']) && is_string($rec['ip'])) {
@@ -159,20 +178,33 @@ final readonly class OidcUrlValidator implements OidcHostResolverInterface
             } elseif (isset($rec['ipv6']) && is_string($rec['ipv6'])) {
                 $ip = $rec['ipv6'];
             }
-            if ($ip === null) {
+            if ($ip === null || $ip === '') {
                 continue;
             }
             if ($this->blockPrivateIps && $this->isPrivateOrLocalIp($ip)) {
                 throw new OidcUrlValidationException('URL host resolves to a private/local address');
             }
-            $ips[] = $ip;
+            $ipSet[$ip] = true;
+
+            // Cap once we exceed the policy limit. Fail closed: an
+            // oversized RR set is treated as adversarial intent (or a
+            // misconfiguration that would only ever inflate the
+            // CURLOPT_RESOLVE string downstream). Throwing here keeps
+            // the validator's contract simple — callers see a single
+            // structured exception type for any DoS-shaped surface.
+            if (count($ipSet) > self::MAX_IPS_PER_HOST) {
+                throw new OidcUrlValidationException(
+                    'URL host has too many DNS records (over '
+                    . self::MAX_IPS_PER_HOST . ')',
+                );
+            }
         }
 
-        if ($ips === []) {
+        if ($ipSet === []) {
             throw new OidcUrlValidationException('URL host could not be resolved');
         }
 
-        return $ips;
+        return array_keys($ipSet);
     }
 
     private function assertNoPrivateIp(string $host): void

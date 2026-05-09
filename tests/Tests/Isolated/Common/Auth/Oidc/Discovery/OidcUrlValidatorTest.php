@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery;
 
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcDnsResolverInterface;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidationException;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -206,5 +207,133 @@ final class OidcUrlValidatorTest extends TestCase
         $this->expectExceptionMessage('host is required');
 
         $validator->resolveAndAssert('');
+    }
+
+    /**
+     * Aisle round-4 #5 (CWE-400) regression. An attacker controlling
+     * authoritative DNS for an allow-listed host can publish thousands
+     * of A/AAAA records to inflate the per-IP validation loop and the
+     * downstream `CURLOPT_RESOLVE` string. The validator must fail
+     * closed once the dedup'd count exceeds MAX_IPS_PER_HOST.
+     */
+    public function testResolveAndAssertRejectsHostWithMoreThanMaxDnsRecords(): void
+    {
+        // One more than the cap — pre-dedup, all distinct.
+        $records = [];
+        for ($i = 1; $i <= OidcUrlValidator::MAX_IPS_PER_HOST + 1; $i++) {
+            $records[] = ['type' => 'A', 'ip' => '203.0.113.' . $i];
+        }
+        $validator = new OidcUrlValidator(
+            blockPrivateIps: false,
+            dnsResolver: $this->stubResolver($records),
+        );
+
+        $this->expectException(OidcUrlValidationException::class);
+        $this->expectExceptionMessage('too many DNS records');
+
+        $validator->resolveAndAssert('attacker.example');
+    }
+
+    public function testResolveAndAssertAcceptsExactlyMaxDnsRecords(): void
+    {
+        $records = [];
+        for ($i = 1; $i <= OidcUrlValidator::MAX_IPS_PER_HOST; $i++) {
+            $records[] = ['type' => 'A', 'ip' => '203.0.113.' . $i];
+        }
+        $validator = new OidcUrlValidator(
+            blockPrivateIps: false,
+            dnsResolver: $this->stubResolver($records),
+        );
+
+        $ips = $validator->resolveAndAssert('limit.example');
+
+        // At-cap acceptance — boundary just below the throw.
+        self::assertCount(OidcUrlValidator::MAX_IPS_PER_HOST, $ips);
+    }
+
+    public function testResolveAndAssertDedupesRepeatedRecords(): void
+    {
+        // 10 records but only 3 distinct IPs. Pre-fix this would have
+        // returned 10 entries; post-fix returns 3, in first-seen order.
+        $records = [
+            ['type' => 'A', 'ip' => '203.0.113.1'],
+            ['type' => 'A', 'ip' => '203.0.113.2'],
+            ['type' => 'A', 'ip' => '203.0.113.1'],
+            ['type' => 'A', 'ip' => '203.0.113.3'],
+            ['type' => 'A', 'ip' => '203.0.113.2'],
+            ['type' => 'A', 'ip' => '203.0.113.1'],
+            ['type' => 'A', 'ip' => '203.0.113.3'],
+            ['type' => 'A', 'ip' => '203.0.113.2'],
+            ['type' => 'A', 'ip' => '203.0.113.1'],
+            ['type' => 'A', 'ip' => '203.0.113.3'],
+        ];
+        $validator = new OidcUrlValidator(
+            blockPrivateIps: false,
+            dnsResolver: $this->stubResolver($records),
+        );
+
+        $ips = $validator->resolveAndAssert('dup.example');
+
+        self::assertSame(['203.0.113.1', '203.0.113.2', '203.0.113.3'], $ips);
+    }
+
+    /**
+     * Padding the answer with thousands of repeats of a single IP is
+     * the cheapest version of the attack — DNS message size is
+     * smaller than the distinct-IP variant. Dedup must short-circuit
+     * the cap so a single repeated IP never fires the
+     * "too many DNS records" branch.
+     */
+    public function testResolveAndAssertDedupSurvivesPaddedDuplicates(): void
+    {
+        $records = [];
+        for ($i = 0; $i < 500; $i++) {
+            $records[] = ['type' => 'A', 'ip' => '203.0.113.42'];
+        }
+        $validator = new OidcUrlValidator(
+            blockPrivateIps: false,
+            dnsResolver: $this->stubResolver($records),
+        );
+
+        $ips = $validator->resolveAndAssert('flood.example');
+
+        self::assertSame(['203.0.113.42'], $ips);
+    }
+
+    public function testResolveAndAssertHandlesMixedAaaaAndA(): void
+    {
+        $records = [
+            ['type' => 'A', 'ip' => '203.0.113.10'],
+            ['type' => 'AAAA', 'ipv6' => '2001:db8::a'],
+            ['type' => 'A', 'ip' => '203.0.113.10'], // dup of first
+        ];
+        $validator = new OidcUrlValidator(
+            blockPrivateIps: false,
+            dnsResolver: $this->stubResolver($records),
+        );
+
+        $ips = $validator->resolveAndAssert('dual.example');
+
+        self::assertSame(['203.0.113.10', '2001:db8::a'], $ips);
+    }
+
+    /**
+     * @param list<array<string, mixed>>|false $records
+     */
+    private function stubResolver(array|false $records): OidcDnsResolverInterface
+    {
+        return new class ($records) implements OidcDnsResolverInterface {
+            /**
+             * @param list<array<string, mixed>>|false $records
+             */
+            public function __construct(private readonly array|false $records)
+            {
+            }
+
+            public function getRecords(string $host): array|false
+            {
+                return $this->records;
+            }
+        };
     }
 }

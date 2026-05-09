@@ -60,6 +60,16 @@ final readonly class SsrfSafeHttpClient implements ClientInterface
     private const HTTPS_DEFAULT_PORT = 443;
 
     /**
+     * Belt-and-braces upper bound on the `CURLOPT_RESOLVE` entry size.
+     * The validator caps DNS results at {@see OidcUrlValidator::MAX_IPS_PER_HOST}
+     * already, so under the production wiring this guard is never hit.
+     * It exists to fail closed if the resolver contract is ever weakened
+     * (custom resolver swap, validator cap raised) — keeps the resolve
+     * string from growing into a cURL-option-parsing DoS. Aisle round-4 #5.
+     */
+    private const MAX_RESOLVE_ENTRY_BYTES = 4096;
+
+    /**
      * @param GuzzleClientInterface $inner Guzzle client to dispatch through.
      *   Must be Guzzle (not a generic PSR-18 client) because the cURL
      *   `resolve` option used to pin the connection is Guzzle-specific.
@@ -117,6 +127,18 @@ final readonly class SsrfSafeHttpClient implements ClientInterface
         // to one of the listed IPs and never consults the system resolver
         // for this hostname — no second DNS lookup, no rebinding window.
         $resolveEntry = sprintf('%s:%d:%s', $host, $port, implode(',', $resolvedIps));
+
+        if (strlen($resolveEntry) > self::MAX_RESOLVE_ENTRY_BYTES) {
+            // Defensive — should be unreachable while OidcUrlValidator's
+            // MAX_IPS_PER_HOST cap stays in place. See the constant.
+            $this->logger->warning(
+                'SsrfSafeHttpClient blocked oversized resolve entry',
+                ['host' => $host, 'bytes' => strlen($resolveEntry)],
+            );
+            throw new SsrfBlockedException(
+                "Blocked outbound request to {$host}: resolve entry exceeds size cap",
+            );
+        }
 
         $options = [
             'curl' => [\CURLOPT_RESOLVE => [$resolveEntry]],
