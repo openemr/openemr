@@ -221,16 +221,29 @@
   // banner items immediately rather than waiting for a refresh.
   const handledDocIds = new Set();
 
+  // Force-hide the modal footer using BOTH the [hidden] attribute and an
+  // inline display:none style. Some site CSS (rail-fragment styles, parent
+  // page overrides) has been observed to win specificity against [hidden],
+  // so the inline style is a CSS-proof belt to the suspenders.
+  function _forceHideFooter() {
+    modalFooter.hidden = true;
+    modalFooter.style.display = "none";
+    modalStatus.textContent = "";
+  }
+  function _forceShowFooter() {
+    modalFooter.style.display = "";
+    modalFooter.hidden = false;
+  }
+
   modalClose.onclick = () => modal.close();
   modal.addEventListener("cancel", (e) => { e.preventDefault(); modal.close(); });
   modal.addEventListener("close", () => {
     // Reset footer + zoom state when the dialog closes so the next open
     // starts clean.
     modalActiveDocId = null;
-    modalFooter.hidden = true;
+    _forceHideFooter();
     modalConfirmBtn.disabled = false;
     modalRejectBtn.disabled = false;
-    modalStatus.textContent = "";
     docPreviewState = null;
     if (modalToolbar) modalToolbar.hidden = true;
     // Tell the parent OpenEMR page to shrink the iframe rail back to its
@@ -321,11 +334,15 @@
   };
 
   function showConfirmFooter(docId) {
+    // Belt-and-suspenders: never re-surface the footer for a doc that was
+    // already confirmed/rejected this session. Even if a caller passes the
+    // doc by mistake, we bail.
+    if (handledDocIds.has(docId)) return;
     modalActiveDocId = docId;
     modalConfirmBtn.disabled = false;
     modalRejectBtn.disabled = false;
     modalStatus.textContent = "Filed by front desk — confirm to save to chart.";
-    modalFooter.hidden = false;
+    _forceShowFooter();
   }
 
   async function handleConfirmReject(action) {
@@ -573,52 +590,6 @@
     await _renderAtCurrentScale();
   }
 
-  function _stripPunct(s) {
-    // Strip trailing ,.;: so "shellfish," matches "shellfish". pdf.js often
-    // glues punctuation to the preceding token, so naive equality misses
-    // what is visually the same word.
-    return (s || "").replace(/[,.;:]+$/, "");
-  }
-
-  function _padBbox([x, y, w, h], padFactor = 0.18, padFloor = 0.004) {
-    // Lift the red stroke off the text glyphs. padY is proportional to
-    // row height; padX is half (rows read wider than tall, so horizontal
-    // slack is more visually noisy). Clamp to [0, 1].
-    const padY = Math.max(h * padFactor, padFloor);
-    const padX = Math.max(h * (padFactor / 2), padFloor / 2);
-    const x0 = Math.max(0, x - padX);
-    const y0 = Math.max(0, y - padY);
-    const x1 = Math.min(1, x + w + padX);
-    const y1 = Math.min(1, y + h + padY);
-    return [x0, y0, x1 - x0, y1 - y0];
-  }
-
-  function _rowUnion(winnerRect, items, viewport) {
-    // Expand winnerRect (a [x,y,w,h] in normalized coords) to cover the
-    // full row — for lab values, gives clinical context (test name +
-    // value + units) and moves the red stroke off the digits.
-    const wy = winnerRect[1];
-    const wh = winnerRect[3];
-    const winCy = wy + wh / 2;
-    const tol = wh * 0.7;
-    let xMin = winnerRect[0];
-    let yMin = wy;
-    let xMax = winnerRect[0] + winnerRect[2];
-    let yMax = wy + wh;
-    for (const item of items) {
-      const s = (item.str || "").trim();
-      if (!s) continue;
-      const rect = _itemToNormalizedRect(item, viewport);
-      const cy = rect[1] + rect[3] / 2;
-      if (Math.abs(cy - winCy) > tol) continue;
-      if (rect[0] < xMin) xMin = rect[0];
-      if (rect[1] < yMin) yMin = rect[1];
-      if (rect[0] + rect[2] > xMax) xMax = rect[0] + rect[2];
-      if (rect[1] + rect[3] > yMax) yMax = rect[1] + rect[3];
-    }
-    return [xMin, yMin, xMax - xMin, yMax - yMin];
-  }
-
   function _itemToNormalizedRect(item, viewport) {
     const tx = item.transform;
     const x = tx[4];
@@ -640,24 +611,72 @@
     ];
   }
 
+  function _stripPunct(s) {
+    // Strip trailing ,.;: so "shellfish," matches "shellfish". pdf.js and
+    // Tesseract commonly glue punctuation to the preceding token.
+    return (s || "").replace(/[,.;:]+$/, "");
+  }
+
+  function _rowUnion(winnerRect, items, viewport) {
+    // Expand winnerRect (a [x,y,w,h] in normalized coords) to cover the
+    // full row — gives clinical context for lab values (test name +
+    // value + units) and moves the red stroke off the digits.
+    const [, wy, , wh] = winnerRect;
+    const winCy = wy + wh / 2;
+    const tol = wh * 0.7;
+    let xMin = winnerRect[0];
+    let yMin = winnerRect[1];
+    let xMax = winnerRect[0] + winnerRect[2];
+    let yMax = winnerRect[1] + winnerRect[3];
+    for (const item of items) {
+      const s = (item.str || "").trim();
+      if (!s) continue;
+      const rect = _itemToNormalizedRect(item, viewport);
+      const cy = rect[1] + rect[3] / 2;
+      if (Math.abs(cy - winCy) > tol) continue;
+      if (rect[0] < xMin) xMin = rect[0];
+      if (rect[1] < yMin) yMin = rect[1];
+      if (rect[0] + rect[2] > xMax) xMax = rect[0] + rect[2];
+      if (rect[1] + rect[3] > yMax) yMax = rect[1] + rect[3];
+    }
+    return [xMin, yMin, xMax - xMin, yMax - yMin];
+  }
+
+  function _padBbox([x, y, w, h], padFactor = 0.18, padFloor = 0.004) {
+    // Lift the red stroke off the text glyphs. padY proportional to row
+    // height; padX is half (rows read wider than tall, so horizontal slack
+    // is more visually noisy). Clamp to [0, 1].
+    const padY = Math.max(h * padFactor, padFloor);
+    const padX = Math.max(h * (padFactor / 2), padFloor / 2);
+    const x0 = Math.max(0, x - padX);
+    const y0 = Math.max(0, y - padY);
+    const x1 = Math.min(1, x + w + padX);
+    const y1 = Math.min(1, y + h + padY);
+    return [x0, y0, x1 - x0, y1 - y0];
+  }
+
   async function _snapBboxToText(pdfPage, viewport, rawText, fallbackBbox) {
     // Snap the bbox overlay to the PDF text layer. Returns a normalized
     // [x,y,w,h] rect or null. Caller uses fallbackBbox on null.
     //
-    // Strategy:
-    //   1. Numeric-token branch (lab values, vitals): pick the OCR/PDF
-    //      item containing the number, disambiguate by vertical proximity
-    //      to the VLM bbox. Then expand to the full row for clinical
-    //      context (label + value + units), and pad so the stroke does
-    //      not overlap the digits.
-    //   2. Whole-string fallback (single-word intake answers, allergies):
-    //      exact text-item match, padded.
-    //   3. Multi-token fallback (free-text intake answers, "John Doe",
-    //      "shellfish, peanuts"): tokenize, strip trailing punctuation,
-    //      find each token in the same y-row as the VLM bbox (tolerance
-    //      = 1.0 row height), require >= ceil(60%) of tokens to match,
-    //      union the matched rects. Reject the union if it's wider than
-    //      1.5x the VLM bbox (sanity guard against drift).
+    // Strategy (order depends on raw_text shape):
+    //
+    //   • If raw_text STARTS with a numeric token (lab values: "142",
+    //     "5.6 mg/dL"), the value IS the primary fact — use the numeric
+    //     branch + row expansion (gives clinical context: test name +
+    //     value + units).
+    //   • Otherwise (med names: "Amlodipine 5 mg daily", intake answers:
+    //     "John Doe", "shellfish, peanuts") — try multi-token FIRST. The
+    //     name/answer is the primary fact; matching on an embedded "5"
+    //     would snap-and-row-expand the wrong row. Numeric is a fallback.
+    //   • Whole-string equality is the last fallback for single-word
+    //     answers like "penicillin".
+    //
+    // Multi-token rules (cde0bb97f→d7a14d3b4 tightened):
+    //   - y-row tolerance 1.0x of max(fbHeight, item h) — one row, not 1.5
+    //   - require ceil(60%) of tokens matched
+    //   - reject the union if it's > 1.5x the VLM hint width (drift guard)
+    //
     // We DO NOT use loose substring matching against multi-word raw_text
     // because PDF.js usually splits rows into many items and the FIRST
     // match (e.g. "LDL") would land miles from the actual value.
@@ -669,79 +688,96 @@
     const fbCenterY = fbValid ? fallbackBbox[1] + fallbackBbox[3] / 2 : null;
     const fbHeight = fbValid ? fallbackBbox[3] : 0;
     const fbWidth = fbValid ? fallbackBbox[2] : 1;
-    try {
-      const tc = await pdfPage.getTextContent();
-      if (numToken) {
-        const candidates = [];
-        for (const item of tc.items) {
-          const s = (item.str || "").trim();
-          if (!s.includes(numToken)) continue;
+    const tokens = target
+      .split(/\s+/)
+      .map(_stripPunct)
+      .filter((t) => t.length > 0);
+    const firstTokenIsNumeric =
+      tokens.length > 0 && /^-?\d/.test(tokens[0]);
+
+    function trySnapNumeric(items) {
+      if (!numToken) return null;
+      const candidates = [];
+      for (const item of items) {
+        const s = (item.str || "").trim();
+        if (!s.includes(numToken)) continue;
+        const rect = _itemToNormalizedRect(item, viewport);
+        const itemCenterY = rect[1] + rect[3] / 2;
+        const dy = fbCenterY !== null ? Math.abs(itemCenterY - fbCenterY) : 0;
+        candidates.push({ rect, dy, exact: s === numToken });
+      }
+      if (candidates.length === 0) return null;
+      candidates.sort((a, b) => {
+        if (a.exact !== b.exact) return a.exact ? -1 : 1;
+        return a.dy - b.dy;
+      });
+      return _padBbox(_rowUnion(candidates[0].rect, items, viewport));
+    }
+
+    function trySnapMultiToken(items) {
+      if (tokens.length < 2 || fbCenterY === null) return null;
+      const required = Math.max(2, Math.ceil(tokens.length * 0.6));
+      const matchedRects = [];
+      const matchedTokens = new Set();
+      for (const tok of tokens) {
+        let best = null;
+        for (const item of items) {
+          const s = _stripPunct((item.str || "").trim());
+          if (s !== tok) continue;
           const rect = _itemToNormalizedRect(item, viewport);
           const itemCenterY = rect[1] + rect[3] / 2;
-          const dy = fbCenterY !== null ? Math.abs(itemCenterY - fbCenterY) : 0;
-          candidates.push({ rect, dy, exact: s === numToken });
+          const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
+          const dy = Math.abs(itemCenterY - fbCenterY);
+          if (dy > rowTol) continue;
+          if (best === null || dy < best.dy) best = { rect, dy };
         }
-        if (candidates.length > 0) {
-          // Prefer exact-token matches over substring; then the y-closest one.
-          candidates.sort((a, b) => {
-            if (a.exact !== b.exact) return a.exact ? -1 : 1;
-            return a.dy - b.dy;
-          });
-          return _padBbox(_rowUnion(candidates[0].rect, tc.items, viewport));
+        if (best !== null) {
+          matchedRects.push(best.rect);
+          matchedTokens.add(tok);
         }
       }
-      // Exact whole-string match fallback (single-word intake answers,
-      // allergy strings).
-      for (const item of tc.items) {
+      if (matchedTokens.size < required) return null;
+      let xMin = Infinity;
+      let yMin = Infinity;
+      let xMax = -Infinity;
+      let yMax = -Infinity;
+      for (const r of matchedRects) {
+        if (r[0] < xMin) xMin = r[0];
+        if (r[1] < yMin) yMin = r[1];
+        if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
+        if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
+      }
+      if (xMax - xMin > fbWidth * 1.5) return null;
+      return _padBbox([xMin, yMin, xMax - xMin, yMax - yMin]);
+    }
+
+    function trySnapWholeString(items) {
+      for (const item of items) {
         const s = (item.str || "").trim();
         if (s && s === target) {
           return _padBbox(_itemToNormalizedRect(item, viewport));
         }
       }
-      // Multi-token fallback (free-text intake answers).
-      const tokens = target
-        .split(/\s+/)
-        .map(_stripPunct)
-        .filter((t) => t.length > 0);
-      if (tokens.length >= 2 && fbCenterY !== null) {
-        const required = Math.max(2, Math.ceil(tokens.length * 0.6));
-        const matchedRects = [];
-        const matchedTokens = new Set();
-        for (const tok of tokens) {
-          let best = null;
-          for (const item of tc.items) {
-            const s = _stripPunct((item.str || "").trim());
-            if (s !== tok) continue;
-            const rect = _itemToNormalizedRect(item, viewport);
-            const itemCenterY = rect[1] + rect[3] / 2;
-            const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
-            const dy = Math.abs(itemCenterY - fbCenterY);
-            if (dy > rowTol) continue;
-            if (best === null || dy < best.dy) best = { rect, dy };
-          }
-          if (best !== null) {
-            matchedRects.push(best.rect);
-            matchedTokens.add(tok);
-          }
-        }
-        if (matchedTokens.size >= required) {
-          let xMin = Infinity;
-          let yMin = Infinity;
-          let xMax = -Infinity;
-          let yMax = -Infinity;
-          for (const r of matchedRects) {
-            if (r[0] < xMin) xMin = r[0];
-            if (r[1] < yMin) yMin = r[1];
-            if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
-            if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
-          }
-          // Drift guard: a union that's much wider than the VLM hint is
-          // usually picking up unrelated tokens. Bail to fallback.
-          if (xMax - xMin <= fbWidth * 1.5) {
-            return _padBbox([xMin, yMin, xMax - xMin, yMax - yMin]);
-          }
-        }
+      return null;
+    }
+
+    try {
+      const tc = await pdfPage.getTextContent();
+      // Order: numeric-first for "142 mg/dL"-shaped lab values; multi-token
+      // first for names/meds where the leading word IS the citation target
+      // and an embedded number would mis-route the snap.
+      if (firstTokenIsNumeric) {
+        return (
+          trySnapNumeric(tc.items)
+          ?? trySnapMultiToken(tc.items)
+          ?? trySnapWholeString(tc.items)
+        );
       }
+      return (
+        trySnapMultiToken(tc.items)
+        ?? trySnapNumeric(tc.items)
+        ?? trySnapWholeString(tc.items)
+      );
     } catch (e) {
       console.warn("text-snap failed; using VLM bbox", e);
     }
@@ -774,11 +810,9 @@
     // is shown for that doc_id AFTER the modal finishes opening. Only
     // onPendingIntakeClick passes this — chip clicks pass nothing, which
     // makes it architecturally impossible for chat citations to surface
-    // the footer. This supersedes the W2 Phase 5 defensive reset that
-    // was racy with onPendingIntakeClick's separate showConfirmFooter
-    // call.
-    modalFooter.hidden = true;
-    modalStatus.textContent = "";
+    // the footer. Supersedes the W2 Phase 5 defensive-reset pattern that
+    // was racy with onPendingIntakeClick's separate showConfirmFooter call.
+    _forceHideFooter();
     modalLabel.textContent = recordId;
     if (recordId.startsWith("DocumentReference/")) {
       _showCanvasMode();
@@ -849,12 +883,11 @@
 
   function openEvidenceCardModal(recordId, ev) {
     // Card mode (non-DocumentReference): no PDF/PNG to render, so the
-    // zoom toolbar stays hidden. We still widen the rail because the
-    // structured card reads better with more horizontal room.
+    // zoom toolbar stays hidden. The structured card fits in the normal
+    // rail width — we no longer post the rail-widen message here, since
+    // widening is only useful when there's a PDF/PNG to size up
+    // (user feedback, 2026-05-09).
     if (modalToolbar) modalToolbar.hidden = true;
-    try {
-      window.parent?.postMessage({ type: "copilot-doc-modal-open" }, "*");
-    } catch (_) { /* parent unreachable in standalone preview — ignore */ }
     modal.showModal();
     if (!ev) {
       const empty = document.createElement("div");
