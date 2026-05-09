@@ -11,6 +11,10 @@ use OpenEMR\Common\Crypto\{
 };
 use ValueError;
 
+/**
+ * This adds common methods related to CryptoInterface for contextual
+ * encryption and checking about status
+ */
 trait ContextualEncryptionTrait
 {
     public function encryptForDatabase(?string $value): string
@@ -89,6 +93,9 @@ trait ContextualEncryptionTrait
         }
     }
 
+    /**
+     * See isDatabaseValueLatest - same.
+     */
     public function isFilesystemValueLatest(string $value): bool
     {
         if ($value === '') {
