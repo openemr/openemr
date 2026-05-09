@@ -188,7 +188,12 @@ if (preg_match("/^[^\/]/", $web_root)) {
 //   $web_root =  "/openemr";
 
 $ResolveServerHost = static function () {
-    $scheme = ($_SERVER['REQUEST_SCHEME'] ?? 'https') . "://";
+    // REQUEST_SCHEME is set by Apache and nginx. It is NOT set by PHP's
+    // built-in server (php -S), which has no TLS support — so fall back to
+    // inspecting the HTTPS server var, and finally http.
+    $https = strtolower((string) ($_SERVER['HTTPS'] ?? ''));
+    $isHttps = $https !== '' && $https !== 'off';
+    $scheme = ($_SERVER['REQUEST_SCHEME'] ?? ($isHttps ? 'https' : 'http')) . "://";
     $possibleHostSources = ['HTTP_X_FORWARDED_HOST', 'HTTP_HOST', 'SERVER_NAME', 'SERVER_ADDR'];
     $sourceTransformations = [
         "HTTP_X_FORWARDED_HOST" => function ($value) {

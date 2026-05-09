@@ -1,0 +1,36 @@
+# Use a logfmt-style message
+log_format local '[$time_iso8601] $status "$request" body=$body_bytes_sent rt=$request_time urt=$upstream_response_time ua="$http_user_agent" sdk="$http_x_sdk"';
+server {
+    listen 80;
+    server_tokens off;
+    root /app/public;
+
+    include mime.types;
+
+    access_log  /var/log/nginx/access.log  local;
+
+    location @php {
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /app/public/index.php;
+        # helps access log %r value get set correctly
+        fastcgi_param SCRIPT_NAME $request_uri;
+        fastcgi_pass $FASTCGI_HOST:$FASTCGI_PORT;
+    }
+
+    # OpenEMR generates URLs with /public/ prefix expecting non-front-controller setup
+    location /public/ {
+        alias /app/public/;
+    }
+
+    # Static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|map)$ {
+        root /app;
+        # Try public first, then fall back to root-relative assets
+        try_files /public$uri $uri =404;
+    }
+
+    location / {
+        try_files $uri @php;
+    }
+}
+# vim: ft=nginx
