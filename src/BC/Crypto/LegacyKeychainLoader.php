@@ -42,7 +42,8 @@ use Throwable;
 final class LegacyKeychainLoader
 {
     /**
-     * Loads the keychain using default legacy storage engines.
+     * Loads the keychain using default legacy storage engines. This will
+     * create keys at the current version if they do not exist.
      */
     public static function load(): KeychainInterface
     {
@@ -63,10 +64,10 @@ final class LegacyKeychainLoader
     }
 
     /**
-     * Loads the keychain using provided storage engines.
+     * Loads the keychain using provided storage engines. This will create keys
+     * at the current version if they do not exist.
      *
-     * This allows injecting alternative storage implementations for testing or
-     * when using different database connection strategies.
+     * Important: this is still directly coupled to the filesystem
      */
     public static function loadWithEngines(
         Storage\KeyStorageInterface $filesystemStorage,
