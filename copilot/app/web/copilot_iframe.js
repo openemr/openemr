@@ -221,16 +221,29 @@
   // banner items immediately rather than waiting for a refresh.
   const handledDocIds = new Set();
 
+  // Force-hide the modal footer using BOTH the [hidden] attribute and an
+  // inline display:none style. Some site CSS (rail-fragment styles, parent
+  // page overrides) has been observed to win specificity against [hidden],
+  // so the inline style is a CSS-proof belt to the suspenders.
+  function _forceHideFooter() {
+    modalFooter.hidden = true;
+    modalFooter.style.display = "none";
+    modalStatus.textContent = "";
+  }
+  function _forceShowFooter() {
+    modalFooter.style.display = "";
+    modalFooter.hidden = false;
+  }
+
   modalClose.onclick = () => modal.close();
   modal.addEventListener("cancel", (e) => { e.preventDefault(); modal.close(); });
   modal.addEventListener("close", () => {
     // Reset footer + zoom state when the dialog closes so the next open
     // starts clean.
     modalActiveDocId = null;
-    modalFooter.hidden = true;
+    _forceHideFooter();
     modalConfirmBtn.disabled = false;
     modalRejectBtn.disabled = false;
-    modalStatus.textContent = "";
     docPreviewState = null;
     if (modalToolbar) modalToolbar.hidden = true;
     // Tell the parent OpenEMR page to shrink the iframe rail back to its
@@ -321,11 +334,15 @@
   };
 
   function showConfirmFooter(docId) {
+    // Belt-and-suspenders: never re-surface the footer for a doc that was
+    // already confirmed/rejected this session. Even if a caller passes the
+    // doc by mistake, we bail.
+    if (handledDocIds.has(docId)) return;
     modalActiveDocId = docId;
     modalConfirmBtn.disabled = false;
     modalRejectBtn.disabled = false;
     modalStatus.textContent = "Filed by front desk — confirm to save to chart.";
-    modalFooter.hidden = false;
+    _forceShowFooter();
   }
 
   async function handleConfirmReject(action) {
@@ -642,19 +659,24 @@
     // Snap the bbox overlay to the PDF text layer. Returns a normalized
     // [x,y,w,h] rect or null. Caller uses fallbackBbox on null.
     //
-    // Strategy:
-    //   1. If rawText contains a numeric token (lab values, vitals), prefer
-    //      to snap to that token specifically — and disambiguate when the
-    //      number appears in multiple rows by picking the candidate whose
-    //      vertical center is closest to the VLM-emitted bbox.
-    //   2. Otherwise fall back to an exact-string match against a single
-    //      text-item (single-word intake answers, allergies).
-    //   3. Multi-token fallback for free-text intake answers ("John Doe",
-    //      "shellfish, peanuts"): tokenize on whitespace, strip trailing
-    //      punctuation, find a per-token match in the same y-row as the
-    //      VLM bbox, and union the matched rects — but only if at least
-    //      two distinct tokens matched. A one-token "match" pretending to
-    //      be the whole answer is worse than the VLM bbox.
+    // Strategy (order depends on raw_text shape):
+    //
+    //   • If raw_text STARTS with a numeric token (lab values: "142",
+    //     "5.6 mg/dL"), the value IS the primary fact — use the numeric
+    //     branch + row expansion (gives clinical context: test name +
+    //     value + units).
+    //   • Otherwise (med names: "Amlodipine 5 mg daily", intake answers:
+    //     "John Doe", "shellfish, peanuts") — try multi-token FIRST. The
+    //     name/answer is the primary fact; matching on an embedded "5"
+    //     would snap-and-row-expand the wrong row. Numeric is a fallback.
+    //   • Whole-string equality is the last fallback for single-word
+    //     answers like "penicillin".
+    //
+    // Multi-token rules (cde0bb97f→d7a14d3b4 tightened):
+    //   - y-row tolerance 1.0x of max(fbHeight, item h) — one row, not 1.5
+    //   - require ceil(60%) of tokens matched
+    //   - reject the union if it's > 1.5x the VLM hint width (drift guard)
+    //
     // We DO NOT use loose substring matching against multi-word raw_text
     // because PDF.js usually splits rows into many items and the FIRST
     // match (e.g. "LDL") would land miles from the actual value.
@@ -662,98 +684,100 @@
     if (!target) return null;
     const numMatch = target.match(/-?\d+(?:\.\d+)?/);
     const numToken = numMatch ? numMatch[0] : null;
-    const fbCenterY =
-      Array.isArray(fallbackBbox) && fallbackBbox.length === 4
-        ? fallbackBbox[1] + fallbackBbox[3] / 2
-        : null;
-    const fbHeight =
-      Array.isArray(fallbackBbox) && fallbackBbox.length === 4
-        ? fallbackBbox[3]
-        : 0;
-    try {
-      const tc = await pdfPage.getTextContent();
-      if (numToken) {
-        const candidates = [];
-        for (const item of tc.items) {
-          const s = (item.str || "").trim();
-          if (!s.includes(numToken)) continue;
+    const fbValid = Array.isArray(fallbackBbox) && fallbackBbox.length === 4;
+    const fbCenterY = fbValid ? fallbackBbox[1] + fallbackBbox[3] / 2 : null;
+    const fbHeight = fbValid ? fallbackBbox[3] : 0;
+    const fbWidth = fbValid ? fallbackBbox[2] : 1;
+    const tokens = target
+      .split(/\s+/)
+      .map(_stripPunct)
+      .filter((t) => t.length > 0);
+    const firstTokenIsNumeric =
+      tokens.length > 0 && /^-?\d/.test(tokens[0]);
+
+    function trySnapNumeric(items) {
+      if (!numToken) return null;
+      const candidates = [];
+      for (const item of items) {
+        const s = (item.str || "").trim();
+        if (!s.includes(numToken)) continue;
+        const rect = _itemToNormalizedRect(item, viewport);
+        const itemCenterY = rect[1] + rect[3] / 2;
+        const dy = fbCenterY !== null ? Math.abs(itemCenterY - fbCenterY) : 0;
+        candidates.push({ rect, dy, exact: s === numToken });
+      }
+      if (candidates.length === 0) return null;
+      candidates.sort((a, b) => {
+        if (a.exact !== b.exact) return a.exact ? -1 : 1;
+        return a.dy - b.dy;
+      });
+      return _padBbox(_rowUnion(candidates[0].rect, items, viewport));
+    }
+
+    function trySnapMultiToken(items) {
+      if (tokens.length < 2 || fbCenterY === null) return null;
+      const required = Math.max(2, Math.ceil(tokens.length * 0.6));
+      const matchedRects = [];
+      const matchedTokens = new Set();
+      for (const tok of tokens) {
+        let best = null;
+        for (const item of items) {
+          const s = _stripPunct((item.str || "").trim());
+          if (s !== tok) continue;
           const rect = _itemToNormalizedRect(item, viewport);
           const itemCenterY = rect[1] + rect[3] / 2;
-          const dy = fbCenterY !== null ? Math.abs(itemCenterY - fbCenterY) : 0;
-          candidates.push({ rect, dy, exact: s === numToken });
+          const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
+          const dy = Math.abs(itemCenterY - fbCenterY);
+          if (dy > rowTol) continue;
+          if (best === null || dy < best.dy) best = { rect, dy };
         }
-        if (candidates.length > 0) {
-          // Prefer exact-token matches over substring; then the y-closest one.
-          candidates.sort((a, b) => {
-            if (a.exact !== b.exact) return a.exact ? -1 : 1;
-            return a.dy - b.dy;
-          });
-          // Numeric branch: expand to the full row so the citation has
-          // clinical context (test name + value + units), then pad so
-          // the stroke does not overlap the digits.
-          return _padBbox(_rowUnion(candidates[0].rect, tc.items, viewport));
+        if (best !== null) {
+          matchedRects.push(best.rect);
+          matchedTokens.add(tok);
         }
       }
-      // Exact whole-string match fallback (single-word intake answers,
-      // allergy strings). Pad to keep the stroke off the glyphs.
-      for (const item of tc.items) {
+      if (matchedTokens.size < required) return null;
+      let xMin = Infinity;
+      let yMin = Infinity;
+      let xMax = -Infinity;
+      let yMax = -Infinity;
+      for (const r of matchedRects) {
+        if (r[0] < xMin) xMin = r[0];
+        if (r[1] < yMin) yMin = r[1];
+        if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
+        if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
+      }
+      if (xMax - xMin > fbWidth * 1.5) return null;
+      return _padBbox([xMin, yMin, xMax - xMin, yMax - yMin]);
+    }
+
+    function trySnapWholeString(items) {
+      for (const item of items) {
         const s = (item.str || "").trim();
         if (s && s === target) {
           return _padBbox(_itemToNormalizedRect(item, viewport));
         }
       }
-      // Multi-token fallback for free-text intake answers ("Maria Lopez",
-      // "shellfish, peanuts"). Stricter than the original (cde0bb97f):
-      //   - y-row tolerance 1.0x (was 1.5x) — one row, not one and a half
-      //   - require ceil(60%) of tokens to match (was hardcoded ≥2) so a
-      //     2-of-5 partial union doesn't pretend to be the whole answer
-      //   - reject the union if it's > 1.5x the VLM hint width — drift
-      //     guard against picking up unrelated tokens
-      const fbWidth =
-        Array.isArray(fallbackBbox) && fallbackBbox.length === 4
-          ? fallbackBbox[2]
-          : 1;
-      const tokens = target
-        .split(/\s+/)
-        .map(_stripPunct)
-        .filter((t) => t.length > 0);
-      if (tokens.length >= 2 && fbCenterY !== null) {
-        const required = Math.max(2, Math.ceil(tokens.length * 0.6));
-        const matchedRects = [];
-        const matchedTokens = new Set();
-        for (const tok of tokens) {
-          let best = null;
-          for (const item of tc.items) {
-            const s = _stripPunct((item.str || "").trim());
-            if (s !== tok) continue;
-            const rect = _itemToNormalizedRect(item, viewport);
-            const itemCenterY = rect[1] + rect[3] / 2;
-            const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
-            const dy = Math.abs(itemCenterY - fbCenterY);
-            if (dy > rowTol) continue;
-            if (best === null || dy < best.dy) best = { rect, dy };
-          }
-          if (best !== null) {
-            matchedRects.push(best.rect);
-            matchedTokens.add(tok);
-          }
-        }
-        if (matchedTokens.size >= required) {
-          let xMin = Infinity;
-          let yMin = Infinity;
-          let xMax = -Infinity;
-          let yMax = -Infinity;
-          for (const r of matchedRects) {
-            if (r[0] < xMin) xMin = r[0];
-            if (r[1] < yMin) yMin = r[1];
-            if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
-            if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
-          }
-          if (xMax - xMin <= fbWidth * 1.5) {
-            return _padBbox([xMin, yMin, xMax - xMin, yMax - yMin]);
-          }
-        }
+      return null;
+    }
+
+    try {
+      const tc = await pdfPage.getTextContent();
+      // Order: numeric-first for "142 mg/dL"-shaped lab values; multi-token
+      // first for names/meds where the leading word IS the citation target
+      // and an embedded number would mis-route the snap.
+      if (firstTokenIsNumeric) {
+        return (
+          trySnapNumeric(tc.items)
+          ?? trySnapMultiToken(tc.items)
+          ?? trySnapWholeString(tc.items)
+        );
       }
+      return (
+        trySnapMultiToken(tc.items)
+        ?? trySnapNumeric(tc.items)
+        ?? trySnapWholeString(tc.items)
+      );
     } catch (e) {
       console.warn("text-snap failed; using VLM bbox", e);
     }
@@ -788,8 +812,7 @@
     // makes it architecturally impossible for chat citations to surface
     // the footer. Supersedes the W2 Phase 5 defensive-reset pattern that
     // was racy with onPendingIntakeClick's separate showConfirmFooter call.
-    modalFooter.hidden = true;
-    modalStatus.textContent = "";
+    _forceHideFooter();
     modalLabel.textContent = recordId;
     if (recordId.startsWith("DocumentReference/")) {
       _showCanvasMode();
@@ -860,12 +883,11 @@
 
   function openEvidenceCardModal(recordId, ev) {
     // Card mode (non-DocumentReference): no PDF/PNG to render, so the
-    // zoom toolbar stays hidden. We still widen the rail because the
-    // structured card reads better with more horizontal room.
+    // zoom toolbar stays hidden. The structured card fits in the normal
+    // rail width — we no longer post the rail-widen message here, since
+    // widening is only useful when there's a PDF/PNG to size up
+    // (user feedback, 2026-05-09).
     if (modalToolbar) modalToolbar.hidden = true;
-    try {
-      window.parent?.postMessage({ type: "copilot-doc-modal-open" }, "*");
-    } catch (_) { /* parent unreachable in standalone preview — ignore */ }
     modal.showModal();
     if (!ev) {
       const empty = document.createElement("div");
