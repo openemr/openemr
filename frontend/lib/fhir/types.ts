@@ -60,6 +60,7 @@ export interface Patient {
   birthDate?: string;
   gender?: "male" | "female" | "other" | "unknown";
   identifier?: Identifier[];
+  generalPractitioner?: Reference[];
 }
 
 export interface AllergyIntolerance {

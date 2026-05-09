@@ -2,6 +2,9 @@ import { NextRequest } from "next/server";
 import { verifyCookieValue, clearCookieAttrs } from "@/lib/auth/cookies";
 import * as tokenStore from "@/lib/auth/token-store";
 import { buildUpstreamUrl } from "@/lib/fhir/upstream-url";
+import { inPanel, parseAdminAllowlist } from "@/lib/auth/panel-scope";
+import { getPanelDecision, setPanelDecision } from "@/lib/auth/panel-cache";
+import type { Patient } from "@/lib/fhir/types";
 
 export const runtime = "nodejs";
 
@@ -23,6 +26,75 @@ function unauthorized(): Response {
       "Set-Cookie": `${SESSION_COOKIE}=; ${clearCookieAttrs()}`,
     },
   });
+}
+
+function forbidden(): Response {
+  return new Response("forbidden", {
+    status: 403,
+    headers: { "Cache-Control": "no-store, private" },
+  });
+}
+
+/**
+ * Inspect the upstream URL for a patient ID this request targets. Returns
+ * the patient ID string or null if the request is not patient-targeting.
+ *
+ * Recognized shapes:
+ *  - path segment: `Patient/<id>` (anywhere in path)
+ *  - query: `?patient=<id>`
+ *  - query: `?subject=Patient/<id>` or `?subject=<id>`
+ */
+function extractTargetedPatientId(upstreamUrl: URL): string | null {
+  const segments = upstreamUrl.pathname.split("/").filter(Boolean);
+  for (let i = 0; i < segments.length - 1; i++) {
+    if (segments[i] === "Patient") return decodeURIComponent(segments[i + 1]);
+  }
+  const patientParam = upstreamUrl.searchParams.get("patient");
+  if (patientParam) return patientParam;
+  const subject = upstreamUrl.searchParams.get("subject");
+  if (subject) {
+    if (subject.startsWith("Patient/")) return subject.slice("Patient/".length);
+    return subject;
+  }
+  return null;
+}
+
+/**
+ * Direct upstream fetch of `Patient/{id}` for the panel-scope GP lookup.
+ * MUST NOT call back through the proxy route (would recurse). Includes a
+ * 401-then-refresh retry, mirroring the main proxy.
+ */
+async function fetchPatientForPanelScope(
+  fhirBaseOrigin: string,
+  fhirBasePath: string,
+  patientId: string,
+  sessionId: string,
+  initialAccess: string,
+  refreshOpts: { tokenEndpoint: string; clientId: string; clientSecret: string },
+): Promise<Patient | null> {
+  const url = `${fhirBaseOrigin}${fhirBasePath}/Patient/${encodeURIComponent(patientId)}`;
+  async function go(token: string): Promise<Response> {
+    return fetch(url, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/fhir+json",
+      },
+    });
+  }
+  let res = await go(initialAccess);
+  if (res.status === 401) {
+    let refreshed;
+    try {
+      refreshed = await tokenStore.refresh(sessionId, refreshOpts);
+    } catch {
+      return null;
+    }
+    res = await go(refreshed.access);
+  }
+  if (!res.ok) return null;
+  return (await res.json()) as Patient;
 }
 
 async function handle(
@@ -70,6 +142,44 @@ async function handle(
   const ifMatchHeader = req.headers.get("if-match");
   const ifNoneMatchHeader = req.headers.get("if-none-match");
   const tokenEndpoint = `${oauthBase.replace(/\/+$/, "")}/oauth2/default/token`;
+
+  // ── Panel-scope gate ───────────────────────────────────────────────────
+  // For requests that target a specific patient, verify the signed-in
+  // clinician is on that patient's GP list (or admin-bypassed). The check
+  // is cached per (sessionId, patientId) for 60s.
+  const targetedPatientId = extractTargetedPatientId(upstreamUrl);
+  if (targetedPatientId !== null) {
+    const fhirBaseUrlObj = new URL(fhirBase);
+    const fhirBasePathStripped = fhirBaseUrlObj.pathname.replace(/\/+$/, "");
+    const adminAllowlist = parseAdminAllowlist(process.env.COPILOT_ADMIN_USERS);
+    let decision = getPanelDecision(session.sessionId, targetedPatientId);
+    if (decision === null) {
+      // Admin allowlist short-circuit (avoids an extra Patient fetch for admins)
+      if (entry.openemrUsername && adminAllowlist.includes(entry.openemrUsername)) {
+        decision = "allow";
+      } else {
+        const patient = await fetchPatientForPanelScope(
+          fhirBaseUrlObj.origin,
+          fhirBasePathStripped,
+          targetedPatientId,
+          session.sessionId,
+          entry.access,
+          { tokenEndpoint, clientId, clientSecret },
+        );
+        decision = inPanel(patient, entry.openemrUsername, adminAllowlist);
+      }
+      setPanelDecision(session.sessionId, targetedPatientId, decision);
+    }
+
+    if (decision === "deny") {
+      return forbidden();
+    }
+    if (decision === "unknown-gp-fallthrough" && process.env.STRICT_PANEL_SCOPE === "true") {
+      return forbidden();
+    }
+    // allow → fall through to upstream fetch.
+  }
+  // ───────────────────────────────────────────────────────────────────────
 
   async function fetchUpstream(accessToken: string): Promise<Response> {
     const headers: Record<string, string> = {

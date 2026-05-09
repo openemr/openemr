@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { GET } from "@/app/api/fhir/[...path]/route";
 import { signCookieValue } from "@/lib/auth/cookies";
 import * as tokenStore from "@/lib/auth/token-store";
+import * as panelCache from "@/lib/auth/panel-cache";
 import type { NextRequest } from "next/server";
 
 const ENV = {
@@ -11,11 +12,16 @@ const ENV = {
   OPENEMR_DASHBOARD_CLIENT_SECRET: "test-client-secret",
   DASHBOARD_PUBLIC_URL: "https://dashboard.example.com",
   SESSION_COOKIE_SECRET: "test-secret-32-bytes-or-longer-please",
+  // Default: existing tests run as an admin user so the panel-scope gate
+  // bypasses without firing an extra Patient/{id} fetch. Panel-scope-
+  // specific tests below override this.
+  COPILOT_ADMIN_USERS: "admin-user",
 };
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
 beforeEach(() => {
   tokenStore.__resetForTests();
+  panelCache.__resetForTests();
   vi.restoreAllMocks();
   for (const [k, v] of Object.entries(ENV)) vi.stubEnv(k, v);
 });
@@ -56,6 +62,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(makeBundleResponse());
     const res = await GET(
@@ -81,6 +88,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(makeBundleResponse());
     await GET(
@@ -103,6 +111,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() - 60_000, // expired access (refresh path will fire)
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(async (input, init) => {
       const url = typeof input === "string" ? input : (input as URL).toString();
@@ -133,6 +142,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() - 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     vi.spyOn(globalThis, "fetch").mockImplementation(async (input) => {
       const url = typeof input === "string" ? input : (input as URL).toString();
@@ -185,6 +195,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     const fetchMock = vi.spyOn(globalThis, "fetch");
     const res = await GET(
@@ -210,6 +221,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("", { status: 202, headers: { "content-location": "https://openemr.example.com/apis/default/fhir/$bulkdata-status?job=abc" } }),
@@ -236,6 +248,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("", { status: 202, headers: { "content-location": "https://other.example.com/some/path" } }),
@@ -253,6 +266,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("{}", {
@@ -278,6 +292,7 @@ describe("GET /api/fhir/[...path]", () => {
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response("{}", {
@@ -297,12 +312,141 @@ describe("GET /api/fhir/[...path]", () => {
     expect(res.headers.get("Set-Cookie")).toBeNull();
   });
 
+  describe("panel-scope gate", () => {
+    function makePatientResponse(generalPractitionerRefs: string[]): Response {
+      const body = {
+        resourceType: "Patient",
+        id: "patient-X",
+        generalPractitioner: generalPractitionerRefs.map((r) => ({ reference: r })),
+      };
+      return new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { "content-type": "application/fhir+json" },
+      });
+    }
+    function makeBundleResponseAlt(): Response {
+      return new Response(
+        JSON.stringify({ resourceType: "Bundle", entry: [] }),
+        { status: 200, headers: { "content-type": "application/fhir+json" } },
+      );
+    }
+
+    it("non-admin with matching GP → allow (proxies through)", async () => {
+      tokenStore.set("sid-1", {
+        access: "tok-A",
+        refresh: "ref-1",
+        expiresAt: Date.now() + 60_000,
+        sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+        openemrUsername: "dr-smith",
+      });
+      let calls = 0;
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        calls += 1;
+        // Call 1 = panel-scope GP lookup (returns Patient)
+        // Call 2 = main proxy fetch (returns Bundle)
+        return calls === 1
+          ? makePatientResponse(["Practitioner/dr-smith"])
+          : makeBundleResponseAlt();
+      });
+      const res = await GET(
+        buildReq({ pathname: "/api/fhir/Encounter", search: "?patient=patient-X", cookie: sessionCookieFor("sid-1") }),
+        { params: Promise.resolve({ path: ["Encounter"] }) },
+      );
+      expect(res.status).toBe(200);
+    });
+
+    it("non-admin with mismatching GP → 403, no upstream main fetch", async () => {
+      tokenStore.set("sid-1", {
+        access: "tok-A",
+        refresh: "ref-1",
+        expiresAt: Date.now() + 60_000,
+        sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+        openemrUsername: "dr-smith",
+      });
+      let calls = 0;
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        calls += 1;
+        return makePatientResponse(["Practitioner/dr-jones"]);
+      });
+      const res = await GET(
+        buildReq({ pathname: "/api/fhir/Encounter", search: "?patient=patient-X", cookie: sessionCookieFor("sid-1") }),
+        { params: Promise.resolve({ path: ["Encounter"] }) },
+      );
+      expect(res.status).toBe(403);
+      // Exactly one fetch — the GP lookup. No main upstream fetch.
+      expect(calls).toBe(1);
+    });
+
+    it("non-admin with empty GP → fallthrough (allow, default)", async () => {
+      tokenStore.set("sid-1", {
+        access: "tok-A",
+        refresh: "ref-1",
+        expiresAt: Date.now() + 60_000,
+        sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+        openemrUsername: "dr-smith",
+      });
+      let calls = 0;
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        calls += 1;
+        return calls === 1 ? makePatientResponse([]) : makeBundleResponseAlt();
+      });
+      const res = await GET(
+        buildReq({ pathname: "/api/fhir/MedicationRequest", search: "?patient=patient-X", cookie: sessionCookieFor("sid-1") }),
+        { params: Promise.resolve({ path: ["MedicationRequest"] }) },
+      );
+      expect(res.status).toBe(200);
+    });
+
+    it("STRICT_PANEL_SCOPE=true + empty GP → 403", async () => {
+      vi.stubEnv("STRICT_PANEL_SCOPE", "true");
+      tokenStore.set("sid-1", {
+        access: "tok-A",
+        refresh: "ref-1",
+        expiresAt: Date.now() + 60_000,
+        sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+        openemrUsername: "dr-smith",
+      });
+      let calls = 0;
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        calls += 1;
+        return makePatientResponse([]);
+      });
+      const res = await GET(
+        buildReq({ pathname: "/api/fhir/MedicationRequest", search: "?patient=patient-X", cookie: sessionCookieFor("sid-1") }),
+        { params: Promise.resolve({ path: ["MedicationRequest"] }) },
+      );
+      expect(res.status).toBe(403);
+      expect(calls).toBe(1); // GP lookup only; main not called
+    });
+
+    it("query subject=Patient/<id> is detected for panel-scope", async () => {
+      tokenStore.set("sid-1", {
+        access: "tok-A",
+        refresh: "ref-1",
+        expiresAt: Date.now() + 60_000,
+        sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+        openemrUsername: "dr-smith",
+      });
+      let calls = 0;
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        calls += 1;
+        return calls === 1 ? makePatientResponse(["Practitioner/dr-jones"]) : makeBundleResponseAlt();
+      });
+      const res = await GET(
+        buildReq({ pathname: "/api/fhir/Observation", search: "?subject=Patient/patient-X", cookie: sessionCookieFor("sid-1") }),
+        { params: Promise.resolve({ path: ["Observation"] }) },
+      );
+      expect(res.status).toBe(403);
+    });
+  });
+
   it("async params shape: params is awaited", async () => {
     tokenStore.set("sid-1", {
       access: "tok-A",
       refresh: "ref-1",
       expiresAt: Date.now() + 60_000,
       sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+      openemrUsername: "admin-user",
     });
     vi.spyOn(globalThis, "fetch").mockResolvedValue(makeBundleResponse());
     // Explicitly pass a Promise to verify the await works.
