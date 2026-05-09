@@ -208,7 +208,7 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 - File location: `frontend/` under existing OpenEMR fork root (single repo, single PR).
 - **Zero existing source-files modified** — verified during planning that neither root `Dockerfile` nor root `.gitignore` need touching.
 
-**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` produced 15 successful KRs (KR2 + KR4-17, with KR1 + KR3 codex-rejected revisions); for the exact commit count run `git rev-list --count master..feat/dashboard-modernize`.
+**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` shipped through KR19 — see `state.key_results[].status == "completed"` in `.night-shift/runs/2026-05-09-0213/state.json` for the authoritative list (avoids the chase-tail problem where every fact-correction commit changes the count). For exact commit count run `git rev-list --count master..feat/dashboard-modernize`.
 
 **Key results delivered:**
 
@@ -223,7 +223,14 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 | KR9 | Doc sync + panel-scope fetch-rejection guard | 2 | `ac7dab7e8`, `ddabba7dc` |
 | KR10 | Auth completeness — physician_user_id + logout POST | 2 | `8a065a40b`, `b1488a2a6` |
 | KR11 | Deployment + security headers (Dockerfile + CSP) | 2 | `1c0e99456`, `0018a86f5` |
-| KR12 | Doc sync — KR10 + KR11 | 1 | (this commit) |
+| KR12 | Doc sync — KR10 + KR11 | 1 | `c15fb264e` |
+| KR13 | Deployment polish — .dockerignore + frontend README | 1 | `ba5f07b51` |
+| KR14 | Final deliverable accuracy + verification (Codex round-1 counter) | 1 | `f44831f5b` |
+| KR15 | Final accuracy pass — stale numbers (Codex round 2) | 1 | `364ff38b2` |
+| KR16 | Fact-resilient commit-count phrasing (Codex round 2 chase-tail) | 1 | `0508e2a27` |
+| KR17 | Codex round-3 cleanups — README count | 1 | `2ffbf03df` |
+| KR18 | Memory-bank handoff accounting refresh (Codex round 4) | 1 | `ae82e2dcd` |
+| KR19 | Complete the KR-table refresh + drop hardcoded KR counts | 1 | (this commit) |
 
 (KR1 and KR3 codex-rejected during proposal — KR1 for unpinned scaffold, KR3 for bundled middleware/panel-scope. See `.night-shift/runs/2026-05-09-0213/key-results/{1,3}/codex-approval.txt`.)
 

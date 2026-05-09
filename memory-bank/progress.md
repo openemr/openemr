@@ -339,7 +339,8 @@ night-shift run `2026-05-09-0213`. Not yet merged/pushed.
 | KR15 | Final accuracy pass — stale numbers per Codex round 2 | 1 | 1 min | "25 → 26", "17 → 16 files", "109 → 151 tests" |
 | KR16 | Fact-resilient commit-count phrasing | 1 | 1 min | Replaced hardcoded counts with `git rev-list` instruction |
 | KR17 | Codex round-3 cleanups — README count | 1 | 0 min | frontend/README.md last hardcoded "24 commits" → git-rev-list |
-| KR18 | Memory-bank handoff accounting refresh | 1 | (in progress) | Codex round-4 P2 fix |
+| KR18 | Memory-bank handoff accounting refresh | 1 | 0 min | Codex round-4 P2 fix |
+| KR19 | Complete the KR-table refresh + drop hardcoded KR counts | 1 | (this commit) | Codex round-5 P2 fix; references state.json instead of hardcoding |
 
 **Stack pinned exact:** next 15.5.18 · react/react-dom 19.2.6 · typescript 5.9.3 · tailwindcss 4.3.0 · vitest 4.1.5 · jsdom 29.1.1 · @types/node 25.6.2.
 
