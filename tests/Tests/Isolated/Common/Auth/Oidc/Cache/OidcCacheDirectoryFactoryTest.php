@@ -89,12 +89,17 @@ final class OidcCacheDirectoryFactoryTest extends TestCase
     }
 
     /**
-     * Aisle round-3 finding #6 (CWE-377) regression. If a local
-     * attacker can write to `temporary_files_dir` (e.g. the classic
-     * world-writable /tmp), they can pre-create the cache path as a
-     * symlink to an attacker-controlled directory. is_dir() follows
-     * symlinks so the previous code happily wrote cache entries to
-     * the symlink target. The factory must refuse this outright.
+     * Aisle round-3 finding #6 (CWE-377) + round-4 finding #3
+     * (CWE-367) regression. If a local attacker can write to
+     * `temporary_files_dir` (e.g. the classic world-writable /tmp),
+     * they can pre-create the cache path as a symlink to an
+     * attacker-controlled directory. `is_dir()` follows symlinks so
+     * the original code happily wrote cache entries to the symlink
+     * target. The factory must refuse this outright via the lstat()
+     * post-check (which does NOT follow symlinks).
+     *
+     * Pre-existing symlink case: covers the scenario where the
+     * attacker won the race long before this request started.
      */
     public function testThrowsWhenCachePathIsSymlink(): void
     {
@@ -111,7 +116,9 @@ final class OidcCacheDirectoryFactoryTest extends TestCase
         $factory = new OidcCacheDirectoryFactory();
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('symlink');
+        // New message after round-4 #3 — lstat() reports the dirent
+        // type honestly and we reject any non-S_IFDIR result.
+        $this->expectExceptionMessage('not a real directory');
 
         try {
             $factory->create($this->baseTempDir);
@@ -129,6 +136,32 @@ final class OidcCacheDirectoryFactoryTest extends TestCase
                 'Hijacked target must remain empty — factory must reject before any I/O',
             );
         }
+    }
+
+    /**
+     * Aisle round-4 finding #3 (CWE-367) — the lstat() post-check is
+     * the single gate for *all* non-directory dirent types, not just
+     * symlinks. Regression coverage for the case where the cache
+     * path collides with a regular file (operator misconfiguration,
+     * or an attacker who pre-touches the path under a shared
+     * world-writable temp dir). The previous `is_link() + is_dir()`
+     * shape would have thrown a misleading "Failed to create"
+     * message here; the lstat()-based check now reports honestly
+     * that the path exists but isn't a real directory.
+     */
+    public function testThrowsWhenCachePathIsRegularFile(): void
+    {
+        $cachePath = $this->baseTempDir . DIRECTORY_SEPARATOR . OidcCacheDirectoryFactory::DIRECTORY_NAME;
+        file_put_contents($cachePath, 'not a directory');
+        self::assertFileExists($cachePath);
+        self::assertFalse(is_dir($cachePath), 'Test fixture: cache path should be a regular file');
+
+        $factory = new OidcCacheDirectoryFactory();
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('not a real directory');
+
+        $factory->create($this->baseTempDir);
     }
 
     public function testConcurrentCreateRaceIsHandledIdempotently(): void
