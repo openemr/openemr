@@ -62,6 +62,7 @@ final readonly class Crypto implements CryptoInterface
         return new Crypto(
             $keychain,
             $logger,
+            shouldEncryptForDatabase: true, // See #11973
             shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
         );
     }

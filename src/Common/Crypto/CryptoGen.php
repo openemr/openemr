@@ -55,7 +55,7 @@ class CryptoGen implements CryptoInterface
     private readonly string $siteDir;
 
     // This is intentionally not settable from the outside yet. Will change
-    // once more testing is complete. Needed for trait.
+    // once more testing is complete. Needed for trait. See #11973
     private bool $shouldEncryptForDatabase = true;
 
     private readonly bool $shouldEncryptForFilesystem;
