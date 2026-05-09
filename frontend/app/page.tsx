@@ -18,12 +18,14 @@ export default async function Home() {
             <code className="rounded bg-gray-100 px-1 py-0.5 dark:bg-gray-800">/patient/&lt;id&gt;</code>
             {" "}with a FHIR Patient UUID.
           </p>
-          <a
-            className="mt-2 text-xs text-gray-500 underline hover:text-gray-700"
-            href="/api/auth/logout"
-          >
-            Sign out
-          </a>
+          <form action="/api/auth/logout" method="POST" className="mt-2">
+            <button
+              type="submit"
+              className="text-xs text-gray-500 underline hover:text-gray-700"
+            >
+              Sign out
+            </button>
+          </form>
         </>
       ) : (
         <>

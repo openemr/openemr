@@ -12,7 +12,12 @@ function readCookie(req: Request, name: string): string | null {
   return match ? match[1] : null;
 }
 
-export async function GET(req: Request) {
+// POST (not GET) so the simple `<img src="/api/auth/logout">` CSRF
+// vector doesn't trigger a logout. SameSite=Lax on the session cookie
+// + POST gives sufficient CSRF protection without a token for this
+// short-lived/low-impact action (logging out a logged-in user is
+// merely annoying, not destructive).
+export async function POST(req: Request) {
   const cookieSecret = process.env.SESSION_COOKIE_SECRET;
   if (cookieSecret) {
     const raw = readCookie(req, SESSION_COOKIE);
