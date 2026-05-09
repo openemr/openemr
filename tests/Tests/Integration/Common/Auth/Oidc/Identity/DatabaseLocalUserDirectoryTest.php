@@ -251,8 +251,7 @@ final class DatabaseLocalUserDirectoryTest extends TestCase
         if ($rows === []) {
             return null;
         }
-        $row = $rows[0];
-        $value = is_array($row) ? array_values($row)[0] ?? null : null;
+        $value = array_values($rows[0])[0] ?? null;
         return is_scalar($value) ? $value : null;
     }
 }
