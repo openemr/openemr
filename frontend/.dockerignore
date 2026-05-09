@@ -1,0 +1,35 @@
+# Don't ship these to the docker build context — they bloat the upload
+# and either get rebuilt inside the image (node_modules, .next) or
+# don't belong in production (tests, env files, IDE noise).
+
+node_modules
+.next
+.turbo
+out
+dist
+build
+
+# Tests + fixtures (the runtime image doesn't need them)
+tests
+**/*.test.ts
+**/*.test.tsx
+coverage
+
+# Env files (.env.example is committed; Dockerfile copies it via COPY .)
+.env
+.env.local
+.env.*.local
+
+# IDE / OS noise
+.vscode
+.idea
+.DS_Store
+*.log
+
+# Git metadata (if .git accidentally lives here)
+.git
+.gitignore
+
+# Docker artifacts
+Dockerfile
+.dockerignore
