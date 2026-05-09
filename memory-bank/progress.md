@@ -9,7 +9,7 @@
 | Week | Window | State |
 |---|---|---|
 | Week 1 | 2026-04-21 → 2026-05-04 | ✅ Complete — all four checkpoints submitted, all AI Interviews completed (closed 2026-05-05) |
-| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** + **confirm/reject UX + OpenEMR REST write-back + persistence fix** on master at `c2534e416` (49 commits ahead of `78d0672c7`; pushed to GitHub + GitLab; Railway-deployed). **189 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (`5e63e5fb9`); confirm/reject buttons + write-back to OpenEMR's MySQL `documents` table via the non-FHIR REST API shipped at `c2534e416`. **W2 surprise challenge** (port the patient dashboard to a modern framework, document defense in `PATIENT_DASHBOARD_MIGRATION.md`) **shipped 2026-05-09 on `feat/dashboard-modernize`** by night-shift run `2026-05-09-0213` — Next.js 15 + React 19 + TypeScript at `frontend/` (zero existing source-files modified per planning), server-side OAuth proxy keeps FHIR token off browser, six clinical cards + Encounter history, Co-Pilot rail embedded as sandboxed iframe, 151 unit tests across 16 files, defense doc at `PATIENT_DASHBOARD_MIGRATION.md`, CI at `.github/workflows/dashboard-ci.yml`. Branch is 26 commits ahead of master tip `073e66388`; not yet pushed/merged (user will). Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
+| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** + **confirm/reject UX + OpenEMR REST write-back + persistence fix** on master at `c2534e416` (49 commits ahead of `78d0672c7`; pushed to GitHub + GitLab; Railway-deployed). **189 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (`5e63e5fb9`); confirm/reject buttons + write-back to OpenEMR's MySQL `documents` table via the non-FHIR REST API shipped at `c2534e416`. **W2 surprise challenge** (port the patient dashboard to a modern framework, document defense in `PATIENT_DASHBOARD_MIGRATION.md`) **shipped 2026-05-09 on `feat/dashboard-modernize`** by night-shift run `2026-05-09-0213` — Next.js 15 + React 19 + TypeScript at `frontend/` (zero existing source-files modified per planning), server-side OAuth proxy keeps FHIR token off browser, six clinical cards + Encounter history, Co-Pilot rail embedded as sandboxed iframe, 151 unit tests across 16 files, defense doc at `PATIENT_DASHBOARD_MIGRATION.md`, CI at `.github/workflows/dashboard-ci.yml`. Branch tip on `feat/dashboard-modernize` (run `git rev-list --count master..feat/dashboard-modernize` for exact commit count); not yet pushed/merged (user will). Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
 | Week 3+ | TBD | 📋 Not started |
 
 ---
@@ -317,7 +317,7 @@ Pure UX change — no new tests required. Existing 191 tests still pass; eval-fa
 
 ## ✅ W2 Surprise Challenge — Patient Dashboard Port (shipped 2026-05-09)
 
-Branch `feat/dashboard-modernize` (26 commits ahead of master `073e66388`),
+Branch `feat/dashboard-modernize` (off master `073e66388`; run `git rev-list --count master..feat/dashboard-modernize` for exact commit count),
 night-shift run `2026-05-09-0213`. Not yet merged/pushed.
 
 **KRs shipped (all task acceptance green; 151/151 vitest tests across 16 files; lint+typecheck+build all clean):**

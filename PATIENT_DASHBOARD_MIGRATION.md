@@ -2,7 +2,7 @@
 
 This is the graded defense document for the W2 surprise-challenge port of
 OpenEMR's patient dashboard from PHP/Smarty/jQuery/Angular to Next.js 15.
-The full port lives on branch `feat/dashboard-modernize` (26 commits since
+The full port lives on branch `feat/dashboard-modernize` (run `git rev-list --count master..feat/dashboard-modernize` for the exact commit count) since
 the master branch's W2 MVP merge, all under `frontend/` plus this file +
 `.github/workflows/dashboard-ci.yml`).
 
