@@ -204,7 +204,7 @@ class MyMailer extends PHPMailer
                 $this->Host = OEGlobalsBag::getInstance()->getString('SMTP_HOST');
                 $this->Username = OEGlobalsBag::getInstance()->getString('SMTP_USER');
                 $cryptoGen = ServiceContainer::getCrypto();
-                $this->Password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('SMTP_PASS'));
+                $this->Password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('SMTP_PASS'));
                 $this->Port = OEGlobalsBag::getInstance()->getInt('SMTP_PORT');
                 $this->SMTPSecure = OEGlobalsBag::getInstance()->get('SMTP_SECURE');
                 break;

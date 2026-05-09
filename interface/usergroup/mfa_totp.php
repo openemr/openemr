@@ -155,7 +155,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 $doesExist = false;
                             } else {
                                 $cryptoGen = ServiceContainer::getCrypto();
-                                $secret = $cryptoGen->decryptStandard(is_string($existingSecret['var1']) ? $existingSecret['var1'] : null);
+                                $secret = $cryptoGen->decryptFromDatabase(is_string($existingSecret['var1']) ? $existingSecret['var1'] : null);
                                 $doesExist = true;
                             }
 
@@ -236,7 +236,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     "INSERT INTO login_mfa_registrations " .
                                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                                     "(?, 'TOTP', 'App Based 2FA', ?, '')",
-                                    [$userid, $cryptoGen->encryptStandard(is_string($totpSecret) ? $totpSecret : null)]
+                                    [$userid, $cryptoGen->encryptForDatabase(is_string($totpSecret) ? $totpSecret : null)]
                                 );
                                 $session->remove('totpSecret');
                             } else {

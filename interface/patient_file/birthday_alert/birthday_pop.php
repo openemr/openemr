@@ -30,7 +30,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 </head>
 <body>
     <div style="padding: 15px; text-align: center">
-        <p class="h2"><?php echo xlt('Happy Birthday');?>&ensp;<img src="<?php echoOEGlobalsBag::getInstance()->getKernel()->getImagesRelative()?>/balloons-154949_960_720.png" height="42" width="42"></p>
+        <p class="h2"><?php echo xlt('Happy Birthday');?>&ensp;<img src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getImagesRelative()?>/balloons-154949_960_720.png" height="42" width="42"></p>
 
         <?php if (OEGlobalsBag::getInstance()->getBoolean('patient_birthday_alert_manual_off')) { ?>
             <div class="checkbox">

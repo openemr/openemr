@@ -32,6 +32,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property C_X12Partner\\:\\:\\$x12_partners \\(array\\<X12Partner\\>\\) does not accept array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property Cache_Lite\\:\\:\\$_memoryCachingArray \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
@@ -345,11 +350,6 @@ $ignoreErrors[] = [
     'message' => '#^Property HTML_TreeNode\\:\\:\\$parent \\(object\\) does not accept null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Password \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property MyMailer\\:\\:\\$SMTPAuth \\(bool\\) does not accept mixed\\.$#',
@@ -1027,16 +1027,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthException.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OAuth2KeyConfig\\:\\:\\$oaEncryptionKey \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OAuth2KeyConfig\\:\\:\\$passphrase \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OAuth2KeyConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\AccessTokenEntity\\:\\:\\$issuer \\(string\\) does not accept string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/AccessTokenEntity.php',
@@ -1487,16 +1477,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/SMARTLaunchToken.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SphereRevert\\:\\:\\$custid \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\PaymentProcessing\\\\Sphere\\\\SphereRevert\\:\\:\\$custpass \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\AuthorizationController\\:\\:\\$authRequestSerial \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
@@ -1705,16 +1685,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\VitalsCalculatedService\\:\\:\\$authUserId \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:\\$clientId \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:\\$clientSecret \\(string\\) does not accept string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:\\$error \\(string\\|null\\) does not accept mixed\\.$#',

@@ -15,6 +15,7 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Core\OEGlobalsBag;
 
 class AuthGlobal
@@ -34,7 +35,11 @@ class AuthGlobal
 
         // collect and decrypt the global hash
         $cryptoGen = ServiceContainer::getCrypto();
-        $globalHash = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get($this->globalSetting));
+        try {
+            $globalHash = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString($this->globalSetting));
+        } catch (CryptoGenException) {
+            return false;
+        }
 
         if (empty($globalHash)) {
             return false;
@@ -49,7 +54,7 @@ class AuthGlobal
         $authHash = new AuthHash();
         if ($authHash->passwordNeedsRehash($globalHash)) {
             $newHash = $authHash->passwordHash($pass);
-            $newHash = $cryptoGen->encryptStandard(is_string($newHash) ? $newHash : null);
+            $newHash = $cryptoGen->encryptForDatabase(is_string($newHash) ? $newHash : null);
             sqlStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ?", [$newHash, $this->globalSetting]);
         }
 

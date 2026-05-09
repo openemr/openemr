@@ -32,12 +32,17 @@
 
 namespace OpenEMR\Common\Crypto;
 
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\{
+    Crypto\ContextualEncryptionTrait,
+    ServiceContainer,
+};
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
 class CryptoGen implements CryptoInterface
 {
+    use ContextualEncryptionTrait;
+
     /**
      * Key cache to optimize key collection, which avoids numerous repeat
      * calls to collect the key sets (and repeat decryption of the key set
@@ -62,15 +67,21 @@ class CryptoGen implements CryptoInterface
      */
     private readonly bool $shouldEncryptForDatabase;
 
+    private readonly bool $shouldEncryptForFilesystem;
+
     public function __construct(
         ?LoggerInterface $logger = null,
         ?string $siteDir = null,
         ?bool $shouldEncryptForDatabase = null,
+        ?bool $shouldEncryptForFilesystem = null,
     ) {
         $bag = OEGlobalsBag::getInstance();
         $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->siteDir = $siteDir ?? $bag->getString('OE_SITE_DIR');
-        $this->shouldEncryptForDatabase = $shouldEncryptForDatabase ?? $bag->getBoolean('database_encryption');
+        $this->shouldEncryptForDatabase = $shouldEncryptForDatabase
+            ?? $bag->getBoolean('database_encryption');
+        $this->shouldEncryptForFilesystem = $shouldEncryptForFilesystem
+            ?? $bag->getBoolean('drive_encryption');
     }
 
     /**
@@ -148,38 +159,6 @@ class CryptoGen implements CryptoInterface
         } catch (\ValueError) {
             return false;
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function encryptForDatabase(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->shouldEncryptForDatabase) {
-            return $value;
-        }
-        return $this->encryptStandard($value, keySource: KeySource::Drive);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->cryptCheckStandard($value)) {
-            return $value;
-        }
-        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
-        if ($result === false) {
-            throw new CryptoGenException('Decryption failed');
-        }
-        return $result;
     }
 
     /**

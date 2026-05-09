@@ -19,8 +19,18 @@ require_once("functions.php");
 require_once(__DIR__ . "/../../../library/group.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$encounter = EncounterSessionUtil::getEncounter();
+$therapy_group = (PatientSessionUtil::getPid() === 0)
+    ? (SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group') ?? 0)
+    : 0;
 
 //Check acl
 $can_view = AclMain::aclCheckCore("groups", "gadd", false, 'view');
