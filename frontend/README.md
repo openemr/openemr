@@ -12,7 +12,7 @@ deferred, architecture diagram), see `../PATIENT_DASHBOARD_MIGRATION.md`.
 - **Next.js 15.5.18** (App Router; webpack for production, Turbopack for dev)
 - **React 19.2.6** + TypeScript 5.9.3
 - **Tailwind CSS 4.3** (CSS-first config)
-- **Vitest 4** + jsdom 29 for unit tests (151 tests across 17 files)
+- **Vitest 4** + jsdom 29 for unit tests (151 tests across 16 files)
 - **Node `>= 20.19`** (jsdom requires `^20.19.0 || ^22.13.0 || >=24.0.0`)
 
 ## What's inside

@@ -208,7 +208,7 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 - File location: `frontend/` under existing OpenEMR fork root (single repo, single PR).
 - **Zero existing source-files modified** — verified during planning that neither root `Dockerfile` nor root `.gitignore` need touching.
 
-**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` produced 14 commits in ~3 hours including 7 KRs.
+**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` produced 26 commits in ~5 hours including 12 successful KRs (KR2, 4-15, with KR1 + KR3 codex-rejected revisions).
 
 **Key results delivered:**
 
@@ -229,7 +229,7 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 
 **Stack pinned exact:** next 15.5.18, react/react-dom 19.2.6, typescript 5.9.3, tailwindcss 4.3.0, vitest 4.1.5, jsdom 29.1.1.
 
-**Tests:** 151 unit tests across 17 files (auth helpers, signed cookies, PKCE, token store, FHIR proxy, URL traversal protection, panel-scope decisions, ID-token decode, patient-name parsing, identifier matching, CopilotRail, security headers/CSP). Live e2e against real OpenEMR is out of autonomous scope.
+**Tests:** 151 unit tests across 16 files (auth helpers, signed cookies, PKCE, token store, FHIR proxy, URL traversal protection, panel-scope decisions, ID-token decode, patient-name parsing, identifier matching, CopilotRail, security headers/CSP). Live e2e against real OpenEMR is out of autonomous scope.
 
 **Out of scope (deferred):**
 - ~~Panel-scope authorization inside the FHIR proxy~~ — **shipped in KR8** (`f31b016f1`).

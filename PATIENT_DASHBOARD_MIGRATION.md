@@ -2,7 +2,7 @@
 
 This is the graded defense document for the W2 surprise-challenge port of
 OpenEMR's patient dashboard from PHP/Smarty/jQuery/Angular to Next.js 15.
-The full port lives on branch `feat/dashboard-modernize` (25 commits since
+The full port lives on branch `feat/dashboard-modernize` (26 commits since
 the master branch's W2 MVP merge, all under `frontend/` plus this file +
 `.github/workflows/dashboard-ci.yml`).
 
@@ -63,7 +63,7 @@ Surface delivered by the new tree under `frontend/`:
   hint to navigate to `/patient/<id>` when logged in.
 - Health probe: `/api/health` returning a static placeholder shape (real
   reachability check is Final-scope).
-- 151 vitest unit tests across 17 files.
+- 151 vitest unit tests across 16 files.
 
 ## 2. Why Next.js 15 (App Router) + React 19 + TypeScript
 
