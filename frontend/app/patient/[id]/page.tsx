@@ -3,6 +3,9 @@ import { PatientHeader } from "@/components/PatientHeader";
 import { Allergies } from "@/components/cards/Allergies";
 import { Problems } from "@/components/cards/Problems";
 import { Medications } from "@/components/cards/Medications";
+import { Prescriptions } from "@/components/cards/Prescriptions";
+import { CareTeam } from "@/components/cards/CareTeam";
+import { Encounters } from "@/components/cards/Encounters";
 import type { Patient } from "@/lib/fhir/types";
 
 interface PageProps {
@@ -33,7 +36,9 @@ export default async function PatientPage({ params }: PageProps) {
         <Allergies patientId={id} />
         <Problems patientId={id} />
         <Medications patientId={id} />
-        {/* Prescriptions, CareTeam, Encounters land in 5.3. */}
+        <Prescriptions patientId={id} />
+        <CareTeam patientId={id} />
+        <Encounters patientId={id} />
       </div>
     </main>
   );
