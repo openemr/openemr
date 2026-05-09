@@ -28,7 +28,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -64,6 +63,8 @@ class TokenIntrospectionRestController {
     protected ?AccessTokenRepository $accessTokenRepository = null;
 
     protected ?Psr17Factory $psr17Factory = null;
+
+    protected ?JWTClientAuthenticationService $jwtClientAuthenticationService = null;
 
     public function __construct(OEGlobalsBag $globalsBag)
     {
@@ -222,17 +223,27 @@ class TokenIntrospectionRestController {
 
 
     public function getJWTClientAuthenticationService(): JWTClientAuthenticationService {
-        $tokenUrl = $this->getServerConfig()->getTokenUrl();
-        if ($tokenUrl === '') {
-            throw new \RuntimeException('OAuth2 token URL is not configured');
+        if (!isset($this->jwtClientAuthenticationService)) {
+            $tokenUrl = $this->getServerConfig()->getTokenUrl();
+            if ($tokenUrl === '') {
+                throw new \RuntimeException('OAuth2 token URL is not configured');
+            }
+            $service = new JWTClientAuthenticationService(
+                $tokenUrl,
+                $this->getClientRepository(),
+                $this->getJWTRepository(),
+                null,
+                $this->buildJwksUrlValidator(),
+            );
+            $service->setLogger($this->getSystemLogger());
+            $this->jwtClientAuthenticationService = $service;
         }
-        return new JWTClientAuthenticationService(
-            $tokenUrl,
-            $this->getClientRepository(),
-            $this->getJWTRepository(),
-            null,
-            $this->buildJwksUrlValidator(),
-        );
+        return $this->jwtClientAuthenticationService;
+    }
+
+    public function setJWTClientAuthenticationService(JWTClientAuthenticationService $service): void
+    {
+        $this->jwtClientAuthenticationService = $service;
     }
 
     /**
@@ -333,19 +344,7 @@ class TokenIntrospectionRestController {
         try {
             // Handle JWT client authentication if present
             if (!empty($clientAssertion) && !empty($clientAssertionType)) {
-                // Create JWT authentication service
-                $tokenUrl = $this->getServerConfig()->getTokenUrl();
-                if ($tokenUrl === '') {
-                    throw new \RuntimeException('OAuth2 token URL is not configured');
-                }
-                $jwtAuthService = new JWTClientAuthenticationService(
-                    $tokenUrl,
-                    $this->getClientRepository(),
-                    new JWTRepository(),
-                    null,
-                    $this->buildJwksUrlValidator(),
-                );
-                $jwtAuthService->setLogger($this->getSystemLogger());
+                $jwtAuthService = $this->getJWTClientAuthenticationService();
 
                 // Convert the request to PSR-7 format for JWT validation
                 $psrRequest = $this->convertRestRequestToPsrRequest($request);
@@ -360,7 +359,7 @@ class TokenIntrospectionRestController {
                     }
 
                     $clientId = $extractedClientId;
-                    $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
+                    $client = $this->getClientRepository()->getRawClientRow((string) $clientId);
 
                     if (empty($client)) {
                         throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
@@ -380,7 +379,7 @@ class TokenIntrospectionRestController {
                 }
             } else {
                 // so regardless of client type(private/public) we need client for client app type and secret.
-                $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
+                $client = $this->getClientRepository()->getRawClientRow((string) $clientId);
                 if (empty($client)) {
                     throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                 }
@@ -389,7 +388,7 @@ class TokenIntrospectionRestController {
                     throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
                 }
                 // lets verify secret to prevent bad guys.
-                if (intval($client['is_enabled'] !== 1)) {
+                if (intval($client['is_enabled']) !== 1) {
                     // client is disabled and we don't allow introspection of tokens for disabled clients.
                     throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                 }
