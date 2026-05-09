@@ -172,3 +172,79 @@ def test_env_panel_parses_and_filters(monkeypatch):
     assert _env_panel_for(s3, "dr_alvarez") is None
     s4 = Settings(physician_patient_panel=json.dumps({"dr_alvarez": "not-a-list"}))
     assert _env_panel_for(s4, "dr_alvarez") is None
+
+
+@respx.mock
+async def test_fhir_panel_allows_when_general_practitioner_empty(fhir, monkeypatch):
+    """A clinician (has Practitioner UUID) accessing a patient whose
+    ``Patient.generalPractitioner`` is empty must be ALLOWED — the
+    OpenEMR R4 transformer never populates this field on Railway, so
+    relying on it would 403 every clinician on every chart. The
+    OpenEMR-side demographics gate carries scope enforcement.
+
+    Regression test for the 2026-05-08 'doctors in scope can't see
+    pending intakes' bug.
+    """
+    from app.config import Settings
+    from app.main import _verify_patient_in_panel
+
+    settings = get_settings()
+    # Empty PHYSICIAN_PATIENT_PANEL → fall through to FHIR-derived path.
+    monkeypatch.setattr(settings, "physician_patient_panel", "{}")
+
+    # OAuth: id_token carries fhirUser=Practitioner/<uuid> for "dr_brown"
+    respx.post(settings.openemr_oauth_base + "/token").mock(
+        return_value=Response(
+            200,
+            json={
+                "access_token": "tok-brown",
+                "expires_in": 300,
+                "id_token": _id_token(ALVAREZ_PRACTITIONER_UUID),
+            },
+        )
+    )
+    # Patient resource has NO generalPractitioner — Railway/Synthea reality.
+    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
+        return_value=Response(200, json=_patient_resource(None))
+    )
+
+    # Should NOT raise. Pre-fix this would 403 with 'patient_out_of_panel'.
+    await _verify_patient_in_panel(fhir, "dr_brown", PATIENT_ID, settings)
+
+
+@respx.mock
+async def test_fhir_panel_still_denies_when_general_practitioner_lists_others(
+    fhir, monkeypatch
+):
+    """When generalPractitioner IS populated and excludes the requesting
+    clinician, deny — preserves the original tight semantics for any
+    OpenEMR install where the field is wired up.
+    """
+    from app.config import Settings
+    from app.main import _verify_patient_in_panel
+    from fastapi import HTTPException
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "physician_patient_panel", "{}")
+
+    respx.post(settings.openemr_oauth_base + "/token").mock(
+        return_value=Response(
+            200,
+            json={
+                "access_token": "tok-brown",
+                "expires_in": 300,
+                "id_token": _id_token(ALVAREZ_PRACTITIONER_UUID),
+            },
+        )
+    )
+    # Patient owned by Chen — Alvarez should be denied.
+    respx.get(f"{settings.openemr_fhir_base}/Patient/{PATIENT_ID}").mock(
+        return_value=Response(
+            200, json=_patient_resource(CHEN_PRACTITIONER_UUID)
+        )
+    )
+
+    with pytest.raises(HTTPException) as ei:
+        await _verify_patient_in_panel(fhir, "dr_alvarez", PATIENT_ID, settings)
+    assert ei.value.status_code == 403
+    assert "out_of_panel" in ei.value.detail

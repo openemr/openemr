@@ -248,6 +248,25 @@ async def _verify_patient_in_panel(
         for gp in (patient_resource.get("generalPractitioner") or [])
     ]
     owners = [r.rsplit("/", 1)[-1] for r in refs if r.startswith("Practitioner/")]
+    # When ``Patient.generalPractitioner`` is empty (verified live on
+    # Railway 2026-05-02 — OpenEMR's R4 transformer never populates this
+    # field even when ``patient_data.providerID`` is set), this layer can't
+    # reach a defensible verdict. Fall through to allow: the OpenEMR-side
+    # demographics gate (``copilot-demographics-gate.php``, awk-injected
+    # at build time) and finder scope (``copilot-finder-scope.php``)
+    # already enforce real per-physician panel scope using the OpenEMR DB
+    # directly. Without this fallthrough, *any* clinician not listed in
+    # ``PHYSICIAN_PATIENT_PANEL`` env would be 403'd from the iframe even
+    # though OpenEMR-side already let them onto the chart — a hard demo
+    # blocker, since pending intakes wouldn't show up for in-panel
+    # doctors.
+    if not owners:
+        logger.info(
+            "panel allow (fhir empty owners): physician=%s patient=%s — "
+            "OpenEMR-side demographics gate is the active scope check.",
+            physician, patient_id,
+        )
+        return
     if practitioner_uuid not in owners:
         logger.warning(
             "panel deny (fhir): physician=%s practitioner=%s patient=%s owners=%s",
