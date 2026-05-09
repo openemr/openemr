@@ -698,12 +698,12 @@ Sections §1-§10 above are the design-of-record from the architecture-defense g
 3. **LangGraph supervisor + 2 workers + critic node — NOT IMPLEMENTED.**
    - **Architecture (§4) prescribed:** supervisor + intake_extractor + evidence_retriever + answer_composer + critic, deterministic routing, child Langfuse spans per worker.
    - **Reality:** the agent loop is still Week 1's `run_turn` extended with the three new tools. No graph rewrite. The deterministic routing rules in §4.1 were not implemented.
-   - **Why:** Tuesday-MVP scope discipline. The MVP plan (`W2_IMPLEMENTATION.md` §0) explicitly defers the graph to `W2_EARLY_IMPLEMENTATION.md` for the Thursday Early Submission, so the underlying tools (which the graph would orchestrate) could be tested first. Adding the graph on top of working tools is a clean refactor; building both at once would have meant unrigging both if either layer had bugs.
+   - **Why:** Tuesday-MVP scope discipline. The MVP plan (now consolidated into `W2_IMPLEMENTATION.md` §"Phase 1") explicitly deferred the graph to the Thursday Early Submission so the underlying tools (which the graph would orchestrate) could be tested first. Adding the graph on top of working tools is a clean refactor; building both at once would have meant unrigging both if either layer had bugs. (The graph subsequently shipped in Phase 2.)
 
 4. **50-case eval gate + PR-blocking pre-push hook — NOT IMPLEMENTED.**
    - **Architecture (§6) prescribed:** 50-case golden set, boolean rubrics across 5 categories, PR-blocking hook, regression sensitivity.
    - **Reality:** the test suite stands at **75 passed, 3 skipped** (Week 1's 42 + 33 new MVP cases covering schemas, VLM mock path, FHIR writer stubs, BM25 corpus, attach route, lifespan wiring, document-tool data-item shape, and cross-patient-leakage assertions). No YAML golden set, no pre-push hook, no per-category threshold logic.
-   - **Why:** same scope discipline. Deferred to `W2_EARLY_IMPLEMENTATION.md`.
+   - **Why:** same scope discipline. Deferred to the Thursday Early Submission (now in `W2_IMPLEMENTATION.md` §"Phase 2"; the eval gate shipped there at `2cb663a8e`-era commits).
 
 5. **TurnTrace 6 new fields — NOT IMPLEMENTED.**
    - **Architecture (§7.2) prescribed:** `routing_path`, `extraction_confidence_min`, `retrieval_hit_ids`, `rerank_scores`, `vlm_cost_estimate_usd`, `documents_attached`.
@@ -770,7 +770,7 @@ GET  /                                    iframe shell HTML (replaced Week 1's i
 
 ### C.5 Deferred to follow-on plans
 
-Sorted by priority for `W2_EARLY_IMPLEMENTATION.md` (Thursday Early Submission target):
+Sorted by priority for the Thursday Early Submission target (which subsequently shipped — see `W2_IMPLEMENTATION.md` §"Phase 2" for the per-KR commit log):
 
 1. **LangGraph supervisor + 2 workers + critic node** (architecture §4). Highest priority — PRD requirement for "Early Submission" row.
 2. **50-case eval gate + PR-blocking pre-push hook** (architecture §6). Hard PRD requirement; grading gate.

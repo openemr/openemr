@@ -29,8 +29,8 @@
 > round-trip eval test, full `_verify_patient_in_facility` helper,
 > dataset expansion to 18-20 patients × 2 facilities, persistent
 > banner-dismiss, dense retrieval (OpenAI embeddings), cost+latency
-> report, demo video. See `copilot/W2_EARLY_IMPLEMENTATION.md` for the
-> tier breakdown.
+> report, demo video. See `copilot/W2_IMPLEMENTATION.md` §"Phase 6 —
+> W2 Final Submission" for the deferred-items list.
 
 ---
 
@@ -50,7 +50,7 @@ every patient chart; click to slide a 400px panel in). The standalone URL at
 See:
 - [`W1_IMPLEMENTATION.md`](./W1_IMPLEMENTATION.md) — Week 1 status, the agent loop, citation contract, verification gate
 - [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) — Week 2 design-of-record from the architecture-defense gate (§1–§10) + Appendix C documenting the deployed-MVP delta
-- [`W2_IMPLEMENTATION.md`](./W2_IMPLEMENTATION.md) — Week 2 MVP plan (14 tasks, all landed)
+- [`W2_IMPLEMENTATION.md`](./W2_IMPLEMENTATION.md) — Week 2 implementation log (MVP → Early Submission → Polish → Front-desk arc + UX → Final-deferred)
 - [`../ARCHITECTURE.md`](../ARCHITECTURE.md) — Week 1 full design
 - [`../USERS.md`](../USERS.md) — target user + use cases
 - [`../AUDIT.md`](../AUDIT.md) — codebase audit findings the agent must mitigate
@@ -222,10 +222,16 @@ evals/                 pytest suite — 75 tests (W1: 42 + W2 MVP: 33)
   bbox-overlay citation contract, deployed and demoable end-to-end. See
   [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) Appendix C for what shipped
   vs what's deferred to the Thursday Early plan.
-- ⏭ **Week 2 Early Submission (Thursday)** — LangGraph supervisor + 2
-  workers + critic node, Cohere rerank + dense retrieval, 50-case golden
-  eval set + PR-blocking pre-push hook, 6 new TurnTrace fields. Tracked in
-  `W2_EARLY_IMPLEMENTATION.md` (TBD).
+- ✅ **Week 2 Early Submission** — LangGraph supervisor + 2 workers +
+  critic node, reranker scaffolding (Cohere + local fallback), 50-case
+  golden eval set + PR-blocking pre-push hook, 6 new TurnTrace fields.
+  Shipped, then hardened by 8 codex review rounds (18 findings closed).
+- ✅ **Week 2 Polish + Front-desk arc** — smoke-test fixes (info vs
+  applied guideline scoping, PDF text-snap, evidence cards, OCR-snap),
+  regression-repro canary, deferred-extraction front-desk path,
+  Confirm/Reject UX with OpenEMR REST writeback (Plan B), modal viewer
+  rail-expansion + zoom toolbar, panel-gate relaxes. See
+  `W2_IMPLEMENTATION.md` Phases 3-4 for the per-commit log.
 - 📋 Week 2 Final (Sunday) — cost/latency report, demo video polish.
 
 ## Week 2 highlights
@@ -247,9 +253,10 @@ What the deployed Co-Pilot can do today (`https://copilot-production-b532.up.rai
 - **sha3-512 idempotency** — re-dropping the same PDF triggers a "deduped"
   toast; no second extraction, no duplicate observation.
 
-See [`W2_IMPLEMENTATION.md`](./W2_IMPLEMENTATION.md) for the 14-task plan
-the MVP followed, and [`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) Appendix C
-for what's deployed vs what's deferred.
+See [`W2_IMPLEMENTATION.md`](./W2_IMPLEMENTATION.md) for the full Week 2
+implementation log (MVP through current branch tip), and
+[`W2_ARCHITECTURE.md`](./W2_ARCHITECTURE.md) Appendix C for what's
+deployed vs what's deferred.
 
 See [`W1_IMPLEMENTATION.md`](./W1_IMPLEMENTATION.md) for the Week 1 status,
 the agent loop, and the citation contract that Week 2 builds on.
@@ -354,4 +361,4 @@ The full **facility-scope** front-desk gate (`_verify_patient_in_facility`,
 facility-aware variants of `copilot-finder-scope.php` and
 `copilot-demographics-gate.php`) and the dataset expansion to 18-20
 patients across 2 facilities are **deferred to Final** per
-`copilot/W2_EARLY_IMPLEMENTATION.md`.
+`copilot/W2_IMPLEMENTATION.md` §"Phase 6 — W2 Final Submission".

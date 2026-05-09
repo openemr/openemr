@@ -6,11 +6,10 @@
 **Active branch:** `w2-mvp` (HEAD `971affe8d` as of 2026-05-05)
 **Status:** ✅ Tier-1 + Tier-2-LITE + 4 polish KRs + 8 rounds of codex review hardening on `feat/w2-early-submission` (head `2cb643af9`, ~37 commits since `78d0672c7`). Night-shift run `2026-05-06-0104` shipped the implementation; 8 follow-on `codex review` rounds closed 18 distinct findings (3 P1 + 15 P2). 163 tests pass, 50/50 eval cases at 100%, ruff clean. Manual smoke-test + push + grading submission pending.
 
-**Companion docs (already on `w2-mvp`):**
-- `copilot/W2_ARCHITECTURE.md` — design-of-record (baseline `f5b385f97`)
-- `copilot/W2_IMPLEMENTATION.md` — MVP-scope step-by-step plan
-- (planned) `copilot/W2_EARLY_IMPLEMENTATION.md` — Early-Submission scope
-- (planned) `copilot/W2_FINAL_IMPLEMENTATION.md` — Final scope
+**Companion docs:**
+- `copilot/W2_ARCHITECTURE.md` — design-of-record (baseline `f5b385f97`) + Appendix C live-vs-design delta
+- `copilot/W2_IMPLEMENTATION.md` — **consolidated W2 implementation log** (rewritten 2026-05-08): MVP → Early Submission → Polish → Front-desk arc + UX → Surprise Challenge → Final-deferred. Replaces the earlier `W2_EARLY_IMPLEMENTATION.md` (deleted) and the original task-by-task MVP plan (archived in git history).
+- (future) `copilot/W2_FINAL_IMPLEMENTATION.md` — Final-scope plan when that work begins; deferred items captured in `W2_IMPLEMENTATION.md` §"Phase 6" until then.
 
 ---
 
