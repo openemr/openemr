@@ -158,21 +158,18 @@
       }
     }
 
-    // Open the existing bbox modal pointed at this doc's parent record.
-    // The user can then click into specific fields if extractions exist.
-    const recordId = `DocumentReference/${item.doc_id}`;
-    openBboxModal(recordId);
-
-    // W2 Plan B: when the click triggered the extraction (or the item
-    // was already extracted but not yet confirmed/rejected), surface
-    // the Confirm/Reject footer so the physician can save to chart.
+    // Open the bbox modal. The Confirm/Reject footer is bundled into the
+    // openBboxModal flow via opts.confirmableDocId so it can NEVER leak
+    // onto chat citation chip clicks — those pass no opts.
     const alreadyHandled = item.confirmed_at || item.rejected_at
       || handledDocIds.has(item.doc_id);
-    if (!alreadyHandled
-        && item.is_front_desk_filed
-        && (wasJustExtracted || !item.is_pending)) {
-      showConfirmFooter(item.doc_id);
-    }
+    const shouldShowConfirm = !alreadyHandled
+      && item.is_front_desk_filed
+      && (wasJustExtracted || !item.is_pending);
+    const recordId = `DocumentReference/${item.doc_id}`;
+    await openBboxModal(recordId, {
+      confirmableDocId: shouldShowConfirm ? item.doc_id : null,
+    });
 
     // For non-confirmable items (already handled or non-pending FHIR docs),
     // dismiss inline like the prior behavior.
@@ -628,6 +625,19 @@
     return [xMin, yMin, xMax - xMin, yMax - yMin];
   }
 
+  function _padBbox([x, y, w, h], padFactor = 0.18, padFloor = 0.004) {
+    // Lift the red stroke off the text glyphs. padY proportional to row
+    // height; padX is half (rows read wider than tall, so horizontal slack
+    // is more visually noisy). Clamp to [0, 1].
+    const padY = Math.max(h * padFactor, padFloor);
+    const padX = Math.max(h * (padFactor / 2), padFloor / 2);
+    const x0 = Math.max(0, x - padX);
+    const y0 = Math.max(0, y - padY);
+    const x1 = Math.min(1, x + w + padX);
+    const y1 = Math.min(1, y + h + padY);
+    return [x0, y0, x1 - x0, y1 - y0];
+  }
+
   async function _snapBboxToText(pdfPage, viewport, rawText, fallbackBbox) {
     // Snap the bbox overlay to the PDF text layer. Returns a normalized
     // [x,y,w,h] rect or null. Caller uses fallbackBbox on null.
@@ -679,26 +689,36 @@
             return a.dy - b.dy;
           });
           // Numeric branch: expand to the full row so the citation has
-          // clinical context (test name + value + units) and the stroke
-          // does not overlap the digits.
-          return _rowUnion(candidates[0].rect, tc.items, viewport);
+          // clinical context (test name + value + units), then pad so
+          // the stroke does not overlap the digits.
+          return _padBbox(_rowUnion(candidates[0].rect, tc.items, viewport));
         }
       }
       // Exact whole-string match fallback (single-word intake answers,
-      // allergy strings).
+      // allergy strings). Pad to keep the stroke off the glyphs.
       for (const item of tc.items) {
         const s = (item.str || "").trim();
         if (s && s === target) {
-          return _itemToNormalizedRect(item, viewport);
+          return _padBbox(_itemToNormalizedRect(item, viewport));
         }
       }
-      // Multi-token fallback. Tokenize on whitespace and assemble a union
-      // of per-token matches on the same row as the VLM bbox.
+      // Multi-token fallback for free-text intake answers ("Maria Lopez",
+      // "shellfish, peanuts"). Stricter than the original (cde0bb97f):
+      //   - y-row tolerance 1.0x (was 1.5x) — one row, not one and a half
+      //   - require ceil(60%) of tokens to match (was hardcoded ≥2) so a
+      //     2-of-5 partial union doesn't pretend to be the whole answer
+      //   - reject the union if it's > 1.5x the VLM hint width — drift
+      //     guard against picking up unrelated tokens
+      const fbWidth =
+        Array.isArray(fallbackBbox) && fallbackBbox.length === 4
+          ? fallbackBbox[2]
+          : 1;
       const tokens = target
         .split(/\s+/)
         .map(_stripPunct)
         .filter((t) => t.length > 0);
       if (tokens.length >= 2 && fbCenterY !== null) {
+        const required = Math.max(2, Math.ceil(tokens.length * 0.6));
         const matchedRects = [];
         const matchedTokens = new Set();
         for (const tok of tokens) {
@@ -708,7 +728,7 @@
             if (s !== tok) continue;
             const rect = _itemToNormalizedRect(item, viewport);
             const itemCenterY = rect[1] + rect[3] / 2;
-            const rowTol = Math.max(fbHeight, rect[3]) * 1.5;
+            const rowTol = Math.max(fbHeight, rect[3]) * 1.0;
             const dy = Math.abs(itemCenterY - fbCenterY);
             if (dy > rowTol) continue;
             if (best === null || dy < best.dy) best = { rect, dy };
@@ -718,7 +738,7 @@
             matchedTokens.add(tok);
           }
         }
-        if (matchedTokens.size >= 2) {
+        if (matchedTokens.size >= required) {
           let xMin = Infinity;
           let yMin = Infinity;
           let xMax = -Infinity;
@@ -729,7 +749,9 @@
             if (r[0] + r[2] > xMax) xMax = r[0] + r[2];
             if (r[1] + r[3] > yMax) yMax = r[1] + r[3];
           }
-          return [xMin, yMin, xMax - xMin, yMax - yMin];
+          if (xMax - xMin <= fbWidth * 1.5) {
+            return _padBbox([xMin, yMin, xMax - xMin, yMax - yMin]);
+          }
         }
       }
     } catch (e) {
@@ -752,23 +774,30 @@
     modalCard.replaceChildren();
   }
 
-  async function openBboxModal(recordId) {
+  async function openBboxModal(recordId, opts = {}) {
     // record_id formats:
     //   DocumentReference/{doc_id}#page={N}&bbox={x},{y},{w},{h}&field={...}
     //   Observation/{id}, MedicationRequest/{id}, AllergyIntolerance/{id},
     //   Condition/{id}, Encounter/{id}, Patient/{id}
     //   Guideline/{chunk_id}
     //   QuestionnaireResponse/{qr_id}#linkId={...}
-    // W2 Phase 5 (Issue 2b hardening, 2026-05-09): defensively reset the
-    // Confirm/Reject footer at every modal-open so showConfirmFooter is
-    // the only path that can unhide it. Belt-and-suspenders against any
-    // close-handler edge case where the footer is left visible.
+    //
+    // opts.confirmableDocId (optional): when set, the Confirm/Reject footer
+    // is shown for that doc_id AFTER the modal finishes opening. Only
+    // onPendingIntakeClick passes this — chip clicks pass nothing, which
+    // makes it architecturally impossible for chat citations to surface
+    // the footer. Supersedes the W2 Phase 5 defensive-reset pattern that
+    // was racy with onPendingIntakeClick's separate showConfirmFooter call.
     modalFooter.hidden = true;
     modalStatus.textContent = "";
     modalLabel.textContent = recordId;
     if (recordId.startsWith("DocumentReference/")) {
       _showCanvasMode();
-      return openDocumentModal(recordId);
+      await openDocumentModal(recordId);
+      if (opts.confirmableDocId) {
+        showConfirmFooter(opts.confirmableDocId);
+      }
+      return;
     }
     _showCardMode();
     return openEvidenceCardModal(recordId, evidenceCache[recordId]);
