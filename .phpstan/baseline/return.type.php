@@ -10592,11 +10592,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\US_Core_311\\\\InfernoSinglePatientAPITest\\:\\:getTestGroupResponse\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\BbCreateStaffTest\\:\\:gatherModalDiagnostics\\(\\) should return string but returns string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
