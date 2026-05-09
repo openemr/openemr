@@ -27,8 +27,8 @@ describe("buildCsp", () => {
     expect(buildCsp({})).toContain("style-src 'self' 'unsafe-inline'");
   });
 
-  it("script-src does NOT allow 'unsafe-inline' (script injection defense)", () => {
-    expect(buildCsp({})).not.toContain("script-src 'self' 'unsafe-inline'");
+  it("script-src allows 'unsafe-inline' (Next.js 15 RSC streaming inline scripts)", () => {
+    expect(buildCsp({})).toContain("script-src 'self' 'unsafe-inline'");
   });
 });
 

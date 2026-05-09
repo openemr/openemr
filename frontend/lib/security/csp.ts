@@ -18,9 +18,11 @@ export function buildCsp(opts: { copilotOrigin?: string }): string {
 
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
-    "script-src": ["'self'"],
-    // Tailwind v4 + Next inline some critical styles; allow unsafe-inline
-    // for style-src as the lesser evil (script-src stays strict).
+    // Next.js 15 + React 19 stream the RSC payload via inline <script> tags
+    // (self.__next_f.push(...)). Strict 'self' breaks hydration and blanks
+    // the page. Future: nonce-based CSP via Next.js middleware. See
+    // PATIENT_DASHBOARD_MIGRATION.md §5 deferred list.
+    "script-src": ["'self'", "'unsafe-inline'"],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "blob:"],
     "font-src": ["'self'", "data:"],
