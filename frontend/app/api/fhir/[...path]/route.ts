@@ -83,18 +83,28 @@ async function fetchPatientForPanelScope(
       },
     });
   }
-  let res = await go(initialAccess);
-  if (res.status === 401) {
-    let refreshed;
-    try {
-      refreshed = await tokenStore.refresh(sessionId, refreshOpts);
-    } catch {
-      return null;
+  // Wrap the entire fetch+parse pipeline in try/catch so network errors
+  // (DNS failure, ECONNREFUSED, body-stream errors) don't propagate as
+  // unhandled rejections — they should degrade to "couldn't determine
+  // panel membership" → null → inPanel returns "deny". Operators see
+  // the error in Railway logs but the proxy doesn't 5xx.
+  try {
+    let res = await go(initialAccess);
+    if (res.status === 401) {
+      let refreshed;
+      try {
+        refreshed = await tokenStore.refresh(sessionId, refreshOpts);
+      } catch {
+        return null;
+      }
+      res = await go(refreshed.access);
     }
-    res = await go(refreshed.access);
+    if (!res.ok) return null;
+    return (await res.json()) as Patient;
+  } catch (err) {
+    console.warn("panel-scope: GP lookup fetch failed", err);
+    return null;
   }
-  if (!res.ok) return null;
-  return (await res.json()) as Patient;
 }
 
 async function handle(

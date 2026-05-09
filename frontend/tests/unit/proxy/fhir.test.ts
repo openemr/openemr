@@ -419,6 +419,30 @@ describe("GET /api/fhir/[...path]", () => {
       expect(calls).toBe(1); // GP lookup only; main not called
     });
 
+    it("non-admin + GP fetch network-rejects → 403, no main upstream call", async () => {
+      tokenStore.set("sid-1", {
+        access: "tok-A",
+        refresh: "ref-1",
+        expiresAt: Date.now() + 60_000,
+        sessionExpiresAt: Date.now() + SESSION_TTL_MS,
+        openemrUsername: "dr-smith",
+      });
+      // Silence the expected console.warn from the fetch-rejection guard
+      const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+      let calls = 0;
+      vi.spyOn(globalThis, "fetch").mockImplementation(async () => {
+        calls += 1;
+        throw new Error("ECONNREFUSED");
+      });
+      const res = await GET(
+        buildReq({ pathname: "/api/fhir/Encounter", search: "?patient=patient-X", cookie: sessionCookieFor("sid-1") }),
+        { params: Promise.resolve({ path: ["Encounter"] }) },
+      );
+      expect(res.status).toBe(403);
+      expect(calls).toBe(1); // only the GP-lookup attempt; main never fired
+      expect(warnSpy).toHaveBeenCalled();
+    });
+
     it("query subject=Patient/<id> is detected for panel-scope", async () => {
       tokenStore.set("sid-1", {
         access: "tok-A",
