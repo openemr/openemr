@@ -21,7 +21,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\RestControllers\Authorization;
 
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\{
+    Crypto\ContextualEncryptionTrait,
+    ServiceContainer,
+};
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
@@ -37,6 +40,9 @@ class EhrLaunchPatientContextTest extends TestCase
         // Provide a no-op crypto implementation so SMARTLaunchToken can
         // serialize/deserialize without database-backed encryption keys.
         $crypto = new class implements CryptoInterface {
+            use ContextualEncryptionTrait;
+            private bool $shouldEncryptForDatabase = true;
+            private bool $shouldEncryptForFilesystem = true;
             public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
             {
                 // Use reversible encoding instead of real encryption
@@ -54,40 +60,6 @@ class EhrLaunchPatientContextTest extends TestCase
             public function cryptCheckStandard(?string $value): bool
             {
                 return $value !== null && str_starts_with($value, 'ENC:');
-            }
-
-            public function encryptForDatabase(?string $value): string
-            {
-                return $this->encryptStandard($value);
-            }
-
-            public function encryptForFilesystem(?string $value): string
-            {
-                return $this->encryptStandard($value);
-            }
-
-            public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
-            {
-                if ($value === null || $value === '') {
-                    return '';
-                }
-                if (!$this->cryptCheckStandard($value)) {
-                    return $value;
-                }
-                $result = $this->decryptStandard($value, minimumVersion: $minimumVersion);
-                return $result === false ? '' : $result;
-            }
-
-            public function decryptFromFilesystem(?string $value): string
-            {
-                if ($value === null || $value === '') {
-                    return '';
-                }
-                if (!$this->cryptCheckStandard($value)) {
-                    return $value;
-                }
-                $result = $this->decryptStandard($value);
-                return $result === false ? '' : $result;
             }
         };
         ServiceContainer::override(CryptoInterface::class, $crypto);
