@@ -290,6 +290,31 @@ Live testing of the front-desk arc surfaced two issues: (1) repeat uploads of th
 
 ---
 
+### Panel-gate relax for empty `generalPractitioner` — 2026-05-08
+
+Live testing surfaced: only `admin` could see the pending banner; clinicians who have Mariela in their OpenEMR-side panel (per `patient_data.providerID`) got 403 from `/v1/sessions/{sid}/pending_intakes` because the Co-Pilot panel gate's FHIR-derived check requires the requesting clinician's Practitioner UUID to appear in `Patient.generalPractitioner`. OpenEMR's R4 transformer never populates that field on Synthea/Railway data, so `owners=[]` and `practitioner_uuid not in []` always 403'd.
+
+Fix at `37331e54b`: when `owners` is empty, fall through to allow with an INFO log. The OpenEMR-side awk-injected `copilot-demographics-gate.php` already enforces real per-physician scope via the OpenEMR DB. The FHIR-derived check is defense-in-depth that can't reach a defensible verdict without the upstream field. New `test_fhir_panel_allows_when_general_practitioner_empty` + `test_fhir_panel_still_denies_when_general_practitioner_lists_others` regression-pin both sides. **191 tests pass** (was 189 — 2 new). `make eval-fast` 15/15 100%.
+
+### Modal viewer UX (rail-expand + zoom toolbar) — 2026-05-08 (later)
+
+Live testing showed the bbox modal is unusable for reviewing PDFs/PNGs: the modal sits inside a 400px-wide iframe rail and `90vw` of that = ~360px, while a PDF page renders at scale 1.5 (~1100px wide) — physicians had to scroll horizontally and zoom every time they reviewed a pending intake.
+
+Fix at `196d75e61`:
+
+| File | Change |
+|---|---|
+| `copilot-rail-fragment.php` | New CSS rule `body.copilot-doc-open #copilot-rail { width: 80vw; }` + `<script>` listener for postMessage from the iframe (origin-guarded against non-rail sources) |
+| `copilot/app/web/copilot_iframe.html` | Modal header gains zoom toolbar (`−` / `+` / `Fit width` / `Fit page`) |
+| `copilot/app/web/copilot_iframe.css` | Zoom button styling |
+| `copilot/app/web/copilot_iframe.js` | Send `copilot-doc-modal-open` before `modal.showModal()` and `copilot-doc-modal-close` in the close listener; refactored PDF + image renderers to cache source in `docPreviewState` and re-render at any scale via `_renderAtCurrentScale()`; default scale on open = `_fitWidthScale()` (clamped [0.4, 4]); zoom buttons re-render |
+
+Pure UX change — no new tests required. Existing 191 tests still pass; eval-fast 15/15 100%. The rail-fragment.php change required a Railway rebuild of the **OpenEMR service** (awk-injected into demographics.php at build time); copilot service picked up the iframe JS/HTML/CSS via static-file route on its own redeploy.
+
+**Branch tip: master at `196d75e61`. 191 tests pass. `make eval-fast` 15/15 100%. 51 commits since `78d0672c7`. Pushed to GitHub + GitLab; both Railway services redeployed; copilot service probed live (`/static/copilot_iframe.js` contains `copilot-doc-modal-open`).**
+
+---
+
 ## 📋 Pending
 
 ### Week 3+
