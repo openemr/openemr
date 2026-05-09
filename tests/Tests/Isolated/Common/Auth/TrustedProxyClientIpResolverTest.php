@@ -181,4 +181,94 @@ final class TrustedProxyClientIpResolverTest extends TestCase
             $resolver->resolveClientIp('203.0.113.7', '1.2.3.4'),
         );
     }
+
+    /**
+     * Aisle round-4 #7 (CWE-400) regression — header byte cap. An
+     * attacker can stuff `X-Forwarded-For` with a huge payload to
+     * blow up the per-request parse cost. The resolver truncates
+     * the raw header to MAX_XFF_HEADER_BYTES before exploding.
+     *
+     * This test packs the leftmost ~5 KB with trusted-proxy entries
+     * and appends the *real* untrusted client IP at the rightmost
+     * position. Without the byte cap, the walk would find the real
+     * client IP at the right and return it. With the byte cap, the
+     * trailing portion of the header (including the real client
+     * IP) gets sliced off before parse — the walk then sees only
+     * trusted-proxy entries and falls back to REMOTE_ADDR. Pinning
+     * the fall-back behavior proves the truncation actually fires.
+     */
+    public function testTruncatesOversizedXffHeaderBeforeParsing(): void
+    {
+        $resolver = new TrustedProxyClientIpResolver(['10.0.0.0/8']);
+
+        // ~5 KB of trusted-proxy entries — well above MAX_XFF_HEADER_BYTES.
+        // Each entry is "10.0.0.5, " (~10 bytes), so 600 entries ≈ 6 KB.
+        $padding = implode(', ', array_fill(0, 600, '10.0.0.5'));
+        $oversizedXff = $padding . ', 198.51.100.42';
+
+        $resolved = $resolver->resolveClientIp('10.0.0.5', $oversizedXff);
+
+        // The trailing real client IP got truncated off; the visible
+        // portion of the header is all trusted, so the resolver falls
+        // back to REMOTE_ADDR.
+        self::assertSame('10.0.0.5', $resolved);
+    }
+
+    /**
+     * Aisle round-4 #7 (CWE-400) regression — hop count cap. Even
+     * when the byte cap doesn't fire (header fits in 4 KB), the
+     * right-to-left walk's iteration cost is bounded by the slice
+     * of the rightmost MAX_XFF_HOPS entries. This test packs 50
+     * hops into a header that stays well under 4 KB and pins that
+     * we walk only the rightmost slice.
+     *
+     * Layout: 50 trusted-proxy entries on the left, one untrusted
+     * client IP at position N-1 (the rightmost). Without the cap,
+     * the walk would still find it at position N-1 → bounded already.
+     * The cap-relevant test is the *opposite* layout: untrusted IP
+     * at position 0 (leftmost). Slicing to keep the rightmost 20
+     * hops drops position 0, the walk sees only trusted entries,
+     * fall back to REMOTE_ADDR. That's what we test.
+     */
+    public function testCapsXffHopCountKeepsRightmostEntries(): void
+    {
+        $resolver = new TrustedProxyClientIpResolver(['10.0.0.0/8']);
+
+        // Untrusted real IP at the leftmost position; 49 trusted-proxy
+        // hops follow. Total header well under 4 KB (~500 bytes), so
+        // only the hop-count cap matters here.
+        $hops = array_merge(
+            ['198.51.100.42'],
+            array_fill(0, 49, '10.0.0.5'),
+        );
+        $xff = implode(', ', $hops);
+
+        $resolved = $resolver->resolveClientIp('10.0.0.5', $xff);
+
+        // The leftmost real IP is outside the rightmost-20 slice;
+        // the visible portion is all trusted; fall back to REMOTE_ADDR.
+        self::assertSame('10.0.0.5', $resolved);
+    }
+
+    /**
+     * Boundary at-cap acceptance. 20 hops where the legit untrusted
+     * IP sits at the leftmost position — exactly inside the slice.
+     * The walk should still find and return it. Pins the off-by-one:
+     * if a future tightening reduces MAX_XFF_HOPS, this test is the
+     * deliberate, visible signal.
+     */
+    public function testRespectsXffJustUnderCap(): void
+    {
+        $resolver = new TrustedProxyClientIpResolver(['10.0.0.0/8']);
+
+        $hops = array_merge(
+            ['198.51.100.42'],
+            array_fill(0, 19, '10.0.0.5'),
+        );
+        $xff = implode(', ', $hops);
+
+        $resolved = $resolver->resolveClientIp('10.0.0.5', $xff);
+
+        self::assertSame('198.51.100.42', $resolved);
+    }
 }

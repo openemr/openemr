@@ -37,6 +37,27 @@ use Symfony\Component\HttpFoundation\IpUtils;
 
 final readonly class TrustedProxyClientIpResolver
 {
+    /**
+     * Hard cap on the raw `X-Forwarded-For` header bytes parsed per
+     * request (Aisle round-4 #7 / CWE-400). Bounds the memory cost
+     * of `explode()` before the resulting array exists. Real-world
+     * XFF rarely exceeds ~200 bytes; 4 KB leaves comfortable margin
+     * even for IPv6-heavy chains with verbose proxy stacks.
+     */
+    private const MAX_XFF_HEADER_BYTES = 4096;
+
+    /**
+     * Hard cap on the number of XFF hops the right-to-left walk
+     * iterates per request. Bounds CPU cost when a 4 KB header is
+     * densely packed with single-character garbage (e.g. `a,a,a,…`
+     * explodes into >2000 entries). 20 covers extreme architectures
+     * (CDN → WAF → ALB → app gateway → app) with comfortable margin.
+     * Slicing keeps the *rightmost* entries: hops closest to us are
+     * the hardest to spoof and the most reliable to retain when
+     * truncating.
+     */
+    private const MAX_XFF_HOPS = 20;
+
     /** @var list<string> */
     private array $trustedProxies;
 
@@ -96,7 +117,16 @@ final readonly class TrustedProxyClientIpResolver
             return $remoteAddr;
         }
 
-        $hops = array_map(trim(...), explode(',', $forwardedFor));
+        // Round-4 #7 (CWE-400). Bound the parse cost before doing any
+        // other work. The byte cap limits the array `explode` allocates;
+        // the hop slice limits the iteration cost of the right-to-left
+        // walk below. Both fire only on adversarially-shaped input —
+        // real XFF chains have at most a handful of entries.
+        $forwardedFor = substr($forwardedFor, 0, self::MAX_XFF_HEADER_BYTES);
+        $hops = array_slice(
+            array_map(trim(...), explode(',', $forwardedFor)),
+            -self::MAX_XFF_HOPS,
+        );
         for ($i = count($hops) - 1; $i >= 0; $i--) {
             $candidate = $hops[$i];
             if ($candidate === '' || filter_var($candidate, FILTER_VALIDATE_IP) === false) {
