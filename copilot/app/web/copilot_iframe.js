@@ -255,10 +255,10 @@
   });
 
   // W2 modal viewer (2026-05-08): zoom toolbar elements + per-doc state
-  // for re-rendering at different scales.
+  // for re-rendering at different scales. The +/- buttons were removed
+  // 2026-05-09 — fit-width is the default on open and Fit width / Fit page
+  // cover both reading modes.
   const modalToolbar = document.getElementById("bbox-modal-toolbar");
-  const zoomInBtn = document.getElementById("bbox-modal-zoom-in");
-  const zoomOutBtn = document.getElementById("bbox-modal-zoom-out");
   const fitWidthBtn = document.getElementById("bbox-modal-fit-width");
   const fitPageBtn = document.getElementById("bbox-modal-fit-page");
   // Caches the currently-open doc's source so the zoom buttons can
@@ -312,16 +312,6 @@
     }
   }
 
-  zoomInBtn.onclick = async () => {
-    if (!docPreviewState) return;
-    docPreviewState.scale = Math.min(4, docPreviewState.scale * 1.25);
-    await _renderAtCurrentScale();
-  };
-  zoomOutBtn.onclick = async () => {
-    if (!docPreviewState) return;
-    docPreviewState.scale = Math.max(0.4, docPreviewState.scale / 1.25);
-    await _renderAtCurrentScale();
-  };
   fitWidthBtn.onclick = async () => {
     if (!docPreviewState) return;
     docPreviewState.scale = _fitWidthScale();

@@ -106,19 +106,39 @@ async def healthz():
 WEB_DIR = Path(__file__).parent / "web"
 
 
+# `no-cache` (despite the name) means "always revalidate before reusing
+# the cached copy" — browser sends If-Modified-Since and gets 304 when
+# unchanged, 200 with the fresh bundle on every deploy. This kills the
+# stale-iframe-bundle footgun where a soft-reload after a push keeps
+# serving the pre-deploy JS until the user hits Cmd-Shift-R.
+_IFRAME_CACHE_HEADERS = {"Cache-Control": "no-cache, must-revalidate"}
+
+
 @app.get("/")
 async def get_iframe_shell():
-    return FileResponse(WEB_DIR / "copilot_iframe.html", media_type="text/html")
+    return FileResponse(
+        WEB_DIR / "copilot_iframe.html",
+        media_type="text/html",
+        headers=_IFRAME_CACHE_HEADERS,
+    )
 
 
 @app.get("/static/copilot_iframe.js")
 async def get_iframe_js():
-    return FileResponse(WEB_DIR / "copilot_iframe.js", media_type="application/javascript")
+    return FileResponse(
+        WEB_DIR / "copilot_iframe.js",
+        media_type="application/javascript",
+        headers=_IFRAME_CACHE_HEADERS,
+    )
 
 
 @app.get("/static/copilot_iframe.css")
 async def get_iframe_css():
-    return FileResponse(WEB_DIR / "copilot_iframe.css", media_type="text/css")
+    return FileResponse(
+        WEB_DIR / "copilot_iframe.css",
+        media_type="text/css",
+        headers=_IFRAME_CACHE_HEADERS,
+    )
 
 
 @app.get("/v1/patient/{patient_id}/raw")
