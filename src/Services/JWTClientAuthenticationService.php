@@ -326,7 +326,7 @@ class JWTClientAuthenticationService
             // claims and headers — never the values).
             $this->logger->debug(
                 'Parsed JWT token',
-                OAuthLogContext::forJwtAssertion($token, (string) $clientId),
+                OAuthLogContext::forJwtAssertion($token, $clientId),
             );
 
             // SMART Backend Services / RFC 7515 §4.1.4: kid is required so
@@ -394,7 +394,7 @@ class JWTClientAuthenticationService
                 $this->logger->error(
                     'JWT failed validation constraints',
                     array_merge(
-                        OAuthLogContext::forJwtAssertion($token, (string) $clientId),
+                        OAuthLogContext::forJwtAssertion($token, $clientId),
                         [
                             'exception' => $exception->getMessage(),
                             'expected_audience' => $this->authTokenUrl,

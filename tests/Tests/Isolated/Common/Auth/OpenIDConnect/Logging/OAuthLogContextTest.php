@@ -272,8 +272,8 @@ final class OAuthLogContextTest extends TestCase
 
         $context = OAuthLogContext::forJwtAssertion($token, 'client');
 
-        self::assertLessThanOrEqual(64, strlen($context['kid']));
-        self::assertLessThanOrEqual(64, strlen($context['jti']));
+        self::assertLessThanOrEqual(64, strlen((string) $context['kid']));
+        self::assertLessThanOrEqual(64, strlen((string) $context['jti']));
     }
 
     /**
