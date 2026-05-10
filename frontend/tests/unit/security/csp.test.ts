@@ -68,12 +68,15 @@ describe("buildSecurityHeaders", () => {
     expect(v).toBe("nosniff");
   });
 
-  it("X-Frame-Options is DENY when no OpenEMR origin configured", () => {
+  it("X-Frame-Options is SAMEORIGIN by default (prod OpenEMR origin fallback)", () => {
+    // buildSecurityHeaders falls back to the prod OpenEMR origin when the
+    // env var is unset, because next.config.ts headers() is build-time and
+    // Railway runtime vars don't reach it.
     const v = buildSecurityHeaders({}).find((h) => h.key === "X-Frame-Options")?.value;
-    expect(v).toBe("DENY");
+    expect(v).toBe("SAMEORIGIN");
   });
 
-  it("X-Frame-Options is SAMEORIGIN when OpenEMR origin is configured (defers to CSP frame-ancestors)", () => {
+  it("X-Frame-Options stays SAMEORIGIN when OpenEMR origin is explicitly configured", () => {
     const v = buildSecurityHeaders({ OPENEMR_OAUTH_BASE: "https://openemr.example.com" })
       .find((h) => h.key === "X-Frame-Options")?.value;
     expect(v).toBe("SAMEORIGIN");
@@ -95,5 +98,10 @@ describe("buildSecurityHeaders", () => {
     const v = buildSecurityHeaders({ OPENEMR_OAUTH_BASE: "https://openemr.example.com" })
       .find((h) => h.key === "Content-Security-Policy")?.value ?? "";
     expect(v).toContain("frame-ancestors 'self' https://openemr.example.com");
+  });
+
+  it("CSP frame-ancestors falls back to prod OpenEMR origin when env unset", () => {
+    const v = buildSecurityHeaders({}).find((h) => h.key === "Content-Security-Policy")?.value ?? "";
+    expect(v).toContain("frame-ancestors 'self' https://openemr-production-0c8c.up.railway.app");
   });
 });

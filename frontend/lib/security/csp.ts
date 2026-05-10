@@ -57,9 +57,18 @@ export function originFromEnv(envValue: string | undefined): string | undefined 
   }
 }
 
+// Production fallback for OPENEMR_OAUTH_BASE. next.config.ts headers() runs
+// once during `next build` (in the Docker build stage), so runtime env vars
+// set on Railway never reach buildSecurityHeaders. Baking the prod URL in as
+// a fallback lets the iframe embed work without declaring a Dockerfile ARG
+// + Railway "Build Variable" — acceptable because this URL is stable for
+// the demo. Override at build time by setting OPENEMR_OAUTH_BASE in scope
+// for `npm run build`.
+const PROD_OPENEMR_ORIGIN_FALLBACK = "https://openemr-production-0c8c.up.railway.app";
+
 export function buildSecurityHeaders(env: Record<string, string | undefined>): SecurityHeader[] {
   const copilotOrigin = originFromEnv(env.COPILOT_URL);
-  const openemrOrigin = originFromEnv(env.OPENEMR_OAUTH_BASE);
+  const openemrOrigin = originFromEnv(env.OPENEMR_OAUTH_BASE) ?? PROD_OPENEMR_ORIGIN_FALLBACK;
   const headers: SecurityHeader[] = [
     { key: "Content-Security-Policy", value: buildCsp({ copilotOrigin, openemrOrigin }) },
     { key: "X-Content-Type-Options", value: "nosniff" },
