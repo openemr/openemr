@@ -85,6 +85,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpClient\Exception\JsonException;
+use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
@@ -310,6 +311,44 @@ class AuthorizationController
             ];
 
             $params['client_role'] = 'patient';
+            // Round-5 #1 (CWE-20). Validate the *shape* of jwks/jwks_uri
+            // up front, before the system-scope gate consults them.
+            // `$data->has(...)` returns true for any value — including
+            // non-string scalars like `1`, `true`, or `[]` — so a check
+            // that only asks "is the key present?" can be satisfied
+            // by submitting `{"jwks_uri": 1}` and skipping the SSRF
+            // validator's `is_string` guard further down. Confidential
+            // clients could thus register with system scopes without
+            // ever providing usable JWKS material.
+            $jwksUri = null;
+            if ($data->has('jwks_uri')) {
+                $rawJwksUri = $data->get('jwks_uri');
+                if (!is_string($rawJwksUri) || $rawJwksUri === '') {
+                    throw new OAuthServerException('jwks_uri is invalid', 0, 'invalid_client_metadata');
+                }
+                $jwksUri = $rawJwksUri;
+            }
+
+            // Same shape contract for inline jwks: must be a non-empty
+            // array (the JWKS object). Symfony's InputBag::all() throws
+            // BadRequestException for non-array values — catch and remap
+            // to invalid_client_metadata so a body like `{"jwks": 1}`
+            // produces a clean 400 instead of a 500. (The
+            // foreach-handler downstream also calls all('jwks'); by the
+            // time it runs we've already proven the value is array-shaped.)
+            $hasValidJwks = false;
+            if ($data->has('jwks')) {
+                try {
+                    $rawJwks = $data->all('jwks');
+                } catch (BadRequestException) {
+                    throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
+                }
+                if ($rawJwks === []) {
+                    throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
+                }
+                $hasValidJwks = true;
+            }
+
             // only include secret if a confidential app else force PKCE for native and web apps.
             $client_secret = '';
             $scope = $data->getString('scope');
@@ -318,10 +357,13 @@ class AuthorizationController
                 $params['client_secret'] = $client_secret;
                 $params['client_role'] = 'user';
 
-                // don't allow system scopes without a jwk or jwks_uri value
+                // System scopes require *valid* jwks or jwks_uri (not
+                // merely "key present"). The shape pre-validation above
+                // guarantees $jwksUri is a non-empty string when set,
+                // and $hasValidJwks is true only for usable jwks.
                 if (
                     str_contains($scope, 'system/')
-                    && !$data->has('jwks') && !$data->has('jwks_uri')
+                    && $jwksUri === null && !$hasValidJwks
                 ) {
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
@@ -359,10 +401,11 @@ class AuthorizationController
             // Reject unsafe jwks_uri values at the storage boundary so they never
             // reach the token endpoint as an SSRF sink. The same gate is enforced
             // again at fetch time in JsonWebKeySet, but stopping here keeps the
-            // attacker surface entirely off the persistence layer.
-            if (isset($params['jwks_uri']) && is_string($params['jwks_uri']) && $params['jwks_uri'] !== '') {
+            // attacker surface entirely off the persistence layer. $jwksUri is
+            // already type-narrowed above (round-5 #1); no need to re-check.
+            if ($jwksUri !== null) {
                 try {
-                    $this->buildJwksUrlValidator()->validateJwksUri($params['jwks_uri']);
+                    $this->buildJwksUrlValidator()->validateJwksUri($jwksUri);
                 } catch (OidcUrlValidationException $exception) {
                     $this->getLogger()->warning(
                         'AuthorizationController::clientRegistration rejected unsafe jwks_uri',

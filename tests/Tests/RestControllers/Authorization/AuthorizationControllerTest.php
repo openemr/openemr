@@ -291,4 +291,117 @@ class AuthorizationControllerTest extends TestCase
         $this->assertSame($clientId, $session->get('client_id'), 'client_id populated from request');
     }
 
+    /**
+     * Aisle round-5 #1 (CWE-20) regression. Pre-fix, `$data->has('jwks_uri')`
+     * returned true for *any* value — including non-string scalars
+     * — so a registration body of `{"jwks_uri": 1, "scope":
+     * "system/Patient.read"}` would (a) satisfy the system-scope
+     * gate and (b) skip the SSRF validator's `is_string` guard,
+     * landing the bogus value in `oauth_clients.jwks_uri`.
+     */
+    public function testClientRegistrationRejectsNumericJwksUri(): void
+    {
+        $request = $this->buildClientRegistrationRequest([
+            'application_type' => 'private',
+            'redirect_uris' => ['https://example.com/callback'],
+            'scope' => 'system/Patient.read',
+            'jwks_uri' => 1, // intentionally not a string
+        ]);
+        $controller = $this->buildClientRegistrationController($request);
+
+        $response = $controller->clientRegistration($request);
+
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'Numeric jwks_uri must be rejected at the type gate',
+        );
+    }
+
+    /**
+     * Boundary case for round-5 #1: empty string is also invalid,
+     * even though `is_string('') === true`. The new gate combines
+     * type + non-empty so empty strings fall through to the throw.
+     */
+    public function testClientRegistrationRejectsEmptyStringJwksUri(): void
+    {
+        $request = $this->buildClientRegistrationRequest([
+            'application_type' => 'private',
+            'redirect_uris' => ['https://example.com/callback'],
+            'scope' => 'system/Patient.read',
+            'jwks_uri' => '',
+        ]);
+        $controller = $this->buildClientRegistrationController($request);
+
+        $response = $controller->clientRegistration($request);
+
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'Empty-string jwks_uri must be rejected — `has()` true is not enough',
+        );
+    }
+
+    /**
+     * Pre-existing system-scope policy: confidential clients
+     * requesting `system/*` must supply usable JWKS material. The
+     * round-5 #1 fix tightened the *shape* of "supplied" but the
+     * gate itself is older — pin it so a future refactor doesn't
+     * relax the policy along with the type check.
+     */
+    public function testClientRegistrationRejectsSystemScopeWithoutAnyJwksMaterial(): void
+    {
+        $request = $this->buildClientRegistrationRequest([
+            'application_type' => 'private',
+            'redirect_uris' => ['https://example.com/callback'],
+            'scope' => 'system/Patient.read',
+            // jwks_uri and jwks deliberately omitted
+        ]);
+        $controller = $this->buildClientRegistrationController($request);
+
+        $response = $controller->clientRegistration($request);
+
+        $this->assertSame(
+            Response::HTTP_BAD_REQUEST,
+            $response->getStatusCode(),
+            'Confidential client with system scope must require JWKS material',
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $body
+     */
+    private function buildClientRegistrationRequest(array $body): HttpRestRequest
+    {
+        $request = HttpRestRequest::create(
+            '/oauth/registration',
+            'POST',
+            [], // params
+            [], // cookies
+            [], // files
+            ['CONTENT_TYPE' => 'application/json'],
+            (string) json_encode($body),
+        );
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+        return $request;
+    }
+
+    private function buildClientRegistrationController(HttpRestRequest $request): AuthorizationController
+    {
+        $controller = $this->getDefaultAuthorizationControllerForRequest($request);
+
+        // The controller calls these generators *before* the
+        // jwks_uri shape gate. Stub them so the test reaches the
+        // gate it's supposed to exercise rather than NPE'ing on a
+        // null return from createMock's default behavior.
+        $clientRepository = $this->createMock(ClientRepository::class);
+        $clientRepository->method('generateClientId')->willReturn('test-client-id');
+        $clientRepository->method('generateClientSecret')->willReturn('test-client-secret');
+        $clientRepository->method('generateRegistrationAccessToken')->willReturn('test-reg-token');
+        $clientRepository->method('generateRegistrationClientUriPath')->willReturn('test-uri-path');
+        $controller->setClientRepository($clientRepository);
+
+        return $controller;
+    }
 }
