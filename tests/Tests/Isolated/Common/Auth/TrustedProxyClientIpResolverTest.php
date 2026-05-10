@@ -183,35 +183,76 @@ final class TrustedProxyClientIpResolverTest extends TestCase
     }
 
     /**
-     * Aisle round-4 #7 (CWE-400) regression — header byte cap. An
-     * attacker can stuff `X-Forwarded-For` with a huge payload to
-     * blow up the per-request parse cost. The resolver truncates
-     * the raw header to MAX_XFF_HEADER_BYTES before exploding.
+     * Aisle round-4 #7 (CWE-400) + round-5 #2 (CWE-807) regression —
+     * the byte cap must keep the *right* side of the header. XFF
+     * semantics put the original client at the LEFT and each proxy
+     * appends to the RIGHT; the rightmost entries are the closest
+     * to us and the hardest to spoof. An earlier shape of the byte
+     * cap kept the left side (`substr(0, MAX)`), which let an
+     * attacker who could send a >4 KB header through a trusted
+     * proxy push the legitimate proxy-appended tail off the right
+     * edge, then fill the kept left portion with their own IPs.
      *
-     * This test packs the leftmost ~5 KB with trusted-proxy entries
-     * and appends the *real* untrusted client IP at the rightmost
-     * position. Without the byte cap, the walk would find the real
-     * client IP at the right and return it. With the byte cap, the
-     * trailing portion of the header (including the real client
-     * IP) gets sliced off before parse — the walk then sees only
-     * trusted-proxy entries and falls back to REMOTE_ADDR. Pinning
-     * the fall-back behavior proves the truncation actually fires.
+     * This test packs the leftmost ~6 KB with trusted-proxy entries
+     * and appends the legitimate untrusted client IP at the very
+     * right. Pre-fix: trailing IP got truncated off, walk fell back
+     * to REMOTE_ADDR. Post-fix: trailing IP is kept (rightmost
+     * 4 KB preserved), walk finds it and returns it.
      */
-    public function testTruncatesOversizedXffHeaderBeforeParsing(): void
+    public function testTruncatesOversizedXffHeaderKeepsRightmostTail(): void
     {
         $resolver = new TrustedProxyClientIpResolver(['10.0.0.0/8']);
 
-        // ~5 KB of trusted-proxy entries — well above MAX_XFF_HEADER_BYTES.
+        // ~6 KB of trusted-proxy entries — well above MAX_XFF_HEADER_BYTES.
         // Each entry is "10.0.0.5, " (~10 bytes), so 600 entries ≈ 6 KB.
         $padding = implode(', ', array_fill(0, 600, '10.0.0.5'));
         $oversizedXff = $padding . ', 198.51.100.42';
 
         $resolved = $resolver->resolveClientIp('10.0.0.5', $oversizedXff);
 
-        // The trailing real client IP got truncated off; the visible
-        // portion of the header is all trusted, so the resolver falls
-        // back to REMOTE_ADDR.
-        self::assertSame('10.0.0.5', $resolved);
+        // Rightmost 4 KB preserved → the trailing legit client IP
+        // is still in the parsed hops → walk returns it.
+        self::assertSame('198.51.100.42', $resolved);
+    }
+
+    /**
+     * Aisle round-5 #2 (CWE-807) — the security-relevant scenario
+     * the truncation flip protects against. An attacker bombs
+     * `X-Forwarded-For` with their own *untrusted* IP repeated
+     * thousands of times; the proxy chain forwards (rather than
+     * sanitizes) the header and appends its own legitimate hops at
+     * the right.
+     *
+     * Pre-fix layout (bug):
+     *   [attacker.ip × N]  + ", real_client, trusted_proxy"
+     *   `substr(0, 4096)` keeps the left chunk → walker sees only
+     *   attacker.ip → returns attacker.ip → rate-limit bucket
+     *   binds to the attacker's choice instead of the real client.
+     *
+     * Post-fix:
+     *   `substr(-4096)` keeps the legitimate chain → walker
+     *   returns real_client. Pin this directly.
+     */
+    public function testRejectsAttackerStuffedLeftPad(): void
+    {
+        $resolver = new TrustedProxyClientIpResolver(['10.0.0.0/8']);
+
+        // ~6 KB of attacker-controlled "untrusted" IP (203.0.113.99
+        // is in TEST-NET-3 — public-routable shape, not trusted).
+        $attackerPad = implode(', ', array_fill(0, 600, '203.0.113.99'));
+        // Realistic chain at the right: legit client, then the
+        // trusted proxy that appended its peer's IP last.
+        $oversizedXff = $attackerPad . ', 198.51.100.42, 10.0.0.5';
+
+        $resolved = $resolver->resolveClientIp('10.0.0.5', $oversizedXff);
+
+        // Walk right-to-left through the kept tail: 10.0.0.5 (trusted,
+        // skip), 198.51.100.42 (untrusted, return). Attacker's
+        // 203.0.113.99 spam never reaches the walk because the
+        // truncation now drops the LEFT side, not the right. A
+        // regression that flips the truncation back would land
+        // 203.0.113.99 here and break this assertion loudly.
+        self::assertSame('198.51.100.42', $resolved);
     }
 
     /**

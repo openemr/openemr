@@ -122,7 +122,18 @@ final readonly class TrustedProxyClientIpResolver
         // the hop slice limits the iteration cost of the right-to-left
         // walk below. Both fire only on adversarially-shaped input —
         // real XFF chains have at most a handful of entries.
-        $forwardedFor = substr($forwardedFor, 0, self::MAX_XFF_HEADER_BYTES);
+        if (strlen($forwardedFor) > self::MAX_XFF_HEADER_BYTES) {
+            $forwardedFor = substr($forwardedFor, -self::MAX_XFF_HEADER_BYTES);
+            // Truncation rarely lands on a comma boundary; the leading
+            // fragment after substr may be the tail half of an IP. The
+            // filter_var guard inside the walk would discard it anyway,
+            // but trimming it here removes a parsed-then-rejected entry
+            // from the hop slice and the hop count.
+            $firstComma = strpos($forwardedFor, ',');
+            if ($firstComma !== false) {
+                $forwardedFor = substr($forwardedFor, $firstComma + 1);
+            }
+        }
         $hops = array_slice(
             array_map(trim(...), explode(',', $forwardedFor)),
             -self::MAX_XFF_HOPS,
