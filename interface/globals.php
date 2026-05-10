@@ -752,13 +752,36 @@ if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_
 // $hasAuthenticatedSession; an attacker hitting `?auth=logout` without
 // a session falls through to the cheap redirect path.
 //
+// Aisle round-5 #8 (CWE-400). The earlier hidden-field check
+// (`new_login_session_management`) treated a public, guessable form
+// marker as proof-of-login-submission. An attacker could trivially
+// include it in a forged POST to keep forcing the bootstrap. Tighten
+// to require one of the actual login *payloads* `auth.inc.php`
+// consumes — password (`authUser` + `clearPass`), Google sign-in
+// (`used_google_signin` + `google_signin_token`), or OIDC
+// (`oidc_id_token`). A forged POST with arbitrary values for these
+// fields still reaches the auth path, but that path is rate-limited
+// per-IP by `IpLoginRateLimiter` (round-3 #4) — order-of-magnitude
+// harder to amplify than the bootstrap itself.
+//
 // upgrade fails for versions prior to 4.2.0 since no modules table
 $authAction = $_GET['auth'] ?? null; // @phpstan-ignore openemr.forbiddenRequestGlobals
 $sessionAuthUser = $session->get('authUser');
 $hasAuthenticatedSession = is_string($sessionAuthUser) && $sessionAuthUser !== '';
+$oidcIdToken = filter_input(INPUT_POST, 'oidc_id_token');
 $isLoginSubmission = filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST'
     && $authAction === 'login'
-    && filter_input(INPUT_POST, 'new_login_session_management') !== null;
+    && (
+        (
+            filter_input(INPUT_POST, 'authUser') !== null
+            && filter_input(INPUT_POST, 'clearPass') !== null
+        )
+        || (
+            filter_input(INPUT_POST, 'used_google_signin') !== null
+            && filter_input(INPUT_POST, 'google_signin_token') !== null
+        )
+        || (is_string($oidcIdToken) && $oidcIdToken !== '')
+    );
 $needsPreAuthModules = $ignoreAuth
     || $hasAuthenticatedSession
     || $isLoginSubmission;
