@@ -22,6 +22,7 @@ require_once("$fileroot/interface/drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\DrugSalesService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
@@ -55,7 +56,7 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
         $wh .= "<option value=''></option>";
         while ($lrow = sqlFetchArray($lres)) {
             $wh .= "<option value='" . attr($lrow['option_id']) . "'";
-            $has_inventory = sellDrug($code, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
+            $has_inventory = (new DrugSalesService())->sellDrug($code, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
             if (
                 $has_inventory && (
                 (strlen((string) $defaultwh) == 0 && $lrow['is_default']           ) ||
