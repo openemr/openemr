@@ -304,6 +304,7 @@ async def run_get_recent_uploads(
     # randomized "Patient-XXXX" label used for trace minimization, NOT the
     # storage key. Use `active_patient_id` (the real FHIR uuid this session
     # is scoped to) so the lookup matches what the route stored.
+    pending_unconfirmed: list[Any] = []
     if confirmed_only:
         from datetime import datetime, timedelta, timezone
         since_days = args.get("since_days")
@@ -318,6 +319,22 @@ async def run_get_recent_uploads(
         # Mirror the limit semantics — list_confirmed_recent returns
         # newest-first.
         docs = docs[:limit]
+        # Count extracted-but-unconfirmed forms so the agent can nudge
+        # the physician without leaking the form contents. Only the
+        # count is exposed (see ``pending_review_notice`` below) — the
+        # confirmed-only contract is preserved.
+        recent_all = await store.list_recent_for_patient(
+            patient_pseudonym=session.active_patient_id, limit=20
+        )
+        pending_unconfirmed = [
+            d for d in recent_all
+            if d.confirmed_at is None
+            and d.rejected_at is None
+            and not (
+                isinstance(d.extracted_facts, dict)
+                and d.extracted_facts.get("_pending")
+            )
+        ]
     else:
         docs = await store.list_recent_for_patient(
             patient_pseudonym=session.active_patient_id, limit=limit
@@ -348,6 +365,24 @@ async def run_get_recent_uploads(
         data_items.extend(items)
         record_ids.append(f"DocumentReference/{d.canonical_doc_id}")
         record_ids.extend(per_fact_rids)
+
+    # Pending-review nudge (W2 Plan B — confirm-first contract). When the
+    # caller asked for confirmed-only and there are extracted forms still
+    # awaiting confirmation, surface the COUNT (no PHI) so the agent can
+    # tell the physician "1 form awaiting your review" without leaking
+    # its contents. The notice has no record_id — it MUST NOT be cited.
+    if pending_unconfirmed:
+        data_items.append({
+            "type": "pending_review_notice",
+            "pending_count": len(pending_unconfirmed),
+            "hint": (
+                "There are intake forms uploaded for this patient that "
+                "have not yet been confirmed by the physician. Their "
+                "contents are not included in this tool's results. To "
+                "include them, click the form in the pending-review "
+                "banner and press 'Confirm & save to chart'."
+            ),
+        })
 
     return ToolResult(
         name="get_recent_uploads",
