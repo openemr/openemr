@@ -121,11 +121,15 @@ def http_request(method: str, url: str, *,
 
 def get_token(base: str, client_id: str, client_secret: str,
               username: str, password: str) -> str:
+    # OpenEMR's password grant requires a non-standard `user_role` field
+    # (`users` for system/clinician users, `patient` for portal users).
+    # Without it the token endpoint returns 400 "Check the user_role parameter".
     body = urllib.parse.urlencode({
         "grant_type": "password",
         "username": username,
         "password": password,
         "scope": SCOPES,
+        "user_role": "users",
     }).encode()
     basic = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
     status, raw = http_request(
