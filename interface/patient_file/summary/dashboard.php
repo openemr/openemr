@@ -55,5 +55,35 @@ $uuid = UuidRegistry::uuidToString($row['uuid']);
 // OpenEMR-internal "current patient" lookups continue to resolve.
 $_SESSION['pid'] = (int) $setPid;
 
-header('Location: ' . rtrim($dashboardUrl, '/') . '/patient/' . urlencode($uuid));
+// Top-window navigation, NOT a 302. The patient-finder click handler
+// uses `top.RTop.location = ...`, which navigates an inner OpenEMR
+// iframe. The modern dashboard's CSP sets `frame-ancestors 'none'` —
+// browsers refuse to render it inside any iframe (manifests as
+// "refused to connect"). So we emit a tiny HTML page that uses JS to
+// move the *top* window to the dashboard URL, escaping OpenEMR's
+// frame chrome entirely. Meta refresh + visible body fall back when
+// JS is disabled.
+$target = rtrim($dashboardUrl, '/') . '/patient/' . urlencode($uuid);
+$targetJson = json_encode($target, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT);
+$targetHtml = htmlspecialchars($target, ENT_QUOTES, 'UTF-8');
+?><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Loading patient dashboard…</title>
+<meta http-equiv="refresh" content="0;url=<?php echo $targetHtml; ?>">
+<script>
+// Escape OpenEMR's iframe chrome — the modern dashboard refuses to be
+// loaded inside any iframe (CSP frame-ancestors 'none').
+(function () {
+    var u = <?php echo $targetJson; ?>;
+    try { window.top.location.replace(u); }
+    catch (_) { window.location.replace(u); }
+})();
+</script>
+</head>
+<body style="font-family: system-ui, sans-serif; padding: 2rem; color: #555;">
+Redirecting to the modern dashboard… <a href="<?php echo $targetHtml; ?>">click here if you are not redirected</a>.
+</body>
+</html><?php
 exit;
