@@ -158,6 +158,18 @@ $handler = new OidcSessionRefreshHandler(
 
 $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
 
+// Aisle round-5 #6 (CWE-400). Record the refresh ATTEMPT time
+// before invoking the handler so failed attempts also feed the
+// per-session cooldown gate at step 3 above. Pre-fix only the
+// success branch called recordRefresh(), letting an attacker
+// with a valid session + CSRF token hammer the endpoint with
+// invalid ID tokens and run the full validation pipeline (JWKS
+// fetch, signature check, replay/revocation lookups) on every
+// request. Recording on attempt — not just on success — means
+// the next request hits the 429 cooldown gate regardless of
+// the outcome.
+OidcSessionHelper::recordRefresh(time());
+
 $result = $handler->handle($idToken, $sessionIssuer, $sessionAudience, $sessionSubject, $username);
 
 // 8. Act on result
@@ -172,7 +184,6 @@ if ($result->success && $result->validatedToken !== null) {
         $result->validatedToken->expiresAt,
         $result->validatedToken->revocationKey,
     );
-    OidcSessionHelper::recordRefresh(time());
 }
 
 http_response_code($result->httpStatus);
