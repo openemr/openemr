@@ -59,6 +59,75 @@ $uuid = UuidRegistry::uuidToString($row['uuid']);
 // OpenEMR-internal "current patient" lookups continue to resolve.
 $_SESSION['pid'] = (int) $setPid;
 
+/**
+ * Pre-warm the separate OAuth session ("authserverOpenEMR" cookie at
+ * path /oauth2/, SameSite=None) with the currently-authenticated user.
+ *
+ * Without this, the modern dashboard's PKCE bounce to
+ * /oauth2/default/authorize lands on OpenEMR's login form because the
+ * OAuth session is empty (the main-UI session cookie is SameSite=Strict
+ * and is not sent on cross-site navigations from the modern dashboard
+ * back to OpenEMR's authorize endpoint).
+ *
+ * After pre-warming + the client's "Authorization Flow Skip" toggle,
+ * clicking "Open in Modern Dashboard" goes straight to the modern view
+ * with no login or consent prompt.
+ *
+ * The OAuth session uses Symfony's AttributeBag with storage key
+ * 'authserverOpenEMR' (same as the cookie name), so attributes live at
+ * $_SESSION['authserverOpenEMR'][<key>]. We set 'user_id' to the user's
+ * UUID — that's the value AuthorizationController checks at line ~899
+ * to decide "user is already logged in for OAuth".
+ */
+function dashboard_prewarm_oauth_session(int $userIdInt): void
+{
+    UuidRegistry::createMissingUuidForRow('users', 'id', $userIdInt);
+    $userRow = sqlQuery("SELECT `uuid` FROM `users` WHERE `id` = ?", [$userIdInt]);
+    if (empty($userRow['uuid'])) {
+        return;
+    }
+    $userUuid = UuidRegistry::uuidToString($userRow['uuid']);
+
+    // Detach from the main-UI session cleanly so we can open the OAuth
+    // session in this same request without conflict.
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
+    }
+
+    // Reconfigure the session subsystem for the OAuth session.
+    session_name('authserverOpenEMR');
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/oauth2/',
+        'domain' => '',
+        'secure' => true,
+        'httponly' => true,
+        'samesite' => 'None',
+    ]);
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        session_start();
+    }
+
+    // Symfony AttributeBag storage key for OAuth = 'authserverOpenEMR'.
+    if (!isset($_SESSION['authserverOpenEMR']) || !is_array($_SESSION['authserverOpenEMR'])) {
+        $_SESSION['authserverOpenEMR'] = [];
+    }
+    $_SESSION['authserverOpenEMR']['user_id'] = $userUuid;
+
+    session_write_close();
+}
+
+$mainAuthUserId = (int) ($_SESSION['authUserID'] ?? 0);
+if ($mainAuthUserId > 0) {
+    try {
+        dashboard_prewarm_oauth_session($mainAuthUserId);
+    } catch (\Throwable $e) {
+        // Pre-warm is best-effort — if it fails, the user just sees the
+        // OAuth login form like before. Don't let it break the chooser.
+        error_log('dashboard_prewarm_oauth_session failed: ' . $e->getMessage());
+    }
+}
+
 $patientName = trim(($row['fname'] ?? '') . ' ' . ($row['lname'] ?? ''));
 if ($patientName === '') {
     $patientName = 'this patient';
