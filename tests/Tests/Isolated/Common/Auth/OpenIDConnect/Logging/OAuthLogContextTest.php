@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Auth\OpenIDConnect\Logging;
 
+use Lcobucci\JWT\Token\DataSet;
+use Lcobucci\JWT\Token\Plain;
+use Lcobucci\JWT\Token\Signature;
 use OpenEMR\Common\Auth\OpenIDConnect\Logging\OAuthLogContext;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -179,5 +182,137 @@ final class OAuthLogContextTest extends TestCase
         self::assertContains('launch', OAuthLogContext::sensitiveSessionKeys());
         self::assertContains('state', OAuthLogContext::sensitiveQueryKeys());
         self::assertContains('code_challenge', OAuthLogContext::sensitiveQueryKeys());
+    }
+
+    /**
+     * Aisle round-5 #3 (CWE-532 / CWE-117 / CWE-400) — primary
+     * happy-path contract for forJwtAssertion: returns the
+     * non-attacker-controlled client_id, sanitized scalar
+     * identifiers (kid/alg/jti), and the *names* of claims and
+     * headers — never the values. The full claim/header bags must
+     * not leak into the output.
+     */
+    public function testForJwtAssertionReturnsSanitizedFingerprint(): void
+    {
+        $token = $this->buildJwtToken(
+            headers: ['alg' => 'RS384', 'kid' => 'fixture-kid', 'typ' => 'JWT'],
+            claims: [
+                'iss' => 'attacker-supplied-issuer',
+                'sub' => 'attacker-supplied-subject',
+                'jti' => 'fixture-jti-uuid',
+                'exp' => 1234567890,
+            ],
+        );
+
+        $context = OAuthLogContext::forJwtAssertion($token, 'real-client-id');
+
+        self::assertSame('real-client-id', $context['client_id']);
+        self::assertSame('RS384', $context['alg']);
+        self::assertSame('fixture-kid', $context['kid']);
+        self::assertSame('fixture-jti-uuid', $context['jti']);
+        // claim/header *names* surface; values do not.
+        self::assertEqualsCanonicalizing(
+            ['iss', 'sub', 'jti', 'exp'],
+            $context['claim_keys'],
+        );
+        self::assertEqualsCanonicalizing(
+            ['alg', 'kid', 'typ'],
+            $context['header_keys'],
+        );
+        // No claim/header value should appear in the output.
+        $serialized = json_encode($context);
+        self::assertIsString($serialized);
+        self::assertStringNotContainsString('attacker-supplied-issuer', $serialized);
+        self::assertStringNotContainsString('attacker-supplied-subject', $serialized);
+    }
+
+    /**
+     * Aisle round-5 #3 (CWE-117) — log-injection regression. JWT
+     * scalars and claim/header names are attacker-controlled. A
+     * value with embedded newlines, CR, or other control characters
+     * could forge log lines if dumped verbatim into a structured
+     * log record. The sanitizer must replace any character outside
+     * `[A-Za-z0-9._-]` with an underscore.
+     */
+    public function testForJwtAssertionStripsControlCharsFromScalars(): void
+    {
+        $token = $this->buildJwtToken(
+            headers: ['kid' => "good-kid\n[INJECTED] rogue line\rERROR"],
+            claims: ['jti' => "jti\twith\ttabs"],
+        );
+
+        $context = OAuthLogContext::forJwtAssertion($token, 'client');
+
+        // Newlines, CR, tabs all replaced with underscores. Brackets
+        // also fall outside the safe charset (`[A-Za-z0-9._-]`) and
+        // get stripped — the safe charset is intentionally narrow so
+        // anything that could end up structurally meaningful in a log
+        // viewer (brackets, quotes, control chars) is neutralized.
+        self::assertSame('good-kid__INJECTED__rogue_line_ERROR', $context['kid']);
+        self::assertSame('jti_with_tabs', $context['jti']);
+        self::assertStringNotContainsString("\n", $context['kid']);
+        self::assertStringNotContainsString("\r", $context['kid']);
+        self::assertStringNotContainsString("\t", $context['jti']);
+    }
+
+    /**
+     * Aisle round-5 #3 (CWE-400) — log amplification regression.
+     * An attacker who can submit a JWT with a megabyte-scale
+     * `kid` or `jti` value would otherwise expand each request
+     * into a giant log record. The sanitizer caps scalars at 64
+     * chars.
+     */
+    public function testForJwtAssertionCapsScalarLengthAt64Chars(): void
+    {
+        $longKid = str_repeat('a', 5000);
+        $token = $this->buildJwtToken(
+            headers: ['kid' => $longKid],
+            claims: ['jti' => str_repeat('b', 5000)],
+        );
+
+        $context = OAuthLogContext::forJwtAssertion($token, 'client');
+
+        self::assertLessThanOrEqual(64, strlen($context['kid']));
+        self::assertLessThanOrEqual(64, strlen($context['jti']));
+    }
+
+    /**
+     * Aisle round-5 #3 (CWE-400) — log amplification via huge
+     * claim/header bags. A JWT with thousands of synthetic claims
+     * would otherwise produce a thousand-entry list in the log.
+     * The sanitizer caps the key list at 50 entries.
+     */
+    public function testForJwtAssertionCapsKeyListSize(): void
+    {
+        $manyClaims = ['jti' => 'fixture-jti'];
+        for ($i = 0; $i < 200; $i++) {
+            $manyClaims['claim_' . $i] = $i;
+        }
+        $token = $this->buildJwtToken(
+            headers: ['alg' => 'RS384', 'kid' => 'k'],
+            claims: $manyClaims,
+        );
+
+        $context = OAuthLogContext::forJwtAssertion($token, 'client');
+
+        self::assertCount(50, $context['claim_keys']);
+    }
+
+    /**
+     * Build a Plain JWT token directly from DataSets — bypasses the
+     * Parser entirely so tests can craft adversarial inputs without
+     * going through the full JOSE builder. The encoded portions of
+     * each DataSet are irrelevant to forJwtAssertion's output.
+     *
+     * @param array<string, mixed> $headers
+     * @param array<string, mixed> $claims
+     */
+    private function buildJwtToken(array $headers, array $claims): Plain
+    {
+        return new Plain(
+            new DataSet($headers, ''),
+            new DataSet($claims, ''),
+            new Signature('', ''),
+        );
     }
 }

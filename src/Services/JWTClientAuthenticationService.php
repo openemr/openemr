@@ -41,6 +41,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
+use OpenEMR\Common\Auth\OpenIDConnect\Logging\OAuthLogContext;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -298,12 +299,34 @@ class JWTClientAuthenticationService
             // that bypassed all of round-3 #5's size/use/alg caps.)
             $token = (new Parser(new JoseEncoder()))->parse($jwt);
 
+            // The standard lcobucci Parser produces Plain (unencrypted
+            // JWS) tokens; an encrypted JWT (JWE) would be a different
+            // implementation. Treat anything else as a malformed
+            // client assertion rather than letting it fall through to
+            // OAuthLogContext::forJwtAssertion()'s Plain parameter,
+            // which would TypeError in production (assert() is
+            // optimized out under `assert.active=0`). Mirrors the
+            // shape check already used in extractClientIdFromJWT.
+            if (!$token instanceof Plain) {
+                $this->logger->error(
+                    'JWT client assertion is not a Plain (unencrypted) token',
+                    ['client_id' => $clientId],
+                );
+                throw OAuthServerException::invalidClient($request);
+            }
+
+            // Round-5 #3 (CWE-532 / CWE-117 / CWE-400). The full
+            // claims and headers come from an attacker-supplied JWT —
+            // logging them dumped sensitive material to debug logs,
+            // let an attacker forge log lines via control characters
+            // in claim names, and amplified into giant log records
+            // for huge JWTs. Route through OAuthLogContext for a
+            // sanitized fingerprint (kid/alg/jti scalars stripped of
+            // unsafe chars + capped lengths, plus the *names* of
+            // claims and headers — never the values).
             $this->logger->debug(
                 'Parsed JWT token',
-                [
-                    'claims' => $token->claims()->all(),
-                    'headers' => $token->headers()->all()
-                ]
+                OAuthLogContext::forJwtAssertion($token, (string) $clientId),
             );
 
             // SMART Backend Services / RFC 7515 §4.1.4: kid is required so
@@ -362,14 +385,21 @@ class JWTClientAuthenticationService
                 // Note: @ suppresses phpseclib RSA validation notice that gets printed to screen
                 @(new Validator())->assert($token, ...$constraints);
             } catch (RequiredConstraintsViolated $exception) {
+                // Round-5 #3 (same shape as the debug log above):
+                // sanitized fingerprint instead of the raw claim
+                // dump. The exception message + expected_audience
+                // give operators the "why" of the failure; the
+                // sanitized JWT context gives them the "what shape"
+                // without the attacker-controlled value bag.
                 $this->logger->error(
                     'JWT failed validation constraints',
-                    [
-                        'client_id' => $clientId,
-                        'exception' => $exception->getMessage(),
-                        'expected_audience' => $this->authTokenUrl,
-                        'claims' => $token->claims()->all()
-                    ]
+                    array_merge(
+                        OAuthLogContext::forJwtAssertion($token, (string) $clientId),
+                        [
+                            'exception' => $exception->getMessage(),
+                            'expected_audience' => $this->authTokenUrl,
+                        ],
+                    ),
                 );
 
                 // Per ONC Inferno requirements, use 400 status instead of 401

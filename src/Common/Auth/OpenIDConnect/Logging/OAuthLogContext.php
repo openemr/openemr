@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Logging;
 
+use Lcobucci\JWT\Token\Plain;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 final class OAuthLogContext
@@ -61,6 +62,20 @@ final class OAuthLogContext
         'redirect_uri',
         'id_token_hint',
     ];
+
+    /**
+     * Maximum character length of a sanitized JWT scalar (kid, jti,
+     * alg). 64 is well above legitimate values and tight enough that
+     * a megabyte-scale attacker payload can't bloat a log record.
+     */
+    private const MAX_JWT_SCALAR_LEN = 64;
+
+    /**
+     * Maximum number of claim/header key names in a sanitized list.
+     * Real JWTs carry a handful of claims; 50 leaves margin without
+     * letting an attacker pack a structured record full of garbage.
+     */
+    private const MAX_JWT_KEY_LIST_LEN = 50;
 
     private function __construct()
     {
@@ -142,6 +157,39 @@ final class OAuthLogContext
     }
 
     /**
+     * Build a redacted summary of a parsed JWT for log context.
+     *
+     * The full claims/headers are attacker-supplied via the
+     * `client_assertion` request parameter — they may carry
+     * sensitive material (CWE-532), control characters that forge
+     * log lines (CWE-117), or huge payloads that amplify into
+     * structured log records (CWE-400). This helper emits only:
+     *
+     *   - the non-attacker-controlled `client_id`
+     *   - sanitized scalar identifiers (`kid`, `alg` from headers,
+     *     `jti` from claims) capped at 64 chars and stripped of
+     *     any non-`[A-Za-z0-9._-]` character
+     *   - the lists of claim/header keys (sanitized + capped at 50
+     *     entries each) so operators can see the *shape* of the
+     *     assertion without seeing the values
+     *
+     * Aisle round-5 #3 (CWE-532 / CWE-117 / CWE-400).
+     *
+     * @return array<string, mixed>
+     */
+    public static function forJwtAssertion(Plain $token, string $clientId): array
+    {
+        return [
+            'client_id'   => $clientId,
+            'kid'         => self::sanitizeJwtScalar($token->headers()->get('kid')),
+            'alg'         => self::sanitizeJwtScalar($token->headers()->get('alg')),
+            'jti'         => self::sanitizeJwtScalar($token->claims()->get('jti')),
+            'claim_keys'  => self::sanitizeJwtKeyList(array_keys($token->claims()->all())),
+            'header_keys' => self::sanitizeJwtKeyList(array_keys($token->headers()->all())),
+        ];
+    }
+
+    /**
      * Names of the sensitive session keys, exposed for tests so the
      * "no value leak" assertion in OAuthLogContextTest cannot drift
      * out of sync with the redaction list above.
@@ -151,6 +199,44 @@ final class OAuthLogContext
     public static function sensitiveSessionKeys(): array
     {
         return self::SENSITIVE_SESSION_KEYS;
+    }
+
+    /**
+     * Sanitize a single JWT-derived scalar for log context. Returns
+     * '' for non-strings, empty strings, and anything that fails the
+     * shape check. Otherwise strips any character outside the safe
+     * set (alphanumeric, dot, underscore, hyphen — covers RFC 7519
+     * jti/kid forms) and caps length at MAX_JWT_SCALAR_LEN.
+     */
+    private static function sanitizeJwtScalar(mixed $value): string
+    {
+        if (!is_string($value) || $value === '') {
+            return '';
+        }
+        $stripped = preg_replace('/[^A-Za-z0-9._-]/', '_', $value);
+        if (!is_string($stripped)) {
+            return '';
+        }
+        return substr($stripped, 0, self::MAX_JWT_SCALAR_LEN);
+    }
+
+    /**
+     * Sanitize a list of JWT key names (claim names, header names)
+     * for log context. Caps the count at MAX_JWT_KEY_LIST_LEN and
+     * runs each name through sanitizeJwtScalar so a key like
+     * `"\nattacker_log_inject"` can't forge log lines.
+     *
+     * @param  list<int|string> $keys
+     * @return list<string>
+     */
+    private static function sanitizeJwtKeyList(array $keys): array
+    {
+        $capped = array_slice($keys, 0, self::MAX_JWT_KEY_LIST_LEN);
+        $sanitized = [];
+        foreach ($capped as $key) {
+            $sanitized[] = self::sanitizeJwtScalar((string) $key);
+        }
+        return $sanitized;
     }
 
     /**
