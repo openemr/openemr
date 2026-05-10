@@ -1,0 +1,54 @@
+name: dashboard-ci
+
+# CI for the Next.js patient dashboard. Runs lint + typecheck + unit tests
+# on every PR touching `frontend/**`, and on master push for the same paths.
+#
+# Tests are pure unit (no live OpenEMR / no network), so they run on a
+# clean Node 24 install with no special env beyond DASHBOARD_PUBLIC_URL
+# placeholder which the FHIR client tests stub via vi.stubEnv anyway.
+
+on:
+  pull_request:
+    paths:
+      - "frontend/**"
+      - ".github/workflows/dashboard-ci.yml"
+  push:
+    branches: [master]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/dashboard-ci.yml"
+
+defaults:
+  run:
+    working-directory: frontend
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies (frozen)
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      - name: Build
+        run: npm run build
+
+  # Deploy job intentionally not added. Railway native GitHub auto-deploy
+  # is the deploy mechanism for the dashboard service (matching the
+  # copilot-ci pattern post-f88ed610a).

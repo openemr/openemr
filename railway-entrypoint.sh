@@ -1,17 +1,20 @@
 #!/bin/sh
 # Railway-side wrapper around the upstream openemr/openemr entrypoint.
 #
-# Why this exists: the upstream image's bootstrap generates the Apache TLS cert
-# only on first-ever boot. When Railway redeploys, a fresh container instance
-# mounts the persisted volume, sees "already initialized" markers, and skips
-# cert generation — but the cert lives outside the volume mount, so Apache then
-# fails to start with:
+# Two responsibilities beyond the upstream entrypoint:
 #
-#   AH00526: Syntax error on line 73 of /etc/apache2/conf.d/openemr.conf:
-#   SSLCertificateFile: file '/etc/ssl/certs/webserver.cert.pem' does not exist
+#   1. Make Apache TLS cert generation idempotent. The upstream image
+#      generates the cert only on first-ever boot; persistent volumes
+#      then mark the install as initialized, so cert regeneration is
+#      skipped on subsequent container instances even though the cert
+#      itself lives outside the volume mount. This is the original
+#      reason this wrapper exists.
 #
-# This wrapper makes cert generation idempotent: it runs every container boot
-# and is a no-op when the cert is already present.
+#   2. Start the co-resident Next.js dashboard on loopback :3000 before
+#      handing off to Apache. Apache mod_proxy (configured by
+#      /etc/apache2/conf.d/dashboard-proxy.conf) forwards /modern/* to
+#      the Node process. The dashboard is built with basePath="/modern"
+#      so paths round-trip cleanly.
 
 set -e
 
@@ -28,6 +31,23 @@ if [ ! -s "$CERT" ] || [ ! -s "$KEY" ]; then
     chmod 600 "$KEY"
     chmod 644 "$CERT"
     echo "railway-entrypoint: generated self-signed TLS cert at $CERT"
+fi
+
+# Start the modern dashboard on 127.0.0.1:3000. Apache mod_proxy fronts
+# it at /modern/*. Run in the background so this script can hand off to
+# the upstream openemr entrypoint (Apache foreground) as PID 1.
+if [ -f /opt/dashboard/server.js ]; then
+    (cd /opt/dashboard && \
+        NODE_ENV=production HOSTNAME=127.0.0.1 PORT=3000 \
+        node server.js \
+        >&2 2>&1) &
+    DASHBOARD_PID=$!
+    echo "railway-entrypoint: started modern dashboard (pid $DASHBOARD_PID) on 127.0.0.1:3000"
+    # Reap the Node child if Apache exits (so the container actually
+    # stops on shutdown instead of lingering on the orphaned Node).
+    trap 'kill "$DASHBOARD_PID" 2>/dev/null || true' TERM INT EXIT
+else
+    echo "railway-entrypoint: WARN — /opt/dashboard/server.js missing; /modern/* will 502" >&2
 fi
 
 exec ./openemr.sh "$@"
