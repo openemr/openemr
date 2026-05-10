@@ -129,7 +129,25 @@ export async function GET(req: Request) {
 
   const sessionCookie = signCookieValue({ sessionId }, cookieSecret, SESSION_TTL_MS);
   const headers = new Headers();
-  headers.set("Location", safeNextPath(pkce.next));
+  // Prepend the basePath (e.g. "/modern") so the browser navigates back into
+  // the Apache mod_proxy ProxyPass that fronts the dashboard. Without this
+  // the post-login redirect hits Apache at "/patient/..." which has no
+  // proxy match and returns the default 404. Derive from
+  // DASHBOARD_PUBLIC_URL's pathname so it stays in sync with deployment
+  // config (in tests the URL has no path → empty basePath, preserving the
+  // pre-consolidation Location for backwards compat).
+  const safeNext = safeNextPath(pkce.next);
+  let basePath = "";
+  try {
+    basePath = new URL(publicUrl).pathname.replace(/\/+$/, "");
+  } catch {
+    // publicUrl was already validated as parseable above, so this branch
+    // is unreachable; keep basePath="" as a safe default.
+  }
+  const location = safeNext === "/" && basePath
+    ? basePath          // /modern (no trailing slash, matches ProxyPass cleanly)
+    : `${basePath}${safeNext}`;
+  headers.set("Location", location);
   // TWO Set-Cookie headers: set the new session AND clear the now-spent
   // PKCE state cookie. headers.append (not .set) is required so both
   // survive — .set would silently drop one.

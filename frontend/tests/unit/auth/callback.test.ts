@@ -120,6 +120,39 @@ describe("GET /api/auth/callback", () => {
     expect(res.headers.get("Location")).toBe("/");
   });
 
+  it("prepends DASHBOARD_PUBLIC_URL pathname (basePath) to the Location header", async () => {
+    // Production-like: DASHBOARD_PUBLIC_URL ends in /modern. The callback
+    // must redirect to /modern/patient/... so Apache mod_proxy routes back
+    // to the dashboard (otherwise Apache 404s at /patient/...).
+    vi.stubEnv("DASHBOARD_PUBLIC_URL", "https://openemr-production-0c8c.up.railway.app/modern");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({ access_token: "a", refresh_token: "r", expires_in: 3600 }),
+        { status: 200 },
+      ),
+    );
+    const cookie = buildPkceCookie(STATE, VERIFIER, PKCE_TTL_MS, "/patient/abc-123");
+    const res = await GET(buildReq({ code: "auth-code", state: STATE, cookie: PKCE_COOKIE_HEADER(cookie) }));
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe("/modern/patient/abc-123");
+  });
+
+  it("with basePath, root next produces /modern (no trailing slash) to match Apache ProxyPass", async () => {
+    vi.stubEnv("DASHBOARD_PUBLIC_URL", "https://openemr-production-0c8c.up.railway.app/modern");
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({ access_token: "a", refresh_token: "r", expires_in: 3600 }),
+        { status: 200 },
+      ),
+    );
+    // No `next` in the cookie → safeNextPath returns "/" → with basePath we
+    // emit "/modern" (not "/modern/") so the browser doesn't bounce through
+    // Next.js's trailing-slash 308 redirect.
+    const cookie = buildPkceCookie(STATE, VERIFIER);
+    const res = await GET(buildReq({ code: "auth-code", state: STATE, cookie: PKCE_COOKIE_HEADER(cookie) }));
+    expect(res.headers.get("Location")).toBe("/modern");
+  });
+
   it("state mismatch → 400", async () => {
     const cookie = buildPkceCookie(STATE, VERIFIER);
     const res = await GET(buildReq({ code: "c", state: "different-state", cookie: PKCE_COOKIE_HEADER(cookie) }));
