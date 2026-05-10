@@ -7,9 +7,12 @@
  * "which view do you want" page. Two buttons:
  *
  *   - Modern Dashboard (Next.js)  -> ${DASHBOARD_URL}/patient/<uuid>
- *     Click escapes OpenEMR's iframe chrome (window.top.location.replace)
- *     because the modern dashboard sets CSP frame-ancestors 'none' and
- *     browsers refuse to render it inside any iframe.
+ *     Click stays inside OpenEMR's same iframe slot
+ *     (window.location.replace) so the dashboard renders embedded
+ *     inside OpenEMR's main frame chrome. The dashboard's CSP
+ *     frame-ancestors now allows OpenEMR's origin (was 'none'); the
+ *     OpenEMR core session cookie is SameSite=None (was Strict) so
+ *     iframe-initiated cross-site requests carry it.
  *
  *   - Legacy View (OpenEMR)       -> demographics.php?set_pid=<pid>
  *     Click stays inside the same iframe slot (window.location.href),
@@ -254,10 +257,11 @@ $patientNameHtml = htmlspecialchars($patientName, ENT_QUOTES, 'UTF-8');
     var legacyUrl = <?php echo $legacyUrlJson; ?>;
 
     document.getElementById('openModern').addEventListener('click', function () {
-        // Modern dashboard refuses to be iframed (CSP frame-ancestors 'none').
-        // Escape OpenEMR's iframe chrome by navigating the top window.
-        try { window.top.location.replace(modernUrl); }
-        catch (_) { window.location.replace(modernUrl); }
+        // Stay inside OpenEMR's RTop iframe slot — the dashboard's CSP
+        // now allows embedding from this OpenEMR origin (frame-ancestors
+        // includes ${DASHBOARD_URL}). The whole modern UI renders inside
+        // OpenEMR's main frame, with OpenEMR's nav still visible above.
+        window.location.replace(modernUrl);
     });
 
     document.getElementById('openLegacy').addEventListener('click', function () {
