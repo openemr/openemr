@@ -202,6 +202,73 @@ final class JsonWebKeySetSigningKeyTest extends TestCase
         $set->getSigningKeyAsPem(self::KID, 'RS256');
     }
 
+    /**
+     * Aisle round-5 #7 (CWE-248) regression. JWK `n`/`e` go through
+     * `HttpUtils::base64url_decode`, which delegates to
+     * ParagonIE's `Base64UrlSafe::decode` — that library throws
+     * `RangeException` on malformed input. Pre-fix the raw
+     * exception propagated up through OidcTokenValidator (which
+     * only catches `JWKValidatorException`) and surfaced as a 500.
+     * Post-fix the decode is wrapped, and the throw is remapped to
+     * `JWKValidatorException` so upstream callers fail closed with
+     * the standard invalid-token path.
+     */
+    public function testRejectsRsaJwkWithMalformedBase64UrlModulus(): void
+    {
+        // `***` contains characters outside the base64url alphabet
+        // (`A-Z a-z 0-9 - _`), so ParagonIE rejects it.
+        $jwksJson = json_encode([
+            'keys' => [[
+                'kty' => 'RSA',
+                'kid' => self::KID,
+                'n' => '***not-base64url***',
+                'e' => $this->jwkComponents['e'],
+            ]],
+        ]);
+        self::assertIsString($jwksJson);
+        $this->httpClient->setNextResponse(200, $jwksJson);
+
+        $set = new JsonWebKeySet($this->httpClient, self::JWKS_URI, null, new NullLogger());
+
+        $this->expectException(JWKValidatorException::class);
+        $this->expectExceptionMessage('Invalid base64url encoding in RSA JWK parameters');
+        $set->getSigningKeyAsPem(self::KID, 'RS256');
+    }
+
+    /**
+     * Defensive companion to the malformed-base64url case: once the
+     * decode succeeds, we also reject empty-byte results. ParagonIE
+     * accepts a zero-length encoded string as a valid empty decode;
+     * empty `n` and `e` would otherwise feed a zero-byte BigInteger
+     * into phpseclib's PublicKeyLoader and produce undefined
+     * downstream behavior. The new gate fails closed before that.
+     */
+    public function testRejectsRsaJwkWithEmptyDecodedComponents(): void
+    {
+        // Empty string is valid base64url (decodes to empty bytes).
+        // We must reject this explicitly rather than letting it
+        // through to BigInteger.
+        $jwksJson = json_encode([
+            'keys' => [[
+                'kty' => 'RSA',
+                'kid' => self::KID,
+                'n' => '',
+                'e' => '',
+            ]],
+        ]);
+        self::assertIsString($jwksJson);
+        $this->httpClient->setNextResponse(200, $jwksJson);
+
+        $set = new JsonWebKeySet($this->httpClient, self::JWKS_URI, null, new NullLogger());
+
+        $this->expectException(JWKValidatorException::class);
+        // Either the missing-parameter check or the empty-bytes
+        // check (depending on how `is_string` + truthy treats
+        // ''); both should produce JWKValidatorException, never
+        // crash with a Throwable from the decoder.
+        $set->getSigningKeyAsPem(self::KID, 'RS256');
+    }
+
     public function testRefreshOnInlineJwksIsNoOp(): void
     {
         $set = new JsonWebKeySet($this->httpClient, null, $this->jwksJson(self::KID, ['alg' => 'RS256']), new NullLogger());

@@ -294,8 +294,29 @@ class JsonWebKeySet implements Key
             throw new JWKValidatorException('RSA JWK parameters exceed permitted size');
         }
 
-        $decodedN = HttpUtils::base64url_decode($n);
-        $decodedE = HttpUtils::base64url_decode($e);
+        // Round-5 #7 (CWE-248). HttpUtils::base64url_decode delegates
+        // to ParagonIE's Base64UrlSafe::decode, which throws
+        // RangeException on malformed input. Without the try/catch,
+        // a JWK with garbage `n` or `e` propagates the raw exception
+        // up through OidcTokenValidator (which only catches
+        // JWKValidatorException) and lands as a 500 — letting an
+        // attacker who can influence JWKS content drop validation
+        // attempts cleanly. Wrap the throw with the validator's own
+        // exception type so upstream callers fail closed with their
+        // documented "invalid token" path.
+        try {
+            $decodedN = HttpUtils::base64url_decode($n);
+            $decodedE = HttpUtils::base64url_decode($e);
+        } catch (\Throwable $exception) {
+            throw new JWKValidatorException(
+                'Invalid base64url encoding in RSA JWK parameters',
+                0,
+                $exception,
+            );
+        }
+        if ($decodedN === '' || $decodedE === '') {
+            throw new JWKValidatorException('RSA JWK parameters decoded to empty bytes');
+        }
         if (
             strlen($decodedN) > self::MAX_RSA_MODULUS_BYTES
             || strlen($decodedE) > self::MAX_RSA_EXPONENT_BYTES
