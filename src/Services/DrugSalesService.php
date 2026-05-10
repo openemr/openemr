@@ -20,6 +20,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use PHPMailer\PHPMailer\PHPMailer;
+use RuntimeException;
 
 /**
  * In this codebase "sell" and "dispense" describe the same operation: decrementing
@@ -517,5 +518,81 @@ class DrugSalesService extends BaseService
             $this->getLogger()->error("There has been a mail error sending to " . $recipient .
                     " " . $mail->ErrorInfo);
         }
+    }
+
+    /**
+     * Build the printable bottle-label text blocks for a completed sale.
+     *
+     * Returns the two text blocks the label page renders: a header (provider
+     * name, facility address, optional disclaimer) and a body (patient,
+     * drug, dose, lot, expiration, NDC). The caller is responsible for
+     * wrapping the strings in HTML or PDF output.
+     *
+     * @return array{header_text: string, label_text: string}
+     */
+    public function renderBottleLabel(int $saleId): array
+    {
+        $facilityService = new FacilityService();
+        $facility = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
+
+        $row = QueryUtils::fetchRecords(
+            "SELECT " .
+            "s.pid, s.quantity, s.prescription_id, " .
+            "i.manufacturer, i.lot_number, i.expiration, " .
+            "d.name, d.ndc_number, d.form, d.size, d.unit, " .
+            "r.date_modified, r.dosage, r.route, r.interval, r.substitute, r.refills, " .
+            "p.fname, p.lname, p.mname, " .
+            "u.fname AS ufname, u.mname AS umname, u.lname AS ulname " .
+            "FROM drug_sales AS s, drug_inventory AS i, drugs AS d, " .
+            "prescriptions AS r, patient_data AS p, users AS u WHERE " .
+            "s.sale_id = ? AND " .
+            "i.inventory_id = s.inventory_id AND " .
+            "d.drug_id = i.drug_id AND " .
+            "r.id = s.prescription_id AND " .
+            "p.pid = s.pid AND " .
+            "u.id = r.provider_id",
+            [$saleId]
+        )[0] ?? null;
+
+        if (empty($row)) {
+            throw new RuntimeException(xl('Sale not found or missing related records') . ": $saleId");
+        }
+
+        $labelConfig = OEGlobalsBag::getInstance()->get('oer_config')['druglabels'] ?? [];
+
+        $headerText = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
+            $facility['street'] . "\n" .
+            $facility['city'] . ', ' . $facility['state'] . ' ' . $facility['postal_code'] .
+            '  ' . $facility['phone'] . "\n";
+        if (!empty($labelConfig['disclaimer'])) {
+            $headerText .= $labelConfig['disclaimer'] . "\n";
+        }
+
+        $labelText = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
+            ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
+            $row['name'] . ' ' . $row['size'] . ' ' .
+            generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']) . ' ' .
+            xl('QTY') . ' ' . $row['quantity'] . "\n" .
+            xl('Take') . ' ' . $row['dosage'] . ' ' .
+            generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']) .
+            ($row['dosage'] > 1 ? 's ' : ' ') .
+            generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']) .
+            ' ' .
+            generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) .
+            sprintf(
+                "\n%s %s %s %s\n%s %s %s",
+                xl('Lot'),
+                $row['lot_number'],
+                xl('Exp'),
+                $row['expiration'],
+                xl('NDC'),
+                $row['ndc_number'],
+                $row['manufacturer']
+            );
+
+        return [
+            'header_text' => $headerText,
+            'label_text'  => $labelText,
+        ];
     }
 }
