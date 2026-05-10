@@ -192,3 +192,88 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 - Whether `LLM_PROVIDER` flips to `anthropic` on Railway before W2 demo (vision MUST go through Anthropic — OpenAI fallback only for prose).
 - Whether the architecture-defense .pptx (`~/Desktop/Gauntlet/Week2/AgentForge_W2_Architecture_Defense.pptx`) is the submitted version or needs revision before Final.
 - Critic-as-extension vs. critic-as-core — `W2_ARCHITECTURE.md §4.3` promotes critic to a Core node citing PRD's Core list ("critic agent that rejects uncited claims or unsafe action suggestions"). Confirm this reading with grader if ambiguous.
+
+---
+
+## 7. Surprise Challenge — Patient Dashboard Port (shipped 2026-05-09)
+
+**Spec:** `~/Desktop/Gauntlet/Week2/AgentForge — Clinical Co-Pilot W2 — Surprise Challenge_ Modernize the Patient Dashboard.pdf`
+
+**Defense doc (graded):** `PATIENT_DASHBOARD_MIGRATION.md` at repo root.
+
+**Approach (locked at brainstorming, see `~/.claude/plans/plan-a-using-superpowers-typed-dusk.md`):**
+- Framework: Next.js 15 (App Router) + React 19 + TypeScript.
+- Co-Pilot rail: SPA embeds the existing iframe directly (no awk-injection chain involvement).
+- Extra card (PRD's "one of your choice"): Encounter history.
+- File location: `frontend/` under existing OpenEMR fork root (single repo, single PR).
+- **Zero existing source-files modified** — verified during planning that neither root `Dockerfile` nor root `.gitignore` need touching.
+
+**Branch:** `feat/dashboard-modernize` (off master `073e66388`). Night-shift run `2026-05-09-0213` shipped through KR19 — see `state.key_results[].status == "completed"` in `.night-shift/runs/2026-05-09-0213/state.json` for the authoritative list (avoids the chase-tail problem where every fact-correction commit changes the count). For exact commit count run `git rev-list --count master..feat/dashboard-modernize`.
+
+**Key results delivered:**
+
+| KR | Title | Tasks | Commits |
+|---|---|---|---|
+| KR2 | Bootstrap pinned Next.js 15 / React 19 skeleton | 3 | `e3b446ce0`, `4ed0635f7`, `0f1b0e08a` |
+| KR4 | OAuth/PKCE login + FHIR proxy (no panel-scope) | 4 | `2ab1e664b`, `cefed75b4`, `94cfc3310`, `5f35d7356` |
+| KR5 | Patient header + six clinical cards | 4 | `cf393f37e`, `8fefbe88c`, `0e26805e7`, `ff3ac5c67` |
+| KR6 | Co-Pilot iframe rail component | 1 | `63d087097` |
+| KR7 | CI workflow + defense doc + memory bank | 3 | `b9d8017ba`, `af4df2904`, `0abd66b8c` |
+| KR8 | Panel-scope authorization in the FHIR proxy | 2 | `bca9fa47b`, `f31b016f1` |
+| KR9 | Doc sync + panel-scope fetch-rejection guard | 2 | `ac7dab7e8`, `ddabba7dc` |
+| KR10 | Auth completeness — physician_user_id + logout POST | 2 | `8a065a40b`, `b1488a2a6` |
+| KR11 | Deployment + security headers (Dockerfile + CSP) | 2 | `1c0e99456`, `0018a86f5` |
+| KR12 | Doc sync — KR10 + KR11 | 1 | `c15fb264e` |
+| KR13 | Deployment polish — .dockerignore + frontend README | 1 | `ba5f07b51` |
+| KR14 | Final deliverable accuracy + verification (Codex round-1 counter) | 1 | `f44831f5b` |
+| KR15 | Final accuracy pass — stale numbers (Codex round 2) | 1 | `364ff38b2` |
+| KR16 | Fact-resilient commit-count phrasing (Codex round 2 chase-tail) | 1 | `0508e2a27` |
+| KR17 | Codex round-3 cleanups — README count | 1 | `2ffbf03df` |
+| KR18 | Memory-bank handoff accounting refresh (Codex round 4) | 1 | `ae82e2dcd` |
+| KR19 | Complete the KR-table refresh + drop hardcoded KR counts | 1 | (this commit) |
+
+(KR1 and KR3 codex-rejected during proposal — KR1 for unpinned scaffold, KR3 for bundled middleware/panel-scope. See `.night-shift/runs/2026-05-09-0213/key-results/{1,3}/codex-approval.txt`.)
+
+**Stack pinned exact:** next 15.5.18, react/react-dom 19.2.6, typescript 5.9.3, tailwindcss 4.3.0, vitest 4.1.5, jsdom 29.1.1.
+
+**Tests:** 151 unit tests across 16 files (auth helpers, signed cookies, PKCE, token store, FHIR proxy, URL traversal protection, panel-scope decisions, ID-token decode, patient-name parsing, identifier matching, CopilotRail, security headers/CSP). Live e2e against real OpenEMR is out of autonomous scope.
+
+**Out of scope (deferred):**
+- ~~Panel-scope authorization inside the FHIR proxy~~ — **shipped in KR8** (`f31b016f1`).
+- ~~ID-token decode at OAuth callback~~ — **shipped in KR8 task 1** (`bca9fa47b`).
+- ~~`physician_user_id` threading into Co-Pilot iframe URL~~ — **shipped in KR10 task 1** (`8a065a40b`).
+- ~~Logout CSRF hardening~~ — **shipped in KR10 task 2** (`b1488a2a6`).
+- ~~`frontend/Dockerfile` for Railway~~ — **shipped in KR11 task 1** (`1c0e99456`).
+- ~~Security response headers (CSP)~~ — **shipped in KR11 task 2** (`0018a86f5`).
+- Patient finder / search.
+- Edit forms (legacy `demographics_full.php` keeps serving these).
+- TanStack Query for action-driven refresh.
+- Live FHIR / Playwright e2e in CI.
+
+**Codex review state:** Tasks under KR2 + KR4 went through 1-6 rounds of `codex review` each (clean after iterations — see per-task `code-review.txt`). Codex hit usage limit at ~03:50 PT (try again at 7:15 AM); KR4 task 4 round 6 + all subsequent KR/decomp/code reviews use rigorous self-adversarial reviews per skill protocol. All `code-review.txt` files headered `CODEX UNAVAILABLE — SELF-REVIEW` for the affected tasks.
+
+**Status (updated 2026-05-09):** Dashboard port branch `feat/dashboard-modernize` (HEAD `2cedf50d6`) is shippable. **Branch itself not yet pushed/merged**, but the **master-side integration shipped** at `30cd84d87` — `dashboard.php` launcher (`0a49d038d`), Dockerfile injection (`4b9f181a2`), EHR-launch silent SSO (`ad40380f3`), and iframe-embed CSP (`a0fa9b252`). See `progress.md` Phase 5 for the commit catalog. Pattern documented as B14 in `systemPatterns.md`.
+
+**Manual steps the night-shift agent could not perform (still left for user — these are the final go-live steps):**
+1. `git push origin feat/dashboard-modernize` to GitHub so Railway auto-deploys the dashboard service.
+2. Merge `feat/dashboard-modernize` → master once dashboard service is verified live.
+3. Register a confidential OAuth2 client in OpenEMR Admin → System → API Clients with redirect_uri = `https://<dashboard-railway-url>/api/auth/callback`. Client must be permitted to mint scopes including `launch` (for EHR-launch silent SSO).
+4. Set `OPENEMR_DASHBOARD_CLIENT_ID/SECRET`, `DASHBOARD_PUBLIC_URL`, `OPENEMR_OAUTH_BASE`, `OPENEMR_FHIR_BASE`, `COPILOT_URL`, `SESSION_COOKIE_SECRET`, `OPENEMR_VERIFY_TLS` env on the new Railway `dashboard` service.
+5. Set `DASHBOARD_URL=<dashboard-railway-url>` env on the existing Railway `openemr` service so the patient-finder click is re-pointed (B14). When unset, finder click falls back transparently to legacy `demographics.php`.
+6. Smoke-test: in OpenEMR, click a Synthea patient → finder loads view chooser → click "Open in Modern Dashboard" → silent SSO → all 6 cards render + Co-Pilot iframe loads. Re-test with the user already authenticated to verify EHR-launch fast-path skips login screens.
+
+---
+
+## 8. W2 Final Submission (Sun 2026-05-10 noon CT) — partial shipped
+
+| Deliverable | State |
+|---|---|
+| Cost & Latency Report (§§8-9 of `copilot/COST.md`) + `scripts/bench_latency.py` | ✅ shipped at `30cd84d87` (live Railway p50/p95 across 15 turns) |
+| `W2_ARCHITECTURE.md` + Appendix C | ✅ already on master since MVP |
+| Pydantic schemas + tests | ✅ |
+| 50-case eval dataset + boolean rubrics + RESULTS.md | ✅ (53 cases / 6 categories) |
+| CI evidence (Git hook + GitHub Actions) | ✅ |
+| Deployed application | ✅ (Railway) |
+| 3-5 min demo video | 📋 user owns capture |
+| Real `POST /fhir/DocumentReference` | 📋 R4 has no route; Plan B REST path blocked on `api:oemr` OAuth scope (3 fix paths in `W2_IMPLEMENTATION.md` Phase 4) |
+| Dense retrieval | 📋 BM25 + identity-rerank shipped; reranker scaffolding in place |
