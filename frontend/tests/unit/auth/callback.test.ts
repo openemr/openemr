@@ -26,8 +26,12 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function buildPkceCookie(state: string, codeVerifier: string, ttlMs = PKCE_TTL_MS): string {
-  return signCookieValue({ state, code_verifier: codeVerifier }, ENV.SESSION_COOKIE_SECRET, ttlMs);
+function buildPkceCookie(state: string, codeVerifier: string, ttlMs = PKCE_TTL_MS, next?: string): string {
+  return signCookieValue(
+    { state, code_verifier: codeVerifier, ...(next !== undefined ? { next } : {}) },
+    ENV.SESSION_COOKIE_SECRET,
+    ttlMs,
+  );
 }
 
 function buildReq(opts: { code?: string; state?: string; cookie?: string }): Request {
@@ -89,6 +93,31 @@ describe("GET /api/auth/callback", () => {
     expect(bodyStr).toContain("code=auth-code");
     expect(bodyStr).toContain(`code_verifier=${VERIFIER}`);
     expect(bodyStr).toContain(encodeURIComponent("https://dashboard.example.com/api/auth/callback"));
+  });
+
+  it("redirects to ?next= path when present in PKCE cookie", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({ access_token: "a", refresh_token: "r", expires_in: 3600 }),
+        { status: 200 },
+      ),
+    );
+    const cookie = buildPkceCookie(STATE, VERIFIER, PKCE_TTL_MS, "/patient/abc-123");
+    const res = await GET(buildReq({ code: "auth-code", state: STATE, cookie: PKCE_COOKIE_HEADER(cookie) }));
+    expect(res.status).toBe(302);
+    expect(res.headers.get("Location")).toBe("/patient/abc-123");
+  });
+
+  it("falls back to / when next is an open-redirect attempt", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      new Response(
+        JSON.stringify({ access_token: "a", refresh_token: "r", expires_in: 3600 }),
+        { status: 200 },
+      ),
+    );
+    const cookie = buildPkceCookie(STATE, VERIFIER, PKCE_TTL_MS, "https://evil.example/oops");
+    const res = await GET(buildReq({ code: "auth-code", state: STATE, cookie: PKCE_COOKIE_HEADER(cookie) }));
+    expect(res.headers.get("Location")).toBe("/");
   });
 
   it("state mismatch → 400", async () => {

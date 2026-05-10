@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { fhirGet, FhirError } from "@/lib/fhir/client";
 import { getSessionUser } from "@/lib/auth/session";
 import { PatientHeader } from "@/components/PatientHeader";
@@ -21,13 +22,11 @@ export default async function PatientPage({ params }: PageProps) {
     patient = await fhirGet<Patient>(`Patient/${encodeURIComponent(id)}`);
   } catch (err) {
     if (err instanceof FhirError && err.status === 401) {
-      return (
-        <main className="mx-auto max-w-3xl p-6">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Not signed in. <a className="underline" href="/api/auth/login">Sign in with OpenEMR</a>.
-          </p>
-        </main>
-      );
+      // Bounce through OAuth, preserving the requested patient as the
+      // post-login destination. This is the path OpenEMR's patient
+      // finder hits via dashboard.php — clicking a patient there should
+      // not require a manual "Sign in" click.
+      redirect(`/api/auth/login?next=${encodeURIComponent(`/patient/${id}`)}`);
     }
     throw err;
   }

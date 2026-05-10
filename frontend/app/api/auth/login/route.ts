@@ -6,6 +6,20 @@ export const runtime = "nodejs";
 const PKCE_COOKIE = "oauth_state_pkce";
 const PKCE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
+/**
+ * Sanitize a `next` query parameter for safe use as a post-login Location
+ * header value. Rejects anything that isn't a same-origin absolute path
+ * — defense against open-redirect ("?next=https://evil.com").
+ */
+function safeNextPath(raw: string | null): string {
+  if (!raw) return "/";
+  // Must start with a single slash and not be protocol-relative (`//`).
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
+  // Reject control chars / CRLF (header-injection guard).
+  if (/[\x00-\x1f\x7f]/.test(raw)) return "/";
+  return raw;
+}
+
 const SCOPES = [
   "openid",
   "offline_access",
@@ -18,12 +32,14 @@ const SCOPES = [
   "user/Encounter.read",
 ].join(" ");
 
-export async function GET() {
+export async function GET(req: Request) {
   const oauthBase = process.env.OPENEMR_OAUTH_BASE;
   const fhirBase = process.env.OPENEMR_FHIR_BASE;
   const clientId = process.env.OPENEMR_DASHBOARD_CLIENT_ID;
   const publicUrl = process.env.DASHBOARD_PUBLIC_URL;
   const cookieSecret = process.env.SESSION_COOKIE_SECRET;
+
+  const next = safeNextPath(new URL(req.url).searchParams.get("next"));
 
   if (!oauthBase || !fhirBase || !clientId || !publicUrl || !cookieSecret) {
     return new Response(
@@ -55,7 +71,7 @@ export async function GET() {
   const authorizeUrl = `${oauthBase.replace(/\/+$/, "")}/oauth2/default/authorize?${params.toString()}`;
 
   const signed = signCookieValue(
-    { state, code_verifier: codeVerifier },
+    { state, code_verifier: codeVerifier, next },
     cookieSecret,
     PKCE_TTL_MS,
   );

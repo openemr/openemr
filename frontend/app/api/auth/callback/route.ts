@@ -13,6 +13,20 @@ const SESSION_TTL_MS = 8 * 60 * 60 * 1000; // 8 hours
 interface PkceCookie {
   state: string;
   code_verifier: string;
+  /**
+   * Same-origin absolute path (e.g. "/patient/<uuid>") to redirect to
+   * after a successful token exchange. Sanitized at /api/auth/login;
+   * we still re-validate here as defense in depth before using it as a
+   * Location header value.
+   */
+  next?: string;
+}
+
+function safeNextPath(raw: string | undefined): string {
+  if (!raw) return "/";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/";
+  if (/[\x00-\x1f\x7f]/.test(raw)) return "/";
+  return raw;
 }
 
 function readCookie(req: Request, name: string): string | null {
@@ -115,7 +129,7 @@ export async function GET(req: Request) {
 
   const sessionCookie = signCookieValue({ sessionId }, cookieSecret, SESSION_TTL_MS);
   const headers = new Headers();
-  headers.set("Location", "/");
+  headers.set("Location", safeNextPath(pkce.next));
   // TWO Set-Cookie headers: set the new session AND clear the now-spent
   // PKCE state cookie. headers.append (not .set) is required so both
   // survive — .set would silently drop one.

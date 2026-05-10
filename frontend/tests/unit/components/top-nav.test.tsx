@@ -65,7 +65,8 @@ describe("TopNav", () => {
     const html = renderToStaticMarkup(<TopNav />);
     // Brand text lives in a nested <span>; assert the outer <a href="/">
     // exists and that "OpenEMR Dashboard" appears inside its open/close.
-    const brandAnchor = html.match(/<a[^>]*href="\/"[^>]*>.*?OpenEMR Dashboard.*?<\/a>/s);
+    // [^]*? is the ES2017-compatible alternative to .*? + /s flag (dotall).
+    const brandAnchor = html.match(/<a[^>]*href="\/"[^>]*>[^]*?OpenEMR Dashboard[^]*?<\/a>/);
     expect(brandAnchor).not.toBeNull();
   });
 });

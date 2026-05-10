@@ -22,12 +22,12 @@ describe("GET /api/auth/login", () => {
 
   it("returns 500 when env is missing", async () => {
     vi.stubEnv("OPENEMR_OAUTH_BASE", "");
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     expect(res.status).toBe(500);
   });
 
   it("redirects 302 to OpenEMR authorize URL with all PKCE params", async () => {
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     expect(res.status).toBe(302);
     const loc = res.headers.get("Location");
     expect(loc).not.toBeNull();
@@ -56,7 +56,7 @@ describe("GET /api/auth/login", () => {
 
   it("strips trailing slashes from DASHBOARD_PUBLIC_URL when building redirect_uri", async () => {
     vi.stubEnv("DASHBOARD_PUBLIC_URL", "https://dashboard.example.com/");
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     const url = new URL(res.headers.get("Location")!);
     expect(url.searchParams.get("redirect_uri")).toBe(
       "https://dashboard.example.com/api/auth/callback",
@@ -65,7 +65,7 @@ describe("GET /api/auth/login", () => {
 
   it("strips trailing slashes from OPENEMR_FHIR_BASE when building aud", async () => {
     vi.stubEnv("OPENEMR_FHIR_BASE", "https://openemr.example.com/apis/default/fhir/");
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     const url = new URL(res.headers.get("Location")!);
     expect(url.searchParams.get("aud")).toBe(
       "https://openemr.example.com/apis/default/fhir",
@@ -74,7 +74,7 @@ describe("GET /api/auth/login", () => {
 
   it("sets the oauth_state_pkce cookie with HttpOnly + SameSite=Lax + Max-Age=300", async () => {
     vi.stubEnv("NODE_ENV", "development");
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     const setCookie = res.headers.get("Set-Cookie");
     expect(setCookie).not.toBeNull();
     expect(setCookie).toMatch(/^oauth_state_pkce=/);
@@ -86,19 +86,45 @@ describe("GET /api/auth/login", () => {
 
   it("includes Secure on the Set-Cookie when NODE_ENV=production", async () => {
     vi.stubEnv("NODE_ENV", "production");
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     const setCookie = res.headers.get("Set-Cookie") ?? "";
     expect(setCookie).toContain("Secure");
   });
 
   it("the signed cookie verifies and contains state + code_verifier matching the redirect", async () => {
-    const res = await GET();
+    const res = await GET(new Request("http://test/api/auth/login"));
     const setCookie = res.headers.get("Set-Cookie") ?? "";
     const cookieValue = setCookie.split(";")[0].split("=").slice(1).join("=");
-    const decoded = verifyCookieValue<{ state: string; code_verifier: string }>(cookieValue, ENV.SESSION_COOKIE_SECRET);
+    const decoded = verifyCookieValue<{ state: string; code_verifier: string; next?: string }>(cookieValue, ENV.SESSION_COOKIE_SECRET);
     expect(decoded).not.toBeNull();
     const url = new URL(res.headers.get("Location")!);
     expect(decoded!.state).toBe(url.searchParams.get("state"));
     expect(decoded!.code_verifier).toMatch(/^[A-Za-z0-9_-]+$/);
+    // next defaults to "/" when no ?next= param is provided
+    expect(decoded!.next).toBe("/");
+  });
+
+  it("preserves a same-origin ?next= path in the PKCE cookie", async () => {
+    const res = await GET(new Request("http://test/api/auth/login?next=/patient/abc-123"));
+    const setCookie = res.headers.get("Set-Cookie") ?? "";
+    const cookieValue = setCookie.split(";")[0].split("=").slice(1).join("=");
+    const decoded = verifyCookieValue<{ next?: string }>(cookieValue, ENV.SESSION_COOKIE_SECRET);
+    expect(decoded?.next).toBe("/patient/abc-123");
+  });
+
+  it("rejects an open-redirect attempt (?next=https://evil.example) and falls back to /", async () => {
+    const res = await GET(new Request("http://test/api/auth/login?next=https://evil.example/oops"));
+    const setCookie = res.headers.get("Set-Cookie") ?? "";
+    const cookieValue = setCookie.split(";")[0].split("=").slice(1).join("=");
+    const decoded = verifyCookieValue<{ next?: string }>(cookieValue, ENV.SESSION_COOKIE_SECRET);
+    expect(decoded?.next).toBe("/");
+  });
+
+  it("rejects a protocol-relative ?next=//evil.example (open-redirect class)", async () => {
+    const res = await GET(new Request("http://test/api/auth/login?next=//evil.example/oops"));
+    const setCookie = res.headers.get("Set-Cookie") ?? "";
+    const cookieValue = setCookie.split(";")[0].split("=").slice(1).join("=");
+    const decoded = verifyCookieValue<{ next?: string }>(cookieValue, ENV.SESSION_COOKIE_SECRET);
+    expect(decoded?.next).toBe("/");
   });
 });
