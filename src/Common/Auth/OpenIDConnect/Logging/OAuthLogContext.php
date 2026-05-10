@@ -175,7 +175,14 @@ final class OAuthLogContext
      *
      * Aisle round-5 #3 (CWE-532 / CWE-117 / CWE-400).
      *
-     * @return array<string, mixed>
+     * @return array{
+     *     client_id: string,
+     *     kid: string,
+     *     alg: string,
+     *     jti: string,
+     *     claim_keys: list<string>,
+     *     header_keys: list<string>,
+     * }
      */
     public static function forJwtAssertion(Plain $token, string $clientId): array
     {

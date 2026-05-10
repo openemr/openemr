@@ -272,8 +272,8 @@ final class OAuthLogContextTest extends TestCase
 
         $context = OAuthLogContext::forJwtAssertion($token, 'client');
 
-        self::assertLessThanOrEqual(64, strlen((string) $context['kid']));
-        self::assertLessThanOrEqual(64, strlen((string) $context['jti']));
+        self::assertLessThanOrEqual(64, strlen($context['kid']));
+        self::assertLessThanOrEqual(64, strlen($context['jti']));
     }
 
     /**
@@ -302,17 +302,19 @@ final class OAuthLogContextTest extends TestCase
      * Build a Plain JWT token directly from DataSets — bypasses the
      * Parser entirely so tests can craft adversarial inputs without
      * going through the full JOSE builder. The encoded portions of
-     * each DataSet are irrelevant to forJwtAssertion's output.
+     * each DataSet and the Signature are irrelevant to
+     * forJwtAssertion's output but must be non-empty per the
+     * lcobucci constructors' type contracts.
      *
-     * @param array<string, mixed> $headers
-     * @param array<string, mixed> $claims
+     * @param array<non-empty-string, mixed> $headers
+     * @param array<non-empty-string, mixed> $claims
      */
     private function buildJwtToken(array $headers, array $claims): Plain
     {
         return new Plain(
-            new DataSet($headers, ''),
-            new DataSet($claims, ''),
-            new Signature('', ''),
+            new DataSet($headers, 'test-encoded-headers'),
+            new DataSet($claims, 'test-encoded-claims'),
+            new Signature('test-sig-hash', 'test-sig-encoded'),
         );
     }
 }
