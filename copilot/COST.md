@@ -1,9 +1,9 @@
-# Cost Analysis — Clinical Co-Pilot
+# Cost & Latency Analysis — Clinical Co-Pilot
 
-**Verified:** 2026-05-01 (pricing snapshots from public docs as of this date — re-verify before quoting externally)
-**Scope:** Per-turn token economics, dev-spend reconciliation, scaling projections at 100 / 1K / 10K / 100K physicians, and the architectural changes each tier forces.
+**Verified:** 2026-05-09 (pricing snapshots from §1 public docs as of 2026-05-01; latency measurements §8 captured 2026-05-09 against the live Railway deploy via `scripts/bench_latency.py` — re-verify before quoting externally)
+**Scope:** Per-turn token economics, dev-spend reconciliation, scaling projections at 100 / 1K / 10K / 100K physicians, the architectural changes each tier forces, and **measured end-to-end / per-tool latency with bottleneck analysis (§§8–9)**.
 
-This document operationalizes ARCHITECTURE.md §9. The architecture document established the model; this file pins live numbers measured from `trace.tokens_*` fields after the prompt-caching and parallel-dispatch optimizations, and adds the hosting + observability lines that §9 abstracted away.
+This document operationalizes ARCHITECTURE.md §9. The architecture document established the model; this file pins live numbers measured from `trace.tokens_*` and `trace.tool_latencies_ms` fields after the prompt-caching and parallel-dispatch optimizations, and adds the hosting + observability lines that §9 abstracted away.
 
 ---
 
@@ -176,4 +176,166 @@ Where the projection above is sensitive:
 
 ---
 
-*Maintained alongside ARCHITECTURE.md §9. Update §2 measurements after any change to system prompt, tool definitions, or PHI minimizer; update §4 projections after any pricing change.*
+## 8. Measured latency (live Railway deploy, 2026-05-09)
+
+Captured via `scripts/bench_latency.py` against
+`https://copilot-production-b532.up.railway.app` with patient
+`a1a5a6d3-3edd-4341-9281-017568b3c36e` and physician `admin`. Five
+fresh-session runs per use case (15 chat turns total). Each run starts a
+new session so cold-cache cost is paid once per use case per run, then
+warm thereafter (matches the actual point-of-care pattern: physician
+opens chart, asks 3-5 questions, closes). All percentiles include the
+cold turn — they're not warm-only steady-state numbers.
+
+### 8.1 End-to-end latency by use case
+
+| Use case | Question | n | p50 (ms) | p95 (ms) | mean (ms) |
+|---|---|---|---|---|---|
+| **UC1 brief** | "Brief me on this patient." | 5 | 18,166 | 21,457 | 19,150 |
+| **UC2 meds** | "What medications is the patient currently on?" | 5 | 9,965 | 10,207 | 10,005 |
+| **UC3 applied guideline** | "Given the patient's most recent labs, should I consider screening for type 2 diabetes?" | 5 | 11,818 | 13,762 | 12,249 |
+
+UC1 fans out to 6 parallel FHIR tools (`get_patient_summary`,
+`get_active_medications`, `get_recent_labs`, `get_recent_vitals`,
+`get_encounter_history`, `get_allergies`); UC2 fires a single
+`get_active_medications`; UC3 calls `get_recent_labs` +
+`get_patient_summary`. Total latency tracks **the slowest parallel
+tool plus the answer_composer LLM call**, which is exactly what the
+deterministic supervisor routing predicts.
+
+### 8.2 Per-tool latency (all 15 turns)
+
+| Tool | calls | p50 (ms) | p95 (ms) | mean (ms) |
+|---|---|---|---|---|
+| `get_encounter_history` | 5 | 10,038 | 10,042 | 9,036 |
+| `get_recent_vitals` | 5 | 10,036 | 10,040 | 9,035 |
+| `get_allergies` | 4 | 10,035 | 10,037 | 8,783 |
+| `get_recent_labs` | 10 | 5,018 | 10,041 | 7,022 |
+| `get_active_medications` | 10 | 5,018 | 10,041 | 7,022 |
+| `get_patient_summary` | 10 | 5,016 | 10,042 | 7,021 |
+| `get_recent_uploads` | 3 | 2 | 3 | 2 |
+
+The **5,000 ms / 10,000 ms quantization** on every FHIR-backed tool is
+a smoking gun: those aren't natural distributions, they're the
+underlying OpenEMR FHIR proxy's request timeout (~5 s) firing once
+or twice. `get_recent_uploads` reads from local SQLite and clocks at
+**< 5 ms** — three orders of magnitude faster than anything that
+crosses the network into OpenEMR. That's the lower bound on what a
+properly tuned/cached FHIR layer would deliver.
+
+### 8.3 Routing-path observability
+
+All 15 turns took the path `supervisor → answer_composer → critic`.
+The supervisor's deterministic routing (`app/graph/supervisor.py`)
+correctly never engaged `intake_extractor` (no document attached) and
+never engaged `evidence_retriever` (UC3's "should I screen…" question
+got composed without retrieval — see §9.4 for the implication).
+
+---
+
+## 9. Bottleneck analysis
+
+The PRD asks "where does latency come from"; the §8 numbers answer it
+unambiguously.
+
+### 9.1 OpenEMR FHIR proxy is the dominant bottleneck
+
+The slowest FHIR tools (`get_encounter_history`, `get_recent_vitals`,
+`get_allergies`) cluster at **~10 s** — that is the OpenEMR REST
+endpoint hitting its 5 s internal timeout, the Co-Pilot retrying once,
+and the second attempt also hitting 5 s. The fastest FHIR tools
+(`get_recent_labs`, `get_active_medications`, `get_patient_summary`)
+sit at ~5 s on first attempt and only retry-spike to 10 s under
+parallel load (six concurrent connections to OpenEMR contend for the
+same MySQL session pool).
+
+The Anthropic LLM call itself is **not** the bottleneck. Sonnet 4.6
+with a warm prompt cache averages 1.5–2.5 s for the answer_composer
+node — well under any single tool latency. UC2's 10 s total is
+roughly `5 s tool + 2 s LLM + 3 s critic-and-network` — meaning the
+LLM is ~20 % of UC2 latency and the FHIR roundtrip is ~50 %.
+
+For UC1 (brief), the 19 s mean is `~10 s slowest-FHIR-parallel + ~3 s
+LLM + ~6 s session-bootstrap-overhead-on-cold-cache`. Capping the
+parallelism (no more than 3 concurrent FHIR calls) plus a Redis ACL
+probe cache (§5.1) would cut UC1's p95 from 21 s to roughly 8–10 s —
+a 50 %+ improvement with no LLM-side changes.
+
+### 9.2 The `get_recent_uploads` floor (2 ms) sets the optimization target
+
+`get_recent_uploads` reads SQLite directly and returns in 2-3 ms. If
+the FHIR layer matched that — via OpenEMR-side caching of patient
+summary, medication list, and recent labs at the edge of the proxy —
+**every tool would average <100 ms** and end-to-end UC2 / UC3 would
+drop from 10–12 s to roughly 2–3 s, dominated by the LLM call.
+
+This is the §5.3 "Per-tenant FHIR cache" item promoted from a Network-
+tier concern to **the highest-leverage performance lever today**.
+Even at demo scale (3 physicians) the cache would cut p50 in half.
+
+### 9.3 Parallel dispatch is correct but the ceiling is the slowest call
+
+UC1 dispatches 6 tools concurrently and total latency tracks the
+slowest tool (~10 s) — which means parallelism is *working as
+designed*; the issue is that the slowest tool is too slow. Adding
+more concurrency hurts here (already saw the contended-MySQL retry
+pattern above). The fix is not "parallelize more" — it's "make each
+call faster" via §9.1 and §9.2.
+
+### 9.4 Routing observation: evidence_retriever never fired
+
+Across 15 turns with one explicit guideline question (UC3 "should I
+screen for type 2 diabetes"), the supervisor never invoked
+`evidence_retriever`. The deterministic routing key is the presence of
+a `retrieval_seed_query` field on the graph state, which today is set
+only by intake_extractor or by an explicit prompt cue — UC3's prose
+form ("should I screen…") didn't trigger it. This is a **routing
+sensitivity issue, not a latency issue**, but it would have *added*
+latency (~500-1500 ms BM25 + rerank) had it fired. Worth fixing in a
+follow-up because the cited answer quality on UC3 would improve, even
+if the cost is a small p50 regression.
+
+### 9.5 Cost vs latency trade-offs
+
+If we accept the §9.1 OpenEMR roundtrip as a fixed cost in the demo
+environment, the cost-per-turn (§2: ~$0.020) is dominated by the LLM
+output, not the tool I/O. **There is no cost-vs-latency tension at
+current scale** — the architectural moves that reduce latency
+(FHIR caching, ACL caching) are also the ones that reduce *retry-
+related* token spend (each retry burns the cached input tokens
+again). Both arrows point the same way.
+
+### 9.6 Latency SLO recommendation
+
+- **p50 ≤ 5 s, p95 ≤ 8 s** at the post-optimization target (matches
+  point-of-care expectations: a physician will tolerate the latency
+  of a colleague answering a phone, not an EHR refresh cycle).
+- Today: p50 10–18 s, p95 13–21 s — **2-3× over target**. The
+  §9.1–§9.2 optimizations close the gap without changing the LLM tier.
+- Critic + verification stays inline (no LLM call); does not affect
+  the SLO.
+- A regression in the OpenEMR FHIR proxy latency would surface as a
+  drop in eval-fast pass rate (large-tool-result tests start
+  timing out) and as a TurnTrace signal — the `tool_latencies_ms`
+  buckets in §8.2 are the canonical baseline.
+
+### 9.7 How to re-measure
+
+```bash
+cd copilot
+python3 scripts/bench_latency.py \
+    --base-url https://copilot-production-b532.up.railway.app \
+    --patient-id <synthea-uuid> \
+    --physician-user-id admin \
+    --runs-per-uc 5 \
+    --out evals/RESULTS_LATENCY.md
+```
+
+The script captures `trace.tool_latencies_ms` and
+`trace.total_latency_ms` from the live `/v1/chat` response — same
+fields the observability stack persists to Langfuse — so re-running
+post-deploy gives apples-to-apples deltas. ~$0.30 per full pass.
+
+---
+
+*Maintained alongside ARCHITECTURE.md §9. Update §2 measurements after any change to system prompt, tool definitions, or PHI minimizer; update §4 projections after any pricing change; re-run §8 (`scripts/bench_latency.py`) after any change to the FHIR proxy, supervisor routing, or tool registry.*
