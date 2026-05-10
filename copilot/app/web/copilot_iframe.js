@@ -515,12 +515,22 @@
   }
 
   function drawBboxOverlay(ctx, bbox, width, height, opts = {}) {
-    // When the VLM emitted no bbox (low-confidence narrative answers
-    // like "Ankle swelling in the past 2 weeks") or it round-tripped
-    // as NaN, render a soft "approximate" indicator instead of
-    // silently drawing nothing — the user still needs to know the
-    // citation opened the right doc.
-    if (bbox.length !== 4 || bbox.some(Number.isNaN) || (bbox[2] <= 0 && bbox[3] <= 0)) {
+    const invalid = (
+      bbox.length !== 4
+      || bbox.some(Number.isNaN)
+      || (bbox[2] <= 0 && bbox[3] <= 0)
+    );
+    if (invalid) {
+      // No precise rectangle to draw. Two cases:
+      //   - The user clicked a chat-citation chip (opts.rawText is set):
+      //     render a soft "exact location not detected" indicator so
+      //     they know which citation opened the doc.
+      //   - The user clicked a banner item to view the whole document
+      //     (opts.rawText is empty/undefined): there's no citation
+      //     context, just show the page with no overlay.
+      if (!opts.rawText) {
+        return;
+      }
       ctx.save();
       ctx.fillStyle = "rgba(220, 60, 60, 0.06)";
       ctx.fillRect(0, 0, width, height);
@@ -528,9 +538,7 @@
       ctx.setLineDash([8, 6]);
       ctx.lineWidth = 2;
       ctx.strokeRect(4, 4, width - 8, height - 8);
-      const label = opts.rawText
-        ? `Source: "${opts.rawText}" — exact location not detected`
-        : "Source: exact location not detected";
+      const label = `Source: "${opts.rawText}" — exact location not detected`;
       ctx.setLineDash([]);
       ctx.fillStyle = "rgba(255, 255, 255, 0.92)";
       ctx.fillRect(8, 8, Math.min(width - 16, 12 + label.length * 7), 28);
