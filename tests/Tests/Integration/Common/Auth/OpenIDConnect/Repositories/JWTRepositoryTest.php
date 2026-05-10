@@ -231,10 +231,15 @@ final class JWTRepositoryTest extends TestCase
 
         // Round-trip: lookup by full-length jti returns the right row,
         // not the other one with the same 100-char prefix.
+        // assertIsArray narrows $rowN[0] from `mixed` (the untyped
+        // `array` return of getJwtGrantHistoryForJTI) to `array` so
+        // phpstan accepts the offset access on the next line.
         $row1 = $this->repository->getJwtGrantHistoryForJTI($jtiLong1);
         $row2 = $this->repository->getJwtGrantHistoryForJTI($jtiLong2);
         self::assertCount(1, $row1, 'Long jti #1 round-trips');
         self::assertCount(1, $row2, 'Long jti #2 round-trips');
+        self::assertIsArray($row1[0]);
+        self::assertIsArray($row2[0]);
         self::assertSame($jtiLong1, $row1[0]['jti']);
         self::assertSame($jtiLong2, $row2[0]['jti']);
 
