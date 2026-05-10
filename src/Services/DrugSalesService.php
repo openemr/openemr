@@ -333,6 +333,7 @@ class DrugSalesService extends BaseService
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
         $sqlarr = [$drug_id];
+        // @phpstan-ignore-next-line booleanAnd.leftAlwaysTrue (constant kept toggle-able by design)
         if (self::SELL_FROM_ONE_WAREHOUSE && $default_warehouse) {
             $query .= "AND di.warehouse_id = ? ";
             $sqlarr[] = $default_warehouse;
@@ -531,10 +532,15 @@ class DrugSalesService extends BaseService
      */
     public function renderBottleLabel(int $saleId): array
     {
-        $facilityService = new FacilityService();
-        $facility = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
+        $stringify = static function (mixed $v): string {
+            return is_scalar($v) || $v === null ? (string)($v ?? '') : '';
+        };
 
-        $row = QueryUtils::fetchRecords(
+        $facilityService = new FacilityService();
+        $facilityRaw = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
+        $facility = is_array($facilityRaw) ? array_map($stringify, $facilityRaw) : [];
+
+        $rowRaw = QueryUtils::fetchRecords(
             "SELECT " .
             "s.pid, s.quantity, s.prescription_id, " .
             "i.manufacturer, i.lot_number, i.expiration, " .
@@ -553,31 +559,43 @@ class DrugSalesService extends BaseService
             [$saleId]
         )[0] ?? null;
 
-        if (empty($row)) {
+        if ($rowRaw === null) {
             throw new RuntimeException(xl('Sale not found or missing related records') . ": $saleId");
         }
 
-        $labelConfig = OEGlobalsBag::getInstance()->get('oer_config')['druglabels'] ?? [];
+        // Normalize all DB fields to string up front so the label-composition
+        // code below operates on guaranteed strings (avoids mixed-typed casts).
+        $row = array_map($stringify, $rowRaw);
+
+        $oerConfig = OEGlobalsBag::getInstance()->get('oer_config');
+        $labelConfig = is_array($oerConfig) && is_array($oerConfig['druglabels'] ?? null)
+            ? array_map($stringify, $oerConfig['druglabels'])
+            : [];
 
         $headerText = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
             $facility['street'] . "\n" .
             $facility['city'] . ', ' . $facility['state'] . ' ' . $facility['postal_code'] .
             '  ' . $facility['phone'] . "\n";
-        if (!empty($labelConfig['disclaimer'])) {
+        if (($labelConfig['disclaimer'] ?? '') !== '') {
             $headerText .= $labelConfig['disclaimer'] . "\n";
         }
 
+        $dosageInt = (int)$row['dosage'];
+        $unitDisplay     = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']));
+        $formDisplay     = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']));
+        $intervalDisplay = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']));
+        $routeDisplay    = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']));
         $labelText = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
-            ' RX#' . sprintf('%06u', $row['prescription_id']) . "\n" .
+            ' RX#' . sprintf('%06u', (int)$row['prescription_id']) . "\n" .
             $row['name'] . ' ' . $row['size'] . ' ' .
-            generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']) . ' ' .
+            $unitDisplay . ' ' .
             xl('QTY') . ' ' . $row['quantity'] . "\n" .
             xl('Take') . ' ' . $row['dosage'] . ' ' .
-            generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']) .
-            ($row['dosage'] > 1 ? 's ' : ' ') .
-            generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']) .
+            $formDisplay .
+            ($dosageInt > 1 ? 's ' : ' ') .
+            $intervalDisplay .
             ' ' .
-            generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']) .
+            $routeDisplay .
             sprintf(
                 "\n%s %s %s %s\n%s %s %s",
                 xl('Lot'),

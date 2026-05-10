@@ -1537,16 +1537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/add_edit_lot.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function send_email\\(\\) has parameter \\$body with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function send_email\\(\\) has parameter \\$subject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function generateEmptyTd\\(\\) has parameter \\$n with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drug_inventory.php',
@@ -1559,112 +1549,37 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Function isFacilityAllowed\\(\\) has parameter \\$facid with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isFacilityAllowed\\(\\) has parameter \\$userid with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isProductSelectable\\(\\) has parameter \\$drug_id with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isUserRestricted\\(\\) has parameter \\$userid with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isWarehouseAllowed\\(\\) has parameter \\$facid with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isWarehouseAllowed\\(\\) has parameter \\$userid with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isWarehouseAllowed\\(\\) has parameter \\$whid with no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$default_warehouse with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$drug_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$encounter_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$expiredlots with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$fee with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$patient_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$prescription_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$pricelevel with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$quantity with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$sale_date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$selector with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$testonly with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function sellDrug\\(\\) has parameter \\$user with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function send_drug_email\\(\\) has parameter \\$body with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function send_drug_email\\(\\) has parameter \\$subject with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function array_key_exists_default\\(\\) has parameter \\$default with no type specified\\.$#',

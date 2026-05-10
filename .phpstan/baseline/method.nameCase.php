@@ -87,26 +87,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method Mpdf\\\\Mpdf\\:\\:WriteHTML\\(\\) with incorrect case\\: writeHTML$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/taskman_functions.php',

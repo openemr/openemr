@@ -18,7 +18,7 @@ if (!AclMain::aclCheckCore('admin', 'drugs')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Dispense Drug", xl("Dispense Drug"));
 }
 
-$saleId = (int)($_REQUEST['sale_id'] ?? 0);
+$saleId = (int)(filter_input(INPUT_GET, 'sale_id', FILTER_VALIDATE_INT) ?? 0);
 if ($saleId <= 0) {
     die(xlt('Missing sale_id'));
 }
