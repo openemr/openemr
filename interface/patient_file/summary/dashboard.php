@@ -1,20 +1,24 @@
 <?php
 
 /**
- * Modern dashboard launcher.
+ * Patient-view chooser launcher.
  *
- * Bridges the legacy OpenEMR patient-finder click flow into the new
- * Next.js patient dashboard. Reads `set_pid`, looks up the patient's
- * FHIR UUID, and 302-redirects the browser to
- * `${DASHBOARD_URL}/patient/<uuid>`.
+ * Bridges the legacy OpenEMR patient-finder click flow into a small
+ * "which view do you want" page. Two buttons:
  *
- * The new dashboard handles its own OAuth flow (PKCE against this
- * OpenEMR instance) and lands the user on the per-patient view.
+ *   - Modern Dashboard (Next.js)  -> ${DASHBOARD_URL}/patient/<uuid>
+ *     Click escapes OpenEMR's iframe chrome (window.top.location.replace)
+ *     because the modern dashboard sets CSP frame-ancestors 'none' and
+ *     browsers refuse to render it inside any iframe.
  *
- * Falls back to the legacy `demographics.php` view if the
- * `DASHBOARD_URL` environment variable is unset, or if no UUID is on
- * file for the patient. This keeps the page working when the modern
- * dashboard service is offline or not yet provisioned.
+ *   - Legacy View (OpenEMR)       -> demographics.php?set_pid=<pid>
+ *     Click stays inside the same iframe slot (window.location.href),
+ *     so OpenEMR's normal patient-summary chrome renders as before.
+ *
+ * If `DASHBOARD_URL` is unset OR the patient has no FHIR UUID, the
+ * chooser is skipped and we transparently fall through to the legacy
+ * view. Same fallback behavior as before, just with the chooser added
+ * for the happy path.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -45,7 +49,7 @@ if ($setPid === null || !ctype_digit((string) $setPid)) {
     dashboard_redirect_fallback();
 }
 
-$row = sqlQuery("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$setPid]);
+$row = sqlQuery("SELECT `uuid`, `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$setPid]);
 if (empty($row['uuid'])) {
     dashboard_redirect_fallback();
 }
@@ -55,35 +59,175 @@ $uuid = UuidRegistry::uuidToString($row['uuid']);
 // OpenEMR-internal "current patient" lookups continue to resolve.
 $_SESSION['pid'] = (int) $setPid;
 
-// Top-window navigation, NOT a 302. The patient-finder click handler
-// uses `top.RTop.location = ...`, which navigates an inner OpenEMR
-// iframe. The modern dashboard's CSP sets `frame-ancestors 'none'` —
-// browsers refuse to render it inside any iframe (manifests as
-// "refused to connect"). So we emit a tiny HTML page that uses JS to
-// move the *top* window to the dashboard URL, escaping OpenEMR's
-// frame chrome entirely. Meta refresh + visible body fall back when
-// JS is disabled.
-$target = rtrim($dashboardUrl, '/') . '/patient/' . urlencode($uuid);
-$targetJson = json_encode($target, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT);
-$targetHtml = htmlspecialchars($target, ENT_QUOTES, 'UTF-8');
+$patientName = trim(($row['fname'] ?? '') . ' ' . ($row['lname'] ?? ''));
+if ($patientName === '') {
+    $patientName = 'this patient';
+}
+
+$modernUrl = rtrim($dashboardUrl, '/') . '/patient/' . urlencode($uuid);
+$legacyUrl = 'demographics.php?' . http_build_query($_GET ?? []);
+
+$modernUrlJson = json_encode($modernUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT);
+$legacyUrlJson = json_encode($legacyUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT);
+$modernUrlHtml = htmlspecialchars($modernUrl, ENT_QUOTES, 'UTF-8');
+$legacyUrlHtml = htmlspecialchars($legacyUrl, ENT_QUOTES, 'UTF-8');
+$patientNameHtml = htmlspecialchars($patientName, ENT_QUOTES, 'UTF-8');
 ?><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Loading patient dashboard…</title>
-<meta http-equiv="refresh" content="0;url=<?php echo $targetHtml; ?>">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choose patient view — <?php echo $patientNameHtml; ?></title>
+<style>
+    :root {
+        color-scheme: light dark;
+        --bg: #f8fafc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --primary: #2563eb;
+        --primary-hover: #1d4ed8;
+        --secondary: #475569;
+        --secondary-hover: #1e293b;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --border: #334155;
+            --secondary: #cbd5e1;
+            --secondary-hover: #f1f5f9;
+        }
+    }
+    html, body { margin: 0; padding: 0; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+    }
+    .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        max-width: 28rem;
+        width: 100%;
+        box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+        text-align: center;
+    }
+    h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
+    p.subtitle {
+        margin: 0 0 1.5rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+    }
+    .patient-name {
+        color: var(--text);
+        font-weight: 600;
+    }
+    .actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        margin-top: 1.5rem;
+    }
+    button {
+        font: inherit;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        border: 1px solid transparent;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: background-color 0.12s ease, border-color 0.12s ease;
+    }
+    button.primary {
+        background: var(--primary);
+        color: #ffffff;
+    }
+    button.primary:hover { background: var(--primary-hover); }
+    button.secondary {
+        background: transparent;
+        color: var(--secondary);
+        border-color: var(--border);
+    }
+    button.secondary:hover {
+        color: var(--secondary-hover);
+        border-color: var(--secondary);
+    }
+    .badge {
+        display: inline-block;
+        font-size: 0.625rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--primary);
+        padding: 0.125rem 0.5rem;
+        border-radius: 999px;
+        margin-left: 0.5rem;
+        vertical-align: 1px;
+    }
+    .hint {
+        margin: 1.25rem 0 0;
+        font-size: 0.7rem;
+        color: var(--muted);
+    }
+    .hint a { color: var(--muted); }
+</style>
+</head>
+<body>
+<main class="card">
+    <h1>Open patient record</h1>
+    <p class="subtitle">
+        Choose how to view <span class="patient-name"><?php echo $patientNameHtml; ?></span>.
+    </p>
+    <div class="actions">
+        <button class="primary" type="button" id="openModern">
+            Open in Modern Dashboard
+            <span class="badge">Next.js</span>
+        </button>
+        <button class="secondary" type="button" id="openLegacy">
+            Open in Legacy View (OpenEMR)
+        </button>
+    </div>
+    <p class="hint">
+        Direct links:
+        <a href="<?php echo $modernUrlHtml; ?>" target="_top">modern</a> ·
+        <a href="<?php echo $legacyUrlHtml; ?>">legacy</a>
+    </p>
+</main>
 <script>
-// Escape OpenEMR's iframe chrome — the modern dashboard refuses to be
-// loaded inside any iframe (CSP frame-ancestors 'none').
 (function () {
-    var u = <?php echo $targetJson; ?>;
-    try { window.top.location.replace(u); }
-    catch (_) { window.location.replace(u); }
+    var modernUrl = <?php echo $modernUrlJson; ?>;
+    var legacyUrl = <?php echo $legacyUrlJson; ?>;
+
+    document.getElementById('openModern').addEventListener('click', function () {
+        // Modern dashboard refuses to be iframed (CSP frame-ancestors 'none').
+        // Escape OpenEMR's iframe chrome by navigating the top window.
+        try { window.top.location.replace(modernUrl); }
+        catch (_) { window.location.replace(modernUrl); }
+    });
+
+    document.getElementById('openLegacy').addEventListener('click', function () {
+        // Legacy view stays inside OpenEMR's normal frame slot.
+        window.location.href = legacyUrl;
+    });
 })();
 </script>
-</head>
-<body style="font-family: system-ui, sans-serif; padding: 2rem; color: #555;">
-Redirecting to the modern dashboard… <a href="<?php echo $targetHtml; ?>">click here if you are not redirected</a>.
 </body>
 </html><?php
 exit;
