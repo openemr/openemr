@@ -18,7 +18,7 @@
 
 require_once("../../interface/globals.php");
 require_once("$fileroot/custom/code_types.inc.php");
-require_once("$fileroot/interface/drugs/drugs.inc.php");
+require_once("$fileroot/interface/drugs/inventory_acl.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;

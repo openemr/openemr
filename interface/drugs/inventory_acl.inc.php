@@ -6,12 +6,14 @@
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
-//
-// Modified 7-2009 by BM in order to migrate using the form,
-// unit, route, and interval lists with the
-// functions in openemr/library/options.inc.php .
-// These lists are based on the constants found in the
-// openemr/library/classes/Prescription.class.php file.
+
+/*
+ * Inventory facility/warehouse access-control helpers used by the drug
+ * inventory admin UI, the in-house pharmacy reports, and the FeeSheet's
+ * product-line picker. Slated for migration into a WarehouseAccessService;
+ * kept as global functions for now to avoid touching the 14 call sites
+ * across drugs, reports, and FeeSheet in this refactor.
+ */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
