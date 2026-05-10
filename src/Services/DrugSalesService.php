@@ -21,9 +21,25 @@ use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use PHPMailer\PHPMailer\PHPMailer;
 
+/**
+ * In this codebase "sell" and "dispense" describe the same operation: decrementing
+ * drug_inventory.on_hand and inserting a drug_sales row. The DB table, this service
+ * class, and the public sellDrug() method consistently use "sale" terminology.
+ * The UI surfaces the operation to clinicians as "Dispense" because that is the
+ * clinical term. Domain code stays in the sale vocabulary.
+ */
 class DrugSalesService extends BaseService
 {
     const TABLE_NAME = 'drug_sales';
+
+    /**
+     * When true, sellDrug() restricts inventory selection to the user's
+     * default warehouse. A 2013 design decision (see git history of the
+     * legacy interface/drugs/drugs.inc.php). Hardcoded; never read from
+     * configuration. Kept as a class constant rather than a globals read
+     * to remove the include-time side effect.
+     */
+    private const SELL_FROM_ONE_WAREHOUSE = true;
 
     public function __construct()
     {
@@ -317,7 +333,7 @@ class DrugSalesService extends BaseService
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
         $sqlarr = [$drug_id];
-        if (OEGlobalsBag::getInstance()->get('SELL_FROM_ONE_WAREHOUSE') && $default_warehouse) {
+        if (self::SELL_FROM_ONE_WAREHOUSE && $default_warehouse) {
             $query .= "AND di.warehouse_id = ? ";
             $sqlarr[] = $default_warehouse;
         }

@@ -18,11 +18,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
 use PHPMailer\PHPMailer\PHPMailer;
 
-// Decision was made in June 2013 that a sale line item in the Fee Sheet may
-// come only from the specified warehouse. Set this to false if the decision
-// is reversed.
-OEGlobalsBag::getInstance()->set('SELL_FROM_ONE_WAREHOUSE', true);
-
 $substitute_array = ['', xl('Allowed'), xl('Not Allowed')];
 
 function send_drug_email($subject, $body): void
