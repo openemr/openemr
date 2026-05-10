@@ -9,6 +9,7 @@ and the `attach_and_extract` agent tool route through here.
 """
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Any
 
@@ -29,6 +30,8 @@ from app.persistence.processed_documents import (
     ProcessedDocumentStore,
     hash_bytes,
 )
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -252,16 +255,28 @@ class IngestionService:
             # persist the corrected ``extracted_facts`` so subsequent
             # cache hits skip the OCR cost. Idempotent: a cache hit
             # whose bboxes are already snapped won't mutate.
+            #
+            # The whole block is wrapped in try/except — the cache-hit
+            # path's contract is "return what's cached"; an
+            # opportunistic re-snap must NEVER 500 the route. Logged so
+            # the failure stays visible.
             if (
                 prior.mime_type == "application/pdf"
                 and prior.file_bytes is not None
             ):
-                mutated = await _ocr_snap_pdf_extraction(cached, prior.file_bytes)
-                if mutated:
-                    await self._store.replace_extraction(
-                        patient_pseudonym=patient_pseudonym,
-                        canonical_doc_id=prior.canonical_doc_id,
-                        extracted_facts=cached.model_dump(),
+                try:
+                    mutated = await _ocr_snap_pdf_extraction(cached, prior.file_bytes)
+                    if mutated:
+                        await self._store.replace_extraction(
+                            patient_pseudonym=patient_pseudonym,
+                            canonical_doc_id=prior.canonical_doc_id,
+                            extracted_facts=cached.model_dump(mode="json"),
+                        )
+                except Exception:  # noqa: BLE001
+                    logger.exception(
+                        "PDF OCR re-snap failed on cache hit for %s; "
+                        "serving cached bboxes",
+                        prior.canonical_doc_id,
                     )
             return IngestionResult(
                 doc_id=prior.canonical_doc_id,
@@ -441,17 +456,27 @@ class IngestionService:
             )
             cached = cls.model_validate(facts)
             # Re-snap PDFs cached before the OCR pipeline existed.
-            # Idempotent — already-snapped bboxes won't mutate.
+            # Idempotent — already-snapped bboxes won't mutate. Wrapped
+            # in try/except: this is a fast-path read whose contract is
+            # "return what's cached"; a re-snap hiccup (pypdfium2 import,
+            # OCR raise, dump TypeError) must NOT 500 the route.
             if (
                 row.mime_type == "application/pdf"
                 and row.file_bytes is not None
             ):
-                mutated = await _ocr_snap_pdf_extraction(cached, row.file_bytes)
-                if mutated:
-                    await self._store.replace_extraction(
-                        patient_pseudonym=row.patient_pseudonym,
-                        canonical_doc_id=row.canonical_doc_id,
-                        extracted_facts=cached.model_dump(mode="json"),
+                try:
+                    mutated = await _ocr_snap_pdf_extraction(cached, row.file_bytes)
+                    if mutated:
+                        await self._store.replace_extraction(
+                            patient_pseudonym=row.patient_pseudonym,
+                            canonical_doc_id=row.canonical_doc_id,
+                            extracted_facts=cached.model_dump(mode="json"),
+                        )
+                except Exception:  # noqa: BLE001
+                    logger.exception(
+                        "PDF OCR re-snap failed on process_pending fast-path "
+                        "for %s; serving cached bboxes",
+                        row.canonical_doc_id,
                     )
             return IngestionResult(
                 doc_id=row.canonical_doc_id,
