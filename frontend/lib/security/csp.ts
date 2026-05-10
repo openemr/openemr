@@ -10,11 +10,19 @@ export interface SecurityHeader {
   value: string;
 }
 
-export function buildCsp(opts: { copilotOrigin?: string }): string {
+export function buildCsp(opts: { copilotOrigin?: string; openemrOrigin?: string }): string {
   // Allow same-origin everything by default. The Co-Pilot iframe lives at
   // a separate origin (COPILOT_URL) and needs to load via frame-src.
   const frameSrc = ["'self'"];
   if (opts.copilotOrigin) frameSrc.push(opts.copilotOrigin);
+
+  // The dashboard is embedded inside OpenEMR's main UI iframe (RTop slot)
+  // so that clicking a patient name in OpenEMR's finder lands a clinician
+  // on the modern dashboard *without leaving OpenEMR's chrome*. Allow
+  // OpenEMR's origin in frame-ancestors when configured; otherwise the
+  // dashboard remains un-iframable for direct-URL access.
+  const frameAncestors = ["'self'"];
+  if (opts.openemrOrigin) frameAncestors.push(opts.openemrOrigin);
 
   const directives: Record<string, string[]> = {
     "default-src": ["'self'"],
@@ -28,7 +36,7 @@ export function buildCsp(opts: { copilotOrigin?: string }): string {
     "font-src": ["'self'", "data:"],
     "connect-src": ["'self'"],
     "frame-src": frameSrc,
-    "frame-ancestors": ["'none'"], // dashboard itself can't be iframed
+    "frame-ancestors": frameAncestors,
     "base-uri": ["'self'"],
     "form-action": ["'self'"],
     "object-src": ["'none'"],
@@ -51,11 +59,20 @@ export function originFromEnv(envValue: string | undefined): string | undefined 
 
 export function buildSecurityHeaders(env: Record<string, string | undefined>): SecurityHeader[] {
   const copilotOrigin = originFromEnv(env.COPILOT_URL);
-  return [
-    { key: "Content-Security-Policy", value: buildCsp({ copilotOrigin }) },
+  const openemrOrigin = originFromEnv(env.OPENEMR_OAUTH_BASE);
+  const headers: SecurityHeader[] = [
+    { key: "Content-Security-Policy", value: buildCsp({ copilotOrigin, openemrOrigin }) },
     { key: "X-Content-Type-Options", value: "nosniff" },
     { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-    { key: "X-Frame-Options", value: "DENY" },
     { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
   ];
+  // X-Frame-Options is deprecated and only supports a single origin; modern
+  // browsers prefer CSP frame-ancestors which we set above. Send DENY only
+  // when no OpenEMR origin is configured, so we don't conflict with the
+  // CSP-allowed embed.
+  headers.push({
+    key: "X-Frame-Options",
+    value: openemrOrigin ? "SAMEORIGIN" : "DENY",
+  });
+  return headers;
 }

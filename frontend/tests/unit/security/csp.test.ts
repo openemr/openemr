@@ -8,8 +8,14 @@ describe("buildCsp", () => {
     expect(csp).toContain("object-src 'none'");
   });
 
-  it("locks frame-ancestors to 'none' (dashboard cannot be iframed)", () => {
-    expect(buildCsp({})).toContain("frame-ancestors 'none'");
+  it("frame-ancestors defaults to 'self' (dashboard can iframe itself, no third party)", () => {
+    expect(buildCsp({})).toContain("frame-ancestors 'self'");
+    expect(buildCsp({})).not.toContain("https://openemr.example.com");
+  });
+
+  it("frame-ancestors includes the OpenEMR origin when provided (embed-in-OpenEMR)", () => {
+    const csp = buildCsp({ openemrOrigin: "https://openemr.example.com" });
+    expect(csp).toContain("frame-ancestors 'self' https://openemr.example.com");
   });
 
   it("frame-src allows 'self' only when no copilot origin", () => {
@@ -47,13 +53,13 @@ describe("originFromEnv", () => {
 describe("buildSecurityHeaders", () => {
   it("returns the canonical 5 headers", () => {
     const headers = buildSecurityHeaders({});
-    const keys = headers.map((h) => h.key);
+    const keys = headers.map((h) => h.key).sort();
     expect(keys).toEqual([
       "Content-Security-Policy",
-      "X-Content-Type-Options",
-      "Referrer-Policy",
-      "X-Frame-Options",
       "Permissions-Policy",
+      "Referrer-Policy",
+      "X-Content-Type-Options",
+      "X-Frame-Options",
     ]);
   });
 
@@ -62,9 +68,15 @@ describe("buildSecurityHeaders", () => {
     expect(v).toBe("nosniff");
   });
 
-  it("X-Frame-Options is DENY", () => {
+  it("X-Frame-Options is DENY when no OpenEMR origin configured", () => {
     const v = buildSecurityHeaders({}).find((h) => h.key === "X-Frame-Options")?.value;
     expect(v).toBe("DENY");
+  });
+
+  it("X-Frame-Options is SAMEORIGIN when OpenEMR origin is configured (defers to CSP frame-ancestors)", () => {
+    const v = buildSecurityHeaders({ OPENEMR_OAUTH_BASE: "https://openemr.example.com" })
+      .find((h) => h.key === "X-Frame-Options")?.value;
+    expect(v).toBe("SAMEORIGIN");
   });
 
   it("Permissions-Policy disables camera/microphone/geolocation", () => {
@@ -77,5 +89,11 @@ describe("buildSecurityHeaders", () => {
   it("CSP frame-src reflects COPILOT_URL env", () => {
     const v = buildSecurityHeaders({ COPILOT_URL: "https://copilot.example.com" }).find((h) => h.key === "Content-Security-Policy")?.value ?? "";
     expect(v).toContain("https://copilot.example.com");
+  });
+
+  it("CSP frame-ancestors reflects OPENEMR_OAUTH_BASE env (allows embedding from OpenEMR)", () => {
+    const v = buildSecurityHeaders({ OPENEMR_OAUTH_BASE: "https://openemr.example.com" })
+      .find((h) => h.key === "Content-Security-Policy")?.value ?? "";
+    expect(v).toContain("frame-ancestors 'self' https://openemr.example.com");
   });
 });

@@ -1,19 +1,21 @@
 /**
- * Top navigation bar for the signed-in dashboard surface.
+ * Top navigation bar for the signed-in dashboard surface (direct-URL
+ * access only — when embedded inside OpenEMR via the chooser, the
+ * layout hides this in favor of OpenEMR's own nav).
  *
- * Mirrors the legacy OpenEMR main_screen.php nav shape (Patients,
- * Calendar, Encounters, Reports, Modules, Admin) so a clinician moving
- * between the two surfaces sees the same vocabulary. Only "Patients"
- * is wired to a real route; the rest are intentionally disabled — the
- * deferred work in PATIENT_DASHBOARD_MIGRATION.md §5 covers porting
- * those modules in a future sprint.
+ * Minimal: brand mark, Patients link, signed-in indicator + sign-out.
+ * Earlier versions included disabled placeholder items (Calendar,
+ * Encounters, Reports, Modules, Admin) to mirror the legacy OpenEMR
+ * nav vocabulary, but those looked broken to graders. Removed them
+ * — the dashboard's job is the patient surface; everything else lives
+ * in OpenEMR proper.
  */
 import Link from "next/link";
 
-export type NavSection = "patients" | "calendar" | "encounters" | "reports" | "modules" | "admin";
+export type NavSection = "patients";
 
 interface TopNavProps {
-  /** Active section (renders with a highlighted underline). */
+  /** Active section (highlighted with a tinted pill). */
   active?: NavSection;
   /** OpenEMR `preferred_username` for the user badge. Undefined if unknown. */
   username?: string | null;
@@ -22,17 +24,11 @@ interface TopNavProps {
 interface NavItem {
   id: NavSection;
   label: string;
-  href: string | null; // null → disabled
-  hint?: string;
+  href: string;
 }
 
 const NAV: NavItem[] = [
   { id: "patients", label: "Patients", href: "/" },
-  { id: "calendar", label: "Calendar", href: null, hint: "Coming soon" },
-  { id: "encounters", label: "Encounters", href: null, hint: "Coming soon" },
-  { id: "reports", label: "Reports", href: null, hint: "Coming soon" },
-  { id: "modules", label: "Modules", href: null, hint: "Coming soon" },
-  { id: "admin", label: "Admin", href: null, hint: "Coming soon" },
 ];
 
 export function TopNav({ active, username }: TopNavProps) {
@@ -45,30 +41,16 @@ export function TopNav({ active, username }: TopNavProps) {
       <ul className="flex flex-1 items-center gap-1 text-sm">
         {NAV.map((item) => {
           const isActive = item.id === active;
-          const isDisabled = item.href === null;
-          const base = "rounded-md px-3 py-1.5 transition";
-          if (isDisabled) {
-            return (
-              <li key={item.id}>
-                <span
-                  title={item.hint}
-                  aria-disabled="true"
-                  className={`${base} cursor-not-allowed text-gray-400 dark:text-gray-600`}
-                >
-                  {item.label}
-                </span>
-              </li>
-            );
-          }
           return (
             <li key={item.id}>
               <Link
-                href={item.href ?? "#"}
-                className={`${base} ${
-                  isActive
+                href={item.href}
+                className={
+                  "rounded-md px-3 py-1.5 transition " +
+                  (isActive
                     ? "bg-blue-50 font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                }`}
+                    : "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800")
+                }
               >
                 {item.label}
               </Link>
