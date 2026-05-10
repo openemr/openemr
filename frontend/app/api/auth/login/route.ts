@@ -39,7 +39,19 @@ export async function GET(req: Request) {
   const publicUrl = process.env.DASHBOARD_PUBLIC_URL;
   const cookieSecret = process.env.SESSION_COOKIE_SECRET;
 
-  const next = safeNextPath(new URL(req.url).searchParams.get("next"));
+  const reqUrl = new URL(req.url);
+  const next = safeNextPath(reqUrl.searchParams.get("next"));
+  // Optional EHR-launch token. When OpenEMR's `dashboard.php` chooser
+  // launches the modern dashboard for an authenticated clinician, it
+  // mints a SMARTLaunchToken and forwards it through here. We pass it
+  // straight to OpenEMR's authorize endpoint as `launch=<token>` —
+  // that's the trigger for the EHR-launch fast-path
+  // (AuthorizationController.php:584) which returns an auth code with
+  // no login/consent UI when the user has an active CORE OpenEMR
+  // session. Defense: only forward if the value looks like a base64-ish
+  // opaque token (no embedded URL/path-traversal characters).
+  const launchRaw = reqUrl.searchParams.get("launch") ?? "";
+  const launch = /^[A-Za-z0-9+/=_-]{1,4096}$/.test(launchRaw) ? launchRaw : "";
 
   if (!oauthBase || !fhirBase || !clientId || !publicUrl || !cookieSecret) {
     return new Response(
@@ -68,6 +80,9 @@ export async function GET(req: Request) {
     // wants FHIR-scoped tokens. Strip trailing slashes for the same reason.
     aud: fhirBase.replace(/\/+$/, ""),
   });
+  if (launch) {
+    params.set("launch", launch);
+  }
   const authorizeUrl = `${oauthBase.replace(/\/+$/, "")}/oauth2/default/authorize?${params.toString()}`;
 
   const signed = signCookieValue(
