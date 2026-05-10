@@ -62,7 +62,22 @@ if (OidcSessionHelper::isRefreshOnCooldown(time())) {
 }
 
 // 4. CSRF validation
-if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', $session)) {
+//
+// Aisle round-5 #11 (CWE-248) companion. `verifyCsrfToken` calls
+// `collectCsrfToken` internally, which throws RuntimeException
+// when the session has no `csrf_private_key`. In practice this
+// endpoint is post-auth so the key should be present, but a
+// session corruption / custom auth path / OIDC metadata that
+// outlives the CSRF key would otherwise propagate the throw as
+// a 500 instead of the structured `{error: csrf_failed}` JSON
+// response. Treat the throw as a normal CSRF failure — same
+// audit log + 403 path as a wrong token.
+try {
+    $csrfOk = CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', $session);
+} catch (\RuntimeException) {
+    $csrfOk = false;
+}
+if (!$csrfOk) {
     $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
     EventAuditLogger::getInstance()->newEvent(
         'login',
