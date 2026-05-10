@@ -252,10 +252,28 @@ Mix of PDF + PNG forces the format-agnostic dispatch (`mime_type` distinct from 
 
 **Codex review state:** Tasks under KR2 + KR4 went through 1-6 rounds of `codex review` each (clean after iterations — see per-task `code-review.txt`). Codex hit usage limit at ~03:50 PT (try again at 7:15 AM); KR4 task 4 round 6 + all subsequent KR/decomp/code reviews use rigorous self-adversarial reviews per skill protocol. All `code-review.txt` files headered `CODEX UNAVAILABLE — SELF-REVIEW` for the affected tasks.
 
-**Status:** Branch is shippable. **Not yet pushed/merged** — user will push to GitHub master to trigger Railway auto-deploy of the new `dashboard` service.
+**Status (updated 2026-05-09):** Dashboard port branch `feat/dashboard-modernize` (HEAD `2cedf50d6`) is shippable. **Branch itself not yet pushed/merged**, but the **master-side integration shipped** at `30cd84d87` — `dashboard.php` launcher (`0a49d038d`), Dockerfile injection (`4b9f181a2`), EHR-launch silent SSO (`ad40380f3`), and iframe-embed CSP (`a0fa9b252`). See `progress.md` Phase 5 for the commit catalog. Pattern documented as B14 in `systemPatterns.md`.
 
-**Manual steps the night-shift agent could not perform (left for user):**
-1. `git push origin feat/dashboard-modernize` and merge to master when ready.
-2. Register a confidential OAuth2 client in OpenEMR Admin → System → API Clients with redirect_uri = `https://<dashboard-railway-url>/api/auth/callback`.
-3. Set `OPENEMR_DASHBOARD_CLIENT_ID/SECRET`, `DASHBOARD_PUBLIC_URL`, `OPENEMR_OAUTH_BASE`, `OPENEMR_FHIR_BASE`, `COPILOT_URL`, `SESSION_COOKIE_SECRET`, `OPENEMR_VERIFY_TLS` env on the new Railway `dashboard` service.
-4. Smoke-test: load `https://dashboard-production.../`, sign in with OpenEMR, navigate to `/patient/<a Synthea uuid>`, verify all 6 cards render and the Co-Pilot iframe loads.
+**Manual steps the night-shift agent could not perform (still left for user — these are the final go-live steps):**
+1. `git push origin feat/dashboard-modernize` to GitHub so Railway auto-deploys the dashboard service.
+2. Merge `feat/dashboard-modernize` → master once dashboard service is verified live.
+3. Register a confidential OAuth2 client in OpenEMR Admin → System → API Clients with redirect_uri = `https://<dashboard-railway-url>/api/auth/callback`. Client must be permitted to mint scopes including `launch` (for EHR-launch silent SSO).
+4. Set `OPENEMR_DASHBOARD_CLIENT_ID/SECRET`, `DASHBOARD_PUBLIC_URL`, `OPENEMR_OAUTH_BASE`, `OPENEMR_FHIR_BASE`, `COPILOT_URL`, `SESSION_COOKIE_SECRET`, `OPENEMR_VERIFY_TLS` env on the new Railway `dashboard` service.
+5. Set `DASHBOARD_URL=<dashboard-railway-url>` env on the existing Railway `openemr` service so the patient-finder click is re-pointed (B14). When unset, finder click falls back transparently to legacy `demographics.php`.
+6. Smoke-test: in OpenEMR, click a Synthea patient → finder loads view chooser → click "Open in Modern Dashboard" → silent SSO → all 6 cards render + Co-Pilot iframe loads. Re-test with the user already authenticated to verify EHR-launch fast-path skips login screens.
+
+---
+
+## 8. W2 Final Submission (Sun 2026-05-10 noon CT) — partial shipped
+
+| Deliverable | State |
+|---|---|
+| Cost & Latency Report (§§8-9 of `copilot/COST.md`) + `scripts/bench_latency.py` | ✅ shipped at `30cd84d87` (live Railway p50/p95 across 15 turns) |
+| `W2_ARCHITECTURE.md` + Appendix C | ✅ already on master since MVP |
+| Pydantic schemas + tests | ✅ |
+| 50-case eval dataset + boolean rubrics + RESULTS.md | ✅ (53 cases / 6 categories) |
+| CI evidence (Git hook + GitHub Actions) | ✅ |
+| Deployed application | ✅ (Railway) |
+| 3-5 min demo video | 📋 user owns capture |
+| Real `POST /fhir/DocumentReference` | 📋 R4 has no route; Plan B REST path blocked on `api:oemr` OAuth scope (3 fix paths in `W2_IMPLEMENTATION.md` Phase 4) |
+| Dense retrieval | 📋 BM25 + identity-rerank shipped; reranker scaffolding in place |

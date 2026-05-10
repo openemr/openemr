@@ -192,31 +192,40 @@ prek run --all-files        # run hooks (phpstan, rector, phpcs, codespell, ...)
 
 ## Deployment — Railway
 
-**Project:** `refreshing-empathy`. Three services:
+**Project:** `refreshing-empathy`. Four services since 2026-05-09:
 
 | Service | URL | What it is |
 |---|---|---|
-| `openemr` | https://openemr-production-0c8c.up.railway.app/ | OpenEMR fork with `awk`-injected iframe rail |
+| `openemr` | https://openemr-production-0c8c.up.railway.app/ | OpenEMR fork with `awk`-injected iframe rail (B8) + dashboard.php launcher injection (B14) |
 | MySQL | (internal `*.railway.internal`) | OpenEMR DB |
 | `copilot` | https://copilot-production-b532.up.railway.app/ | FastAPI agent + standalone chat UI at `/` |
+| `dashboard` | (W2 surprise-challenge port; URL set as `DASHBOARD_URL` on the OpenEMR service) | Next.js 15 / React 19 modern patient dashboard at `frontend/`. Confidential OAuth2 client; FHIR proxy enforces panel scope server-side; embeds the Co-Pilot iframe rail. |
 
-- CI/CD: `.github/workflows/copilot-ci.yml` runs ruff + pytest on `copilot/**`. Deploy job dropped (`f88ed610a`) — Railway native GitHub auto-deploy is the deploy path.
+- CI/CD: `.github/workflows/copilot-ci.yml` runs ruff + pytest on `copilot/**`; `.github/workflows/dashboard-ci.yml` runs lint + typecheck + vitest on `frontend/**`. Deploy job dropped (`f88ed610a`) — Railway native GitHub auto-deploy is the deploy path for all three deployable services.
 - TLS for OpenEMR: cert regenerated on every container boot via `railway-entrypoint.sh` (idempotent).
 
 ---
 
 ## Environment variables (names only — never values)
 
-OpenEMR side: standard upstream `.env`. Copilot side (`copilot/.env`):
+OpenEMR side: standard upstream `.env` plus `DASHBOARD_URL` (when set, finder click 302s through `dashboard.php` to the modern dashboard; pattern B14). Copilot side (`copilot/.env`):
 
 - LLM: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `LLM_PROVIDER`
 - OpenEMR: `OPENEMR_FHIR_BASE`, `OPENEMR_OAUTH_BASE`, `OPENEMR_VERIFY_TLS`, `OPENEMR_ADMIN_PASSWORD`
 - OAuth client: `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`
-- Scope: `PHYSICIAN_PATIENT_PANEL`
+- Scope: `PHYSICIAN_PATIENT_PANEL` (advisory since `35b7d1d7f` — fall-through to FHIR-derived check), `COPILOT_FRONT_DESK_USERS`
+- Persistence: `COPILOT_DOCS_DB_PATH` (set to `/data/copilot_docs.db` on Railway so `processed_documents` survives redeploys)
 - Observability: `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY`, `LANGFUSE_HOST`
 - Eval/CI: `ANTHROPIC_LIVE`
 
-`.env` is gitignored. `.env.example` is the canonical reference.
+Dashboard side (`frontend/.env.local`):
+- OAuth client: `OPENEMR_DASHBOARD_CLIENT_ID`, `OPENEMR_DASHBOARD_CLIENT_SECRET`
+- URLs: `DASHBOARD_PUBLIC_URL`, `OPENEMR_OAUTH_BASE`, `OPENEMR_FHIR_BASE`, `OPENEMR_VERIFY_TLS`
+- Co-Pilot embed: `COPILOT_URL`
+- Cookie signing: `SESSION_COOKIE_SECRET`
+- Optional strict scope: `STRICT_PANEL_SCOPE` (when `true`, FHIR proxy denies on panel-scope misses; default is mirror of Co-Pilot's empty-GP fall-through)
+
+`.env` files are gitignored. `.env.example` is the canonical reference.
 
 ---
 

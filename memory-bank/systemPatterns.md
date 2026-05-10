@@ -216,6 +216,35 @@ SQLite on Railway volume (`copilot/copilot_docs.db`); endpoints `/v1/sessions/{r
 
 `.github/workflows/copilot-ci.yml` runs ruff + pytest on `copilot/**`. Deploy job dropped (`f88ed610a`) — Railway native GitHub auto-deploy is the deploy mechanism. CI never makes real LLM calls (`evals/conftest.py` skips `@pytest.mark.live_llm` unless `ANTHROPIC_LIVE=1`).
 
+### B14. Modern Patient Dashboard ↔ OpenEMR integration via finder re-point + EHR-launch silent SSO
+
+**Added 2026-05-09.** The W2 surprise-challenge dashboard (Next.js 15 / React 19 at `frontend/`, deployed as a third Railway service) is reachable from inside OpenEMR via a patient-finder click — not as a parallel UI a clinician has to remember to navigate to.
+
+**Why:** PRD's "feel connected to the authenticated OpenEMR patient context" requirement plus the practical observation that physicians click patient names from the finder dozens of times a session. A separately-hosted dashboard that requires re-login every click would never get used.
+
+**Pattern (mirrors B8 — `awk`/`sed` injection into the upstream image, not COPY):**
+
+| Layer | File | Behavior |
+|---|---|---|
+| Launcher | `interface/patient_file/summary/dashboard.php` (`0a49d038d`) | Reads `set_pid`, looks up FHIR UUID via `UuidRegistry`, mints a `SMARTLaunchToken`, 302s to `${DASHBOARD_URL}/api/auth/login?next=/patient/<uuid>&launch=<token>`. Falls back to `demographics.php` transparently if `DASHBOARD_URL` is unset (no-op for environments not wired up). |
+| Finder re-point | `interface/main/finder/{dynamic_finder,patient_select}.php` (`0a49d038d`) | Click handlers swapped from `demographics.php?set_pid=` → `dashboard.php?set_pid=`. The other ~10 callers (admin pages, calendar, reminders, messages) are unchanged — they keep going to legacy demographics. |
+| Image build | `Dockerfile` (`4b9f181a2`) | `COPY` dashboard.php into `/tmp` then `cp` into image at canonical path; `sed -i` applies the finder swap to the upstream image's two finder PHP files. Build-time grep guards fail loudly if any `cp`/`sed` fell through. Necessary because the Railway image is `FROM openemr/openemr:latest` with surgical injections — local PHP edits don't reach the container. |
+| Silent SSO | `Dockerfile` `sed`-patch on `SessionConfigurationBuilder.php` (`ad40380f3`) | Flips default session cookie `samesite` from `Strict` → `Lax`. The upstream `OpenEMR` session cookie is needed cross-site when the dashboard bounces back to `/oauth2/default/authorize` — `Strict` blocks the OAuth GET; `Lax` allows top-level navigations. |
+| Token forwarding | dashboard `/api/auth/login` → OpenEMR `/oauth2/default/authorize` (`ad40380f3`) | The `launch=<token>` arg rides through the OAuth flow. OpenEMR resolves the SMARTLaunchToken back to the patient UUID, skipping login + consent if the upstream OpenEMR session is valid. |
+| Iframe embed | `frontend/` middleware/CSP (`a0fa9b252`, `99e738502`, `cf82f9592`) | Dashboard renders inside OpenEMR's main frame via CSP `frame-ancestors`; PKCE + session cookies use `SameSite=None; Secure` in prod for cross-site cookie permission. |
+
+**What this preserves:**
+
+- B8's `awk`/`sed`-into-upstream pattern is still the answer for any cross-cutting OpenEMR PHP edit. We never COPY `interface/` whole.
+- B6's three-layer scope is preserved in the new dashboard — its FHIR proxy enforces panel scope server-side (KR8 in `PATIENT_DASHBOARD_MIGRATION.md`).
+- B9's prompt cache is unchanged; the dashboard talks to the same Co-Pilot service via the embedded iframe (B6 / `copilot-rail-fragment.php`).
+
+**What's new and load-bearing:**
+
+- New env: `DASHBOARD_URL` on the OpenEMR service (presence enables the re-point), `OPENEMR_DASHBOARD_CLIENT_ID/SECRET`, `DASHBOARD_PUBLIC_URL`, `OPENEMR_VERIFY_TLS`, `SESSION_COOKIE_SECRET` on the dashboard service.
+- Dashboard is a confidential OAuth2 client registered in OpenEMR Admin → System → API Clients with redirect_uri = `${DASHBOARD_PUBLIC_URL}/api/auth/callback`. Client must be permitted to mint scopes including `launch` (SMART EHR launch).
+- The `samesite=Lax` flip is global to the upstream OpenEMR install; if the upstream image ever stops being amenable to the `sed`, the build-time guard fails the deploy before users see broken auth.
+
 ---
 
 ## Key files added in Week 1 — quick index

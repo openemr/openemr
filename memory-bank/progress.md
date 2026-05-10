@@ -1,6 +1,6 @@
 # Progress
 
-**Last reviewed:** 2026-05-09 (night-shift dashboard-port run `2026-05-09-0213` shipped the W2 surprise challenge on `feat/dashboard-modernize`)
+**Last reviewed:** 2026-05-09 (memory bank refresh — reconciles against master @ `30cd84d87`; supersedes the 2026-05-09 dashboard-port-only entry which left master-side cost/latency report + dashboard↔OpenEMR finder integration undocumented)
 
 ---
 
@@ -9,7 +9,7 @@
 | Week | Window | State |
 |---|---|---|
 | Week 1 | 2026-04-21 → 2026-05-04 | ✅ Complete — all four checkpoints submitted, all AI Interviews completed (closed 2026-05-05) |
-| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Early-Submission shipped + polished + canary-verified + **front-desk deferred-extraction path** + **confirm/reject UX + OpenEMR REST write-back + persistence fix** on master at `c2534e416` (49 commits ahead of `78d0672c7`; pushed to GitHub + GitLab; Railway-deployed). **189 tests / 53/53 eval cases**. The deferred Documents-tab UI item is closed by routing the front-desk arc through the iframe drop-zone with a defer flag (`5e63e5fb9`); confirm/reject buttons + write-back to OpenEMR's MySQL `documents` table via the non-FHIR REST API shipped at `c2534e416`. **W2 surprise challenge** (port the patient dashboard to a modern framework, document defense in `PATIENT_DASHBOARD_MIGRATION.md`) **shipped 2026-05-09 on `feat/dashboard-modernize`** by night-shift run `2026-05-09-0213` — Next.js 15 + React 19 + TypeScript at `frontend/` (zero existing source-files modified per planning), server-side OAuth proxy keeps FHIR token off browser, six clinical cards + Encounter history, Co-Pilot rail embedded as sandboxed iframe, 151 unit tests across 16 files, defense doc at `PATIENT_DASHBOARD_MIGRATION.md`, CI at `.github/workflows/dashboard-ci.yml`. Branch tip on `feat/dashboard-modernize` (run `git rev-list --count master..feat/dashboard-modernize` for exact commit count); not yet pushed/merged (user will). Final (Sun) deferred items in `W2_FINAL_IMPLEMENTATION.md`. |
+| Week 2 | 2026-05-04 → 2026-05-10 | 🟢 Phases 1–4 fully shipped on master (`30cd84d87`, **83 commits ahead** of `78d0672c7` MVP tip); W2 Surprise Challenge dashboard port shipped on `feat/dashboard-modernize` (HEAD `2cedf50d6`, 115 commits ahead of `78d0672c7`, 52 ahead of master) and **integrated into OpenEMR's patient-finder click flow on master** via `0a49d038d` + `4b9f181a2` + `ad40380f3` (pattern B14 in `systemPatterns.md`). W2 Final Cost & Latency Report shipped at `30cd84d87` with `scripts/bench_latency.py` capturing live p50/p95 across 15 turns. **192 tests / 53/53 eval cases** at last verification (`35b7d1d7f`); master fixes since are bug-class only and tracked in `W2_IMPLEMENTATION.md` Phase 4. The deferred Documents-tab UI item is closed (front-desk routes through iframe drop-zone with a defer flag — `5e63e5fb9`). Confirm/Reject UX + OpenEMR REST write-back + persistence fix shipped at `c2534e416`. Outstanding W2 Final items: 3-5 min demo video, real `POST /fhir/DocumentReference` (R4 has no route — Plan B REST path is OAuth-scope-blocked), dense retrieval (currently BM25 + identity-rerank). |
 | Week 3+ | TBD | 📋 Not started |
 
 ---
@@ -361,7 +361,76 @@ night-shift run `2026-05-09-0213`. Not yet merged/pushed.
 - Live FHIR e2e (Playwright not installed; manual smoke against deployed Railway).
 - TanStack Query for action-driven refresh.
 
-**No existing source files modified** beyond the memory bank. Verified by planning (`.gitignore`, `Dockerfile` both untouched per plan §11).
+**No existing source files modified** beyond the memory bank, *as of branch tip on the dashboard-port night-shift*. Subsequent work on master (Phase 5 below) added a small set of OpenEMR-side launcher files + Dockerfile injection to wire the dashboard into OpenEMR's patient-finder.
+
+---
+
+## ✅ Phase 5 — Dashboard ↔ OpenEMR finder integration + EHR-launch silent SSO (shipped on master 2026-05-09)
+
+After the dashboard-port branch was reviewed, the next master cycle wired it into OpenEMR's authenticated UI so a finder click lands on the modern dashboard for the right patient — not the legacy demographics view, and without re-authenticating.
+
+**Architectural pattern:** B14 in `systemPatterns.md` (mirrors B8 — `awk`/`sed` injection into the upstream image, never `COPY` of `/interface/`).
+
+| Commit | What landed |
+|---|---|
+| `0a49d038d` | New `interface/patient_file/summary/dashboard.php` launcher (302 to `${DASHBOARD_URL}/patient/<uuid>` via UUID lookup; falls back to `demographics.php` if env unset). Re-points two finder click handlers (`dynamic_finder.php`, `patient_select.php`). |
+| `4b9f181a2` | `Dockerfile`: `COPY` dashboard.php into `/tmp` then `cp` into image at canonical path; `sed -i` swaps the finder click URLs in the upstream image. Two grep guards fail the build if injection didn't land. |
+| `1d71642ec` | dashboard.php presents a view chooser ("Modern" vs "Legacy") instead of auto-redirecting, giving the user explicit choice during transition. |
+| `cbeb2f03d` | Pre-warm the OpenEMR session before redirect so the user doesn't re-login on first dashboard click. |
+| `77e4032fc` | Switch to top-window JS navigation instead of HTTP 302 — fixes a frame-busting issue where some browsers stripped the navigation. |
+| `ad40380f3` | EHR-launch silent SSO: `SMARTLaunchToken` minted in dashboard.php, forwarded as `launch=<token>` through dashboard's `/api/auth/login` to OpenEMR's `/oauth2/default/authorize`. Dockerfile sed-patches `SessionConfigurationBuilder.php` to flip session cookie samesite from `Strict` → `Lax` so the OAuth bounce works cross-site. |
+| `a0fa9b252` | Dashboard renders inside OpenEMR's main frame as well (iframe-embed mode) — CSP `frame-ancestors` + same-origin nav guards. |
+| `0e29e0aac` | Cookie `secure=true` on the dashboard side to satisfy `SameSite=None` requirement when cross-site embedded. |
+
+**Net effect:** A clinician clicking a patient in OpenEMR's finder lands on the modern dashboard for the right patient, fully authenticated, with the Co-Pilot iframe rail already in place — zero login screens, zero copy/paste UUIDs.
+
+**Required env on the OpenEMR service for this to take effect:** `DASHBOARD_URL`. When unset, the launcher falls back to `demographics.php` (no-op).
+
+---
+
+## 🟡 Phase 6 — W2 Final Submission (partial; deadline Sun 2026-05-10 noon CT)
+
+### ✅ Cost & Latency Report (`30cd84d87`)
+
+`copilot/COST.md` §§8-9 + `copilot/scripts/bench_latency.py`:
+
+- **§8 Measured latency (live Railway, 2026-05-09):**
+  - End-to-end by use case: UC1 brief p50 18.2s p95 21.5s; UC2 meds p50 10.0s p95 10.2s; UC3 applied guideline p50 11.8s p95 13.8s.
+  - Per-tool table for all 15 turns. The 5,000ms / 10,000ms quantization on every FHIR-backed tool is a clear retry-after-timeout pattern on the OpenEMR REST proxy.
+  - `get_recent_uploads` (local SQLite) clocks 2-3 ms — three orders of magnitude faster than anything that crosses into OpenEMR. That's the lower bound a properly-cached FHIR layer would deliver.
+  - All 15 routes: `supervisor → answer_composer → critic`. Confirms the deterministic supervisor routing (PRD pitfall #3 mitigation) is firing as designed.
+- **§9 Bottleneck analysis:**
+  - OpenEMR FHIR proxy (5s timeout + retry → 10s clusters) dominates wall time; LLM is ~20% of UC2.
+  - Per-tenant FHIR caching promoted from a Network-tier item (in original §5.3) to highest-leverage performance lever today.
+  - Parallel dispatch is correct; the ceiling is the slowest call.
+  - `evidence_retriever` did not fire on UC3 "should I screen…" — sensitivity issue worth tracking.
+
+### 📋 Still owed
+
+- **3-5 min demo video** — required by PRD; user owns capture.
+- **Real `POST /fhir/DocumentReference`** — OpenEMR R4 has no route. Plan B REST path (`POST /apis/default/api/patient/{puuid}/document`) shipped at `c2534e416` but blocked on `api:oemr` OAuth scope. Confirm fail-soft applies; only the back-write to OpenEMR's MySQL `documents` table is skipped. Three documented fix paths in `W2_IMPLEMENTATION.md` Phase 4.
+- **Dense retrieval** — current build is BM25 + identity-rerank. Reranker scaffolding (Cohere + local cross-encoder) is in place; embedding store + dense scoring is the gap.
+- **Round-trip eval** — upload lab → re-fetch via `get_recent_labs` → verify `derivedFrom` once real FHIR write lands.
+
+---
+
+## ✅ Master-side bug fixes between Phase 4 tip and Final partial (2026-05-08 → 2026-05-09)
+
+Captured for completeness — these are the commits between `35b7d1d7f` (last documented Phase 4 tip) and `30cd84d87` (current master):
+
+- `f45701660` — consolidated W2 implementation docs into single phase log (`W2_IMPLEMENTATION.md`).
+- `3ad9a3bda` — three deployment defects on the front-desk pending-intake arc.
+- `e22ffbf30` — confirm/reject mutates the live banner-item closure (Issue 2b from live testing).
+- `cde0bb97f`, `d7a14d3b4`, `959cf385d`, `4f629a3d3` — bbox citation overlay tightening: multi-token snap, lab row expansion, opts-gated confirm footer, narrow rail to PDF/PNG, force-hide footer, kill numeric fallback for non-numeric raw_text, tighten `_stripPunct`, cap y-row tolerance.
+- `b60ec57cf` — `.gitignore` for `.night-shift/` + `.claude/`.
+- `d48f91407` — drop +/- zoom buttons + cache-bust iframe assets.
+- `68d75249f` — server-side OCR-snap for PDF citations + multi-token row-union.
+- `75346716e` — wire PDF OCR snap into `process_pending` + re-snap on cache hit.
+- `96e935690` — json-serialize cached `model_dump` on cache-hit re-snap + harden against re-snap failures.
+- `78fe5e2d1` — only show 'exact location not detected' on citation chips, not banner clicks.
+- `27a01e718` — pending-review nudge in 'what's new' answers.
+
+All bug-class — none introduce new architectural surface beyond what Phases 1–5 already documented.
 
 ---
 
