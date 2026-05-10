@@ -669,8 +669,9 @@ class AuthorizationController
         );
 
         $this->grantType = 'authorization_code';
-        $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
         try {
+            $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
+
             // Validate the HTTP request and return an AuthorizationRequest object.
             $logger->debug("AuthorizationController->oauthAuthorizationFlow() attempting to validate auth request");
             $authRequest = $server->validateAuthorizationRequest($request);
@@ -731,10 +732,17 @@ class AuthorizationController
             $httpRequest->getSession()->invalidate();
             return $exception->generateHttpResponse($response);
         } catch (\Throwable $exception) {
-            $logger->error("AuthorizationController->oauthAuthorizationFlow() Exception message: " . $exception->getMessage());
+            // Round-5 #5 (CWE-209). The exception message is logged
+            // server-side but never reflected to the client — internal
+            // details (config errors, file paths, library internals)
+            // would otherwise leak into the HTTP 500 body.
+            $logger->error(
+                "AuthorizationController->oauthAuthorizationFlow() unexpected exception",
+                ['exception' => $exception],
+            );
             $httpRequest->getSession()->invalidate();
             $body = $response->getBody();
-            $body->write($exception->getMessage());
+            $body->write('An unexpected server error occurred.');
             return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
         }
     }
@@ -1123,6 +1131,11 @@ class AuthorizationController
             $this->serverConfig = new ServerConfig();
         }
         return $this->serverConfig;
+    }
+
+    public function setServerConfig(ServerConfig $serverConfig): void
+    {
+        $this->serverConfig = $serverConfig;
     }
 
     public function setScopeRepository(ScopeRepository $scopeRepository): void
@@ -1525,9 +1538,10 @@ class AuthorizationController
         if ($this->grantType === 'refresh_token') {
             $leagueRequest = $this->createServerRequest();
         }
-        // Finally time to init the server.
-        $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
         try {
+            // Finally time to init the server.
+            $server = $this->getAuthorizationServer($this->getScopeRepository($this->session));
+
             if (($this->grantType === 'authorization_code') && empty($this->session->get('csrf'))) {
                 // the saved session was not populated as expected
                 $this->getLogger()->error("AuthorizationController->oauthAuthorizeToken() CSRF check failed");
@@ -1549,13 +1563,15 @@ class AuthorizationController
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         } catch (\Throwable $exception) {
+            // Round-5 #5 (CWE-209). Log full details server-side; do
+            // not reflect $exception->getMessage() to the client.
             $this->getLogger()->error(
-                "AuthorizationController->oauthAuthorizeToken() Exception occurred",
-                ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                "AuthorizationController->oauthAuthorizeToken() unexpected exception",
+                ['exception' => $exception],
             );
             $this->session->invalidate();
             $body = $response->getBody();
-            $body->write($exception->getMessage());
+            $body->write('An unexpected server error occurred.');
             return $response->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)->withBody($body);
         }
     }

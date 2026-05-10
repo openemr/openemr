@@ -8,6 +8,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\RestControllers\AuthorizationController;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -403,5 +404,87 @@ class AuthorizationControllerTest extends TestCase
         $controller->setClientRepository($clientRepository);
 
         return $controller;
+    }
+
+    /**
+     * Aisle round-5 #5 (CWE-209) regression — oauthAuthorizationFlow.
+     *
+     * `getAuthorizationServer()` throws RuntimeException on missing
+     * config (e.g. empty token URL). Pre-fix that call sat outside
+     * the try/catch and the exception escaped the controller, which
+     * also reflected `$exception->getMessage()` straight into the
+     * 500 response body — an information-disclosure leak.
+     *
+     * Inject a ServerConfig that returns empty `getTokenUrl()` to
+     * trigger the throw, then assert:
+     *   - response status is 500 (caught, not propagated)
+     *   - body is the generic sentinel, not the raw config error
+     *   - "OAuth2 token URL is not configured" is NOT in the body
+     */
+    public function testOauthAuthorizationFlowReturnsGenericMessageOnRuntimeException(): void
+    {
+        $request = $this->getMockRequest();
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+        $request->query->set('response_type', 'code');
+        $request->query->set('client_id', 'test_client_id');
+        $request->query->set('redirect_uri', 'https://example.com/cb');
+        $request->query->set('scope', 'openid');
+
+        $emptyTokenUrlConfig = $this->createMock(ServerConfig::class);
+        $emptyTokenUrlConfig->method('getTokenUrl')->willReturn('');
+
+        $controller = $this->getDefaultAuthorizationControllerForRequest($request);
+        $controller->setServerConfig($emptyTokenUrlConfig);
+
+        $response = $controller->oauthAuthorizationFlow($request);
+
+        $this->assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('unexpected server error', $body);
+        $this->assertStringNotContainsString(
+            'OAuth2 token URL is not configured',
+            $body,
+            'Raw exception message must not be reflected to the client',
+        );
+    }
+
+    /**
+     * Aisle round-5 #5 (CWE-209) regression — oauthAuthorizeToken.
+     *
+     * Same shape as oauthAuthorizationFlow: the construction of
+     * the auth server moved inside the try block, and the
+     * Throwable catch now emits a generic message rather than
+     * reflecting `$exception->getMessage()`.
+     */
+    public function testOauthAuthorizeTokenReturnsGenericMessageOnRuntimeException(): void
+    {
+        $request = HttpRestRequest::create(
+            '/test',
+            'POST',
+            // grant_type is read from getParsedBody() before the
+            // server construction; supply something benign so flow
+            // reaches getAuthorizationServer() and the throw.
+            ['grant_type' => 'client_credentials'],
+        );
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+
+        $emptyTokenUrlConfig = $this->createMock(ServerConfig::class);
+        $emptyTokenUrlConfig->method('getTokenUrl')->willReturn('');
+
+        $controller = $this->getDefaultAuthorizationControllerForRequest($request);
+        $controller->setServerConfig($emptyTokenUrlConfig);
+
+        $response = $controller->oauthAuthorizeToken($request);
+
+        $this->assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $body = (string) $response->getBody();
+        $this->assertStringContainsString('unexpected server error', $body);
+        $this->assertStringNotContainsString(
+            'OAuth2 token URL is not configured',
+            $body,
+            'Raw exception message must not be reflected to the client',
+        );
     }
 }
