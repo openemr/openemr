@@ -17,6 +17,7 @@ require_once(__DIR__ . "/FeeSheet.class.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\DrugSalesService;
 
 class FeeSheetHtml extends FeeSheet
 {
@@ -129,7 +130,7 @@ class FeeSheetHtml extends FeeSheet
                     }
                     if ($allowed) {
                         // OK got permission, check to see if inventory is there.
-                        $allowed = sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
+                        $allowed = (new DrugSalesService())->sellDrug($drug_id, 1, 0, 0, 0, 0, '', '', $lrow['option_id'], true);
                     }
                     if (
                         ((strlen((string) $default) == 0 && $lrow['is_default']) ||
