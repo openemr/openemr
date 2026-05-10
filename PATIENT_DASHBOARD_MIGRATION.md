@@ -17,8 +17,13 @@ Angular 1.8 + Bootstrap 4.6, all server-rendered through PHP 8.2.
 The legacy page **stays in the repository** during the port — graders will
 compare old vs new, and the existing Co-Pilot iframe injection chain
 (`copilot-rail-fragment.php` awk-spliced via the repo-root `Dockerfile`)
-remains intact for the W1/W2 demo path. The new dashboard is a **separate
-Railway service** that runs alongside.
+remains intact for the W1/W2 demo path. The new dashboard is **co-hosted
+inside OpenEMR's Apache container** under `/modern/*` (Apache `mod_proxy`
+forwards to a co-resident Node process on loopback `:3000`). Same origin,
+same cookie jar, single Railway service. The chooser at
+`interface/patient_file/summary/dashboard.php` lets the clinician pick
+Modern (the Next.js dashboard) or Legacy (`demographics.php`) on every
+patient click; both views render Co-Pilot in the same way.
 
 Surface delivered by the new tree under `frontend/`:
 
@@ -44,15 +49,20 @@ Surface delivered by the new tree under `frontend/`:
   `<img src="/api/auth/logout">` on a malicious page can't trigger
   logout. SameSite=Lax cookie + POST is sufficient CSRF protection
   for this short-lived/low-impact action.
-- **`frontend/Dockerfile`** (multi-stage `node:24-alpine` → Next
-  standalone output → non-root run user) for deterministic Railway
-  builds.
+- **Multi-stage build inside the root `Dockerfile`** (`node:24-alpine`
+  builder → `openemr/openemr:latest` runtime, with `apk add nodejs` and
+  the Next standalone output dropped at `/opt/dashboard`). Apache
+  `mod_proxy` config at `dashboard-proxy.conf` forwards `/modern/*` to
+  the loopback Node process. The standalone `frontend/Dockerfile` is
+  retained as a fallback during the revert window and slated for
+  deletion after the demo.
 - **Security response headers** via `next.config.ts headers()`:
-  Content-Security-Policy (default-src 'self', script-src 'self',
-  style-src 'self' 'unsafe-inline' for Tailwind v4, frame-src 'self'
-  + COPILOT_URL origin, frame-ancestors 'none', object-src 'none'),
-  X-Content-Type-Options nosniff, Referrer-Policy
-  strict-origin-when-cross-origin, X-Frame-Options DENY,
+  Content-Security-Policy (default-src 'self', script-src 'self'
+  'unsafe-inline' for React 19 RSC streaming, style-src 'self'
+  'unsafe-inline' for Tailwind v4, frame-src 'self' + COPILOT_URL
+  origin, frame-ancestors 'self' for the same-origin embed,
+  object-src 'none'), X-Content-Type-Options nosniff, Referrer-Policy
+  strict-origin-when-cross-origin, X-Frame-Options SAMEORIGIN,
   Permissions-Policy disabling camera/mic/geo.
 - Patient view: `/patient/[id]` rendering the **patient header** (name,
   DOB, sex, MRN, active status) + the **six required clinical cards**
@@ -113,14 +123,17 @@ Per the PRD wording ("you are not touching the backend"):
 - **No database schema**, no SQL migrations.
 - **No legacy PHP card templates or fragments** — they remain in the repo
   for grader comparison and for the existing iframe-injection path.
-- **No edits to the repo-root `Dockerfile` or root `.gitignore`** — the
-  port is purely additive (verified during planning; see plan §11).
+- **No FHIR / REST request shape changed** — the new dashboard proxies
+  the same endpoints OpenEMR already exposes, with a confidential-client
+  Bearer token; OpenEMR sees a normal SMART-on-FHIR client. The repo-root
+  `Dockerfile` was extended (multi-stage build + Apache proxy config) but
+  no upstream OpenEMR source files were changed by that edit.
 
 ## 4. Tradeoffs taken
 
 | Trade | Cost | Rationale |
 |---|---|---|
-| Node.js runtime added to the deployment | New Railway service, separate logs, separate cold-start budget | Server-side OAuth proxy requires a server. Worth it. |
+| Node.js runtime co-resident in OpenEMR's Apache container | Multi-process container (Apache + Node), ~150MB extra memory, ~5-8s extra startup | Same-origin embed eliminates SameSite=None / cross-origin CSP / PKCE-cookie-survives-iframe complexity. One Railway service, one cookie jar. The earlier two-service deployment is preserved in git history (commit `b00037bc6` on `feat/dashboard-modernize`) for one-line revert. |
 | Second OAuth2 client registered in OpenEMR | One-time admin step; separate `OPENEMR_DASHBOARD_CLIENT_ID/SECRET` | Clean separation between the Co-Pilot agent and the dashboard SPA — different scopes, different lifecycles, different audit signatures. |
 | Next.js opinionatedness (App Router, Server Components) vs Vite raw flexibility | Some Next-specific patterns to learn (e.g. async params, `cookies()` from `next/headers`) | App Router's RSC primitives map onto our data-fetch shape so well that the resulting code is dramatically smaller than a SPA equivalent. |
 | Webpack `next build` (not Turbopack) for production | 339 kB First Load JS vs 127 kB with Turbopack | Production Turbopack is still beta in Next 15.5; webpack is stable. Bundle size revisitable when Turbopack stabilizes. |
@@ -167,28 +180,35 @@ The same pattern reproduces for the next surfaces in priority order:
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│  Browser                                                       │
+│  Browser  https://openemr-production-0c8c.up.railway.app/      │
 │  ┌──────────────────────────────┐  ┌────────────────────────┐  │
 │  │ Next.js dashboard            │  │ Co-Pilot iframe        │  │
-│  │ /patient/{id}                │  │ (Railway service,      │  │
-│  │  ├ <PatientHeader/>          │  │  unchanged W1/W2 code) │  │
-│  │  ├ Allergies / Problems /   │◀─┤ <iframe src=          │  │
-│  │  │  Medications /            │  │  COPILOT_URL/iframe?  │  │
-│  │  │  Prescriptions /          │  │  patient_id=...       │  │
+│  │ /modern/patient/{id}         │  │ (separate Railway      │  │
+│  │  ├ <PatientHeader/>          │  │  service, W1/W2 code)  │  │
+│  │  ├ Allergies / Problems /    │◀─┤ <iframe src=           │  │
+│  │  │  Medications /            │  │  COPILOT_URL/iframe?   │  │
+│  │  │  Prescriptions /          │  │  patient_id=...        │  │
 │  │  │  CareTeam / Encounters    │  └────────────────────────┘  │
 │  └────────────┬─────────────────┘                              │
 └───────────────┼────────────────────────────────────────────────┘
-                │ fetch via /api/fhir/* (server-side proxy)
+                │ /modern/api/fhir/*  (same-origin)
                 ▼
 ┌────────────────────────────────────────────────────────────────┐
-│  Next.js server (Node runtime, Railway service `dashboard`)    │
-│   ├ /api/fhir/[...path]/route.ts  — proxies to OpenEMR FHIR    │
-│   │  with confidential-client OAuth token (refresh on 401)     │
-│   ├ /api/auth/login   — PKCE start                             │
-│   ├ /api/auth/callback — exchange code, set httpOnly cookie    │
-│   └ /api/auth/logout  — evict + clear cookie                   │
+│  Apache (PID 1, OpenEMR container)                             │
+│   ├ /         → PHP-FPM (legacy OpenEMR UI + REST/FHIR APIs)   │
+│   └ /modern/* → mod_proxy → 127.0.0.1:3000 (loopback)          │
 └───────────────┬────────────────────────────────────────────────┘
-                │ HTTPS + Bearer token
+                │ loopback HTTP
+                ▼
+┌────────────────────────────────────────────────────────────────┐
+│  Next.js standalone (Node runtime, /opt/dashboard)             │
+│   ├ /modern/api/fhir/[...path]/route.ts  — bearer-injecting    │
+│   │  proxy → /apis/default/fhir/* (refresh token on 401)       │
+│   ├ /modern/api/auth/login   — PKCE start                      │
+│   ├ /modern/api/auth/callback — exchange code, httpOnly cookie │
+│   └ /modern/api/auth/logout  — evict + clear cookie            │
+└───────────────┬────────────────────────────────────────────────┘
+                │ HTTPS + Bearer token (back through Apache, same origin)
                 ▼
 ┌────────────────────────────────────────────────────────────────┐
 │  OpenEMR (unchanged)                                           │

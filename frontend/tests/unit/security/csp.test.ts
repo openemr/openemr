@@ -8,14 +8,12 @@ describe("buildCsp", () => {
     expect(csp).toContain("object-src 'none'");
   });
 
-  it("frame-ancestors defaults to 'self' (dashboard can iframe itself, no third party)", () => {
+  it("frame-ancestors is 'self' (same-origin embed in OpenEMR container)", () => {
+    // The dashboard is co-hosted under /modern/* in OpenEMR's Apache
+    // container, so OpenEMR (which iframes the chooser → dashboard) is
+    // already same-origin and covered by 'self'. No cross-origin
+    // allowlist needed.
     expect(buildCsp({})).toContain("frame-ancestors 'self'");
-    expect(buildCsp({})).not.toContain("https://openemr.example.com");
-  });
-
-  it("frame-ancestors includes the OpenEMR origin when provided (embed-in-OpenEMR)", () => {
-    const csp = buildCsp({ openemrOrigin: "https://openemr.example.com" });
-    expect(csp).toContain("frame-ancestors 'self' https://openemr.example.com");
   });
 
   it("frame-src allows 'self' only when no copilot origin", () => {
@@ -68,17 +66,8 @@ describe("buildSecurityHeaders", () => {
     expect(v).toBe("nosniff");
   });
 
-  it("X-Frame-Options is SAMEORIGIN by default (prod OpenEMR origin fallback)", () => {
-    // buildSecurityHeaders falls back to the prod OpenEMR origin when the
-    // env var is unset, because next.config.ts headers() is build-time and
-    // Railway runtime vars don't reach it.
+  it("X-Frame-Options is SAMEORIGIN (matches CSP frame-ancestors 'self')", () => {
     const v = buildSecurityHeaders({}).find((h) => h.key === "X-Frame-Options")?.value;
-    expect(v).toBe("SAMEORIGIN");
-  });
-
-  it("X-Frame-Options stays SAMEORIGIN when OpenEMR origin is explicitly configured", () => {
-    const v = buildSecurityHeaders({ OPENEMR_OAUTH_BASE: "https://openemr.example.com" })
-      .find((h) => h.key === "X-Frame-Options")?.value;
     expect(v).toBe("SAMEORIGIN");
   });
 
@@ -94,14 +83,12 @@ describe("buildSecurityHeaders", () => {
     expect(v).toContain("https://copilot.example.com");
   });
 
-  it("CSP frame-ancestors reflects OPENEMR_OAUTH_BASE env (allows embedding from OpenEMR)", () => {
+  it("CSP frame-ancestors stays 'self' regardless of OPENEMR_OAUTH_BASE", () => {
+    // After consolidation we no longer key frame-ancestors off the
+    // OpenEMR origin env var — the embed is always same-origin.
     const v = buildSecurityHeaders({ OPENEMR_OAUTH_BASE: "https://openemr.example.com" })
       .find((h) => h.key === "Content-Security-Policy")?.value ?? "";
-    expect(v).toContain("frame-ancestors 'self' https://openemr.example.com");
-  });
-
-  it("CSP frame-ancestors falls back to prod OpenEMR origin when env unset", () => {
-    const v = buildSecurityHeaders({}).find((h) => h.key === "Content-Security-Policy")?.value ?? "";
-    expect(v).toContain("frame-ancestors 'self' https://openemr-production-0c8c.up.railway.app");
+    expect(v).toContain("frame-ancestors 'self'");
+    expect(v).not.toContain("https://openemr.example.com");
   });
 });

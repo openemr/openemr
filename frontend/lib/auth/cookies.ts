@@ -76,17 +76,16 @@ export function verifyCookieValue<T extends object>(
 }
 
 export function cookieAttrs(maxAgeSec: number): string {
+  // SameSite=Lax is sufficient because the dashboard is co-hosted inside
+  // OpenEMR's container (Apache mod_proxy fronts /modern/* → loopback
+  // Node). The iframe embed is now same-origin, so Lax cookies attach
+  // normally on iframe-initiated requests. Add Secure in prod so cookies
+  // are only sent over HTTPS (Railway terminates TLS at the edge).
   const isProd = process.env.NODE_ENV === "production";
-  // SameSite=None in prod so the PKCE + session cookies survive the
-  // iframe → OpenEMR → callback round trip when the dashboard is embedded
-  // inside OpenEMR's main frame. None requires Secure (which we add below
-  // in prod). In dev we keep Lax — browsers reject SameSite=None without
-  // Secure on http://localhost, and the iframe-embed scenario doesn't
-  // apply locally anyway.
   const parts = [
     "Path=/",
     "HttpOnly",
-    `SameSite=${isProd ? "None" : "Lax"}`,
+    "SameSite=Lax",
     `Max-Age=${maxAgeSec}`,
   ];
   if (isProd) parts.push("Secure");
@@ -94,8 +93,8 @@ export function cookieAttrs(maxAgeSec: number): string {
 }
 
 export function clearCookieAttrs(): string {
-  // Match cookieAttrs's prod-vs-dev attribute set so browsers actually
-  // evict the cookie (Set-Cookie clears must agree on Secure with the
+  // Match cookieAttrs's attribute set so browsers actually evict the
+  // cookie (Set-Cookie clears must agree on Secure + SameSite with the
   // original set call).
   return cookieAttrs(0);
 }

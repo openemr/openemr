@@ -9,6 +9,13 @@ const nextConfig: NextConfig = {
   // .next/static + public/ + a slim node_modules subset are required.
   output: "standalone",
 
+  // Dashboard is co-hosted inside OpenEMR's Apache container. Apache
+  // mod_proxy forwards /modern/* to a local Node process listening on
+  // 127.0.0.1:3000; basePath + assetPrefix make Next.js generate every
+  // route, asset, and API path under /modern/ so URLs round-trip cleanly.
+  basePath: "/modern",
+  assetPrefix: "/modern",
+
   async headers() {
     const security = buildSecurityHeaders(process.env);
     return [

@@ -1,0 +1,66 @@
+# Root-level Docker build context exclusions. Without this, every
+# `docker build .` uploads vendor/, node_modules, and .git — minutes
+# of wasted I/O on every rebuild.
+#
+# The frontend/ subdir has its own .dockerignore that applies when
+# `frontend/Dockerfile` is the build context (now legacy/unused), but
+# it's NOT honored when this root Dockerfile copies frontend/ — Docker
+# only consults the .dockerignore at the build context root.
+
+# JS/TS build artifacts (rebuilt inside the dashboard-build stage)
+**/node_modules
+**/.next
+**/.turbo
+**/out
+**/dist
+**/build
+**/coverage
+
+# PHP/Composer artifacts (the openemr base image ships its own copy of
+# the application; we only inject specific files)
+vendor
+
+# Tests and fixtures (runtime image doesn't need them)
+**/tests
+**/*.test.ts
+**/*.test.tsx
+tests
+
+# Env files (frontend reads env at runtime from Railway)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# IDE / OS noise
+.vscode
+.idea
+.DS_Store
+**/*.log
+
+# Git metadata
+.git
+.gitignore
+.gitattributes
+
+# Docker artifacts
+Dockerfile
+.dockerignore
+frontend/Dockerfile
+docker-compose*.yml
+docker
+
+# Claude / planning artifacts
+.claude
+memory-bank
+
+# OpenEMR top-level dirs not needed by either build stage. The openemr
+# runtime stage uses the upstream image's bundled copy of the application;
+# we only inject specific files (copilot fragments + dashboard.php +
+# proxy config + entrypoint).
+Documentation
+contrib
+tests
+ccdaservice
+swagger
+sql/databases
+sql/sql_patch_*

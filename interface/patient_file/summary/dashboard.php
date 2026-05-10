@@ -6,22 +6,19 @@
  * Bridges the legacy OpenEMR patient-finder click flow into a small
  * "which view do you want" page. Two buttons:
  *
- *   - Modern Dashboard (Next.js)  -> ${DASHBOARD_URL}/patient/<uuid>
- *     Click stays inside OpenEMR's same iframe slot
- *     (window.location.replace) so the dashboard renders embedded
- *     inside OpenEMR's main frame chrome. The dashboard's CSP
- *     frame-ancestors now allows OpenEMR's origin (was 'none'); the
- *     OpenEMR core session cookie is SameSite=None (was Strict) so
- *     iframe-initiated cross-site requests carry it.
+ *   - Modern Dashboard (Next.js)  -> /modern/api/auth/login?next=/patient/<uuid>
+ *     Same-origin URL — the Next.js dashboard runs as a co-resident
+ *     Node process inside this Apache container; mod_proxy forwards
+ *     /modern/* to it. Same origin = same cookie jar, no SameSite=None
+ *     gymnastics, no CSP frame-ancestors allowlist needed.
  *
  *   - Legacy View (OpenEMR)       -> demographics.php?set_pid=<pid>
  *     Click stays inside the same iframe slot (window.location.href),
  *     so OpenEMR's normal patient-summary chrome renders as before.
  *
- * If `DASHBOARD_URL` is unset OR the patient has no FHIR UUID, the
- * chooser is skipped and we transparently fall through to the legacy
- * view. Same fallback behavior as before, just with the chooser added
- * for the happy path.
+ * If the patient has no FHIR UUID we transparently fall through to the
+ * legacy view (no point launching the modern dashboard for a patient
+ * the FHIR layer can't address).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -40,11 +37,6 @@ function dashboard_redirect_fallback(): void
     // caller that depended on extra args keeps working.
     header('Location: demographics.php?' . http_build_query($_GET ?? []));
     exit;
-}
-
-$dashboardUrl = getenv('DASHBOARD_URL') ?: '';
-if ($dashboardUrl === '') {
-    dashboard_redirect_fallback();
 }
 
 $setPid = $_GET['set_pid'] ?? null;
@@ -95,17 +87,22 @@ if ($patientName === '') {
     $patientName = 'this patient';
 }
 
-// Build the modern URL. We send the click into the dashboard's
+// Build the modern URL as a same-origin relative path. The Next.js
+// dashboard runs on loopback inside this container; Apache mod_proxy
+// fronts it at /modern/* (see /etc/apache2/conf.d/dashboard-proxy.conf
+// in the openemr image build). We send the click into the dashboard's
 // /api/auth/login route — that route generates PKCE state and forwards
 // the launch token to OpenEMR's authorize endpoint. The `next=` param
 // makes the post-token-exchange callback redirect to the patient page.
+//
+// Note: $modernNext is consumed by Next.js after basePath rewriting,
+// so it should NOT include the /modern prefix — only the in-app path.
 $modernNext = '/patient/' . urlencode($uuid);
-$modernUrlBase = rtrim($dashboardUrl, '/');
 $modernUrlParams = ['next' => $modernNext];
 if ($launchToken !== '') {
     $modernUrlParams['launch'] = $launchToken;
 }
-$modernUrl = $modernUrlBase . '/api/auth/login?' . http_build_query($modernUrlParams);
+$modernUrl = '/modern/api/auth/login?' . http_build_query($modernUrlParams);
 $legacyUrl = 'demographics.php?' . http_build_query($_GET ?? []);
 
 $modernUrlJson = json_encode($modernUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT);
@@ -257,10 +254,10 @@ $patientNameHtml = htmlspecialchars($patientName, ENT_QUOTES, 'UTF-8');
     var legacyUrl = <?php echo $legacyUrlJson; ?>;
 
     document.getElementById('openModern').addEventListener('click', function () {
-        // Stay inside OpenEMR's RTop iframe slot — the dashboard's CSP
-        // now allows embedding from this OpenEMR origin (frame-ancestors
-        // includes ${DASHBOARD_URL}). The whole modern UI renders inside
-        // OpenEMR's main frame, with OpenEMR's nav still visible above.
+        // Stay inside OpenEMR's RTop iframe slot — modernUrl is a
+        // same-origin path (/modern/...) handled by Apache mod_proxy
+        // forwarding to the co-resident Next.js process, so no CSP
+        // frame-ancestors allowlist is needed.
         window.location.replace(modernUrl);
     });
 

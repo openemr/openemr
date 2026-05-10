@@ -89,11 +89,11 @@ describe("cookieAttrs", () => {
     expect(a).toContain("Secure");
   });
 
-  it("uses SameSite=None in production (iframe-embed PKCE round trip)", () => {
+  it("uses SameSite=Lax in production (same-origin embed in OpenEMR container)", () => {
     vi.stubEnv("NODE_ENV", "production");
     const a = cookieAttrs(300);
-    expect(a).toContain("SameSite=None");
-    expect(a).not.toContain("SameSite=Lax");
+    expect(a).toContain("SameSite=Lax");
+    expect(a).not.toContain("SameSite=None");
   });
 });
 
@@ -116,8 +116,8 @@ describe("clearCookieAttrs", () => {
     expect(clearCookieAttrs()).toContain("Secure");
   });
 
-  it("uses SameSite=None in production (matches cookieAttrs to evict the cookie)", () => {
+  it("uses SameSite=Lax in production (matches cookieAttrs to evict the cookie)", () => {
     vi.stubEnv("NODE_ENV", "production");
-    expect(clearCookieAttrs()).toContain("SameSite=None");
+    expect(clearCookieAttrs()).toContain("SameSite=Lax");
   });
 });
