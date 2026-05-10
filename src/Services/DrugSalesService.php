@@ -36,7 +36,7 @@ class DrugSalesService extends BaseService
     /**
      * When true, sellDrug() restricts inventory selection to the user's
      * default warehouse. A 2013 design decision (see git history of the
-     * legacy interface/drugs/drugs.inc.php). Hardcoded; never read from
+     * legacy interface/drugs/inventory_acl.inc.php). Hardcoded; never read from
      * configuration. Kept as a class constant rather than a globals read
      * to remove the include-time side effect.
      */
@@ -308,8 +308,7 @@ class DrugSalesService extends BaseService
             return $sale_id;
         }
 
-        // Combining is never allowed for prescriptions and will not work with
-        // dispense_drug.php.
+        // Combining is never allowed for prescriptions.
         if ($prescription_id) {
             $allow_combining = 0;
         }

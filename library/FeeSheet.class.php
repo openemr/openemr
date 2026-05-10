@@ -28,7 +28,7 @@
 
 require_once(__DIR__ . "/../interface/globals.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
-require_once(__DIR__ . "/../interface/drugs/drugs.inc.php");
+require_once(__DIR__ . "/../interface/drugs/inventory_acl.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/appointment_status.inc.php");
 require_once(__DIR__ . "/forms.inc.php");
