@@ -77,10 +77,16 @@ export function verifyCookieValue<T extends object>(
 
 export function cookieAttrs(maxAgeSec: number): string {
   const isProd = process.env.NODE_ENV === "production";
+  // SameSite=None in prod so the PKCE + session cookies survive the
+  // iframe → OpenEMR → callback round trip when the dashboard is embedded
+  // inside OpenEMR's main frame. None requires Secure (which we add below
+  // in prod). In dev we keep Lax — browsers reject SameSite=None without
+  // Secure on http://localhost, and the iframe-embed scenario doesn't
+  // apply locally anyway.
   const parts = [
     "Path=/",
     "HttpOnly",
-    "SameSite=Lax",
+    `SameSite=${isProd ? "None" : "Lax"}`,
     `Max-Age=${maxAgeSec}`,
   ];
   if (isProd) parts.push("Secure");

@@ -91,6 +91,14 @@ describe("GET /api/auth/login", () => {
     expect(setCookie).toContain("Secure");
   });
 
+  it("uses SameSite=None in production (PKCE cookie must survive iframe round trip)", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const res = await GET(new Request("http://test/api/auth/login"));
+    const setCookie = res.headers.get("Set-Cookie") ?? "";
+    expect(setCookie).toContain("SameSite=None");
+    expect(setCookie).not.toContain("SameSite=Lax");
+  });
+
   it("the signed cookie verifies and contains state + code_verifier matching the redirect", async () => {
     const res = await GET(new Request("http://test/api/auth/login"));
     const setCookie = res.headers.get("Set-Cookie") ?? "";

@@ -88,6 +88,13 @@ describe("cookieAttrs", () => {
     const a = cookieAttrs(300);
     expect(a).toContain("Secure");
   });
+
+  it("uses SameSite=None in production (iframe-embed PKCE round trip)", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    const a = cookieAttrs(300);
+    expect(a).toContain("SameSite=None");
+    expect(a).not.toContain("SameSite=Lax");
+  });
 });
 
 describe("clearCookieAttrs", () => {
@@ -107,5 +114,10 @@ describe("clearCookieAttrs", () => {
   it("includes Secure in production", () => {
     vi.stubEnv("NODE_ENV", "production");
     expect(clearCookieAttrs()).toContain("Secure");
+  });
+
+  it("uses SameSite=None in production (matches cookieAttrs to evict the cookie)", () => {
+    vi.stubEnv("NODE_ENV", "production");
+    expect(clearCookieAttrs()).toContain("SameSite=None");
   });
 });
