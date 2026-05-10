@@ -323,7 +323,10 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             }
             else {
                 top.restoreSession();
-                top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
+                // Route to dashboard.php — the modern Next.js dashboard
+                // launcher. Falls back to demographics.php if the
+                // DASHBOARD_URL env var is not set on the OpenEMR server.
+                top.RTop.location = "../../patient_file/summary/dashboard.php?set_pid=" + encodeURIComponent(newpid);
             }
         });
     });

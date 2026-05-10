@@ -540,7 +540,9 @@ var SelectPatient = function (eObj) {
         dlgclose("srchDone", parts[0]);
     <?php } else { ?>
         top.restoreSession();
-        document.location.href = "../../patient_file/summary/demographics.php?set_pid=" + parts[0];
+        // Route to the modern dashboard launcher; falls back to
+        // demographics.php if DASHBOARD_URL is not set on the server.
+        document.location.href = "../../patient_file/summary/dashboard.php?set_pid=" + parts[0];
     <?php } ?>
 
     return true;
