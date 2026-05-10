@@ -60,72 +60,31 @@ $uuid = UuidRegistry::uuidToString($row['uuid']);
 $_SESSION['pid'] = (int) $setPid;
 
 /**
- * Pre-warm the separate OAuth session ("authserverOpenEMR" cookie at
- * path /oauth2/, SameSite=None) with the currently-authenticated user.
+ * Generate an opaque SMART launch token bound to this patient. Passed
+ * through the dashboard's OAuth flow (preserved on /api/auth/login,
+ * forwarded to /oauth2/default/authorize as `launch=<token>`).
  *
- * Without this, the modern dashboard's PKCE bounce to
- * /oauth2/default/authorize lands on OpenEMR's login form because the
- * OAuth session is empty (the main-UI session cookie is SameSite=Strict
- * and is not sent on cross-site navigations from the modern dashboard
- * back to OpenEMR's authorize endpoint).
+ * On the OpenEMR side that token activates the EHR-launch fast-path at
+ * AuthorizationController.php:584 — when the request also carries a
+ * valid CORE session cookie AND the client has Authorization Flow Skip
+ * enabled, OpenEMR processes the authorize request silently (no login
+ * form, no consent screen). Combined with the SameSite=Lax patch on
+ * the core session cookie (Dockerfile sed), the click-through becomes
+ * a single browser flash.
  *
- * After pre-warming + the client's "Authorization Flow Skip" toggle,
- * clicking "Open in Modern Dashboard" goes straight to the modern view
- * with no login or consent prompt.
- *
- * The OAuth session uses Symfony's AttributeBag with storage key
- * 'authserverOpenEMR' (same as the cookie name), so attributes live at
- * $_SESSION['authserverOpenEMR'][<key>]. We set 'user_id' to the user's
- * UUID — that's the value AuthorizationController checks at line ~899
- * to decide "user is already logged in for OAuth".
+ * Best-effort: if SMARTLaunchToken serialization fails for any reason,
+ * we omit launch from the URL and the click falls back to the regular
+ * OAuth flow (login form once per browser session).
  */
-function dashboard_prewarm_oauth_session(int $userIdInt): void
-{
-    UuidRegistry::createMissingUuidForRow('users', 'id', $userIdInt);
-    $userRow = sqlQuery("SELECT `uuid` FROM `users` WHERE `id` = ?", [$userIdInt]);
-    if (empty($userRow['uuid'])) {
-        return;
+$launchToken = '';
+try {
+    if (class_exists('OpenEMR\\FHIR\\SMART\\SMARTLaunchToken')) {
+        $tokenObj = new OpenEMR\FHIR\SMART\SMARTLaunchToken($uuid);
+        $launchToken = $tokenObj->serialize();
     }
-    $userUuid = UuidRegistry::uuidToString($userRow['uuid']);
-
-    // Detach from the main-UI session cleanly so we can open the OAuth
-    // session in this same request without conflict.
-    if (session_status() === PHP_SESSION_ACTIVE) {
-        session_write_close();
-    }
-
-    // Reconfigure the session subsystem for the OAuth session.
-    session_name('authserverOpenEMR');
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path' => '/oauth2/',
-        'domain' => '',
-        'secure' => true,
-        'httponly' => true,
-        'samesite' => 'None',
-    ]);
-    if (session_status() !== PHP_SESSION_ACTIVE) {
-        session_start();
-    }
-
-    // Symfony AttributeBag storage key for OAuth = 'authserverOpenEMR'.
-    if (!isset($_SESSION['authserverOpenEMR']) || !is_array($_SESSION['authserverOpenEMR'])) {
-        $_SESSION['authserverOpenEMR'] = [];
-    }
-    $_SESSION['authserverOpenEMR']['user_id'] = $userUuid;
-
-    session_write_close();
-}
-
-$mainAuthUserId = (int) ($_SESSION['authUserID'] ?? 0);
-if ($mainAuthUserId > 0) {
-    try {
-        dashboard_prewarm_oauth_session($mainAuthUserId);
-    } catch (\Throwable $e) {
-        // Pre-warm is best-effort — if it fails, the user just sees the
-        // OAuth login form like before. Don't let it break the chooser.
-        error_log('dashboard_prewarm_oauth_session failed: ' . $e->getMessage());
-    }
+} catch (\Throwable $e) {
+    error_log('SMARTLaunchToken serialize failed: ' . $e->getMessage());
+    $launchToken = '';
 }
 
 $patientName = trim(($row['fname'] ?? '') . ' ' . ($row['lname'] ?? ''));
@@ -133,7 +92,17 @@ if ($patientName === '') {
     $patientName = 'this patient';
 }
 
-$modernUrl = rtrim($dashboardUrl, '/') . '/patient/' . urlencode($uuid);
+// Build the modern URL. We send the click into the dashboard's
+// /api/auth/login route — that route generates PKCE state and forwards
+// the launch token to OpenEMR's authorize endpoint. The `next=` param
+// makes the post-token-exchange callback redirect to the patient page.
+$modernNext = '/patient/' . urlencode($uuid);
+$modernUrlBase = rtrim($dashboardUrl, '/');
+$modernUrlParams = ['next' => $modernNext];
+if ($launchToken !== '') {
+    $modernUrlParams['launch'] = $launchToken;
+}
+$modernUrl = $modernUrlBase . '/api/auth/login?' . http_build_query($modernUrlParams);
 $legacyUrl = 'demographics.php?' . http_build_query($_GET ?? []);
 
 $modernUrlJson = json_encode($modernUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT);
