@@ -36,19 +36,26 @@ final class TokenRevocationService implements TokenRevocationCheckerInterface
             return;
         }
 
-        $existing = QueryUtils::fetchRecords(
-            'SELECT 1 FROM `' . self::TABLE_NAME . '` WHERE `jti` = ?',
-            [$jti],
-        );
-
-        if ($existing !== []) {
-            return;
-        }
-
+        // Aisle round-5 #10 (CWE-362). The pre-fix SELECT-then-INSERT
+        // had a TOCTOU race window: two concurrent revoke calls for
+        // the same jti could both pass the SELECT (no row), then one
+        // INSERT would fail on the `uq_jti_hash` UNIQUE constraint and
+        // sqlStatementThrowException() would propagate as a 500 —
+        // realistic logout/revocation DoS. Switch to INSERT IGNORE so
+        // the unique-key violation is absorbed at the DB layer; a
+        // duplicate revoke is a no-op rather than an error.
         QueryUtils::sqlStatementThrowException(
-            'INSERT INTO `' . self::TABLE_NAME . '` (`jti`, `token_expiry`) VALUES (?, ?)',
+            'INSERT IGNORE INTO `' . self::TABLE_NAME . '` (`jti`, `token_expiry`) VALUES (?, ?)',
             [$jti, $tokenExpiry->format('Y-m-d H:i:s')],
         );
+
+        // Only audit on a *new* revocation. INSERT IGNORE returns
+        // affected_rows = 0 when the unique-key constraint blocked
+        // the row (the jti was already revoked); skip the audit
+        // event in that case so re-revocation doesn't double-log.
+        if (QueryUtils::affectedRows() !== 1) {
+            return;
+        }
 
         EventAuditLogger::getInstance()->newEvent(
             'security',
