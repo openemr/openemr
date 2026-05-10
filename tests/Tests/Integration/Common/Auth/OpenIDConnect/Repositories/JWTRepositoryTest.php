@@ -184,4 +184,66 @@ final class JWTRepositoryTest extends TestCase
         self::assertCount(1, $this->repository->getJwtGrantHistoryForJTI($futureJti));
         self::assertSame([], $this->repository->getJwtGrantHistoryForJTI($pastJti));
     }
+
+    /**
+     * Aisle round-5 #9 (CWE-20) regression. The pre-fix schema stored
+     * `jti` as VARCHAR(100) with the UNIQUE constraint on the raw
+     * column. IdP-issued JTIs and the validator's synthetic replay
+     * keys can exceed 100 chars; under non-strict SQL mode the insert
+     * silently truncated, and two distinct long JTIs sharing the
+     * first 100 chars would collide on the UNIQUE constraint —
+     * either misclassifying a legitimate token as a replay or
+     * blocking the row entirely.
+     *
+     * Post-fix the column is VARCHAR(512) and the UNIQUE moved to a
+     * BINARY(32) GENERATED sha256 derivation. This test:
+     *   - inserts a 200-char jti (would have been truncated pre-fix)
+     *   - inserts a SECOND 200-char jti sharing the first 100 chars
+     *     (would have been a UNIQUE-constraint collision pre-fix)
+     *   - asserts both inserts succeed and round-trip via the
+     *     full-value SELECT
+     */
+    public function testSaveJwtHistoryRoundTripsLongJtisWithoutCollision(): void
+    {
+        // 200 distinct chars; first 100 chars identical between A and B
+        // so a VARCHAR(100) truncation would collapse them to the same
+        // unique-key value.
+        $sharedPrefix = str_repeat('a', 100);
+        $jtiLong1 = $sharedPrefix . str_repeat('b', 100);
+        $jtiLong2 = $sharedPrefix . str_repeat('c', 100);
+
+        self::assertNotSame($jtiLong1, $jtiLong2);
+        self::assertSame(
+            substr($jtiLong1, 0, 100),
+            substr($jtiLong2, 0, 100),
+            'Test fixture: the two jtis must share their first 100 chars',
+        );
+
+        self::assertTrue(
+            $this->repository->saveJwtHistory($jtiLong1, 'jwt-repo-test-long-jti', time() + 3600),
+            'First long jti must insert',
+        );
+        self::assertTrue(
+            $this->repository->saveJwtHistory($jtiLong2, 'jwt-repo-test-long-jti', time() + 3600),
+            'Second long jti with same 100-char prefix must NOT collide — '
+            . 'pre-fix this would have failed with affected_rows = 0',
+        );
+
+        // Round-trip: lookup by full-length jti returns the right row,
+        // not the other one with the same 100-char prefix.
+        $row1 = $this->repository->getJwtGrantHistoryForJTI($jtiLong1);
+        $row2 = $this->repository->getJwtGrantHistoryForJTI($jtiLong2);
+        self::assertCount(1, $row1, 'Long jti #1 round-trips');
+        self::assertCount(1, $row2, 'Long jti #2 round-trips');
+        self::assertSame($jtiLong1, $row1[0]['jti']);
+        self::assertSame($jtiLong2, $row2[0]['jti']);
+
+        // Cleanup — the per-test setUp truncate doesn't run between
+        // these two inserts, so leave the table in a consistent state
+        // for any test that runs after.
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM jwt_grant_history WHERE client_id = ?',
+            ['jwt-repo-test-long-jti'],
+        );
+    }
 }

@@ -109,3 +109,33 @@ ALTER TABLE `oidc_token_revocation`
     ADD UNIQUE KEY `uq_jti_hash` (`jti_sha256`),
     ADD KEY `idx_jti` (`jti`(255));
 #EndIf
+
+-- Aisle round-5 #9 (CWE-20). The original jwt_grant_history.jti column
+-- was VARCHAR(100) with a UNIQUE constraint directly on the raw value.
+-- IdP-issued JTIs and the validator's synthetic replay keys are both
+-- variable-length and can exceed 100 chars; under non-strict SQL mode
+-- MySQL silently truncates inserts, so two distinct long JTIs sharing
+-- the first 100 chars would collide on the UNIQUE constraint and either
+-- misclassify a legitimate token as a replay (false-positive DoS) or
+-- block the legitimate row from inserting. Migrate to the same
+-- hash-based unique-key shape as oidc_token_revocation: keep the full
+-- jti in VARCHAR(512), derive a fixed-length BINARY(32) sha256 via a
+-- GENERATED ALWAYS column, enforce uniqueness on the hash, and add a
+-- secondary prefix index for the application's `WHERE jti = ?` lookup.
+-- Pre-step: deduplicate before the longer column might let new rows
+-- pass the (now stricter) constraint. Idempotent on a deduped table.
+DELETE old FROM jwt_grant_history old
+    INNER JOIN jwt_grant_history newer
+        ON old.jti = newer.jti AND old.id < newer.id;
+
+#IfIndex jwt_grant_history uq_jti
+ALTER TABLE `jwt_grant_history` DROP INDEX `uq_jti`;
+#EndIf
+
+#IfMissingColumn jwt_grant_history jti_sha256
+ALTER TABLE `jwt_grant_history`
+    MODIFY `jti` VARCHAR(512) NOT NULL COMMENT 'Unique JWT id',
+    ADD COLUMN `jti_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`jti`, 256))) STORED AFTER `jti`,
+    ADD UNIQUE KEY `uq_jti_hash` (`jti_sha256`),
+    ADD KEY `idx_jti` (`jti`(255));
+#EndIf

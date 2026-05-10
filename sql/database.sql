@@ -14236,15 +14236,34 @@ CREATE TABLE `form_vitals_calculation_form_vitals` (
    PRIMARY KEY (`fvc_uuid`, `vitals_id`)
 ) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
 
+-- Aisle round-5 #9 (CWE-20). The previous schema stored `jti` as
+-- VARCHAR(100) with a UNIQUE constraint directly on that column.
+-- IdP-issued JTIs and the validator's synthetic replay keys are both
+-- variable-length and can exceed 100 chars; under non-strict SQL mode
+-- MySQL silently truncates inserts, so two distinct long JTIs sharing
+-- the first 100 chars would collide on the UNIQUE constraint and
+-- either misclassify a legitimate token as a replay (false-positive
+-- DoS) or block insertion of the legitimate row.
+--
+-- Match the `oidc_token_revocation` shape from earlier in this file:
+-- store the full jti as VARCHAR(512) for forensic value, derive a
+-- fixed-length BINARY(32) sha256 column via GENERATED ALWAYS, and
+-- enforce uniqueness on the hash. The application's INSERT IGNORE
+-- and `WHERE jti = ?` queries don't need any change — the unique
+-- constraint still fires on duplicate jti (because the GENERATED
+-- column is deterministic), and the secondary `idx_jti` covers the
+-- raw-value lookup.
 DROP TABLE IF EXISTS `jwt_grant_history`;
 CREATE TABLE `jwt_grant_history` (
 `id` INT NOT NULL AUTO_INCREMENT
- , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
+ , `jti` VARCHAR(512) NOT NULL COMMENT 'Unique JWT id'
+ , `jti_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`jti`, 256))) STORED
  , `client_id` VARCHAR(80) NOT NULL COMMENT 'FK oauth2_clients.client_id'
  , `jti_exp` TIMESTAMP NULL DEFAULT NULL COMMENT 'jwt exp claim when the jwt expires'
  , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
  , PRIMARY KEY (`id`)
- , UNIQUE KEY `uq_jti` (`jti`)
+ , UNIQUE KEY `uq_jti_hash` (`jti_sha256`)
+ , KEY `idx_jti` (`jti`(255))
 ) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 
 DROP TABLE IF EXISTS `document_templates`;
