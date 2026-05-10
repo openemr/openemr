@@ -116,27 +116,51 @@ function Check(chk) {
     updateSendEmailIdList();
 }
 
-function deleteDrug(d) {
-    let msg = {{ 'Do you really want to delete?'|xlj}};
-    let choice = confirm(msg);
-    if (choice == true) {
-        top.restoreSession();
-        $.ajax({
-                url: "./library/deletedrug.php",
-                type: 'POST',
-                data: {
-                    drugid: d,
-                    csrf_token_form: {{CSRF_TOKEN_FORM|js_escape}}
-            },
-            success: function(data) {
+function performDeleteDrug(prescriptionId, restoreInventory) {
+    top.restoreSession();
+    $.ajax({
+        url: "./library/deletedrug.php",
+        type: 'POST',
+        data: {
+            drugid: prescriptionId,
+            restore_inventory: restoreInventory ? '1' : '',
+            csrf_token_form: {{CSRF_TOKEN_FORM|js_escape}}
+        },
+        success: function(data) {
             console.log(data);
             document.location.href = '{{webroot}}/controller.php?prescription&list&id=' + {{session.pid|js_url}};
         },
         error: function(error) {
-            console.log(error)
+            console.log(error);
         },
     });
+}
+
+function deleteDrug(prescriptionId, dispensationCount) {
+    dispensationCount = parseInt(dispensationCount || 0);
+
+    if (dispensationCount <= 0) {
+        // No sales attached — simple confirm.
+        if (confirm({{ 'Do you really want to delete?'|xlj}})) {
+            performDeleteDrug(prescriptionId, false);
+        }
+        return;
     }
+
+    // Sales exist — ask whether to restore the dispensed quantity to inventory.
+    let modal = document.getElementById('deletePrescriptionModal');
+    document.getElementById('deletePrescriptionDispensedCount').textContent = dispensationCount;
+    document.getElementById('deletePrescriptionRestoreInventory').checked = true;
+    let confirmBtn = document.getElementById('deletePrescriptionConfirmBtn');
+    // Replace button to drop any prior click listener.
+    let newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    newBtn.addEventListener('click', function () {
+        let restore = document.getElementById('deletePrescriptionRestoreInventory').checked;
+        $(modal).modal('hide');
+        performDeleteDrug(prescriptionId, restore);
+    });
+    $(modal).modal('show');
 }
 
 function Uncheck(chk) {
@@ -415,7 +439,7 @@ $(function () {
                                         {{prescription.provider.get_name_display()|text}}&nbsp;
                                         </td>
                                         <td>
-                                            <a href="#" id="deleteDrug" class="btn btn-danger btn-sm btn-delete" data-prescription-id="{{ prescription.id|attr }}">{{'Delete'|xlt}}</a>
+                                            <a href="#" id="deleteDrug" class="btn btn-danger btn-sm btn-delete" data-prescription-id="{{ prescription.id|attr }}" data-dispensation-count="{{ prescription.get_dispensation_count()|attr }}">{{'Delete'|xlt}}</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -448,6 +472,36 @@ $(function () {
             <div class="col-12 d-flex justify-content-end">
                 <a href="{{ CONTROLLER }}?prescription&edit&id=0&pid={{  pid|attr_url }}" class="btn-primary btn-sm  mr-3" id="addButton">{{ "Add"|xlt }}</a>
                 <a href="#" class="btn-secondary btn-sm quitButton">{{ "Quit"|xlt }}</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="deletePrescriptionModal" tabindex="-1" role="dialog" aria-labelledby="deletePrescriptionModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deletePrescriptionModalLabel">{{ 'Delete Prescription'|xlt }}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ 'Close'|xla }}">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        {{ 'This prescription has been dispensed'|xlt }}
+                        <strong id="deletePrescriptionDispensedCount">0</strong>
+                        {{ 'time(s). Deleting it will also remove the related sale records.'|xlt }}
+                    </p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="deletePrescriptionRestoreInventory" checked>
+                        <label class="form-check-label" for="deletePrescriptionRestoreInventory">
+                            {{ 'Restore the dispensed quantity to inventory'|xlt }}
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ 'Cancel'|xlt }}</button>
+                    <button type="button" class="btn btn-danger" id="deletePrescriptionConfirmBtn">{{ 'Delete'|xlt }}</button>
+                </div>
             </div>
         </div>
     </div>
@@ -502,7 +556,7 @@ $(function () {
         $(this).children().toggleClass("highlight");
     });
     $(".btn-delete").on("click", function() {
-        deleteDrug(this.dataset['prescriptionId'])
+        deleteDrug(this.dataset['prescriptionId'], this.dataset['dispensationCount']);
     });
     $(".quitButton").on("click", function(evt) {
         evt.preventDefault();

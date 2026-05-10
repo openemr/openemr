@@ -498,6 +498,70 @@ class DrugSalesService extends BaseService
         return $sale_id;
     }
 
+    /**
+     * Reverse all sales attached to a prescription.
+     *
+     * Used when a prescription is deleted: the orphaned drug_sales rows
+     * are removed (otherwise they would keep showing up in encounter
+     * reports with a now-dangling prescription_id), and — when the caller
+     * asks for it — the on_hand quantity that was decremented from the
+     * original lot(s) at sale time is added back.
+     *
+     * Non-dispensible sales (where inventory_id = 0) never affected
+     * inventory, so they are deleted regardless of the flag.
+     *
+     * Returns a summary for UI feedback / audit logging.
+     *
+     * @return array{sales_deleted: int, units_restored: float, restored_inventory: bool}
+     */
+    public function reverseSalesForPrescription(int $prescriptionId, bool $restoreInventory = true): array
+    {
+        if ($prescriptionId <= 0) {
+            return ['sales_deleted' => 0, 'units_restored' => 0.0, 'restored_inventory' => $restoreInventory];
+        }
+
+        if ($restoreInventory) {
+            // Add the dispensed quantity back to each lot. Skip rows with
+            // inventory_id = 0 (non-dispensible products — no inventory effect).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE drug_sales AS ds " .
+                "JOIN drug_inventory AS di ON di.inventory_id = ds.inventory_id " .
+                "SET di.on_hand = di.on_hand + ds.quantity " .
+                "WHERE ds.prescription_id = ? AND ds.inventory_id != 0",
+                [$prescriptionId]
+            );
+        }
+
+        $unitsRestored = 0.0;
+        if ($restoreInventory) {
+            $row = QueryUtils::fetchRecords(
+                "SELECT COALESCE(SUM(quantity), 0) AS total " .
+                "FROM drug_sales WHERE prescription_id = ? AND inventory_id != 0",
+                [$prescriptionId]
+            )[0] ?? null;
+            $totalRaw = $row['total'] ?? 0;
+            $unitsRestored = is_numeric($totalRaw) ? (float)$totalRaw : 0.0;
+        }
+
+        $countRow = QueryUtils::fetchRecords(
+            "SELECT COUNT(*) AS c FROM drug_sales WHERE prescription_id = ?",
+            [$prescriptionId]
+        )[0] ?? null;
+        $countRaw = $countRow['c'] ?? 0;
+        $salesDeleted = is_numeric($countRaw) ? (int)$countRaw : 0;
+
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM drug_sales WHERE prescription_id = ?",
+            [$prescriptionId]
+        );
+
+        return [
+            'sales_deleted'      => $salesDeleted,
+            'units_restored'     => $unitsRestored,
+            'restored_inventory' => $restoreInventory,
+        ];
+    }
+
     public function send_drug_email($subject, $body): void
     {
         $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
