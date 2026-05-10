@@ -42,7 +42,23 @@ final class DatabaseOidcLoginAuditLogger implements OidcLoginAuditLoggerInterfac
 
     public function accountNotProvisioned(string $issuer, string $externalId): void
     {
-        $this->failure('', '', 'GCIP OIDC account not provisioned for iss=' . $issuer . ' sub=' . $externalId);
+        // Round-5 #4 (CWE-532).
+        $this->failure('', '', self::formatAccountNotProvisionedComment($issuer, $externalId));
+    }
+
+    /**
+     * Build the redacted log comment for {@see accountNotProvisioned}.
+     * Public so tests can pin the redaction contract without going
+     * through the EventAuditLogger singleton.
+     */
+    public static function formatAccountNotProvisionedComment(string $issuer, string $externalId): string
+    {
+        $issuerHost = parse_url($issuer, PHP_URL_HOST);
+        if (!is_string($issuerHost) || $issuerHost === '') {
+            $issuerHost = '(invalid_iss)';
+        }
+        $subFingerprint = substr(hash('sha256', $externalId), 0, 12);
+        return 'GCIP OIDC account not provisioned for iss_host=' . $issuerHost . ' sub_fp=' . $subFingerprint;
     }
 
     public function mappedUserMissing(): void
