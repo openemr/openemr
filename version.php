@@ -17,7 +17,7 @@
 
 $v_major = '8';
 $v_minor = '1';
-$v_patch = '10';
+$v_patch = '11';
 $v_tag   = ''; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
