@@ -829,13 +829,4 @@ class EventAuditLogger
 
         return $event;
     }
-
-    private function encrypt(#[SensitiveParameter] string $plaintext): string
-    {
-        if ($this->crypto instanceof CipherSuiteInterface) {
-            return $this->crypto->encrypt($plaintext);
-        } else {
-            return $this->crypto->encryptStandard($plaintext);
-        }
-    }
 }
