@@ -8,13 +8,18 @@ use Doctrine\DBAL\{
     ArrayParameterType,
     Connection,
 };
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Services\Storage\{ManagerInterface, Location};
+use OpenEMR\Services\KeyRotation\{
+    DocumentKeyRotation,
+};
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-// use Symfony\Component\Console\Input\InputInterface;
-// use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
+// use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 // use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'encryption:sync', description: 'sync encryption')]
@@ -22,6 +27,7 @@ class SyncCommand extends Command
 {
     private bool $databaseEncryption;
     private bool $filesystemEncryption;
+    private LoggerInterface $logger;
 
     private array $encryptedDatabaseColumns = [
         'api_log' => ['request_url', 'request_body', 'response'],
@@ -91,6 +97,7 @@ class SyncCommand extends Command
     public function __construct(
         private Connection $conn,
         private CryptoInterface $crypto,
+        private DocumentKeyRotation $docRotation,
     ) {
         parent::__construct();
     }
@@ -99,6 +106,7 @@ class SyncCommand extends Command
         OutputInterface $output,
         #[Option(description: 'Do not write changes')] bool $dryRun = false,
     ): int {
+        $this->logger = new ConsoleLogger(output: $output);
         $this->readConfig();
         var_dump($this->filesystemEncryption);
         var_dump($this->databaseEncryption);
@@ -181,22 +189,10 @@ class SyncCommand extends Command
 
     private function syncDocuments(OutputInterface $output, bool $dryRun): void
     {
-        // This takes a naive approach for paging and resource management: go
-        // as far as possible and if it crashes from resource use, well, run
-        // the script again.
-        $data = $this->conn->createQueryBuilder()
-            ->select('id', 'type', 'url', 'thumb_url') // what else?
-            ->from('documents')
-            ->where('encrypted = :encrypted')
-            ->setParameter('encrypted', $this->filesystemEncryption ? 0 : 1) // Inverse of current state
-            ->executeQuery()
-            ->fetchAllAssociative();
 
-        foreach ($data as $row) {
-            print_r($row);
-        }
-
-
+        $this->docRotation->setDryRun($dryRun);
+        $this->docRotation->setLogger($this->logger);
+        $this->docRotation->rotateAllDocuments($this->filesystemEncryption);
     }
 
     /**

@@ -89,4 +89,6 @@ return [
     Psr17Factory::class,
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
+
+    OpenEMR\Services\KeyRotation\DocumentKeyRotation::class,
 ];
