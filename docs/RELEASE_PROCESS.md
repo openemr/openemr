@@ -146,17 +146,16 @@ Steps 9–11 are slated to collapse into one ship-release workflow tracked at [o
 
 ### Phase 5 — Post-merge artifact and download verification
 
-12. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable.
-13. **[Manual]** Upload the source archives to SourceForge.
-14. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
-15. **[Manual]** Update the DockerHub readme (the per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)).
-16. **[Manual]** *(Patch releases)* Update the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download list.
-17. **[Manual]** Update the [OpenEMR Downloads / Release History wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads). (Long-term: this should move to `website-openemr` so it ships with the docs PR.)
+12. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable. GitHub releases are the canonical (and only) distribution target — SourceForge is no longer supported. The website's download/release pages link to GitHub release assets rather than re-hosting them.
+13. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
+14. **[Manual]** Update the DockerHub readme (the per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)).
+15. **[Manual]** *(Patch releases)* Update the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download list.
+16. **[Manual]** Update the [OpenEMR Downloads / Release History wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads). (Long-term: this should move to `website-openemr` so it ships with the docs PR.)
 
 ### Phase 6 — Demo and promotion
 
-18. **[Manual]** Point the demo farm (live demo servers at open-emr.org) to the new tag.
-19. **[Manual]** Announce the release:
+17. **[Manual]** Point the demo farm (live demo servers at open-emr.org) to the new tag.
+18. **[Manual]** Announce the release:
     - Forums
     - Chat
     - Twitter / X
@@ -171,12 +170,11 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 | Step | What | Tracking |
 | --- | --- | --- |
 | 9–11 | Single "ship release" workflow that merges all three PRs in order | [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705) |
-| 13 | Automate SourceForge upload from the GitHub release artifacts | [openemr/openemr-devops#708](https://github.com/openemr/openemr-devops/issues/708) |
-| 15 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
-| 16 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | [openemr/website-openemr#119](https://github.com/openemr/website-openemr/issues/119) |
-| 17 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | [openemr/website-openemr#120](https://github.com/openemr/website-openemr/issues/120) |
-| 18 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
-| 19 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
+| 14 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
+| 15 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | [openemr/website-openemr#119](https://github.com/openemr/website-openemr/issues/119) |
+| 16 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | [openemr/website-openemr#120](https://github.com/openemr/website-openemr/issues/120) |
+| 17 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
+| 18 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
 
