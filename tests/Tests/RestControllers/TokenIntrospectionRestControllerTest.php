@@ -169,6 +169,62 @@ final class TokenIntrospectionRestControllerTest extends TestCase
         self::assertLogContains($logger, 'Client ID mismatch');
     }
 
+    /**
+     * Aisle round-6 #1 (CWE-287) regression — the authentication-
+     * bypass scenario. Pre-fix, the JWT-branch gate required both
+     * `client_assertion` and `client_assertion_type` non-empty to
+     * enter the branch, then the inner `hasJWTClientAssertion`
+     * check required the type to *exactly* equal the canonical
+     * URN. Any non-canonical type returned false silently → no
+     * authentication ran → control fell through to the
+     * introspection logic with an attacker-supplied `client_id`
+     * accepted as valid. Full RFC 7662 introspection response
+     * returned to a caller who never authenticated.
+     *
+     * Post-fix: presence of either parameter signals an attempted
+     * JWT-auth flow; malformed shapes throw and the catch returns
+     * the swallow-all-errors `active:false` response.
+     */
+    public function testIntrospectionRejectsBypassViaInvalidClientAssertionType(): void
+    {
+        $request = $this->buildRequest([
+            'token' => self::TEST_TOKEN,
+            'client_id' => self::TEST_CLIENT_ID,
+            'client_assertion' => 'attacker-supplied-non-empty',
+            // Wrong assertion type — not the canonical
+            // urn:ietf:params:oauth:client-assertion-type:jwt-bearer.
+            // Pre-fix the inner hasJWTClientAssertion check returned
+            // false silently for this; post-fix the outer gate
+            // detects the JWT-auth attempt and the inner check throws.
+            'client_assertion_type' => 'urn:wrong:type',
+        ]);
+        $logger = new RecordingLogger();
+        $controller = $this->buildController(logger: $logger);
+        // Inject a real JWT auth service so hasJWTClientAssertion's
+        // canonical-URN check runs against the request body. The
+        // service's other methods don't get reached on this path.
+        // Default-construct: tests/services already exercise it for
+        // other paths, here we just need the URN check to return
+        // false as it normally does for non-canonical types.
+        // Pre-set ClientRepository so the no-assertion fall-through
+        // (if a regression reintroduces it) wouldn't accidentally
+        // pass the legacy gate via injected mocks.
+        $controller->setClientRepository($this->buildClientRepo(rawRow: [
+            'client_id' => self::TEST_CLIENT_ID,
+            'is_enabled' => 1,
+            'is_confidential' => 1,
+            'client_secret' => null,
+        ]));
+
+        $response = $controller->postAction($request);
+
+        self::assertActiveFalse(
+            $response,
+            'Invalid client_assertion_type must NOT silently bypass auth and return introspection data',
+        );
+        self::assertLogContains($logger, 'Invalid client assertion');
+    }
+
     public function testIntrospectionRejectsUnregisteredClient(): void
     {
         // No row in oauth_clients for the JWT-asserted client_id —
