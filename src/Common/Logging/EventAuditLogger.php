@@ -661,7 +661,7 @@ class EventAuditLogger
         }
 
         // Note: this used to have an encryption path; it was removed as part
-        // of #12118.
+        // of #12118+12120.
 
         // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
         $comments = base64_encode($comments);
