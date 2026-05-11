@@ -248,6 +248,39 @@ final class JsonWebKeyParserTest extends TestCase
         self::assertSame('expired', $result['status']);
     }
 
+    /**
+     * Aisle round-6 #3 (CWE-287) regression. Pre-fix the access-
+     * token introspection check enforced only `exp` via
+     * `isExpired()`. A JWT with valid signature and a future `nbf`
+     * was reported as active:true — resource servers relying on
+     * introspection would accept the token before its intended
+     * validity window. Post-fix `LooseValidAt` enforces nbf, iat,
+     * and exp together with a 1-minute drift tolerance, and the
+     * status field distinguishes "not_yet_valid" (future nbf)
+     * from "expired" (past exp).
+     */
+    public function testParseAccessTokenMarksNotYetValidJwtInactive(): void
+    {
+        // exp far in the future, but nbf hasn't kicked in yet.
+        // Set nbf well outside the 1-minute LooseValidAt drift
+        // tolerance so the test isn't flaky on slow CI.
+        $jwt = $this->buildJwt([
+            'iat' => new \DateTimeImmutable('+30 minutes'),
+            'nbf' => new \DateTimeImmutable('+30 minutes'),
+            'exp' => new \DateTimeImmutable('+2 hours'),
+        ]);
+
+        $result = $this->parser->parseAccessToken($jwt);
+        assert(is_array($result));
+
+        self::assertFalse($result['active']);
+        self::assertSame(
+            'not_yet_valid',
+            $result['status'],
+            'Future-nbf JWT must be rejected with the not_yet_valid status — distinct from expired',
+        );
+    }
+
     public function testParseAccessTokenReturnsActiveForValidSignedNonExpiredJwt(): void
     {
         $jwt = $this->buildJwt([
