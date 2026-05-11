@@ -180,20 +180,37 @@ Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https
 
 ## Partial merges and recovery
 
-The three PRs are coupled only by `repository_dispatch` — nothing in the automation prevents a maintainer from merging out of order or stopping partway. Each scenario degrades differently:
+The three PRs are coupled only by `repository_dispatch`. Branch protection should block direct merges and require the ship-release workflow ([openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705)) as the only merge path, but admin-overrides and misconfigurations happen — this section documents the recovery path when they do.
+
+### Partial-merge states
 
 | Merged | Effect |
 | --- | --- |
 | Conductor only | Annotated tag exists; CI matrices and Docker pins still target the prior `current`; website still advertises the prior version. Builds for the new release exist (the tag is real) but discoverability and CI rotation lag. |
-| Docs only | Cannot reach FINAL — the DRAFT/FINAL banner is driven by the `openemr-tag` event, which the conductor never emitted. Merging publishes pages permanently stamped DRAFT for a version that was never tagged. **Avoid this case.** |
 | Infra only | CI matrices roll forward to a `current` slot whose tag does not exist; builds for `current` fail until the conductor merges. Recoverable but noisy. |
+| Docs only | Cannot reach FINAL — the DRAFT/FINAL banner is driven by the `openemr-tag` event, which the conductor never emitted. Merging publishes pages permanently stamped DRAFT for a version that was never tagged. **Worst case.** See "Docs-first recovery" below. |
 | Conductor + infra (no docs) | Tag exists, CI green, but website still serves prior-version install/upgrade pages and no release notes. |
 | Conductor + docs (no infra) | Tag exists, docs FINAL, but CI matrices still build the prior `current`/`next` slots — release-CI signal lags until the rotation PR merges. |
 | Infra + docs (no conductor) | Both PRs reference a version whose tag does not exist. Docs stay DRAFT; CI builds for `current` fail. |
 
-Recovery is always "merge the remaining PRs"; nothing is unrecoverable. The website may serve stale or DRAFT-stamped content, and CI may be red against `current`, until the set is complete.
+### Recovery
 
-A planned follow-on is a single "ship release" workflow that verifies all three PRs are mergeable and green and then merges them in the recommended order, collapsing the three-button maintainer step into one. Tracked in [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705).
+For every case **except docs-first**: re-trigger the ship-release workflow. It detects already-merged PRs, skips them, and merges the rest in dependency order with the same preconditions check (mergeable + green + required approvals). The website may serve stale content and CI may be red against `current` until the workflow completes, but no manual intervention is needed.
+
+### Docs-first recovery (manual, today)
+
+This is the worst case and recovery is currently manual. A future docs-side reconciliation workflow could automate it; see the trailing note.
+
+The docs PR has already shipped FINAL pages for a version that has no tag yet. After the ship-release workflow merges the conductor (creating the tag) and infra, the existing FINAL-flip mechanism doesn't help — it fires on docs-PR updates, but the docs PR is already merged and closed. The published pages are orphaned: they reference a version that now exists, but with stale DRAFT-era SHAs and no tag link.
+
+Manual steps:
+
+1. Merge the conductor and infra PRs via the ship-release workflow as normal. This creates the tag and rotates CI.
+2. In `openemr/website-openemr`, open a follow-up PR that re-renders the affected install/upgrade/release-notes pages against the now-real tag. Easiest path is to manually re-run the docs-PR generator script with the new tag SHA, commit the regenerated output, and merge.
+3. Verify the live website pages now show the FINAL banner with the correct tag link, not DRAFT.
+4. If anyone scraped or linked the DRAFT-stamped pages between merge and reconciliation, the URLs are stable — they now serve correct FINAL content.
+
+Folding this reconciliation into a workflow is a future follow-on; not yet filed. Scope it once docs-first has happened in practice (or the user-facing impact justifies preemptive automation).
 
 ## Naming and tag conventions
 
