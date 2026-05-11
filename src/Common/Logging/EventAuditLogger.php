@@ -20,13 +20,10 @@ use OpenEMR\BC\{
     ServiceContainer,
 };
 use OpenEMR\Common\Auth\AuthEvent;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
-use OpenEMR\Encryption\CipherSuiteInterface;
 use Psr\Clock\ClockInterface;
-use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
