@@ -20,6 +20,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 #[AsCommand(name: 'encryption:sync', description: 'sync encryption')]
 class SyncCommand extends Command
 {
+    private bool $databaseEncryption;
+    private bool $filesystemEncryption;
+
     private array $encryptedDatabaseColumns = [
         'api_log' => ['request_url', 'request_body', 'response'],
         'comlink_telehealth_auth' => ['auth_token'],
@@ -96,6 +99,10 @@ class SyncCommand extends Command
         OutputInterface $output,
         #[Option(description: 'Do not write changes')] bool $dryRun = false,
     ): int {
+        $this->readConfig();
+        var_dump($this->filesystemEncryption);
+        var_dump($this->databaseEncryption);
+
         foreach ($this->encryptedDatabaseColumns as $table => $columns) {
             foreach ($columns as $column) {
                 // $this->syncDataInColumn($table, $column); // need to read+pass PK
@@ -116,6 +123,16 @@ class SyncCommand extends Command
         // print_r($this->crypto);
 
         // Handle globals
+        // $this->syncGlobalsTable($output, $dryRun);
+        $this->syncDocuments($output, $dryRun);
+
+        // files: again, its own thing
+
+        return 0;
+    }
+
+    private function syncGlobalsTable(OutputInterface $output, bool $dryRun): void
+    {
         $qb = $this->conn->createQueryBuilder();
         $qb->select('gl_name', 'gl_value')
             ->from('globals')
@@ -129,6 +146,8 @@ class SyncCommand extends Command
             }
             $key = $row['gl_name'];
             $value = $row['gl_value'];
+            assert(is_string($key));
+            assert(is_string($value));
 
             if ($this->crypto->isDatabaseValueLatest($value)) {
                 $output->writeln("Globals: $key is current");
@@ -148,10 +167,6 @@ class SyncCommand extends Command
             }
         }
 
-
-        // files: again, its own thing
-
-        return 0;
     }
 
     private function syncDataInColumn(string $table, string $column, string $pkColumn): void
@@ -162,5 +177,44 @@ class SyncCommand extends Command
 
         // one table as a multi-column PK. It's probably best to just fix that
         // at the source rather than trying to patch around it here.
+    }
+
+    private function syncDocuments(OutputInterface $output, bool $dryRun): void
+    {
+        // This takes a naive approach for paging and resource management: go
+        // as far as possible and if it crashes from resource use, well, run
+        // the script again.
+        $data = $this->conn->createQueryBuilder()
+            ->select('id', 'type', 'url', 'thumb_url') // what else?
+            ->from('documents')
+            ->where('encrypted = :encrypted')
+            ->setParameter('encrypted', $this->filesystemEncryption ? 0 : 1) // Inverse of current state
+            ->executeQuery()
+            ->fetchAllAssociative();
+
+        foreach ($data as $row) {
+            print_r($row);
+        }
+
+
+    }
+
+    /**
+     * Reimplements a minimal set of application bootstrapping out of the
+     * globals table to read the necessary config but still be DI-friendly.
+     */
+    private function readConfig(): void
+    {
+        $configs = $this->conn->createQueryBuilder()
+            ->select('gl_name', 'gl_value')
+            ->from('globals')
+            ->where('gl_name IN (:keys)')
+            ->setParameter('keys', ['drive_encryption', 'filesystem_encryption'], ArrayParameterType::STRING)
+            ->executeQuery()
+            ->fetchAllKeyValue();
+
+        // Note: this replicates the logic from library/globals.php :/
+        $this->databaseEncryption = ($configs['database_encryption'] ?? '1') === '1';
+        $this->filesystemEncryption = ($configs['drive_encryption'] ?? '1') === '1';
     }
 }
