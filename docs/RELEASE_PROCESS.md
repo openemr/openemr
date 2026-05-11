@@ -1,8 +1,10 @@
 # OpenEMR Release Process
 
-This document describes the **end-to-end automated release flow** for tagged OpenEMR releases. The flow spans four repositories, is driven by `repository_dispatch` events (most emitted by this repo as the conductor; one — `openemr-docs-binaries` — emitted by `website-openemr` to `website-openemr-files`), and shrinks the release manager's manual surface to: cut the branch, edit a generated release-notes draft, sign off the ONC certification page, write a marketing piece (major releases only), and merge three pre-built PRs.
+This document is the **complete release runbook** for tagged OpenEMR releases — every step from pre-release QA through post-release announcements, including the parts that are automated, the parts that aren't yet, and the parts that are irreducibly manual.
 
-For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below.
+The automation core spans four repositories and is driven by `repository_dispatch` events (most emitted by this repo as the conductor; one — `openemr-docs-binaries` — emitted by `website-openemr` to `website-openemr-files`). It opens three reviewable PRs that cover code/version bumps, install/upgrade/release-notes pages, and CI/Docker pin rotation. Several post-merge steps (DockerHub readme, demo farm, Release History page, social/forum/email announcements) remain manual today; see [Automation gaps](#automation-gaps).
+
+For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below. For the end-to-end ordered checklist a release manager actually walks through, jump to [Release runbook](#release-runbook).
 
 ## Repositories involved
 
@@ -111,19 +113,73 @@ Long-lived PR against `master`, force-updated on each dispatch. Rotates the thre
 
 Touches CI matrices, package version refs, raspberrypi / Docker pinned versions. Driven by `tools/release/versions.yml`.
 
-## Maintainer's manual steps
+## Release runbook
 
-Even with full automation, the release manager still:
+The complete ordered checklist for cutting a release. Each step is marked **[Automated]**, **[Manual]** (will be automated later — see [Automation gaps](#automation-gaps)), or **[Manual — judgment]** (irreducibly manual; requires human input).
 
-1. **Triggers the initial branch cut** (`rel-<MAJOR><MINOR>0` from master, e.g. `rel-810`). This is the only step that creates new state from nothing.
-2. **Edits the auto-generated release-notes draft** in the `website-openemr` PR for tone and what's noteworthy. The draft is regenerated on every push, so edits should be made on the PR branch (workflow preserves manual edits in the rendered page).
-3. **Signs off the ONC Ambulatory EHR Certification Requirements page** in the `website-openemr` PR.
-4. **Writes the marketing piece** (major releases only).
-5. **Merges the three PRs** — conductor (`openemr/openemr`), docs (`website-openemr`), infra (`openemr-devops`). Merging the conductor creates the annotated tag, which flips the docs PR's banner from DRAFT to FINAL and triggers the infra rotation's "promote `next` → `current`" step.
+### Phase 1 — Pre-release QA
 
-Recommended merge order: **infra first** (so CI is ready against the new branch), **conductor next** (creates the tag), **docs last** (consumes the tag to flip to FINAL).
+1. **[Manual — judgment]** Confirm pre-release QA is complete. The QA process (test plan, regression coverage, sign-off) lives on the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process); follow it before cutting the branch. (Folding the QA gate into the automation is tracked under [Automation gaps](#automation-gaps).)
 
-Everything else — artifact builds, install/upgrade page rewrites, redirect setup, version bumps, acknowledgement lists, package version pins — is mechanical and lives in the workflows.
+### Phase 2 — Branch cut and PR generation
+
+2. **[Manual — judgment]** Cut the release branch: `rel-<MAJOR><MINOR>0` (e.g. `rel-810`) from `master`. This is the only step that creates new state from nothing.
+3. **[Automated]** Conductor workflow (`release-prep.yml` in `openemr/openemr`) opens or updates the `release-prep/<rel-branch>` draft PR with all mechanical version bumps. Re-fires on every relevant push.
+4. **[Automated]** Docs workflow (in `website-openemr`) opens or updates the `release-docs/<version>` draft PR with install/upgrade pages, OpenAPI YAML, release-notes draft, acknowledgements, Hugo aliases. Pages render with a `DRAFT — based on rel-* @ <sha>` banner.
+5. **[Automated]** Infra workflow (`release-rotation.yml` in `openemr-devops`) opens or updates the `release-rotation/auto` draft PR rotating CI/version slots.
+
+### Phase 3 — Manual editorial work (in the open PRs)
+
+6. **[Manual — judgment]** In the `website-openemr` PR, edit the auto-generated release-notes draft for tone and what's noteworthy. The draft regenerates on every push; edits should be made on the PR branch (the workflow preserves manual edits in the rendered page).
+7. **[Manual — judgment]** In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
+8. **[Manual — judgment]** *(Major releases only)* Write the marketing piece for the website.
+
+### Phase 4 — Merge the three PRs
+
+Recommended order: **infra → conductor → docs.** Infra readies CI for the new branch; the conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and triggers the infra rotation's `next` → `current` promotion); merging the docs PR ships the now-FINAL pages.
+
+9. **[Manual]** Merge the **infra PR** in `openemr-devops`.
+10. **[Manual]** Merge the **conductor PR** in `openemr/openemr`. The merge commit gets the annotated release tag.
+11. **[Manual]** Merge the **docs PR** in `website-openemr`. The DRAFT/FINAL banner flips to FINAL.
+
+Steps 9–11 are slated to collapse into one ship-release workflow tracked at [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705). See [Partial merges and recovery](#partial-merges-and-recovery) for what happens if you stop partway.
+
+### Phase 5 — Post-merge artifact and download verification
+
+12. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable.
+13. **[Manual]** Upload the source archives to SourceForge.
+14. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
+15. **[Manual]** Update the DockerHub readme (the per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)).
+16. **[Manual]** *(Patch releases)* Update the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download list.
+17. **[Manual]** Update the [OpenEMR Downloads / Release History wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads). (Long-term: this should move to `website-openemr` so it ships with the docs PR.)
+
+### Phase 6 — Demo and promotion
+
+18. **[Manual]** Point the demo farm (live demo servers at open-emr.org) to the new tag.
+19. **[Manual]** Announce the release:
+    - Forums
+    - Chat
+    - Twitter / X
+    - Facebook
+    - LinkedIn (group + company page)
+    - Registered-users mailing list
+
+## Automation gaps
+
+The runbook above marks each currently-manual post-automation step **[Manual]**. None of them are irreducibly manual; they're tracked for follow-on automation:
+
+| Step | What | Tracking |
+| --- | --- | --- |
+| 1 | Fold pre-release QA gate into the conductor (block `rel-cut` until QA sign-off) | _to file_ |
+| 9–11 | Single "ship release" workflow that merges all three PRs in order | [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705) |
+| 13 | Automate SourceForge upload from the GitHub release artifacts | _to file_ |
+| 15 | Automate the DockerHub readme update | _to file_ |
+| 16 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | _to file_ |
+| 17 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | _to file_ |
+| 18 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | _to file_ |
+| 19 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | _to file_ |
+
+Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
 
 ## Partial merges and recovery
 
