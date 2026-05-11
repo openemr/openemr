@@ -209,7 +209,7 @@ class SyncCommand extends Command
             ->select('gl_name', 'gl_value')
             ->from('globals')
             ->where('gl_name IN (:keys)')
-            ->setParameter('keys', ['drive_encryption', 'filesystem_encryption'], ArrayParameterType::STRING)
+            ->setParameter('keys', ['drive_encryption', 'database_encryption'], ArrayParameterType::STRING)
             ->executeQuery()
             ->fetchAllKeyValue();
 
