@@ -27,6 +27,7 @@ return [
         'components/.gitkeep',
         'composer.json',
         'help.php',
+        'info.txt',
         'migrations/001_create_migrations_table.php',
         'migrations/002_add_update_cache_columns.php',
         'moduleConfig.php',
@@ -50,6 +51,7 @@ return [
         'src/Services/PracticeService.php',
         'src/UpdateManager.php',
         'vendor/autoload.php',
+        'version.php',
     ],
     'service_components' => [
         'appointment_reminders' => ['component-reminders-campaigns', 'component-openemr-ui-hooks'],

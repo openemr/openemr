@@ -201,6 +201,100 @@ function medexNormalizeOtpChannel(string $channel): string
     return in_array($channel, ['email', 'sms'], true) ? $channel : '';
 }
 
+function medexResolveOpenEmrBaseUrlForOtp(): string
+{
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+    if ($host === '') {
+        return '';
+    }
+
+    $basePath = '';
+    $scriptName = (string)($_SERVER['SCRIPT_NAME'] ?? '');
+    $interfacePos = strpos($scriptName, '/interface/');
+    if ($interfacePos !== false) {
+        $basePath = rtrim(substr($scriptName, 0, $interfacePos), '/');
+    }
+
+    if ($basePath === '') {
+        $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
+        if ($webroot !== '') {
+            $basePath = '/' . $webroot;
+        }
+    }
+
+    if ($basePath === '') {
+        $siteAddr = trim((string)($GLOBALS['site_addr_oath'] ?? ''));
+        if ($siteAddr !== '') {
+            $siteParts = parse_url($siteAddr);
+            $sitePath = trim((string)($siteParts['path'] ?? ''), '/');
+            if ($sitePath !== '') {
+                $basePath = '/' . $sitePath;
+            }
+        }
+    }
+
+    return $scheme . '://' . $host . $basePath;
+}
+
+function medexIsNonPublicHostForOtp(string $host): bool
+{
+    $host = strtolower(trim($host));
+    if ($host === '' || $host === 'localhost') {
+        return true;
+    }
+
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        return !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+    }
+
+    foreach (['.local', '.localhost', '.internal', '.test', '.invalid', '.example'] as $suffix) {
+        if (str_ends_with($host, $suffix)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function medexOtpPublicBaseUrl(): string
+{
+    foreach (['medex_callback_base_url', 'medex_preview_tunnel_public_base_url', 'site_addr_oath'] as $globalName) {
+        $value = trim((string)($GLOBALS[$globalName] ?? ''));
+        if ($value !== '') {
+            return rtrim($value, '/');
+        }
+    }
+
+    return '';
+}
+
+function medexOtpReachabilityStatus(): array
+{
+    $candidateUrl = medexOtpPublicBaseUrl();
+    if ($candidateUrl === '') {
+        $candidateUrl = rtrim(medexResolveOpenEmrBaseUrlForOtp(), '/');
+    }
+
+    if ($candidateUrl === '') {
+        return [false, 'OpenEMR URL could not be detected. This install must have a publicly reachable HTTPS URL before MedEx registration can continue.'];
+    }
+
+    $parts = parse_url($candidateUrl);
+    $scheme = strtolower((string)($parts['scheme'] ?? ''));
+    $host = strtolower((string)($parts['host'] ?? ''));
+
+    if ($scheme !== 'https') {
+        return [false, 'OpenEMR must be reachable at a public HTTPS URL before MedEx registration can continue.'];
+    }
+
+    if ($host === '' || medexIsNonPublicHostForOtp($host)) {
+        return [false, 'This OpenEMR URL is local or not publicly reachable. Assign a public preview or production URL before continuing.'];
+    }
+
+    return [true, ''];
+}
+
 function medexNormalizeSmsDestination(string $sms): string
 {
     $sms = trim($sms);
@@ -521,6 +615,21 @@ if ($destination === '') {
         echo json_encode(['success' => false, 'error' => 'Valid administrator email is required']);
     } else {
         echo json_encode(['success' => false, 'error' => 'Valid SMS number is required in +15551234567 format']);
+    }
+    exit;
+}
+
+[$otpReachabilityReady, $otpReachabilityMessage] = medexOtpReachabilityStatus();
+if (!$otpReachabilityReady) {
+    medexAuditOtpDecision($action, $channel, $destination, '', 'reject', 'non_public_openemr_url');
+    if ($action === 'status') {
+        echo json_encode([
+            'success' => true,
+            'verified' => false,
+            'message' => $otpReachabilityMessage,
+        ]);
+    } else {
+        echo json_encode(['success' => false, 'error' => $otpReachabilityMessage]);
     }
     exit;
 }

@@ -431,6 +431,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             } else {
                 $sendJson(['success' => true, 'provider_url' => null]);
             }
+        case 'check_todays_encounters':
+            $pid = intval($_POST['pid'] ?? 0);
+            if (!$pid) {
+                $sendJson(['success' => false, 'error' => 'Invalid patient ID'], 400);
+            }
+            // Check for active provider tokens from today
+            $todayTokens = sqlQuery(
+                "SELECT token, created_at FROM medex_secure_chat_tokens
+                 WHERE pid = ? AND is_provider = 1 AND expires_at > NOW()
+                 AND DATE(created_at) = CURDATE()
+                 ORDER BY created_at DESC LIMIT 1",
+                [$pid]
+            );
+            // Also check for any non-expired tokens (not just today)
+            $anyActiveToken = sqlQuery(
+                "SELECT token, created_at FROM medex_secure_chat_tokens
+                 WHERE pid = ? AND is_provider = 1 AND expires_at > NOW()
+                 ORDER BY created_at DESC LIMIT 1",
+                [$pid]
+            );
+            $hasTodaySession = !empty($todayTokens['token']);
+            $hasAnySession = !empty($anyActiveToken['token']);
+            $tokenDate = $anyActiveToken['created_at'] ?? null;
+            $sendJson([
+                'success' => true,
+                'has_today_session' => $hasTodaySession,
+                'has_any_session' => $hasAnySession,
+                'token_date' => $tokenDate,
+                'provider_url' => $hasAnySession ? ('https://x-0.me/index.php?route=information/chat_patient&token=' . rawurlencode($anyActiveToken['token'])) : null
+            ]);
         default:
             $sendJson(['success' => false, 'error' => 'Unsupported action'], 400);
         }
@@ -881,7 +911,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     function selectPatient(patient) {
         selectedPatient = patient;
-        
+
         // Update UI
         document.querySelectorAll('.patient-card').forEach(function(card) {
             card.classList.remove('selected');
@@ -890,38 +920,149 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         if (selectedCard) {
             selectedCard.classList.add('selected');
         }
-        
+
         // Show patient details
         document.getElementById('selectedPatientName').textContent = patient.fname + ' ' + patient.lname;
         document.getElementById('selectedPatientDOB').textContent = patient.dob || '-';
         document.getElementById('selectedPatientPhone').textContent = patient.phone || '-';
         document.getElementById('selectedPatientEmail').textContent = patient.email || '-';
-        
+
         // Update send options
         var smsOption = document.getElementById('sendSMS');
         var emailOption = document.getElementById('sendEmail');
-        
+
         if (patient.phone) {
             smsOption.classList.remove('disabled');
         } else {
             smsOption.classList.add('disabled');
         }
-        
+
         if (patient.email) {
             emailOption.classList.remove('disabled');
         } else {
             emailOption.classList.add('disabled');
         }
-        
+
         // Clear previous results
         document.getElementById('linkResult').style.display = 'none';
         document.getElementById('sendStatusMessage').innerHTML = '';
-        
+
         // Show details section
         document.getElementById('patientDetails').classList.add('active');
-        
+
+        // Check for today's encounters and show appropriate options
+        checkTodaysEncountersAndShowOptions(patient);
+
         // Load chat history
         loadChatHistory(1);
+    }
+
+    function checkTodaysEncountersAndShowOptions(patient) {
+        var formData = new FormData();
+        formData.append('action', 'check_todays_encounters');
+        formData.append('pid', patient.pid);
+        formData.append('csrf_token', csrfToken);
+
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showSessionOptions(data);
+            }
+        })
+        .catch(function(err) {
+            console.error('Check encounters error:', err);
+        });
+    }
+
+    function showSessionOptions(data) {
+        var statusDiv = document.getElementById('sendStatusMessage');
+        var html = '';
+
+        if (data.has_today_session) {
+            html = '<div class="alert alert-success">' +
+                   '<i class="fa fa-check-circle"></i> ' +
+                   '<strong>' + <?php echo json_encode(xl('Active session today')); ?> + '</strong><br>' +
+                   '<small>' + <?php echo json_encode(xl('Patient has an active secure chat session from today. You can join the existing conversation.')); ?> + '</small><br><br>' +
+                   '<button class="btn btn-primary" onclick="joinExistingSession()"><i class="fa fa-comments"></i> ' +
+                   <?php echo json_encode(xl('Join Active Session')); ?> + '</button>' +
+                   '</div>';
+        } else if (data.has_any_session) {
+            var tokenDate = data.token_date ? new Date(data.token_date) : null;
+            var dateStr = tokenDate ? tokenDate.toLocaleDateString() : '';
+            html = '<div class="alert alert-info">' +
+                   '<i class="fa fa-info-circle"></i> ' +
+                   '<strong>' + <?php echo json_encode(xl('Previous session found')); ?> + '</strong><br>' +
+                   '<small>' + <?php echo json_encode(xl('Patient has an active session from')); ?> + ' ' + escapeHtml(dateStr) + '. ' +
+                   <?php echo json_encode(xl('You can join it or send a new link to start a fresh conversation.')); ?> + '</small><br><br>' +
+                   '<button class="btn btn-outline-primary" onclick="joinExistingSession()"><i class="fa fa-comments"></i> ' +
+                   <?php echo json_encode(xl('Join Previous Session')); ?> + '</button> ' +
+                   '<button class="btn btn-primary" onclick="showSendOptions()"><i class="fa fa-paper-plane"></i> ' +
+                   <?php echo json_encode(xl('Send New Link')); ?> + '</button>' +
+                   '</div>';
+        } else {
+            html = '<div class="alert alert-warning">' +
+                   '<i class="fa fa-exclamation-triangle"></i> ' +
+                   '<strong>' + <?php echo json_encode(xl('No active session')); ?> + '</strong><br>' +
+                   '<small>' + <?php echo json_encode(xl('No active secure chat session found. Send a link via SMS or email to start a conversation.')); ?> + '</small><br><br>' +
+                   '<button class="btn btn-primary" onclick="showSendOptions()"><i class="fa fa-paper-plane"></i> ' +
+                   <?php echo json_encode(xl('Send Link Now')); ?> + '</button>' +
+                   '</div>';
+        }
+
+        statusDiv.innerHTML = html;
+
+        // Store provider URL if available
+        if (data.provider_url) {
+            window.currentProviderUrl = data.provider_url;
+        } else {
+            window.currentProviderUrl = null;
+        }
+    }
+
+    function joinExistingSession() {
+        if (window.currentProviderUrl) {
+            window.open(window.currentProviderUrl, '_blank');
+        } else {
+            // Fallback to get_active_session
+            if (selectedPatient) {
+                var formData = new FormData();
+                formData.append('action', 'get_active_session');
+                formData.append('pid', selectedPatient.pid);
+                formData.append('csrf_token', csrfToken);
+
+                if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+                fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/secure_chat.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success && data.provider_url) {
+                        window.open(data.provider_url, '_blank');
+                    } else {
+                        alert(<?php echo json_encode(xl('No active session found. Please send a new link.')); ?>);
+                        showSendOptions();
+                    }
+                })
+                .catch(function(err) {
+                    console.error('Join session error:', err);
+                });
+            }
+        }
+    }
+
+    function showSendOptions() {
+        document.getElementById('sendStatusMessage').innerHTML = '';
+        // Scroll to send options
+        var sendOptionsDiv = document.querySelector('.send-options');
+        if (sendOptionsDiv) {
+            sendOptionsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
     }
     
     function sendChatLink(method) {

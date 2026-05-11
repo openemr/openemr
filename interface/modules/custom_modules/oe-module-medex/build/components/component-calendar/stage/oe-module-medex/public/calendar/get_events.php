@@ -213,6 +213,59 @@ try {
         exit;
     }
 
+    // Build occupied intervals first so stale generated open slots are not shown
+    // when a real patient appointment already exists at the same time.
+    $occupiedByProviderDate = [];
+    foreach ($rows as $occupiedRow) {
+        $patientId = (int)($occupiedRow['patient_id'] ?? 0);
+        if ($patientId <= 0) {
+            continue;
+        }
+
+        $statusCode = strtoupper(trim((string)($occupiedRow['status'] ?? '')));
+        if ($statusCode === 'X' || $statusCode === '%') {
+            continue;
+        }
+
+        $providerId = (int)($occupiedRow['provider_id'] ?? 0);
+        $eventDate = trim((string)($occupiedRow['date'] ?? ''));
+        $startTime = trim((string)($occupiedRow['startTime'] ?? ''));
+        if ($providerId <= 0 || $eventDate === '' || $startTime === '') {
+            continue;
+        }
+
+        $durationSeconds = (int)($occupiedRow['duration'] ?? 0);
+        if ($durationSeconds <= 0 && !empty($occupiedRow['endTime'])) {
+            $startTsRaw = strtotime($startTime);
+            $endTsRaw = strtotime((string)$occupiedRow['endTime']);
+            if ($startTsRaw !== false && $endTsRaw !== false && $endTsRaw > $startTsRaw) {
+                $durationSeconds = $endTsRaw - $startTsRaw;
+            }
+        }
+        if ($durationSeconds <= 0) {
+            $slotMinutes = (int)($GLOBALS['calendar_interval'] ?? 15);
+            if ($slotMinutes <= 0) {
+                $slotMinutes = 15;
+            }
+            $durationSeconds = $slotMinutes * 60;
+        }
+
+        $startTs = strtotime($eventDate . ' ' . $startTime);
+        if ($startTs === false) {
+            continue;
+        }
+        $endTs = $startTs + $durationSeconds;
+        if ($endTs <= $startTs) {
+            continue;
+        }
+
+        $bucketKey = $providerId . '|' . $eventDate;
+        if (!isset($occupiedByProviderDate[$bucketKey])) {
+            $occupiedByProviderDate[$bucketKey] = [];
+        }
+        $occupiedByProviderDate[$bucketKey][] = [$startTs, $endTs];
+    }
+
     // Load MedEx icons map once
     $icons = [];
     try {
@@ -290,6 +343,41 @@ try {
         return implode('', $icon_here) . $icon2_here;
     };
 
+    // Multiple MedEx generation paths can produce the same availability slot.
+    // Keep one generated slot per provider/date/start/end to avoid duplicate open rows.
+    $bestGeneratedSlotByKey = [];
+    foreach ($rows as $candidateRow) {
+        $candidatePid = (int)($candidateRow['patient_id'] ?? 0);
+        $candidateLocation = trim((string)($candidateRow['location_tag'] ?? ''));
+        $candidateIsGenerated = ($candidatePid <= 0) && str_starts_with($candidateLocation, 'MEDEX_');
+        if (!$candidateIsGenerated) {
+            continue;
+        }
+        $slotKey = (int)($candidateRow['provider_id'] ?? 0)
+            . '|' . (string)($candidateRow['date'] ?? '')
+            . '|' . (string)($candidateRow['startTime'] ?? '')
+            . '|' . (string)($candidateRow['endTime'] ?? '');
+        if ($slotKey === '') {
+            continue;
+        }
+
+        $score = 0;
+        if ((int)($candidateRow['preferred_category_id'] ?? 0) > 0) {
+            $score += 10;
+        }
+        if (str_contains($candidateLocation, 'INTERVIEW_GENERATED')) {
+            $score += 5;
+        }
+
+        $existing = $bestGeneratedSlotByKey[$slotKey] ?? null;
+        if ($existing === null || $score > (int)($existing['score'] ?? -1)) {
+            $bestGeneratedSlotByKey[$slotKey] = [
+                'id' => (string)($candidateRow['id'] ?? ''),
+                'score' => $score,
+            ];
+        }
+    }
+
     foreach ($rows as $row) {
         $needsUpdate = false;
 
@@ -351,14 +439,48 @@ try {
             $providerName = trim($row['provider_fname'] . ' ' . $row['provider_lname']);
         }
 
-        $title = $row['title'];
+        $rawTitle = trim((string)($row['title'] ?? ''));
         if ($patientName) {
-            $title = $patientName . ' - ' . $title;
+            $cleanPatientTitle = (string)preg_replace('/\bOpen\s+Slot\s*-\s*/i', '', $rawTitle);
+            $cleanPatientTitle = trim($cleanPatientTitle, " -\t\n\r\0\x0B");
+            if ($cleanPatientTitle === '' && !empty($row['preferred_category_name'])) {
+                $cleanPatientTitle = trim((string)$row['preferred_category_name']);
+            }
+            if ($cleanPatientTitle === '' && !empty($row['category_name'])) {
+                $cleanPatientTitle = trim((string)$row['category_name']);
+            }
+            $title = $patientName . ($cleanPatientTitle !== '' ? (' - ' . $cleanPatientTitle) : '');
+        } else {
+            $title = $rawTitle;
         }
 
         $locationTag = trim((string)($row['location_tag'] ?? ''));
         $isProviderAvailability = ((int)($row['category'] ?? 0) === 2) && ((int)($row['patient_id'] ?? 0) <= 0);
         $isGeneratedSlot = ((int)($row['patient_id'] ?? 0) <= 0) && str_starts_with($locationTag, 'MEDEX_');
+        $locationTagUpper = strtoupper($locationTag);
+        $isReschedulable = str_contains($locationTagUpper, 'RESCHEDULABLE=1') || str_contains($locationTagUpper, 'RESCHED=1');
+
+        // Generated In/Out boundary markers are internal state toggles for OpenEMR
+        // availability logic and should not be rendered as patient-facing slots.
+        $normalizedRawTitle = strtolower(trim((string)($row['title'] ?? '')));
+        $isGeneratedBoundaryMarker = $isGeneratedSlot
+            && ((int)($row['preferred_category_id'] ?? 0) <= 0)
+            && in_array((int)($row['category'] ?? 0), [2, 3], true)
+            && ($normalizedRawTitle === 'in office' || $normalizedRawTitle === 'out of office');
+        if ($isGeneratedBoundaryMarker) {
+            continue;
+        }
+
+        if ($isGeneratedSlot) {
+            $slotKey = (int)($row['provider_id'] ?? 0)
+                . '|' . (string)($row['date'] ?? '')
+                . '|' . (string)($row['startTime'] ?? '')
+                . '|' . (string)($row['endTime'] ?? '');
+            $best = $bestGeneratedSlotByKey[$slotKey] ?? null;
+            if ($best && (string)($best['id'] ?? '') !== (string)($row['id'] ?? '')) {
+                continue;
+            }
+        }
 
         // Preserve original slot-type color separately from event/status color.
         // Prefer preferred-category color (pc_prefcatid), then base category color.
@@ -440,6 +562,30 @@ try {
             }
         }
 
+        if (($isGeneratedSlot || $isProviderAvailability) && $isReschedulable) {
+            $title .= ' (Reschedulable)';
+        }
+
+        // Do not expose generated/open availability if a real booked appointment
+        // already overlaps this interval for the same provider and date.
+        if ($isGeneratedSlot) {
+            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
+            $hasOverlap = false;
+            if (isset($occupiedByProviderDate[$bucketKey])) {
+                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
+                    $occStart = (int)($window[0] ?? 0);
+                    $occEnd = (int)($window[1] ?? 0);
+                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
+                        $hasOverlap = true;
+                        break;
+                    }
+                }
+            }
+            if ($hasOverlap) {
+                continue;
+            }
+        }
+
         $events[] = [
             'id' => $row['id'],
             'title' => $title,
@@ -456,6 +602,8 @@ try {
                 'category' => $displayCategory,
                 'preferredCategoryId' => (int)($row['preferred_category_id'] ?? 0),
                 'isGeneratedSlot' => $isGeneratedSlot,
+                'isProviderAvailability' => $isProviderAvailability,
+                'isReschedulable' => $isReschedulable,
                 'locationTag' => $locationTag,
                 'status' => $row['status'],
                 'statusIcon' => $statusIconHtml,

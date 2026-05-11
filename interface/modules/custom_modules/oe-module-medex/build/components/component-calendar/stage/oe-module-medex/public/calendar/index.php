@@ -86,18 +86,20 @@ $fullCalendarDefaultView = $viewMapping[$calendarDefaultView] ?? 'timeGridWeek';
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
+$siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 $nativeCalendarFallbackUrl = ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php?medex_prefer=openemr';
+$moduleCalendarFallbackUrl = ($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode($siteId);
 
 // Check if configured
 if (!$api->isConfigured()) {
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . $nativeCalendarFallbackUrl);
+    header('Location: ' . $moduleCalendarFallbackUrl);
     exit;
 }
 
 if (!$api->hasServiceEntitlement('calendar_full')) {
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . $nativeCalendarFallbackUrl);
+    header('Location: ' . $moduleCalendarFallbackUrl);
     exit;
 }
 
@@ -114,9 +116,9 @@ try {
     }
 } catch (\Exception $e) {
     // Also redirect on hard failure (e.g. no cached token at all).
-    error_log('[MedEx Calendar] Login failed, redirecting to native calendar: ' . $e->getMessage());
+    error_log('[MedEx Calendar] Login failed, redirecting to module fallback: ' . $e->getMessage());
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . $nativeCalendarFallbackUrl);
+    header('Location: ' . $moduleCalendarFallbackUrl);
     exit;
 }
 
@@ -755,6 +757,96 @@ $openEmrCalendarCompatible = true;
                 rgba(255,255,255,.1) 10px,
                 rgba(255,255,255,.1) 20px
             );
+        }
+
+        /* Generated open slots: render as a short colored category chip so
+           the remaining white row area visually communicates open capacity. */
+        .fc-event.open-slot-chip.fc-timegrid-event {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main {
+            display: inline-flex;
+            align-items: center;
+            max-width: 150px;
+            min-width: 110px;
+            width: auto;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.18);
+            background: var(--medex-slot-type-color, #d9e8f9) !important;
+            color: #0f2740 !important;
+            padding: 1px 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Default/taller slot mode: stack time over category so labels are readable. */
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-main {
+            flex-direction: column;
+            align-items: flex-start;
+            min-width: 150px;
+            max-width: 260px;
+            white-space: normal;
+            line-height: 1.15;
+            gap: 1px;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-main-frame {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-time {
+            margin-right: 0;
+            margin-bottom: 1px;
+            line-height: 1.05;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-title-container,
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-title {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            line-height: 1.1;
+        }
+
+        /* Short one-row slots: keep inline, but let the chip grow wider before trimming. */
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-main {
+            flex-direction: row;
+            align-items: center;
+            min-width: 140px;
+            max-width: 280px;
+            white-space: nowrap;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-main-frame {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            min-width: 0;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-title-container,
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main-frame {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            min-width: 0;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-time {
+            margin-right: 4px;
+            flex: 0 0 auto;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-title-container,
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-title {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Patient appointments should stand out */

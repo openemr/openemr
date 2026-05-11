@@ -37,7 +37,28 @@ if (empty($authUserId)) {
 
 error_log('[MedEx Calendar] Starting get_events.php for user ' . ($authUserId ?? 'unknown'));
 
+$getGlobalPref = static function (string $name, string $default = ''): string {
+    $row = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+        "SELECT gl_value FROM globals WHERE gl_name = ? ORDER BY gl_index DESC LIMIT 1",
+        [$name]
+    );
+    return isset($row['gl_value']) ? trim((string)$row['gl_value']) : $default;
+};
+
+$reschedDefaultEnabled = $getGlobalPref('medex_resched_defaults_enabled', '1') !== '0';
+$reschedKeywordCsv = $getGlobalPref('medex_resched_default_categories', 'new,est,established');
+$reschedKeywords = array_values(array_filter(array_map(
+    static fn($v) => strtolower(trim((string)$v)),
+    preg_split('/[,|]/', $reschedKeywordCsv) ?: []
+), static fn($v) => $v !== ''));
+if (empty($reschedKeywords)) {
+    $reschedKeywords = ['new', 'est', 'established'];
+}
+
 header('Content-Type: application/json');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 if (!$api->hasServiceEntitlement('calendar_full')) {
@@ -47,8 +68,12 @@ if (!$api->hasServiceEntitlement('calendar_full')) {
 }
 
 // Get date range from query params
-$start = $_GET['start'] ?? date('Y-m-d', strtotime('-1 month'));
-$end = $_GET['end'] ?? date('Y-m-d', strtotime('+2 months'));
+$rawStart = $_GET['start'] ?? date('Y-m-d', strtotime('-1 month'));
+$rawEnd = $_GET['end'] ?? date('Y-m-d', strtotime('+2 months'));
+$startTs = strtotime((string)$rawStart);
+$endTs = strtotime((string)$rawEnd);
+$start = $startTs !== false ? date('Y-m-d', $startTs) : date('Y-m-d', strtotime('-1 month'));
+$end = $endTs !== false ? date('Y-m-d', $endTs) : date('Y-m-d', strtotime('+2 months'));
 
 error_log('[MedEx Calendar] Date range: ' . $start . ' to ' . $end);
 
@@ -124,6 +149,7 @@ error_log('[MedEx Calendar] Requested facilities for SQL: ' . json_encode($reque
 $sql = "SELECT
     pc.pc_eid as id,
     pc.pc_title as title,
+    pc.pc_hometext as comments,
     pc.pc_eventDate as date,
     pc.pc_startTime as startTime,
     pc.pc_endTime as endTime,
@@ -213,6 +239,116 @@ try {
         exit;
     }
 
+    // Build occupied intervals first so stale generated open slots are not shown
+    // when a real patient appointment already exists at the same time.
+    $occupiedByProviderDate = [];
+    foreach ($rows as $occupiedRow) {
+        $patientId = (int)($occupiedRow['patient_id'] ?? 0);
+        if ($patientId <= 0) {
+            continue;
+        }
+
+        $statusCode = strtoupper(trim((string)($occupiedRow['status'] ?? '')));
+        if ($statusCode === 'X' || $statusCode === '%') {
+            continue;
+        }
+
+        $providerId = (int)($occupiedRow['provider_id'] ?? 0);
+        $eventDate = trim((string)($occupiedRow['date'] ?? ''));
+        $startTime = trim((string)($occupiedRow['startTime'] ?? ''));
+        if ($providerId <= 0 || $eventDate === '' || $startTime === '') {
+            continue;
+        }
+
+        $durationSeconds = (int)($occupiedRow['duration'] ?? 0);
+        if ($durationSeconds <= 0 && !empty($occupiedRow['endTime'])) {
+            $startTsRaw = strtotime($startTime);
+            $endTsRaw = strtotime((string)$occupiedRow['endTime']);
+            if ($startTsRaw !== false && $endTsRaw !== false && $endTsRaw > $startTsRaw) {
+                $durationSeconds = $endTsRaw - $startTsRaw;
+            }
+        }
+        if ($durationSeconds <= 0) {
+            $slotMinutes = (int)($GLOBALS['calendar_interval'] ?? 15);
+            if ($slotMinutes <= 0) {
+                $slotMinutes = 15;
+            }
+            $durationSeconds = $slotMinutes * 60;
+        }
+
+        $startTs = strtotime($eventDate . ' ' . $startTime);
+        if ($startTs === false) {
+            continue;
+        }
+        $endTs = $startTs + $durationSeconds;
+        if ($endTs <= $startTs) {
+            continue;
+        }
+
+        $bucketKey = $providerId . '|' . $eventDate;
+        if (!isset($occupiedByProviderDate[$bucketKey])) {
+            $occupiedByProviderDate[$bucketKey] = [];
+        }
+        $occupiedByProviderDate[$bucketKey][] = [$startTs, $endTs];
+    }
+
+    // Guard optional slot-registry access so missing table never pollutes JSON output.
+    $hasSlotRegistry = false;
+    try {
+        $registryProbe = sqlQuery("SHOW TABLES LIKE 'medex_slot_registry'");
+        $hasSlotRegistry = !empty($registryProbe);
+    } catch (\Throwable $ignored) {
+        $hasSlotRegistry = false;
+    }
+
+    // Expire elapsed temporary slot holds so feed reflects actionable state.
+    if ($hasSlotRegistry) {
+        try {
+            sqlStatement(
+                "UPDATE medex_slot_registry
+                 SET slot_state = 'available', hold_expires_at = NULL, held_by_role = NULL, held_by_ref = NULL
+                 WHERE slot_state IN ('held_staff', 'held_patient')
+                   AND hold_expires_at IS NOT NULL
+                   AND hold_expires_at <= NOW()"
+            );
+        } catch (\Throwable $ignored) {
+            // Optional registry support; ignore failures so event feed remains usable.
+        }
+    }
+
+    $slotStateByOpenEid = [];
+    try {
+        if (!$hasSlotRegistry) {
+            throw new \RuntimeException('slot registry unavailable');
+        }
+        $eventIds = array_map(static fn($r) => (int)($r['id'] ?? 0), $rows);
+        $eventIds = array_values(array_filter($eventIds, static fn($v) => $v > 0));
+        if (!empty($eventIds)) {
+            $placeholders = implode(',', array_fill(0, count($eventIds), '?'));
+            $slotRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords(
+                "SELECT open_slot_eid, slot_state, hold_expires_at, held_by_role, held_by_ref, slot_id
+                 FROM medex_slot_registry
+                 WHERE open_slot_eid IN ($placeholders)
+                 ORDER BY slot_id DESC",
+                $eventIds
+            );
+            foreach ($slotRows as $slotRow) {
+                $openEid = (int)($slotRow['open_slot_eid'] ?? 0);
+                if ($openEid <= 0 || isset($slotStateByOpenEid[$openEid])) {
+                    continue;
+                }
+                $slotStateByOpenEid[$openEid] = [
+                    'slot_state' => (string)($slotRow['slot_state'] ?? 'available'),
+                    'hold_expires_at' => $slotRow['hold_expires_at'] ?? null,
+                    'held_by_role' => $slotRow['held_by_role'] ?? null,
+                    'held_by_ref' => $slotRow['held_by_ref'] ?? null,
+                ];
+            }
+        }
+    } catch (\Throwable $ignored) {
+        $slotStateByOpenEid = [];
+    }
+
     // Load MedEx icons map once
     $icons = [];
     try {
@@ -290,6 +426,41 @@ try {
         return implode('', $icon_here) . $icon2_here;
     };
 
+    // Multiple MedEx generation paths can produce the same availability slot.
+    // Keep one generated slot per provider/date/start/end to avoid duplicate open rows.
+    $bestGeneratedSlotByKey = [];
+    foreach ($rows as $candidateRow) {
+        $candidatePid = (int)($candidateRow['patient_id'] ?? 0);
+        $candidateLocation = trim((string)($candidateRow['location_tag'] ?? ''));
+        $candidateIsGenerated = ($candidatePid <= 0) && str_starts_with($candidateLocation, 'MEDEX_');
+        if (!$candidateIsGenerated) {
+            continue;
+        }
+        $slotKey = (int)($candidateRow['provider_id'] ?? 0)
+            . '|' . (string)($candidateRow['date'] ?? '')
+            . '|' . (string)($candidateRow['startTime'] ?? '')
+            . '|' . (string)($candidateRow['endTime'] ?? '');
+        if ($slotKey === '') {
+            continue;
+        }
+
+        $score = 0;
+        if ((int)($candidateRow['preferred_category_id'] ?? 0) > 0) {
+            $score += 10;
+        }
+        if (str_contains($candidateLocation, 'INTERVIEW_GENERATED')) {
+            $score += 5;
+        }
+
+        $existing = $bestGeneratedSlotByKey[$slotKey] ?? null;
+        if ($existing === null || $score > (int)($existing['score'] ?? -1)) {
+            $bestGeneratedSlotByKey[$slotKey] = [
+                'id' => (string)($candidateRow['id'] ?? ''),
+                'score' => $score,
+            ];
+        }
+    }
+
     foreach ($rows as $row) {
         $needsUpdate = false;
 
@@ -351,14 +522,81 @@ try {
             $providerName = trim($row['provider_fname'] . ' ' . $row['provider_lname']);
         }
 
-        $title = $row['title'];
+        $rawTitle = trim((string)($row['title'] ?? ''));
         if ($patientName) {
-            $title = $patientName . ' - ' . $title;
+            $cleanPatientTitle = (string)preg_replace('/\bOpen\s+Slot\s*-\s*/i', '', $rawTitle);
+            $cleanPatientTitle = trim($cleanPatientTitle, " -\t\n\r\0\x0B");
+            if ($cleanPatientTitle === '' && !empty($row['preferred_category_name'])) {
+                $cleanPatientTitle = trim((string)$row['preferred_category_name']);
+            }
+            if ($cleanPatientTitle === '' && !empty($row['category_name'])) {
+                $cleanPatientTitle = trim((string)$row['category_name']);
+            }
+            $title = $patientName . ($cleanPatientTitle !== '' ? (' - ' . $cleanPatientTitle) : '');
+        } else {
+            $title = $rawTitle;
         }
 
         $locationTag = trim((string)($row['location_tag'] ?? ''));
         $isProviderAvailability = ((int)($row['category'] ?? 0) === 2) && ((int)($row['patient_id'] ?? 0) <= 0);
         $isGeneratedSlot = ((int)($row['patient_id'] ?? 0) <= 0) && str_starts_with($locationTag, 'MEDEX_');
+        $isOpenSlotLike = ((int)($row['patient_id'] ?? 0) <= 0)
+            && (
+                stripos($rawTitle, 'Open Slot - ') === 0
+                || stripos($rawTitle, 'In Office - ') === 0
+                || strcasecmp($rawTitle, 'Open Slot') === 0
+            );
+        $locationTagUpper = strtoupper($locationTag);
+        $isExplicitReschedYes = str_contains($locationTagUpper, 'RESCHEDULABLE=1') || str_contains($locationTagUpper, 'RESCHED=1');
+        $isExplicitReschedNo = str_contains($locationTagUpper, 'RESCHEDULABLE=0') || str_contains($locationTagUpper, 'RESCHED=0');
+        $isReschedulable = $isExplicitReschedYes;
+
+        // Default policy: template-style open slots for New/Established visits are
+        // treated as reschedulable unless a slot explicitly opts out via location tag.
+        if ($reschedDefaultEnabled && !$isReschedulable && !$isExplicitReschedNo && ($isProviderAvailability || $isGeneratedSlot || $isOpenSlotLike)) {
+            $preferredCategoryNameForPolicy = trim((string)($row['preferred_category_name'] ?? ''));
+            if ($preferredCategoryNameForPolicy === '') {
+                $preferredCategoryNameForPolicy = trim((string)($row['category_name'] ?? ''));
+            }
+            if ($preferredCategoryNameForPolicy === '') {
+                $preferredCategoryNameForPolicy = $rawTitle;
+            }
+
+            $policyName = strtolower($preferredCategoryNameForPolicy);
+            $isNewEstablishedTemplate = false;
+            foreach ($reschedKeywords as $needle) {
+                if ($needle !== '' && str_contains($policyName, $needle)) {
+                    $isNewEstablishedTemplate = true;
+                    break;
+                }
+            }
+
+            if ($isNewEstablishedTemplate) {
+                $isReschedulable = true;
+            }
+        }
+
+        // Generated In/Out boundary markers are internal state toggles for OpenEMR
+        // availability logic and should not be rendered as patient-facing slots.
+        $normalizedRawTitle = strtolower(trim((string)($row['title'] ?? '')));
+        $isGeneratedBoundaryMarker = $isGeneratedSlot
+            && ((int)($row['preferred_category_id'] ?? 0) <= 0)
+            && in_array((int)($row['category'] ?? 0), [2, 3], true)
+            && ($normalizedRawTitle === 'in office' || $normalizedRawTitle === 'out of office');
+        if ($isGeneratedBoundaryMarker) {
+            continue;
+        }
+
+        if ($isGeneratedSlot) {
+            $slotKey = (int)($row['provider_id'] ?? 0)
+                . '|' . (string)($row['date'] ?? '')
+                . '|' . (string)($row['startTime'] ?? '')
+                . '|' . (string)($row['endTime'] ?? '');
+            $best = $bestGeneratedSlotByKey[$slotKey] ?? null;
+            if ($best && (string)($best['id'] ?? '') !== (string)($row['id'] ?? '')) {
+                continue;
+            }
+        }
 
         // Preserve original slot-type color separately from event/status color.
         // Prefer preferred-category color (pc_prefcatid), then base category color.
@@ -412,13 +650,13 @@ try {
         }
 
         $displayCategory = (string)($row['category_name'] ?? '');
-        if (($isProviderAvailability || $isGeneratedSlot) && !empty($row['preferred_category_name'])) {
+        if (($isProviderAvailability || $isGeneratedSlot || $isOpenSlotLike) && !empty($row['preferred_category_name'])) {
             $displayCategory = (string)$row['preferred_category_name'];
         }
 
         // Generated/provider-availability slots should show the slot's appointment
         // type (preferred category) instead of generic In Office text.
-        if ($isProviderAvailability || $isGeneratedSlot) {
+        if ($isProviderAvailability || $isGeneratedSlot || $isOpenSlotLike) {
             $preferredCategoryName = trim((string)($row['preferred_category_name'] ?? ''));
             $titleText = trim((string)($row['title'] ?? ''));
 
@@ -435,8 +673,32 @@ try {
             if ($preferredCategoryName !== '') {
                 $displayCategory = $preferredCategoryName;
                 $title = $preferredCategoryName;
-            } elseif ($isGeneratedSlot) {
+            } elseif ($isGeneratedSlot || $isOpenSlotLike) {
                 $title = 'Open Slot';
+            }
+        }
+
+        if (($isGeneratedSlot || $isProviderAvailability) && $isReschedulable) {
+            $title .= ' (Reschedulable)';
+        }
+
+        // Do not expose generated/open availability if a real booked appointment
+        // already overlaps this interval for the same provider and date.
+        if ($isGeneratedSlot) {
+            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
+            $hasOverlap = false;
+            if (isset($occupiedByProviderDate[$bucketKey])) {
+                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
+                    $occStart = (int)($window[0] ?? 0);
+                    $occEnd = (int)($window[1] ?? 0);
+                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
+                        $hasOverlap = true;
+                        break;
+                    }
+                }
+            }
+            if ($hasOverlap) {
+                continue;
             }
         }
 
@@ -456,7 +718,11 @@ try {
                 'category' => $displayCategory,
                 'preferredCategoryId' => (int)($row['preferred_category_id'] ?? 0),
                 'isGeneratedSlot' => $isGeneratedSlot,
+                'isProviderAvailability' => $isProviderAvailability,
+                'isOpenSlotLike' => $isOpenSlotLike,
+                'isReschedulable' => $isReschedulable,
                 'locationTag' => $locationTag,
+                'comments' => trim((string)($row['comments'] ?? '')),
                 'status' => $row['status'],
                 'statusIcon' => $statusIconHtml,
                 'medexDebug' => $medexDebug,
@@ -464,6 +730,17 @@ try {
                 'slotTypeColor' => $slotTypeColor !== '' ? $slotTypeColor : $color
             ]
         ];
+
+        $eventIndex = count($events) - 1;
+        $openEid = (int)($row['id'] ?? 0);
+        if ($openEid > 0 && isset($slotStateByOpenEid[$openEid])) {
+            $events[$eventIndex]['extendedProps']['slotState'] = $slotStateByOpenEid[$openEid]['slot_state'];
+            $events[$eventIndex]['extendedProps']['holdExpiresAt'] = $slotStateByOpenEid[$openEid]['hold_expires_at'];
+            $events[$eventIndex]['extendedProps']['heldByRole'] = $slotStateByOpenEid[$openEid]['held_by_role'];
+            $events[$eventIndex]['extendedProps']['heldByRef'] = $slotStateByOpenEid[$openEid]['held_by_ref'];
+        } elseif ($isGeneratedSlot || $isProviderAvailability || $isOpenSlotLike) {
+            $events[$eventIndex]['extendedProps']['slotState'] = 'available';
+        }
     }
 
     error_log('[MedEx Calendar] Returning ' . count($events) . ' events');

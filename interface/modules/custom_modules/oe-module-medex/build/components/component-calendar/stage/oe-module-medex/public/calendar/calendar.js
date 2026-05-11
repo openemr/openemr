@@ -429,6 +429,17 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     classes.push('patient-appointment');
                 }
 
+                const isGeneratedSlot = !!arg.event.extendedProps.isGeneratedSlot;
+                const isProviderAvailability = !!arg.event.extendedProps.isProviderAvailability;
+                if ((isGeneratedSlot || isProviderAvailability) && !patientId) {
+                    classes.push('open-slot-chip');
+                    if (duration < 20) {
+                        classes.push('open-slot-chip-short');
+                    } else {
+                        classes.push('open-slot-chip-tall');
+                    }
+                }
+
                 // Add short-appointment class for appointments under 20 minutes
                 if (duration < 20) {
                     classes.push('short-appointment');
@@ -1059,6 +1070,15 @@ function restoreFilterSelections() {
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
 
+    const readStoredArray = (key) => {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+        } catch (e) {
+            return [];
+        }
+    };
+
     // Restore date from URL or localStorage
     const urlDate = urlParams.get('date');
     if (urlDate) {
@@ -1086,17 +1106,31 @@ function restoreFilterSelections() {
     }
 
     // Restore providers from URL or localStorage
-    const urlProviders = urlParams.get('providers');
+    const urlProviders = urlParams.get('providers') || urlParams.get('pc_username') || '';
     let providersToRestore = [];
+    const storedProviders = readStoredArray('medexSelectedProviders');
 
     if (urlProviders) {
         // URL providers can be comma-separated (from OpenEMR pc_username)
         providersToRestore = urlProviders.split(',').map(p => p.trim()).filter(p => p);
-        localStorage.setItem('medexSelectedProviders', JSON.stringify(providersToRestore));
-        console.log('Restored providers from URL:', providersToRestore);
+
+        // Preserve richer saved multi-select state when wrapper returns only one
+        // provider from native OpenEMR view navigation.
+        const shouldPreferStored =
+            storedProviders.length > 1
+            && providersToRestore.length <= 1
+            && !urlParams.has('force_filters');
+
+        if (shouldPreferStored) {
+            providersToRestore = storedProviders;
+            console.log('Using stored providers over single URL provider:', providersToRestore);
+        } else {
+            localStorage.setItem('medexSelectedProviders', JSON.stringify(providersToRestore));
+            console.log('Restored providers from URL:', providersToRestore);
+        }
     } else {
         // Fall back to localStorage
-        providersToRestore = JSON.parse(localStorage.getItem('medexSelectedProviders') || '[]');
+        providersToRestore = storedProviders;
         console.log('Restored providers from localStorage:', providersToRestore);
     }
 
@@ -1112,17 +1146,28 @@ function restoreFilterSelections() {
     }
 
     // Restore facilities from URL or localStorage
-    const urlFacility = urlParams.get('facility');
+    const urlFacilityParam = urlParams.get('facilities') || urlParams.get('facility') || urlParams.get('pc_facility') || '';
     let facilitiesToRestore = [];
+    const storedFacilities = readStoredArray('medexSelectedFacilities');
 
-    if (urlFacility) {
-        // URL facility is a single value (from OpenEMR pc_facility)
-        facilitiesToRestore = [urlFacility];
-        localStorage.setItem('medexSelectedFacilities', JSON.stringify(facilitiesToRestore));
-        console.log('Restored facilities from URL:', facilitiesToRestore);
+    if (urlFacilityParam) {
+        facilitiesToRestore = urlFacilityParam.split(',').map(f => f.trim()).filter(f => f);
+
+        const shouldPreferStored =
+            storedFacilities.length > 1
+            && facilitiesToRestore.length <= 1
+            && !urlParams.has('force_filters');
+
+        if (shouldPreferStored) {
+            facilitiesToRestore = storedFacilities;
+            console.log('Using stored facilities over single URL facility:', facilitiesToRestore);
+        } else {
+            localStorage.setItem('medexSelectedFacilities', JSON.stringify(facilitiesToRestore));
+            console.log('Restored facilities from URL:', facilitiesToRestore);
+        }
     } else {
         // Fall back to localStorage
-        facilitiesToRestore = JSON.parse(localStorage.getItem('medexSelectedFacilities') || '[]');
+        facilitiesToRestore = storedFacilities;
         console.log('Restored facilities from localStorage:', facilitiesToRestore);
     }
 

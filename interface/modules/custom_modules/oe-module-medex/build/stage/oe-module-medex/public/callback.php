@@ -650,6 +650,38 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'consume_slot':
+        // Mark an available slot as consumed when patient books
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->consumeSlot($data);
+        echo json_encode($result);
+        break;
+
+    case 'release_slot':
+        // Release a consumed slot back to available pool (move/cancel)
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->releaseSlot($data);
+        echo json_encode($result);
+        break;
+
+    case 'move_appointment':
+        // Atomic move: release old slot + consume new slot + update appointment
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->moveAppointment($data);
+        echo json_encode($result);
+        break;
+
+    case 'get_rescheduling_options':
+        // Get available slots for rescheduling with provider rules applied
+        require_once(__DIR__ . '/../src/CallbackHandlers/AppointmentHandler.php');
+        $handler = new \OpenEMR\Modules\MedEx\CallbackHandlers\AppointmentHandler();
+        $result = $handler->getReschedulingOptions($data);
+        echo json_encode($result);
+        break;
+
     case 'get_recalls':
         // MedEx requesting recall data
         require_once(__DIR__ . '/../src/CallbackHandlers/RecallHandler.php');
@@ -1283,6 +1315,16 @@ switch ($action) {
             $title = trim((string)($slot['title'] ?? 'Open Slot'));
             $preferredCategoryId = (int)($slot['preferred_category_id'] ?? 0);
             $facilityId = (int)($slot['facility_id'] ?? 0);
+            $reschedRaw = $slot['reschedulable'] ?? ($slot['is_reschedulable'] ?? null);
+            $isReschedulable = false;
+            if (is_bool($reschedRaw)) {
+                $isReschedulable = $reschedRaw;
+            } elseif (is_numeric($reschedRaw)) {
+                $isReschedulable = ((int)$reschedRaw) > 0;
+            } elseif (is_string($reschedRaw)) {
+                $isReschedulable = in_array(strtolower(trim($reschedRaw)), ['1', 'true', 'yes', 'y', 'reschedulable'], true);
+            }
+            $slotLocationTag = $sourceTag . ($isReschedulable ? '|RESCHEDULABLE=1' : '');
 
             if ($providerId <= 0 || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
                 $skipped++;
@@ -1321,6 +1363,47 @@ switch ($action) {
                 $skipped++;
                 continue;
             }
+
+            // Avoid duplicating generated availability rows for the same slot window.
+            $duplicateGenerated = sqlQuery(
+                "SELECT COUNT(*) AS cnt
+                   FROM openemr_postcalendar_events
+                  WHERE pc_eventstatus = 1
+                    AND pc_aid = ?
+                    AND pc_eventDate = ?
+                    AND pc_startTime = ?
+                    AND pc_endTime = ?
+                    AND CAST(COALESCE(NULLIF(pc_pid, ''), '0') AS UNSIGNED) = 0
+                    AND COALESCE(pc_location, '') LIKE 'MEDEX_%'",
+                [$providerId, $date, $start, $end]
+            );
+            if ((int)($duplicateGenerated['cnt'] ?? 0) > 0) {
+                $skipped++;
+                continue;
+            }
+
+            // Never generate a new open slot over a real booked appointment.
+            // This prevents duplicate availability rows when templates are re-applied.
+            $overlapRow = sqlQuery(
+                "SELECT COUNT(*) AS cnt
+                   FROM openemr_postcalendar_events
+                  WHERE pc_eventstatus = 1
+                    AND pc_aid = ?
+                    AND pc_eventDate = ?
+                    AND CAST(COALESCE(NULLIF(pc_pid, ''), '0') AS UNSIGNED) > 0
+                    AND COALESCE(pc_apptstatus, '') NOT IN ('x', '%')
+                    AND pc_startTime < ?
+                    AND (CASE
+                           WHEN pc_endTime IS NOT NULL AND pc_endTime > pc_startTime THEN pc_endTime
+                           ELSE ADDTIME(pc_startTime, SEC_TO_TIME(GREATEST(COALESCE(pc_duration, 0), 900)))
+                         END) > ?",
+                [$providerId, $date, $end, $start]
+            );
+            if ((int)($overlapRow['cnt'] ?? 0) > 0) {
+                $skipped++;
+                continue;
+            }
+
             // Hard lunch break for automated slot generation. Staff can still override manually in calendar.
             $lunchStartTs = strtotime($date . ' 12:00:00');
             $lunchEndTs = strtotime($date . ' 13:00:00');
@@ -1358,7 +1441,6 @@ switch ($action) {
                         $title === ''
                         || $titleLower === 'open slot'
                         || $titleLower === '[ai] available'
-                        || str_starts_with($titleLower, 'open slot - ')
                     ) {
                         $title = 'Open Slot - ' . $preferredName;
                     }
@@ -1374,7 +1456,7 @@ switch ($action) {
                      (pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_eventDate, pc_endDate, pc_duration, pc_startTime, pc_endTime,
                       pc_alldayevent, pc_apptstatus, pc_eventstatus, pc_prefcatid, pc_location, pc_facility)
                      VALUES (?, 0, ?, '', ?, NOW(), '', ?, ?, ?, ?, ?, 0, '-', 1, ?, ?, ?)",
-                    [$eventCatId, $providerId, $title, $date, $date, $durationSeconds, $start, $end, $preferredCategoryId, $sourceTag, $facilityId]
+                    [$eventCatId, $providerId, $title, $date, $date, $durationSeconds, $start, $end, $preferredCategoryId, $slotLocationTag, $facilityId]
                 );
             } elseif ($hasLocation) {
                 sqlInsert(
@@ -1382,7 +1464,7 @@ switch ($action) {
                      (pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_eventDate, pc_endDate, pc_duration, pc_startTime, pc_endTime,
                       pc_alldayevent, pc_apptstatus, pc_eventstatus, pc_prefcatid, pc_location)
                      VALUES (?, 0, ?, '', ?, NOW(), '', ?, ?, ?, ?, ?, 0, '-', 1, ?, ?)",
-                    [$eventCatId, $providerId, $title, $date, $date, $durationSeconds, $start, $end, $preferredCategoryId, $sourceTag]
+                    [$eventCatId, $providerId, $title, $date, $date, $durationSeconds, $start, $end, $preferredCategoryId, $slotLocationTag]
                 );
             } else {
                 sqlInsert(

@@ -70,6 +70,64 @@ function medexResolveOpenEmrBaseUrlOnboarding(): string
     return $scheme . '://' . $host . $basePath;
 }
 
+function medexIsNonPublicHostOnboarding(string $host): bool
+{
+    $host = strtolower(trim($host));
+    if ($host === '' || $host === 'localhost') {
+        return true;
+    }
+
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        return !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+    }
+
+    foreach (['.local', '.localhost', '.internal', '.test', '.invalid', '.example'] as $suffix) {
+        if (str_ends_with($host, $suffix)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function medexOnboardingPublicBaseUrl(): string
+{
+    foreach (['medex_callback_base_url', 'medex_preview_tunnel_public_base_url', 'site_addr_oath'] as $globalName) {
+        $value = trim((string)($GLOBALS[$globalName] ?? ''));
+        if ($value !== '') {
+            return rtrim($value, '/');
+        }
+    }
+
+    return '';
+}
+
+function medexOnboardingReachabilityStatus(string $defaultOpenEmrUrl): array
+{
+    $candidateUrl = medexOnboardingPublicBaseUrl();
+    if ($candidateUrl === '') {
+        $candidateUrl = rtrim($defaultOpenEmrUrl, '/');
+    }
+
+    if ($candidateUrl === '') {
+        return [false, xlt('OpenEMR URL could not be detected. This install must have a publicly reachable HTTPS URL before MedEx registration can continue.')];
+    }
+
+    $parts = parse_url($candidateUrl);
+    $scheme = strtolower((string)($parts['scheme'] ?? ''));
+    $host = strtolower((string)($parts['host'] ?? ''));
+
+    if ($scheme !== 'https') {
+        return [false, xlt('OpenEMR must be reachable at a public HTTPS URL before MedEx registration can continue.')];
+    }
+
+    if ($host === '' || medexIsNonPublicHostOnboarding($host)) {
+        return [false, xlt('This OpenEMR URL is local or not publicly reachable. Assign a public preview or production URL before continuing.')];
+    }
+
+    return [true, ''];
+}
+
 $step = $_GET['step'] ?? '1';
 $isConfigured = $api->isConfigured();
 $session = null;
@@ -105,6 +163,7 @@ $sessionCartTotal = isset($_SESSION['medex_cart_total']) ? (float)$_SESSION['med
 $loginData = [];
 $braintreeToken = null;
 $defaultOpenEmrUrl = medexResolveOpenEmrBaseUrlOnboarding();
+[$publicReachabilityReady, $publicReachabilityMessage] = medexOnboardingReachabilityStatus($defaultOpenEmrUrl);
 
 // Fetch pricing from API for step 2.
 // For configured accounts, force a fresh login first so customer_group_id is current
@@ -514,8 +573,28 @@ if ($step > 1 && !$isConfigured) {
                                 <?php echo xlt("Passwords match."); ?>
                             </div>
                         </div>
-                        <input type="hidden" id="callback_url" name="callback_url" value="<?php echo attr($defaultOpenEmrUrl); ?>">
+                        <div class="form-group">
+                            <label for="callback_url"><?php echo xlt("Public OpenEMR URL"); ?></label>
+                            <input type="url" id="callback_url" name="callback_url" class="form-control" value="<?php echo attr($defaultOpenEmrUrl); ?>" placeholder="https://emr.example.com">
+                            <small class="helper-copy"><?php echo xlt("If this screen is using a local or internal address, enter the public HTTPS URL MedEx should use instead, such as your AWS, GCP, or Cloudflare hostname."); ?></small>
+                            <div class="otp-inline" style="margin-top: 10px;">
+                                <button type="button" class="btn" style="background:#e2e8f0;" id="check-callback-url-btn"><?php echo xlt("Check URL"); ?></button>
+                            </div>
+                            <div id="callback-url-error" class="field-error"><?php echo xlt("Enter a valid public HTTPS OpenEMR URL."); ?></div>
+                            <div id="callback-url-status" class="field-status"><?php echo $publicReachabilityReady ? xlt("Detected public URL is ready.") : xlt("Check the public URL before continuing."); ?></div>
+                        </div>
                 </div>
+
+                <?php if (!$publicReachabilityReady): ?>
+                <div class="panel-card full-width-card" id="public-url-required-card">
+                    <div class="section-kicker"><?php echo xlt("Required"); ?></div>
+                    <h3 class="section-title"><?php echo xlt("Public URL Required"); ?></h3>
+                    <p class="section-intro"><?php echo xlt("This OpenEMR install must be reachable from MedEx before identity verification and registration can continue."); ?></p>
+                    <div class="alert alert-danger" id="public-url-alert" style="margin-bottom: 0;">
+                        <?php echo text($publicReachabilityMessage); ?>
+                    </div>
+                </div>
+                <?php endif; ?>
 
                 <div class="panel-card full-width-card">
                     <div class="section-kicker"><?php echo xlt("Verify Identity"); ?></div>
@@ -842,8 +921,59 @@ if ($step > 1 && !$isConfigured) {
             el.text(message);
         }
 
+        function setCallbackUrlStatus(message, kind = '') {
+            const el = $("#callback-url-status");
+            el.removeClass('ok err');
+            if (kind) {
+                el.addClass(kind);
+            }
+            el.text(message);
+        }
+
+        function setPublicUrlReachabilityState(ready, message) {
+            onboardingPublicReachabilityReady = !!ready;
+            onboardingPublicReachabilityMessage = String(message || '');
+            if (onboardingPublicReachabilityReady) {
+                $("#public-url-alert").text('');
+                $("#public-url-required-card").hide();
+                clearFieldError("#callback_url", "#callback-url-error");
+                setCallbackUrlStatus("Public URL verified. MedEx can use this OpenEMR address.", "ok");
+            } else {
+                if ($("#public-url-alert").length) {
+                    $("#public-url-alert").text(onboardingPublicReachabilityMessage);
+                    $("#public-url-required-card").show();
+                }
+                if (onboardingPublicReachabilityMessage) {
+                    setFieldError("#callback_url", "#callback-url-error", onboardingPublicReachabilityMessage);
+                    setCallbackUrlStatus(onboardingPublicReachabilityMessage, "err");
+                } else {
+                    clearFieldError("#callback_url", "#callback-url-error");
+                    setCallbackUrlStatus("Check the public URL before continuing.");
+                }
+            }
+            updateOtpUiState();
+            updateStep1SubmitState();
+        }
+
         function updateOtpUiState() {
+            if (!onboardingPublicReachabilityReady) {
+                $("#otp_channel").prop("disabled", true);
+                $("#otp_sms_destination").prop("disabled", true);
+                $("#otp_code").prop("disabled", true);
+                $("#send-otp-btn").prop("disabled", true);
+                $("#verify-otp-btn").prop("disabled", true);
+                $("#otp-send-row").hide();
+                $("#otp-verify-row").hide();
+                setOtpStatus(onboardingPublicReachabilityMessage, "err");
+                return;
+            }
+
             const controlsVisible = !otpVerified;
+            $("#otp_channel").prop("disabled", false);
+            $("#otp_sms_destination").prop("disabled", $("#otp_channel").val() !== "sms");
+            $("#otp_code").prop("disabled", otpVerified);
+            $("#send-otp-btn").prop("disabled", false);
+            $("#verify-otp-btn").prop("disabled", false);
             $("#otp-send-row").toggle(controlsVisible);
             $("#otp-verify-row").toggle(controlsVisible);
         }
@@ -882,6 +1012,12 @@ if ($step > 1 && !$isConfigured) {
         }
 
         function restoreOtpStatusForCurrentIdentity() {
+            if (!onboardingPublicReachabilityReady) {
+                updateOtpUiState();
+                updateStep1SubmitState();
+                return;
+            }
+
             const identity = getCurrentOtpIdentity();
             if (!validateOtpDestination(identity.channel, identity.email, identity.sms)) {
                 return;
@@ -919,9 +1055,11 @@ if ($step > 1 && !$isConfigured) {
             const channel = $("#otp_channel").val();
             if (channel === "sms") {
                 $("#otp-sms-destination-wrap").show();
+                $("#otp_sms_destination").prop("disabled", !onboardingPublicReachabilityReady);
             } else {
                 $("#otp-sms-destination-wrap").hide();
                 $("#otp_sms_destination").val("");
+                $("#otp_sms_destination").prop("disabled", true);
                 clearFieldError("#otp_sms_destination", "#otp-sms-error");
             }
             resetLocalOtpVerification();
@@ -1033,6 +1171,33 @@ if ($step > 1 && !$isConfigured) {
             return false;
         }
 
+        function validateCallbackUrlField(showMessage = true) {
+            const rawValue = ($("#callback_url").val() || "").trim();
+            if (!rawValue) {
+                if (showMessage) {
+                    setFieldError("#callback_url", "#callback-url-error", "Enter a public HTTPS OpenEMR URL.");
+                }
+                return false;
+            }
+            let parsedUrl;
+            try {
+                parsedUrl = new URL(rawValue);
+            } catch (e) {
+                if (showMessage) {
+                    setFieldError("#callback_url", "#callback-url-error", "Enter a valid public HTTPS OpenEMR URL.");
+                }
+                return false;
+            }
+            if (parsedUrl.protocol !== "https:") {
+                if (showMessage) {
+                    setFieldError("#callback_url", "#callback-url-error", "OpenEMR URL must use HTTPS.");
+                }
+                return false;
+            }
+            clearFieldError("#callback_url", "#callback-url-error");
+            return true;
+        }
+
         function validatePasswordField(showMessage = true) {
             const passwordValue = ($("#password").val() || "").trim();
             const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
@@ -1114,7 +1279,7 @@ if ($step > 1 && !$isConfigured) {
                 isBaaCompleted() &&
                 $("#TERMS_yes").is(':checked') &&
                 $("#BusAgree_yes").is(':checked');
-            const canSubmit = accountReady && otpVerified && agreementsReady;
+            const canSubmit = accountReady && otpVerified && agreementsReady && onboardingPublicReachabilityReady;
             $("#step1-next-btn").prop("disabled", !canSubmit);
             updateStep1Progress(accountReady, otpVerified, agreementsReady);
         }
@@ -1247,6 +1412,12 @@ if ($step > 1 && !$isConfigured) {
         }
 
         function sendOtp() {
+            if (!onboardingPublicReachabilityReady) {
+                setOtpStatus(onboardingPublicReachabilityMessage, "err");
+                updateStep1SubmitState();
+                return;
+            }
+
             const channel = $("#otp_channel").val();
             const email = ($("#email").val() || "").trim();
             const sms = (channel === "sms") ? validateSmsField(true) : "";
@@ -1298,7 +1469,47 @@ if ($step > 1 && !$isConfigured) {
             });
         }
 
+        function checkCallbackUrl() {
+            const callbackUrl = ($("#callback_url").val() || "").trim();
+            if (!validateCallbackUrlField(true)) {
+                setPublicUrlReachabilityState(false, ($("#callback-url-error").text() || "Enter a valid public HTTPS OpenEMR URL."));
+                return;
+            }
+
+            setCallbackUrlStatus("Checking public URL...", "");
+            clearFieldError("#callback_url", "#callback-url-error");
+            ensureActiveSession();
+
+            $.ajax({
+                url: 'register_process.php?site=<?php echo attr_js($siteId); ?>',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    csrf_token_form: $('input[name="csrf_token_form"]').val(),
+                    action: 'check_callback_url',
+                    callback_url: callbackUrl
+                },
+                success: function(response) {
+                    if (response.success) {
+                        $("#callback_url").val(response.normalized_base_url || callbackUrl);
+                        setPublicUrlReachabilityState(true, "");
+                    } else {
+                        setPublicUrlReachabilityState(false, response.error || "Unable to verify that public URL.");
+                    }
+                },
+                error: function(jqXHR) {
+                    setPublicUrlReachabilityState(false, ajaxErrorMessage(jqXHR, "Unable to verify that public URL right now."));
+                }
+            });
+        }
+
         function verifyOtp() {
+            if (!onboardingPublicReachabilityReady) {
+                setOtpStatus(onboardingPublicReachabilityMessage, "err");
+                updateStep1SubmitState();
+                return;
+            }
+
             const code = ($("#otp_code").val() || "").trim();
             const csrf = $('input[name="csrf_token_form"]').val();
             const channel = $("#otp_channel").val();
@@ -1372,6 +1583,11 @@ if ($step > 1 && !$isConfigured) {
             const baaAgreementVersion = ($("#baa_agreement_version").val() || "").trim() || baaVersion;
             const baaPracticeName = ($("#baa_practice_name").val() || "").trim();
             const baaLegalCorporateName = ($("#baa_legal_corporate_name").val() || "").trim();
+
+            if (!onboardingPublicReachabilityReady) {
+                $("#result").html('<div class="alert alert-danger">' + onboardingPublicReachabilityMessage + '</div>');
+                return;
+            }
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
@@ -1480,6 +1696,9 @@ if ($step > 1 && !$isConfigured) {
                 }
             });
         }
+
+        let onboardingPublicReachabilityReady = <?php echo $publicReachabilityReady ? 'true' : 'false'; ?>;
+        let onboardingPublicReachabilityMessage = <?php echo json_encode($publicReachabilityMessage, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
         function submitStep2() {
             const invalidCard = selectedServiceCards().find(function(card) {
@@ -2177,6 +2396,9 @@ if ($step > 1 && !$isConfigured) {
             $("#verify-otp-btn").on("click", function() {
                 verifyOtp();
             });
+            $("#check-callback-url-btn").on("click", function() {
+                checkCallbackUrl();
+            });
             $("#email").on("blur", function() {
                 validateEmailField(true);
                 restoreOtpStatusForCurrentIdentity();
@@ -2204,6 +2426,10 @@ if ($step > 1 && !$isConfigured) {
             $("#rpassword").on("input blur", function() {
                 validateConfirmPasswordField(true);
                 updateStep1SubmitState();
+            });
+            $("#callback_url").on("input", function() {
+                clearFieldError("#callback_url", "#callback-url-error");
+                setPublicUrlReachabilityState(false, "Check the public URL before continuing.");
             });
             $("#otp_sms_destination").on("blur", function() {
                 if ($("#otp_channel").val() === "sms") {

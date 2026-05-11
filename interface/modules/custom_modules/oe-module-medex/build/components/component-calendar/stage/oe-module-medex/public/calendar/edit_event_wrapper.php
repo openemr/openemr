@@ -1,7 +1,8 @@
 <?php
 /**
- * Wrapper for add_edit_event.php that fixes duration field
- * This is needed because OpenEMR's core form doesn't always populate duration correctly
+ * Wrapper for add_edit_event.php that:
+ * 1. Consumes MedEx template slots when creating appointments
+ * 2. Fixes duration field for proper slot handling
  */
 
 require_once(__DIR__ . "/../../../../../globals.php");
@@ -9,7 +10,97 @@ require_once(__DIR__ . "/../../../../../globals.php");
 $eid = $_GET['eid'] ?? null;
 $duration = $_GET['duration'] ?? null;
 $catid = isset($_GET['catid']) ? (int)$_GET['catid'] : 0;
+
+// Template slot consumption logic for new appointments
+$consumedSlotEid = null;
+$slotConsumed = false;
+
+if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && !empty($_GET['userid'])) {
+    // This is a new appointment being created in a template slot
+    $provider_id = (int)$_GET['userid'];
+    if ($provider_id <= 0) {
+        $providerToken = trim((string)($_GET['userid'] ?? ''));
+        if ($providerToken !== '') {
+            $providerRow = sqlQuery("SELECT id FROM users WHERE username = ? LIMIT 1", [$providerToken]);
+            $provider_id = (int)($providerRow['id'] ?? 0);
+        }
+    }
+    $event_date = substr((string)$_GET['date'], 0, 4) . '-' . substr((string)$_GET['date'], 4, 2) . '-' . substr((string)$_GET['date'], 6);
+    $start_hour = (int)$_GET['starttimeh'];
+    $start_min = (int)($_GET['starttimem'] ?? 0);
+    $start_time = sprintf("%02d:%02d:00", $start_hour, $start_min);
+
+    // Find matching MedEx generated slot (prefer location marker over title/status)
+    $slot_sql = "SELECT pc_eid, pc_endTime, pc_duration, pc_catid, pc_title
+                 FROM openemr_postcalendar_events
+                 WHERE pc_aid = ?
+                   AND pc_eventDate = ?
+                   AND pc_startTime = ?
+                   AND (COALESCE(pc_pid,'') = '' OR pc_pid = '0')
+                   AND (COALESCE(pc_location,'') LIKE 'MEDEX_%' OR pc_title LIKE 'Open Slot%')
+                 ORDER BY pc_eid DESC
+                 LIMIT 1";
+    $slot_row = sqlQuery($slot_sql, [$provider_id, $event_date, $start_time]);
+
+
+    if (!empty($slot_row['pc_eid'])) {
+        $consumedSlotEid = (int)$slot_row['pc_eid'];
+
+        // Delete the template slot event (it will be replaced by the patient appointment)
+        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", [$consumedSlotEid]);
+
+        // Ensure slot registry table exists
+        $tableExists = sqlQuery("SHOW TABLES LIKE 'medex_slot_registry'");
+        if (!empty($tableExists)) {
+            // Check if there's already a slot record for this template slot
+            $existing = sqlQuery(
+                "SELECT slot_id FROM medex_slot_registry WHERE open_slot_eid = ?",
+                [$consumedSlotEid]
+            );
+
+            if (empty($existing['slot_id'])) {
+                // Create a pending slot registry entry - will be linked to patient appointment after save
+                sqlStatement(
+                    "INSERT INTO medex_slot_registry
+                     (open_slot_eid, patient_pc_eid, provider_id, event_date, start_time, end_time,
+                      category_id, slot_state, slot_source, reschedulable, consumed_at, created_at)
+                     VALUES (?, NULL, ?, ?, ?, ?, ?, 'pending_consumption', 'medex', 1, NOW(), NOW())",
+                    [
+                        $consumedSlotEid,
+                        $provider_id,
+                        $event_date,
+                        $start_time,
+                        $slot_row['pc_endTime'],
+                        (int)$slot_row['pc_catid']
+                    ]
+                );
+            }
+        }
+
+        $slotConsumed = true;
+
+        // Calculate slot duration from pc_duration (in seconds) to minutes
+        $slotDurationMinutes = null;
+        if (!empty($slot_row['pc_duration']) && (int)$slot_row['pc_duration'] > 0) {
+            $slotDurationMinutes = (int)round((int)$slot_row['pc_duration'] / 60);
+        }
+
+        // Store in session for linking after appointment is saved
+        $_SESSION['medex_pending_slot_consumption'] = [
+            'open_slot_eid' => $consumedSlotEid,
+            'provider_id' => $provider_id,
+            'event_date' => $event_date,
+            'start_time' => $start_time,
+            'category_id' => (int)$slot_row['pc_catid'],
+            'slot_duration' => $slotDurationMinutes, // Store for use when setting duration
+            'timestamp' => time()
+        ];
+    }
+}
+
 $resolvedDuration = null;
+
+// 1. Category duration is the SOURCE OF TRUTH
 if ($catid > 0) {
     $crow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1", [$catid]);
     $catSeconds = (int)($crow['pc_duration'] ?? 0);
@@ -17,6 +108,13 @@ if ($catid > 0) {
         $resolvedDuration = (int)round($catSeconds / 60);
     }
 }
+
+// 2. Session slot duration (if we consumed a slot and no category)
+if ($resolvedDuration === null && $slotConsumed && !empty($_SESSION['medex_pending_slot_consumption']['slot_duration'])) {
+    $resolvedDuration = $_SESSION['medex_pending_slot_consumption']['slot_duration'];
+}
+
+// 3. URL parameter (last resort)
 if ($resolvedDuration === null && $duration !== null) {
     $d = (int)$duration;
     if ($d > 0) {

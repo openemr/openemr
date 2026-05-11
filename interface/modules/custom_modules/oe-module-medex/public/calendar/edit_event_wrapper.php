@@ -18,20 +18,26 @@ $slotConsumed = false;
 if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && !empty($_GET['userid'])) {
     // This is a new appointment being created in a template slot
     $provider_id = (int)$_GET['userid'];
+    if ($provider_id <= 0) {
+        $providerToken = trim((string)($_GET['userid'] ?? ''));
+        if ($providerToken !== '') {
+            $providerRow = sqlQuery("SELECT id FROM users WHERE username = ? LIMIT 1", [$providerToken]);
+            $provider_id = (int)($providerRow['id'] ?? 0);
+        }
+    }
     $event_date = substr((string)$_GET['date'], 0, 4) . '-' . substr((string)$_GET['date'], 4, 2) . '-' . substr((string)$_GET['date'], 6);
     $start_hour = (int)$_GET['starttimeh'];
     $start_min = (int)($_GET['starttimem'] ?? 0);
     $start_time = sprintf("%02d:%02d:00", $start_hour, $start_min);
 
-    // Find matching MedEx template slot
+    // Find matching MedEx generated slot (prefer location marker over title/status)
     $slot_sql = "SELECT pc_eid, pc_endTime, pc_duration, pc_catid, pc_title
                  FROM openemr_postcalendar_events
                  WHERE pc_aid = ?
                    AND pc_eventDate = ?
                    AND pc_startTime = ?
                    AND (COALESCE(pc_pid,'') = '' OR pc_pid = '0')
-                   AND pc_apptstatus = '-'
-                   AND pc_title LIKE 'Open Slot%'
+                   AND (COALESCE(pc_location,'') LIKE 'MEDEX_%' OR pc_title LIKE 'Open Slot%')
                  ORDER BY pc_eid DESC
                  LIMIT 1";
     $slot_row = sqlQuery($slot_sql, [$provider_id, $event_date, $start_time]);

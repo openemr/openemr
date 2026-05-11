@@ -17,6 +17,42 @@ let currentEventStreamKey = '';
 let eventStreamReconnectTimer = null;
 let eventStreamConnected = false;
 
+function computeSlotVisualState(event) {
+    const props = event.extendedProps || {};
+    const patientId = parseInt(props.patientId || 0, 10) || 0;
+    const isReschedulable = !!props.isReschedulable;
+    const rawSlotState = String(props.slotState || '').trim().toLowerCase();
+
+    if (patientId > 0) {
+        return 'filled';
+    }
+    if (rawSlotState === 'held_staff') {
+        return 'held_staff';
+    }
+    if (rawSlotState === 'held_patient') {
+        return 'held_patient';
+    }
+    if (!isReschedulable) {
+        return 'open_not_reschedulable';
+    }
+    if (rawSlotState === 'consumed') {
+        return 'open_reschedulable_full';
+    }
+    return 'open_reschedulable_available';
+}
+
+function getSlotVisualMeta(slotVisualState) {
+    const map = {
+        filled: { short: 'FIL', label: 'Filled' },
+        open_not_reschedulable: { short: 'LOCK', label: 'Open, not reschedulable' },
+        open_reschedulable_full: { short: 'FULL', label: 'Reschedulable, but full' },
+        held_staff: { short: 'STAFF', label: 'Reschedulable, held by staff' },
+        held_patient: { short: 'PAT', label: 'Reschedulable, held by patient' },
+        open_reschedulable_available: { short: 'OPEN', label: 'Reschedulable and available' }
+    };
+    return map[slotVisualState] || map.open_reschedulable_available;
+}
+
 function setUnifiedHeaderTitle(text) {
     const titleEl = document.getElementById('unified-title');
     if (titleEl) {
@@ -350,6 +386,12 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
     use24Hours, firstDayOfWeek, showWeekends, calendarInterval, facilityName = null) {
     const targetProviderUserId = (providerInfo && providerInfo.id) ? parseInt(providerInfo.id, 10) : null;
     const targetFacilityId = facilityId ? parseInt(facilityId, 10) : null;
+    const dragPolicy = window.medexDragPolicy || {
+        role: 'secretary',
+        canDragDrop: false,
+        canDoubleBook: false,
+        warnOnDoubleBook: false
+    };
 
     // Create wrapper div for this provider's calendar
     const calendarWrapper = document.createElement('div');
@@ -400,13 +442,36 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
             scrollTime: scrollTime,
             expandRows: true,
             eventOverlap: true,
-            editable: true,
+            editable: !!dragPolicy.canDragDrop,
             selectable: true,
-            droppable: true,
+            droppable: !!dragPolicy.canDragDrop,
             selectMirror: true,
             dayMaxEvents: true,
             weekends: showWeekends,
             height: 'auto',
+            eventAllow: function(dropInfo, draggedEvent) {
+                if (!dragPolicy.canDragDrop) {
+                    return false;
+                }
+                if (!draggedEvent) {
+                    return true;
+                }
+
+                // Secretary policy: manual drag only for real patient appointments
+                // that are category-typed; server enforces destination slot category match.
+                if (dragPolicy.role === 'secretary') {
+                    const patientId = parseInt(draggedEvent.extendedProps.patientId || 0, 10) || 0;
+                    const preferredCategoryId = parseInt(draggedEvent.extendedProps.preferredCategoryId || 0, 10) || 0;
+                    if (patientId <= 0) {
+                        return false;
+                    }
+                    if (preferredCategoryId <= 0) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
             eventClassNames: function(arg) {
                 const category = arg.event.extendedProps.category || '';
                 const patientId = arg.event.extendedProps.patientId;
@@ -427,6 +492,18 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
 
                 if (patientId) {
                     classes.push('patient-appointment');
+                }
+
+                const isGeneratedSlot = !!arg.event.extendedProps.isGeneratedSlot;
+                const isProviderAvailability = !!arg.event.extendedProps.isProviderAvailability;
+                const isOpenSlotLike = !!arg.event.extendedProps.isOpenSlotLike;
+                if ((isGeneratedSlot || isProviderAvailability || isOpenSlotLike) && !patientId) {
+                    classes.push('open-slot-chip');
+                    if (duration < 20) {
+                        classes.push('open-slot-chip-short');
+                    } else {
+                        classes.push('open-slot-chip-tall');
+                    }
                 }
 
                 // Add short-appointment class for appointments under 20 minutes
@@ -470,8 +547,16 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                 const patientName = info.event.extendedProps.patientName;
                 const status = info.event.extendedProps.status;
                 const statusIcon = info.event.extendedProps.statusIcon;
+                const categoryLabel = (info.event.extendedProps.category || '').trim();
+                const comments = (info.event.extendedProps.comments || '').replace(/\s+/g, ' ').trim();
                 const slotTypeColor = info.event.extendedProps.slotTypeColor || '';
                 const eventTitle = info.event.title;
+                const slotVisualState = computeSlotVisualState(info.event);
+                const slotVisualMeta = getSlotVisualMeta(slotVisualState);
+                const rawSlotState = String(info.event.extendedProps.slotState || '').trim().toLowerCase();
+                const hasReschedulableState = rawSlotState === 'held_staff'
+                    || rawSlotState === 'held_patient'
+                    || rawSlotState === 'consumed';
 
                 // Calculate event duration to determine if it's a short appointment
                 const start = info.event.start;
@@ -481,8 +566,11 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     duration = Math.round((end - start) / (1000 * 60));
                 }
 
-                // For short appointments (< 20 min) in timeGrid views, set nowrap on all elements
-                if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                const isOpenSlotChip = info.el.classList.contains('open-slot-chip');
+
+                // For short patient appointments (< 20 min) in timeGrid views, set nowrap on all elements.
+                // Open-slot chips have dedicated CSS and should not receive these inline overrides.
+                if (!isOpenSlotChip && duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
                     info.el.style.whiteSpace = 'nowrap';
                     info.el.style.overflow = 'hidden';
                     info.el.style.textOverflow = 'ellipsis';
@@ -542,90 +630,145 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     }
                 }
 
-                if (patientId && patientName && eventTitle) {
+                // Render compact state badge only on reschedulable open slots.
+                const shouldShowSlotStateBadge = isOpenSlotChip
+                    && (!!info.event.extendedProps.isReschedulable || hasReschedulableState);
+                if (shouldShowSlotStateBadge && !info.el.querySelector('.slot-state-indicator')) {
+                    info.el.classList.add('slot-state-' + slotVisualState);
+                    info.el.classList.add('has-slot-state-indicator');
+                    const stateBadge = document.createElement('span');
+                    stateBadge.className = 'slot-state-indicator slot-state-indicator--' + slotVisualState;
+                    stateBadge.textContent = slotVisualMeta.short;
+                    stateBadge.setAttribute('aria-label', slotVisualMeta.label);
+                    stateBadge.setAttribute('title', 'Slot state: ' + slotVisualMeta.label);
+                    const badgeHost = info.el.querySelector('.fc-event-main')
+                        || info.el.querySelector('.fc-event-title-container')
+                        || info.el;
+                    badgeHost.appendChild(stateBadge);
+                } else if (!shouldShowSlotStateBadge) {
+                    info.el.classList.remove('has-slot-state-indicator');
+                }
+
+                // Always expose category/comments in hover text when present.
+                {
+                    const hoverParts = [];
+                    if (eventTitle) {
+                        hoverParts.push(eventTitle);
+                    }
+                    if (categoryLabel) {
+                        hoverParts.push('Category: ' + categoryLabel);
+                    }
+                    if (comments) {
+                        hoverParts.push('Comments: ' + comments);
+                    }
+                    if (shouldShowSlotStateBadge && slotVisualMeta && slotVisualMeta.label) {
+                        hoverParts.push('Slot: ' + slotVisualMeta.label);
+                    }
+                    if (hoverParts.length > 0) {
+                        info.el.setAttribute('title', hoverParts.join('\n'));
+                    }
+                }
+
+                if (patientId && patientName) {
                     if (typeof medexDebug !== 'undefined' && medexDebug) {
                         console.log('[MedEx Calendar Debug]', medexDebug);
                     }
                     // Find the title element and make patient name clickable
                     const titleEl = info.el.querySelector('.fc-event-title');
                     if (titleEl) {
-                        // Parse the title to extract patient name and appointment type
-                        // Title format is typically: "Patient Name - Appointment Type"
-                        const parts = eventTitle.split(' - ');
+                        // Clear existing content
+                        titleEl.innerHTML = '';
 
-                        if (parts.length >= 2) {
-                            // Clear existing content
-                            titleEl.innerHTML = '';
+                        // For short appointments in timeGrid, force inline display and nowrap
+                        if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                            titleEl.style.whiteSpace = 'nowrap';
+                            titleEl.style.overflow = 'hidden';
+                            titleEl.style.textOverflow = 'ellipsis';
+                            titleEl.style.display = 'block'; // Block inside flex item works better usually
+                            titleEl.style.width = '100%';
+                        }
 
-                            // For short appointments in timeGrid, force inline display and nowrap
+                        // Create clickable patient name
+                        const patientLink = document.createElement('span');
+                        patientLink.className = 'patient-name-link';
+                        patientLink.textContent = patientName;
+                        patientLink.style.cursor = 'pointer';
+                        patientLink.style.textDecoration = 'underline';
+                        patientLink.style.fontWeight = 'bold';
+                        patientLink.title = 'Click to view patient dashboard';
+                        if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                            patientLink.style.display = 'inline';
+                        }
+
+                        // Add click handler for patient name
+                        patientLink.addEventListener('click', function(e) {
+                            e.stopPropagation(); // Prevent event click from firing
+                            if (top.restoreSession) {
+                                top.restoreSession();
+                            }
+                            if (top.RTop) {
+                                // Open in OpenEMR's right top frame (like OpenEMR calendar does)
+                                top.RTop.location = webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId);
+                            } else {
+                                // Fallback to new tab if not in OpenEMR frame structure
+                                window.open(webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId), '_blank');
+                            }
+                        });
+
+                        // Append patient name link
+                        titleEl.appendChild(patientLink);
+
+                        // Add status if present
+                        if (statusIcon || status) {
+                            const statusSeparator = document.createTextNode(' ');
+                            const statusSpan = document.createElement('span');
+                            if (statusIcon) {
+                                statusSpan.innerHTML = statusIcon;
+                            } else if (status) {
+                                statusSpan.textContent = '[' + status + ']';
+                            }
+                            statusSpan.style.fontStyle = 'italic';
+                            statusSpan.style.fontSize = '10px';
                             if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                titleEl.style.whiteSpace = 'nowrap';
-                                titleEl.style.overflow = 'hidden';
-                                titleEl.style.textOverflow = 'ellipsis';
-                                titleEl.style.display = 'block'; // Block inside flex item works better usually
-                                titleEl.style.width = '100%';
+                                statusSpan.style.display = 'inline';
                             }
+                            titleEl.appendChild(statusSeparator);
+                            titleEl.appendChild(statusSpan);
+                        }
 
-                            // Create clickable patient name
-                            const patientLink = document.createElement('span');
-                            patientLink.className = 'patient-name-link';
-                            patientLink.textContent = patientName;
-                            patientLink.style.cursor = 'pointer';
-                            patientLink.style.textDecoration = 'underline';
-                            patientLink.style.fontWeight = 'bold';
-                            patientLink.title = 'Click to view patient dashboard';
+                        // Derive appointment type robustly. Prefer explicit category, then title remainder.
+                        let appointmentType = categoryLabel;
+                        if (!appointmentType && eventTitle) {
+                            const prefix = patientName + ' - ';
+                            if (eventTitle.indexOf(prefix) === 0) {
+                                appointmentType = eventTitle.slice(prefix.length).trim();
+                            } else if (eventTitle !== patientName) {
+                                appointmentType = eventTitle.trim();
+                            }
+                        }
+
+                        if (appointmentType) {
+                            const separator = document.createTextNode(' - ');
+                            const typeSpan = document.createElement('span');
+                            typeSpan.textContent = appointmentType;
                             if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                patientLink.style.display = 'inline';
+                                typeSpan.style.display = 'inline';
                             }
+                            titleEl.appendChild(separator);
+                            titleEl.appendChild(typeSpan);
+                        }
 
-                            // Add click handler for patient name
-                            patientLink.addEventListener('click', function(e) {
-                                e.stopPropagation(); // Prevent event click from firing
-                                if (top.restoreSession) {
-                                    top.restoreSession();
-                                }
-                                if (top.RTop) {
-                                    // Open in OpenEMR's right top frame (like OpenEMR calendar does)
-                                    top.RTop.location = webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId);
-                                } else {
-                                    // Fallback to new tab if not in OpenEMR frame structure
-                                    window.open(webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId), '_blank');
-                                }
-                            });
-
-                            // Append patient name link
-                            titleEl.appendChild(patientLink);
-
-                            // Add status if present
-                            if (statusIcon || status) {
-                                const statusSeparator = document.createTextNode(' ');
-                                const statusSpan = document.createElement('span');
-                                if (statusIcon) {
-                                    statusSpan.innerHTML = statusIcon;
-                                } else if (status) {
-                                    statusSpan.textContent = '[' + status + ']';
-                                }
-                                statusSpan.style.fontStyle = 'italic';
-                                statusSpan.style.fontSize = '10px';
-                                if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                    statusSpan.style.display = 'inline';
-                                }
-                                titleEl.appendChild(statusSeparator);
-                                titleEl.appendChild(statusSpan);
+                        // Keep native-style ordering familiar to users: Name - Category - Reason.
+                        if (comments) {
+                            const reasonSeparator = document.createTextNode(' - ');
+                            const reasonSpan = document.createElement('span');
+                            reasonSpan.className = 'appointment-reason-inline';
+                            reasonSpan.textContent = comments;
+                            if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                                reasonSpan.style.display = 'inline';
                             }
-
-                            // Append the rest of the title (appointment type)
-                            const appointmentType = parts.slice(1).join(' - ');
-                            if (appointmentType) {
-                                const separator = document.createTextNode(' - ');
-                                const typeSpan = document.createElement('span');
-                                typeSpan.textContent = appointmentType;
-                                if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                    typeSpan.style.display = 'inline';
-                                }
-                                titleEl.appendChild(separator);
-                                titleEl.appendChild(typeSpan);
-                            }
+                            titleEl.appendChild(reasonSeparator);
+                            titleEl.appendChild(reasonSpan);
                         }
                     }
                 }
@@ -874,8 +1017,12 @@ function updateEventTime(info, calendar, providerUserId, facilityId, options = {
     .then(data => {
         if (data.success) {
             console.log('Event updated successfully for provider', providerUserId);
+            const hasWarning = !!(data.warning);
             if (typeof window.showMedexStatusToast === 'function') {
-                window.showMedexStatusToast('Appointment updated');
+                window.showMedexStatusToast(hasWarning ? 'Updated with warning' : 'Appointment updated', hasWarning ? 'error' : 'success', hasWarning ? 2800 : 1600);
+            }
+            if (hasWarning) {
+                alert(data.warning);
             }
             if (options.mode === 'receive' && info.event) {
                 // Remove transient dragged copy before refetching canonical data.
@@ -1059,6 +1206,15 @@ function restoreFilterSelections() {
     // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
 
+    const readStoredArray = (key) => {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(key) || '[]');
+            return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+        } catch (e) {
+            return [];
+        }
+    };
+
     // Restore date from URL or localStorage
     const urlDate = urlParams.get('date');
     if (urlDate) {
@@ -1086,17 +1242,31 @@ function restoreFilterSelections() {
     }
 
     // Restore providers from URL or localStorage
-    const urlProviders = urlParams.get('providers');
+    const urlProviders = urlParams.get('providers') || urlParams.get('pc_username') || '';
     let providersToRestore = [];
+    const storedProviders = readStoredArray('medexSelectedProviders');
 
     if (urlProviders) {
         // URL providers can be comma-separated (from OpenEMR pc_username)
         providersToRestore = urlProviders.split(',').map(p => p.trim()).filter(p => p);
-        localStorage.setItem('medexSelectedProviders', JSON.stringify(providersToRestore));
-        console.log('Restored providers from URL:', providersToRestore);
+
+        // Preserve richer saved multi-select state when wrapper returns only one
+        // provider from native OpenEMR view navigation.
+        const shouldPreferStored =
+            storedProviders.length > 1
+            && providersToRestore.length <= 1
+            && !urlParams.has('force_filters');
+
+        if (shouldPreferStored) {
+            providersToRestore = storedProviders;
+            console.log('Using stored providers over single URL provider:', providersToRestore);
+        } else {
+            localStorage.setItem('medexSelectedProviders', JSON.stringify(providersToRestore));
+            console.log('Restored providers from URL:', providersToRestore);
+        }
     } else {
         // Fall back to localStorage
-        providersToRestore = JSON.parse(localStorage.getItem('medexSelectedProviders') || '[]');
+        providersToRestore = storedProviders;
         console.log('Restored providers from localStorage:', providersToRestore);
     }
 
@@ -1112,17 +1282,28 @@ function restoreFilterSelections() {
     }
 
     // Restore facilities from URL or localStorage
-    const urlFacility = urlParams.get('facility');
+    const urlFacilityParam = urlParams.get('facilities') || urlParams.get('facility') || urlParams.get('pc_facility') || '';
     let facilitiesToRestore = [];
+    const storedFacilities = readStoredArray('medexSelectedFacilities');
 
-    if (urlFacility) {
-        // URL facility is a single value (from OpenEMR pc_facility)
-        facilitiesToRestore = [urlFacility];
-        localStorage.setItem('medexSelectedFacilities', JSON.stringify(facilitiesToRestore));
-        console.log('Restored facilities from URL:', facilitiesToRestore);
+    if (urlFacilityParam) {
+        facilitiesToRestore = urlFacilityParam.split(',').map(f => f.trim()).filter(f => f);
+
+        const shouldPreferStored =
+            storedFacilities.length > 1
+            && facilitiesToRestore.length <= 1
+            && !urlParams.has('force_filters');
+
+        if (shouldPreferStored) {
+            facilitiesToRestore = storedFacilities;
+            console.log('Using stored facilities over single URL facility:', facilitiesToRestore);
+        } else {
+            localStorage.setItem('medexSelectedFacilities', JSON.stringify(facilitiesToRestore));
+            console.log('Restored facilities from URL:', facilitiesToRestore);
+        }
     } else {
         // Fall back to localStorage
-        facilitiesToRestore = JSON.parse(localStorage.getItem('medexSelectedFacilities') || '[]');
+        facilitiesToRestore = storedFacilities;
         console.log('Restored facilities from localStorage:', facilitiesToRestore);
     }
 

@@ -118,6 +118,26 @@ try {
         }
     }
 
+    // Optional policy: default which open template categories are considered reschedulable.
+    $reschedDefaultsEnabled = isset($_POST['medex_resched_defaults_enabled'])
+        ? (((string)$_POST['medex_resched_defaults_enabled'] === '0') ? '0' : '1')
+        : $getGlobalPref('medex_resched_defaults_enabled', '1');
+    $reschedDefaultCategories = isset($_POST['medex_resched_default_categories'])
+        ? trim((string)$_POST['medex_resched_default_categories'])
+        : $getGlobalPref('medex_resched_default_categories', 'new,est,established');
+    if ($reschedDefaultCategories === '') {
+        $reschedDefaultCategories = 'new,est,established';
+    }
+    
+    \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_resched_defaults_enabled', 0, ?)",
+        [$reschedDefaultsEnabled]
+    );
+    \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_resched_default_categories', 0, ?)",
+        [$reschedDefaultCategories]
+    );
+
     // Get current preferences or create new row
     $existing = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT * FROM medex_prefs WHERE ME_username IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1", []);
 

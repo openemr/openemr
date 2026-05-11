@@ -31,6 +31,12 @@ function medexIsPrivateHost(string $host): bool
         return !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
     }
 
+    foreach (['.local', '.localhost', '.internal', '.test', '.invalid', '.example'] as $suffix) {
+        if (str_ends_with($host, $suffix)) {
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -106,6 +112,74 @@ function medexNormalizeOpenEmrBaseUrl(string $url): string
     }
 
     return $scheme . '://' . $host . $port . ($path !== '' ? '/' . $path : '');
+}
+
+function medexValidatePublicOpenEmrUrl(string $url): array
+{
+    $baseUrl = medexNormalizeOpenEmrBaseUrl($url);
+    if ($baseUrl === '') {
+        return [false, '', 'OpenEMR URL is invalid'];
+    }
+
+    $parts = parse_url($baseUrl);
+    $scheme = strtolower((string)($parts['scheme'] ?? ''));
+    $host = strtolower((string)($parts['host'] ?? ''));
+    if ($scheme !== 'https') {
+        return [false, '', 'OpenEMR URL must use HTTPS'];
+    }
+    if ($host === '' || medexIsPrivateHost($host)) {
+        return [false, '', 'This OpenEMR URL is local or not publicly reachable. Assign a public preview or production URL before continuing.'];
+    }
+
+    return [true, $baseUrl, 'ok'];
+}
+
+function medexProbeCallbackUrl(string $openEmrBaseUrl, string $siteId): array
+{
+    $baseUrl = rtrim(medexNormalizeOpenEmrBaseUrl($openEmrBaseUrl), '/');
+    if ($baseUrl === '') {
+        return [false, '', 'OpenEMR URL is invalid'];
+    }
+
+    $probeUrl = $baseUrl .
+        '/interface/modules/custom_modules/oe-module-medex/public/callback.php?site=' .
+        rawurlencode($siteId);
+
+    $ch = curl_init($probeUrl);
+    if (!$ch) {
+        return [false, $probeUrl, 'Unable to initialize URL check'];
+    }
+
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT => 8,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => 2,
+        CURLOPT_USERAGENT => 'MedEx-Onboarding-URL-Check/1.0',
+        CURLOPT_HTTPHEADER => ['Accept: text/html,application/json;q=0.9,*/*;q=0.8'],
+    ]);
+
+    curl_exec($ch);
+    $curlErrNo = curl_errno($ch);
+    $curlErr = trim((string)curl_error($ch));
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    curl_close($ch);
+
+    if ($curlErrNo !== 0) {
+        return [false, $probeUrl, 'Unable to reach that public URL from MedEx: ' . $curlErr];
+    }
+
+    if ($httpCode === 404) {
+        return [false, $probeUrl, 'The public URL responded, but the MedEx callback path was not found there.'];
+    }
+
+    if ($httpCode >= 500 || $httpCode < 200) {
+        return [false, $probeUrl, 'The public URL responded with HTTP ' . $httpCode . ' while checking the MedEx callback path.'];
+    }
+
+    return [true, $probeUrl, 'Public URL verified. MedEx can reach this OpenEMR callback path.'];
 }
 
 function medexResolveClientIp(): string
@@ -638,6 +712,40 @@ if (!$csrfOk) {
     exit;
 }
 
+$action = strtolower(trim((string)($_POST['action'] ?? 'register')));
+if ($action === 'check_callback_url') {
+    $submittedOpenEmrUrl = trim((string)($_POST['callback_url'] ?? ''));
+    [$publicOk, $publicBaseUrl, $publicErr] = medexValidatePublicOpenEmrUrl($submittedOpenEmrUrl);
+    if (!$publicOk) {
+        echo json_encode(['success' => false, 'error' => $publicErr]);
+        exit;
+    }
+
+    $siteId = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_GET['site'] ?? 'default'));
+    if ($siteId === '') {
+        $siteId = 'default';
+    }
+
+    [$probeOk, $probeUrl, $probeMessage] = medexProbeCallbackUrl($publicBaseUrl, $siteId);
+    if (!$probeOk) {
+        echo json_encode([
+            'success' => false,
+            'error' => $probeMessage,
+            'normalized_base_url' => $publicBaseUrl,
+            'probe_url' => $probeUrl,
+        ]);
+        exit;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => $probeMessage,
+        'normalized_base_url' => $publicBaseUrl,
+        'probe_url' => $probeUrl,
+    ]);
+    exit;
+}
+
 try {
     // Load MedEx API and Services
     require_once(__DIR__ . '/../src/MedExAPI.php');
@@ -765,15 +873,6 @@ try {
         echo json_encode(['success' => false, 'error' => $callbackErr]);
         exit;
     }
-    $submittedHost = strtolower((string)(parse_url($submittedOpenEmrUrl, PHP_URL_HOST) ?? ''));
-    $currentHost = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
-    if (($hostPos = strpos($currentHost, ':')) !== false) {
-        $currentHost = substr($currentHost, 0, $hostPos);
-    }
-    if ($submittedHost === '' || $currentHost === '' || $submittedHost !== $currentHost) {
-        echo json_encode(['success' => false, 'error' => 'OpenEMR URL must match this server URL']);
-        exit;
-    }
     [$derivedOk, $openEmrBaseUrl, $derivedCallbackUrl, $deriveErr] = medexBuildCallbackUrl($submittedOpenEmrUrl);
     if (!$derivedOk) {
         echo json_encode(['success' => false, 'error' => $deriveErr]);
@@ -818,15 +917,19 @@ try {
             exit;
         }
         if ($detectedBaseUrl !== $openEmrBaseUrl) {
-            $attempt = medexRecordAutoApprovalFailure($email, 'submitted_url_mismatch');
-            $msg = 'Auto-approval unavailable: submitted OpenEMR URL does not match detected site URL.';
-            if ($attempt['locked']) {
-                $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
-            } else {
-                $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+            [$probeOk, , ] = medexProbeCallbackUrl($openEmrBaseUrl, (string)($_GET['site'] ?? 'default'));
+            if (!$probeOk) {
+                $attempt = medexRecordAutoApprovalFailure($email, 'submitted_url_mismatch');
+                $msg = 'Auto-approval unavailable: submitted OpenEMR URL does not match detected site URL.';
+                if ($attempt['locked']) {
+                    $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
+                } else {
+                    $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+                }
+                echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
+                exit;
             }
-            echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
-            exit;
+            $detectedBaseUrl = $openEmrBaseUrl;
         }
     }
 

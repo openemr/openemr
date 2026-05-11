@@ -317,7 +317,8 @@ class AppointmentHandler
             // Slot already tracked, just ensure it's marked consumed
             QueryUtils::sqlStatementThrowException(
                 "UPDATE medex_slot_registry
-                 SET slot_state = 'consumed', open_slot_eid = ?, consumed_at = NOW(), released_at = NULL
+                 SET slot_state = 'consumed', open_slot_eid = ?, consumed_at = NOW(), released_at = NULL,
+                     hold_expires_at = NULL, held_by_role = NULL, held_by_ref = NULL
                  WHERE slot_id = ?",
                 [$open_slot_eid, (int)$existing_slot['slot_id']]
             );
@@ -346,8 +347,9 @@ class AppointmentHandler
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO medex_slot_registry
              (open_slot_eid, patient_pc_eid, provider_id, facility_id, event_date, start_time, end_time,
-              category_id, duration_minutes, slot_source, slot_state, reschedulable, consumed_at)
-             VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?, 'consumed', ?, NOW())",
+              category_id, duration_minutes, slot_source, slot_state, reschedulable, consumed_at,
+              hold_expires_at, held_by_role, held_by_ref)
+             VALUES (?, ?, ?, 0, ?, ?, ?, ?, ?, ?, 'consumed', ?, NOW(), NULL, NULL, NULL)",
             [
                 $open_slot_eid,
                 $patient_pc_eid,
@@ -423,14 +425,27 @@ class AppointmentHandler
 
         $slot_id = (int)$slot_row['slot_id'];
         $was_reschedulable = (bool)($slot_row['reschedulable'] ?? false);
+        $holdPolicy = $this->getSlotHoldPolicy();
+        $staffHoldMinutes = max(0, (int)($holdPolicy['staff_hold_minutes'] ?? 10));
 
         // Mark slot as released
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE medex_slot_registry
-             SET slot_state = 'released', patient_pc_eid = NULL, released_at = NOW()
-             WHERE slot_id = ?",
-            [$slot_id]
-        );
+        if ($staffHoldMinutes > 0) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE medex_slot_registry
+                 SET slot_state = 'held_staff', patient_pc_eid = NULL, released_at = NOW(),
+                     hold_expires_at = DATE_ADD(NOW(), INTERVAL ? MINUTE), held_by_role = 'staff', held_by_ref = 'staff_pool'
+                 WHERE slot_id = ?",
+                [$staffHoldMinutes, $slot_id]
+            );
+        } else {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE medex_slot_registry
+                 SET slot_state = 'available', patient_pc_eid = NULL, released_at = NOW(),
+                     hold_expires_at = NULL, held_by_role = NULL, held_by_ref = NULL
+                 WHERE slot_id = ?",
+                [$slot_id]
+            );
+        }
 
         $new_open_slot_eid = null;
 
@@ -484,8 +499,174 @@ class AppointmentHandler
             'slot_released' => true,
             'slot_id' => $slot_id,
             'was_reschedulable' => $was_reschedulable,
+            'staff_hold_minutes' => $staffHoldMinutes,
             'new_open_slot_eid' => $new_open_slot_eid,
             'create_available_slot' => $create_available_slot
+        ];
+    }
+
+    /**
+     * Place a short patient hold on an open slot while an offer is active.
+     *
+     * @param array<string,mixed> $params
+     * @return array<string,mixed>
+     */
+    public function holdSlotForPatientOffer(array $params): array
+    {
+        $this->ensureSlotRegistryTable();
+        $this->expireSlotHolds();
+
+        $open_slot_eid = (int)($params['open_slot_eid'] ?? 0);
+        $offer_ref = trim((string)($params['offer_ref'] ?? ''));
+        $holder_ref = trim((string)($params['holder_ref'] ?? ''));
+        $force_take_staff_hold = (bool)($params['force_take_staff_hold'] ?? false);
+
+        if ($open_slot_eid <= 0) {
+            return ['success' => false, 'error' => 'open_slot_eid is required'];
+        }
+
+        $slotEvent = QueryUtils::querySingleRow(
+            "SELECT pc_eid, pc_aid, pc_facility, pc_eventDate, pc_startTime, pc_endTime,
+                    COALESCE(NULLIF(pc_prefcatid, 0), pc_catid) AS category_id,
+                    COALESCE(NULLIF(pc_duration, 0), 900) AS duration_seconds
+             FROM openemr_postcalendar_events
+             WHERE pc_eid = ?
+               AND pc_eventstatus = 1
+               AND (COALESCE(pc_pid,'') = '' OR pc_pid = '0')
+               AND pc_apptstatus = '-'
+             LIMIT 1",
+            [$open_slot_eid]
+        );
+
+        if (empty($slotEvent['pc_eid'])) {
+            return ['success' => false, 'error' => 'Open slot not found or not available'];
+        }
+
+        $registry = QueryUtils::querySingleRow(
+            "SELECT slot_id, slot_state, hold_expires_at, held_by_ref
+             FROM medex_slot_registry
+             WHERE open_slot_eid = ?
+             ORDER BY slot_id DESC
+             LIMIT 1",
+            [$open_slot_eid]
+        );
+
+        $state = (string)($registry['slot_state'] ?? 'available');
+        if ($state === 'held_patient') {
+            return [
+                'success' => false,
+                'error' => 'Slot is currently offered to another patient',
+                'errorCode' => 'slot_held_by_patient'
+            ];
+        }
+        if ($state === 'held_staff' && !$force_take_staff_hold) {
+            return [
+                'success' => false,
+                'error' => 'Slot is currently held for staff fill',
+                'errorCode' => 'slot_held_by_staff'
+            ];
+        }
+
+        $holdPolicy = $this->getSlotHoldPolicy();
+        $patientHoldMinutes = max(1, (int)($holdPolicy['patient_hold_minutes'] ?? 3));
+        $resolvedRef = $holder_ref !== '' ? $holder_ref : ($offer_ref !== '' ? $offer_ref : 'patient_offer');
+
+        if (!empty($registry['slot_id'])) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE medex_slot_registry
+                 SET slot_state = 'held_patient',
+                     hold_expires_at = DATE_ADD(NOW(), INTERVAL ? MINUTE),
+                     held_by_role = 'patient',
+                     held_by_ref = ?,
+                     released_at = NULL
+                 WHERE slot_id = ?",
+                [$patientHoldMinutes, $resolvedRef, (int)$registry['slot_id']]
+            );
+            $slotId = (int)$registry['slot_id'];
+        } else {
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO medex_slot_registry
+                 (open_slot_eid, patient_pc_eid, provider_id, facility_id, event_date, start_time, end_time,
+                  category_id, duration_minutes, slot_source, slot_state, reschedulable,
+                  hold_expires_at, held_by_role, held_by_ref)
+                 VALUES (?, NULL, ?, ?, ?, ?, ?, ?, ?, 'medex', 'held_patient', 1,
+                         DATE_ADD(NOW(), INTERVAL ? MINUTE), 'patient', ?)",
+                [
+                    $open_slot_eid,
+                    (int)($slotEvent['pc_aid'] ?? 0),
+                    (int)($slotEvent['pc_facility'] ?? 0),
+                    (string)($slotEvent['pc_eventDate'] ?? ''),
+                    (string)($slotEvent['pc_startTime'] ?? ''),
+                    (string)($slotEvent['pc_endTime'] ?? ''),
+                    (int)($slotEvent['category_id'] ?? 0),
+                    (int)round(((int)($slotEvent['duration_seconds'] ?? 900)) / 60),
+                    $patientHoldMinutes,
+                    $resolvedRef
+                ]
+            );
+            $slotId = (int)QueryUtils::fetchSingleValue("SELECT LAST_INSERT_ID()", 'LAST_INSERT_ID()', []);
+        }
+
+        return [
+            'success' => true,
+            'slot_id' => $slotId,
+            'open_slot_eid' => $open_slot_eid,
+            'slot_state' => 'held_patient',
+            'patient_hold_minutes' => $patientHoldMinutes,
+            'held_by_ref' => $resolvedRef
+        ];
+    }
+
+    /**
+     * Release any active hold on a slot back to available.
+     *
+     * @param array<string,mixed> $params
+     * @return array<string,mixed>
+     */
+    public function releaseSlotHold(array $params): array
+    {
+        $this->ensureSlotRegistryTable();
+        $this->expireSlotHolds();
+
+        $slot_id = (int)($params['slot_id'] ?? 0);
+        $open_slot_eid = (int)($params['open_slot_eid'] ?? 0);
+
+        if ($slot_id <= 0 && $open_slot_eid <= 0) {
+            return ['success' => false, 'error' => 'slot_id or open_slot_eid is required'];
+        }
+
+        if ($slot_id > 0) {
+            $row = QueryUtils::querySingleRow(
+                "SELECT slot_id, slot_state FROM medex_slot_registry WHERE slot_id = ? LIMIT 1",
+                [$slot_id]
+            );
+        } else {
+            $row = QueryUtils::querySingleRow(
+                "SELECT slot_id, slot_state
+                 FROM medex_slot_registry
+                 WHERE open_slot_eid = ?
+                 ORDER BY slot_id DESC
+                 LIMIT 1",
+                [$open_slot_eid]
+            );
+        }
+
+        if (empty($row['slot_id'])) {
+            return ['success' => false, 'error' => 'Slot hold record not found'];
+        }
+
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE medex_slot_registry
+             SET slot_state = 'available', hold_expires_at = NULL, held_by_role = NULL, held_by_ref = NULL
+             WHERE slot_id = ?",
+            [(int)$row['slot_id']]
+        );
+
+        return [
+            'success' => true,
+            'slot_id' => (int)$row['slot_id'],
+            'previous_state' => (string)($row['slot_state'] ?? ''),
+            'slot_state' => 'available'
         ];
     }
 
@@ -582,6 +763,7 @@ class AppointmentHandler
     public function getReschedulingOptions(array $params): array
     {
         $this->ensureSlotRegistryTable();
+        $this->expireSlotHolds();
 
         $patient_pc_eid = (int)($params['patient_pc_eid'] ?? 0);
         $provider_id = (int)($params['provider_id'] ?? 0);
@@ -592,21 +774,33 @@ class AppointmentHandler
         $max_days_after = max(0, (int)($params['max_days_after'] ?? 60));
         $allow_same_day = (bool)($params['allow_same_day'] ?? false);
 
-        // Get current appointment details if patient_pc_eid provided
+        // Get current appointment details if patient_pc_eid provided.
+        // Prefer preferred category for slot matching, then fall back to event category.
         if ($patient_pc_eid > 0 && ($provider_id === 0 || $preferred_category_id === 0)) {
             $appt_row = QueryUtils::querySingleRow(
-                "SELECT pc_aid, pc_catid, pc_eventDate, pc_startTime
+                "SELECT pc_aid, pc_prefcatid, pc_catid, pc_eventDate, pc_startTime
                  FROM openemr_postcalendar_events WHERE pc_eid = ?",
                 [$patient_pc_eid]
             );
             if (!empty($appt_row)) {
                 $provider_id = $provider_id ?: (int)$appt_row['pc_aid'];
-                $preferred_category_id = $preferred_category_id ?: (int)$appt_row['pc_catid'];
+                $derivedCategoryId = (int)($appt_row['pc_prefcatid'] ?? 0);
+                if ($derivedCategoryId <= 0) {
+                    $derivedCategoryId = (int)($appt_row['pc_catid'] ?? 0);
+                }
+                $preferred_category_id = $preferred_category_id ?: $derivedCategoryId;
             }
         }
 
         if ($provider_id <= 0) {
             return ['success' => false, 'error' => 'Provider ID required'];
+        }
+        if ($preferred_category_id <= 0) {
+            return [
+                'success' => false,
+                'error' => 'Category ID required for rescheduling options',
+                'provider_id' => $provider_id
+            ];
         }
 
         // Calculate date boundaries
@@ -624,7 +818,7 @@ class AppointmentHandler
                     pc_eventDate as date,
                     pc_startTime as start,
                     pc_endTime as end,
-                    pc_catid as category_id,
+                    COALESCE(NULLIF(pc_prefcatid,0), pc_catid) as category_id,
                     pc_duration,
                     pc_facility as facility_id,
                     pc_title
@@ -637,10 +831,8 @@ class AppointmentHandler
 
         $query_params = [$provider_id, $earliest_date, $latest_date];
 
-        if ($preferred_category_id > 0) {
-            $sql .= " AND pc_catid = ?";
-            $query_params[] = $preferred_category_id;
-        }
+        $sql .= " AND COALESCE(NULLIF(pc_prefcatid,0), pc_catid) = ?";
+        $query_params[] = $preferred_category_id;
 
         $sql .= " ORDER BY pc_eventDate ASC, pc_startTime ASC LIMIT ?";
         $query_params[] = $max_offers;
@@ -649,6 +841,19 @@ class AppointmentHandler
 
         $options = [];
         foreach ($rows as $row) {
+            $registry = QueryUtils::querySingleRow(
+                "SELECT slot_state, hold_expires_at, held_by_role, held_by_ref
+                 FROM medex_slot_registry
+                 WHERE open_slot_eid = ?
+                 ORDER BY slot_id DESC
+                 LIMIT 1",
+                [(int)$row['pc_eid']]
+            );
+            $slotState = (string)($registry['slot_state'] ?? 'available');
+            if ($slotState === 'consumed' || $slotState === 'held_patient') {
+                continue;
+            }
+
             $options[] = [
                 'pc_eid' => (int)$row['pc_eid'],
                 'date' => (string)$row['date'],
@@ -657,7 +862,11 @@ class AppointmentHandler
                 'category_id' => (int)$row['category_id'],
                 'duration_minutes' => (int)$row['pc_duration'] / 60,
                 'facility_id' => (int)$row['facility_id'],
-                'title' => (string)$row['pc_title']
+                'title' => (string)$row['pc_title'],
+                'slot_state' => $slotState,
+                'hold_expires_at' => $registry['hold_expires_at'] ?? null,
+                'held_by_role' => $registry['held_by_role'] ?? null,
+                'held_by_ref' => $registry['held_by_ref'] ?? null
             ];
         }
 
@@ -696,8 +905,70 @@ class AppointmentHandler
                 'max_days_before' => $max_days_before,
                 'max_days_after' => $max_days_after,
                 'allow_same_day' => $allow_same_day
-            ]
+            ],
+            'hold_policy' => $this->getSlotHoldPolicy()
         ];
+    }
+
+    /**
+     * Return configurable slot hold policy.
+     *
+     * @return array<string,int>
+     */
+    public function getSlotHoldPolicy(): array
+    {
+        $defaults = [
+            'staff_hold_minutes' => 10,
+            'patient_hold_minutes' => 3,
+            'resched_defaults_enabled' => 1,
+            'resched_default_categories' => 'new,est,established',
+        ];
+
+        $rows = QueryUtils::fetchRecords(
+            "SELECT gl_name, gl_value FROM globals WHERE gl_name IN (?, ?, ?, ?)",
+            [
+                'medex_slot_staff_hold_minutes',
+                'medex_slot_patient_hold_minutes',
+                'medex_resched_defaults_enabled',
+                'medex_resched_default_categories'
+            ]
+        );
+
+        foreach ($rows as $row) {
+            $name = (string)($row['gl_name'] ?? '');
+            $value = max(0, (int)($row['gl_value'] ?? 0));
+            if ($name === 'medex_slot_staff_hold_minutes' && $value > 0) {
+                $defaults['staff_hold_minutes'] = $value;
+            }
+            if ($name === 'medex_slot_patient_hold_minutes' && $value > 0) {
+                $defaults['patient_hold_minutes'] = $value;
+            }
+            if ($name === 'medex_resched_defaults_enabled') {
+                $defaults['resched_defaults_enabled'] = ((string)($row['gl_value'] ?? '1') === '0') ? 0 : 1;
+            }
+            if ($name === 'medex_resched_default_categories') {
+                $raw = trim((string)($row['gl_value'] ?? ''));
+                if ($raw !== '') {
+                    $defaults['resched_default_categories'] = $raw;
+                }
+            }
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * Expire elapsed staff/patient holds and return slots to available.
+     */
+    private function expireSlotHolds(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE medex_slot_registry
+             SET slot_state = 'available', hold_expires_at = NULL, held_by_role = NULL, held_by_ref = NULL
+             WHERE slot_state IN ('held_staff', 'held_patient')
+               AND hold_expires_at IS NOT NULL
+               AND hold_expires_at <= NOW()"
+        );
     }
 
     /**
@@ -717,8 +988,11 @@ class AppointmentHandler
             category_id INT UNSIGNED NOT NULL,
             duration_minutes INT UNSIGNED NOT NULL DEFAULT 15,
             slot_source VARCHAR(32) NOT NULL DEFAULT 'medex',
-            slot_state ENUM('available','consumed','released','expired') NOT NULL DEFAULT 'available',
+            slot_state ENUM('available','held_staff','held_patient','consumed','released','expired') NOT NULL DEFAULT 'available',
             reschedulable TINYINT NOT NULL DEFAULT 1,
+            hold_expires_at DATETIME NULL,
+            held_by_role VARCHAR(16) NULL,
+            held_by_ref VARCHAR(64) NULL,
             consumed_at DATETIME NULL,
             released_at DATETIME NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -726,7 +1000,34 @@ class AppointmentHandler
             KEY idx_open_slot (open_slot_eid),
             KEY idx_patient_slot (patient_pc_eid),
             KEY idx_provider_date (provider_id, event_date, slot_state),
-            KEY idx_category (category_id)
+            KEY idx_category (category_id),
+            KEY idx_hold_expiry (slot_state, hold_expires_at)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        // Schema upgrades for existing installs.
+        if (!$this->columnExists('medex_slot_registry', 'hold_expires_at')) {
+            sqlStatement("ALTER TABLE medex_slot_registry ADD COLUMN hold_expires_at DATETIME NULL AFTER reschedulable");
+        }
+        if (!$this->columnExists('medex_slot_registry', 'held_by_role')) {
+            sqlStatement("ALTER TABLE medex_slot_registry ADD COLUMN held_by_role VARCHAR(16) NULL AFTER hold_expires_at");
+        }
+        if (!$this->columnExists('medex_slot_registry', 'held_by_ref')) {
+            sqlStatement("ALTER TABLE medex_slot_registry ADD COLUMN held_by_ref VARCHAR(64) NULL AFTER held_by_role");
+        }
+        sqlStatement("ALTER TABLE medex_slot_registry MODIFY slot_state ENUM('available','held_staff','held_patient','consumed','released','expired') NOT NULL DEFAULT 'available'");
+    }
+
+    private function columnExists(string $tableName, string $columnName): bool
+    {
+        $row = QueryUtils::querySingleRow(
+            "SELECT 1
+             FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND COLUMN_NAME = ?
+             LIMIT 1",
+            [$tableName, $columnName]
+        );
+        return !empty($row);
     }
 }

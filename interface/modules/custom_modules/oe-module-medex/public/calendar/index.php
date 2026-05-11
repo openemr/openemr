@@ -86,18 +86,20 @@ $fullCalendarDefaultView = $viewMapping[$calendarDefaultView] ?? 'timeGridWeek';
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
+$siteId = (string)($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 $nativeCalendarFallbackUrl = ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php?medex_prefer=openemr';
+$moduleCalendarFallbackUrl = ($GLOBALS['webroot'] ?? '') . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode($siteId);
 
 // Check if configured
 if (!$api->isConfigured()) {
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . $nativeCalendarFallbackUrl);
+    header('Location: ' . $moduleCalendarFallbackUrl);
     exit;
 }
 
 if (!$api->hasServiceEntitlement('calendar_full')) {
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . $nativeCalendarFallbackUrl);
+    header('Location: ' . $moduleCalendarFallbackUrl);
     exit;
 }
 
@@ -114,9 +116,9 @@ try {
     }
 } catch (\Exception $e) {
     // Also redirect on hard failure (e.g. no cached token at all).
-    error_log('[MedEx Calendar] Login failed, redirecting to native calendar: ' . $e->getMessage());
+    error_log('[MedEx Calendar] Login failed, redirecting to module fallback: ' . $e->getMessage());
     $_SESSION['medex_calendar_skip'] = true;
-    header('Location: ' . $nativeCalendarFallbackUrl);
+    header('Location: ' . $moduleCalendarFallbackUrl);
     exit;
 }
 
@@ -132,6 +134,9 @@ require_once($GLOBALS['incdir'] . "/../library/patient.inc.php");
 
 $userId = $authUserId;
 $userAuthorized = $_SESSION['userauthorized'] ?? ($sessionWrapper ? (int)($sessionWrapper->get('userauthorized') ?? 0) : 0);
+$isAdminUser = AclMain::aclCheckCore('admin', 'super');
+$isProviderUser = ((int)$userAuthorized === 1);
+$calendarActorRole = $isAdminUser ? 'admin' : ($isProviderUser ? 'provider' : 'secretary');
 
 // Get user info
 $userInfo = sqlQuery("SELECT id, username, facility_id FROM users WHERE id = ?", [$userId]);
@@ -285,10 +290,19 @@ $openEmrCalendarCompatible = true;
             'defaultFacilities' => $prefDefaultFacilities
         ]); ?>;
         window.medexOpenEmrCalendarCompatible = <?php echo $openEmrCalendarCompatible ? 'true' : 'false'; ?>;
+        window.medexDragPolicy = <?php echo json_encode([
+            'role' => $calendarActorRole,
+            'isAdmin' => $isAdminUser,
+            'isProvider' => $isProviderUser,
+            // Start policy: all three roles can drag, server enforces secretary/category and double-book checks.
+            'canDragDrop' => true,
+            'canDoubleBook' => ($isAdminUser || $isProviderUser),
+            'warnOnDoubleBook' => ($isAdminUser || $isProviderUser)
+        ]); ?>;
     </script>
 
     <!-- Calendar initialization -->
-    <script src='<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/calendar/calendar.js' type="text/javascript"></script>
+    <script src='<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/public/calendar/calendar.js?v=<?php echo urlencode((string)filemtime(__DIR__ . '/calendar.js')); ?>' type="text/javascript"></script>
 
     <style>
         body {
@@ -309,6 +323,7 @@ $openEmrCalendarCompatible = true;
             --medex-quick-btn-bg: #e9edf2;
             --medex-quick-btn-text: #2f3a4a;
             --medex-quick-btn-border: #9aa4b1;
+            --medex-open-slot-chip-width: 205px;
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
@@ -729,11 +744,133 @@ $openEmrCalendarCompatible = true;
         /* Make event text more readable */
         .fc-event {
             cursor: pointer;
+            position: relative;
         }
         .fc-event-title {
             color: inherit;
             font-weight: 500;
         }
+        .fc-event .appointment-comment-line {
+            display: block;
+            max-width: 100%;
+            font-size: 10px;
+            font-weight: 500;
+            opacity: 0.95;
+            color: inherit;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+        .fc-event .appointment-reason-inline {
+            font-size: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline;
+            max-width: 100%;
+        }
+        .fc-event .slot-state-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0;
+            padding: 0 6px;
+            min-width: 34px;
+            height: 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.22);
+            font-size: 9px;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            flex: 0 0 auto;
+            background: rgba(255,255,255,0.9);
+            color: #1f2933;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            z-index: 4;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main {
+            position: relative;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-main-frame,
+        .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-title-container,
+        .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-title {
+            padding-right: 40px;
+            box-sizing: border-box;
+        }
+        .fc-event .slot-state-indicator--filled {
+            background: #1f6f43;
+            border-color: #174e30;
+            color: #ffffff;
+        }
+        .fc-event .slot-state-indicator--open_not_reschedulable {
+            background: #6b7280;
+            border-color: #4b5563;
+            color: #ffffff;
+        }
+        .fc-event .slot-state-indicator--open_reschedulable_full {
+            background: #b45309;
+            border-color: #92400e;
+            color: #ffffff;
+        }
+        .fc-event .slot-state-indicator--held_staff {
+            background: #2563eb;
+            border-color: #1d4ed8;
+            color: #ffffff;
+        }
+        .fc-event .slot-state-indicator--held_patient {
+            background: #7c3aed;
+            border-color: #5b21b6;
+            color: #ffffff;
+        }
+        .fc-event .slot-state-indicator--open_reschedulable_available {
+            background: #15803d;
+            border-color: #166534;
+            color: #ffffff;
+        }
+        .slot-state-legend {
+            border: 1px solid var(--medex-panel-border);
+            border-radius: 4px;
+            padding: 8px;
+            background: var(--medex-card-bg);
+        }
+        .slot-state-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--medex-text);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        .slot-state-legend-item:last-child {
+            margin-bottom: 0;
+        }
+        .slot-state-legend-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(0,0,0,0.22);
+            font-size: 9px;
+            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            color: #ffffff;
+            flex: 0 0 auto;
+        }
+        .slot-state-legend-badge.filled { background: #1f6f43; border-color: #174e30; }
+        .slot-state-legend-badge.open_not_reschedulable { background: #6b7280; border-color: #4b5563; }
+        .slot-state-legend-badge.open_reschedulable_full { background: #b45309; border-color: #92400e; }
+        .slot-state-legend-badge.held_staff { background: #2563eb; border-color: #1d4ed8; }
+        .slot-state-legend-badge.held_patient { background: #7c3aed; border-color: #5b21b6; }
+        .slot-state-legend-badge.open_reschedulable_available { background: #15803d; border-color: #166534; }
         .fc-event-time {
             color: inherit;
         }
@@ -755,6 +892,98 @@ $openEmrCalendarCompatible = true;
                 rgba(255,255,255,.1) 10px,
                 rgba(255,255,255,.1) 20px
             );
+        }
+
+        /* Generated open slots: render as a short colored category chip so
+           the remaining white row area visually communicates open capacity. */
+        .fc-event.open-slot-chip.fc-timegrid-event {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main {
+            display: inline-flex;
+            align-items: center;
+            width: min(var(--medex-open-slot-chip-width), 100%);
+            min-width: min(var(--medex-open-slot-chip-width), 100%);
+            max-width: 100%;
+            box-sizing: border-box;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.18);
+            background: var(--medex-slot-type-color, #d9e8f9) !important;
+            color: #0f2740 !important;
+            padding: 1px 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Default/taller slot mode: stack time over category so labels are readable. */
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-main {
+            flex-direction: column;
+            align-items: flex-start;
+            white-space: normal;
+            line-height: 1.15;
+            gap: 1px;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .slot-state-indicator {
+            top: 2px;
+            right: 2px;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-main-frame {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-time {
+            margin-right: 0;
+            margin-bottom: 1px;
+            line-height: 1.05;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-title-container,
+        .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-title {
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            line-height: 1.1;
+        }
+
+        /* Short one-row slots: keep inline, but let the chip grow wider before trimming. */
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-main {
+            flex-direction: row;
+            align-items: center;
+            white-space: nowrap;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-main-frame {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            min-width: 0;
+        }
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-title-container,
+        .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main-frame {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            max-width: 100%;
+            min-width: 0;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-time {
+            margin-right: 4px;
+            flex: 0 0 auto;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-title-container,
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-title {
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         /* Patient appointments should stand out */
@@ -847,7 +1076,7 @@ $openEmrCalendarCompatible = true;
         }
 
         /* Override FullCalendar's flex layout for short appointments */
-        .fc-event.short-appointment .fc-event-main-frame {
+        .fc-event.short-appointment:not(.open-slot-chip) .fc-event-main-frame {
             flex-direction: column !important;
         }
 
@@ -1075,6 +1304,18 @@ $openEmrCalendarCompatible = true;
                     echo '</label>';
                 }
                 ?>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h4><?php echo xlt('Slot States'); ?></h4>
+            <div class="slot-state-legend">
+                <div class="slot-state-legend-item"><span class="slot-state-legend-badge filled">FIL</span><span><?php echo xlt('Filled'); ?></span></div>
+                <div class="slot-state-legend-item"><span class="slot-state-legend-badge open_not_reschedulable">LOCK</span><span><?php echo xlt('Open, not reschedulable'); ?></span></div>
+                <div class="slot-state-legend-item"><span class="slot-state-legend-badge open_reschedulable_full">FULL</span><span><?php echo xlt('Open/reschedulable, but full'); ?></span></div>
+                <div class="slot-state-legend-item"><span class="slot-state-legend-badge held_staff">H-S</span><span><?php echo xlt('Open, held by staff'); ?></span></div>
+                <div class="slot-state-legend-item"><span class="slot-state-legend-badge held_patient">H-P</span><span><?php echo xlt('Open, held by patient'); ?></span></div>
+                <div class="slot-state-legend-item"><span class="slot-state-legend-badge open_reschedulable_available">OPEN</span><span><?php echo xlt('Open, reschedulable, available'); ?></span></div>
             </div>
         </div>
     </div>

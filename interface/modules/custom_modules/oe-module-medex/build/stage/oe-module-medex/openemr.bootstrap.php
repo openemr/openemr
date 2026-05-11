@@ -294,7 +294,7 @@ function medexShouldAutoloadMessagingTab(array $enabledServices): bool
 function medexRenderMainTabsAutoloadScript(): void
 {
     $state = medexBootstrapState();
-    if (!medexCanAutoloadMainTabs($state)) {
+    if (empty($state['module_installed']) || empty($state['module_enabled'])) {
         return;
     }
 
@@ -303,18 +303,20 @@ function medexRenderMainTabsAutoloadScript(): void
         return;
     }
 
+    $canAutoload = medexCanAutoloadMainTabs($state);
     $enabledServices = (array)($state['enabled_services'] ?? []);
     $calendarUrl = null;
     if (medexShouldAutoloadCalendarTab($enabledServices)) {
         $calendarUrl = medexBuildModuleUrl('/interface/modules/custom_modules/oe-module-medex/public/calendar/index.php');
     }
+    $calendarFallbackUrl = medexBuildModuleUrl('/interface/modules/custom_modules/oe-module-medex/admin/splash.php', ['minimal' => 1]);
 
     $messagesUrl = null;
-    if (medexShouldAutoloadMessagingTab($enabledServices)) {
+    if ($canAutoload && medexShouldAutoloadMessagingTab($enabledServices)) {
         $messagesUrl = medexBuildModuleUrl('/interface/main/messages/messages.php', ['form_active' => 1]);
     }
 
-    if ($calendarUrl === null && $messagesUrl === null) {
+    if ($calendarUrl === null && $calendarFallbackUrl === '' && $messagesUrl === null) {
         return;
     }
 
@@ -325,8 +327,28 @@ function medexRenderMainTabsAutoloadScript(): void
         var config = {
             siteId: <?php echo js_escape($siteId); ?>,
             calendarUrl: <?php echo js_escape($calendarUrl ?? ''); ?>,
+            calendarFallbackUrl: <?php echo js_escape($calendarFallbackUrl ?? ''); ?>,
             messagesUrl: <?php echo js_escape($messagesUrl ?? ''); ?>
         };
+
+        function normalizeCalendarTarget(frameName, url) {
+            var rawUrl = String(url || '');
+            if (!rawUrl || frameName !== 'cal') {
+                return rawUrl;
+            }
+            if (rawUrl.indexOf('/interface/main/main_info.php') !== -1) {
+                return config.calendarUrl || config.calendarFallbackUrl || rawUrl;
+            }
+            return rawUrl;
+        }
+
+        if (typeof navigateTab === 'function' && !navigateTab.__medexCalendarWrapped) {
+            var medexOriginalNavigateTab = navigateTab;
+            navigateTab = function (url, frameName, callback) {
+                return medexOriginalNavigateTab(normalizeCalendarTarget(frameName, url), frameName, callback);
+            };
+            navigateTab.__medexCalendarWrapped = true;
+        }
 
         function getSessionKey() {
             var token = '';
@@ -341,7 +363,7 @@ function medexRenderMainTabsAutoloadScript(): void
                 return false;
             }
             restoreSession();
-            navigateTab(url, frameName, function () {
+            navigateTab(normalizeCalendarTarget(frameName, url), frameName, function () {
                 if (typeof activateTabByName === 'function') {
                     activateTabByName(frameName, true);
                 }
@@ -360,6 +382,8 @@ function medexRenderMainTabsAutoloadScript(): void
             var openedAny = false;
             if (config.calendarUrl) {
                 openedAny = openTab('cal', config.calendarUrl) || openedAny;
+            } else if (config.calendarFallbackUrl) {
+                openedAny = openTab('cal', config.calendarFallbackUrl) || openedAny;
             }
             if (config.messagesUrl) {
                 openedAny = openTab('msg', config.messagesUrl) || openedAny;
