@@ -386,6 +386,8 @@ class C_Prescription extends Controller
         $quantity = (float)($_POST['disp_quantity'] ?? 0);
         $fee = (float)($_POST['disp_fee'] ?? 0);
         $encounterId = (int)($_POST['dispense_encounter_id'] ?? 0);
+        $inventoryIdRaw = filter_input(INPUT_POST, 'dispense_inventory_id');
+        $inventoryId = is_numeric($inventoryIdRaw) && (int)$inventoryIdRaw > 0 ? (int)$inventoryIdRaw : null;
         $patientId = $prescription->get_patient_id();
         $prescriptionId = $prescription->id;
 
@@ -401,17 +403,34 @@ class C_Prescription extends Controller
         } else {
             try {
                 $drugSalesService = new DrugSalesService();
+                $expiredLots = false;
                 $saleId = $drugSalesService->sellDrug(
                     $drugId,
                     $quantity,
                     $fee,
                     $patientId,
                     $encounterId,
-                    $prescriptionId
+                    $prescriptionId,
+                    '',
+                    '',
+                    '',
+                    false,
+                    $expiredLots,
+                    '',
+                    '',
+                    $inventoryId
                 );
 
                 if (!$saleId) {
-                    $dispenseError = xl('Inventory is not available for this order');
+                    if ($inventoryId !== null && DrugSalesService::restrictSalesToDefaultWarehouse()) {
+                        // Strict policy is on and the picker submitted an
+                        // off-site lot. Surface the actual reason instead
+                        // of the generic "no inventory" message — the lot
+                        // does exist, the clinic just bars it.
+                        $dispenseError = xl('Your clinic only allows dispensing from your default warehouse. Either change the lot’s warehouse to your default, or transfer the lot to your default warehouse first via Inventory → Management → Edit Lot.');
+                    } else {
+                        $dispenseError = xl('Inventory is not available for this order');
+                    }
                 }
             } catch (\Throwable $e) {
                 $dispenseError = $e->getMessage();

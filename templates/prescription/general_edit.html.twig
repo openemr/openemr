@@ -191,6 +191,29 @@
                             {{ encounterSelectList('dispense_encounter_id', prescription.patient.id, defaultEncounterId, 'Encounter for which the drug is being dispended'|xl, {empty_name:'Select Encounter'|xl}) }}
                         </div>
                     </div>
+                    <div class="form-group row mt-3" id="lot_picker_row">
+                        <div class="col-12">
+                            <label for="dispense_inventory_id">{{'Lot'|xlt}}</label>
+                        </div>
+                        <div class="col-12">
+                            <select class="input-sm form-control" name="dispense_inventory_id" id="dispense_inventory_id" disabled>
+                                <option value="">{{'Select an in-house drug to load lots'|xlt}}</option>
+                            </select>
+                            <small class="text-muted">{{'Default selection is the lot that expires next from your default warehouse.'|xlt}}</small>
+                            <div id="off_site_warning" class="alert alert-warning mt-2" style="display:none;">
+                                <strong>{{'Off-site lot selected.'|xlt}}</strong>
+                                {{'This lot is not in your on-site (default) warehouse. Make sure you are physically dispensing from this exact lot. If the lot is in fact on-site, transfer it into your on-site warehouse first via Inventory → Management → Edit Lot.'|xlt}}
+                            </div>
+                            <div id="strict_mode_notice" class="alert alert-info mt-2" style="display:none;">
+                                {{'Off-site lots are shown for reference only. Your clinic only allows dispensing from your default warehouse — transfer a lot via Inventory → Management → Edit Lot first if you need to dispense from it.'|xlt}}
+                            </div>
+                            <div id="no_default_warehouse_warning" class="alert alert-danger mt-2" style="display:none;">
+                                <strong>{{'No default warehouse set.'|xlt}}</strong>
+                                <span class="no-default-loose">{{'Please set a default warehouse for your user under Administration → Users. Without one, it is unclear whether the lots shown above are on-site or not.'|xlt}}</span>
+                                <span class="no-default-strict">{{'Your clinic only allows dispensing from the user’s default warehouse, but no default is configured. Set one under Administration → Users before dispensing.'|xlt}}</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="form-group row mt-3">
                         <input type="submit" name="disp_button" class='btn btn-primary btn-presc-dispense btn-sm my-0 mr-1 ml-1' value="{{'Save and Dispense'|xla}}" {% if isNewPrescription %}disabled{% endif %} />
                     </div>
@@ -468,6 +491,19 @@
             f.drug_id.focus();
             return false;
         }
+        // Loose mode + off-site lot: force an explicit acknowledgement.
+        // In strict mode off-site options are disabled and cannot reach
+        // this point; in loose mode the user is overriding a clinic
+        // convention and we want a deliberate click.
+        if (!lotPickerRestrictToDefault) {
+            var $lotOpt = $('#dispense_inventory_id option:selected');
+            if ($lotOpt.attr('data-off-site') === '1') {
+                if (!confirm({{'The selected lot is not in your default warehouse. Confirm only if you are physically dispensing from this exact lot.'|xlj}})) {
+                    f.dispense_inventory_id.focus();
+                    return false;
+                }
+            }
+        }
 
         f.dispense_after_save.value = "1";
         top.restoreSession();
@@ -480,6 +516,114 @@
         $('.dispense_option,.prescription-controls .btn-primary,.prescription-controls .btn-save-print,.amc-card').toggle();
         $('.btn.btn-toggle-dispense').toggle();
     }
+
+    // Tracks the lot-picker mode delivered by the AJAX endpoint:
+    //  - hasDefaultWarehouse: the user has a default warehouse configured.
+    //    When false, "on-site" has no anchor; show the danger banner,
+    //    skip per-selection off-site flags, and skip the off-site confirm.
+    //  - restrictToDefault: the clinic's restrict_sales_to_default_warehouse
+    //    flag. When true, off-site lots are rendered disabled (sellDrug()
+    //    would block them server-side anyway); when false, they are
+    //    selectable with a warning + submit-time confirm.
+    var lotPickerHasDefaultWarehouse = true;
+    var lotPickerRestrictToDefault = true;
+
+    // Toggle the off-site warning panel based on whether the currently
+    // selected lot is flagged as off-site (data-off-site="1"). Suppressed
+    // when no default warehouse is set, or when strict mode is on (in
+    // strict mode, off-site lots are disabled and cannot be selected).
+    function updateOffSiteWarning() {
+        if (!lotPickerHasDefaultWarehouse || lotPickerRestrictToDefault) {
+            $('#off_site_warning').hide();
+            return;
+        }
+        var $sel = $('#dispense_inventory_id');
+        var $opt = $sel.find('option:selected');
+        var isOffSite = $opt.attr('data-off-site') === '1';
+        $('#off_site_warning').toggle(isOffSite);
+    }
+
+    // Repopulate the lot dropdown when the selected in-house drug changes.
+    // The first lot returned is the one sellDrug() would auto-pick (default
+    // warehouse, nearest expiration), so we preselect it.
+    function loadLotsForDrug(drugId) {
+        var $sel = $('#dispense_inventory_id');
+        $('#off_site_warning').hide();
+        $('#no_default_warehouse_warning').hide();
+        $('#strict_mode_notice').hide();
+        $sel.prop('disabled', true).empty();
+        if (!drugId || drugId <= 0) {
+            $sel.append($('<option>').val('').text({{'Select an in-house drug to load lots'|xlj}}));
+            return;
+        }
+        $sel.append($('<option>').val('').text({{'Loading...'|xlj}}));
+        top.restoreSession();
+        $.getJSON({{ webroot|js_escape }} + '/library/ajax/drug_lots.php', {
+            csrf_token_form: {{ CSRF_TOKEN_FORM|js_escape }},
+            drug_id: drugId
+        }).done(function(data) {
+            $sel.empty();
+            var lots = (data && data.lots) ? data.lots : [];
+            lotPickerHasDefaultWarehouse = !!(data && data.has_default_warehouse);
+            lotPickerRestrictToDefault = !!(data && data.restrict_to_default);
+            // Show the configuration banner when no default warehouse is
+            // set. Show the strict-variant of the message when the clinic
+            // also enforces the restriction — in that case the dispense
+            // button must be disabled too, because sellDrug() will refuse.
+            var noDefault = !lotPickerHasDefaultWarehouse;
+            $('#no_default_warehouse_warning').toggle(noDefault);
+            $('#no_default_warehouse_warning .no-default-loose').toggle(noDefault && !lotPickerRestrictToDefault);
+            $('#no_default_warehouse_warning .no-default-strict').toggle(noDefault && lotPickerRestrictToDefault);
+            var blockSubmit = noDefault && lotPickerRestrictToDefault;
+            $('.btn-presc-dispense').prop('disabled', blockSubmit);
+            // In strict mode, surface why off-site lots in the dropdown
+            // are greyed out — only when there are off-site lots to explain.
+            var hasOffSite = false;
+            $.each(lots, function(idx, l) { if (l.is_off_site) { hasOffSite = true; return false; } });
+            $('#strict_mode_notice').toggle(lotPickerRestrictToDefault && lotPickerHasDefaultWarehouse && hasOffSite);
+            if (lots.length === 0) {
+                $sel.append($('<option>').val('').text({{'No available lots for this drug'|xlj}}));
+                return;
+            }
+            var firstSelectableId = null;
+            $.each(lots, function(idx, lot) {
+                var label = lot.lot_number || {{'(no lot number)'|xlj}};
+                if (lot.warehouse_title) {
+                    label += ' — ' + lot.warehouse_title;
+                }
+                if (lot.expiration) {
+                    label += ' — ' + {{'exp'|xlj}} + ' ' + lot.expiration;
+                }
+                label += ' — ' + lot.on_hand + ' ' + {{'on hand'|xlj}};
+                // Only show the [OFF-SITE] prefix when we have a real
+                // anchor (a default warehouse). Without one, every row
+                // would be flagged and the prefix would be noise — the
+                // danger banner already explains the situation.
+                var flagOffSite = lot.is_off_site && lotPickerHasDefaultWarehouse;
+                if (flagOffSite) {
+                    label = {{'[OFF-SITE]'|xlj}} + ' ' + label;
+                }
+                var $opt = $('<option>').val(lot.inventory_id).text(label);
+                $opt.attr('data-off-site', flagOffSite ? '1' : '0');
+                // In strict mode, off-site rows are visible but locked —
+                // sellDrug() would refuse them anyway.
+                if (flagOffSite && lotPickerRestrictToDefault) {
+                    $opt.prop('disabled', true);
+                } else if (firstSelectableId === null) {
+                    firstSelectableId = lot.inventory_id;
+                }
+                $sel.append($opt);
+            });
+            $sel.prop('disabled', false);
+            // Default to the first selectable lot. Falls back to the first
+            // row if everything is disabled (so the dropdown isn't blank).
+            $sel.val(firstSelectableId !== null ? firstSelectableId : lots[0].inventory_id);
+            updateOffSiteWarning();
+        }).fail(function() {
+            $sel.empty().append($('<option>').val('').text({{'Failed to load lots'|xlj}}));
+        });
+    }
+
     $(document).ready(function(){
         $(".btn.btn-toggle-dispense").click(function(){
             toggleDispense();
@@ -489,6 +633,22 @@
             dispense();
             return false;
         });
+        // Initial load when the form opens with a drug already selected
+        // (existing prescription with refills, or returning from a server-side error).
+        var initialDrugId = parseInt(document.forms[0].dispense_drug_id.value || 0);
+        if (initialDrugId > 0) {
+            loadLotsForDrug(initialDrugId);
+        }
+        // Refresh on drug change. drugselected() lives in <head> and runs
+        // before this handler, so by the time we read dispense_drug_id it
+        // already has the new value.
+        $(document).on('change', '[name="drug_id"]', function() {
+            var f = document.forms[0];
+            var newDrugId = parseInt(f.dispense_drug_id.value || 0);
+            loadLotsForDrug(newDrugId);
+        });
+        // Toggle off-site warning whenever the lot selection changes.
+        $(document).on('change', '#dispense_inventory_id', updateOffSiteWarning);
     });
     {% endif %}
 

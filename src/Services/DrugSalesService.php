@@ -34,13 +34,24 @@ class DrugSalesService extends BaseService
     const TABLE_NAME = 'drug_sales';
 
     /**
-     * When true, sellDrug() restricts inventory selection to the user's
-     * default warehouse. A 2013 design decision (see git history of the
-     * legacy interface/drugs/inventory_acl.inc.php). Hardcoded; never read from
-     * configuration. Kept as a class constant rather than a globals read
-     * to remove the include-time side effect.
+     * Global toggle key. When set (default), sellDrug() restricts inventory
+     * selection to the user's default warehouse and rejects off-site lots
+     * even when the caller pins them via $inventory_id. When the admin
+     * disables it, the lot picker can dispense from any warehouse, with
+     * off-site selections surfaced via UI warnings.
+     *
+     * Replaces the 2013 hardcoded SELL_FROM_ONE_WAREHOUSE flag.
      */
-    private const SELL_FROM_ONE_WAREHOUSE = true;
+    private const RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY = 'restrict_sales_to_default_warehouse';
+
+    public static function restrictSalesToDefaultWarehouse(): bool
+    {
+        // OEGlobalsBag only sees keys that have a DB row. A fresh install
+        // (or any clinic that has not touched this setting) has no row, so
+        // we fall back to true — the safest mode and the one matching the
+        // configured default in library/globals.inc.php.
+        return OEGlobalsBag::getInstance()->getBoolean(self::RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY, true);
+    }
 
     public function __construct()
     {
@@ -234,7 +245,8 @@ class DrugSalesService extends BaseService
         $testonly = false,
         &$expiredlots = null,
         $pricelevel = '',
-        $selector = ''
+        $selector = '',
+        ?int $inventory_id = null
     ) {
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -332,11 +344,30 @@ class DrugSalesService extends BaseService
             "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
+        // Honour the clinic-level policy: when restrict_sales_to_default_warehouse
+        // is on, the user must have a default warehouse and we filter to it.
+        // No default = no anchor for "on-site" = the policy cannot be applied,
+        // so we refuse the sale rather than silently dispensing from any
+        // warehouse (the pre-2026 loophole). The default_warehouse param is
+        // typed loose (legacy signature) so we accept null/'' alike.
+        $defaultWarehouseSet = $default_warehouse !== null && $default_warehouse !== '' && $default_warehouse !== false;
+        if (self::restrictSalesToDefaultWarehouse() && !$defaultWarehouseSet) {
+            throw new InvalidArgumentException(xl('Your clinic only allows dispensing from your default warehouse, but no default warehouse is configured for your user. Set one under Administration → Users.'));
+        }
+
         $sqlarr = [$drug_id];
-        // @phpstan-ignore-next-line booleanAnd.leftAlwaysTrue (constant kept toggle-able by design)
-        if (self::SELL_FROM_ONE_WAREHOUSE && $default_warehouse) {
+        if (self::restrictSalesToDefaultWarehouse()) {
             $query .= "AND di.warehouse_id = ? ";
             $sqlarr[] = $default_warehouse;
+        }
+
+        // When the caller pinned a specific lot (UI lot picker), restrict
+        // the candidate set to only that lot. Combining is meaningless
+        // when a single lot is pinned.
+        if ($inventory_id !== null && $inventory_id > 0) {
+            $query .= "AND di.inventory_id = ? ";
+            $sqlarr[] = $inventory_id;
+            $allow_combining = 0;
         }
 
         $query .= "ORDER BY $orderby";
@@ -496,6 +527,113 @@ class DrugSalesService extends BaseService
         // and it serves only to indicate that everything worked.  Otherwise there
         // can be only one inserted row and this is its ID.
         return $sale_id;
+    }
+
+    /**
+     * Return the lots eligible to fill a dispense for the given drug.
+     *
+     * Two modes:
+     * - $restrictToDefaultWarehouse = true (default): returns only lots from
+     *   the user's default warehouse. Matches sellDrug()'s auto-selection
+     *   behaviour. Off-site lots are not visible.
+     * - $restrictToDefaultWarehouse = false: returns all lots across
+     *   warehouses, with each row carrying an is_off_site flag. The caller
+     *   (lot picker UI) uses the flag to warn the user before dispensing
+     *   from a non-on-site lot — by clinic policy, those lots should be
+     *   transferred to the on-site warehouse first.
+     *
+     * "On site" is defined as $defaultWarehouse (the user's
+     * users.default_warehouse). If the user has no default warehouse, every
+     * lot is treated as off-site — the user has no anchor to compare
+     * against, so we surface the safest-to-question state.
+     *
+     * Excluded in both modes: expired lots, destroyed lots, lots with
+     * on_hand <= 0, and lots in warehouses marked seq > 99 (the
+     * sellDrug() "unavailable" convention).
+     *
+     * Order: on-site lots first, then off-site, each sub-group by warehouse
+     * seq, then nearest expiration. The first row is the safest default.
+     *
+     * @return list<array{
+     *     inventory_id: int,
+     *     lot_number: string,
+     *     expiration: ?string,
+     *     manufacturer: string,
+     *     warehouse_id: string,
+     *     warehouse_title: string,
+     *     on_hand: int,
+     *     is_off_site: bool
+     * }>
+     */
+    public function getAvailableLots(
+        int $drugId,
+        string $defaultWarehouse = '',
+        bool $restrictToDefaultWarehouse = true
+    ): array {
+        if ($drugId <= 0) {
+            return [];
+        }
+
+        $orderby = ($defaultWarehouse === '') ?
+            "" : "di.warehouse_id != '$defaultWarehouse', ";
+        $orderby .= "lo.seq, di.expiration, di.lot_number, di.inventory_id";
+
+        $today = date('Y-m-d');
+        $query = "SELECT di.inventory_id, di.lot_number, di.expiration, di.manufacturer, " .
+            "di.warehouse_id, di.on_hand, lo.seq, lo.title AS warehouse_title " .
+            "FROM drug_inventory AS di " .
+            "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
+            "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
+            "WHERE di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand > 0 " .
+            "AND (di.expiration IS NULL OR di.expiration > ?) ";
+        $params = [$drugId, $today];
+
+        if ($restrictToDefaultWarehouse && $defaultWarehouse !== '') {
+            $query .= "AND di.warehouse_id = ? ";
+            $params[] = $defaultWarehouse;
+        }
+
+        $query .= "ORDER BY $orderby";
+
+        $toInt = static function (mixed $v): int {
+            return is_numeric($v) ? (int)$v : 0;
+        };
+        $toString = static function (mixed $v): string {
+            return is_scalar($v) || $v === null ? (string)($v ?? '') : '';
+        };
+
+        $rows = QueryUtils::fetchRecords($query, $params);
+        $lots = [];
+        foreach ($rows as $row) {
+            $warehouseId = $toString($row['warehouse_id'] ?? '');
+            // Skip warehouses marked unavailable (seq > 99), matching sellDrug().
+            if ($warehouseId !== $defaultWarehouse) {
+                $seq = $toInt($row['seq'] ?? 0);
+                if ($seq > 99) {
+                    continue;
+                }
+            }
+            $expirationRaw = $row['expiration'] ?? null;
+            $rawTitle = $toString($row['warehouse_title'] ?? '');
+            // xl_list_label translates list_options titles; falls back to the
+            // raw title if no translation is registered.
+            $warehouseTitle = $rawTitle !== '' ? (string)xl_list_label($rawTitle) : '';
+            // When the user has no default warehouse, we have no anchor for
+            // "on-site" — every lot is treated as off-site so the UI warns
+            // on every selection.
+            $isOffSite = $defaultWarehouse === '' || $warehouseId !== $defaultWarehouse;
+            $lots[] = [
+                'inventory_id'    => $toInt($row['inventory_id'] ?? 0),
+                'lot_number'      => $toString($row['lot_number'] ?? ''),
+                'expiration'      => $expirationRaw !== null && $expirationRaw !== '' ? $toString($expirationRaw) : null,
+                'manufacturer'    => $toString($row['manufacturer'] ?? ''),
+                'warehouse_id'    => $warehouseId,
+                'warehouse_title' => $warehouseTitle,
+                'on_hand'         => $toInt($row['on_hand'] ?? 0),
+                'is_off_site'     => $isOffSite,
+            ];
+        }
+        return $lots;
     }
 
     /**
