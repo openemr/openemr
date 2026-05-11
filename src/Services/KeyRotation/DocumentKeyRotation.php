@@ -10,6 +10,14 @@ use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Storage\{ManagerInterface, Location};
 
+/**
+ * @phpstan-type DocumentRow array{
+ *   id: int,
+ *   type: 'file_url'|'blob'|'web_url',
+ *   url: ?string,
+ *   thumb_url: ?string,
+ * }
+ */
 class DocumentKeyRotation
 {
     readonly private FilesystemOperator $documents;
@@ -51,50 +59,54 @@ class DocumentKeyRotation
         // TODO: batching, somehow.
 
         /**
-         * @var array{
-         *   id: int,
-         *   type: 'file_url'|'blob'|'web_url',
-         *   url: ?string,
-         *   thumb_url: ?string,
-         * } $row
+         * @var DocumentRow $row
          */
         foreach ($data as $row) {
-            print_r($row);
-            $id = $row['id'];
-            if ($row['url'] === null) {
-                $this->logger->debug('Documents: Skip {id}, url is null', ['id' => $id]);
-                continue;
-            }
-            // FIXME: this needs path munging
-            $doc = $this->documents->read($row['url']);
-            if ($this->crypto->isFilesystemValueLatest($doc)) {
-                $this->logger->debug('Documents: {id} is current', ['id' => $id]);
-                continue;
-            }
-            $updated = $this->crypto->encryptForFilesystem(
-                $this->crypto->decryptFromFilesystem($doc),
-            );
-
-            if ($this->dryRun) {
-                $this->logger->info('Documents: not changing {id} (dry-run)', ['id' => $id]);
-                continue;
-            }
-
-            // Write updated document to FS
-            // Update DB to reflect curent encryption state
-            // TODO: needs atomic or at least safe update
-
-            // hash is unchanged, it's always over plaintext
-
-
-            // dry-run check
-            // write file, update table (this needs a way to de-risk a crash)
-            // - encrypted = $this->filesystemEncryption ? 1 : 0
-            // - (new identifiers/path)?
-
-            // todo: how to handle couchdb?
-            print_r($doc);
+            $this->updateDocument($row);
         }
 
+    }
+
+    /**
+     * @param DocumentRow $docRow
+     */
+    private function updateDocument(array $docRow): void
+    {
+        print_r($docRow);
+        $id = $docRow['id'];
+        if ($docRow['url'] === null) {
+            $this->logger->debug('Documents: Skip {id}, url is null', ['id' => $id]);
+            return;
+        }
+        // FIXME: this needs path munging
+        $doc = $this->documents->read($docRow['url']);
+        if ($this->crypto->isFilesystemValueLatest($doc)) {
+            $this->logger->debug('Documents: {id} is current', ['id' => $id]);
+            return;
+        }
+
+        $updated = $this->crypto->encryptForFilesystem(
+            $this->crypto->decryptFromFilesystem($doc),
+        );
+
+        if ($this->dryRun) {
+            $this->logger->info('Documents: not changing {id} (dry-run)', ['id' => $id]);
+            return;
+        }
+
+        // Write updated document to FS
+        // Update DB to reflect curent encryption state
+        // TODO: needs atomic or at least safe update
+
+        // hash is unchanged, it's always over plaintext
+
+
+        // dry-run check
+        // write file, update table (this needs a way to de-risk a crash)
+        // - encrypted = $this->filesystemEncryption ? 1 : 0
+        // - (new identifiers/path)?
+
+        // todo: how to handle couchdb?
+        print_r($doc);
     }
 }
