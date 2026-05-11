@@ -125,6 +125,23 @@ Recommended merge order: **infra first** (so CI is ready against the new branch)
 
 Everything else — artifact builds, install/upgrade page rewrites, redirect setup, version bumps, acknowledgement lists, package version pins — is mechanical and lives in the workflows.
 
+## Partial merges and recovery
+
+The three PRs are coupled only by `repository_dispatch` — nothing in the automation prevents a maintainer from merging out of order or stopping partway. Each scenario degrades differently:
+
+| Merged | Effect |
+| --- | --- |
+| Conductor only | Annotated tag exists; CI matrices and Docker pins still target the prior `current`; website still advertises the prior version. Builds for the new release exist (the tag is real) but discoverability and CI rotation lag. |
+| Docs only | Cannot reach FINAL — the DRAFT/FINAL banner is driven by the `openemr-tag` event, which the conductor never emitted. Merging publishes pages permanently stamped DRAFT for a version that was never tagged. **Avoid this case.** |
+| Infra only | CI matrices roll forward to a `current` slot whose tag does not exist; builds for `current` fail until the conductor merges. Recoverable but noisy. |
+| Conductor + infra (no docs) | Tag exists, CI green, but website still serves prior-version install/upgrade pages and no release notes. |
+| Conductor + docs (no infra) | Tag exists, docs FINAL, but CI matrices still build the prior `current`/`next` slots — release-CI signal lags until the rotation PR merges. |
+| Infra + docs (no conductor) | Both PRs reference a version whose tag does not exist. Docs stay DRAFT; CI builds for `current` fail. |
+
+Recovery is always "merge the remaining PRs"; nothing is unrecoverable. The website may serve stale or DRAFT-stamped content, and CI may be red against `current`, until the set is complete.
+
+A planned follow-on is a single "ship release" workflow that verifies all three PRs are mergeable and green and then merges them in the recommended order, collapsing the three-button maintainer step into one.
+
 ## Naming and tag conventions
 
 | Thing | Pattern | Example |
