@@ -47,6 +47,9 @@ class DocumentKeyRotation
         // This takes a naive approach for paging and resource management: go
         // as far as possible and if it crashes from resource use, well, run
         // the script again.
+        //
+        // Note: this uses values instead of Document constant directly because
+        // the file defining Document (at present) has side-effects
         $data = $this->conn->createQueryBuilder()
             ->select('id', 'type', 'url', 'thumb_url') // what else?
             ->from('documents')
@@ -57,6 +60,13 @@ class DocumentKeyRotation
             ->fetchAllAssociative();
 
         // TODO: batching, somehow.
+        // max = max(id)
+        // batchSize = n
+        // loop(i; start < n)
+        //   setMaxResults(n)
+        //   setFirstResult(i)
+        //
+        // roughly?
 
         /**
          * @var DocumentRow $row

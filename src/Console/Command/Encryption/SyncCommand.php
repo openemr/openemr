@@ -62,8 +62,6 @@ class SyncCommand extends Command
     ): int {
         $this->logger = new ConsoleLogger(output: $output);
         $this->readConfig();
-        var_dump($this->filesystemEncryption);
-        var_dump($this->databaseEncryption);
 
         foreach ($this->encryptedDatabaseColumns as $table => $columns) {
             foreach ($columns as $column) {
