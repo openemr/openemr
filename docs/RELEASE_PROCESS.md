@@ -170,14 +170,14 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 1 | Fold pre-release QA gate into the conductor (block `rel-cut` until QA sign-off) | _to file_ |
+| 1 | Fold pre-release QA gate into the conductor (block `rel-cut` until QA sign-off) | [openemr/openemr-devops#707](https://github.com/openemr/openemr-devops/issues/707) |
 | 9–11 | Single "ship release" workflow that merges all three PRs in order | [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705) |
-| 13 | Automate SourceForge upload from the GitHub release artifacts | _to file_ |
-| 15 | Automate the DockerHub readme update | _to file_ |
-| 16 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | _to file_ |
-| 17 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | _to file_ |
-| 18 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | _to file_ |
-| 19 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | _to file_ |
+| 13 | Automate SourceForge upload from the GitHub release artifacts | [openemr/openemr-devops#708](https://github.com/openemr/openemr-devops/issues/708) |
+| 15 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
+| 16 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | [openemr/website-openemr#119](https://github.com/openemr/website-openemr/issues/119) |
+| 17 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | [openemr/website-openemr#120](https://github.com/openemr/website-openemr/issues/120) |
+| 18 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
+| 19 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
 
