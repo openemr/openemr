@@ -1,6 +1,6 @@
 # OpenEMR Release Process
 
-This document describes the **end-to-end automated release flow** for tagged OpenEMR releases. The flow spans four repositories, is driven by `repository_dispatch` events emitted from this repo, and shrinks the release manager's manual surface to: cut the branch, edit a generated release-notes draft, sign off the ONC certification page, and merge three pre-built PRs.
+This document describes the **end-to-end automated release flow** for tagged OpenEMR releases. The flow spans four repositories, is driven by `repository_dispatch` events (most emitted by this repo as the conductor; one — `openemr-docs-binaries` — emitted by `website-openemr` to `website-openemr-files`), and shrinks the release manager's manual surface to: cut the branch, edit a generated release-notes draft, sign off the ONC certification page, and merge three pre-built PRs.
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below.
 
@@ -56,9 +56,7 @@ flowchart TB
     prepPR -. openemr-rel-update .-> infraPR
     tag -. openemr-tag .-> docsPR
     tag -. openemr-tag .-> infraPR
-    tag -. openemr-docs-binaries .-> wof
-
-    docsPR -.->|references| wof
+    docsPR -. openemr-docs-binaries .-> wof
 
     classDef manualStep fill:#fff4cc,stroke:#b58900
     classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
@@ -72,14 +70,14 @@ flowchart TB
 
 ## Cross-repo events
 
-The conductor emits `repository_dispatch` on every push to `rel-*` and on tag creation. Consumers subscribe via the matching `repository_dispatch` workflow trigger.
+The conductor in `openemr/openemr` emits `repository_dispatch` on every push to `rel-*` and on tag creation, targeting `openemr/openemr-devops` and `openemr/website-openemr`. Separately, `openemr/website-openemr` emits `openemr-docs-binaries` to `openemr/website-openemr-files` once large generated artifacts are ready to publish. Consumers subscribe via the matching `repository_dispatch` workflow trigger.
 
-| Event | When | `data` payload |
-| --- | --- | --- |
-| `openemr-rel-cut` | First push to a new `rel-*` branch | `{ branch, version, prev_release }` |
-| `openemr-rel-update` | Subsequent push to an existing `rel-*` branch | `{ branch, version, prev_release }` |
-| `openemr-tag` | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
-| `openemr-docs-binaries` | Large artifacts ready to publish to the binaries repo | event-specific |
+| Event | Emitter → target | When | `data` payload |
+| --- | --- | --- | --- |
+| `openemr-rel-cut` | `openemr/openemr` → devops, website-openemr | First push to a new `rel-*` branch | `{ branch, version, prev_release }` |
+| `openemr-rel-update` | `openemr/openemr` → devops, website-openemr | Subsequent push to an existing `rel-*` branch | `{ branch, version, prev_release }` |
+| `openemr-tag` | `openemr/openemr` → devops, website-openemr | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
+| `openemr-docs-binaries` | `openemr/website-openemr` → website-openemr-files | Large artifacts ready to publish to the binaries repo | `{ version, branch, files }` (`files` is a non-empty array) |
 
 Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data }`.
 
