@@ -16,7 +16,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use Lcobucci\Clock\FrozenClock;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -83,7 +82,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     private array $modifiedGlobalKeys = [
         'enable_auditlog',
-        'enable_auditlog_encryption',
         'audit_events_patient-record',
         'audit_events_security-administration',
         'audit_events_query',
@@ -186,7 +184,6 @@ final class EventAuditLoggerTest extends TestCase
 
         // Setup default $GLOBALS values - disable audit logging for unit tests to prevent SQL escaping errors
         $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['enable_auditlog_encryption'] = false;
         $GLOBALS['audit_events_patient-record'] = true;
         $GLOBALS['audit_events_security-administration'] = true;
         $GLOBALS['audit_events_query'] = true;
@@ -257,11 +254,9 @@ final class EventAuditLoggerTest extends TestCase
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
         // Return positional array matching constructor parameter order:
-        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker, clock
+        // sinks, cryptoGen,  session, config, breakglassChecker, clock
         return [
             [],                                         // sinks
-            $this->createMock(CryptoGen::class),        // cryptoGen
-            false,                                      // shouldEncrypt
             $sessionMock,                               // session
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
@@ -505,13 +500,12 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test recordLogItem method without encryption
+     * Test recordLogItem method
      */
     public function testRecordLogItem(): void
     {
         // Keep audit logging disabled to prevent SQL escaping errors
         $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['enable_auditlog_encryption'] = false;
 
         $eventAuditLogger = new EventAuditLogger(
             sinks: [],
@@ -1185,7 +1179,6 @@ final class EventAuditLoggerTest extends TestCase
     {
         // Enable audit logging for this specific test
         $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['enable_auditlog_encryption'] = false;
 
         // Setup database mock for this test
         $mockAdodb = $this->createMockAdodb();
