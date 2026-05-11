@@ -119,7 +119,7 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 ### Phase 1 — Pre-release QA
 
-1. **[Manual — judgment]** Confirm pre-release QA is complete. The QA process (test plan, regression coverage, sign-off) lives on the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process); QA runs in parallel with the release-prep PR being continuously regenerated, and the sign-off is what authorizes the conductor PR merge in step 10 — not the branch cut or any prep-PR update. (Folding QA sign-off into a required check on the conductor PR merge is tracked under [Automation gaps](#automation-gaps).)
+1. **[Manual — judgment]** Confirm pre-release QA is complete. The QA process (test plan, regression coverage, sign-off) lives on the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process). QA runs in parallel with the release-prep PR being continuously regenerated; the sign-off is what authorizes the conductor PR merge in step 10 — not the branch cut or any prep-PR update. The maintainers authorized to merge the conductor PR are the QA team, so the merge button is itself the QA gate; no separate sign-off mechanism is required.
 
 ### Phase 2 — Branch cut and PR generation
 
@@ -170,7 +170,6 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 1 / 10 | Make QA sign-off a required check on the conductor PR merge (prep-PR generation stays unaffected) | [openemr/openemr-devops#707](https://github.com/openemr/openemr-devops/issues/707) |
 | 9–11 | Single "ship release" workflow that merges all three PRs in order | [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705) |
 | 13 | Automate SourceForge upload from the GitHub release artifacts | [openemr/openemr-devops#708](https://github.com/openemr/openemr-devops/issues/708) |
 | 15 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
