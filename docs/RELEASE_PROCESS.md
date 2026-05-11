@@ -140,7 +140,7 @@ The three PRs are coupled only by `repository_dispatch` — nothing in the autom
 
 Recovery is always "merge the remaining PRs"; nothing is unrecoverable. The website may serve stale or DRAFT-stamped content, and CI may be red against `current`, until the set is complete.
 
-A planned follow-on is a single "ship release" workflow that verifies all three PRs are mergeable and green and then merges them in the recommended order, collapsing the three-button maintainer step into one.
+A planned follow-on is a single "ship release" workflow that verifies all three PRs are mergeable and green and then merges them in the recommended order, collapsing the three-button maintainer step into one. Tracked in [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705).
 
 ## Naming and tag conventions
 
