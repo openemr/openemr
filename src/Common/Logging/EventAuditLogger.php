@@ -663,20 +663,11 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        if ($this->shouldEncrypt) {
-            $comments = $this->encrypt($comments);
-            if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->encrypt($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->encrypt($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->encrypt($api['response']);
-            }
-        } else {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode($comments);
+        // Note: this used to have an encryption path; it was removed as part
+        // of #12118.
 
-            // Should this blank out the api fields? Previous behavior was that
-            // it did not.
-        }
+        // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+        $comments = base64_encode($comments);
 
         // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
