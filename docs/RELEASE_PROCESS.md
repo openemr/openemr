@@ -1,6 +1,6 @@
 # OpenEMR Release Process
 
-This document describes the **end-to-end automated release flow** for tagged OpenEMR releases. The flow spans four repositories, is driven by `repository_dispatch` events (most emitted by this repo as the conductor; one — `openemr-docs-binaries` — emitted by `website-openemr` to `website-openemr-files`), and shrinks the release manager's manual surface to: cut the branch, edit a generated release-notes draft, sign off the ONC certification page, and merge three pre-built PRs.
+This document describes the **end-to-end automated release flow** for tagged OpenEMR releases. The flow spans four repositories, is driven by `repository_dispatch` events (most emitted by this repo as the conductor; one — `openemr-docs-binaries` — emitted by `website-openemr` to `website-openemr-files`), and shrinks the release manager's manual surface to: cut the branch, edit a generated release-notes draft, sign off the ONC certification page, write a marketing piece (major releases only), and merge three pre-built PRs.
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below.
 
@@ -8,7 +8,7 @@ For background on why the flow is shaped this way, see [openemr/openemr-devops#6
 
 | Repository | Role |
 | --- | --- |
-| [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to the other three repos. |
+| [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to `openemr-devops` and `website-openemr`. (`website-openemr-files` is updated downstream by `website-openemr`, not directly by this repo.) |
 | [`openemr/website-openemr`](https://github.com/openemr/website-openemr) | **Docs consumer.** Subscribes to `rel-*` events. Generates per-version Hugo pages (install, upgrade, OpenAPI, release notes draft, acknowledgements). DRAFT until the tag event flips it to FINAL. |
 | [`openemr/website-openemr-files`](https://github.com/openemr/website-openemr-files) | **Binaries target.** Hosts large generated artifacts (EHI/B10 schemaspy HTML trees) referenced by the docs PR. Updated by the same workflow that updates `website-openemr`. |
 | [`openemr/openemr-devops`](https://github.com/openemr/openemr-devops) | **Infra consumer.** Subscribes to `rel-*` and tag events. Rotates the `current` / `next` / `dev` slot in CI matrices, package versions, and Docker pins. Owns the canonical source for the cross-repo dispatch contract and tag verifier. |
@@ -19,7 +19,7 @@ For background on why the flow is shaped this way, see [openemr/openemr-devops#6
 flowchart TB
     subgraph manual["Maintainer actions"]
         direction LR
-        cut["Cut rel-X-Y branch"]
+        cut["Cut rel-NNN0 branch<br/>(e.g. rel-810)"]
         edit["Edit release-notes draft"]
         sign["Sign off ONC cert page"]
         merge["Merge 3 PRs"]
@@ -89,7 +89,7 @@ Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data 
 
 ### Conductor PR — `release-prep/<rel-branch>` in `openemr/openemr`
 
-Long-lived draft PR against the `rel-*` branch, force-updated on every push by [`.github/workflows/release-prep.yml`](../.github/workflows/release-prep.yml). The mechanical edits applied by `bin/console openemr:release-prep` are documented in [`docs/release-automation-plan.md`](release-automation-plan.md) (the conductor slice plan).
+Long-lived draft PR against the `rel-*` branch, force-updated by [`.github/workflows/release-prep.yml`](../.github/workflows/release-prep.yml) on every push to a production release branch (matching `rel-[0-9]*0`, with `docs/**`-only pushes ignored). Test branches like `rel-test` go through `workflow_dispatch` instead. The mechanical edits applied by `bin/console openemr:release-prep` are documented in [`docs/release-automation-plan.md`](release-automation-plan.md) (the conductor slice plan).
 
 In short, the conductor rewrites: `version.php`, `library/globals.inc.php` (debug toggle), `docker/production/docker-compose.yml` (image pin), `src/RestControllers/OpenApi/OpenApiDefinitions.php`, `swagger/openemr-api.yaml` (regenerated from the CLI), every `docker-version` file, and (on master) a fresh `sql/X_Y_Z-to-X_Y_Z+1_upgrade.sql` skeleton.
 
@@ -115,7 +115,7 @@ Touches CI matrices, package version refs, raspberrypi / Docker pinned versions.
 
 Even with full automation, the release manager still:
 
-1. **Triggers the initial branch cut** (`rel-X-Y` from master). This is the only step that creates new state from nothing.
+1. **Triggers the initial branch cut** (`rel-<MAJOR><MINOR>0` from master, e.g. `rel-810`). This is the only step that creates new state from nothing.
 2. **Edits the auto-generated release-notes draft** in the `website-openemr` PR for tone and what's noteworthy. The draft is regenerated on every push, so edits should be made on the PR branch (workflow preserves manual edits in the rendered page).
 3. **Signs off the ONC Ambulatory EHR Certification Requirements page** in the `website-openemr` PR.
 4. **Writes the marketing piece** (major releases only).
