@@ -86,7 +86,6 @@ class EventAuditLogger
 
         return new self(
             sinks: $sinks,
-            crypto: ServiceContainer::getCrypto(),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
@@ -99,7 +98,6 @@ class EventAuditLogger
      */
     public function __construct(
         private readonly array $sinks,
-        private readonly CipherSuiteInterface|CryptoInterface $crypto,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
