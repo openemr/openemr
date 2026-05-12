@@ -36,9 +36,10 @@ class SyncCommand extends Command
 
     public function __invoke(
         OutputInterface $output,
-        #[Option(description: 'Do not write changes')] bool $dryRun = false,
+        #[Option(description: 'Write changes (default: runs in dry-run mode)')] bool $execute = false,
     ): int {
         $this->logger = new ConsoleLogger(output: $output);
+        $dryRun = !$execute;
 
         // Globals table (app config)
         $this->logger->notice('Beginning app config');
