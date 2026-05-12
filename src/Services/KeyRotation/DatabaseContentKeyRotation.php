@@ -25,7 +25,7 @@ class DatabaseContentKeyRotation
         // destroy the installation; only the OAuth keys need touching.
         // 'keys' => ['value'],
         // Logs also needs special handling - comments is either encrypted or
-        // base64'd
+        // base64'd. See #12118 + #12122
         // 'log' => ['comments'],
         'login_mfa_registrations' => ['var1'], // pk=(user_id,name)
         'module_faxsms_credentials' => ['credentials'],
