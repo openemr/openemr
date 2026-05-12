@@ -680,7 +680,7 @@ $totalPages = ($totalRecords > 0) ? (int) ceil($totalRecords / $pageSize) : 0;
                 var formData = new FormData();
                 formData.append('csrf_token', csrfToken);
                 formData.append('mode', 'single');
-                formData.append('paymentData', JSON.stringify(data));
+                formData.append('paymentAdviceId', data.paymentAdviceId);
                 if (testMode) formData.append('testMode', '1');
                 if (approved) formData.append('approved', '1');
 
@@ -777,7 +777,7 @@ $totalPages = ($totalRecords > 0) ? (int) ceil($totalRecords / $pageSize) : 0;
                 var formData = new FormData();
                 formData.append('csrf_token', csrfToken);
                 formData.append('mode', 'batch');
-                formData.append('paymentDataList', JSON.stringify(postable));
+                formData.append('paymentAdviceIds', JSON.stringify(postable.map(function(d) { return d.paymentAdviceId; })));
                 if (testMode) formData.append('testMode', '1');
 
                 progressText.textContent = '<?php echo xla("Posting"); ?> ' + normalCount + ' <?php echo xla("payment(s)..."); ?>';
@@ -904,7 +904,7 @@ $totalPages = ($totalRecords > 0) ? (int) ceil($totalRecords / $pageSize) : 0;
                 var formData = new FormData();
                 formData.append('csrf_token', csrfToken);
                 formData.append('mode', 'single');
-                formData.append('paymentData', JSON.stringify(data));
+                formData.append('paymentAdviceId', data.paymentAdviceId);
                 formData.append('approved', '1');
                 if (testMode) formData.append('testMode', '1');
 
@@ -1118,7 +1118,7 @@ $totalPages = ($totalRecords > 0) ? (int) ceil($totalRecords / $pageSize) : 0;
                 var formData = new FormData();
                 formData.append('csrf_token', csrfToken);
                 formData.append('mode', 'batch');
-                formData.append('paymentDataList', JSON.stringify(postable));
+                formData.append('paymentAdviceIds', JSON.stringify(postable.map(function(d) { return d.paymentAdviceId; })));
                 if (testMode) formData.append('testMode', '1');
 
                 progressText.textContent = '<?php echo xla("Posting"); ?> ' + postable.length + ' <?php echo xla("selected payment(s)..."); ?>';

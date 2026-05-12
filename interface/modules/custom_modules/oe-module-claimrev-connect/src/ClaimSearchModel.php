@@ -16,6 +16,7 @@ namespace OpenEMR\Modules\ClaimRevConnector;
 
 class ClaimSearchModel
 {
+    public string $objectId = "";
     public string $patientFirstName = "";
     public string $patientLastName = "";
     public string $patientGender = "";

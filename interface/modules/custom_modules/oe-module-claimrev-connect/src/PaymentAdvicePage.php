@@ -99,6 +99,49 @@ class PaymentAdvicePage
     }
 
     /**
+     * Fetch a single payment advice aggregation by id.
+     *
+     * Returns the raw API entry (the same shape PaymentAdvicePostingService
+     * consumes), or null when the id is unknown / not visible to the current
+     * account. Used by the post endpoint to re-fetch authoritative payment
+     * data instead of trusting the browser-supplied JSON.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function getPaymentAdviceById(string $paymentAdviceId): ?array
+    {
+        if ($paymentAdviceId === '') {
+            return null;
+        }
+
+        $model = new PaymentAdviceSearchModel();
+        $model->paymentAdviceId = $paymentAdviceId;
+        $model->pagingSearch->pageIndex = 0;
+        $model->pagingSearch->pageSize = 1;
+
+        $api = ClaimRevApi::makeFromGlobals();
+        $raw = $api->searchPaymentInfo($model);
+
+        $rawResults = $raw['results'] ?? null;
+        if (!is_array($rawResults)) {
+            return null;
+        }
+        foreach ($rawResults as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            // Defensive: confirm the returned row matches the requested id.
+            // The server-side filter is authoritative; doubling up here means a
+            // bug in the filter can never let a cross-advice row through.
+            if (TypeCoerce::asString($entry['paymentAdviceId'] ?? '') === $paymentAdviceId) {
+                /** @var array<string, mixed> $entry */
+                return $entry;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Coerce a raw API response entry into a fully-populated PaymentAdviceShape
      * with all keys present. Keeps a single shape across the producer and the
      * mock service so consumers don't have to deal with optional offsets.

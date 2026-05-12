@@ -529,10 +529,7 @@ $searchFilters = [
                                     <?php if ($isRejected && $oeStatus !== null && $oeStatus['status'] !== 7) { ?>
                                         <button type="button" class="btn btn-outline-danger sync-status-btn"
                                             data-rowindex="<?php echo attr((string) $rowIndex); ?>"
-                                            data-pcn="<?php echo attr($pcn); ?>"
-                                            data-statusid="<?php echo attr((string) $statusId); ?>"
-                                            data-statusname="<?php echo attr($statusName); ?>"
-                                            data-payeracceptance="<?php echo attr((string) $payerAcceptanceStatusId); ?>"
+                                            data-objectid="<?php echo attr($objectId); ?>"
                                             title="<?php echo xla("Sync rejected status to OpenEMR"); ?>">
                                             <i class="fa fa-sync-alt"></i>
                                         </button>
@@ -813,10 +810,7 @@ $searchFilters = [
                     e.stopPropagation();
                     var $btn = $(this);
                     var rowIndex = $btn.data('rowindex');
-                    var pcn = $btn.data('pcn');
-                    var statusId = $btn.data('statusid');
-                    var statusName = $btn.data('statusname');
-                    var payerAcceptance = $btn.data('payeracceptance');
+                    var claimrevObjectId = $btn.data('objectid');
 
                     if (!confirm(<?php echo xlj("Sync this rejected claim status to OpenEMR? This will mark the claim as denied."); ?>)) {
                         return;
@@ -826,14 +820,7 @@ $searchFilters = [
 
                     $.post('claim_sync_status.php', {
                         csrf_token: csrfToken,
-                        claimData: JSON.stringify({
-                            patientControlNumber: pcn,
-                            statusId: statusId,
-                            statusName: statusName,
-                            payerAcceptanceStatusId: payerAcceptance,
-                            payerAcceptanceStatusName: '',
-                            errorMessage: ''
-                        })
+                        claimrevObjectId: claimrevObjectId
                     }, function(response) {
                         if (response.success && response.action === 'denied') {
                             // Update OE status badge

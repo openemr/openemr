@@ -26,6 +26,7 @@ class PaymentAdviceSearchModel
     public ?string $checkNumber = null;
     public ?string $serviceDateStart = null;
     public ?string $serviceDateEnd = null;
+    public ?string $paymentAdviceId = null;
     /** @var list<int> */
     public array $queueIds = [];
     /** @var list<int> */

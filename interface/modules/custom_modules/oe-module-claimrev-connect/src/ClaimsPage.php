@@ -60,6 +60,51 @@ class ClaimsPage
     }
 
     /**
+     * Fetch a single claim by its ClaimRev objectId, scoped to the current
+     * account. Used by the claim-status sync endpoint to re-fetch
+     * authoritative status fields instead of trusting browser-supplied data.
+     *
+     * Returns the raw API entry (not a ClaimSearchResult DTO) so the caller
+     * has the full field set, including PCN. Returns null when the id is
+     * unknown / not visible to the current account.
+     *
+     * @return array<string, mixed>|null
+     */
+    public static function getClaimByObjectId(string $objectId): ?array
+    {
+        if ($objectId === '') {
+            return null;
+        }
+
+        $model = new ClaimSearchModel();
+        $model->objectId = $objectId;
+        $model->pagingSearch->pageIndex = 0;
+        $model->pagingSearch->pageSize = 1;
+
+        $raw = ClaimSearch::search($model);
+        if ($raw === false) {
+            return null;
+        }
+        $rawResults = $raw['results'] ?? $raw;
+        if (!is_array($rawResults)) {
+            return null;
+        }
+        foreach ($rawResults as $entry) {
+            if (!is_array($entry)) {
+                continue;
+            }
+            // Defensive: confirm the returned row matches the requested
+            // objectId. The .NET filter is authoritative; the second check
+            // keeps a server-side bug from leaking a different claim through.
+            if (TypeCoerce::asString($entry['objectId'] ?? '') === $objectId) {
+                /** @var array<string, mixed> $entry */
+                return $entry;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return list<array<string, mixed>>
      */
     public static function getClaimStatuses(): array

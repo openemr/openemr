@@ -3,8 +3,10 @@
 /**
  * AJAX endpoint: post payment advice(s) to OpenEMR.
  *
- * Supports single post (paymentData) and batch post (paymentDataList).
- * All requests are duplicate-checked before posting.
+ * The browser sends only `paymentAdviceId` (or a JSON list for batch mode).
+ * The server re-fetches the authoritative ClaimRev payment-advice
+ * aggregation by id and posts that — never the browser-supplied JSON — so
+ * a tampered request cannot redirect amounts, encounters, or line items.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -18,8 +20,11 @@ declare(strict_types=1);
 require_once "../../../../globals.php";
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
 use OpenEMR\Modules\ClaimRevConnector\CsrfHelper;
 use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
+use OpenEMR\Modules\ClaimRevConnector\PaymentAdvicePage;
 use OpenEMR\Modules\ClaimRevConnector\PaymentAdvicePostingService;
 
 header('Content-Type: application/json');
@@ -36,42 +41,56 @@ if (!CsrfHelper::verifyCsrfToken(ModuleInput::postString('csrf_token'), 'payment
     exit;
 }
 
+$bootstrap = new Bootstrap(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
+$isTestModeEnabled = $bootstrap->getGlobalConfig()->isTestModeEnabled();
+
+// Honor the caller's testMode flag only when the global config actually
+// enables test mode. Otherwise a regular user could opt out of the
+// mark-as-worked side effect on the ClaimRev side by adding `testMode` to
+// the POST body.
+$skipMarkWorked = $isTestModeEnabled && ModuleInput::postExists('testMode');
+
 $mode = ModuleInput::postString('mode', 'single');
-$skipMarkWorked = ModuleInput::postExists('testMode');
 
 if ($mode === 'batch') {
-    $paymentDataListJson = ModuleInput::postString('paymentDataList');
-    $decodedList = json_decode($paymentDataListJson, true);
-
-    if (!is_array($decodedList)) {
+    $idsJson = ModuleInput::postString('paymentAdviceIds');
+    $decodedIds = json_decode($idsJson, true);
+    if (!is_array($decodedIds)) {
         http_response_code(400);
-        echo json_encode(['error' => 'Invalid payment data list']);
+        echo json_encode(['error' => 'Invalid paymentAdviceIds']);
         exit;
     }
 
     $paymentDataList = [];
-    foreach ($decodedList as $entry) {
-        if (is_array($entry)) {
-            /** @var array<string, mixed> $entry */
-            $paymentDataList[] = $entry;
+    foreach ($decodedIds as $id) {
+        if (!is_string($id) || $id === '') {
+            continue;
+        }
+        $advice = PaymentAdvicePage::getPaymentAdviceById($id);
+        if ($advice !== null) {
+            $paymentDataList[] = $advice;
         }
     }
 
     $result = PaymentAdvicePostingService::batchPost($paymentDataList, $skipMarkWorked);
     echo json_encode($result);
-} else {
-    $paymentDataJson = ModuleInput::postString('paymentData');
-    $decoded = json_decode($paymentDataJson, true);
-
-    if (!is_array($decoded)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid payment data']);
-        exit;
-    }
-    /** @var array<string, mixed> $paymentData */
-    $paymentData = $decoded;
-
-    $approved = ModuleInput::postExists('approved');
-    $result = PaymentAdvicePostingService::post($paymentData, $skipMarkWorked, $approved);
-    echo json_encode($result);
+    exit;
 }
+
+$paymentAdviceId = ModuleInput::postString('paymentAdviceId');
+if ($paymentAdviceId === '') {
+    http_response_code(400);
+    echo json_encode(['error' => 'Missing paymentAdviceId']);
+    exit;
+}
+
+$paymentData = PaymentAdvicePage::getPaymentAdviceById($paymentAdviceId);
+if ($paymentData === null) {
+    http_response_code(404);
+    echo json_encode(['error' => 'Payment advice not found']);
+    exit;
+}
+
+$approved = ModuleInput::postExists('approved');
+$result = PaymentAdvicePostingService::post($paymentData, $skipMarkWorked, $approved);
+echo json_encode($result);
