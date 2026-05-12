@@ -2904,13 +2904,6 @@ $GLOBALS_METADATA = [
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
         ],
 
-        'enable_auditlog_encryption' => [
-            xl('Enable Audit Log Encryption'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable Audit Log Encryption')
-        ],
-
         'api_log_option' => [
             xl('API Log Option'),
             [

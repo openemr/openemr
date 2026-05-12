@@ -321,6 +321,7 @@ if (!empty($_GET)) {
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
                                                 $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
+                                                // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
                                                 $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
                                                 $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
