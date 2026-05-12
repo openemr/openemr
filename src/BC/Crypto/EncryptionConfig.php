@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Services\KeyRotation;
+namespace OpenEMR\BC\Crypto;
 
 use Doctrine\DBAL\{
     ArrayParameterType,
@@ -12,7 +12,7 @@ use Doctrine\DBAL\{
 /**
  * Determines the state of what OpenEMR wants various encryption to be in
  */
-readonly class AppConfig
+readonly class EncryptionConfig
 {
     public bool $databaseEncryption;
     public bool $filesystemEncryption;
