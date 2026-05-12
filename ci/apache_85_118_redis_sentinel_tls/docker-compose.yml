@@ -245,7 +245,7 @@ services:
 
   # ---------- OpenEMR: add TLS env vars + cert volume ----------
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:d4e780b16bd65f2adb73512f51e2825384ff043cb887f3352b0b7961accdd46e
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:cd0709ae6e3060a706a6a6f8e3c1c557c7b31e49d0def17b70fd5c17ddfcb82f
     environment:
       REDIS_TLS: "yes"
       REDIS_TLS_CERT_KEY_PATH: /redis-certs
