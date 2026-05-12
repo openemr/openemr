@@ -134,28 +134,26 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 7. **[Manual — judgment]** In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
 8. **[Manual — judgment]** *(Major releases only)* Write the marketing piece for the website.
 
-### Phase 4 — Merge the three PRs
+### Phase 4 — Ship: merge the three PRs
 
-Recommended order: **infra → conductor → docs.** Infra readies CI for the new branch; the conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and triggers the infra rotation's `next` → `current` promotion); merging the docs PR ships the now-FINAL pages.
+The three PRs merge in strict order **infra → conductor → docs.** Infra readies CI for the new branch; the conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and triggers the infra rotation's `next` → `current` promotion); merging the docs PR ships the now-FINAL pages.
 
-9. **[Manual]** Merge the **infra PR** in `openemr-devops`.
-10. **[Manual]** Merge the **conductor PR** in `openemr/openemr`. The merge commit gets the annotated release tag.
-11. **[Manual]** Merge the **docs PR** in `website-openemr`. The DRAFT/FINAL banner flips to FINAL.
+9. **[Automated]** Run the **ship-release workflow** in `openemr-devops` (`workflow_dispatch` on `.github/workflows/ship-release.yml`, or `task release:ship` locally for a dry-run). One operator action: pick the version + rel-branch and trigger. The workflow locates the three sibling PRs by branch convention, posts a `release/ship-approved` commit status on each, and merges in order with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles partial-merge recovery — see [Partial merges and recovery](#partial-merges-and-recovery)).
 
-Steps 9–11 are slated to collapse into one ship-release workflow tracked at [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705). See [Partial merges and recovery](#partial-merges-and-recovery) for what happens if you stop partway.
+   **Manual fallback** (only if the workflow is unavailable): merge in order — infra PR, then conductor PR (creates the annotated tag), then docs PR (flips DRAFT → FINAL). Direct merges should be blocked by branch protection requiring the `release/ship-approved` status the workflow posts; admin-override the protection only if the workflow itself is broken.
 
 ### Phase 5 — Post-merge artifact and download verification
 
-12. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable. GitHub releases are the canonical (and only) distribution target — SourceForge is no longer supported. The website's download/release pages link to GitHub release assets rather than re-hosting them.
-13. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
-14. **[Manual]** Update the DockerHub readme (the per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)).
-15. **[Manual]** *(Patch releases)* Update the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download list.
-16. **[Manual]** Update the [OpenEMR Downloads / Release History wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads). (Long-term: this should move to `website-openemr` so it ships with the docs PR.)
+10. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable. GitHub releases are the canonical (and only) distribution target — SourceForge is no longer supported. The website's download/release pages link to GitHub release assets rather than re-hosting them.
+11. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
+12. **[Manual]** Update the DockerHub readme (the per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)).
+13. **[Manual]** *(Patch releases)* Update the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download list.
+14. **[Manual]** Update the [OpenEMR Downloads / Release History wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads). (Long-term: this should move to `website-openemr` so it ships with the docs PR.)
 
 ### Phase 6 — Demo and promotion
 
-17. **[Manual]** Point the demo farm (live demo servers at open-emr.org) to the new tag.
-18. **[Manual]** Announce the release:
+15. **[Manual]** Point the demo farm (live demo servers at open-emr.org) to the new tag.
+16. **[Manual]** Announce the release:
     - Forums
     - Chat
     - Twitter / X
@@ -169,18 +167,17 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 9–11 | Single "ship release" workflow that merges all three PRs in order | [openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705) |
-| 14 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
-| 15 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | [openemr/website-openemr#119](https://github.com/openemr/website-openemr/issues/119) |
-| 16 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | [openemr/website-openemr#120](https://github.com/openemr/website-openemr/issues/120) |
-| 17 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
-| 18 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
+| 12 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
+| 13 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | [openemr/website-openemr#119](https://github.com/openemr/website-openemr/issues/119) |
+| 14 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | [openemr/website-openemr#120](https://github.com/openemr/website-openemr/issues/120) |
+| 15 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
+| 16 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
 
 ## Partial merges and recovery
 
-The three PRs are coupled only by `repository_dispatch`. Branch protection should block direct merges and require the ship-release workflow ([openemr/openemr-devops#705](https://github.com/openemr/openemr-devops/issues/705)) as the only merge path, but admin-overrides and misconfigurations happen — this section documents the recovery path when they do.
+The three PRs are coupled only by `repository_dispatch`. Branch protection should block direct merges and require the [ship-release workflow](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/ship-release.yml) as the only merge path (via the `release/ship-approved` commit status the workflow posts), but admin-overrides and misconfigurations happen — this section documents the recovery path when they do.
 
 ### Partial-merge states
 
@@ -199,13 +196,13 @@ For every case **except docs-first**: re-trigger the ship-release workflow. It d
 
 ### Docs-first recovery (manual, today)
 
-This is the worst case and recovery is currently manual. A future docs-side reconciliation workflow could automate it; see the trailing note.
+This is the worst case and recovery is currently manual. The ship-release workflow detects docs-first up front and **refuses to do anything** — it will not even merge the remaining PRs, because doing so would create a tag for a version whose docs have already shipped FINAL with no tag link. A future docs-side reconciliation workflow could automate the recovery; see the trailing note.
 
-The docs PR has already shipped FINAL pages for a version that has no tag yet. After the ship-release workflow merges the conductor (creating the tag) and infra, the existing FINAL-flip mechanism doesn't help — it fires on docs-PR updates, but the docs PR is already merged and closed. The published pages are orphaned: they reference a version that now exists, but with stale DRAFT-era SHAs and no tag link.
+The docs PR has already shipped FINAL pages for a version that has no tag yet. After the operator manually merges the conductor (creating the tag) and infra, the existing FINAL-flip mechanism doesn't help — it fires on docs-PR updates, but the docs PR is already merged and closed. The published pages are orphaned: they reference a version that now exists, but with stale DRAFT-era SHAs and no tag link.
 
 Manual steps:
 
-1. Merge the conductor and infra PRs via the ship-release workflow as normal. This creates the tag and rotates CI.
+1. Manually merge the conductor and infra PRs (the ship-release workflow refuses to act once docs-first is detected; admin-override the branch protection or merge directly via the GitHub UI). This creates the tag and rotates CI.
 2. In `openemr/website-openemr`, open a follow-up PR that re-renders the affected install/upgrade/release-notes pages against the now-real tag. Easiest path is to manually re-run the docs-PR generator script with the new tag SHA, commit the regenerated output, and merge.
 3. Verify the live website pages now show the FINAL banner with the correct tag link, not DRAFT.
 4. If anyone scraped or linked the DRAFT-stamped pages between merge and reconciliation, the URLs are stable — they now serve correct FINAL content.
