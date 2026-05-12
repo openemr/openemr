@@ -46,26 +46,30 @@ final readonly class Crypto implements CryptoInterface
 {
     use ContextualEncryptionTrait;
 
+    private bool $shouldEncryptForDatabase;
+    private bool $shouldEncryptForFilesystem;
+
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
-        private bool $shouldEncryptForDatabase,
-        private bool $shouldEncryptForFilesystem,
+        EncryptionConfig $config,
     ) {
+        $this->shouldEncryptForDatabase = $config->databaseEncryption;
+        $this->shouldEncryptForFilesystem = $config->filesystemEncryption;
     }
 
-    public static function instance(LoggerInterface $logger): Crypto
-    {
-        // Note: this is NOT a singleton otherwise newly-generated keys don't
-        // get picked up properly.
-        $keychain = LegacyKeychainLoader::load();
-        return new Crypto(
-            $keychain,
-            $logger,
-            shouldEncryptForDatabase: true, // See #11973
-            shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
-        );
-    }
+    // public static function instance(LoggerInterface $logger): Crypto
+    // {
+    //     // Note: this is NOT a singleton otherwise newly-generated keys don't
+    //     // get picked up properly.
+    //     $keychain = LegacyKeychainLoader::load();
+    //     return new Crypto(
+    //         $keychain,
+    //         $logger,
+    //         shouldEncryptForDatabase: true, // See #11973
+    //         shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
+    //     );
+    // }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {

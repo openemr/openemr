@@ -17,21 +17,10 @@ use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\Crypto;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Encryption;
-use Psr\Log\LoggerInterface;
 
 return [
     CryptoInterface::class => Crypto\Crypto::class,
-    Crypto\Crypto::class => function (TC $c) {
-        // TODO: these need to be sourced from app config
-        $shouldEncryptForDatabase = true;
-        $shouldEncryptForFilesystem = false;
-        return new Crypto\Crypto(
-            $c->get(Encryption\Keys\KeychainInterface::class),
-            $c->get(LoggerInterface::class),
-            shouldEncryptForDatabase: $shouldEncryptForDatabase,
-            shouldEncryptForFilesystem: $shouldEncryptForFilesystem,
-        );
-    },
+    Crypto\Crypto::class,
 
     Encryption\Keys\KeychainInterface::class => function (TC $c) {
         $keyDirectory = sprintf(
