@@ -16,6 +16,7 @@ use OpenEMR\Services\Storage\{ManagerInterface, Location};
  *   type: 'file_url'|'blob'|'web_url',
  *   url: ?string,
  *   thumb_url: ?string,
+ *   path_depth: ?int,
  * }
  */
 class DocumentKeyRotation
@@ -52,7 +53,7 @@ class DocumentKeyRotation
         // Note: this uses values instead of Document constant directly because
         // the file defining Document (at present) has side-effects
         $data = $this->conn->createQueryBuilder()
-            ->select('id', 'type', 'url', 'thumb_url') // what else?
+            ->select('id', 'type', 'url', 'thumb_url', 'path_depth') // what else?
             ->from('documents')
             ->where('encrypted = :encrypted')
         // storagemethod=Document::STORAGE_METHOD_FILESYSTEM
@@ -83,14 +84,19 @@ class DocumentKeyRotation
      */
     private function updateDocument(array $docRow): void
     {
-        print_r($docRow);
         $id = $docRow['id'];
         if ($docRow['url'] === null) {
             $this->logger->debug('Documents: Skip {id}, url is null', ['id' => $id]);
             return;
         }
+        if ($docRow['path_depth'] === null) {
+            $this->logger->error('Documents: Skip {id}, path_depth is null', ['id' => $id]);
+            return;
+        }
         // FIXME: this needs path munging
-        $doc = $this->documents->read($docRow['url']);
+        $path = self::determineRelativePath($docRow['url'], $docRow['path_depth']);
+        $doc = $this->documents->read($path);
+
         if ($this->crypto->isFilesystemValueLatest($doc)) {
             $this->logger->debug('Documents: {id} is current', ['id' => $id]);
             return;
@@ -118,6 +124,16 @@ class DocumentKeyRotation
         // - (new identifiers/path)?
 
         // todo: how to handle couchdb?
-        print_r($doc);
+        // print_r($doc);
+    }
+
+    public static function determineRelativePath(string $absolute, int $depth): string
+    {
+        $parts = explode('/', $absolute);
+        // Negative takes the last N instead of first
+        // Add one for the filename itself
+        $offset = -($depth + 1);
+        $relative = array_slice($parts, $offset);
+        return implode('/', $relative);
     }
 }
