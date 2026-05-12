@@ -90,7 +90,6 @@ return [
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
 
-    OpenEMR\Services\KeyRotation\AppConfig::class,
     OpenEMR\Services\KeyRotation\AppConfigKeyRotation::class,
     OpenEMR\Services\KeyRotation\DocumentKeyRotation::class,
 ];

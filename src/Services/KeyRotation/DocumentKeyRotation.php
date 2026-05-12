@@ -7,6 +7,7 @@ namespace OpenEMR\Services\KeyRotation;
 use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use Psr\Log\LoggerInterface;
+use OpenEMR\BC\Crypto\EncryptionConfig;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Storage\{ManagerInterface, Location};
 
@@ -25,7 +26,7 @@ class DocumentKeyRotation
     private bool $dryRun = true;
 
     public function __construct(
-        private readonly AppConfig $config,
+        private readonly EncryptionConfig $config,
         readonly private Connection $conn,
         private LoggerInterface $logger,
         readonly private CryptoInterface $crypto,

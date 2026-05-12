@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 class DatabaseContentKeyRotation
 {
     public function __construct(
-        // private readonly AppConfig $config,
+        // private readonly EncryptionConfig $config,
         readonly private Connection $conn,
         private LoggerInterface $logger,
         readonly private CryptoInterface $crypto,
