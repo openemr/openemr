@@ -4,6 +4,7 @@
  * AI Conversation tab for eligibility results.
  *
  * Variables expected from caller:
+ *   $pid                  - Active patient pid (inherited from eligibility.php)
  *   $chatProductResultIds - Map of product ID => claimRevResultId
  *   $chatPayerCode        - The payer code (optional)
  *   $chatPrKey            - Unique key for this payer responsibility tab
@@ -15,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/** @var int $pid */
 /** @var string $chatPrKey */
 /** @var array<int, string> $chatProductResultIds */
 /** @var string $chatPayerCode */
@@ -183,6 +185,7 @@ foreach ($chatProductResultIds as $rid) {
             url: '../../modules/custom_modules/oe-module-claimrev-connect/public/eligibility_chat.php',
             type: 'POST',
             data: {
+                pid: <?php echo js_escape((string) $pid); ?>,
                 sharpRevenueObjectId: objectId,
                 question: question,
                 payerCode: payerCode,

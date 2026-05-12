@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\CsrfHelper;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
+use OpenEMR\Modules\ClaimRevConnector\PatientContext;
 
 header('Content-Type: application/json');
 
@@ -37,11 +38,16 @@ if (!CsrfHelper::verifyCsrfToken(ModuleInput::postString('csrf_token'), 'eligibi
     exit;
 }
 
-$pidRaw = ModuleInput::postString('pid');
-$pid = (int) $pidRaw;
+$pid = ModuleInput::postInt('pid');
 if ($pid <= 0) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing or invalid pid']);
+    exit;
+}
+
+if (!PatientContext::pidMatchesActivePatient($pid)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Patient context mismatch']);
     exit;
 }
 

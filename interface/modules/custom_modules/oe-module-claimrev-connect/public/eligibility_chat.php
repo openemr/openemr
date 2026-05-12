@@ -18,7 +18,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevException;
 use OpenEMR\Modules\ClaimRevConnector\CsrfHelper;
+use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
+use OpenEMR\Modules\ClaimRevConnector\PatientContext;
 
 header('Content-Type: application/json');
 
@@ -34,20 +36,33 @@ if (!CsrfHelper::verifyCsrfToken(ModuleInput::postString('csrf_token'), 'eligibi
     exit;
 }
 
+$pid = ModuleInput::postInt('pid');
 $sharpRevenueObjectId = ModuleInput::postString('sharpRevenueObjectId');
 $question = trim(ModuleInput::postString('question'));
 $payerCodeRaw = ModuleInput::postString('payerCode');
 $payerCode = $payerCodeRaw !== '' ? $payerCodeRaw : null;
 
-if ($sharpRevenueObjectId === '') {
+if ($pid <= 0 || $sharpRevenueObjectId === '') {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Missing sharpRevenueObjectId']);
+    echo json_encode(['success' => false, 'message' => 'Missing pid or sharpRevenueObjectId']);
     exit;
 }
 
 if ($question === '') {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing question']);
+    exit;
+}
+
+if (!PatientContext::pidMatchesActivePatient($pid)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Patient context mismatch']);
+    exit;
+}
+
+if (!EligibilityData::objectIdBelongsToPatient($pid, $sharpRevenueObjectId)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Invalid eligibility context']);
     exit;
 }
 

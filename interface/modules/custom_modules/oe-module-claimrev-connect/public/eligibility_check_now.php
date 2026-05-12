@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\CsrfHelper;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityTransfer;
 use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
+use OpenEMR\Modules\ClaimRevConnector\PatientContext;
 
 // Coverage Discovery polls for retryLater results for up to ~60s, plus the
 // ClaimRev API host runs on Cloud Run where a cold start adds another ~60s.
@@ -42,12 +43,18 @@ if (!CsrfHelper::verifyCsrfToken(ModuleInput::postString('csrf_token'), 'eligibi
     exit;
 }
 
-$pid = ModuleInput::postString('pid');
+$pid = ModuleInput::postInt('pid');
 $responsibility = ModuleInput::postString('responsibility');
 
-if ($pid === '' || $responsibility === '') {
+if ($pid <= 0 || $responsibility === '') {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing pid or responsibility']);
+    exit;
+}
+
+if (!PatientContext::pidMatchesActivePatient($pid)) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'message' => 'Patient context mismatch']);
     exit;
 }
 

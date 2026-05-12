@@ -31,6 +31,16 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
 $csrfToken = CsrfHelper::collectCsrfToken('eligibility');
 
+// Both queue actions perform persistent side effects (delete + insert eligibility
+// rows) so a CSRF token is required before either runs. Mirrors
+// public/appointment_check_now.php.
+if (ModuleInput::postExists('runBulkEligibility') || ModuleInput::postExists('runEligibility')) {
+    if (!CsrfHelper::verifyCsrfToken(ModuleInput::postString('csrf_token'), 'eligibility')) {
+        http_response_code(403);
+        exit(xlt('Invalid CSRF token'));
+    }
+}
+
 // Handle bulk eligibility queue (Run & Go) — read raw $_POST['eids'] array via filter_input_array.
 $bulkEids = filter_input(INPUT_POST, 'eids', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
 if (ModuleInput::postExists('runBulkEligibility') && is_array($bulkEids)) {
@@ -164,6 +174,7 @@ $path = str_replace("public", "templates", __DIR__);
         } else {
             ?>
             <form method="post" action="appointments.php" id="bulkForm">
+                <input type="hidden" name="csrf_token" value="<?php echo attr($csrfToken); ?>"/>
                 <input type="hidden" name="startDate" value="<?php echo attr($startDate); ?>"/>
                 <input type="hidden" name="endDate" value="<?php echo attr($endDate); ?>"/>
                 <input type="hidden" name="facilityId" value="<?php echo attr($facilityId); ?>"/>

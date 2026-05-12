@@ -375,6 +375,44 @@ class EligibilityData
     }
 
     /**
+     * Verify that a SharpRevenue object/result ID belongs to a patient.
+     *
+     * Each cached eligibility row stores a `_productResultIds` map (product →
+     * object id) and a top-level `claimRevResultId` fallback inside
+     * `response_json`. The AI chat endpoint uses this to confirm the
+     * caller-supplied object id is one the current patient actually owns.
+     */
+    public static function objectIdBelongsToPatient(int $pid, string $objectId): bool
+    {
+        if ($pid <= 0 || $objectId === '') {
+            return false;
+        }
+        $rows = QueryUtils::fetchRecords(
+            "SELECT response_json FROM mod_claimrev_eligibility WHERE pid = ?",
+            [$pid]
+        );
+        foreach ($rows as $row) {
+            $decoded = json_decode(TypeCoerce::asString($row['response_json'] ?? ''), true);
+            if (!is_array($decoded)) {
+                continue;
+            }
+            $top = $decoded['claimRevResultId'] ?? null;
+            if (is_string($top) && $top === $objectId) {
+                return true;
+            }
+            $map = $decoded['_productResultIds'] ?? null;
+            if (is_array($map)) {
+                foreach ($map as $id) {
+                    if (is_string($id) && $id === $objectId) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * @return list<InsuranceRow>
      */
     public static function getInsuranceData(int $pid = 0, string $pr = ""): array
