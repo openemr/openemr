@@ -74,7 +74,7 @@ try {
     $fileName = basename($fileNameRaw);
     $fileName = preg_replace('/[\r\n\x00-\x1F\x7F]+/', '', $fileName) ?? '';
     $fileName = preg_replace('/[^A-Za-z0-9._-]/', '_', $fileName) ?? '';
-    if ($fileName === '' || $fileName === '.' || $fileName === '..') {
+    if (in_array($fileName, ['', '.', '..'], true)) {
         $fileName = 'claims_export.csv';
     }
 
