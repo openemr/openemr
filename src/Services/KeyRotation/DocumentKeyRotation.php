@@ -111,20 +111,20 @@ class DocumentKeyRotation
             return;
         }
 
-        // Write updated document to FS
-        // Update DB to reflect curent encryption state
-        // TODO: needs atomic or at least safe update
+        // In THEORY, doing the following should be safe:
+        // - generate a new drive_uuid
+        // - generate a new path based off of it
+        // - write the $updated contents to the new path (leave existing file in place)
+        // - update the db with (url, encrypted, drive_uuid)
+        // - should be safe to unlink the old file??
+        //
+        // But definitely DO NOT just write the update to the current location,
+        // otherwise a crash will leave the data in an inconsistent and
+        // possibly-unrecoverable state.
 
         // hash is unchanged, it's always over plaintext
 
-
-        // dry-run check
-        // write file, update table (this needs a way to de-risk a crash)
-        // - encrypted = $this->filesystemEncryption ? 1 : 0
-        // - (new identifiers/path)?
-
-        // todo: how to handle couchdb?
-        // print_r($doc);
+        // TODO: couchdb??
     }
 
     public static function determineRelativePath(string $absolute, int $depth): string
