@@ -24,6 +24,7 @@ class DocumentKeyRotation
     private bool $dryRun = true;
 
     public function __construct(
+        private readonly AppConfig $config,
         readonly private Connection $conn,
         private LoggerInterface $logger,
         readonly private CryptoInterface $crypto,
@@ -42,7 +43,7 @@ class DocumentKeyRotation
         $this->logger = $logger;
     }
 
-    public function rotateAllDocuments(bool $shouldBeEncrypted): void
+    public function rotateAllDocuments(): void
     {
         // This takes a naive approach for paging and resource management: go
         // as far as possible and if it crashes from resource use, well, run
@@ -55,7 +56,7 @@ class DocumentKeyRotation
             ->from('documents')
             ->where('encrypted = :encrypted')
         // storagemethod=Document::STORAGE_METHOD_FILESYSTEM
-            ->setParameter('encrypted', $shouldBeEncrypted ? 0 : 1) // Inverse of current state
+            ->setParameter('encrypted', $this->config->filesystemEncryption ? 0 : 1) // Inverse of current state
             ->executeQuery()
             ->fetchAllAssociative();
 

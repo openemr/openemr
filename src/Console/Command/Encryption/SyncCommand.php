@@ -26,8 +26,6 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 #[AsCommand(name: 'encryption:sync', description: 'sync encryption')]
 class SyncCommand extends Command
 {
-    private bool $databaseEncryption;
-    private bool $filesystemEncryption;
     private LoggerInterface $logger;
 
     private array $encryptedDatabaseColumns = [
@@ -48,8 +46,6 @@ class SyncCommand extends Command
     ];
 
     public function __construct(
-        private Connection $conn,
-        private CryptoInterface $crypto,
         private AppConfigKeyRotation $appConfigRotation,
         private DocumentKeyRotation $docRotation,
     ) {
@@ -61,7 +57,6 @@ class SyncCommand extends Command
         #[Option(description: 'Do not write changes')] bool $dryRun = false,
     ): int {
         $this->logger = new ConsoleLogger(output: $output);
-        $this->readConfig();
 
         foreach ($this->encryptedDatabaseColumns as $table => $columns) {
             foreach ($columns as $column) {
@@ -93,7 +88,7 @@ class SyncCommand extends Command
         $this->logger->notice('Beginning documents');
         $this->docRotation->setDryRun($dryRun);
         $this->docRotation->setLogger($this->logger);
-        $this->docRotation->rotateAllDocuments($this->filesystemEncryption);
+        $this->docRotation->rotateAllDocuments();
         $this->logger->notice('Documents complete');
 
         // TODO: other non-document files
@@ -111,22 +106,4 @@ class SyncCommand extends Command
         // at the source rather than trying to patch around it here.
     }
 
-    /**
-     * Reimplements a minimal set of application bootstrapping out of the
-     * globals table to read the necessary config but still be DI-friendly.
-     */
-    private function readConfig(): void
-    {
-        $configs = $this->conn->createQueryBuilder()
-            ->select('gl_name', 'gl_value')
-            ->from('globals')
-            ->where('gl_name IN (:keys)')
-            ->setParameter('keys', ['drive_encryption', 'database_encryption'], ArrayParameterType::STRING)
-            ->executeQuery()
-            ->fetchAllKeyValue();
-
-        // Note: this replicates the logic from library/globals.php :/
-        $this->databaseEncryption = ($configs['database_encryption'] ?? '1') === '1';
-        $this->filesystemEncryption = ($configs['drive_encryption'] ?? '1') === '1';
-    }
 }
