@@ -54,21 +54,34 @@ class CryptoGen implements CryptoInterface
 
     private readonly string $siteDir;
 
-    // This is intentionally not settable from the outside yet. Will change
-    // once more testing is complete. Needed for trait. See #11973
-    private bool $shouldEncryptForDatabase = true;
+    /**
+     * Installations using databases backed with external security measures
+     * like TDE may opt-out of column-level encryption, in order to rely on
+     * external key management and other security considerations.
+     *
+     * Using this without database-managed encryption technologies will reduce
+     * security and can lead to non-compliance.
+     *
+     * Caveat: this will only impact code that uses the `encryptForDatabase`
+     * path. Not all code does at this time.
+     */
+    private readonly bool $shouldEncryptForDatabase;
 
     private readonly bool $shouldEncryptForFilesystem;
 
     public function __construct(
         ?LoggerInterface $logger = null,
         ?string $siteDir = null,
+        ?bool $shouldEncryptForDatabase = null,
         ?bool $shouldEncryptForFilesystem = null,
     ) {
+        $bag = OEGlobalsBag::getInstance();
         $this->logger = $logger ?? ServiceContainer::getLogger();
-        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $this->siteDir = $siteDir ?? $bag->getString('OE_SITE_DIR');
+        $this->shouldEncryptForDatabase = $shouldEncryptForDatabase
+            ?? $bag->getBoolean('database_encryption');
         $this->shouldEncryptForFilesystem = $shouldEncryptForFilesystem
-            ?? OEGlobalsBag::getInstance()->getBoolean('drive_encryption');
+            ?? $bag->getBoolean('drive_encryption');
     }
 
     /**
@@ -146,67 +159,6 @@ class CryptoGen implements CryptoInterface
         } catch (\ValueError) {
             return false;
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function encryptForDatabase(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        return $this->encryptStandard($value, keySource: KeySource::Drive);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function encryptForFilesystem(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->shouldEncryptForFilesystem) {
-            return $value;
-        }
-        return $this->encryptStandard($value, keySource: KeySource::Database);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function decryptFromDatabase(?string $value, ?int $minimumVersion = null): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->cryptCheckStandard($value)) {
-            return $value;
-        }
-        $result = $this->decryptStandard($value, keySource: KeySource::Drive, minimumVersion: $minimumVersion);
-        if ($result === false) {
-            throw new CryptoGenException('Decryption failed');
-        }
-        return $result;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function decryptFromFilesystem(?string $value): string
-    {
-        if ($value === null || $value === '') {
-            return '';
-        }
-        if (!$this->cryptCheckStandard($value)) {
-            return $value;
-        }
-        $result = $this->decryptStandard($value, keySource: KeySource::Database);
-        if ($result === false) {
-            throw new CryptoGenException('Decryption failed');
-        }
-        return $result;
     }
 
     /**

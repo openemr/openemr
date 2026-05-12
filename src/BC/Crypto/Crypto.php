@@ -60,9 +60,9 @@ final readonly class Crypto implements CryptoInterface
         // get picked up properly.
         $keychain = LegacyKeychainLoader::load();
         return new Crypto(
-            $keychain,
-            $logger,
-            shouldEncryptForDatabase: true, // See #11973
+            keychain: $keychain,
+            logger: $logger,
+            shouldEncryptForDatabase: OEGlobalsBag::getInstance()->getBoolean('database_encryption'),
             shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
         );
     }
