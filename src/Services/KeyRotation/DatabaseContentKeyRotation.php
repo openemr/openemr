@@ -16,6 +16,10 @@ use Doctrine\DBAL\Connection;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Puts encrypted columns in the database into the current target encryption
+ * state and/or key version.
+ */
 class DatabaseContentKeyRotation
 {
     public function __construct(

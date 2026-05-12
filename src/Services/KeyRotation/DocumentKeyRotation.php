@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -9,6 +7,8 @@ declare(strict_types=1);
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Services\KeyRotation;
 
@@ -20,6 +20,9 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Storage\{ManagerInterface, Location};
 
 /**
+ * Puts documents (currently just those on-disk, not couchdb) into the current
+ * target encryption state and/or key version.
+ *
  * @phpstan-type DocumentRow array{
  *   id: int,
  *   type: 'file_url'|'blob'|'web_url',

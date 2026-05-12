@@ -17,6 +17,10 @@ use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Storage\{ManagerInterface, Location};
 
+/**
+ * Puts the application config in the `globals` table in the current target
+ * encryption state and/or key version.
+ */
 class AppConfigKeyRotation
 {
     private bool $dryRun = true;
