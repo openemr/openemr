@@ -57,8 +57,9 @@ class DocumentKeyRotation
             ->select('id', 'type', 'url', 'thumb_url', 'path_depth') // what else?
             ->from('documents')
             ->where('encrypted = :encrypted')
-        // storagemethod=Document::STORAGE_METHOD_FILESYSTEM
+            ->andWhere('storagemethod = :storage_method')
             ->setParameter('encrypted', $this->config->filesystemEncryption ? 0 : 1) // Inverse of current state
+            ->setParameter('storage_method', 0) // STORAGE_METHOD_FILESYSTEM
             ->executeQuery()
             ->fetchAllAssociative();
 
@@ -86,20 +87,22 @@ class DocumentKeyRotation
     private function updateDocument(array $docRow): void
     {
         $id = $docRow['id'];
+        $logContext = ['id' => $id];
+        $this->logger->debug('Documents: processing {id}', $logContext);
         if ($docRow['url'] === null) {
-            $this->logger->debug('Documents: Skip {id}, url is null', ['id' => $id]);
+            $this->logger->debug('Documents: Skip {id}, url is null', $logContext);
             return;
         }
         if ($docRow['path_depth'] === null) {
-            $this->logger->error('Documents: Skip {id}, path_depth is null', ['id' => $id]);
+            $this->logger->error('Documents: Skip {id}, path_depth is null', $logContext);
             return;
         }
-        // FIXME: this needs path munging
+
         $path = self::determineRelativePath($docRow['url'], $docRow['path_depth']);
         $doc = $this->documents->read($path);
 
         if ($this->crypto->isFilesystemValueLatest($doc)) {
-            $this->logger->debug('Documents: {id} is current', ['id' => $id]);
+            $this->logger->debug('Documents: {id} is current', $logContext);
             return;
         }
 
@@ -108,7 +111,7 @@ class DocumentKeyRotation
         );
 
         if ($this->dryRun) {
-            $this->logger->info('Documents: not changing {id} (dry-run)', ['id' => $id]);
+            $this->logger->info('Documents: not changing {id} (dry-run)', $logContext);
             return;
         }
 
@@ -125,7 +128,7 @@ class DocumentKeyRotation
 
         // hash is unchanged, it's always over plaintext
 
-        // TODO: couchdb??
+        // TODO: couchdb?? see filter in where clause
     }
 
     public static function determineRelativePath(string $absolute, int $depth): string

@@ -53,6 +53,7 @@ final readonly class Crypto implements CryptoInterface
         private LoggerInterface $logger,
         EncryptionConfig $config,
     ) {
+        // Passing the config instead of raw values allows full autowiring
         $this->shouldEncryptForDatabase = $config->databaseEncryption;
         $this->shouldEncryptForFilesystem = $config->filesystemEncryption;
     }
