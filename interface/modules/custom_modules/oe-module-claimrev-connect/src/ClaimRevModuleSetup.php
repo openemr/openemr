@@ -102,9 +102,10 @@ class ClaimRevModuleSetup
 
     /**
      * Set the core 'auto_sftp_claims_to_x12_partner' global to '1' and
-     * activate the X12_SFTP background service — but only if those values
-     * have never been touched. Respects an explicit '0' that an admin
-     * deliberately set, and does nothing if they're already '1'.
+     * activate the X12_SFTP background service — but only when neither
+     * has ever been touched. Respects an explicit '0' that an admin set
+     * for either, and never re-activates a service the admin has
+     * deliberately disabled.
      *
      * Intended to be called once at module enable time (and from setup
      * when the admin opts into auto-send), not on every request.
@@ -118,9 +119,16 @@ class ClaimRevModuleSetup
             . "WHERE gl_name = 'auto_sftp_claims_to_x12_partner' "
             . "AND (gl_value IS NULL OR gl_value = '')"
         );
+        // Activate X12_SFTP only when the service has never been scheduled
+        // (last_run IS NULL). On a fresh install that means an admin has
+        // never touched it and the documented module-enable behavior is to
+        // turn it on. After the service has run once we never flip it back
+        // to active here — an admin who deliberately disabled it (for
+        // compliance, network policy, etc.) is entitled to keep that
+        // setting across module re-enables.
         QueryUtils::sqlStatementThrowException(
             "UPDATE background_services SET active = 1, execute_interval = 1 "
-            . "WHERE name = 'X12_SFTP' AND active = 0"
+            . "WHERE name = 'X12_SFTP' AND active = 0 AND last_run IS NULL"
         );
     }
 

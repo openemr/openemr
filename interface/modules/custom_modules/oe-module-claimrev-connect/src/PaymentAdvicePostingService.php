@@ -489,6 +489,56 @@ class PaymentAdvicePostingService
      */
     public static function post(array $paymentData, bool $skipMarkWorked = false, bool $approved = false): array
     {
+        // Serialize concurrent posts of the same payment advice across
+        // PHP workers. Without this, two near-simultaneous submits can both
+        // pass isAlreadyPosted() before either inserts the ar_session row —
+        // ar_session.reference is not unique-keyed, so both inserts succeed
+        // and the same payment posts twice. A MySQL named lock keyed by
+        // paymentAdviceId gives a single posting window per advice without
+        // touching core schema.
+        $paymentAdviceIdForLock = TypeCoerce::asString($paymentData['paymentAdviceId'] ?? '');
+        $lockName = $paymentAdviceIdForLock !== ''
+            ? 'claimrev_post_' . $paymentAdviceIdForLock
+            : '';
+        $heldLock = false;
+        if ($lockName !== '') {
+            $gotLock = TypeCoerce::asInt(QueryUtils::fetchSingleValue(
+                'SELECT GET_LOCK(?, 5) AS l',
+                'l',
+                [$lockName]
+            ));
+            if ($gotLock !== 1) {
+                return [
+                    'success' => false,
+                    'session_id' => null,
+                    'message' => 'Concurrent post in progress for this advice — please retry',
+                    'posted_lines' => 0,
+                ];
+            }
+            $heldLock = true;
+        }
+
+        try {
+            return self::postWithinLock($paymentData, $skipMarkWorked, $approved);
+        } finally {
+            if ($heldLock) {
+                QueryUtils::sqlStatementThrowException(
+                    'DO RELEASE_LOCK(?)',
+                    [$lockName]
+                );
+            }
+        }
+    }
+
+    /**
+     * Inner body of post(). Assumes the per-paymentAdviceId named lock is
+     * held by the caller.
+     *
+     * @param array<string, mixed> $paymentData
+     * @return array{success: bool, session_id: int|null, message: string, posted_lines: int, requiresApproval?: bool, approvalReason?: string}
+     */
+    private static function postWithinLock(array $paymentData, bool $skipMarkWorked, bool $approved): array
+    {
         $preview = self::preview($paymentData);
 
         if ($preview['alreadyPosted']) {

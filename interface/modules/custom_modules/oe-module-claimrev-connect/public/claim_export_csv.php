@@ -63,10 +63,23 @@ $exportFilters = [
 try {
     $result = ClaimsPage::exportCsv($exportFilters);
     $fileText = TypeCoerce::asString($result['fileText'] ?? '');
-    $fileName = TypeCoerce::asString($result['fileName'] ?? 'claims_export.csv');
+    $fileNameRaw = TypeCoerce::asString($result['fileName'] ?? 'claims_export.csv');
+
+    // The filename is supplied by the upstream API and emitted into a
+    // response header. attr() escapes HTML attributes but leaves CR/LF
+    // intact, which would let a tampered upstream value inject extra
+    // headers (HTTP response splitting). Strip control chars, drop path
+    // separators, restrict to a conservative charset, fall back to a
+    // safe default if nothing legible remains.
+    $fileName = basename($fileNameRaw);
+    $fileName = preg_replace('/[\r\n\x00-\x1F\x7F]+/', '', $fileName) ?? '';
+    $fileName = preg_replace('/[^A-Za-z0-9._-]/', '_', $fileName) ?? '';
+    if ($fileName === '' || $fileName === '.' || $fileName === '..') {
+        $fileName = 'claims_export.csv';
+    }
 
     header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="' . attr($fileName) . '"');
+    header('Content-Disposition: attachment; filename="' . $fileName . '"');
     file_put_contents('php://output', $fileText);
 } catch (\RuntimeException | \LogicException) {
     http_response_code(500);

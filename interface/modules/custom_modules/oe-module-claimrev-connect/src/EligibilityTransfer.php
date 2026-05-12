@@ -416,7 +416,16 @@ class EligibilityTransfer extends BaseService
                     mkdir($savePath, 0750, true);
                 }
 
-                $fileName = TypeCoerce::asString($result['claimRevResultId'] ?? '');
+                // The id comes from a remote API response; restrict it to a
+                // safe filename charset so an upstream value containing path
+                // separators can't redirect file_put_contents outside
+                // $savePath. Fall back to a server-generated name if the
+                // sanitised value is empty.
+                $fileNameRaw = TypeCoerce::asString($result['claimRevResultId'] ?? '');
+                $fileName = preg_replace('/[^A-Za-z0-9_-]/', '', $fileNameRaw) ?? '';
+                if ($fileName === '') {
+                    $fileName = 'elig_' . (string) $eid . '_' . bin2hex(random_bytes(8));
+                }
                 $filePathName = $savePath . $fileName . '.txt';
                 file_put_contents($filePathName, $raw271);
                 chmod($filePathName, 0640);
