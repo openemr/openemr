@@ -50,12 +50,11 @@ class BootstrapService
         $vendors['oesms_send'] = '';
         $vendors['oerestrict_users'] = '';
         $vendors['oe_enable_email'] = '';
-        $vendors['oe_enable_voice'] = '';
         $vendors['oeenable_users_permissions'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?, ?)",
-            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oe_enable_voice', 'oeenable_users_permissions']
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?)",
+            ["oefax_enable_sms", "oefax_enable_fax", "oesms_send", "oerestrict_users", 'oe_enable_email', 'oeenable_users_permissions']
         );
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
@@ -76,7 +75,6 @@ class BootstrapService
                        ('oerestrict_users', '0'),
                        ('oesms_send', '0'),
                        ('oe_enable_email', '0'),
-                       ('oe_enable_voice', '0'),
                        ('oeenable_users_permissions', '0')"
         );
     }
@@ -94,7 +92,6 @@ class BootstrapService
         $items['oesms_send'] = $vendors['allow_dialog'] ?? '';
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
-        $items['oe_enable_voice'] = $vendors['voice_vendor'] ?? '';
         $items['oeenable_users_permissions'] = $vendors['oeenable_users_permissions'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(

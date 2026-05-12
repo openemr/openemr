@@ -612,52 +612,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$issues might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$req_encounter might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$req_pid might not be defined\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$task might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$billing_id might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$database might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$json_diags might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$req_encounter might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$req_pid might not be defined\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$task might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
 ];
@@ -894,11 +849,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$i might not be defined\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/physical_exam/edit_diagnoses.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$issue might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/physical_exam/edit_diagnoses.php',
 ];
 $ignoreErrors[] = [
@@ -1982,16 +1932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$token_database might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$token_encrypt might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.php',
@@ -2123,11 +2063,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$defaultLangName might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$one_time might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/index.php',
 ];

@@ -22,7 +22,7 @@ require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -987,19 +987,23 @@ class Document extends ORDataObject
             $has_thumbnail = false;
         }
 
+        // Note: there used to be couchdb_encryption as a separate toggle, it
+        // was removed in #12000. drive_encryption now controls all files.
+        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+            $this->set_encrypted(self::ENCRYPTED_ON);
+        } else {
+            $this->set_encrypted(self::ENCRYPTED_OFF);
+        }
+
         $encounter_id = $eid;
         $this->storagemethod = OEGlobalsBag::getInstance()->get('document_storage_method');
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
-            if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
-                $document = $cryptoGen->encryptStandard($data, keySource: KeySource::Database);
-            } else {
-                $document = base64_encode($data);
-            }
+            $document = $this->is_encrypted() ? $cryptoGen->encryptForFilesystem($data) : base64_encode($data);
             if ($has_thumbnail) {
-                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
-                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, keySource: KeySource::Database);
+                if ($this->is_encrypted()) {
+                    $th_document = $cryptoGen->encryptForFilesystem($thumbnail_data);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
                 }
@@ -1074,7 +1078,7 @@ class Document extends ORDataObject
             $this->path_depth = $path_depth;
 
             // Store the file.
-            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, keySource: KeySource::Database) : $data;
+            $storedData = $cryptoGen->encryptForFilesystem($data);
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1086,11 +1090,7 @@ class Document extends ORDataObject
             if ($has_thumbnail) {
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
-                if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, keySource: KeySource::Database);
-                } else {
-                    $storedThumbnailData = $thumbnail_data;
-                }
+                $storedThumbnailData = $cryptoGen->encryptForFilesystem($thumbnail_data);
                 if (file_exists($filepath . $this->get_thumb_name($filenameUuid))) {
                     // this should never happen with current uuid mechanism
                     return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);
@@ -1106,14 +1106,6 @@ class Document extends ORDataObject
             }
         }
 
-        if (
-            (OEGlobalsBag::getInstance()->getBoolean('drive_encryption') && ($this->storagemethod != self::STORAGE_METHOD_COUCHDB))
-            || (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption') && ($this->storagemethod == self::STORAGE_METHOD_COUCHDB))
-        ) {
-            $this->set_encrypted(self::ENCRYPTED_ON);
-        } else {
-            $this->set_encrypted(self::ENCRYPTED_OFF);
-        }
         // we need our external unique reference identifier that can be mapped back to our table.
         $docUUID = (new UuidRegistry(['table_name' => $this->_table]))->createUuid();
         $this->set_uuid($docUUID);
@@ -1138,13 +1130,12 @@ class Document extends ORDataObject
     /**
      * Retrieves the document data that has been saved to the filesystem or couch db.  If the $force_no_decrypt flag is
      * set to true, it will return the encrypted version of the data for the document.
-     * @param bool $force_no_decrypt True if the document should have its data returned encrypted, false otherwise
      * @throws BadMethodCallException Thrown if the method is called when the document has been marked as deleted
      *                                or expired
      * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts
      *                      or is unencrypted.
      */
-    function get_data($force_no_decrypt = false)
+    function get_data()
     {
         $storagemethod = $this->get_storagemethod();
 
@@ -1173,7 +1164,7 @@ class Document extends ORDataObject
         }
 
         if (!empty($data)) {
-            if ($this->is_encrypted() && !$force_no_decrypt) {
+            if ($this->is_encrypted()) {
                 $data = $this->decrypt_content($data);
             }
             if ($base64Decode) {
@@ -1192,9 +1183,10 @@ class Document extends ORDataObject
     public function decrypt_content($data)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        $decryptedData = $cryptoGen->decryptStandard($data, keySource: KeySource::Database);
-        if ($decryptedData === false) {
-            throw new RuntimeException("Failed to decrypt the data");
+        try {
+            $decryptedData = $cryptoGen->decryptFromFilesystem($data);
+        } catch (CryptoGenException $e) {
+            throw new RuntimeException("Failed to decrypt the data", previous: $e);
         }
         return $decryptedData;
     }

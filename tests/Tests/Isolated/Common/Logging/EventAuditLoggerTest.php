@@ -15,13 +15,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Logging;
 
 use Lcobucci\Clock\FrozenClock;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Encryption\CipherSuiteInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -29,7 +27,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EventAuditLoggerTest extends TestCase
 {
-    private CryptoInterface&MockObject $crypto;
     private SessionInterface&MockObject $session;
     private AuditConfig $config;
     private BreakglassCheckerInterface&MockObject $breakglassChecker;
@@ -37,7 +34,6 @@ class EventAuditLoggerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->crypto = $this->createMock(CryptoInterface::class);
         $this->session = $this->createMock(SessionInterface::class);
         $this->config = new AuditConfig(
             enabled: true,
@@ -66,8 +62,6 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink1, $sink2],
-            crypto: $this->crypto,
-            shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -101,8 +95,6 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            crypto: $this->crypto,
-            shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -120,42 +112,7 @@ class EventAuditLoggerTest extends TestCase
         );
     }
 
-    public function testRecordLogItemEncryptsCommentsWhenEnabled(): void
-    {
-        $this->crypto->expects($this->once())
-            ->method('encryptStandard')
-            ->with('Sensitive data')
-            ->willReturn('encrypted:Sensitive data');
-
-        $sink = $this->createMock(SinkInterface::class);
-        $sink->expects($this->once())
-            ->method('record')
-            ->with(self::callback(function (Event $event): bool {
-                self::assertSame('encrypted:Sensitive data', $event->comments);
-                return true;
-            }))
-            ->willReturn(true);
-
-        $logger = new EventAuditLogger(
-            sinks: [$sink],
-            crypto: $this->crypto,
-            shouldEncrypt: true,
-            session: $this->session,
-            config: $this->config,
-            breakglassChecker: $this->breakglassChecker,
-            clock: $this->clock,
-        );
-
-        $logger->recordLogItem(
-            success: 1,
-            event: 'login',
-            user: 'testuser',
-            group: 'testgroup',
-            comments: 'Sensitive data',
-        );
-    }
-
-    public function testRecordLogItemBase64EncodesCommentsWhenNotEncrypted(): void
+    public function testRecordLogItemBase64EncodesComments(): void
     {
         $sink = $this->createMock(SinkInterface::class);
         $sink->expects($this->once())
@@ -168,8 +125,6 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            crypto: $this->crypto,
-            shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -189,8 +144,6 @@ class EventAuditLoggerTest extends TestCase
     {
         $logger = new EventAuditLogger(
             sinks: [],
-            crypto: $this->crypto,
-            shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -223,8 +176,6 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$failingSink, $successSink],
-            crypto: $this->crypto,
-            shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -237,52 +188,6 @@ class EventAuditLoggerTest extends TestCase
             user: 'testuser',
             group: 'testgroup',
             comments: 'Test comments',
-        );
-    }
-
-    public function testRecordLogItemEncryptsApiDataWhenEnabled(): void
-    {
-        $this->crypto->expects($this->exactly(4))
-            ->method('encryptStandard')
-            ->willReturnCallback(fn(string $value): string => 'encrypted:' . $value);
-
-        $sink = $this->createMock(SinkInterface::class);
-        $sink->expects($this->once())
-            ->method('record')
-            ->with(self::callback(function (Event $event): bool {
-                self::assertNotNull($event->api);
-                self::assertSame('encrypted:https://api.example.com/patient', $event->api['request_url']);
-                self::assertSame('encrypted:{"id":123}', $event->api['request_body']);
-                self::assertSame('encrypted:{"status":"ok"}', $event->api['response']);
-                return true;
-            }))
-            ->willReturn(true);
-
-        $logger = new EventAuditLogger(
-            sinks: [$sink],
-            crypto: $this->crypto,
-            shouldEncrypt: true,
-            session: $this->session,
-            config: $this->config,
-            breakglassChecker: $this->breakglassChecker,
-            clock: $this->clock,
-        );
-
-        $logger->recordLogItem(
-            success: 1,
-            event: 'api-create',
-            user: 'apiuser',
-            group: 'api',
-            comments: 'API call',
-            api: [
-                'user_id' => 1,
-                'patient_id' => 123,
-                'method' => 'POST',
-                'request' => 'create patient',
-                'request_url' => 'https://api.example.com/patient',
-                'request_body' => '{"id":123}',
-                'response' => '{"status":"ok"}',
-            ],
         );
     }
 
@@ -299,8 +204,6 @@ class EventAuditLoggerTest extends TestCase
 
         $logger = new EventAuditLogger(
             sinks: [$sink],
-            crypto: $this->crypto,
-            shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -315,42 +218,6 @@ class EventAuditLoggerTest extends TestCase
             group: 'testgroup',
             comments: 'Test comments',
             patientId: 'NULL',
-        );
-    }
-
-    public function testRecordLogItemEncryptsCommentsViaCipherSuite(): void
-    {
-        $cipherSuite = $this->createMock(CipherSuiteInterface::class);
-        $cipherSuite->expects($this->once())
-            ->method('encrypt')
-            ->with('Sensitive data')
-            ->willReturn('ciphersuite-encrypted:Sensitive data');
-
-        $sink = $this->createMock(SinkInterface::class);
-        $sink->expects($this->once())
-            ->method('record')
-            ->with(self::callback(function (Event $event): bool {
-                self::assertSame('ciphersuite-encrypted:Sensitive data', $event->comments);
-                return true;
-            }))
-            ->willReturn(true);
-
-        $logger = new EventAuditLogger(
-            sinks: [$sink],
-            crypto: $cipherSuite,
-            shouldEncrypt: true,
-            session: $this->session,
-            config: $this->config,
-            breakglassChecker: $this->breakglassChecker,
-            clock: $this->clock,
-        );
-
-        $logger->recordLogItem(
-            success: 1,
-            event: 'login',
-            user: 'testuser',
-            group: 'testgroup',
-            comments: 'Sensitive data',
         );
     }
 }

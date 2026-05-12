@@ -35,10 +35,9 @@ class LogTablesSinkTest extends TestCase
     /**
      * @param ?ApiData $api
      */
-    private function createEvent(bool $isEncrypted = false, ?array $api = null): Event
+    private function createEvent(?array $api = null): Event
     {
         return new Event(
-            isEncrypted: $isEncrypted,
             current_datetime: '2026-03-11 12:00:00',
             event: 'test-event',
             category: 'test-category',
@@ -125,33 +124,9 @@ class LogTablesSinkTest extends TestCase
         self::assertSame(128, strlen($capturedLogCommentData['checksum']));
     }
 
-    public function testRecordSetsEncryptFlagToYesWhenEventIsEncrypted(): void
+    public function testRecordSetsEncryptFlagToNo(): void
     {
-        $event = $this->createEvent(isEncrypted: true);
-
-        $capturedLogCommentData = null;
-        $this->connection->expects($this->exactly(2))
-            ->method('insert')
-            ->willReturnCallback(function (string $table, array $data) use (&$capturedLogCommentData): int {
-                if ($table === 'log_comment_encrypt') {
-                    $capturedLogCommentData = $data;
-                }
-                return 1;
-            });
-
-        $this->connection->method('lastInsertId')->willReturn('1');
-
-        $sink = new LogTablesSink(conn: $this->connection);
-
-        $sink->record($event);
-
-        self::assertIsArray($capturedLogCommentData);
-        self::assertSame('Yes', $capturedLogCommentData['encrypt']);
-    }
-
-    public function testRecordSetsEncryptFlagToNoWhenEventIsNotEncrypted(): void
-    {
-        $event = $this->createEvent(isEncrypted: false);
+        $event = $this->createEvent();
 
         $capturedLogCommentData = null;
         $this->connection->expects($this->exactly(2))
@@ -176,7 +151,6 @@ class LogTablesSinkTest extends TestCase
     public function testRecordHandlesNullUserAndGroup(): void
     {
         $event = new Event(
-            isEncrypted: false,
             current_datetime: '2026-03-11 12:00:00',
             event: 'test-event',
             category: 'test-category',
@@ -218,7 +192,6 @@ class LogTablesSinkTest extends TestCase
     public function testRecordHandlesNullPatientId(): void
     {
         $event = new Event(
-            isEncrypted: false,
             current_datetime: '2026-03-11 12:00:00',
             event: 'test-event',
             category: null,

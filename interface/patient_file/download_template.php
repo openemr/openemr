@@ -23,7 +23,6 @@ require_once($srcdir . '/appointments.inc.php');
 require_once($srcdir . '/options.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -399,9 +398,7 @@ $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
 $cryptoGen = ServiceContainer::getCrypto();
-if ($cryptoGen->cryptCheckStandard($fileData)) {
-    $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
-}
+$fileData = $cryptoGen->decryptFromFilesystem($fileData);
 
 // Create a temporary file to hold the template.
 $dname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');

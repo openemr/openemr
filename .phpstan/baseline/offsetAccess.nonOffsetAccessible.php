@@ -717,11 +717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'DOB\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
@@ -14407,41 +14402,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_rc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'appKey\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'appSecret\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'extension\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'jwt\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'phone\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'production\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'smsNumber\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_voice.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allow_dialog\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
@@ -14468,11 +14428,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'sms_vendor\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'voice_vendor\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
 ];
@@ -14880,26 +14835,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'username\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'appKey\' on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'appSecret\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'expire_time\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'jwt\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'actions\' on mixed\\.$#',
@@ -35742,21 +35677,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'authcode\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cc\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'ccBrand\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'currency\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
@@ -35767,18 +35687,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'get\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
@@ -35792,27 +35702,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'patient_id_cc\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'post\' on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'status_name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'token\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'transid\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
 ];

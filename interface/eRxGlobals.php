@@ -132,7 +132,7 @@ class eRxGlobals
     {
         $cryptoGen = ServiceContainer::getCrypto();
         $value = $this->getGlobalValue('erx_account_password');
-        return $cryptoGen->decryptStandard(is_string($value) ? $value : null);
+        return $cryptoGen->decryptFromDatabase(is_string($value) ? $value : null);
     }
 
     /**

@@ -17,6 +17,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -458,7 +459,11 @@ class TransmitProperties
     public function cipherPayload(): string
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
-        $enc_key = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
+        try {
+            $enc_key = $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
+        } catch (CryptoGenException) {
+            return "error";
+        }
 
         if (!$enc_key) {
             return "error";
@@ -477,11 +482,11 @@ class TransmitProperties
     public function getProviderPassword(): mixed
     {
         if (!empty(OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
-            $ret = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_provider_password'));
-            if (!$ret) {
+            try {
+                return $this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_provider_password'));
+            } catch (CryptoGenException) {
                 return ("REQED:{user_settings}" . xlt('Your Weno Prescriber Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
             }
-            return $ret;
         } else {
             return "REQED:{user_settings}" . xlt('Your Weno Prescriber Password is missing. Go to User Settings Weno Tab and enter your Weno User Password');
         }

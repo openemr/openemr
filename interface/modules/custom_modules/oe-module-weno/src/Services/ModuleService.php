@@ -86,9 +86,9 @@ class ModuleService
         }
         if ($decrypt) {
             $crypt = ServiceContainer::getCrypto();
-            $vendors['weno_encryption_key'] = $crypt->decryptStandard(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
-            $vendors['weno_admin_password'] = $crypt->decryptStandard(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
-            $vendors['weno_provider_password'] = $crypt->decryptStandard(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
+            $vendors['weno_encryption_key'] = $crypt->decryptFromDatabase(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
+            $vendors['weno_admin_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
+            $vendors['weno_provider_password'] = $crypt->decryptFromDatabase(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
         }
 
         return $vendors;
@@ -102,13 +102,13 @@ class ModuleService
     {
         $crypt = ServiceContainer::getCrypto();
         if (!empty($items['weno_encryption_key'])) {
-            $items['weno_encryption_key'] = $crypt->encryptStandard(is_string($items['weno_encryption_key']) ? $items['weno_encryption_key'] : null);
+            $items['weno_encryption_key'] = $crypt->encryptForDatabase(is_string($items['weno_encryption_key']) ? $items['weno_encryption_key'] : null);
         }
         if (!empty($items['weno_admin_password'])) {
-            $items['weno_admin_password'] = $crypt->encryptStandard(is_string($items['weno_admin_password']) ? $items['weno_admin_password'] : null);
+            $items['weno_admin_password'] = $crypt->encryptForDatabase(is_string($items['weno_admin_password']) ? $items['weno_admin_password'] : null);
         }
         if (!empty($items['weno_provider_password'])) {
-            $items['weno_provider_password'] = $crypt->encryptStandard(is_string($items['weno_provider_password']) ? $items['weno_provider_password'] : null);
+            $items['weno_provider_password'] = $crypt->encryptForDatabase(is_string($items['weno_provider_password']) ? $items['weno_provider_password'] : null);
         }
         $vendors['weno_rx_enable'] = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';

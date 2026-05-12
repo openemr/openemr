@@ -18,7 +18,6 @@ use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -32,7 +31,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OneTimeAuth
 {
-    private readonly CryptoInterface $cryptoGen;
     private readonly LoggerInterface $systemLogger;
     private readonly SessionInterface $session;
     private readonly OEGlobalsBag $globalsBag;
@@ -49,7 +47,6 @@ class OneTimeAuth
         ?LoggerInterface $logger = null,
     )
     {
-        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->systemLogger = $logger ?? ServiceContainer::getLogger();
         $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->globalsBag = OEGlobalsBag::getInstance();
@@ -86,10 +83,9 @@ class OneTimeAuth
         $date_base = ($p['enabled_datetime'] ?? null) ?: 'NOW';
         $expiry = new DateTime($date_base);
         $expiry->add(new DateInterval($p['expiry_interval'] ?? 'PT15M'));
-        $token_raw = RandomGenUtils::createUniqueToken(16);
-        $token_encrypt = $this->cryptoGen->encryptStandard($token_raw);
+        $token = RandomGenUtils::createUniqueToken(RandomGenUtils::DEFAULT_TOKEN_LENGTH);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
-        if (empty($p['pid']) || empty($token_raw)) {
+        if (empty($p['pid']) || empty($token)) {
             $err = xlt("Onetime failed with missing PID or the token creation failed");
             $this->systemLogger->error($err);
             throw new RuntimeException($err);
@@ -116,13 +112,13 @@ class OneTimeAuth
         $actions = array_merge($actionDefaults, $p['actions'] ?? []); // from event data.
 
         // Create the encoded link and return the onetime token data set
-        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt);
-        $rtn['onetime_token'] = $token_encrypt;
+        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token);
+        $rtn['onetime_token'] = $token;
         $rtn['pin'] = $pin;
         $rtn['email'] = $email;
 
         // Save the onetime token to the database
-        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $expiry->format('U'), $this->scope, $this->profile, $actions);
+        $save = $this->insertOnetime($passed_in_pid, $pin, $token, $redirect_raw, $expiry->format('U'), $this->scope, $this->profile, $actions);
         if (empty($save)) {
             $err = xlt("Onetime save failed!");
             $this->systemLogger->error($err);
@@ -150,26 +146,19 @@ class OneTimeAuth
         $one_time = '';
         $t_info = [];
 
-        if (strlen((string)$onetime_token) >= 64) {
-            $onetimeTokenStr = is_string($onetime_token) ? $onetime_token : null;
-            if ($this->cryptoGen->cryptCheckStandard($onetimeTokenStr)) {
-                $one_time = $this->cryptoGen->decryptStandard($onetimeTokenStr, minimumVersion: 6);
-                if (!empty($one_time)) {
-                    $t_info = $this->getOnetime($one_time);
-                    if (!empty($t_info['pid'] ?? 0)) {
-                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
-                    }
-                } else {
-                    $this->systemLogger->error("Onetime decrypt token failed. Empty!");
-                }
+        $one_time = is_string($onetime_token) ? $onetime_token : '';
+        $tokenFingerprint = $one_time !== '' ? substr($one_time, 0, 6) . '...' : '<empty>';
+        if (strlen($one_time) === RandomGenUtils::DEFAULT_TOKEN_LENGTH && ctype_alnum($one_time)) {
+            $t_info = $this->getOnetime($one_time);
+            if (!empty($t_info['pid'] ?? 0)) {
+                $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", [$t_info['pid']]);
             }
         } else {
-            $this->systemLogger->error("Onetime token invalid length.");
+            $this->systemLogger->error("Onetime token invalid format", ['token' => $tokenFingerprint]);
         }
         if (!$auth) {
-            $rtn['error'] = "Onetime decode failed Onetime auth: " . $onetime_token;
-            $this->systemLogger->error($rtn['error']);
-            throw new OneTimeAuthException($rtn['error']);
+            $this->systemLogger->error("Onetime decode failed", ['token' => $tokenFingerprint]);
+            throw new OneTimeAuthException("Onetime decode failed");
         }
 
         $validate = $t_info['expires'];
@@ -191,7 +180,7 @@ class OneTimeAuth
 
         if ($logUpdate) {
             $this->updateOnetime($auth['pid'], $one_time);
-            $this->systemLogger->debug("Onetime successfully decoded. $one_time");
+            $this->systemLogger->debug("Onetime successfully decoded", ['token' => $tokenFingerprint]);
         }
 
         return $rtn;

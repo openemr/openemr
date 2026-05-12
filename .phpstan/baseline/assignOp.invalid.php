@@ -12,12 +12,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];

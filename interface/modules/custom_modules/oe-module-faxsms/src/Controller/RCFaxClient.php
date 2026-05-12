@@ -15,7 +15,6 @@ use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
@@ -299,9 +298,7 @@ class RCFaxClient extends AppDispatch
         }
 
         // Decrypt content if needed
-        if ($this->crypto->cryptCheckStandard($content)) {
-            $content = $this->crypto->decryptStandard($content, keySource: KeySource::Database);
-        }
+        $content = $this->crypto->decryptFromFilesystem($content);
 
         // Email the document if email is provided and SMTP is enabled.
         // TODO: need check to ensure not from forward fax

@@ -14,8 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -73,7 +73,19 @@ if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
         // Success!
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 1, $auditData, $_POST['ticket'], $_POST['transid'], $_POST['action_name'], $_POST['amount']);
         if ($_GET['front'] == 'patient') {
-            echo "<script>opener.sphereSuccess(" . js_escape((ServiceContainer::getCrypto())->encryptStandard(json_encode($auditData) ?: null)) . ");dlgclose();</script>";
+            // Store payment result in session keyed by ticket - paylib.php retrieves it
+            $ticket = filter_input(INPUT_POST, 'ticket') ?? '';
+            $patientId = filter_input(INPUT_GET, 'patient_id_cc', FILTER_VALIDATE_INT) ?: 0;
+            SessionUtil::setSession('sphere_payment_result_' . $ticket, [
+                'patient_id' => $patientId,
+                'transid' => filter_input(INPUT_POST, 'transid') ?? '',
+                'authcode' => filter_input(INPUT_POST, 'authcode') ?? '',
+                'name' => filter_input(INPUT_POST, 'name') ?? '',
+                'status_name' => filter_input(INPUT_POST, 'status_name') ?? '',
+                'cc' => filter_input(INPUT_POST, 'cc') ?? '',
+                'ccBrand' => filter_input(INPUT_POST, 'ccBrand') ?? '',
+            ]);
+            echo "<script>opener.sphereSuccess();dlgclose();</script>";
         } else { // $_GET['front'] == 'clinic-phone' || $_GET['front'] == 'clinic-retail'
             echo "<script>opener.sphereSuccess(" . js_escape($_POST['transid']) . ");dlgclose();</script>";
         }
