@@ -32,7 +32,7 @@ foreach ($results as $result) {
     $benefits = null;
     $subscriberPatient = null;
     $data = null;
-    if (is_object($eligibilityData) && property_exists($eligibilityData, 'mapped271')) {
+    if (property_exists($eligibilityData, 'mapped271')) {
         $data = $eligibilityData->mapped271;
     }
 
