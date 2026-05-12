@@ -84,7 +84,7 @@ readonly class LogTablesSink implements SinkInterface
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [
             'log_id' => $lastLogId,
-            'encrypt' => $event->isEncrypted ? 'Yes' : 'No', // DB is a Yes/No enum instead of bool :(
+            'encrypt' => 'No', // DB is a Yes/No enum instead of bool :( (see #12118)
             'checksum' => $checksum,
             'checksum_api' => $checksumGenerateApi,
             'version' => '4',

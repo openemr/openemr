@@ -279,6 +279,7 @@ $check_sum = isset($_GET['check_sum']);
                 $logType = xl('API');
             }
 
+            // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
             $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
             $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
