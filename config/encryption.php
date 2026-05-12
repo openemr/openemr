@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Hacks for backwards compatability. Please pretend these don't exist :(
+ * Encryption settings
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -13,18 +13,18 @@
 declare(strict_types=1);
 
 use Doctrine\DBAL\Connection;
-use Psr\Log\LoggerInterface;
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\Crypto;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Encryption;
+use Psr\Log\LoggerInterface;
 
 return [
     CryptoInterface::class => Crypto\Crypto::class,
     Crypto\Crypto::class => function (TC $c) {
         // TODO: these need to be sourced from app config
         $shouldEncryptForDatabase = true;
-        $shouldEncryptForFilesystem = true;
+        $shouldEncryptForFilesystem = false;
         return new Crypto\Crypto(
             $c->get(Encryption\Keys\KeychainInterface::class),
             $c->get(LoggerInterface::class),
@@ -46,4 +46,6 @@ return [
             storageDir: $keyDirectory,
         );
     },
+
+    Crypto\EncryptionConfig::class,
 ];
