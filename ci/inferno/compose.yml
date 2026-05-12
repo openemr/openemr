@@ -21,7 +21,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:76d371e4771b0ed61c6afc7b70d2d56a6e6138558eb64e0ff75281f3e9f14457
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:d4e780b16bd65f2adb73512f51e2825384ff043cb887f3352b0b7961accdd46e
     ports:
     - 8080:80
     - 8523:443
@@ -100,7 +100,7 @@ services:
       dockerfile: Dockerfile.terminology
   couchdb:
     restart: always
-    image: couchdb:3.5.1@sha256:0ff2633acd380777f2c65af22eabb1d961569e05e25b12c5239b00a7f8b56d54
+    image: couchdb:3.5.1@sha256:f931b65dd7406c03e1c83ffc7c04b6d551dc18df1ce8581a04f17cdffcb20e23
     ports:
     - 5984:5984
     - 6984:6984

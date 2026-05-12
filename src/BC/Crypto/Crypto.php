@@ -19,7 +19,6 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     KeyId,
     Keys\KeychainInterface,
@@ -66,7 +65,7 @@ final readonly class Crypto implements CryptoInterface
     //     return new Crypto(
     //         $keychain,
     //         $logger,
-    //         shouldEncryptForDatabase: true, // See #11973
+    //         shouldEncryptForDatabase: OEGlobalsBag::getInstance()->getBoolean('database_encryption'),
     //         shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
     //     );
     // }

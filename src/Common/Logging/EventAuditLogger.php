@@ -20,13 +20,10 @@ use OpenEMR\BC\{
     ServiceContainer,
 };
 use OpenEMR\Common\Auth\AuthEvent;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
-use OpenEMR\Encryption\CipherSuiteInterface;
 use Psr\Clock\ClockInterface;
-use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -86,8 +83,6 @@ class EventAuditLogger
 
         return new self(
             sinks: $sinks,
-            crypto: ServiceContainer::getCrypto(),
-            shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
@@ -100,8 +95,6 @@ class EventAuditLogger
      */
     public function __construct(
         private readonly array $sinks,
-        private readonly CipherSuiteInterface|CryptoInterface $crypto,
-        private readonly bool $shouldEncrypt,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
@@ -667,20 +660,11 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        if ($this->shouldEncrypt) {
-            $comments = $this->encrypt($comments);
-            if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->encrypt($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->encrypt($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->encrypt($api['response']);
-            }
-        } else {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode($comments);
+        // Note: this used to have an encryption path; it was removed as part
+        // of #12118+12120.
 
-            // Should this blank out the api fields? Previous behavior was that
-            // it did not.
-        }
+        // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+        $comments = base64_encode($comments);
 
         // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
@@ -697,7 +681,6 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         $auditEvent = new Audit\Event(
-            $this->shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -830,14 +813,5 @@ class EventAuditLogger
         }
 
         return $event;
-    }
-
-    private function encrypt(#[SensitiveParameter] string $plaintext): string
-    {
-        if ($this->crypto instanceof CipherSuiteInterface) {
-            return $this->crypto->encrypt($plaintext);
-        } else {
-            return $this->crypto->encryptStandard($plaintext);
-        }
     }
 }
