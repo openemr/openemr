@@ -592,9 +592,12 @@ function eob_process_era_callback(array &$out): void
 
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
+            /** @var array<string, mixed> $adj */
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                $isContractualWriteoff = $adj['group_code'] === 'CO'
+                    && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -632,13 +635,7 @@ function eob_process_era_callback(array &$out): void
                     sprintf("%.2f", $adj['amount']));
                 } elseif (
                     $svc['paid'] === 0.0
-                    && !(
-                        $adj['group_code'] === "CO"
-                        && (
-                            $adj['reason_code'] === '45'
-                            || $adj['reason_code'] === '59'
-                        )
-                    )
+                    && !$isContractualWriteoff
                 ) {
                     $class = 'errdetail';
                     $error = true;
