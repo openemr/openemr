@@ -631,8 +631,8 @@ function eob_process_era_callback(array &$out): void
                         );
                     }
 
-                    echo getMessageLine($bgcolor, $class, $description . ' ' .
-                    sprintf("%.2f", $adj['amount']));
+                    $amount = is_numeric($adj['amount']) ? (float)$adj['amount'] : 0.0;
+                    echo getMessageLine($bgcolor, $class, $description . ' ' . sprintf("%.2f", $amount));
                 } elseif (
                     $svc['paid'] === 0.0
                     && !$isContractualWriteoff
