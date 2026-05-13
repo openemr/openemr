@@ -235,7 +235,11 @@ function updateCheckAllState() {
 }
 
 $(function () {
-  $(":checkbox:checked").each(function () {
+  // Limit to the per-row prescription checkboxes. Selecting plain
+  // ":checkbox:checked" also picks up the "Check All" header box, whose
+  // default value is "on" — that ends up in the print URL as a fake
+  // prescription id and crashes the print SQL with "WHERE pid =".
+  $("input.check_list:checked").each(function () {
       let checkedBox = this;
       prescriptionButtons.forEach(function(selector) {
           changeLinkHref(selector,checkedBox.checked, checkedBox.value);
@@ -492,7 +496,7 @@ $(function () {
                         {{ 'time(s). Deleting it will also remove the related sale records.'|xlt }}
                     </p>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="deletePrescriptionRestoreInventory" checked>
+                        <input class="form-check-input" type="checkbox" id="deletePrescriptionRestoreInventory" value="1" checked>
                         <label class="form-check-label" for="deletePrescriptionRestoreInventory">
                             {{ 'Restore the dispensed quantity to inventory'|xlt }}
                         </label>
