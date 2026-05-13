@@ -28,7 +28,7 @@ class ClaimUpload extends BaseService
     public const STATUS_LOGIN_ERROR = 'login-error';
     public const STATUS_CHDIR_ERROR = 'chdir-error';
     public const STATUS_IN_PROGRESS = 'in-progress';
-    public const STATUS_UPLOAD_ERRROR = 'upload-error';
+    public const STATUS_UPLOAD_ERROR = 'upload-error';
     public const STATUS_SUCCESS = 'success';
 
     public const TABLE_NAME = 'x12_remote_tracker';
@@ -100,7 +100,7 @@ class ClaimUpload extends BaseService
             try {
                 $api->uploadClaimFile($claim_file_contents, $x12_remoteFilename);
             } catch (ClaimRevApiException) {
-                $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
+                $x12_remote['status'] = self::STATUS_UPLOAD_ERROR;
                 $x12_remote['messages'] = 'Could not upload file.';
                 $remoteTracker->update($x12_remote);
                 continue;
