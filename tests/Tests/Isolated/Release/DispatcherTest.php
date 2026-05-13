@@ -22,6 +22,13 @@ final class DispatcherTest extends TestCase
 {
     private const SCHEMA_PATH = __DIR__ . '/../../../../tools/release/contracts/dispatch.schema.json';
 
+    public function testDefaultTargetReposIncludesAllConsumers(): void
+    {
+        self::assertContains('openemr/openemr-devops', Dispatcher::DEFAULT_TARGET_REPOS);
+        self::assertContains('openemr/website-openemr', Dispatcher::DEFAULT_TARGET_REPOS);
+        self::assertContains('openemr/demo_farm_openemr', Dispatcher::DEFAULT_TARGET_REPOS);
+    }
+
     public function testValidRelCutDispatchesToBothConsumers(): void
     {
         /** @var list<array{url: string, body: string}> $captured */

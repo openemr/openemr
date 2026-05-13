@@ -60,7 +60,7 @@ use Symfony\Component\HttpClient\HttpClient;
         null,
         InputOption::VALUE_REQUIRED,
         'Comma-separated owner/name list',
-        'openemr/openemr-devops,openemr/website-openemr,openemr/demo_farm_openemr',
+        implode(',', Dispatcher::DEFAULT_TARGET_REPOS),
     )
     ->addOption('branch', null, InputOption::VALUE_REQUIRED, 'rel-* branch name (rel-cut/update/tag events)')
     ->addOption('release-version', null, InputOption::VALUE_REQUIRED, 'MAJOR.MINOR.PATCH release version')
