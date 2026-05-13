@@ -127,11 +127,24 @@ function performDeleteDrug(prescriptionId, restoreInventory) {
             csrf_token_form: {{CSRF_TOKEN_FORM|js_escape}}
         },
         success: function(data) {
-            console.log(data);
-            document.location.href = '{{webroot}}/controller.php?prescription&list&id=' + {{session.pid|js_url}};
+            // The endpoint replies with HTTP 200 even on ACL denial or
+            // caught exceptions; the body is the user-facing message.
+            // Only redirect on the success sentinel "Finished Deleting".
+            var body = (typeof data === 'string') ? data.trim() : '';
+            if (body === {{'Finished Deleting'|js_escape}}) {
+                document.location.href = '{{webroot}}/controller.php?prescription&list&id=' + {{session.pid|js_url}};
+                return;
+            }
+            alert(
+                {{'Could not delete prescription:'|js_escape}} + '\n\n' +
+                (body || {{'Unknown error. Please contact your administrator.'|js_escape}})
+            );
         },
-        error: function(error) {
-            console.log(error);
+        error: function(xhr) {
+            alert(
+                {{'Could not delete prescription (network error):'|js_escape}} + '\n\n' +
+                (xhr.responseText || xhr.statusText || {{'Unknown error.'|js_escape}})
+            );
         },
     });
 }
