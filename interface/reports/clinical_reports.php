@@ -12,8 +12,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("../../custom/code_types.inc.php");
 
@@ -496,7 +496,7 @@ if (!empty($_POST['form_refresh'])) {
                         c.code_text as code_text,
                         fe.encounter as encounter,
                         b.date as date";
-        $mh_stmt .= ",code,code_text,encounter,date";
+        $mh_stmt = ($mh_stmt ?? '') . ",code,code_text,encounter,date";
     }
 
     if (strlen($form_immunization) > 0) {

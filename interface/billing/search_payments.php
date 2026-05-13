@@ -19,9 +19,6 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -30,6 +27,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Billing\Payments\DeletePayment;
 use OpenEMR\OeUI\OemrUI;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/payment.inc.php');
+
+$ResultSearch = null;
+$PaymentDateString = '';
+$StringSessionId = '';
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Search Payment", xl("Search Payment"));
@@ -189,7 +195,7 @@ if (isset($_POST["mode"])) {
                 $StringSessionId .= $rowrs['session_id'] . ',';
             }
 
-            $StringSessionId = substr((string) $StringSessionId, 0, -1);
+            $StringSessionId = substr($StringSessionId, 0, -1);
             if ($PaymentStatus == 'fully_paid') {
                 $QueryString .= " $And session_id in(" . add_escape_custom($StringSessionId) . ") ";
             } elseif ($PaymentStatus == 'unapplied') {

@@ -18,18 +18,21 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/appointments.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/user.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/appointments.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/user.inc.php");
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $facilityService = new FacilityService();
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
 
 function genColumn($ix)
 {
@@ -141,6 +144,7 @@ $padding = 0;
 // *C - Ends the current column and starts a new one.
 // If $SBCODES is not provided, then manufacture it from the Fee Sheet.
 //
+$pages = 1;
 if (empty($SBCODES)) {
     $SBCODES = [];
     $last_category = '';
@@ -356,7 +360,7 @@ if (empty($frow)) {
 
 $logo = '';
 $ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
-$logo = is_file("$webserver_root/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
+$logo = is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/$ma_logo_path") ? "$web_root/$ma_logo_path" : "";
 
 // Loop on array of PIDS
 $saved_pages = $pages; //Save calculated page count of a single fee sheet
@@ -372,6 +376,7 @@ foreach ($pid_list as $pid) {
         $html .= "<div>\n";
     }
 
+    $patdata = [];
     if ($form_fill) {
         // Get the patient's name and chart number.
         $patdata = getPatientData($pid);

@@ -507,9 +507,14 @@ class C_EncounterVisitForm
         if ($viewmode) {
             $id = $_REQUEST['id'] ?? '';
             $result = sqlQuery("SELECT * FROM form_encounter WHERE id = ?", [$id]);
+            if (!is_array($result)) {
+                throw new \RuntimeException('Encounter not found for id ' . var_export($id, true));
+            }
             $encounter = $result;
             // it won't encode in the JSON if we don't convert this.
-            $encounter['uuid'] = UuidRegistry::uuidToString($result['uuid']);
+            $encounter['uuid'] = $result['uuid'] !== null
+                ? UuidRegistry::uuidToString($result['uuid'])
+                : '';
             $encounter_followup_id = $encounter['parent_encounter_id'] ?? null;
             if ($encounter_followup_id) {
                 $q = "SELECT fe.date as date, fe.encounter as encounter FROM form_encounter AS fe " .
@@ -671,7 +676,7 @@ class C_EncounterVisitForm
         $posOptions = $this->getPosOptionsForTemplate($facilityPosCode);
 // END AI GENERATED CODE
 
-        if (Utilities::isDateEmpty($encounter['onset_date'])) {
+        if (Utilities::isDateEmpty($encounter['onset_date'] ?? null)) {
             $encounter['onset_date'] = null;
         }
 

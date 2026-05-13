@@ -51,7 +51,7 @@ class BillingProcessor
     /**
      * Our logger instance that we use and also pass down
      * to the processing tasks
-     * @var
+     * @var mixed
      */
     protected $logger;
 

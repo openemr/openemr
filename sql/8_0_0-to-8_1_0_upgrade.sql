@@ -140,12 +140,21 @@ ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'pro
 
 --
 -- Rename the misspelled list_options option_id from 'declne_to_specfy' to 'decline_to_specify',
--- and update any patient_data.race records that reference the old value.
+-- and update any patient_data.race, patient_data.language, and patient_data.ethnicity
+-- records that reference the old value.
 -- See: https://github.com/openemr/openemr/issues/10385
 --
 
-#IfColumn patient_data race
+#IfRow patient_data race declne_to_specfy
 UPDATE `patient_data` SET `race` = 'decline_to_specify' WHERE `race` = 'declne_to_specfy';
+#EndIf
+
+#IfRow patient_data language declne_to_specfy
+UPDATE `patient_data` SET `language` = 'decline_to_specify' WHERE `language` = 'declne_to_specfy';
+#EndIf
+
+#IfRow patient_data ethnicity declne_to_specfy
+UPDATE `patient_data` SET `ethnicity` = 'decline_to_specify' WHERE `ethnicity` = 'declne_to_specfy';
 #EndIf
 
 #IfRow2D list_options list_id race option_id declne_to_specfy

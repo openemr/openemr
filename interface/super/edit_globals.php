@@ -20,8 +20,12 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/globals.inc.php");
-require_once("$srcdir/user.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/globals.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php");
+
+/** @var array<string,array<string,array<int,mixed>>> $GLOBALS_METADATA */
+/** @var list<string> $USER_SPECIFIC_GLOBALS */
+/** @var list<string> $USER_SPECIFIC_TABS */
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -169,7 +173,7 @@ function checkBackgroundServices(): void
                         [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
                         $label = "global:" . $fldid;
                         if ($fldtype == "encrypted") {
-                            $fldvalue = empty(trim((string)$_POST["form_$i"])) ? '' : $cryptoGen->encryptStandard(trim((string)$_POST["form_$i"]));
+                            $fldvalue = empty(trim((string)$_POST["form_$i"])) ? '' : $cryptoGen->encryptForDatabase(trim((string)$_POST["form_$i"]));
                         } elseif ($fldtype == "encrypted_hash") {
                             $tmpValue = trim((string)$_POST["form_$i"]);
                             if (empty($tmpValue)) {
@@ -179,7 +183,7 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptStandard(is_string($tmpValue) ? $tmpValue : null);
+                                $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
                             }
                         } else {
                             $fldvalue = trim($_POST["form_$i"] ?? '');
@@ -253,7 +257,7 @@ function checkBackgroundServices(): void
                     $fldvalue = isset($_POST["form_$i"]) ? trim($_POST["form_$i"]) : "";
 
                     if ($fldtype == 'encrypted') {
-                        $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptStandard($fldvalue);
+                        $fldvalue = empty(trim($fldvalue)) ? '' : $cryptoGen->encryptForDatabase($fldvalue);
                     } elseif ($fldtype == 'encrypted_hash') {
                         $tmpValue = trim($fldvalue);
                         if (empty($tmpValue)) {
@@ -263,7 +267,7 @@ function checkBackgroundServices(): void
                                 // a new value has been inputted, so create the hash that will then be stored
                                 $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                             }
-                            $fldvalue = $cryptoGen->encryptStandard(is_string($tmpValue) ? $tmpValue : null);
+                            $fldvalue = $cryptoGen->encryptForDatabase(is_string($tmpValue) ? $tmpValue : null);
                         }
                     }
 
@@ -488,6 +492,8 @@ function checkBackgroundServices(): void
                                                 // Collect user specific setting if mode set to user
                                                 $userSetting = "";
                                                 $settingDefault = "checked='checked'";
+                                                $globalValue = '';
+                                                $globalTitle = '';
                                                 if ($userMode) {
                                                     $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", [$authUserID, "global:" . $fldid]);
                                                     $userSetting = $userSettingArray['setting_value'] ?? '';
@@ -565,29 +571,11 @@ function checkBackgroundServices(): void
                                                     echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalue) . "' />\n";
                                                 } elseif (($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED) || ($fldtype == GlobalSetting::DATA_TYPE_ENCRYPTED_HASH)) {
-                                                    if (empty($fldvalue)) {
-                                                        // empty value
-                                                        $fldvalueDecrypted = '';
-                                                    } elseif ($cryptoGen->cryptCheckStandard(is_string($fldvalue) ? $fldvalue : null)) {
-                                                        // normal behavior when not empty
-                                                        $fldvalueDecrypted = $cryptoGen->decryptStandard(is_string($fldvalue) ? $fldvalue : null);
-                                                    } else {
-                                                        // this is used when value has not yet been encrypted (only happens once when upgrading)
-                                                        $fldvalueDecrypted = $fldvalue;
-                                                    }
+                                                    $fldvalueDecrypted = $cryptoGen->decryptFromDatabase(is_string($fldvalue) ? $fldvalue : null);
                                                     echo "  <input type='password' class='form-control' name='form_$i' id='form_$i' " .
                                                         "maxlength='255' value='" . attr($fldvalueDecrypted) . "' />\n";
                                                     if ($userMode) {
-                                                        if (empty($globalValue)) {
-                                                            // empty value
-                                                            $globalTitle = '';
-                                                        } elseif ($cryptoGen->cryptCheckStandard(is_string($globalValue) ? $globalValue : null)) {
-                                                            // normal behavior when not empty
-                                                            $globalTitle = $cryptoGen->decryptStandard(is_string($globalValue) ? $globalValue : null);
-                                                        } else {
-                                                            // this is used when value has not yet been encrypted (only happens once when upgrading)
-                                                            $globalTitle = $globalValue;
-                                                        }
+                                                        $globalTitle = $cryptoGen->decryptFromDatabase(is_string($globalValue) ? $globalValue : null);
                                                     }
                                                     $fldvalueDecrypted = '';
                                                 } elseif ($fldtype == GlobalSetting::DATA_TYPE_PASS) {
@@ -723,7 +711,7 @@ function checkBackgroundServices(): void
                                                     if ($userMode) {
                                                         $globalTitle = $globalValue;
                                                     }
-                                                    $themedir = "$webserver_root/public/themes";
+                                                    $themedir = OEGlobalsBag::getInstance()->getProjectDir() . "/public/themes";
                                                     $dh = opendir($themedir);
                                                     if ($dh) {
                                                         // Collect styles

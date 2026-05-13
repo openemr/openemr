@@ -9,8 +9,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+/** @var int $key (loop key from including file care_plan/new.php; $check_res is keyed by an int $iter) */
+/** @var array<string, array{code: string, description: string}> $reasonCodeStatii (set in including file) */
+
 ?>
-<div class="form-row reasonCodeContainer reason_code <?php echo !empty($obj['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr($key); ?>">
+<div class="form-row reasonCodeContainer reason_code <?php echo !empty($obj['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo $key; ?>">
     <div class="card mt-2 mb-4">
         <div class="card-header">
             <?php echo xlt("Care Plan Reason Information"); ?>

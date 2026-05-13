@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -205,6 +206,7 @@ $check_sum = isset($_GET['check_sum']);
     $type_event = "";
     $tevent = "";
     $gev = "";
+    $getevent = "";
     if ($eventname != "" && $type_event != "") {
         $getevent = $eventname . "-" . $type_event;
     }
@@ -248,6 +250,7 @@ $check_sum = isset($_GET['check_sum']);
             }
 
             $checkSumOldApi = $iter['checksum_api'];
+            $checkSumNewApi = '';
             if (!empty($checkSumOldApi)) {
                 $checkSumNewApi = hash('sha3-512', $iter['log_id_api'] . $iter['user_id'] . $iter['patient_id_api'] . $iter['ip_address'] . $iter['method'] . $iter['request'] . $iter['request_url'] . $iter['request_body'] . $iter['response'] . $iter['created_time']);
             }
@@ -276,6 +279,7 @@ $check_sum = isset($_GET['check_sum']);
                 $logType = xl('API');
             }
 
+            // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
             $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
             $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
@@ -290,10 +294,10 @@ $check_sum = isset($_GET['check_sum']);
                     $comments = $encryptVersionInt < 3
                         ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
                         : $iterComments;
-                    $trans_comments = $cryptoGen->decryptStandard($comments);
-                    if (is_string($trans_comments)) {
+                    try {
+                        $trans_comments = $cryptoGen->decryptFromDatabase($comments);
                         $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
-                    } else {
+                    } catch (CryptoGenException) {
                         $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
                     }
                 }

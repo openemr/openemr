@@ -20,14 +20,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 class MainMenuRole extends MenuRole
 {
     /**
-     * @var EventDispatcher
-     */
-    private $dispatcher;
-
-    /**
      * Constructor
      */
-    public function __construct(EventDispatcherInterface $dispatcher)
+    public function __construct(private readonly EventDispatcherInterface $dispatcher)
     {
         // This is where the magic happens to support special menu items.
         //   An empty menu_update_map array is created in MenuRole class
@@ -36,7 +31,6 @@ class MainMenuRole extends MenuRole
         parent::__construct();
         $this->menu_update_map["Visit Forms"] = "updateVisitForms";
         $this->menu_update_map["Blank Forms"] = "updateBlankForms";
-        $this->dispatcher = $dispatcher;
     }
 
     /**

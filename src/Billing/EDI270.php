@@ -790,8 +790,7 @@ HTML;
         $boundary = RandomGenUtils::createUniqueToken(12);
 
         $cryptoGen = ServiceContainer::getCrypto();
-        $decrypted_password = $cryptoGen->decryptStandard(is_string($X12info['x12_sftp_pass']) ? $X12info['x12_sftp_pass'] : null);
-        $rt_password = $decrypted_password;
+        $rt_password = $cryptoGen->decryptFromDatabase(is_string($X12info['x12_sftp_pass']) ? $X12info['x12_sftp_pass'] : null);
         $rt_user = $X12info['x12_sftp_login'];
         $sender_id = $X12info['x12_sender_id'];
         $receiver_id = $X12info['x12_receiver_id'];

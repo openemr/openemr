@@ -17,12 +17,13 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/lists.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/forms.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/lists.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
-    require_once("$srcdir/group.inc.php");
+    require_once($srcdir . "/group.inc.php");
 }
 
 use OpenEMR\BC\ServiceContainer;
@@ -38,6 +39,13 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+
+// The including page provides $attendant_type and $therapy_group.
+$attendant_type ??= 'pid';
+$therapy_group ??= 0;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
@@ -394,6 +402,7 @@ window.onload = function() {
 
             <?php
             $drow = false;
+            $dres = false;
             if (!$billing_view) {
             // Query the documents for this patient.  If this list is issue-specific
             // then also limit the query to documents that are linked to the issue.
@@ -829,6 +838,7 @@ window.onload = function() {
                     echo "<td>" . $insured . "</td>\n";
                 }
 
+                $encounter_type = [];
                 if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
                     $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", [$result4['pc_catid']]);
                     echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
@@ -841,7 +851,7 @@ window.onload = function() {
                 }
 
                 if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
-                    $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
+                    $group_name = (($encounter_type['pc_cattype'] ?? null) == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
                     echo "<td>" . text($group_name) . "</td>\n";
                 }
 

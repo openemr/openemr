@@ -28,7 +28,7 @@ class Thumbnail
     public $thumbnail_type = 'jpg';
     /**
      * Enable to set max size of thumbnail
-     * @param (int) $max_size
+     * @param int $max_size
      */
     public function __construct($max_size = null)
     {
@@ -43,7 +43,7 @@ class Thumbnail
 
     /**
      * Check if system could make thumbnail for current file.
-     * @param (string) path to file
+     * @param string $file path to file
      * @return (boolean)
      */
     public function file_support_thumbnail($file)
@@ -64,9 +64,9 @@ class Thumbnail
 
     /**
      * Create thumbnail (calculate by the size at $this->max_size)
-     * @param (string) path to file
-     * @param (optional) (string) content of file (prevent to get content again)
-     * @return (resource) resource of new file or false if failed.
+     * @param string|null $file path to file
+     * @param string|null $content_file content of file (prevent to get content again)
+     * @return resource|false resource of new file or false if failed.
      */
     public function create_thumbnail($file = null, $content_file = null)
     {
@@ -118,10 +118,10 @@ class Thumbnail
 
     /**
      * Save the image to a file. Type is determined from the extension.
-     * @param (resource) file resource from create_thumbnail()
-     * @param (string) file name (pull path with wanted name)
-     * @param (optional) (int) quality for 'jpeg' type
-     * @return boolean
+     * @param resource $resource_file file resource from create_thumbnail()
+     * @param string $fileName file name (pull path with wanted name)
+     * @param int $quality quality for 'jpeg' type
+     * @return bool
      */
     public function image_to_file($resource_file, $fileName, $quality = 80)
     {
@@ -136,10 +136,8 @@ class Thumbnail
 
     /**
      * Return content file. Type is determined from the extension.
-     * @param (resource) file resource from create_thumbnail()
-     * @param (string) file name (pull path with wanted name)
-     * @param (optional) (int) quality for 'jpeg' type
-     * @return (string) content file
+     * @param resource $resource_file file resource from create_thumbnail()
+     * @return string content file
      */
     public function get_string_file($resource_file)
     {

@@ -16,16 +16,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/FeeSheetHtml.class.php");
-include_once("../../forms/eye_mag/php/eye_mag_functions.php");
-
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(__DIR__ . "/../../globals.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/FeeSheetHtml.class.php");
+include_once(__DIR__ . "/php/eye_mag_functions.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -132,6 +132,72 @@ $query10 = "select  *,form_encounter.date as encounter_date
 
 $encounter_data = sqlQuery($query10, [$id, $pid, $encounter]);
 @extract($encounter_data);
+// Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
+$ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null; $ACT10SCNEAR ??= null;
+$ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null; $ACT11SCNEAR ??= null;
+$ACT1CCDIST ??= null; $ACT1CCNEAR ??= null; $ACT1SCDIST ??= null; $ACT1SCNEAR ??= null; $ACT2CCDIST ??= null;
+$ACT2CCNEAR ??= null; $ACT2SCDIST ??= null; $ACT2SCNEAR ??= null; $ACT3CCDIST ??= null; $ACT3CCNEAR ??= null;
+$ACT3SCDIST ??= null; $ACT3SCNEAR ??= null; $ACT4CCDIST ??= null; $ACT4CCNEAR ??= null; $ACT4SCDIST ??= null;
+$ACT4SCNEAR ??= null; $ACT5CCDIST ??= null; $ACT5CCNEAR ??= null; $ACT5SCDIST ??= null; $ACT5SCNEAR ??= null;
+$ACT6CCDIST ??= null; $ACT6CCNEAR ??= null; $ACT6SCDIST ??= null; $ACT6SCNEAR ??= null; $ACT7CCDIST ??= null;
+$ACT7CCNEAR ??= null; $ACT7SCDIST ??= null; $ACT7SCNEAR ??= null; $ACT8CCDIST ??= null; $ACT8CCNEAR ??= null;
+$ACT8SCDIST ??= null; $ACT8SCNEAR ??= null; $ACT9CCDIST ??= null; $ACT9CCNEAR ??= null; $ACT9SCDIST ??= null;
+$ACT9SCNEAR ??= null; $AMSLEROD ??= null; $AMSLEROS ??= null; $ANTSEG_COMMENTS ??= null; $ARNEARODVA ??= null;
+$ARNEAROSVA ??= null; $ARODADD ??= null; $ARODAXIS ??= null; $ARODCYL ??= null; $ARODPRISM ??= null;
+$ARODSPH ??= null; $ARODVA ??= null; $AROSADD ??= null; $AROSAXIS ??= null; $AROSCYL ??= null;
+$AROSPRISM ??= null; $AROSSPH ??= null; $AROSVA ??= null; $ASSOCIATED1 ??= null; $ASSOCIATED2 ??= null;
+$ASSOCIATED3 ??= null; $ATROPINE ??= null; $BALANCED ??= null; $BINOCVA ??= null; $CACCDIST ??= null;
+$CACCNEAR ??= null; $CC1 ??= null; $CC2 ??= null; $CC3 ??= null; $CHRONIC1 ??= null; $CHRONIC2 ??= null;
+$CHRONIC3 ??= null; $CONTEXT1 ??= null; $CONTEXT2 ??= null; $CONTEXT3 ??= null; $CRCOMMENTS ??= null;
+$CRODAXIS ??= null; $CRODCYL ??= null; $CRODSPH ??= null; $CRODVA ??= null; $CROSAXIS ??= null;
+$CROSCYL ??= null; $CROSSPH ??= null; $CROSVA ??= null; $CTLBRANDOD ??= null; $CTLBRANDOS ??= null;
+$CTLBRAND_list_OD ??= null; $CTLBRAND_list_OS ??= null; $CTLMANUFACTUREROD ??= null;
+$CTLMANUFACTUREROS ??= null; $CTLODADD ??= null; $CTLODAXIS ??= null; $CTLODBC ??= null; $CTLODCYL ??= null;
+$CTLODDIAM ??= null; $CTLODSPH ??= null; $CTLODVA ??= null; $CTLOSADD ??= null; $CTLOSAXIS ??= null;
+$CTLOSBC ??= null; $CTLOSCYL ??= null; $CTLOSDIAM ??= null; $CTLOSSPH ??= null; $CTLOSVA ??= null;
+$CTLSUPPLIEROD ??= null; $CTLSUPPLIEROS ??= null; $CTL_COMMENTS ??= null; $CYCLOGYL ??= null;
+$CYCLOMYDRIL ??= null; $DACCDIST ??= null; $DACCNEAR ??= null; $DIL_MEDS ??= null; $DIL_RISKS ??= null;
+$DIMODPUPILSIZE1 ??= null; $DIMODPUPILSIZE2 ??= null; $DIMOSPUPILSIZE1 ??= null; $DIMOSPUPILSIZE2 ??= null;
+$DURATION1 ??= null; $DURATION2 ??= null; $DURATION3 ??= null; $EXT_COMMENTS ??= null; $GLAREODVA ??= null;
+$GLAREOSVA ??= null; $HERTELBASE ??= null; $HPI1 ??= null; $HPI2 ??= null; $HPI3 ??= null; $IMP ??= null;
+$IOPTIME ??= null; $LADNEXA ??= null; $LBROW ??= null; $LCAROTID ??= null; $LCNV ??= null; $LCNVII ??= null;
+$LIODVA ??= null; $LIOSVA ??= null; $LLF ??= null; $LLL ??= null; $LMCT ??= null; $LMRD ??= null;
+$LOCATION1 ??= null; $LOCATION2 ??= null; $LOCATION3 ??= null; $LOCKED ??= null; $LOCKEDBY ??= null;
+$LTEMPART ??= null; $LUL ??= null; $LVFISSURE ??= null; $MODIFY1 ??= null; $MODIFY2 ??= null;
+$MODIFY3 ??= null; $MOTILITYNORMAL ??= null; $MOTILITY_LI ??= null; $MOTILITY_LL ??= null;
+$MOTILITY_LLIO ??= null; $MOTILITY_LLSO ??= null; $MOTILITY_LR ??= null; $MOTILITY_LRIO ??= null;
+$MOTILITY_LRSO ??= null; $MOTILITY_LS ??= null; $MOTILITY_RI ??= null; $MOTILITY_RL ??= null;
+$MOTILITY_RLIO ??= null; $MOTILITY_RLSO ??= null; $MOTILITY_RR ??= null; $MOTILITY_RRIO ??= null;
+$MOTILITY_RRSO ??= null; $MOTILITY_RS ??= null; $MRNEARODVA ??= null; $MRNEAROSVA ??= null; $MRODADD ??= null;
+$MRODAXIS ??= null; $MRODCYL ??= null; $MRODPRISM ??= null; $MRODSPH ??= null; $MRODVA ??= null;
+$MROSADD ??= null; $MROSAXIS ??= null; $MROSCYL ??= null; $MROSPRISM ??= null; $MROSSPH ??= null;
+$MROSVA ??= null; $NEO25 ??= null; $NEURO_COMMENTS ??= null; $NPC ??= null; $ODAC ??= null; $ODACD ??= null;
+$ODAPD ??= null; $ODAXIALLENGTH ??= null; $ODCMT ??= null; $ODCOINS ??= null; $ODCOLOR ??= null;
+$ODCONJ ??= null; $ODCORNEA ??= null; $ODCUP ??= null; $ODDISC ??= null; $ODGONIO ??= null;
+$ODHERTEL ??= null; $ODIOPAP ??= null; $ODIOPFTN ??= null; $ODIOPPOST ??= null; $ODIOPTPN ??= null;
+$ODIRIS ??= null; $ODK1 ??= null; $ODK2 ??= null; $ODK2AXIS ??= null; $ODKTHICKNESS ??= null;
+$ODLENS ??= null; $ODLT ??= null; $ODMACULA ??= null; $ODNPA ??= null; $ODPDMeasured ??= null;
+$ODPERIPH ??= null; $ODPUPILREACTIVITY ??= null; $ODPUPILSIZE1 ??= null; $ODPUPILSIZE2 ??= null;
+$ODREDDESAT ??= null; $ODSCHIRMER1 ??= null; $ODSCHIRMER2 ??= null; $ODTBUT ??= null; $ODVESSELS ??= null;
+$ODVF ??= null; $ODVF1 ??= null; $ODVF2 ??= null; $ODVF3 ??= null; $ODVF4 ??= null; $ODVITREOUS ??= null;
+$ODW2W ??= null; $OSAC ??= null; $OSACD ??= null; $OSAPD ??= null; $OSAXIALLENGTH ??= null; $OSCMT ??= null;
+$OSCOINS ??= null; $OSCOLOR ??= null; $OSCONJ ??= null; $OSCORNEA ??= null; $OSCUP ??= null; $OSDISC ??= null;
+$OSGONIO ??= null; $OSHERTEL ??= null; $OSIOPAP ??= null; $OSIOPFTN ??= null; $OSIOPPOST ??= null;
+$OSIOPTPN ??= null; $OSIRIS ??= null; $OSK1 ??= null; $OSK2 ??= null; $OSK2AXIS ??= null;
+$OSKTHICKNESS ??= null; $OSLENS ??= null; $OSLT ??= null; $OSMACULA ??= null; $OSNPA ??= null;
+$OSPDMeasured ??= null; $OSPERIPH ??= null; $OSPUPILREACTIVITY ??= null; $OSPUPILSIZE1 ??= null;
+$OSPUPILSIZE2 ??= null; $OSREDDESAT ??= null; $OSSCHIRMER1 ??= null; $OSSCHIRMER2 ??= null; $OSTBUT ??= null;
+$OSVESSELS ??= null; $OSVF ??= null; $OSVF1 ??= null; $OSVF2 ??= null; $OSVF3 ??= null; $OSVF4 ??= null;
+$OSVITREOUS ??= null; $OSW2W ??= null; $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null;
+$PHOSVA ??= null; $PUPIL_COMMENTS ??= null; $PUPIL_NORMAL ??= null; $QUALITY1 ??= null; $QUALITY2 ??= null;
+$QUALITY3 ??= null; $RADNEXA ??= null; $RBROW ??= null; $RCAROTID ??= null; $RCNV ??= null; $RCNVII ??= null;
+$RETINA_COMMENTS ??= null; $RLF ??= null; $RLL ??= null; $RMCT ??= null; $RMRD ??= null; $RTEMPART ??= null;
+$RUL ??= null; $RVFISSURE ??= null; $SCNEARODVA ??= null; $SCNEAROSVA ??= null; $SCODVA ??= null;
+$SCOSVA ??= null; $SEVERITY1 ??= null; $SEVERITY2 ??= null; $SEVERITY3 ??= null; $STEREOPSIS ??= null;
+$TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $TROPICAMIDE ??= null; $VERTFUSAMPS ??= null;
+$WETTYPE ??= null; $alert ??= null; $confused ??= null; $encounter_date ??= null; $oriented ??= null;
+$provider_id ??= null;
+// End column defaults.
 $id = $form_id;
 
 [$ODIOPTARGET, $OSIOPTARGET] = getIOPTARGETS($pid, $id, $provider_id);
@@ -226,7 +292,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
 
       <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
-      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
+      <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" type="text/css">
 
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
@@ -286,7 +352,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 ?>;
           </script>
         <!-- start form -->
-        <form method="post" action="<?php echo $rootdir;?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
+        <form method="post" action="<?php echo OEGlobalsBag::getInstance()->get('rootdir');?>/forms/<?php echo $form_folder; ?>/save.php?mode=update" id="eye_mag" class="eye_mag pure-form" name="eye_mag">
           <div id="Layer1" name="Layer1" class="display">
             <div id="warning" name="warning" class="alert alert-warning <?php echo $warning; ?>">
               <span type="button" class="close" data-dismiss="alert">&times;</span>
@@ -4403,7 +4469,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             }
             store_IMPPLAN(obj.IMPPLAN_items,'1');
         }
-        <?php require_once("$srcdir/restoreSession.php");
+        <?php require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
         ?>
         // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
         function dopclick(id) {
@@ -4452,7 +4518,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 search_term: term,
                 codetype: <?php echo js_escape(collect_codetypes("medical_problem", "csv")); ?>
             });
-            dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
+            dlgopen('<?php echo OEGlobalsBag::getInstance()->get('rootdir') ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400,'', <?php echo xlj('Code Search'); ?>);
                             <?php
                         } else {
                             ?>
@@ -4461,7 +4527,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             search_term: term,
                             codetype: <?php echo js_escape(collect_codetypes("diagnosis", "csv")); ?>
                         });
-                        dlgopen('<?php echo $rootdir ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
+                        dlgopen('<?php echo OEGlobalsBag::getInstance()->get('rootdir') ?>/patient_file/encounter/find_code_popup.php?' + searchParams.toString(), '_blank', 600, 400, '', <?php echo xlj('Code Search'); ?>);
                             <?php
                         }
                         ?>

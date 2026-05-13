@@ -420,7 +420,7 @@ class ClientAdminControllerTest extends TestCase
     }
 
     /**
-     * @return ClientAdminController|__anonymous@16704
+     * @return ClientAdminController
      */
     private function getAdminController()
     {

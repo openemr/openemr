@@ -18,7 +18,7 @@ require_once("gad7.inc.php");
 
 $gad7_total = 0;
 $pdf_as_string = '';
-$data;
+$data = null;
 $exp = '';
 
 $str_difficulty_values = [0 => xl('Not at all') . ' (0)',1 => xl('Somewhat difficult') . ' (1)', 2 => xl('Very difficult') . ' (2)', 3 => xl('Extremely difficult') . ' (3)', 'undef' => xl('not answered')];
@@ -40,7 +40,7 @@ function gad7_report($pid, $encounter, $cols, $id): void
     if ($data) {
         print "<table><tr>";
         foreach ($data as $key => $value) {
-// include scores_array and total for backward compatibility
+            // include scores_array and total for backward compatibility
             if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || Utilities::isDateEmpty($value) || $key == "scores_array" || $key == "total") {
                 continue;
             }

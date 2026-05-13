@@ -15,23 +15,26 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/lists.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/lists.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @global $pid  pid should always be defined but to deal with phpstan issues we'll put this statement here
  */
 $pid ??= null;
+$webroot = OEGlobalsBag::getInstance()->getWebRoot();
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 $patdata = getPatientData($pid, "fname,lname,squad");
 
 $thisauth = ((AclMain::aclCheckCore('encounters', 'notes', '', 'write') ||
@@ -123,7 +126,7 @@ var pselected = new Object();
 var eselected = new Object();
 var keyid = null; // id of currently hilited key, if any
 
-<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
+<?php require($srcdir . "/restoreSession.php"); ?>
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {

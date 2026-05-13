@@ -25,6 +25,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -364,7 +365,11 @@ class TokenIntrospectionRestController {
                 }
                 // lets verify secret to prevent bad guys.
                 if (!empty($client['client_secret'])) {
-                    $decryptedSecret = $this->getCryptoGen()->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
+                    try {
+                        $decryptedSecret = $this->getCryptoGen()->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+                    } catch (CryptoGenException) {
+                        throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                    }
                     if ($decryptedSecret !== $clientSecret) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }

@@ -18,17 +18,21 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/formatting.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/formatting.inc.php");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
+require_once("$srcdir/csv_like_join.php");
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;
 use OpenEMR\Services\ListService;

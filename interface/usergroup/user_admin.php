@@ -17,8 +17,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
@@ -49,6 +49,7 @@ if (!$_GET["id"]) {
 }
 
 $res = sqlStatement("select * from users where id=?", [$_GET["id"]]);
+$result = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result[$iter] = $row;
 }
@@ -257,9 +258,9 @@ function toggle_password() {
     $is_super_user = AclMain::aclCheckCore('admin', 'super');
     $acl_name = AclExtended::aclGetGroupTitles($iter["username"]);
     $bg_name = '';
+    $selected_user_is_superuser = false;
     if (is_countable($acl_name)) {
         $bg_count = count($acl_name);
-        $selected_user_is_superuser = false;
         for ($i = 0; $i < $bg_count; $i++) {
             if ($acl_name[$i] == "Emergency Login") {
                 $bg_name = $acl_name[$i];
@@ -369,6 +370,7 @@ if ($iter["portal_user"]) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
+    $result = [];
     for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];
     }

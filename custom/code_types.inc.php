@@ -368,7 +368,7 @@ function check_is_code_type_justify(bool $key): bool
  *
  * @param   string   $key
  * @param   array    $filter (array of elements that can include 'active','fee','rel','nofs','diag','claim','proc','term','problem')
- * @return  boolean
+ * @return bool
  */
 function check_code_set_filters($key, $filters = [])
 {
@@ -402,7 +402,7 @@ function check_code_set_filters($key, $filters = [])
  * @param  string       $category       category of code types('diagnosis', 'procedure', 'clinical_term', 'active' or 'medical_problem')
  * @param  string       $return_format  format or returned code types ('array' or 'csv')
  * @deprecated use CodeTypesService::collectCodeTypes()
- * @return string/array
+ * @return string|array
  */
 function collect_codetypes($category, $return_format = "array")
 {
@@ -462,7 +462,7 @@ function collect_codetypes($category, $return_format = "array")
  *
  * @param  string    $form_code_type  code set key
  * @param  string    $code            code
- * @param  boolean   $active          if true, then will only return active entries (not pertinent for PROD code sets)
+ * @param bool $active if true, then will only return active entries (not pertinent for PROD code sets)
  * @return mixed recordset                  - will contain only one item (row).
  */
 function return_code_information($form_code_type, $code, $active = true)
@@ -477,15 +477,15 @@ function return_code_information($form_code_type, $code, $active = true)
  * Note that when searching numerous code sets, you CAN NOT search the PROD
  * codes; the PROD codes can only be searched by itself.
  *
- * @param string/array  $form_code_type   code set key(s) (can either be one key in a string or multiple/one key(s) in an array
+ * @param string|array $form_code_type code set key(s) (can either be one key in a string or multiple/one key(s) in an array
  * @param string        $search_term      search term
- * @param integer       $limit            Number of results to return (NULL means return all)
+ * @param int $limit Number of results to return (NULL means return all)
  * @param string        $category         Category of code sets. This WILL OVERRIDE the $form_code_type setting (category options can be found in the collect_codetypes() function above)
- * @param boolean       $active           if true, then will only return active entries
+ * @param bool $active if true, then will only return active entries
  * @param array         $modes            Holds the search modes to process along with the order of processing (if NULL, then default behavior is sequential code then description search)
- * @param boolean       $count            if true, then will only return the number of entries
- * @param integer       $start            Query start limit (for pagination) (Note this setting will override the above $limit parameter)
- * @param integer       $number           Query number returned (for pagination) (Note this setting will override the above $limit parameter)
+ * @param bool $count if true, then will only return the number of entries
+ * @param int $start Query start limit (for pagination) (Note this setting will override the above $limit parameter)
+ * @param int $number Query number returned (for pagination) (Note this setting will override the above $limit parameter)
  * @param array         $filter_elements  Array that contains elements to filter
  * @return mixed recordset/integer              - Will contain either a integer(if counting) or the results (recordset)
  */
@@ -525,13 +525,13 @@ function main_code_set_search($form_code_type, $search_term, $limit = null, $cat
  *
  * @param  string    $form_code_type  code set key (special keywords are PROD) (Note --ALL-- has been deprecated and should be run through the multiple_code_set_search() function instead)
  * @param  string    $search_term     search term
- * @param  boolean   $count           if true, then will only return the number of entries
- * @param  boolean   $active          if true, then will only return active entries (not pertinent for PROD code sets)
- * @param  boolean   $return_only_one if true, then will only return one perfect matching item
- * @param  integer   $start           Query start limit
- * @param  integer   $number          Query number returned
+ * @param bool $count if true, then will only return the number of entries
+ * @param bool $active if true, then will only return active entries (not pertinent for PROD code sets)
+ * @param bool $return_only_one if true, then will only return one perfect matching item
+ * @param int $start Query start limit
+ * @param int $number Query number returned
  * @param  array     $filter_elements Array that contains elements to filter
- * @param  integer   $limit           Number of results to return (NULL means return all); note this is ignored if set $start/number
+ * @param int $limit Number of results to return (NULL means return all); note this is ignored if set $start/number
  * @param  array     $mode            'default' mode searches code and description, 'code' mode only searches code, 'description' mode searches description (and separates words); note this is ignored if set $return_only_one to TRUE
  * @param  array     $return_query    This is a mode that will only return the query (everything except for the LIMIT is included) (returned as an array to include the query string and binding array)
  * @return mixed recordset/integer/array
@@ -896,12 +896,12 @@ function lookup_code_descriptions($codes, $desc_detail = "code_text")
  *
  * @param string $form_code_type code set key (special keyword is PROD) (Note --ALL-- has been deprecated and should be run through the multiple_code_set_search() function instead)
  * @param string $search_term search term
- * @param integer $limit Number of results to return (NULL means return all)
+ * @param int $limit Number of results to return (NULL means return all)
  * @param array $modes Holds the search modes to process along with the order of processing (default behavior is described in above function comment)
- * @param boolean $count if true, then will only return the number of entries
- * @param boolean $active if true, then will only return active entries
- * @param integer $start Query start limit (for pagination)
- * @param integer $number Query number returned (for pagination)
+ * @param bool $count if true, then will only return the number of entries
+ * @param bool $active if true, then will only return active entries
+ * @param int $start Query start limit (for pagination)
+ * @param int $number Query number returned (for pagination)
  * @param array $filter_elements Array that contains elements to filter
  * @param string $is_hit_mode This is a mode that simply returns the name of the mode if results were found
  * @return mixed recordset/integer/string
@@ -938,12 +938,12 @@ function sequential_code_set_search($form_code_type, $search_term, $limit = null
  *
  * @param ?array $form_code_types code set keys (will default to checking all active code types if blank)
  * @param string $search_term search term
- * @param integer $limit Number of results to return (NULL means return all)
+ * @param int $limit Number of results to return (NULL means return all)
  * @param array $modes Holds the search modes to process along with the order of processing (default behavior is described in above function comment)
- * @param boolean $count if true, then will only return the number of entries
- * @param boolean $active if true, then will only return active entries
- * @param integer $start Query start limit (for pagination)
- * @param integer $number Query number returned (for pagination)
+ * @param bool $count if true, then will only return the number of entries
+ * @param bool $active if true, then will only return active entries
+ * @param int $start Query start limit (for pagination)
+ * @param int $number Query number returned (for pagination)
  * @param array $filter_elements Array that contains elements to filter
  * @return mixed recordset/integer
  */
@@ -1023,10 +1023,10 @@ function multiple_code_set_search(?array $form_code_types, $search_term, $limit 
 /**
  * Returns the limit to be used in the sql query for code set searches.
  *
- * @param  integer  $limit            Number of results to return (NULL means return all)
- * @param  integer  $start            Query start limit (for pagination)
- * @param  integer  $number           Query number returned (for pagination)
- * @param  boolean  $return_only_one  if true, then will only return one perfect matching item
+ * @param int $limit Number of results to return (NULL means return all)
+ * @param int $start Query start limit (for pagination)
+ * @param int $number Query number returned (for pagination)
+ * @param bool $return_only_one if true, then will only return one perfect matching item
  * @return mixed recordset/integer
  */
 function limit_query_string($limit = null, $start = null, $number = null, $return_only_one = false)

@@ -11,9 +11,9 @@
  * WARNING: no tests, it will try to remove what you tell it!
  *
  * @param string $dirname
- * @param integer $level
- * @param integer $exp_time
- * @return boolean
+ * @param int $level
+ * @param int $exp_time
+ * @return bool
  */
 
 //  $dirname, $level = 1, $exp_time = null

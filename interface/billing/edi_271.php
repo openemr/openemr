@@ -15,18 +15,19 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc.php");
-require_once("$srcdir/calendar.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/forms.inc.php');
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/report.inc.php');
+require_once($srcDir . '/calendar.inc.php');
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
@@ -36,9 +37,11 @@ if (!empty($_POST)) {
 //  File location (URL or server path)
 $target = OEGlobalsBag::getInstance()->get('edi_271_file_path');
 $batch_log = '';
+$message = '';
 
 if (isset($_FILES) && !empty($_FILES)) {
-    $target = $target . time() . basename((string) $_FILES['uploaded']['name']);
+    $uploadedName = (string) $_FILES['uploaded']['name'];
+    $target = $target . time() . basename($uploadedName);
 
     if ($_FILES['uploaded']['size'] > 350000) {
         $message .=  xlt('Your file is too large') . "<br />";
@@ -46,28 +49,25 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (mime_content_type($_FILES['uploaded']['tmp_name']) != "text/plain") {
         $message .= xlt('You may only upload .txt files') . "<br />";
     }
-    if (preg_match("/(.*)\.(inc|php|php7|php8)$/i", (string) $_FILES['uploaded']['name']) !== 0) {
+    $uploadedExt = strtolower(pathinfo($uploadedName, PATHINFO_EXTENSION));
+    if (in_array($uploadedExt, ['inc', 'php', 'php7', 'php8'], true)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
-    if (!isset($message)) {
+    if ($message === '') {
         $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
-        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, keySource: KeySource::Database);
-        }
+        $uploadedFile = $cryptoGen->encryptForFilesystem($uploadedFile);
         if (file_put_contents($target, $uploadedFile)) {
-            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
+            $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename($uploadedName)) . '"';
             $Response271 = file_get_contents($target);
-            if ($cryptoGen->cryptCheckStandard($Response271)) {
-                $Response271 = $cryptoGen->decryptStandard($Response271, keySource: KeySource::Database);
-            }
+            $Response271 = $cryptoGen->decryptFromFilesystem($Response271);
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);
             } else {
-                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
+                $message = xlt('The following EDI file upload failed to open') . ': "' . text(basename($uploadedName)) . '"';
             }
         } else {
-            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
+            $message = xlt('The following EDI file failed save to archive') . ': "' . text(basename($uploadedName)) . '"';
         }
     } else {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br /><br />";
@@ -132,7 +132,7 @@ if ($batch_log && !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_
 </head>
 <body class="body_top">
 <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
-    <?php if (isset($message) && !empty($message)) { ?>
+    <?php if ($message !== '') { ?>
                 <div class="text-danger text-center bg-light w-50" style="margin-left:25%; font-family: 'Arial', sans-serif; font-size:15px; border:1px solid;"><?php echo $message; ?></div>
         <?php
                 $message = "";

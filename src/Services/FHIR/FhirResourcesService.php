@@ -57,12 +57,11 @@ class FhirResourcesService
     public function parseResource($rjson = '', $scheme = 'json')
     {
         $parser = new PHPFHIRResponseParser(false);
-        if ($scheme == 'json') {
-            $class_object = $parser->parse($rjson);
-        } else {
+        if ($scheme !== 'json') {
             // @todo xml- not sure yet.
+            return null;
         }
-        return $class_object; // feed to resource class or use as is object
+        return $parser->parse($rjson); // feed to resource class or use as is object
     }
     public function createProvenanceResource($dataRecord = [], $encode = false)
     {

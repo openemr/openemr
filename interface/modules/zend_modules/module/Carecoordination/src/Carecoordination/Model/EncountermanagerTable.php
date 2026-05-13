@@ -18,7 +18,6 @@ use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Utils\XmlUtils;
@@ -153,6 +152,7 @@ class EncountermanagerTable
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }
@@ -172,7 +172,7 @@ class EncountermanagerTable
                 $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : '', keySource: KeySource::Database);
+                    $content = $cryptoGen->decryptFromFilesystem(is_string($respData) ? $respData : '');
                 } else {
                     $content = base64_decode(is_string($respData) ? $respData : '');
                 }
@@ -183,7 +183,7 @@ class EncountermanagerTable
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), keySource: KeySource::Database);
+                    $content = $cryptoGen->decryptFromFilesystem(fread($fccda, filesize($row['ccda_data'])));
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
@@ -255,6 +255,7 @@ class EncountermanagerTable
 
         $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
+        $elec_sent = [];
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];
@@ -262,6 +263,8 @@ class EncountermanagerTable
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = QueryUtils::fetchRecords($query, [$value]);
+                    $ccda_id = null;
+                    $trans_id = null;
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];

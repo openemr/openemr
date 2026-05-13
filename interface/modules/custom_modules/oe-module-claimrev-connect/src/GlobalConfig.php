@@ -76,7 +76,7 @@ class GlobalConfig
     public function getClientSecret()
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
-        return $this->cryptoGen->decryptStandard(is_string($encryptedValue) ? $encryptedValue : null);
+        return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     private const URL_CONFIGS = [

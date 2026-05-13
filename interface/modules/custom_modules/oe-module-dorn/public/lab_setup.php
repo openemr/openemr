@@ -28,6 +28,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: DORN Lab Setup", xl("DORN Lab Setup"));
 }
 
+$datas = [];
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) {
         //check if form was submitted

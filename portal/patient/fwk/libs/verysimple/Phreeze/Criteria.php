@@ -38,7 +38,7 @@ class Criteria
 
     /**
      *
-     * @var $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
+     * @var mixed $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
      */
     public $Filters;
     public function __construct(private $_constructor_where = "", private $_constructor_order = "")
@@ -98,10 +98,8 @@ class Criteria
      * Criterias to foreign objects may be added as long as they
      * have an immediate relationship to the foreign table
      *
-     * @param
-     *          Criteria
-     * @param
-     *          string [optional] id of the foreign key map. If the same table is joined
+     * @param Criteria $criteria
+     * @param string $keymap_id [optional] id of the foreign key map. If the same table is joined
      *          multiple times, then you should specify which keymap to use
      */
     public function AddAnd(Criteria $criteria, $keymap_id = null)
@@ -146,10 +144,8 @@ class Criteria
      * Criterias to foreign objects may be added as long as they
      * have an immediate relationship to the foreign table
      *
-     * @param
-     *          Criteria
-     * @param
-     *          string [optional] id of the foreign key map. If the same table is joined
+     * @param Criteria $criteria
+     * @param string $keymap_id [optional] id of the foreign key map. If the same table is joined
      *          multiple times, then you should specify which keymap to use
      */
     public function AddOr(Criteria $criteria, $keymap_id = null)

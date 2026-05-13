@@ -940,7 +940,7 @@ class FHIRChargeItemDefinition extends FHIRDomainResource implements \JsonSerial
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

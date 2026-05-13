@@ -1,0 +1,12 @@
+{
+  "event": "openemr-tag",
+  "repo": "openemr/openemr",
+  "sha": "abcdef0123456789abcdef0123456789abcdef01",
+  "actor": "openemr-release-bot",
+  "dispatched_at": "2026-04-29T12:30:00Z",
+  "data": {
+    "tag": "v8.1.0",
+    "branch": "rel-810",
+    "version": "8.1.0"
+  }
+}

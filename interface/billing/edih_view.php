@@ -262,7 +262,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                     <div class="container">
                         <div class="row">
                             <div class="col-12">
-                                <a class="text-decoration-none" href="<?php echo $web_root; ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a>
+                                <a class="text-decoration-none" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/Documentation/Readme_edihistory.html" rel="noopener" target="_blank"><?php echo xlt("View the README file"); ?></a>
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">

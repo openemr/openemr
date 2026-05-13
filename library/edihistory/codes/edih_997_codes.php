@@ -30,8 +30,8 @@
 /**
  * error code values in AK or IK segments
  *
- * @param string  the segment field ak304, ak403, ak501
- * @param string  the code
+ * @param string $ak_seg_field the segment field ak304, ak403, ak501
+ * @param string $ak_code the code
  * @return string
  */
 function edih_997_code_text($ak_seg_field, $ak_code)
@@ -124,7 +124,7 @@ function edih_997_code_text($ak_seg_field, $ak_code)
 /**
  * code values for TA1 segment
  *
- * @param string  the code
+ * @param string $code the code
  * @return string
  */
 function edih_997_ta1_code($code)

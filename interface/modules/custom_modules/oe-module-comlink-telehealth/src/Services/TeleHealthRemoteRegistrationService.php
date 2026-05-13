@@ -175,8 +175,8 @@ class TeleHealthRemoteRegistrationService
                 , 'response' => $response]);
             return false;
         } else {
+            $userSaveRecord = new TeleHealthUser();
             try {
-                $userSaveRecord = new TeleHealthUser();
                 $userSaveRecord->setIsPatient($request->isPatient());
                 $userSaveRecord->setDbRecordId($request->getDbRecordId());
                 $userSaveRecord->setUsername($request->getUsername());

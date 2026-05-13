@@ -146,10 +146,7 @@ readonly class Api
     public static function makeFromGlobals(OEGlobalsBag $bag): Api
     {
         $crypto = ServiceContainer::getCrypto();
-        $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
-        if ($apiKey === false) {
-            throw new \RuntimeException('Failed to decrypt rainforest_api_key');
-        }
+        $apiKey = $crypto->decryptFromDatabase($bag->getString('rainforest_api_key'));
         $mid = $bag->getString('rainforest_merchant_id');
         $pid = $bag->getString('rainforest_platform_id');
 

@@ -74,7 +74,7 @@ function downloadAndStoreFaxMedia(
         }
 
         $crypto = ServiceContainer::getCrypto();
-        $decrypted = $crypto->decryptStandard(is_string($credentials['credentials']) ? $credentials['credentials'] : null);
+        $decrypted = $crypto->decryptFromDatabase(is_string($credentials['credentials']) ? $credentials['credentials'] : null);
         $creds = json_decode($decrypted, true);
 
         $projectId = $creds['project_id'] ?? '';

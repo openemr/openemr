@@ -13,16 +13,15 @@
  */
 
 require_once("../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
@@ -117,9 +116,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while saving to the file') . ' ' . text($template_dir) . "/autosaved" . ' . ' .
@@ -240,9 +237,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -262,9 +257,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -279,9 +272,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . text($template_dir) . "/" . text($_POST['newtemplatename']);
@@ -305,9 +296,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -322,9 +311,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . text($template_dir) . "/" . text($_POST['form_template']);
@@ -347,9 +334,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -554,15 +539,7 @@ while (false !== ($tfname = readdir($dh))) {
         continue;
     }
 
-    if (preg_match("/\.php$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.jpg$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.png$/", $tfname)) {
+    if (in_array(strtolower(pathinfo($tfname, PATHINFO_EXTENSION)), ['php', 'jpg', 'png'], true)) {
         continue;
     }
 

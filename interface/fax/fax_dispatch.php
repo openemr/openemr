@@ -51,7 +51,8 @@ if ($_GET['file']) {
     die("No filename was given.");
 }
 
-$ext = substr((string) $filename, strrpos((string) $filename, '.'));
+$filename = (string) $filename;
+$ext = substr($filename, strrpos($filename, '.'));
 $filebase = basename("/$filename", $ext);
 $faxcache = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/faxcache/$mode/$filebase";
 
@@ -127,10 +128,10 @@ if ($_POST['form_save']) {
         //
         if ($_POST['form_cb_copy_type'] == 1) {
             // Compute a target filename that does not yet exist.
-            $ffname = check_file_dir_name(trim((string) $_POST['form_filename']));
-            $i = strrpos((string) $ffname, '.');
+            $ffname = (string) check_file_dir_name(trim((string) $_POST['form_filename']));
+            $i = strrpos($ffname, '.');
             if ($i) {
-                $ffname = trim(substr((string) $ffname, 0, $i));
+                $ffname = trim(substr($ffname, 0, $i));
             }
 
             if (!$ffname) {
@@ -356,7 +357,7 @@ if ($_POST['form_save']) {
 
             $form_cb_delete = '2';
             while (false !== ($jfname = readdir($dh))) {
-                if (preg_match('/\.jpg$/', $jfname)) {
+                if (strtolower(pathinfo($jfname, PATHINFO_EXTENSION)) === 'jpg') {
                     $form_cb_delete = '1';
                 }
             }

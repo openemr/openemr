@@ -25,8 +25,8 @@
  * Name:     datetimepickerSupport<br />
  * Purpose:  datetimepickerSupport in OpenEMR - Smarty templates<br />
  *
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param Smarty $smarty
  */
 
 use OpenEMR\Core\OEGlobalsBag;

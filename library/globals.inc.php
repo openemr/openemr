@@ -1025,18 +1025,26 @@ $GLOBALS_METADATA = [
             xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
         ],
 
+        'database_encryption' => [
+            xl('Enable Encryption of Data Stored in the Database (Keep on unless DB server is encrypted)'),
+            'bool',
+            '1',
+            xl('This will enable encryption of certain data stored in the database. This should be left enabled unless the database server itself is encrypted')
+        ],
+
         'drive_encryption' => [
-            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
+            xl('Enable Encryption of Items Stored on Drive/CouchDB (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
             xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ],
 
+        // Unused as of #12000. Leaving in UI so people can update
         'couchdb_encryption' => [
-            xl('Enable Encryption of Items Stored on CouchDB'),
+            xl('UNUSED: Enable Encryption of Items Stored on CouchDB'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on CouchDB.')
+            xl('This setting has no effect! Use `drive_encryption` instead.'),
         ],
 
         'hide_document_encryption' => [
@@ -2901,13 +2909,6 @@ $GLOBALS_METADATA = [
             'text',                           // data type
             '',                               // default
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
-        ],
-
-        'enable_auditlog_encryption' => [
-            xl('Enable Audit Log Encryption'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable Audit Log Encryption')
         ],
 
         'api_log_option' => [

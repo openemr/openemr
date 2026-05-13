@@ -22,7 +22,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'message' => '#^Trying to invoke string but it might not be a callable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/criteria.tab.php',
 ];

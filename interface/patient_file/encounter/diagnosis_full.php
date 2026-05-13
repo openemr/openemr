@@ -11,16 +11,22 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+$userauthorized = $session->get('userauthorized', 0);
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-$mode = $_GET['mode'];
-$id   = $_GET['id'];
+$mode = $_GET['mode'] ?? null;
+$id   = $_GET['id'] ?? null;
+$type = $_GET['type'] ?? '';
+$code = $_GET['code'] ?? '';
+$text = $_GET['text'] ?? '';
+$tback = '';
 
 if (isset($mode)) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
@@ -51,6 +57,7 @@ if (isset($mode)) {
 <?php
 if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
     $billing_html = [];
+    $counter = 0;
     foreach ($result as $iter) {
         if ($iter["code_type"] == "ICD9") {
             $html = "<tr>";

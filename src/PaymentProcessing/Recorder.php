@@ -54,7 +54,7 @@ class Recorder
     }
 
     /**
-     * @param array{
+     * @param mixed $data array{
      *   payerId: string,
      *   userId: string,
      *   reference: string,
@@ -120,7 +120,7 @@ class Recorder
      *
      * payerType seems to be a number in [0-3]
      *
-     * @param array{
+     * @param mixed $data array{
      *   patientId: string,
      *   encounterId: string,
      *   codeType: string,

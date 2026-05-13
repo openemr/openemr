@@ -13,14 +13,21 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/options.inc.php");
 
 formHeader("Form:Transfer Summary");
 $returnurl = 'encounter_top.php';
@@ -62,25 +69,27 @@ echo "<form method='post' name='my_form' " .
 <tr>
 <td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>
         <td class="forms">
-            <label class="forms-data"> <?php if (is_numeric($pid)) {
+            <label class="forms-data"> <?php
+            $patient_name = '';
+            if ($pid > 0) {
                 $result = getPatientData($pid, "fname,lname,squad");
                 echo text($result['fname']) . " " . text($result['lname']);
-                                       }
-
-                                       $patient_name = ($result['fname']) . " " . ($result['lname']);
-                                        ?>
+                $patient_name = $result['fname'] . " " . $result['lname'];
+            }
+            ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
         </td>
         <td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
         <td class="forms">
-        <label class="forms-data"> <?php if (is_numeric($pid)) {
+        <label class="forms-data"> <?php
+        $dob = '';
+        if ($pid > 0) {
             $result = getPatientData($pid, "*");
             echo text($result['DOB']);
-                                   }
-
-                                   $dob = ($result['DOB']);
-                                    ?>
+            $dob = $result['DOB'];
+        }
+        ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
         </td>

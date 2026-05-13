@@ -104,14 +104,14 @@ class Smarty_Legacy
      * when the page loads (make sure your browser allows unrequested
      * popup windows)
      *
-     * @var boolean
+     * @var bool
      */
     public $debugging       =  false;
 
     /**
      * When set, smarty does uses this value as error_reporting-level.
      *
-     * @var integer
+     * @var int
      */
     public $error_reporting  =  null;
 
@@ -140,7 +140,7 @@ class Smarty_Legacy
      * Typically you enable this during development, and disable for
      * production.
      *
-     * @var boolean
+     * @var bool
      */
     public $compile_check   =  true;
 
@@ -148,7 +148,7 @@ class Smarty_Legacy
      * This forces templates to compile every time. Useful for development
      * or debugging.
      *
-     * @var boolean
+     * @var bool
      */
     public $force_compile   =  false;
 
@@ -159,7 +159,7 @@ class Smarty_Legacy
      *  <li>1 = use class cache_lifetime value</li>
      *  <li>2 = use cache_lifetime in cache file</li>
      * </ul>
-     * @var integer
+     * @var int
      */
     public $caching         =  0;
 
@@ -177,7 +177,7 @@ class Smarty_Legacy
      *  <li>-1 = never expires</li>
      * </ul>
      *
-     * @var integer
+     * @var int
      */
     public $cache_lifetime  =  3600;
 
@@ -187,7 +187,7 @@ class Smarty_Legacy
      * This way repeated hits to a cached page do not send the entire page to the
      * client every time.
      *
-     * @var boolean
+     * @var bool
      */
     public $cache_modified_check = false;
 
@@ -201,7 +201,7 @@ class Smarty_Legacy
      *  <li>SMARTY_PHP_ALLOW    -> execute php tags</li>
      * </ul>
      *
-     * @var integer
+     * @var int
      */
     public $php_handling    =  SMARTY_PHP_PASSTHRU;
 
@@ -211,7 +211,7 @@ class Smarty_Legacy
      * untrusted parties are editing templates and you want a reasonable level
      * of security. (no direct execution of PHP in templates for example)
      *
-     * @var boolean
+     * @var bool
      */
     public $security       =   false;
 
@@ -281,7 +281,7 @@ class Smarty_Legacy
      * request_use_auto_globals is true, then $request_vars_order has
      * no effect, but the php-ini-value "gpc_order"
      *
-     * @var boolean
+     * @var bool
      */
     public $request_use_auto_globals      = true;
 
@@ -300,7 +300,7 @@ class Smarty_Legacy
      * templates_c/ directories. sub directories better organized, but
      * may not work well with PHP safe mode enabled.
      *
-     * @var boolean
+     * @var bool
      *
      */
     public $use_sub_dirs          = false;
@@ -474,7 +474,7 @@ class Smarty_Legacy
     /**
      * current template inclusion depth
      *
-     * @var integer
+     * @var int
      */
     public $_inclusion_depth      = 0;
 
@@ -509,14 +509,14 @@ class Smarty_Legacy
     /**
      * default file permissions
      *
-     * @var integer
+     * @var int
      */
     public $_file_perms           = 0644;
 
     /**
      * default dir permissions
      *
-     * @var integer
+     * @var int
      */
     public $_dir_perms               = 0771;
 
@@ -723,7 +723,7 @@ class Smarty_Legacy
      * @param string $object name of template object
      * @param object &$object_impl the referenced PHP object to register
      * @param null|array $allowed list of allowed methods (empty = all)
-     * @param boolean $smarty_args smarty argument format, else traditional
+     * @param bool $smarty_args smarty argument format, else traditional
      * @param null|array $block_functs list of methods that are block format
      */
     function register_object($object, &$object_impl, $allowed = [], $smarty_args = true, $block_methods = [])
@@ -943,7 +943,7 @@ class Smarty_Legacy
      * @param string $cache_id name of cache_id
      * @param string $compile_id name of compile_id
      * @param string $exp_time expiration time
-     * @return boolean
+     * @return bool
      */
     function clear_cache($tpl_file = null, $cache_id = null, $compile_id = null, $exp_time = null)
     {
@@ -974,7 +974,7 @@ class Smarty_Legacy
      * clear the entire contents of cache (all templates)
      *
      * @param string $exp_time expire time
-     * @return boolean results of {@link smarty_core_rm_auto()}
+     * @return bool results of {@link smarty_core_rm_auto()}
      */
     function clear_all_cache($exp_time = null)
     {
@@ -1025,7 +1025,7 @@ class Smarty_Legacy
      * @param string $tpl_file
      * @param string $compile_id
      * @param string $exp_time
-     * @return boolean results of {@link smarty_core_rm_auto()}
+     * @return bool results of {@link smarty_core_rm_auto()}
      */
     function clear_compiled_tpl($tpl_file = null, $compile_id = null, $exp_time = null)
     {
@@ -1045,7 +1045,7 @@ class Smarty_Legacy
      * Checks whether requested template exists.
      *
      * @param string $tpl_file
-     * @return boolean
+     * @return bool
      */
     function template_exists($tpl_file)
     {
@@ -1097,7 +1097,7 @@ class Smarty_Legacy
      * trigger Smarty error
      *
      * @param string $error_msg
-     * @param integer $error_type
+     * @param int $error_type
      */
     function trigger_error($error_msg, $error_type = E_USER_WARNING)
     {
@@ -1124,7 +1124,7 @@ class Smarty_Legacy
      * @param string $resource_name
      * @param string $cache_id
      * @param string $compile_id
-     * @param boolean $display
+     * @param bool $display
      */
     function fetch($resource_name, $cache_id = null, $compile_id = null, $display = false)
     {
@@ -1384,7 +1384,7 @@ class Smarty_Legacy
      *
      * @param string $resource_name
      * @param string $compile_path
-     * @return boolean
+     * @return bool
      */
     function _is_compiled($resource_name, $compile_path)
     {
@@ -1417,7 +1417,7 @@ class Smarty_Legacy
      *
      * @param string $resource_name
      * @param string $compile_path
-     * @return boolean
+     * @return bool
      */
     function _compile_resource($resource_name, $compile_path)
     {
@@ -1454,7 +1454,7 @@ class Smarty_Legacy
      * @param string $resource_name
      * @param string $source_content
      * @param string $compiled_content
-     * @return boolean
+     * @return bool
      */
     function _compile_source($resource_name, &$source_content, &$compiled_content, $cache_include_path=null)
     {
@@ -1533,10 +1533,10 @@ class Smarty_Legacy
      * $resource_timestamp to its time stamp
      * @param string $resource_name
      * @param string $source_content
-     * @param integer $resource_timestamp
-     * @param boolean $get_source
-     * @param boolean $quiet
-     * @return boolean
+     * @param int $resource_timestamp
+     * @param bool $get_source
+     * @param bool $quiet
+     * @return bool
      */
 
     function _fetch_resource_info(&$params)
@@ -1617,7 +1617,7 @@ class Smarty_Legacy
      * @param string $resource_name
      * @param string $resource_type
      * @param string $resource_name
-     * @return boolean
+     * @return bool
      */
 
     function _parse_resource_name(&$params)
@@ -1771,7 +1771,7 @@ class Smarty_Legacy
      * unlink a file, possibly using expiration time
      *
      * @param string $resource
-     * @param integer $exp_time
+     * @param int $exp_time
      */
     function _unlink($resource, $exp_time = null)
     {
@@ -1805,10 +1805,10 @@ class Smarty_Legacy
      *
      * @param string $error_msg
      * @param string $tpl_file
-     * @param integer $tpl_line
+     * @param int $tpl_line
      * @param string $file
-     * @param integer $line
-     * @param integer $error_type
+     * @param int $line
+     * @param int $error_type
      */
     function _trigger_fatal_error($error_msg, $tpl_file = null, $tpl_line = null,
             $file = null, $line = null, $error_type = E_USER_ERROR)

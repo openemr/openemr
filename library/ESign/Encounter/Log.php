@@ -62,7 +62,7 @@ class Encounter_Log implements LogIF
     /**
      * Check if the log is viewable.
      *
-     * @return boolean
+     * @return bool
      */
     public function isViewable()
     {

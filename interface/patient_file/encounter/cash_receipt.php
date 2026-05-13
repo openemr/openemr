@@ -13,20 +13,22 @@
 // TODO: Code cleanup
 
 require_once("../../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/forms.inc.php");
+require_once($srcdir . "/pnotes.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/report.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Filesystem\SafeIncludeResolver;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
@@ -70,6 +72,7 @@ if (file_exists($practice_logo)) {
 <table>
 <tr><td><?php echo xlt('Generated on'); ?>:</td><td> <?php print text(oeFormatShortDate(date("Y-m-d")));?></td></tr>
 <?php
+$raw_encounter_date = '';
 if ($date_result = sqlQuery("select date from form_encounter where encounter=? and pid=?", [$encounter, $pid])) {
     $encounter_date = date("D F jS", strtotime((string) $date_result["date"]));
     $raw_encounter_date = date("Y-m-d", strtotime((string) $date_result["date"]));
@@ -120,6 +123,7 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
 //  }
 //end test
 
+    $counter = 0;
     foreach ($result as $iter) {
         $html = '';
         if ($iter["code_type"] == "ICD9") {

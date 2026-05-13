@@ -23,6 +23,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Left side of && is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Left side of && is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../setup.php',
 ];

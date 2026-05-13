@@ -19,6 +19,9 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+/** @var array<string,mixed> $groupData */
+/** @var int|string $groupId */
+
 ?>
 
 

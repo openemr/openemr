@@ -31,9 +31,12 @@ $render = '';
 
 $render .= "<table class=\"table\">";
 // Determine indentation level for this container.
-for ($level = 0, $parentid = $id; $parentid; ++$level) {
+$level = 0;
+$parentid = $id;
+while ($parentid) {
     $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
     $parentid = $row['parent'] + 0;
+    ++$level;
 }
 
 $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? " .

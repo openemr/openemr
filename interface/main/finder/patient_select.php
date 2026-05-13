@@ -11,9 +11,6 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/report_database.inc.php");
 
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -23,6 +20,15 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
+
+$report_id = 0;
+$itemized_test_id = 0;
+$pass_id = "all";
+$numerator_label = '';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {

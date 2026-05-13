@@ -39,7 +39,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
     const SCOPE_SMART_LAUNCH_PATIENT = 'launch/patient';
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $isAuthorizationGrant;
 

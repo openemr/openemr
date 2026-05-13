@@ -32,12 +32,17 @@
 
 namespace OpenEMR\Common\Crypto;
 
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\{
+    Crypto\ContextualEncryptionTrait,
+    ServiceContainer,
+};
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
 class CryptoGen implements CryptoInterface
 {
+    use ContextualEncryptionTrait;
+
     /**
      * Key cache to optimize key collection, which avoids numerous repeat
      * calls to collect the key sets (and repeat decryption of the key set
@@ -49,10 +54,34 @@ class CryptoGen implements CryptoInterface
 
     private readonly string $siteDir;
 
-    public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
-    {
+    /**
+     * Installations using databases backed with external security measures
+     * like TDE may opt-out of column-level encryption, in order to rely on
+     * external key management and other security considerations.
+     *
+     * Using this without database-managed encryption technologies will reduce
+     * security and can lead to non-compliance.
+     *
+     * Caveat: this will only impact code that uses the `encryptForDatabase`
+     * path. Not all code does at this time.
+     */
+    private readonly bool $shouldEncryptForDatabase;
+
+    private readonly bool $shouldEncryptForFilesystem;
+
+    public function __construct(
+        ?LoggerInterface $logger = null,
+        ?string $siteDir = null,
+        ?bool $shouldEncryptForDatabase = null,
+        ?bool $shouldEncryptForFilesystem = null,
+    ) {
+        $bag = OEGlobalsBag::getInstance();
         $this->logger = $logger ?? ServiceContainer::getLogger();
-        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $this->siteDir = $siteDir ?? $bag->getString('OE_SITE_DIR');
+        $this->shouldEncryptForDatabase = $shouldEncryptForDatabase
+            ?? $bag->getBoolean('database_encryption');
+        $this->shouldEncryptForFilesystem = $shouldEncryptForFilesystem
+            ?? $bag->getBoolean('drive_encryption');
     }
 
     /**

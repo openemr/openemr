@@ -20,6 +20,15 @@ use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
+/** @var int|string $groupId */
+/** @var string $groupName */
+/** @var array<int,array<string,mixed>> $participants */
+/** @var array<string,mixed> $participant_data */
+/** @var string $message */
+/** @var string $addStatus */
+/** @var array<int,array<string,mixed>> $providers */
+/** @var array<int,array<string,mixed>> $users */
+
 ?>
 <?php $edit = AclMain::aclCheckCore("groups", "gadd", false, 'write');?>
 <?php $edit_encounter = AclMain::aclCheckCore("groups", "glog", false, 'write');?>

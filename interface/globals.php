@@ -18,6 +18,8 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
@@ -269,8 +271,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
                 $globalsBag->set('srcdir', $srcdir);
                 require_once("$srcdir/auth.inc.php");
             }
-            http_response_code(400);
-            die("Site ID is missing from session data!");
+            throw new \OpenEMR\Common\System\MissingSiteIdException();
         }
 
         $tmp = $_SERVER['HTTP_HOST'];
@@ -752,7 +753,7 @@ if (!empty($checkModulesTableExists)) {
 
 // Don't change anything below this line. ////////////////////////////
 
-$encounter = empty($session->get('encounter')) ? 0 : $session->get('encounter');
+$encounter = EncounterSessionUtil::getEncounter();
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
     SessionUtil::setSession('pid', $_GET['pid']);
@@ -760,8 +761,8 @@ if (!empty($_GET['pid']) && empty($session->get('pid'))) {
     SessionUtil::setSession('pid', $_POST['pid']);
 }
 
-$pid = $session->get('pid', 0);
-$userauthorized = empty($session->get('userauthorized')) ? 0 : $session->get('userauthorized');
+$pid = PatientSessionUtil::getPid();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
 $groupname = empty($session->get('authProvider')) ? 0 : $session->get('authProvider');
 
 //This is crucial for therapy groups and patients mechanisms to work together properly

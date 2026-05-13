@@ -16,9 +16,9 @@
  * @link http://smarty.php.net/manual/en/language.modifier.debug.print.var.php
  *          debug_print_var (Smarty online manual)
  * @author   Monte Ohrt <monte at ohrt dot com>
- * @param array|object
- * @param integer
- * @param integer
+ * @param array|object $var
+ * @param int $depth
+ * @param int $length
  * @return string
  */
 function smarty_modifier_debug_print_var($var, $depth = 0, $length = 40)

@@ -30,7 +30,7 @@ class Easipro
     // Package authentication
     private static function packageAuth()
     {
-        return base64_encode(OEGlobalsBag::getInstance()->getString('easipro_name') . ":" . (ServiceContainer::getCrypto())->decryptStandard(OEGlobalsBag::getInstance()->getString('easipro_pass')));
+        return base64_encode(OEGlobalsBag::getInstance()->getString('easipro_name') . ":" . (ServiceContainer::getCrypto())->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('easipro_pass')));
     }
 
     // Collect list of forms (returns json)

@@ -56,7 +56,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
 
     $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
+    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
 
     $fp = phimail_connect($err);
     if ($fp === false) {
@@ -185,7 +185,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
 
     $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
+    $phimail_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('phimail_password'));
 
     $fp = phimail_connect($err);
     if ($fp === false) {

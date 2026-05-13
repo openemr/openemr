@@ -306,7 +306,7 @@ class QueryUtils
      * Shared getter for SQL selects.
      *
      * @param string $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
-     * @param array{
+     * @param mixed $map array{
      *   data?: mixed,
      *   where?: string,
      *   order?: string,

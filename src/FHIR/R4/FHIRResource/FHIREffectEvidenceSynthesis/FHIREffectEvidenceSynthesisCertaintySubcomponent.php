@@ -226,7 +226,7 @@ class FHIREffectEvidenceSynthesisCertaintySubcomponent extends FHIRBackboneEleme
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

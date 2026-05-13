@@ -77,6 +77,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between string and null will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/ESign/Form/Signable.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-empty\\-array\\<mixed, mixed\\> and array\\{\\} will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
@@ -135,6 +140,26 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between non\\-falsy\\-string and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_io.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between false and \\*NEVER\\* will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between null and \\*NEVER\\* will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between true and \\*NEVER\\* will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/util/parsecsv.lib.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \\(int\\|false\\) and \'\' will always evaluate to false\\.$#',

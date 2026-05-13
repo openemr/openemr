@@ -89,7 +89,7 @@ class pnHTML
      * Parse text for output?
      *
      * @access private
-     * @var integer $parse
+     * @var int $parse
      */
     public $parse;
 
@@ -97,7 +97,7 @@ class pnHTML
      * Current tab index value
      *
      * @access private
-     * @var integer $tabindex
+     * @var int $tabindex
      */
     public $tabindex;
 
@@ -106,7 +106,7 @@ class pnHTML
      *
      * @access private
      * @since 1.13 - 2002/01/23
-     * @var integer $fileupload
+     * @var int $fileupload
      */
     public $fileupload;
 
@@ -131,7 +131,7 @@ class pnHTML
      *
      * @access public
      * @since 1.13 - 2002/01/23
-     * @return integer Current input state
+     * @return int Current input state
      * @see SetInputMode()
      */
     function GetInputMode()
@@ -146,7 +146,7 @@ class pnHTML
      * @access public
      * @since 1.14 - 2002/01/29
      * @param int $st Input state to set to
-     * @return integer Previous state
+     * @return int Previous state
      * @see GetInputMode()
      */
     function SetInputMode($st)
@@ -270,7 +270,7 @@ class pnHTML
      * Generate a run of HTML line breaks.
      *
      * @access public
-     * @param integer $numbreaks number of linebreaks to add
+     * @param int $numbreaks number of linebreaks to add
      * @return string The HTML string
      */
     function generateLinebreak($numbreaks = 1): string
@@ -388,9 +388,9 @@ class pnHTML
      * (the value returned if the entry is selected), <code>'name'</code>
      * (the string displayed for this entry) and <code>'selected'</code>
      * (optional, <code>1</code> if this option is selected)
-     * @param integer $multiple (optional) <code>1</code> if the user is allowed to
+     * @param int $multiple (optional) <code>1</code> if the user is allowed to
      * make multiple selections
-     * @param integer $size (optional) the number of entries that are visible in the
+     * @param int $size (optional) the number of entries that are visible in the
      * select at any one time.  Note that if the number
      * of actual items is less than this value then the select box will
      * shrink automatically to the correct size
