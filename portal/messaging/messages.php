@@ -246,13 +246,18 @@ function getAuthPortalUsers()
                     $scope.currentPage = this.n;
                 };
 
-                $scope.deleteItem = function (idx) {
+                $scope.deleteItem = function (item) {
                     if (!confirm($scope.xLate.confirm.one)) return false;
-                    const itemToDelete = $scope.allItems[idx];
-                    const idxInItems = $scope.items.indexOf(itemToDelete);
-                    $scope.deleteMessage(itemToDelete.mail_chain); // Just this user's message
-                    $scope.items.splice(idxInItems, 1);
-                    $scope.search();
+
+                    const itemId = item && item.id ? item.id : item;
+                    const idxInAllItems = $filter('getById')($scope.allItems, itemId);
+                    if (idxInAllItems === null) {
+                        return false;
+                    }
+
+                    const itemToDelete = $scope.allItems[idxInAllItems];
+                    $scope.deleteMessage(itemToDelete.mail_chain || itemToDelete.id);
+                    $scope.selected = null;
                     $scope.init()
                     return false;
                 };
@@ -691,7 +696,7 @@ function getAuthPortalUsers()
                                                 <span class='btn-group float-right m-0'>
                                                     <button ng-show="selected.sender_id != cUserId && selected.id == item.id" class="btn btn-primary btn-small" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-reply"></i></button>
                                                     <button ng-show="selected.id == item.id && selected.sender_id != cUserId && !isPortal" class="btn btn-primary btn-small" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-share"></i></button>
-                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
+                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(selected)" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
                                                     </button>
                                                 </span>
                                                 <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
