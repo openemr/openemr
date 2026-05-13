@@ -146,7 +146,7 @@ The three PRs merge in strict order **infra → conductor → docs.** Infra read
 
 10. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable. GitHub releases are the canonical (and only) distribution target — SourceForge is no longer supported. The website's download/release pages link to GitHub release assets rather than re-hosting them.
 11. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
-12. **[Manual]** Update the DockerHub readme (the per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)).
+12. **[Automated]** The DockerHub readme (per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)) is updated by the workflow that consumes the `openemr-tag` event in `openemr-devops`.
 13. **[Manual]** *(Patch releases)* Update the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download list.
 14. **[Manual]** Update the [OpenEMR Downloads / Release History wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads). (Long-term: this should move to `website-openemr` so it ships with the docs PR.)
 
@@ -167,7 +167,6 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 12 | Automate the DockerHub readme update | [openemr/openemr-devops#709](https://github.com/openemr/openemr-devops/issues/709) |
 | 13 | Move the OpenEMR Patches download page off the wiki onto `website-openemr` | [openemr/website-openemr#119](https://github.com/openemr/website-openemr/issues/119) |
 | 14 | Move the Release History wiki page onto `website-openemr` (auto-updates on tag) | [openemr/website-openemr#120](https://github.com/openemr/website-openemr/issues/120) |
 | 15 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
