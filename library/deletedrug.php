@@ -18,8 +18,11 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DrugSalesService;
 
-//ensure user has proper access
-if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
+// Ensure user has prescription write permission. The ACL section is
+// "patients" (plural) — the previous "patient" (singular) value was a
+// typo that did not match any registered ACL and silently denied every
+// non-super-user.
+if (!AclMain::aclCheckCore('patients', 'rx', '', 'write')) {
     echo xlt('ACL Administration Not Authorized');
     exit;
 }
