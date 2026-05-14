@@ -153,7 +153,7 @@ Standalone patch releases (`v<MAJOR>_<MINOR>_<PATCH>_<N>` tags with a `<M>-<m>-<
 
 ### Phase 6 — Demo and promotion
 
-14. **[Manual]** Point the demo farm (live demo servers at open-emr.org) to the new tag.
+14. **[Automated]** Point the demo farm (live demo servers at open-emr.org) to the new tag. The `bump-tag.yml` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/bump-tag.yml) consumes the `openemr-tag` event, rewrites matching production-demo rows in `ip_map_branch.txt`, and pushes to master; the demo-farm host's nightly reset picks up the new tag automatically.
 15. **[Manual]** Announce the release:
     - Forums
     - Chat
@@ -168,7 +168,6 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 14 | Automate the demo-farm tag bump (deploy hook from `openemr-tag`) | [openemr/openemr-devops#710](https://github.com/openemr/openemr-devops/issues/710) |
 | 15 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
