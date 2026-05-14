@@ -120,7 +120,8 @@ In dependency order:
 ## Permissions self-check
 
 `.github/workflows/release-permissions-check.yml` (manual `workflow_dispatch`).
-Mints an App token from `RELEASE_APP_ID` + `RELEASE_APP_PRIVATE_KEY` and
+Mints an App token from the org variable `RELEASE_APP_CLIENT_ID` (a
+`vars.*` entry, not a secret) plus the org secret `RELEASE_APP_PRIVATE_KEY` and
 probes everything the conductor workflow performs:
 
 - `GET /installation/repositories` — confirm this repo is in the install list.
