@@ -130,7 +130,7 @@ services:
       timeout: 5s
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.3@sha256:a0ba8390e51d3b40415677e977bdc40803c37fe8b63de6faf3045a7f55f81f1a
+    image: openemr/openemr:flex-3.23-php-8.3@sha256:a278e3b7ea68a4315cfad43cbd2a8a77ea097719116b2188f2463da2ef106216
     ports:
     - 8085:80
     - 9085:443
@@ -160,7 +160,7 @@ services:
       timeout: 5s
   openemr-8-4:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.4@sha256:25012b1691b6a226cae95ecb7f91ca05d6aee531c2539df791a6f98768070529
+    image: openemr/openemr:flex-3.23-php-8.4@sha256:35876c787c389a4ce59385161076a1597f345e077b68fe7f994de30528ca6b12
     ports:
     - 8086:80
     - 9086:443
@@ -190,7 +190,7 @@ services:
       timeout: 5s
   openemr-8-5:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:b022d840e7577b097e14eff002da48db196840a48eab5c67972a1dbd79a3f971
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:795cb2478871bc9fd843e17e3d0bf63966ff73fcef3af744632455847df8a3d7
     ports:
     - 8087:80
     - 9087:443
@@ -260,7 +260,7 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b0fccd21ec4376521522d19461fdbbe57b2918bc0309cb3181911baf73592bd5
+    image: openemr/openemr:flex-edge@sha256:9f79460837bf8287cac02cf3b4c379ce1f0e97febdc5446b0aa00e05c307c6e6
     ports:
     - 8088:80
     - 9088:443
@@ -352,7 +352,7 @@ services:
       timeout: 5s
   openemr-8-3-redis:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.3@sha256:a0ba8390e51d3b40415677e977bdc40803c37fe8b63de6faf3045a7f55f81f1a
+    image: openemr/openemr:flex-3.23-php-8.3@sha256:a278e3b7ea68a4315cfad43cbd2a8a77ea097719116b2188f2463da2ef106216
     ports:
     - 8095:80
     - 9095:443
@@ -383,7 +383,7 @@ services:
       timeout: 5s
   openemr-8-4-redis:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.4@sha256:25012b1691b6a226cae95ecb7f91ca05d6aee531c2539df791a6f98768070529
+    image: openemr/openemr:flex-3.23-php-8.4@sha256:35876c787c389a4ce59385161076a1597f345e077b68fe7f994de30528ca6b12
     ports:
     - 8096:80
     - 9096:443
@@ -414,7 +414,7 @@ services:
       timeout: 5s
   openemr-8-5-redis:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:b022d840e7577b097e14eff002da48db196840a48eab5c67972a1dbd79a3f971
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:795cb2478871bc9fd843e17e3d0bf63966ff73fcef3af744632455847df8a3d7
     ports:
     - 8097:80
     - 9097:443
@@ -445,7 +445,7 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:b0fccd21ec4376521522d19461fdbbe57b2918bc0309cb3181911baf73592bd5
+    image: openemr/openemr:flex-edge@sha256:9f79460837bf8287cac02cf3b4c379ce1f0e97febdc5446b0aa00e05c307c6e6
     ports:
     - 8098:80
     - 9098:443
