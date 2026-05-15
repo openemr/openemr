@@ -1,0 +1,32 @@
+<?php
+
+/**
+ * GCIP Authentication Module Information
+ * 
+ * <!-- AI-Generated Content Start -->
+ * This file contains module metadata and information for the OpenEMR module manager.
+ * It defines the module's name, version, directory, dependencies, and other essential
+ * information required for proper module registration and management.
+ * <!-- AI-Generated Content End -->
+ *
+ * @package   OpenEMR GCIP Authentication Module
+ * @link      http://www.open-emr.org
+ * @author    OpenEMR Development Team
+ * @copyright Copyright (c) 2024 OpenEMR Development Team
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+// Module information array - AI-Generated Content
+$modname = 'oe-module-gcip-auth';
+$modtype = 'module';
+$modversion = '1.0.0';
+$mododule_name = 'GCIP Authentication';
+$modprivacy = 'medium';  // Authentication module handles sensitive data
+$modperms = '755';
+$modlocation = 'custom_modules';
+$description = 'Google Cloud Identity Platform (GCIP) authentication integration for OpenEMR providing secure Single Sign-On capabilities with Google Workspace accounts.';
+$modgroupname = 'Authentication';
+$modstyle = 'oe-blue';
+$modgroupcolor = 'blue';
+$modinstaller = 'true';
+$moddirectory = dirname(__FILE__);
