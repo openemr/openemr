@@ -316,6 +316,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     </script>
 
     <?php Header::setupHeader(['knockout', 'tabs-theme', 'i18next', 'hotkeys', 'i18formatting']); ?>
+    <link rel="stylesheet" href="<?php echo attr_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>/interface/ai_copilot/copilot_widget.css?v=<?php echo attr_url((string) ($v_js_includes ?? time())); ?>">
     <script>
         // set up global translations for js
         function setupI18n(lang_id) {
@@ -362,15 +363,19 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         }
     </script>
 
-    <script src="js/custom_bindings.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/user_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/patient_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/therapy_group_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/tabs_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/application_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/frame_proxies.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/dialog_utils.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
-    <script src="js/shortcuts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/shortcuts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script>
+        window.OPENEMR_AI_COPILOT_URL = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot() . '/interface/ai_copilot/index.php?embedded=1'); ?>;
+    </script>
+    <script src="<?php echo attr_url(OEGlobalsBag::getInstance()->getWebRoot()); ?>/interface/ai_copilot/copilot_widget.js?v=<?php echo attr_url((string) ($v_js_includes ?? time())); ?>"></script>
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu

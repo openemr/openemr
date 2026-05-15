@@ -105,6 +105,13 @@ final readonly class CacheDirectory
 
     private function validatePermissions(string $path): void
     {
+        // Windows reports synthesized POSIX mode bits for NTFS paths, so a
+        // strict 0700 comparison is not meaningful there. Continue relying on
+        // the symlink guard above and let ACLs govern access on Windows.
+        if (PHP_OS_FAMILY === 'Windows') {
+            return;
+        }
+
         $perms = fileperms($path);
         if ($perms === false) {
             // @codeCoverageIgnoreStart

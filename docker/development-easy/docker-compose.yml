@@ -182,6 +182,15 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+  ngrok:
+    image: ngrok/ngrok:latest
+    command: http openemr:80
+    ports:
+      - "4040:4040"
+    depends_on:
+      - openemr
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN}
 volumes:
   databasevolume: {}
   assetvolume: {}
