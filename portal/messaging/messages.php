@@ -258,14 +258,14 @@ function getAuthPortalUsers()
                         }
                     };
                     $scope.deleteMessage(item.mail_chain).then(function () {
+                        removeFromList($scope.items);
+                        removeFromList($scope.inboxItems);
+                        removeFromList($scope.sentItems);
+                        removeFromList($scope.allItems);
+                        $scope.selected = null;
+                        $scope.search();
                         $scope.getDeletedMessages();
                     });
-                    removeFromList($scope.items);
-                    removeFromList($scope.inboxItems);
-                    removeFromList($scope.sentItems);
-                    removeFromList($scope.allItems);
-                    $scope.selected = null;
-                    $scope.search();
                     return false;
                 };
 
@@ -654,12 +654,12 @@ function getAuthPortalUsers()
 
                                         <span class="col-sm-1 px-1"  ng-click="readMessage(item)" ><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
                                         <span class="col-sm-2 px-1"  ng-click="readMessage(item)" ><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                        <span class="col-sm-3 px-1"  ng-click="readMessage(item)" >
+                                        <span class="col-sm-3 px-1">
                                             <a ng-click="readMessage(item)" class="btn-link">
                                                 <span ng-class="{strong: !item.read}">{{item.sender_name}} to {{item.recipient_name}}</span>
                                             </a>
                                         </span>
-                                        <span class="col-sm-1"  ng-click="readMessage(item)">
+                                        <span class="col-sm-1">
                                             <a ng-click="readMessage(item)" class="btn-link">
                                                 <span ng-class="{strong: !item.read}">{{item.title}}</span>
                                             </a>
