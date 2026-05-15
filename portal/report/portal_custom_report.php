@@ -344,18 +344,11 @@ input[type="radio"] {
     if (trimmed === '') {
       return;
     }
-    if ((/\s+/).test(trimmed)) {
-      // Multi-word query: w_count is the number of highlight wrappers inside
-      // this form's container. The new highlighter wraps each token of the
-      // phrase as a separate <mark>, so phrase navigation steps over the
-      // whole group of token-marks.
-      var container = document.getElementById('search_div_' + form_id + '_' + form_dir);
-      if (!container) {
-        return 0;
-      }
-      return container.querySelectorAll('.hilite').length;
-    }
-    return 1;
+    // w_count = number of search tokens so navigation steps past one full "result"
+    // (one mark per token) at a time. Derived from the query, not from live DOM
+    // state, so it stays correct after hilite→hilite2 class swaps in next()/prev().
+    var tokens = trimmed.split(/[\s,]+/).filter(function(t) { return t.length > 0; });
+    return tokens.length;
   }
 
   function next_prev(action){

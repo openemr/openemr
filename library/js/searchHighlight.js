@@ -52,7 +52,7 @@
             return null;
         }
 
-        const tokens = trimmed.split(/\s+/).map(escapeRegExp);
+        const tokens = trimmed.split(/[\s,]+/).map(escapeRegExp).filter(Boolean);
         let pattern = tokens.join('|');
 
         switch (options.exact) {
