@@ -102,7 +102,7 @@ if ($zip->open($storeLocation) === true) {
         EventAuditLogger::getInstance()->newEvent("pharmacy_log", $session->get('authUser'), $session->get('authProvider'), 0, ($isError['messageText']));
         $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
         // no need to continue so send error to UI alert and die.
-        die('"Pharmacy download failed."');
+        die(js_escape('Pharmacy download failed.'));
     }
     // process the csv file
     // Number of rows imported or false if error
@@ -145,7 +145,7 @@ if ($zip->open($storeLocation) === true) {
     error_log('Pharmacy download zip open failed.');
     $wenoLog->insertWenoLog("Pharmacy Directory", "Pharmacy download zip open failed.");
     // no need to continue so send error to UI alert and die.
-    die('"Pharmacy download zip open failed."');
+    die(js_escape('Pharmacy download zip open failed.'));
 }
 
 function download_zipfile($fileUrl, $zipped_file): void
