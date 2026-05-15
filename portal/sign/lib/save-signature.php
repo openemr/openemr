@@ -40,7 +40,7 @@ if ($isPortal) {
 
         // Portal users can only create patient signatures, not admin signatures
         if ($type === 'admin-signature') {
-            echo js_escape("error: unauthorized signature type");
+            echo '"error: unauthorized signature type"';
             exit();
         }
 
@@ -48,7 +48,7 @@ if ($isPortal) {
         $user = $req_pid;
     } else {
         SessionWrapperFactory::getInstance()->destroyPortalSession();
-        echo js_escape("error invalid session,");
+        echo '"error invalid session,"';
         exit();
     }
 }
@@ -62,13 +62,13 @@ if (!$isPortal) {
     }
 
     if ($userManipulatedFlag) {
-        echo js_escape("error");
+        echo '"error"';
         exit();
     }
 }
 
 if ($type === 'witness-signature') {
-    echo(js_escape('Done'));
+    echo '"Done"';
     exit();
 }
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

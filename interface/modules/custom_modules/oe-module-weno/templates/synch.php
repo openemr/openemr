@@ -71,14 +71,14 @@ if ($result == true) {
 function downloadWenoLogCsv()
 {
     if (headers_sent()) {
-        return js_escape("Headers already sent, CSV download cannot proceed.");
+        return "Headers already sent, CSV download cannot proceed.";
     }
     ob_start();
     // Query to get the log data
     $sql = "SELECT `id`, `value`, `status`, `created_at` FROM `weno_download_log` ORDER BY `id` DESC";
     $result = sqlStatement($sql);
     if (!$result) {
-        return js_escape("Failed to retrieve data from the database.");
+        return "Failed to retrieve data from the database.";
     }
     // Set the headers for the CSV download
     header('Content-Type: text/csv');
@@ -104,7 +104,7 @@ function downloadWenoLogCsv()
 function downloadWenoLogCsvAndZip()
 {
     if (headers_sent()) {
-        return js_escape("Headers already sent, download cannot proceed.");
+        return "Headers already sent, download cannot proceed.";
     }
 
     $tempDir = sys_get_temp_dir();
@@ -117,14 +117,14 @@ function downloadWenoLogCsvAndZip()
     // Create CSV of log content to temporary file
     $csvFile = fopen($csvFilePath, 'w');
     if ($csvFile === false) {
-        return js_escape("Failed to open temporary CSV file.");
+        return "Failed to open temporary CSV file.";
     }
     // Query to get the log data
     $sql = "SELECT `id`, `value`, `status`, `created_at`, `data_in_context` FROM `weno_download_log` ORDER BY `id` DESC";
     $result = sqlStatement($sql);
     if (!$result) {
         fclose($csvFile);
-        return js_escape("Failed to retrieve data from the database.");
+        return "Failed to retrieve data from the database.";
     }
     fputcsv($csvFile, ['ID', 'Value', 'Status', 'Created At']);
     while ($row = sqlFetchArray($result)) {
@@ -134,7 +134,7 @@ function downloadWenoLogCsvAndZip()
 
     $zip = new ZipArchive();
     if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-        return js_escape("Failed to create ZIP archive.");
+        return "Failed to create ZIP archive.";
     }
     $zip->addFile($csvFilePath, $csvFileName);
     $files = new RecursiveIteratorIterator(

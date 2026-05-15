@@ -66,7 +66,7 @@ if (!empty($codetype)) {
 
                 // This callback function passes some form data on each call to the ajax handler.
                 "fnServerParams": function (aoData) {
-                    aoData.push({"name": "what", "value": <?php echo js_escape('codes'); ?>});
+                    aoData.push({"name": "what", "value": "codes"});
                     aoData.push({"name": "codetype", "value": document.forms[0].form_code_type.value});
                     aoData.push({"name": "inactive", "value": (document.forms[0].form_include_inactive.checked ? 1 : 0)});
                 },
