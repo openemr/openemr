@@ -246,14 +246,26 @@ function getAuthPortalUsers()
                     $scope.currentPage = this.n;
                 };
 
-                $scope.deleteItem = function (idx) {
+                $scope.deleteItem = function (item) {
+                    if (!item) return false;
                     if (!confirm($scope.xLate.confirm.one)) return false;
-                    const itemToDelete = $scope.allItems[idx];
-                    const idxInItems = $scope.items.indexOf(itemToDelete);
-                    $scope.deleteMessage(itemToDelete.mail_chain); // Just this user's message
-                    $scope.items.splice(idxInItems, 1);
+                    const removeFromList = function (list) {
+                        if (!Array.isArray(list)) return;
+                        for (let i = list.length - 1; i >= 0; i--) {
+                            if (list[i] && list[i].mail_chain === item.mail_chain) {
+                                list.splice(i, 1);
+                            }
+                        }
+                    };
+                    $scope.deleteMessage(item.mail_chain).then(function () {
+                        $scope.getDeletedMessages();
+                    });
+                    removeFromList($scope.items);
+                    removeFromList($scope.inboxItems);
+                    removeFromList($scope.sentItems);
+                    removeFromList($scope.allItems);
+                    $scope.selected = null;
                     $scope.search();
-                    $scope.init()
                     return false;
                 };
 
@@ -274,12 +286,11 @@ function getAuthPortalUsers()
                 };
 
                 $scope.deleteMessage = function (id) {
-                    $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
+                    return $http.post('handle_note.php', $.param({'task': 'delete', 'noteid': id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
                         return true;
                     }, function errorCallback(response) {
                         alert(response.data);
                     });
-
                 };
 
                 $scope.isMessageSelected = function () {
@@ -320,20 +331,27 @@ function getAuthPortalUsers()
                     return true;
                 }
 
-                $scope.readMessage = function (idx) {
-                    if ($scope.items[idx].message_status == 'New') { // mark mail read else ignore
-                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': $scope.items[idx].id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
-                            $scope.items[idx].message_status = 'Read';
-                            $scope.selected.message_status = 'Read';
+                $scope.readMessage = function (item) {
+                    if (!item) return;
+                    if (item.message_status == 'New') {
+                        $http.post('handle_note.php', $.param({'task': 'setread', 'noteid': item.id, 'csrf_token_form': $scope.csrf})).then(function successCallback(response) {
+                            const markReadById = function (list, id) {
+                                if (!Array.isArray(list)) return;
+                                for (let i = 0; i < list.length; i++) {
+                                    if (list[i] && list[i].id === id) {
+                                        list[i].message_status = 'Read';
+                                    }
+                                }
+                            };
+                            markReadById($scope.items, item.id);
+                            markReadById($scope.inboxItems, item.id);
+                            markReadById($scope.sentItems, item.id);
+                            markReadById($scope.allItems, item.id);
                         }, function errorCallback(response) {
                             alert(response.data);
                         });
                     }
-                    idx = $filter('getById')($scope.allItems, this.item.id);
-                    $scope.isAll = true;
-                    $scope.isTrash = $scope.isSent = $scope.isInbox = false;
-                    $scope.items = $scope.allItems;
-                    $scope.selected = $scope.items[idx];
+                    $scope.selected = item;
                 };
 
                 $scope.selMessage = function (idx) {
@@ -634,19 +652,19 @@ function getAuthPortalUsers()
                                     <td role = "button" class="message-row">
                                         <span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
 
-                                        <span class="col-sm-1 px-1"  ng-click="readMessage($index)" ><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
-                                        <span class="col-sm-2 px-1"  ng-click="readMessage($index)" ><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                        <span class="col-sm-3 px-1"  ng-click="readMessage($index)" >
-                                            <a ng-click="readMessage($index)" class="btn-link">
+                                        <span class="col-sm-1 px-1"  ng-click="readMessage(item)" ><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
+                                        <span class="col-sm-2 px-1"  ng-click="readMessage(item)" ><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
+                                        <span class="col-sm-3 px-1"  ng-click="readMessage(item)" >
+                                            <a ng-click="readMessage(item)" class="btn-link">
                                                 <span ng-class="{strong: !item.read}">{{item.sender_name}} to {{item.recipient_name}}</span>
                                             </a>
                                         </span>
-                                        <span class="col-sm-1"  ng-click="readMessage($index)">
-                                            <a ng-click="readMessage($index)" class="btn-link">
+                                        <span class="col-sm-1"  ng-click="readMessage(item)">
+                                            <a ng-click="readMessage(item)" class="btn-link">
                                                 <span ng-class="{strong: !item.read}">{{item.title}}</span>
                                             </a>
                                         </span>
-                                        <span class="col-sm-4 px-1"  ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
+                                        <span class="col-sm-4 px-1"  ng-click="readMessage(item)"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
                                         <!-- below for attachments, eventually -->
                                         <!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span ng-show="item.attachment"
                                     class="glyphicon glyphicon-paperclip float-right"></span> <span ng-show="item.priority==1"
@@ -682,7 +700,7 @@ function getAuthPortalUsers()
                                         <thead><?php echo xlt('Associated Messages in thread.');?></thead>
                                         <tbody>
                                         <tr class="animate-repeat" ng-repeat="item in allItems | Chained:selected.mail_chain">
-                                            <td role = "button" ng-click="readMessage($index)">
+                                            <td role = "button" ng-click="readMessage(item)">
                                                 <span class="col-sm px-1"><span>{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
                                                 <span class="col-sm"><span>{{item.message_status}}</span></span>
                                                 <span class="col-sm px-1"><span>{{item.sender_name}}
@@ -691,7 +709,7 @@ function getAuthPortalUsers()
                                                 <span class='btn-group float-right m-0'>
                                                     <button ng-show="selected.sender_id != cUserId && selected.id == item.id" class="btn btn-primary btn-small" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-reply"></i></button>
                                                     <button ng-show="selected.id == item.id && selected.sender_id != cUserId && !isPortal" class="btn btn-primary btn-small" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-share"></i></button>
-                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
+                                                    <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(selected)" title="<?php echo xla('Archive this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
                                                     </button>
                                                 </span>
                                                 <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
