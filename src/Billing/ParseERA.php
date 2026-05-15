@@ -409,7 +409,8 @@ class ParseERA
                     $out['svc'][$i]['adj'][$j] = [];
                     $out['svc'][$i]['adj'][$j]['group_code'] = $seg[1];
                     $out['svc'][$i]['adj'][$j]['reason_code'] = $seg[$k];
-                    $out['svc'][$i]['adj'][$j]['amount'] = (float)($seg[$k + 1] ?? 0);
+                    $raw = $seg[$k + 1] ?? 0;
+                    $out['svc'][$i]['adj'][$j]['amount'] = is_numeric($raw) ? (float)$raw : 0.0;
                     // Note: $seg[$k+2] is "quantity".  A value here indicates a change to
                     // the number of units of service.  We're ignoring that for now.
                 }
