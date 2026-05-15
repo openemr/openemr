@@ -116,6 +116,9 @@ class AclExtended
     //
     // Returns a sorted array of all available Group Titles.
     //
+    /**
+     * @return list<string>
+     */
     public static function aclGetGroupTitleList($include_superusers = true)
     {
         $gacl = self::collectGaclApiObject();
@@ -126,7 +129,7 @@ class AclExtended
             $arr_group_data = $gacl->get_group_data($value, 'ARO');
             // add if $include_superusers is true or group not include admin|super rule.
             if ($include_superusers || !self::isGroupIncludeSuperuser($arr_group_data[3])) {
-                $arr_group_titles[$value] = $arr_group_data[3];
+                $arr_group_titles[$value] = is_string($arr_group_data[3]) ? $arr_group_data[3] : '';
             }
         }
         sort($arr_group_titles);
@@ -135,9 +138,12 @@ class AclExtended
 
     //
     // Returns a sorted array of group Titles that a user belongs to.
-    // Returns 0 if does not belong to any group yet.
+    // Returns an empty array if the user does not belong to any group.
     //   $user_name = Username, which is login name.
     //
+    /**
+     * @return list<string>
+     */
     public static function aclGetGroupTitles($user_name)
     {
         $gacl = self::collectGaclApiObject();
@@ -145,14 +151,16 @@ class AclExtended
         if ($user_aro_id) {
             $arr_group_id = $gacl->get_object_groups($user_aro_id, 'ARO', 'NO_RECURSE');
             if ($arr_group_id) {
+                $arr_group_titles = [];
                 foreach ($arr_group_id as $key => $value) {
                     $arr_group_data = $gacl->get_group_data($value, 'ARO');
-                    $arr_group_titles[$key] = $arr_group_data[3];
+                    $arr_group_titles[$key] = is_string($arr_group_data[3]) ? $arr_group_data[3] : '';
                 }
                 sort($arr_group_titles);
                 return $arr_group_titles;
             }
         }
+        return [];
     }
 
     //
