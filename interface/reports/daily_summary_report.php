@@ -319,7 +319,11 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
 
         while ($totalPaidRecord = sqlFetchArray($totalPaidAmountSql)) {
-            $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] += $totalPaidRecord['totalPaidAmount'];
+            $date = (string) $totalPaidRecord['Date'];
+            $facilityName = (string) $totalPaidRecord['facilityName'];
+            $providerName = (string) $totalPaidRecord['provider_name'];
+            $totalPaid[$date][$facilityName][$providerName]['paidAmount'] ??= 0;
+            $totalPaid[$date][$facilityName][$providerName]['paidAmount'] += (float) $totalPaidRecord['totalPaidAmount'];
         }
 
         // merge all array recursive in to one array
@@ -367,7 +371,7 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
                                         <td>
                                             <?php
                                             if (isset($information['payments']) || isset($information['paidAmount'])) {
-                                                $dueAmount = number_format(floatval(str_replace(",", "", $information['payments'])) - floatval(str_replace(",", "", ($information['paidAmount'] ?? null))), 2);
+                                                $dueAmount = number_format(floatval(str_replace(",", "", ($information['payments'] ?? ''))) - floatval(str_replace(",", "", ($information['paidAmount'] ?? ''))), 2);
                                             } else {
                                                 $dueAmount = number_format(0, 2);
                                             }

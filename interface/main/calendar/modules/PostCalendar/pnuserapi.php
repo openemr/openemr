@@ -813,13 +813,13 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
-                $events[$i]['location']   = $prepFunction($loc['event_location']);
-                $events[$i]['street1']    = $prepFunction($loc['event_street1']);
-                $events[$i]['street2']    = $prepFunction($loc['event_street2']);
-                $events[$i]['city']       = $prepFunction($loc['event_city']);
-                $events[$i]['state']      = $prepFunction($loc['event_state']);
-                $events[$i]['postal']     = $prepFunction($loc['event_postal']);
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                $events[$i]['location']   = $prepFunction(is_array($loc) ? ($loc['event_location'] ?? '') : '');
+                $events[$i]['street1']    = $prepFunction(is_array($loc) ? ($loc['event_street1'] ?? '') : '');
+                $events[$i]['street2']    = $prepFunction(is_array($loc) ? ($loc['event_street2'] ?? '') : '');
+                $events[$i]['city']       = $prepFunction(is_array($loc) ? ($loc['event_city'] ?? '') : '');
+                $events[$i]['state']      = $prepFunction(is_array($loc) ? ($loc['event_state'] ?? '') : '');
+                $events[$i]['postal']     = $prepFunction(is_array($loc) ? ($loc['event_postal'] ?? '') : '');
         }
 
         $i++;
@@ -1167,13 +1167,13 @@ function &postcalendar_userapi_pcQueryEvents($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
-                $events[$i]['location']   = $prepFunction($loc['event_location']);
-                $events[$i]['street1']    = $prepFunction($loc['event_street1']);
-                $events[$i]['street2']    = $prepFunction($loc['event_street2']);
-                $events[$i]['city']       = $prepFunction($loc['event_city']);
-                $events[$i]['state']      = $prepFunction($loc['event_state']);
-                $events[$i]['postal']     = $prepFunction($loc['event_postal']);
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                $events[$i]['location']   = $prepFunction(is_array($loc) ? ($loc['event_location'] ?? '') : '');
+                $events[$i]['street1']    = $prepFunction(is_array($loc) ? ($loc['event_street1'] ?? '') : '');
+                $events[$i]['street2']    = $prepFunction(is_array($loc) ? ($loc['event_street2'] ?? '') : '');
+                $events[$i]['city']       = $prepFunction(is_array($loc) ? ($loc['event_city'] ?? '') : '');
+                $events[$i]['state']      = $prepFunction(is_array($loc) ? ($loc['event_state'] ?? '') : '');
+                $events[$i]['postal']     = $prepFunction(is_array($loc) ? ($loc['event_postal'] ?? '') : '');
         }
 
         $events[$i]['gid']          = $tmp['gid'];
