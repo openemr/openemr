@@ -66,21 +66,7 @@ feat(api)!: change patient endpoint response format
 BREAKING CHANGE: The patient endpoint now returns a different JSON structure.
 ```
 
-### Local Validation
-
-If you use [pre-commit](https://pre-commit.com/), install hooks to validate locally:
-
-```sh
-pre-commit install --hook-type commit-msg  # Validates commit message format
-pre-commit install                          # Enables all code quality hooks
-```
-
-The full pre-commit suite (`.pre-commit-config.yaml`) includes:
-- Trailing whitespace, line endings, JSON/YAML formatting
-- PHP syntax checking, phpcs, phpcbf, phpstan, rector
-- Composer validation and normalization
-
-## AI-Assisted Contributions
+### AI-Assisted Contributions
 
 If you used AI tooling (Claude, Copilot, ChatGPT, etc.) to create or modify code, indicate this with a commit trailer:
 
@@ -96,50 +82,12 @@ Use `Generated-By` when AI produced the code directly, or `Assisted-By` when AI 
 
 If the AI made the commit directly (e.g., Claude Code), the trailer is typically added automatically. This records AI involvement in git history without cluttering the source code, and works for all change types including deletions and refactors.
 
-## Code Quality on Host
-
-If you have PHP and Node.js installed locally, you can run code quality checks without Docker:
-
-```sh
-# Run all PHP checks (phpcs, phpstan, rector)
-composer code-quality
-
-# Individual checks (these handle memory limits automatically)
-composer phpstan          # Static analysis
-composer phpcs            # Code style check
-composer phpcbf           # Code style auto-fix
-composer rector-check     # Code modernization (dry-run)
-
-# JavaScript/CSS
-npm run lint:js           # ESLint
-npm run lint:js-fix       # ESLint auto-fix
-npm run stylelint         # CSS/SCSS linting
-```
-
-These provide higher memory limits than Docker devtools and are what CI runs.
-
-## Isolated Tests (no Docker required)
-
-Some tests run on the host without a database or Docker:
-
-```sh
-composer phpunit-isolated        # Run all isolated tests
-```
-
-This includes Twig template tests that verify compilation and rendering. If you
-modify a Twig template that has render test coverage, update the expected output
-fixtures:
-
-```sh
-composer update-twig-fixtures    # Regenerate fixture files
-```
-
-Review the diff before committing. See
-`tests/Tests/Isolated/Common/Twig/fixtures/render/README.md` for details.
-
 ## Code Contributions (local development)
 
-You will need a "local" version of OpenEMR to make changes to the source code. The easiest way to do this is with [Docker](https://hub.docker.com/r/openemr/openemr/):
+You will need a "local" version of OpenEMR to make changes to the source code. Two paths:
+
+- **Recommended:** the [Docker development environment](https://hub.docker.com/r/openemr/openemr/) described below. Single Docker dependency on the host; the openemr container provides PHP, Node, Composer, the test runners, the pre-commit hooks, and all the validation tooling. This is the path most contributors use and the rest of this section walks through.
+- **Alternative:** install OpenEMR's full dependency stack directly on your host (PHP 8.2+, Composer, Node, Python 3, MySQL/MariaDB, etc.) and run everything natively without Docker. See [Working without Docker](#working-without-docker) at the bottom of this document for the host-toolchain workflow.
 
 ---
 
@@ -165,21 +113,32 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - If you haven't already, [install git](https://git-scm.com/downloads) for your system
 	- (optional) If you want to set up the base services(e.g. git, docker, docker compose, openemr-cmd, minkube and kubectl) easily, please try [openemr-env-installer](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-installer)
     - (optional) It's best to also add an `upstream` origin to keep your local fork up to date. [Check out this guide](https://oneemptymind.wordpress.com/2018/07/11/keeping-a-fork-up-to-date/) for more info.
-2. `cd openemr/docker/development-easy`
-    - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system
-    - (recommended) [Install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) for shorthand commands that work from any directory. Examples: `openemr-cmd ut` (unit-test), `openemr-cmd at` (api-test), `openemr-cmd et` (e2e-test), `openemr-cmd php-log`. Use `openemr-cmd-h` to search available commands.
-    - (optional) If you want to monitor and easily manage the docker environment, please also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system
-    - (optional) If you want to migrate the running docker environment, please try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator)
-    - (optional) If you want to set up with orchestration tool, please try [OpenEMR Kubernetes Orchestrations](https://github.com/openemr/openemr-devops/tree/master/kubernetes/minikube)
-3. Run `docker compose up` from your command line
-    - When the build is done, you'll see the following message:
+2. Install the development prerequisites:
+    - If you haven't already, [install Docker](https://docs.docker.com/install/) and [install compose](https://docs.docker.com/compose/install/) for your system.
+    - [Install `openemr-cmd`](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) — the canonical CLI for working with the development docker environment. It runs from any directory, dispatches commands into the running openemr container, manages git worktrees, installs pre-commit hooks, and replaces the longer `docker compose exec openemr /root/devtools <cmd>` form throughout this document.
+        - **Windows note:** `openemr-cmd` is a bash script. Install it inside WSL2 (recommended) or Git Bash. Native cmd.exe / PowerShell cannot invoke a bash script directly; if you stay on those, fall back to the underlying `docker compose exec openemr /root/devtools <cmd>` form for each example below.
+        - Verify with `openemr-cmd --version` and `openemr-cmd --help` (or `openemr-cmd-h <keyword>` to search). All examples below assume openemr-cmd is on your PATH.
+    - (optional) If you want to monitor and easily manage the docker environment, also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system.
+    - (optional) If you want to migrate the running docker environment, try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator).
+    - (optional) If you want to set up with an orchestration tool, try [OpenEMR Kubernetes Orchestrations](https://github.com/openemr/openemr-devops/tree/master/kubernetes/minikube).
+3. From the easy dev environment directory, start the docker stack:
     ```sh
-    openemr_1  | Love OpenEMR? You can now support the project via the open collective:
-    openemr_1  |  > https://opencollective.com/openemr/donate
-    openemr_1  |
-    openemr_1  | Starting cron daemon!
-    openemr_1  | Starting apache!
+    cd openemr/docker/development-easy
+    openemr-cmd up
     ```
+    - `openemr-cmd up` starts the stack in detached mode (it runs `docker compose up -d` under the hood). The `cd` is required because docker compose reads `docker-compose.yml` from the current directory.
+    - To watch the startup logs and see when OpenEMR is ready, in a separate terminal run:
+      ```sh
+      docker compose logs -f openemr
+      ```
+      When the build is done, you'll see the following messages:
+      ```sh
+      openemr_1  | Love OpenEMR? You can now support the project via the open collective:
+      openemr_1  |  > https://opencollective.com/openemr/donate
+      openemr_1  |
+      openemr_1  | Starting cron daemon!
+      openemr_1  | Starting apache!
+      ```
 4. Navigate to `http://localhost:8300/` or `https://localhost:9300/` to login as `admin`. Password is `pass`.
 5. If you wish to connect to the sql database, this docker environment provides the following 2 options:
     - Navigate to `http://localhost:8310/` where you can login into phpMyAdmin.
@@ -197,17 +156,19 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
 
     - An exception to this is if making changes to styling scripts in interface/themes/. In that case will need to clear web browser cache and run the following command to rebuild the theme files:
       ```sh
-      docker compose exec openemr /root/devtools build-themes
+      openemr-cmd build-themes
       ```
-7. When you're done, it's best to clean up after yourself with `docker compose down -v`
-    - If you don't want to build from scratch every time, just use `docker compose down` so your next `docker compose up` will use the cached volumes.
-8. To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
-
-    ```console
-    docker compose pull
+7. When you're done, clean up. From the easy dev environment directory:
+    ```sh
+    cd openemr/docker/development-easy
+    openemr-cmd down
     ```
-
-9. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
+    - `openemr-cmd down` runs `docker compose down -v` under the hood, removing the named volumes so the next `openemr-cmd up` rebuilds from scratch.
+    - If you'd rather preserve volumes between sessions (so the next start reuses the cached database/vendor/node_modules and comes up much faster), use the raw form instead:
+      ```sh
+      docker compose down
+      ```
+8. [Submit a PR](https://github.com/openemr/openemr/compare) from your fork into `openemr/openemr#master`!
 
 ### After You Submit
 
@@ -241,25 +202,26 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
 ---
 1. [Worktrees](#worktrees)
-2. [Xdebug and profiling](#xdebug)
-3. [API development and testing](#api)
-4. [Testing other PHP versions](#other_php_versions)
-5. [Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
-6. [Run the entire dev tool suite](#dev_tools_suite)
-7. [Run only all the automated tests](#dev_tools_auto)
-8. [Resetting OpenEMR and loading demo data](#dev_tools_reset)
-9. [Backup and restore OpenEMR data](#dev_tools_backup)
-10. [Send/receive snapshots](#dev_tools_send)
-11. [Create and add random patient data](#dev_tools_randompatients)
-12. [Add multisite bank](#dev_tools_bankmultisite)
-13. [Turn on and turn off support for multisite feature in setup.php](#dev_tools_multisite)
-14. [List the current multisite](#dev_tools_listmultisite)
-15. [Change the database character set and collation](#dev_tools_charset)
-16. [Test ssl certificate and force/unforce https](#dev_tools_https)
-17. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
-18. [CouchDB integration](#dev_tools_couchdb)
-19. [LDAP integration](#dev_tools_ldap)
-20. [Test webroot value](#dev_tools_webroot)
+2. [Pre-commit hooks for the docker dev environment](#precommit)
+3. [Xdebug and profiling](#xdebug)
+4. [API development and testing](#api)
+5. [Testing other PHP versions](#other_php_versions)
+6. [Php syntax checking, psr12 checking, and automated testing](#dev_tools_tests)
+7. [Run the entire dev tool suite](#dev_tools_suite)
+8. [Run only all the automated tests](#dev_tools_auto)
+9. [Resetting OpenEMR and loading demo data](#dev_tools_reset)
+10. [Backup and restore OpenEMR data](#dev_tools_backup)
+11. [Send/receive snapshots](#dev_tools_send)
+12. [Create and add random patient data](#dev_tools_randompatients)
+13. [Add multisite bank](#dev_tools_bankmultisite)
+14. [Turn on and turn off support for multisite feature in setup.php](#dev_tools_multisite)
+15. [List the current multisite](#dev_tools_listmultisite)
+16. [Change the database character set and collation](#dev_tools_charset)
+17. [Test ssl certificate and force/unforce https](#dev_tools_https)
+18. [Place/remove testing sql ssl certificate and testing sql ssl client key/cert](#dev_tools_ssl)
+19. [CouchDB integration](#dev_tools_couchdb)
+20. [LDAP integration](#dev_tools_ldap)
+21. [Test webroot value](#dev_tools_webroot)
 
 ---
 
@@ -342,7 +304,33 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
 
 
-2. <a name="xdebug"></a>Xdebug and profiling is supported for PHPStorm, VSCode and VSCodium.
+2. <a name="precommit"></a>Pre-commit hooks for the docker dev environment can be installed so that `git commit` validates staged changes against the project's full `.pre-commit-config.yaml` suite (phpstan, rector, phpcs, codespell, actionlint, etc.) inside the running openemr container. No host install of PHP, Node, Python, codespell, or actionlint is required — only Docker. Routing is cwd-aware: a commit fired from worktree `foo` dispatches to `foo`'s container.
+
+    - One-time install per clone (run from the base repo on master):
+      ```sh
+      openemr-cmd prek-install
+      ```
+      Short form: `openemr-cmd pi`. Linked worktrees share git hooks via gitcommondir, so this single install covers every current and future worktree of the primary repo — no per-worktree re-install needed when you `openemr-cmd worktree add <branch>`.
+
+    - After install, `git commit` from any clone or worktree fires the hooks inside the corresponding openemr container. The stack must be running at commit time (`openemr-cmd up` for the primary, `openemr-cmd worktree up <branch>` for a worktree); if it's down, the hook aborts cleanly with a "no running openemr container found" message.
+
+    - Manual invocations (anytime, no install needed) for ad-hoc validation:
+      ```sh
+      openemr-cmd prek run --all-files     # whole-codebase check, not just staged
+      openemr-cmd prek run phpstan         # run a single hook
+      openemr-cmd prek autoupdate          # bump hook versions in .pre-commit-config.yaml
+      ```
+
+    - To remove the auto-firing hooks:
+      ```sh
+      openemr-cmd prek-uninstall
+      ```
+      Short form: `openemr-cmd pu`. Removes only openemr-cmd-managed shims; any other hooks you've installed manually are left alone. If `pi` would overwrite a non-managed hook, it refuses unless `--force` is passed (which backs up the existing hook to a uniquely-suffixed `*.bak.XXXXXXXX` before installing the shim).
+
+    - Mutually exclusive with host-based `prek install` / `pre-commit install`: both paths write to the same `.git/hooks/` files, so the most recent install wins for auto-firing on commit. Manual invocations from either path remain independent.
+
+
+3. <a name="xdebug"></a>Xdebug and profiling is supported for PHPStorm, VSCode and VSCodium.
 
     - For the Video Tutorial, click below:
 
@@ -362,121 +350,129 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - Make sure port 9003 is open on your host operating system
     - Profiling output can be found in /tmp directory in the docker. Following will list the profiling output files:
       ```sh
-      docker compose exec openemr /root/devtools list-xdebug-profiles
+      openemr-cmd list-xdebug-profiles
       ```
     - To check Xdebug log:
       ```sh
-      docker compose exec openemr /root/devtools xdebug-log
+      openemr-cmd xdebug-log
       ```
-3. <a name="api"></a>API development and testing.
+4. <a name="api"></a>API development and testing.
     - Swagger is including in OpenEMR to ease API documentation, development, and testing.
     - The following command will update the API documentation (derive documentation from [_rest_routes.inc.php](_rest_routes.inc.php) to [swagger/openemr-api.yaml](swagger/openemr-api.yaml)):
       ```sh
-      docker compose exec openemr /root/devtools build-api-docs
+      openemr-cmd build-api-docs
       ```
     - Can go to Swagger at [https://localhost:9300/swagger](https://localhost:9300/swagger) where it is super easy to test the API:
         - First, click on 'Authorize' button.
         - Then click 'Select All' scopes.
         - Can then do the following from command line to get a client id and secret, which then can copy/paste into the fields:
           ```sh
-          docker compose exec openemr /root/devtools register-oauth2-client
+          openemr-cmd register-oauth2-client
           ```
         - Then click 'Authorize' button and follow the flow and before you know it, you will be authorized to test the api endpoints!
     - There is also a mechanism to allow use of the above Swagger tool with multisite.
         - Before going to the Swagger gui linked above, run the following command (after running below command, the Swagger gui will then be configured to work with the selected multisite):
           ```sh
-          docker compose exec openemr /root/devtools set-swagger-to-multisite <multisite-name>
+          openemr-cmd set-swagger-to-multisite <multisite-name>
           ```
         - To collect a client id and secret for the selected multisite, can then do:
           ```sh
-          docker compose exec openemr /root/devtools register-oauth2-client <multisite-name>
+          openemr-cmd register-oauth2-client <multisite-name>
           ```
         - When done testing with Swagger on the selected multisite, recommend setting swagger back to the default multisite to avoid changes to the swagger configuration script showing up in your local git repository:
           ```sh
-          docker compose exec openemr /root/devtools set-swagger-to-multisite
+          openemr-cmd set-swagger-to-multisite
           ```
     - There is also a dev tool to make it easy to test the API on the online OpenEMR demo farm. For example, what if you wanted to test the API at [https://eleven.openemr.io/a/openemr](https://eleven.openemr.io/a/openemr):
         - Go to [https://eleven.openemr.io/a/openemr/swagger](https://eleven.openemr.io/a/openemr/swagger/index.html) and follow the Swagger gui flow above. The following command can be used to get a client id and secret from that online demo:
           ```sh
-          docker compose exec openemr /root/devtools register-oauth2-client-demo https://eleven.openemr.io/a/openemr
+          openemr-cmd register-oauth2-client-demo https://eleven.openemr.io/a/openemr
           ```
-4. <a name="other_php_versions"></a>Testing other PHP versions.
+5. <a name="other_php_versions"></a>Testing other PHP versions.
     - The standard `flex` docker used in the easy development environments is PHP 8.5. This can be modified by changing the image (`image: openemr/openemr:flex`) used in the docker-compose.yml script. To use PHP 8.2, then just need to change it to `image: openemr/openemr:flex-3.22-php-8.2`. To use PHP 8.3 then change it to `image: openemr/openemr:flex-3.23-php-8.3`. To use PHP 8.4 then change it to `image: openemr/openemr:flex-3.23-php-8.4`.
-5. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
+6. <a name="dev_tools_tests"></a>Php syntax checking, psr12 checking, and automated testing.
     - To check PHP error logs:
       ```sh
-      docker compose exec openemr /root/devtools php-log
+      openemr-cmd php-log
       ```
     - To create a report of PSR12 code styling issues (this takes several minutes):
       ```sh
-      docker compose exec openemr /root/devtools psr12-report
+      openemr-cmd psr12-report
       ```
     - To fix PSR12 code styling issues (this takes several minutes):
       ```sh
-      docker compose exec openemr /root/devtools psr12-fix
+      openemr-cmd psr12-fix
       ```
     - To create a report of theme styling issues:
       ```sh
-      docker compose exec openemr /root/devtools lint-themes-report
+      openemr-cmd lint-themes-report
       ```
     - To fix theme styling issues:
       ```sh
-      docker compose exec openemr /root/devtools lint-themes-fix
+      openemr-cmd lint-themes-fix
       ```
     - To check PHP parsing errors (this takes several minutes):
       ```sh
-      docker compose exec openemr /root/devtools php-parserror
+      openemr-cmd php-parserror
       ```
     - To dry run Rector changes:
       ```sh
-      docker compose exec openemr /root/devtools rector-dry-run
+      openemr-cmd rector-dry-run
       ```
     - To process Rector changes:
       ```sh
-      docker compose exec openemr /root/devtools rector-process
+      openemr-cmd rector-process
       ```
     - To run unit testing:
       ```sh
-      docker compose exec openemr /root/devtools unit-test
+      openemr-cmd unit-test
       ```
     - To run api testing:
       ```sh
-      docker compose exec openemr /root/devtools api-test
+      openemr-cmd api-test
       ```
     - To run e2e testing:
       ```sh
-      docker compose exec openemr /root/devtools e2e-test
+      openemr-cmd e2e-test
       ```
       - (You can actually view the e2e tests in real-time by going to [http://localhost:7900](http://localhost:7900) with password 'openemr123'.)
     - To run services testing:
       ```sh
-      docker compose exec openemr /root/devtools services-test
+      openemr-cmd services-test
       ```
     - To run fixtures testing:
       ```sh
-      docker compose exec openemr /root/devtools fixtures-test
+      openemr-cmd fixtures-test
       ```
     - To run validators testing:
       ```sh
-      docker compose exec openemr /root/devtools validators-test
+      openemr-cmd validators-test
       ```
     - To run controllers testing:
       ```sh
-      docker compose exec openemr /root/devtools controllers-test
+      openemr-cmd controllers-test
       ```
     - To run common testing:
       ```sh
-      docker compose exec openemr /root/devtools common-test
+      openemr-cmd common-test
       ```
-6. <a name="dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
+    - To run isolated PHPUnit tests (no database required; fast — covers Twig template compilation/render tests and other pure-PHP isolated suites):
+      ```sh
+      openemr-cmd phpunit-isolated
+      ```
+    - **Mutating maintenance command** — not a test: regenerates the expected-output fixture files used by Twig render tests when you've intentionally changed a Twig template. Overwrites files under `tests/Tests/Isolated/Common/Twig/fixtures/render/`; review the diff before committing:
+      ```sh
+      openemr-cmd update-twig-fixtures
+      ```
+7. <a name="dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
-    docker compose exec openemr /root/devtools clean-sweep
+    openemr-cmd clean-sweep
     ```
-7. <a name="dev_tools_auto"></a>Run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
+8. <a name="dev_tools_auto"></a>Run only all the automated tests (unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
-    docker compose exec openemr /root/devtools clean-sweep-tests
+    openemr-cmd clean-sweep-tests
     ```
-8. <a name="dev_tools_reset"></a>Resetting OpenEMR and loading demo data.
+9. <a name="dev_tools_reset"></a>Resetting OpenEMR and loading demo data.
     - For the Video Tutorial, click below:
 
       [![Resetting and Demo Data Video Tutorial](Documentation/images/easy-dev-reset.png)](https://youtu.be/1ch84Ffmky8)
@@ -485,19 +481,19 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
     - To reset OpenEMR only (then can reinstall manually via setup.php in web browser):
       ```sh
-      docker compose exec openemr /root/devtools dev-reset
+      openemr-cmd dev-reset
       ```
         - When running setup.php, need to use `mysql` for 'Server Host', `root` for 'Root Password', and `%` for 'User Hostname'.
     - To reset and reinstall OpenEMR:
       ```sh
-      docker compose exec openemr /root/devtools dev-reset-install
+      openemr-cmd dev-reset-install
       ```
     - To reset and reinstall OpenEMR with demo data (this includes several users with access controls setup in addition to patient portal logins. [See HERE for those credentials](https://www.open-emr.org/wiki/index.php/Development_Demo#Demo_Credentials).):
       ```sh
-      docker compose exec openemr /root/devtools dev-reset-install-demodata
+      openemr-cmd dev-reset-install-demodata
       ```
         - hint: this is also a great way to test any changes a developer has made to the sql upgrade stuff (ie. such as sql/5_0_2-to-6_0_0_upgrade.sql)
-9. <a name="dev_tools_backup"></a>Backup and restore OpenEMR data (database and data on drive) via snapshots.
+10. <a name="dev_tools_backup"></a>Backup and restore OpenEMR data (database and data on drive) via snapshots.
     - For the Video Tutorial, click below:
 
       [![Snapshots and Capsules Video Tutorial](Documentation/images/easy-dev-snapshots-capsules.png)](https://youtu.be/n569Lw5I5us)
@@ -506,17 +502,17 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
      - Create a backup snapshot (using `example` below, but can use any alphanumeric identifier):
       ```sh
-      docker compose exec openemr /root/devtools backup example
+      openemr-cmd backup-snapshot example
       ```
     - Restore from a snapshot (using `example` below, but can use any alphanumeric identifier)
       ```sh
-      docker compose exec openemr /root/devtools restore example
+      openemr-cmd restore-snapshot example
       ```
     - To list the snapshots
       ```sh
-      docker compose exec openemr /root/devtools list-snapshots
+      openemr-cmd list-snapshots
       ```
-10.   - For the Video Tutorial, click below:
+11.   - For the Video Tutorial, click below:
 
       [![Snapshots and Capsules Video Tutorial](Documentation/images/easy-dev-snapshots-capsules.png)](https://youtu.be/n569Lw5I5us)
 
@@ -525,26 +521,30 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - Here is how to grab a capsule from the docker, which can then store or share with friends.
         - List the capsules:
           ```sh
-          docker compose exec openemr /root/devtools list-capsules
+          openemr-cmd list-capsules
           ```
         - Copy the capsule from the docker to your current directory (using `example.tgz` below):
           ```sh
-          docker compose cp openemr:/snapshots/example.tgz .
+          openemr-cmd get-capsule example.tgz
+          ```
+          An optional second argument lets you save to a different directory:
+          ```sh
+          openemr-cmd get-capsule example.tgz /path/to/save
           ```
     - Here is how to send a capsule into the docker.
         - Copy the capsule from current directory into the docker (using `example.tgz` below):
           ```sh
-          docker compose cp example.tgz openemr:/snapshots/
+          openemr-cmd put-capsule example.tgz
           ```
         - Restore from the new shiny snapshot (using `example` below):
           ```sh
-          docker compose exec openemr /root/devtools restore example
+          openemr-cmd restore-snapshot example
           ```
         - Ensure run upgrade to ensure will work with current version OpenEMR:
           ```sh
-          docker compose exec openemr /root/devtools upgrade 5.0.2
+          openemr-cmd ensure-version 5.0.2
           ```
-12. <a name="dev_tools_randompatients"></a>Create and add random patient data. This will use synthea to create random patients that are then imported into OpenEMR. You can choose the number of patients. Note that each patient will take several seconds.
+13. <a name="dev_tools_randompatients"></a>Create and add random patient data. This will use synthea to create random patients that are then imported into OpenEMR. You can choose the number of patients. Note that each patient will take several seconds.
     - For the Video Tutorial, click below:
 
       [![Creating Random Patients Video Tutorial](Documentation/images/easy-dev-random-pat.png)](https://youtu.be/cFBFXFm_Psg)
@@ -553,95 +553,95 @@ The OpenEMR development docker environment has a very rich advanced feature set.
 
     - Create and add 100 random patients (defaults to development mode set to true, which is set be default to true; development mode will markedly improve performance by bypassing the import of the ccda document and bypassing the use of the audit_master and audit_details tables and will directly import the new patient data from the ccda. Note this should never be done on sites that already contain real data/use, and it will also turn off the audit log during the import.):
        ```sh
-       docker compose exec openemr /root/devtools import-random-patients 100
+       openemr-cmd import-random-patients 100
        ```
        or
        ```sh
-       docker compose exec openemr /root/devtools import-random-patients 100 true
+       openemr-cmd import-random-patients 100 true
        ```
     - Create and add 100 random patients (with development mode set to false)
        ```sh
-       docker compose exec openemr /root/devtools import-random-patients 100 false
+       openemr-cmd import-random-patients 100 false
        ```
-13. <a name="dev_tools_bankmultisite"></a>Create a bank of multisites with selected number of multisites that are all labelled from run1..runx. It will clone from the default instance. This can be helpful for testing of multisites and other larger scale testing.
+14. <a name="dev_tools_bankmultisite"></a>Create a bank of multisites with selected number of multisites that are all labelled from run1..runx. It will clone from the default instance. This can be helpful for testing of multisites and other larger scale testing.
     - Create 5 multisites (will be run1, run2, run3, run4, run5):
       ```sh
-      docker compose exec openemr /root/devtools generate-multisite-bank 5
+      openemr-cmd generate-multisite-bank 5
       ```
-14. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature (to allow setting up multisites in setup.php script).
+15. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature (to allow setting up multisites in setup.php script).
     - Turn on support for multisite:
       ```sh
-      docker compose exec openemr /root/devtools enable-multisite
+      openemr-cmd enable-multisite
       ```
     - Turn off support for multisite:
       ```sh
-      docker compose exec openemr /root/devtools disable-multisite
+      openemr-cmd disable-multisite
       ```
-15. <a name="dev_tools_listmultisite"></a>The available multsites can be listed via following command:
+16. <a name="dev_tools_listmultisite"></a>The available multsites can be listed via following command:
     ```sh
-    docker compose exec openemr /root/devtools list-multisites
+    openemr-cmd list-multisites
     ```
-16. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
+17. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
     - Best to demonstrate this devtool with examples.
         - Set character set to utf8mb4 and collation to utf8mb4_general_ci (this is default for OpenEMR 6 and higher):
           ```sh
-          docker compose exec openemr /root/devtools change-encoding-collation utf8mb4 utf8mb4_general_ci
+          openemr-cmd change-encoding-collation utf8mb4 utf8mb4_general_ci
           ```
         - Set character set to utf8mb4 and collation to utf8mb4_unicode_ci:
           ```sh
-          docker compose exec openemr /root/devtools change-encoding-collation utf8mb4 utf8mb4_unicode_ci
+          openemr-cmd change-encoding-collation utf8mb4 utf8mb4_unicode_ci
           ```
         - Set character set to utf8mb4 and collation to utf8mb4_vietnamese_ci:
           ```sh
-          docker compose exec openemr /root/devtools change-encoding-collation utf8mb4 utf8mb4_vietnamese_ci
+          openemr-cmd change-encoding-collation utf8mb4 utf8mb4_vietnamese_ci
           ```
         - Set character set to utf8 and collation to utf8_general_ci (this is default for OpenEMR 5 and lower):
           ```sh
-          docker compose exec openemr /root/devtools change-encoding-collation utf8 utf8_general_ci
+          openemr-cmd change-encoding-collation utf8 utf8_general_ci
           ```
-17. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
-    - To test client based certificates, create a zip package of the certificate in OpenEMR at Administration->System->Certificates. Then can import this zip package (example `ssl.zip`) into the docker via:
+18. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
+    - To test client based certificates, create a zip package of the certificate in OpenEMR at Administration->System->Certificates. Then import this zip package (example `ssl.zip`) into the docker via:
       ```sh
-      docker compose cp ssl.zip openemr:/certs/
+      openemr-cmd put-client-cert ssl.zip
       ```
     - To list the available certificate packages on docker:
       ```sh
-      docker compose exec openemr /root/devtools list-client-certs
+      openemr-cmd list-client-certs
       ```
     - To install and configure a certificate package (example `ssl`):
       ```sh
-      docker compose exec openemr /root/devtools setup-client-cert ssl
+      openemr-cmd setup-client-cert ssl
       ```
     - To revert back to self-signed certificates (ie. revert the changes required for client based certificates):
       ```sh
-      docker compose exec openemr /root/devtools on-self-signed-cert
+      openemr-cmd on-self-signed-cert
       ```
     - To force https in apache script via redirect:
       ```sh
-      docker compose exec openemr /root/devtools force-https
+      openemr-cmd force-https
       ```
     - To revert the changes that forced https in apache script:
       ```sh
-      docker compose exec openemr /root/devtools un-force-https
+      openemr-cmd un-force-https
       ```
-18. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
+19. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
     - Place the testing sql ssl CA cert:
       ```sh
-      docker compose exec openemr /root/devtools sql-ssl
+      openemr-cmd sql-ssl
       ```
     - Remove the testing sql ssl CA cert:
       ```sh
-      docker compose exec openemr /root/devtools sql-ssl-off
+      openemr-cmd sql-ssl-off
       ```
     - Place the testing sql ssl CA cert and testing sql ssl client key/cert:
       ```sh
-      docker compose exec openemr /root/devtools sql-ssl-client
+      openemr-cmd sql-ssl-client
       ```
     - Remove the testing sql ssl CA cert and testing sql ssl client key/cert:
       ```sh
-      docker compose exec openemr /root/devtools sql-ssl-client-off
+      openemr-cmd sql-ssl-client-off
       ```
-19. <a name="dev_tools_couchdb"></a>CouchDB integration.
+20. <a name="dev_tools_couchdb"></a>CouchDB integration.
     - In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB docker is included in this OpenEMR docker development environment. You can visit the CouchDB GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with username `admin` and password `password`. You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR at Administration->Globals->Documents:
         - Document Storage Method->CouchDB
     - After running the following devtools, 'dev-reset', 'dev-install', 'dev-reset-install', 'dev-reset-install-demodata', 'restore-snapshot', then need to restart the couchdb docker via the following command:
@@ -651,48 +651,48 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - Developer tools to place/remove testing couchdb ssl certificate and testing couchdb ssl client key/cert.
         - Place the testing couchdb ssl CA cert:
           ```sh
-          docker compose exec openemr /root/devtools couchdb-ssl
+          openemr-cmd couchdb-ssl
           ```
         - Remove the testing couchdb ssl CA cert:
           ```sh
-          docker compose exec openemr /root/devtools couchdb-ssl-off
+          openemr-cmd couchdb-ssl-off
           ```
         - Place the testing couchdb ssl CA cert and testing couchdb ssl client key/cert:
           ```sh
-          docker compose exec openemr /root/devtools couchdb-ssl-client
+          openemr-cmd couchdb-ssl-client
           ```
         - Remove the testing couchdb ssl CA cert and testing couchdb ssl client key/cert:
           ```sh
-          docker compose exec openemr /root/devtools couchdb-ssl-client-off
+          openemr-cmd couchdb-ssl-client-off
           ```
-20. <a name="dev_tools_ldap"></a>LDAP integration.
+21. <a name="dev_tools_ldap"></a>LDAP integration.
     - In OpenEMR, LDAP is an option for authentication. If this is turned on, then this will be supported for the `admin` user, which will use the following password: `admin`
     - Turn on LDAP:
       ```sh
-      docker compose exec openemr /root/devtools enable-ldap
+      openemr-cmd enable-ldap
       ```
     - Turn off LDAP:
       ```sh
-      docker compose exec openemr /root/devtools disable-ldap
+      openemr-cmd disable-ldap
       ```
     - Developer tools to place/remove testing ldap tls/ssl certificate and testing ldap tls/ssl client key/cert.
         - Place the testing ldap tls/ssl CA cert:
           ```sh
-          docker compose exec openemr /root/devtools ldap-ssl
+          openemr-cmd ldap-ssl
           ```
         - Remove the testing ldap tls/ssl CA cert:
           ```sh
-          docker compose exec openemr /root/devtools ldap-ssl-off
+          openemr-cmd ldap-ssl-off
           ```
         - Place the testing ldap tls/ssl CA cert and testing ldap tls/ssl client key/cert:
           ```sh
-          docker compose exec openemr /root/devtools ldap-ssl-client
+          openemr-cmd ldap-ssl-client
           ```
         - Remove the testing ldap tls/ssl CA cert and testing ldap tls/ssl client key/cert:
           ```sh
-          docker compose exec openemr /root/devtools ldap-ssl-client-off
+          openemr-cmd ldap-ssl-client-off
           ```
-21. <a name="dev_tools_webroot"></a>Test webroot value.
+22. <a name="dev_tools_webroot"></a>Test webroot value.
     - The default setup of the docker development environments are with a blank webroot, however, it is a good idea to also test with a webroot setting. There is an option to set the webroot to openemr.
     - Note this dev tool requires the use of the openemr-cmd script, which is discussed above and can find instructions to install and use openemr-cmd script at [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd).
     - Set webroot to blank:
@@ -704,9 +704,62 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       openemr-cmd change-webroot-openemr
       ```
 
-### Non-docker Use
+## Working without Docker
 
-If you do not want to use Docker, you can always install OpenEMR directly on your local environment. This will require installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
+The sections above describe the recommended Docker-based workflow. If you maintain a full host toolchain (PHP 8.2+, Composer with `composer install` populated `vendor/`, Node, Python 3), you can run validation, code-quality checks, and isolated tests directly on your machine without invoking the openemr container.
+
+### Pre-commit hooks on host
+
+If you already have [pre-commit](https://pre-commit.com/) (or [prek](https://github.com/j178/prek)) installed locally, install hooks that run directly on the host:
+
+```sh
+pre-commit install --hook-type commit-msg  # Validates commit message format
+pre-commit install                          # Enables all code quality hooks
+```
+
+This is mutually exclusive with `openemr-cmd prek-install` (both write to the same `.git/hooks/` files; most recent install wins). Requires PHP 8.2+, Composer, `composer install` populated `vendor/`, Python 3 with `pre-commit` (or `prek`) installed, plus a binary for any hook that uses `language: system` outside the composer scripts (e.g. `actionlint`).
+
+### Code-quality checks on host
+
+The same composer scripts back every PHP code-quality check that CI runs and the pre-commit hooks call:
+
+```sh
+# Full PHP code-quality suite
+composer code-quality
+
+# Individual checks (these handle memory limits automatically)
+composer phpstan          # Static analysis
+composer phpcs            # Code style check
+composer phpcbf           # Code style auto-fix
+composer rector-check     # Code modernization (dry-run)
+
+# JavaScript / CSS
+npm run lint:js           # ESLint
+npm run lint:js-fix       # ESLint auto-fix
+npm run stylelint         # CSS/SCSS linting
+```
+
+The host path can give slightly higher memory limits for very large analysis runs and matches what CI executes verbatim.
+
+### Isolated tests on host
+
+Some tests run on the host without a database or Docker:
+
+```sh
+composer phpunit-isolated        # Run all isolated tests
+```
+
+This includes Twig template tests that verify compilation and rendering. If you modify a Twig template that has render-test coverage, regenerate the expected-output fixtures:
+
+```sh
+composer update-twig-fixtures    # Regenerate fixture files
+```
+
+Review the diff before committing. See `tests/Tests/Isolated/Common/Twig/fixtures/render/README.md` for details.
+
+### Full host installation
+
+If you'd rather not use Docker at all, you can install OpenEMR directly on your local environment. This requires installing additional dependencies for your operating system. For more info see [OpenEMR Development Versions](https://open-emr.org/wiki/index.php/OpenEMR_Installation_Guides#OpenEMR_Development_Versions) on the wiki.
 
 ## Financial contributions
 

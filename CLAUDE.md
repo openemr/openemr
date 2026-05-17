@@ -71,31 +71,40 @@ containers (data preserved, much faster); `down`/`up` recreates them.
 
 ## Testing
 
-Tests run inside Docker via devtools. Run from `docker/development-easy/`:
+Tests run inside the openemr container. Invoke via `openemr-cmd` (the
+canonical CLI; see CONTRIBUTING.md for install). Works from any directory.
 
 ```bash
 # Run all tests
-docker compose exec openemr /root/devtools clean-sweep-tests
+openemr-cmd clean-sweep-tests            # alias: cst
 
 # Individual test suites
-docker compose exec openemr /root/devtools unit-test
-docker compose exec openemr /root/devtools api-test
-docker compose exec openemr /root/devtools e2e-test
-docker compose exec openemr /root/devtools services-test
+openemr-cmd unit-test                    # alias: ut
+openemr-cmd api-test                     # alias: at
+openemr-cmd e2e-test                     # alias: et
+openemr-cmd services-test                # alias: st
 
 # View PHP error log
-docker compose exec openemr /root/devtools php-log
+openemr-cmd php-log                      # alias: pl
 ```
 
-**Tip:** Install [openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd)
-for shorter commands (e.g., `openemr-cmd ut` for unit tests) from any directory.
+To target a specific worktree's container from outside it, prefix with
+`worktree exec`: `openemr-cmd worktree exec <branch> ut`.
 
-### Isolated tests (no Docker required)
+Under the hood each of these is equivalent to running
+`docker compose exec openemr /root/devtools <cmd>` from
+`docker/development-easy/` — useful as a fallback on environments where
+openemr-cmd isn't available (e.g. Windows cmd.exe without WSL2 / Git Bash).
 
-Isolated tests run on the host without a database or Docker:
+### Isolated tests
+
+Isolated tests run without a database — fast; pure-PHP logic, Twig template
+compilation/render tests, etc. Available both in-container (via openemr-cmd,
+no host PHP toolchain needed) and on the host directly:
 
 ```bash
-composer phpunit-isolated        # Run all isolated tests
+openemr-cmd phpunit-isolated        # in container (alias: pit)
+composer phpunit-isolated           # on host (requires PHP + Composer + vendor/)
 ```
 
 ### Data providers: mark as `@codeCoverageIgnore`
@@ -136,11 +145,13 @@ Twig templates have two layers of testing (both isolated):
   the full HTML output to expected fixture files in
   `tests/Tests/Isolated/Common/Twig/fixtures/render/`.
 
-When modifying a Twig template that has render test coverage, update the
-fixture files:
+When modifying a Twig template that has render test coverage, regenerate the
+fixture files. **Mutating maintenance command** — overwrites the recorded
+expected-output files. Available in-container or on host:
 
 ```bash
-composer update-twig-fixtures    # Regenerate fixture files
+openemr-cmd update-twig-fixtures    # in container (alias: utf)
+composer update-twig-fixtures       # on host
 ```
 
 Review the diff before committing. See the
@@ -149,26 +160,49 @@ for details on adding new test cases.
 
 ## Code Quality
 
-These run on the host (requires local PHP/Node):
+The same composer scripts back every PHP code-quality check, whether
+invoked in the openemr container via `openemr-cmd` (no host toolchain
+needed) or directly on the host. Pick whichever fits your setup; the
+container path is preferred when avoiding a host PHP/Node install.
+
+In container (only requires Docker on host):
 
 ```bash
-# Run all PHP quality checks (phpcs, phpstan, rector, etc.)
-composer code-quality
+openemr-cmd code-quality                # alias: cq -- full code-quality suite
+openemr-cmd phpstan                     # alias: pst
+openemr-cmd phpstan-generate            # alias: psg -- regenerate baseline
+openemr-cmd psr12-report                # alias: pr  (composer phpcs)
+openemr-cmd psr12-fix                   # alias: pf  (composer phpcbf)
+openemr-cmd rector-dry-run              # alias: rd
+openemr-cmd rector-process              # alias: rp  (apply changes)
+openemr-cmd require-checker             # alias: crc
+openemr-cmd composer-checks             # alias: cck (validate + normalize)
+openemr-cmd codespell                   # alias: cps
+openemr-cmd conventional-commits-check  # alias: ccc
+openemr-cmd php-parserror               # alias: pp  (php -l)
+openemr-cmd lint-javascript-report      # alias: ljr
+openemr-cmd lint-themes-report          # alias: ltr
+```
 
-# Individual checks (composer scripts handle memory limits)
-composer phpstan              # Static analysis (level 10)
-composer phpstan-baseline     # Regenerate PHPStan baseline
-composer phpcs                # PHP code style check
-composer phpcbf               # PHP code style auto-fix
-composer rector-check         # Code modernization (dry-run)
-composer rector-fix           # Code modernization (apply changes)
-composer require-checker      # Detect undeclared dependencies
-composer checks               # Validate composer.json and normalize
-composer codespell            # Spell-check the codebase
+Target a specific worktree's container from outside it:
+`openemr-cmd worktree exec <branch> <cmd>` works for any of the above.
+
+On the host (requires local PHP / Composer with `vendor/` populated / Node):
+
+```bash
+composer code-quality                # Run all PHP quality checks
+composer phpstan                     # Static analysis (level 10)
+composer phpstan-baseline            # Regenerate PHPStan baseline
+composer phpcs                       # PHP code style check
+composer phpcbf                      # PHP code style auto-fix
+composer rector-check                # Code modernization (dry-run)
+composer rector-fix                  # Code modernization (apply changes)
+composer require-checker             # Detect undeclared dependencies
+composer checks                      # Validate composer.json and normalize
+composer codespell                   # Spell-check the codebase
 composer conventional-commits:check  # Validate commit messages
-composer php-syntax-check     # Run php -l on all PHP files
+composer php-syntax-check            # Run php -l on all PHP files
 
-# JavaScript/CSS
 npm run lint:js           # ESLint check
 npm run lint:js-fix       # ESLint auto-fix
 npm run stylelint         # CSS/SCSS lint
@@ -460,9 +494,18 @@ Preserve existing authors/copyrights when editing files.
 
 - Multiple template engines: check extension (.twig, .html, .php)
 - Event system uses Symfony EventDispatcher
-- **Pre-commit hooks:** Install with `prek install` (or `pre-commit install` if
-  prek is unavailable). Run `prek run --all-files` before committing to catch
-  issues early — the hooks run phpstan, rector, phpcs, codespell, and more.
+- **Pre-commit hooks:** Install with `openemr-cmd prek-install` (alias `pi`).
+  This writes git hooks that route through the running openemr container, so
+  `git commit` validates against the project's full `.pre-commit-config.yaml`
+  suite (phpstan, rector, phpcs, codespell, actionlint, and more) without
+  requiring PHP, Node, Python, codespell, or actionlint on the host. Manual
+  passthrough is `openemr-cmd prek run [args...]` (use `--all-files` for a
+  whole-codebase check before pushing). See CONTRIBUTING.md's "Pre-commit
+  hooks for the docker dev environment" section (Advanced Use item 2) for
+  the full workflow.
+  If you maintain a full host PHP/Composer/Python toolchain instead, use
+  `prek install` (or `pre-commit install` if prek is unavailable) for hooks
+  that run directly on the host; `prek run --all-files` is the manual form.
 - Custom PHPStan rules in `tests/PHPStan/Rules/` enforce project conventions
   (forbidden globals, forbidden direct instantiations, namespace rules, etc.)
 - Commit messages are validated against Conventional Commits format in CI

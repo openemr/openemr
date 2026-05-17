@@ -115,45 +115,6 @@ docker compose down -v
 docker compose up -d
 ```
 
-#### Updating Dockers
-To ensure you are using the most recent dockers, recommend running below set of commands intermittently:
-```console
-docker pull openemr/openemr:flex-edge
-docker pull openemr/openemr:flex-3.23-php-8.5
-docker pull openemr/openemr:flex-3.23-php-8.4
-docker pull openemr/openemr:flex-3.23-php-8.3
-docker pull openemr/openemr:flex-3.22-php-8.2
-docker pull openemr/openemr:flex-3.17
-docker pull openemr/dev-php-fpm:8.6
-docker pull openemr/dev-php-fpm:8.5
-docker pull openemr/dev-php-fpm:8.4
-docker pull openemr/dev-php-fpm:8.3
-docker pull openemr/dev-php-fpm:8.2
-docker pull openemr/dev-php-fpm:8.1
-docker pull openemr/dev-php-fpm:8.6-redis
-docker pull openemr/dev-php-fpm:8.5-redis
-docker pull openemr/dev-php-fpm:8.4-redis
-docker pull openemr/dev-php-fpm:8.3-redis
-docker pull openemr/dev-php-fpm:8.2-redis
-docker pull openemr/dev-php-fpm:8.1-redis
-docker pull openemr/dev-nginx
-docker pull mariadb:11.8
-docker pull mariadb:11.4
-docker pull mariadb:10.11
-docker pull mariadb:10.6
-docker pull mysql:8.4
-docker pull mysql:8.0
-docker pull mysql:5.7
-docker pull phpmyadmin/phpmyadmin
-docker pull couchdb
-docker pull jodogne/orthanc-plugins
-docker pull openemr/dev-ldap:insane
-docker pull redis
-docker pull ibmcom/ibm-fhir-server
-docker pull axllent/mailpit
-
-```
-
 #### Usage
 
 ##### Examine Containers
