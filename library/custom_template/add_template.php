@@ -65,12 +65,12 @@ $list_id = $_REQUEST['list_id'];
                 async: false,
                 success: function(thedata){
                         if(thedata=="Fail"){
-                            alert(document.getElementById('template_name').value + " " + "<?php echo xl('already exists'); ?>");
+                            alert(document.getElementById('template_name').value + " " + <?php echo xlj('already exists'); ?>);
                             return false;
                         }
                         else{
                             mainform.getElementById('templateDD').innerHTML = thedata;
-                            alert("<?php echo xl('Successfully added category'); ?>" + " " + document.getElementById('template_name').value);
+                            alert(<?php echo xlj('Successfully added category'); ?> + " " + document.getElementById('template_name').value);
                             //window.opener.opener.location.reload();
                             dlgclose();
                         }
@@ -81,11 +81,11 @@ $list_id = $_REQUEST['list_id'];
                 });
                 }
                 else{
-                    alert("<?php echo xl('You should select at least one context'); ?>");
+                    alert(<?php echo xlj('You should select at least one context'); ?>);
                 }
             }
             else{
-                alert("<?php echo xl('Category name is empty'); ?>");
+                alert(<?php echo xlj('Category name is empty'); ?>);
                 return false;
             }
         }

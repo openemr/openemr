@@ -53,7 +53,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
                      source: "delete_full_category"
                 },
                 success: function(thedata){
-                            alert("<?php echo xl('Deleted Successfully.'); ?>");
+                            alert(<?php echo xlj('Deleted Successfully.'); ?>);
                             document.location.reload();
                             },
                 error:function(){
@@ -63,7 +63,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
         }
         function delete_category(id){
             top.restoreSession();
-            if(confirm("<?php echo xl('Do you want to delete?'); ?>")){
+            if(confirm(<?php echo xlj('Do you want to delete?'); ?>)){
                 $.ajax({
                 type: "POST",
                 url: "ajax_code.php",
@@ -74,7 +74,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
                 },
                 success: function(thedata){
                             if(thedata){
-                                alert("<?php echo xl('There are currently other users of the category you are trying to delete. Please contact them and ask them to delete it. Categories may not be deleted while in use. This Categories are currently used by'); ?>\n" + thedata);
+                                alert(<?php echo xlj('There are currently other users of the category you are trying to delete. Please contact them and ask them to delete it. Categories may not be deleted while in use. This Categories are currently used by'); ?> + "\n" + thedata);
                             }
                             else{
                                 delete_full_category(id);
