@@ -127,8 +127,9 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     openemr-cmd up
     ```
     - `openemr-cmd up` starts the stack in detached mode (it runs `docker compose up -d` under the hood). The `cd` is required because docker compose reads `docker-compose.yml` from the current directory.
-    - To watch the startup logs and see when OpenEMR is ready, in a separate terminal run:
+    - To watch the startup logs and see when OpenEMR is ready, in a separate terminal `cd` to the same directory and run:
       ```sh
+      cd openemr/docker/development-easy
       docker compose logs -f openemr
       ```
       When the build is done, you'll see the following messages:
@@ -512,7 +513,8 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd list-snapshots
       ```
-11.   - For the Video Tutorial, click below:
+11. <a name="dev_tools_send"></a>Send/receive snapshots (capsules are backup files that can be saved to disk or shared with other developers).
+    - For the Video Tutorial, click below:
 
       [![Snapshots and Capsules Video Tutorial](Documentation/images/easy-dev-snapshots-capsules.png)](https://youtu.be/n569Lw5I5us)
 
@@ -544,7 +546,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           openemr-cmd ensure-version 5.0.2
           ```
-13. <a name="dev_tools_randompatients"></a>Create and add random patient data. This will use synthea to create random patients that are then imported into OpenEMR. You can choose the number of patients. Note that each patient will take several seconds.
+12. <a name="dev_tools_randompatients"></a>Create and add random patient data. This will use synthea to create random patients that are then imported into OpenEMR. You can choose the number of patients. Note that each patient will take several seconds.
     - For the Video Tutorial, click below:
 
       [![Creating Random Patients Video Tutorial](Documentation/images/easy-dev-random-pat.png)](https://youtu.be/cFBFXFm_Psg)
@@ -563,12 +565,12 @@ The OpenEMR development docker environment has a very rich advanced feature set.
        ```sh
        openemr-cmd import-random-patients 100 false
        ```
-14. <a name="dev_tools_bankmultisite"></a>Create a bank of multisites with selected number of multisites that are all labelled from run1..runx. It will clone from the default instance. This can be helpful for testing of multisites and other larger scale testing.
+13. <a name="dev_tools_bankmultisite"></a>Create a bank of multisites with selected number of multisites that are all labelled from run1..runx. It will clone from the default instance. This can be helpful for testing of multisites and other larger scale testing.
     - Create 5 multisites (will be run1, run2, run3, run4, run5):
       ```sh
       openemr-cmd generate-multisite-bank 5
       ```
-15. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature (to allow setting up multisites in setup.php script).
+14. <a name="dev_tools_multisite"></a>Turn on and turn off support for multisite feature (to allow setting up multisites in setup.php script).
     - Turn on support for multisite:
       ```sh
       openemr-cmd enable-multisite
@@ -577,11 +579,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd disable-multisite
       ```
-16. <a name="dev_tools_listmultisite"></a>The available multsites can be listed via following command:
+15. <a name="dev_tools_listmultisite"></a>The available multisites can be listed via following command:
     ```sh
     openemr-cmd list-multisites
     ```
-17. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
+16. <a name="dev_tools_charset"></a>Change the database character set and collation (character set is the encoding that is used to store data in the database; collation are a set of rules that the database uses to sort the stored data).
     - Best to demonstrate this devtool with examples.
         - Set character set to utf8mb4 and collation to utf8mb4_general_ci (this is default for OpenEMR 6 and higher):
           ```sh
@@ -599,7 +601,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           openemr-cmd change-encoding-collation utf8 utf8_general_ci
           ```
-18. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
+17. <a name="dev_tools_https"></a>Test ssl certificate (to test client based certificates and revert back to default self signed certificate) and force/unforce https.
     - To test client based certificates, create a zip package of the certificate in OpenEMR at Administration->System->Certificates. Then import this zip package (example `ssl.zip`) into the docker via:
       ```sh
       openemr-cmd put-client-cert ssl.zip
@@ -624,7 +626,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd un-force-https
       ```
-19. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
+18. <a name="dev_tools_ssl"></a>Place/remove testing sql ssl certificate and testing sql ssl client key/cert.
     - Place the testing sql ssl CA cert:
       ```sh
       openemr-cmd sql-ssl
@@ -641,7 +643,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd sql-ssl-client-off
       ```
-20. <a name="dev_tools_couchdb"></a>CouchDB integration.
+19. <a name="dev_tools_couchdb"></a>CouchDB integration.
     - In OpenEMR, CouchDB is an option for the patients document storage. For this reason, a CouchDB docker is included in this OpenEMR docker development environment. You can visit the CouchDB GUI directly via http://localhost:5984/_utils/ or https://localhost:6984/_utils/ with username `admin` and password `password`. You can configure OpenEMR to use this CouchDB docker for patient document storage in OpenEMR at Administration->Globals->Documents:
         - Document Storage Method->CouchDB
     - After running the following devtools, 'dev-reset', 'dev-install', 'dev-reset-install', 'dev-reset-install-demodata', 'restore-snapshot', then need to restart the couchdb docker via the following command:
@@ -665,7 +667,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           openemr-cmd couchdb-ssl-client-off
           ```
-21. <a name="dev_tools_ldap"></a>LDAP integration.
+20. <a name="dev_tools_ldap"></a>LDAP integration.
     - In OpenEMR, LDAP is an option for authentication. If this is turned on, then this will be supported for the `admin` user, which will use the following password: `admin`
     - Turn on LDAP:
       ```sh
@@ -692,7 +694,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
           ```sh
           openemr-cmd ldap-ssl-client-off
           ```
-22. <a name="dev_tools_webroot"></a>Test webroot value.
+21. <a name="dev_tools_webroot"></a>Test webroot value.
     - The default setup of the docker development environments are with a blank webroot, however, it is a good idea to also test with a webroot setting. There is an option to set the webroot to openemr.
     - Note this dev tool requires the use of the openemr-cmd script, which is discussed above and can find instructions to install and use openemr-cmd script at [install openemr-cmd](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd).
     - Set webroot to blank:
