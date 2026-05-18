@@ -85,6 +85,11 @@ describe('buildRegex — token splitting', () => {
         expect(re.source).toBe('glucose');
     });
 
+    test('returns null for separator-only query (e.g. ",,,") to avoid matching everything', () => {
+        expect(buildRegex(',,,')).toBeNull();
+        expect(buildRegex(', , ,')).toBeNull();
+    });
+
     test('applies word-boundary anchors for exact mode', () => {
         const re = buildRegex('glucose', { exact: 'exact' });
         expect(re.source).toBe('\\b(?:glucose)\\b');
