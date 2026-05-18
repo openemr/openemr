@@ -1150,8 +1150,7 @@ if (!empty($row['lab_id'])) {
 
         function createLabels(e) {
             e.preventDefault();
-            let prmt = <?php echo js_escape(xla("How many sets of specimen labels to create?") .
-                "\n" . xla("Each test in order gets a label.")); ?>;
+            let prmt = <?php echo xlj("How many sets of specimen labels to create?"); ?> + "\n" + <?php echo xlj("Each test in order gets a label."); ?>;
             let count = prompt(prmt, '1');
             if (!count) return false;
             let tarray = "";
