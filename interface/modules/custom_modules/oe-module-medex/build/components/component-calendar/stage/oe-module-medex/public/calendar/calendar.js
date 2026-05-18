@@ -16,6 +16,250 @@ let calendarEventSource = null;
 let currentEventStreamKey = '';
 let eventStreamReconnectTimer = null;
 let eventStreamConnected = false;
+let modernTooltipEl = null;
+let modernTooltipTarget = null;
+const DEFAULT_SLOT_STATE_FILTERS = [
+    'filled',
+    'open_not_reschedulable',
+    'held_staff',
+    'held_patient',
+    'open_reschedulable_available'
+];
+
+function computeSlotVisualState(event) {
+    const props = event.extendedProps || {};
+    const patientId = parseInt(props.patientId || 0, 10) || 0;
+    const isReschedulable = !!props.isReschedulable;
+    const rawSlotState = String(props.slotState || '').trim().toLowerCase();
+
+    if (patientId > 0) {
+        return 'filled';
+    }
+    if (rawSlotState === 'held_staff') {
+        return 'held_staff';
+    }
+    if (rawSlotState === 'held_patient') {
+        return 'held_patient';
+    }
+    if (!isReschedulable) {
+        return 'open_not_reschedulable';
+    }
+    if (rawSlotState === 'consumed') {
+        return 'filled';
+    }
+    return 'open_reschedulable_available';
+}
+
+function getSlotVisualMeta(slotVisualState) {
+    const map = {
+        filled: { short: 'FILLED', label: 'Filled' },
+        open_not_reschedulable: { short: 'Open-S', label: 'Open and available to fill by staff. Not visible to the Patient Rescheduler.' },
+        open_reschedulable_full: { short: 'FULL', label: 'Reschedulable, but full' },
+        held_staff: { short: 'OPEN', label: 'Reschedulable, held by staff' },
+        held_patient: { short: 'HELD-P', label: 'Reschedulable, held by patient' },
+        open_reschedulable_available: { short: 'Open-P', label: 'Open and available to fill by staff and patients using the Patient Rescheduler service.' }
+    };
+    return map[slotVisualState] || map.open_reschedulable_available;
+}
+
+function ensureModernTooltipElement() {
+    if (!modernTooltipEl) {
+        modernTooltipEl = document.getElementById('medex-modern-tooltip');
+    }
+    return modernTooltipEl;
+}
+
+function positionModernTooltip(target) {
+    const tooltip = ensureModernTooltipElement();
+    if (!tooltip || !target) {
+        return;
+    }
+    const targetRect = target.getBoundingClientRect();
+    const tipRect = tooltip.getBoundingClientRect();
+    const gap = 10;
+    let top = targetRect.top - tipRect.height - gap;
+    if (top < 8) {
+        top = targetRect.bottom + gap;
+    }
+    let left = targetRect.left + (targetRect.width / 2) - (tipRect.width / 2);
+    left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+    tooltip.style.top = `${Math.round(top)}px`;
+    tooltip.style.left = `${Math.round(left)}px`;
+}
+
+function showModernTooltip(target) {
+    const tooltip = ensureModernTooltipElement();
+    if (!tooltip || !target) {
+        return;
+    }
+    const text = String(target.getAttribute('data-tooltip') || '').trim();
+    if (!text) {
+        return;
+    }
+    modernTooltipTarget = target;
+    tooltip.textContent = text;
+    tooltip.setAttribute('aria-hidden', 'false');
+    tooltip.classList.add('show');
+    positionModernTooltip(target);
+}
+
+function hideModernTooltip() {
+    const tooltip = ensureModernTooltipElement();
+    if (!tooltip) {
+        return;
+    }
+    modernTooltipTarget = null;
+    tooltip.classList.remove('show');
+    tooltip.setAttribute('aria-hidden', 'true');
+}
+
+function bindModernTooltips() {
+    ensureModernTooltipElement();
+
+    const getTooltipTarget = (node) => {
+        if (!node || !node.closest) {
+            return null;
+        }
+        return node.closest('#sidebar .slot-state-legend-badge[data-tooltip]');
+    };
+
+    document.addEventListener('mouseover', function(e) {
+        const target = getTooltipTarget(e.target);
+        if (!target) {
+            return;
+        }
+        showModernTooltip(target);
+    });
+
+    document.addEventListener('mouseout', function(e) {
+        if (!modernTooltipTarget) {
+            return;
+        }
+        const related = e.relatedTarget;
+        if (related && modernTooltipTarget.contains(related)) {
+            return;
+        }
+        const leavingFrom = getTooltipTarget(e.target);
+        if (leavingFrom && leavingFrom === modernTooltipTarget) {
+            hideModernTooltip();
+        }
+    });
+
+    document.addEventListener('focusin', function(e) {
+        const target = getTooltipTarget(e.target);
+        if (!target) {
+            return;
+        }
+        showModernTooltip(target);
+    });
+
+    document.addEventListener('focusout', function(e) {
+        const leavingFrom = getTooltipTarget(e.target);
+        if (leavingFrom && leavingFrom === modernTooltipTarget) {
+            hideModernTooltip();
+        }
+    });
+
+    window.addEventListener('scroll', function() {
+        if (modernTooltipTarget) {
+            positionModernTooltip(modernTooltipTarget);
+        }
+    }, true);
+
+    window.addEventListener('resize', function() {
+        if (modernTooltipTarget) {
+            positionModernTooltip(modernTooltipTarget);
+        }
+    });
+}
+
+function getCheckedValues(selector) {
+    return Array.from(document.querySelectorAll(selector)).map((cb) => String(cb.value || '').trim()).filter(Boolean);
+}
+
+function getSelectedSlotStateFilters() {
+    if (!document.getElementById('slot-state-filter')) {
+        return null;
+    }
+    const values = getCheckedValues('#slot-state-filter input[type="checkbox"]:checked');
+    return new Set(values);
+}
+
+function getSelectedAppointmentCategoryFilters() {
+    if (!document.getElementById('appointment-category-filter')) {
+        return null;
+    }
+    const values = getCheckedValues('#appointment-category-filter input[type="checkbox"]:checked')
+        .map((value) => parseInt(value, 10))
+        .filter((value) => Number.isInteger(value) && value > 0);
+    return new Set(values);
+}
+
+function shouldDisplayEventByFilters(eventData, selectedSlotStates, selectedCategoryIds) {
+    const props = eventData && eventData.extendedProps ? eventData.extendedProps : {};
+    const patientId = parseInt(props.patientId || 0, 10) || 0;
+    const preferredCategoryId = parseInt(props.preferredCategoryId || 0, 10) || 0;
+    const categoryId = parseInt(props.categoryId || 0, 10) || 0;
+    const effectiveCategoryId = preferredCategoryId > 0 ? preferredCategoryId : categoryId;
+    const slotVisualState = computeSlotVisualState({ extendedProps: props });
+
+    if (selectedSlotStates instanceof Set && (selectedSlotStates.size === 0 || !selectedSlotStates.has(slotVisualState))) {
+        return false;
+    }
+
+    if (selectedCategoryIds instanceof Set) {
+        if (selectedCategoryIds.size === 0) {
+            return false;
+        }
+        if (effectiveCategoryId <= 0 || !selectedCategoryIds.has(effectiveCategoryId)) {
+            return false;
+        }
+    }
+
+    if (patientId > 0) {
+        return true;
+    }
+
+    return true;
+}
+
+function setFilterGroupSelection(groupId, isChecked) {
+    const group = document.getElementById(groupId);
+    if (!group) {
+        return;
+    }
+    group.querySelectorAll('input[type="checkbox"]').forEach((cb) => {
+        cb.checked = !!isChecked;
+    });
+}
+
+function bindFilterBulkActions() {
+    const actionButtons = Array.from(document.querySelectorAll('#sidebar .filter-bulk-action[data-target-filter][data-action]'));
+    if (actionButtons.length === 0) {
+        return;
+    }
+
+    actionButtons.forEach((button) => {
+        button.addEventListener('click', function() {
+            const targetFilterId = String(button.getAttribute('data-target-filter') || '').trim();
+            const action = String(button.getAttribute('data-action') || '').trim();
+            if (!targetFilterId || !action) {
+                return;
+            }
+
+            if (action === 'select-all') {
+                setFilterGroupSelection(targetFilterId, true);
+            } else if (action === 'clear-all') {
+                setFilterGroupSelection(targetFilterId, false);
+            } else {
+                return;
+            }
+
+            saveFilterSelections();
+            refetchAllCalendars('filter-bulk-action', true);
+        });
+    });
+}
 
 function setUnifiedHeaderTitle(text) {
     const titleEl = document.getElementById('unified-title');
@@ -350,6 +594,69 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
     use24Hours, firstDayOfWeek, showWeekends, calendarInterval, facilityName = null) {
     const targetProviderUserId = (providerInfo && providerInfo.id) ? parseInt(providerInfo.id, 10) : null;
     const targetFacilityId = facilityId ? parseInt(facilityId, 10) : null;
+    const dragPolicy = window.medexDragPolicy || {
+        role: 'secretary',
+        canDragDrop: false,
+        canDoubleBook: false,
+        warnOnDoubleBook: false
+    };
+    function normalizeTimeMs(value) {
+        if (value === null || value === undefined) {
+            return null;
+        }
+        if (typeof value === 'number') {
+            return Number.isFinite(value) ? value : null;
+        }
+        if (value instanceof Date) {
+            const ms = value.getTime();
+            return Number.isFinite(ms) ? ms : null;
+        }
+        if (typeof value === 'string') {
+            const parsed = Date.parse(value);
+            return Number.isFinite(parsed) ? parsed : null;
+        }
+        if (value && typeof value.valueOf === 'function') {
+            const primitive = value.valueOf();
+            if (primitive !== value) {
+                const primitiveMs = normalizeTimeMs(primitive);
+                if (primitiveMs !== null) {
+                    return primitiveMs;
+                }
+            }
+        }
+        if (value && typeof value.toISOString === 'function') {
+            const parsedIso = Date.parse(value.toISOString());
+            return Number.isFinite(parsedIso) ? parsedIso : null;
+        }
+        return null;
+    }
+
+    function toSortableTimeMs(ev) {
+        if (!ev) {
+            return 0;
+        }
+
+        const candidates = [
+            ev.start,
+            ev.startStr,
+            ev.startMs,
+            ev.eventRange && ev.eventRange.range ? ev.eventRange.range.start : null,
+            ev.range ? ev.range.start : null,
+            ev._instance && ev._instance.range ? ev._instance.range.start : null,
+            (ev._instance && ev._instance.range && ev._instance.range.start && typeof ev._instance.range.start.valueOf === 'function')
+                ? ev._instance.range.start.valueOf()
+                : null
+        ];
+
+        for (let i = 0; i < candidates.length; i++) {
+            const ms = normalizeTimeMs(candidates[i]);
+            if (ms !== null) {
+                return ms;
+            }
+        }
+
+        return 0;
+    }
 
     // Create wrapper div for this provider's calendar
     const calendarWrapper = document.createElement('div');
@@ -400,13 +707,113 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
             scrollTime: scrollTime,
             expandRows: true,
             eventOverlap: true,
-            editable: true,
+            eventOrder: function(a, b) {
+                const aStartMs = toSortableTimeMs(a);
+                const bStartMs = toSortableTimeMs(b);
+                if (aStartMs !== bStartMs) {
+                    return aStartMs - bStartMs;
+                }
+
+                const aPatient = parseInt((a.extendedProps && a.extendedProps.patientId) || 0, 10) || 0;
+                const bPatient = parseInt((b.extendedProps && b.extendedProps.patientId) || 0, 10) || 0;
+                const aIsSlot = aPatient <= 0;
+                const bIsSlot = bPatient <= 0;
+
+                // Month view should use a single chronological ordering lane,
+                // not separate slot-first and appointment-second grouping.
+                const viewType = (calendar && calendar.view && calendar.view.type) ? calendar.view.type : defaultView;
+                if (viewType === 'dayGridMonth') {
+                    if (aIsSlot !== bIsSlot) {
+                        return aIsSlot ? 1 : -1;
+                    }
+                    const aTitle = String(a.title || '');
+                    const bTitle = String(b.title || '');
+                    return aTitle.localeCompare(bTitle);
+                }
+
+                if (aIsSlot !== bIsSlot) {
+                    return aIsSlot ? -1 : 1;
+                }
+                return 0;
+            },
+            editable: !!dragPolicy.canDragDrop,
             selectable: true,
-            droppable: true,
+            droppable: !!dragPolicy.canDragDrop,
             selectMirror: true,
             dayMaxEvents: true,
             weekends: showWeekends,
             height: 'auto',
+            eventAllow: function(dropInfo, draggedEvent) {
+                if (!dragPolicy.canDragDrop) {
+                    return false;
+                }
+                if (!draggedEvent) {
+                    return true;
+                }
+
+                const patientId = parseInt(draggedEvent.extendedProps.patientId || 0, 10) || 0;
+                const isGeneratedSlot = !!draggedEvent.extendedProps.isGeneratedSlot;
+                const isProviderAvailability = !!draggedEvent.extendedProps.isProviderAvailability;
+                const isOpenSlotLike = !!draggedEvent.extendedProps.isOpenSlotLike;
+
+                // Template/open availability slots are scheduling blueprint artifacts.
+                // They are not movable from Full Calendar; move templates in Dashboard.
+                if (patientId <= 0 || isGeneratedSlot || isProviderAvailability || isOpenSlotLike) {
+                    return false;
+                }
+
+                // Client-side guardrail: if this move overlaps a template/open slot,
+                // the appointment category must match that slot category.
+                const draggedCategoryId = parseInt(draggedEvent.extendedProps.preferredCategoryId || 0, 10) || 0;
+                const dropStartMs = dropInfo && dropInfo.start ? dropInfo.start.getTime() : 0;
+                const dropEndMs = dropInfo && dropInfo.end ? dropInfo.end.getTime() : 0;
+                if (draggedCategoryId > 0 && dropStartMs > 0 && dropEndMs > dropStartMs) {
+                    const overlappingSlot = calendar.getEvents().find(function(ev) {
+                        if (!ev || ev.id === draggedEvent.id) {
+                            return false;
+                        }
+                        const evProps = ev.extendedProps || {};
+                        const evPatientId = parseInt(evProps.patientId || 0, 10) || 0;
+                        const evIsTemplateLike = evPatientId <= 0 && (
+                            !!evProps.isGeneratedSlot ||
+                            !!evProps.isProviderAvailability ||
+                            !!evProps.isOpenSlotLike
+                        );
+                        if (!evIsTemplateLike || !ev.start || !ev.end) {
+                            return false;
+                        }
+                        const evStartMs = ev.start.getTime();
+                        const evEndMs = ev.end.getTime();
+                        const overlaps = dropStartMs < evEndMs && dropEndMs > evStartMs;
+                        if (!overlaps) {
+                            return false;
+                        }
+                        const slotCategoryId = parseInt(evProps.preferredCategoryId || 0, 10) || 0;
+                        return slotCategoryId > 0 && slotCategoryId !== draggedCategoryId;
+                    });
+
+                    if (overlappingSlot) {
+                        if (typeof window.showMedexStatusToast === 'function') {
+                            window.showMedexStatusToast('Cannot drop: appointment type does not match slot type', 'error', 1800);
+                        }
+                        return false;
+                    }
+                }
+
+                // Secretary policy: manual drag only for real patient appointments
+                // that are category-typed; server enforces destination slot category match.
+                if (dragPolicy.role === 'secretary') {
+                    const preferredCategoryId = parseInt(draggedEvent.extendedProps.preferredCategoryId || 0, 10) || 0;
+                    if (patientId <= 0) {
+                        return false;
+                    }
+                    if (preferredCategoryId <= 0) {
+                        return false;
+                    }
+                }
+
+                return true;
+            },
             eventClassNames: function(arg) {
                 const category = arg.event.extendedProps.category || '';
                 const patientId = arg.event.extendedProps.patientId;
@@ -431,13 +838,19 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
 
                 const isGeneratedSlot = !!arg.event.extendedProps.isGeneratedSlot;
                 const isProviderAvailability = !!arg.event.extendedProps.isProviderAvailability;
-                if ((isGeneratedSlot || isProviderAvailability) && !patientId) {
+                const isOpenSlotLike = !!arg.event.extendedProps.isOpenSlotLike;
+                if ((isGeneratedSlot || isProviderAvailability || isOpenSlotLike) && !patientId) {
+                    classes.push('slot-anchor-chip');
                     classes.push('open-slot-chip');
                     if (duration < 20) {
                         classes.push('open-slot-chip-short');
                     } else {
                         classes.push('open-slot-chip-tall');
                     }
+                }
+
+                if (patientId) {
+                    classes.push('appointment-second-chip');
                 }
 
                 // Add short-appointment class for appointments under 20 minutes
@@ -467,8 +880,14 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                 fetch(webroot + '/interface/modules/custom_modules/oe-module-medex/public/calendar/get_events.php?' + new URLSearchParams(params))
                     .then(response => response.json())
                     .then(data => {
-                        console.log('Received', data.length, 'events for provider', providerId);
-                        successCallback(data);
+                        const selectedSlotStates = getSelectedSlotStateFilters();
+                        const selectedCategoryIds = getSelectedAppointmentCategoryFilters();
+                        const filteredData = Array.isArray(data)
+                            ? data.filter((eventData) => shouldDisplayEventByFilters(eventData, selectedSlotStates, selectedCategoryIds))
+                            : [];
+
+                        console.log('Received', data.length, 'events for provider', providerId, 'after filters:', filteredData.length);
+                        successCallback(filteredData);
                     })
                     .catch(error => {
                         console.error('Error fetching events for provider', providerId, ':', error);
@@ -481,8 +900,16 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                 const patientName = info.event.extendedProps.patientName;
                 const status = info.event.extendedProps.status;
                 const statusIcon = info.event.extendedProps.statusIcon;
+                const categoryLabel = (info.event.extendedProps.category || '').trim();
+                const comments = (info.event.extendedProps.comments || '').replace(/\s+/g, ' ').trim();
                 const slotTypeColor = info.event.extendedProps.slotTypeColor || '';
                 const eventTitle = info.event.title;
+                const slotVisualState = computeSlotVisualState(info.event);
+                const slotVisualMeta = getSlotVisualMeta(slotVisualState);
+                const rawSlotState = String(info.event.extendedProps.slotState || '').trim().toLowerCase();
+                const hasReschedulableState = rawSlotState === 'held_staff'
+                    || rawSlotState === 'held_patient'
+                    || rawSlotState === 'consumed';
 
                 // Calculate event duration to determine if it's a short appointment
                 const start = info.event.start;
@@ -492,8 +919,17 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     duration = Math.round((end - start) / (1000 * 60));
                 }
 
-                // For short appointments (< 20 min) in timeGrid views, set nowrap on all elements
-                if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                const isOpenSlotChip = info.el.classList.contains('open-slot-chip');
+                if (isOpenSlotChip && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                    const slotHarness = info.el.closest('.fc-timegrid-event-harness');
+                    if (slotHarness) {
+                        slotHarness.classList.add('slot-anchor-chip-harness');
+                    }
+                }
+
+                // For short patient appointments (< 20 min) in timeGrid views, set nowrap on all elements.
+                // Open-slot chips have dedicated CSS and should not receive these inline overrides.
+                if (!isOpenSlotChip && duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
                     info.el.style.whiteSpace = 'nowrap';
                     info.el.style.overflow = 'hidden';
                     info.el.style.textOverflow = 'ellipsis';
@@ -553,89 +989,208 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     }
                 }
 
-                if (patientId && patientName && eventTitle) {
+                // Render compact state badge only on reschedulable open slots.
+                const shouldShowSlotStateBadge = isOpenSlotChip
+                    && (!!info.event.extendedProps.isReschedulable || hasReschedulableState);
+                if (shouldShowSlotStateBadge && !info.el.querySelector('.slot-state-indicator')) {
+                    info.el.classList.add('slot-state-' + slotVisualState);
+                    info.el.classList.add('has-slot-state-indicator');
+                    const stateBadge = document.createElement('span');
+                    stateBadge.className = 'slot-state-indicator slot-state-indicator--' + slotVisualState;
+                    stateBadge.textContent = slotVisualMeta.short;
+                    stateBadge.setAttribute('aria-label', slotVisualMeta.label);
+                    stateBadge.setAttribute('title', 'Slot state: ' + slotVisualMeta.label);
+                    const badgeHost = info.el.querySelector('.fc-event-main')
+                        || info.el.querySelector('.fc-event-title-container')
+                        || info.el;
+                    badgeHost.appendChild(stateBadge);
+                } else if (!shouldShowSlotStateBadge) {
+                    info.el.classList.remove('has-slot-state-indicator');
+                }
+
+                // Always expose category/comments in hover text when present.
+                {
+                    const hoverParts = [];
+                    if (eventTitle) {
+                        hoverParts.push(eventTitle);
+                    }
+                    if (categoryLabel) {
+                        hoverParts.push('Category: ' + categoryLabel);
+                    }
+                    if (comments) {
+                        hoverParts.push('Comments: ' + comments);
+                    }
+                    if (shouldShowSlotStateBadge && slotVisualMeta && slotVisualMeta.label) {
+                        hoverParts.push('Slot: ' + slotVisualMeta.label);
+                    }
+                    if (hoverParts.length > 0) {
+                        info.el.setAttribute('title', hoverParts.join('\n'));
+                    }
+                }
+
+                if (patientId && patientName) {
                     if (typeof medexDebug !== 'undefined' && medexDebug) {
                         console.log('[MedEx Calendar Debug]', medexDebug);
                     }
                     // Find the title element and make patient name clickable
                     const titleEl = info.el.querySelector('.fc-event-title');
                     if (titleEl) {
-                        // Parse the title to extract patient name and appointment type
-                        // Title format is typically: "Patient Name - Appointment Type"
-                        const parts = eventTitle.split(' - ');
+                        // Clear existing content
+                        titleEl.innerHTML = '';
 
-                        if (parts.length >= 2) {
-                            // Clear existing content
-                            titleEl.innerHTML = '';
+                        // For short appointments in timeGrid, force inline display and nowrap
+                        if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                            titleEl.style.whiteSpace = 'nowrap';
+                            titleEl.style.overflow = 'hidden';
+                            titleEl.style.textOverflow = 'ellipsis';
+                            titleEl.style.display = 'block'; // Block inside flex item works better usually
+                            titleEl.style.width = '100%';
+                        }
 
-                            // For short appointments in timeGrid, force inline display and nowrap
+                        // Create clickable patient name
+                        const patientLink = document.createElement('span');
+                        patientLink.className = 'patient-name-link';
+                        patientLink.textContent = patientName;
+                        patientLink.style.cursor = 'pointer';
+                        patientLink.style.textDecoration = 'underline';
+                        patientLink.style.fontWeight = 'bold';
+                        patientLink.title = 'Click to view patient dashboard';
+                        if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                            patientLink.style.display = 'inline';
+                        }
+
+                        // Add click handler for patient name
+                        patientLink.addEventListener('click', function(e) {
+                            e.stopPropagation(); // Prevent event click from firing
+                            if (top.restoreSession) {
+                                top.restoreSession();
+                            }
+                            if (top.RTop) {
+                                // Open in OpenEMR's right top frame (like OpenEMR calendar does)
+                                top.RTop.location = webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId);
+                            } else {
+                                // Fallback to new tab if not in OpenEMR frame structure
+                                window.open(webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId), '_blank');
+                            }
+                        });
+
+                        // Append patient name link
+                        titleEl.appendChild(patientLink);
+
+                        // Add status if present
+                        if (statusIcon || status) {
+                            const statusSeparator = document.createTextNode(' ');
+                            const statusSpan = document.createElement('span');
+                            if (statusIcon) {
+                                statusSpan.innerHTML = statusIcon;
+                            } else if (status) {
+                                statusSpan.textContent = '[' + status + ']';
+                            }
+                            statusSpan.style.fontStyle = 'italic';
+                            statusSpan.style.fontSize = '10px';
                             if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                titleEl.style.whiteSpace = 'nowrap';
-                                titleEl.style.overflow = 'hidden';
-                                titleEl.style.textOverflow = 'ellipsis';
-                                titleEl.style.display = 'block'; // Block inside flex item works better usually
-                                titleEl.style.width = '100%';
+                                statusSpan.style.display = 'inline';
                             }
+                            titleEl.appendChild(statusSeparator);
+                            titleEl.appendChild(statusSpan);
+                        }
 
-                            // Create clickable patient name
-                            const patientLink = document.createElement('span');
-                            patientLink.className = 'patient-name-link';
-                            patientLink.textContent = patientName;
-                            patientLink.style.cursor = 'pointer';
-                            patientLink.style.textDecoration = 'underline';
-                            patientLink.style.fontWeight = 'bold';
-                            patientLink.title = 'Click to view patient dashboard';
+                        // Derive appointment type robustly. Prefer explicit category, then title remainder.
+                        let appointmentType = categoryLabel;
+                        if (!appointmentType && eventTitle) {
+                            const prefix = patientName + ' - ';
+                            if (eventTitle.indexOf(prefix) === 0) {
+                                appointmentType = eventTitle.slice(prefix.length).trim();
+                            } else if (eventTitle !== patientName) {
+                                appointmentType = eventTitle.trim();
+                            }
+                        }
+
+                        if (appointmentType) {
+                            const separator = document.createTextNode(' - ');
+                            const typeSpan = document.createElement('span');
+                            typeSpan.textContent = appointmentType;
                             if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                patientLink.style.display = 'inline';
+                                typeSpan.style.display = 'inline';
                             }
+                            titleEl.appendChild(separator);
+                            titleEl.appendChild(typeSpan);
+                        }
 
-                            // Add click handler for patient name
-                            patientLink.addEventListener('click', function(e) {
-                                e.stopPropagation(); // Prevent event click from firing
-                                if (top.restoreSession) {
-                                    top.restoreSession();
-                                }
-                                if (top.RTop) {
-                                    // Open in OpenEMR's right top frame (like OpenEMR calendar does)
-                                    top.RTop.location = webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId);
-                                } else {
-                                    // Fallback to new tab if not in OpenEMR frame structure
-                                    window.open(webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId), '_blank');
-                                }
-                            });
-
-                            // Append patient name link
-                            titleEl.appendChild(patientLink);
-
-                            // Add status if present
-                            if (statusIcon || status) {
-                                const statusSeparator = document.createTextNode(' ');
-                                const statusSpan = document.createElement('span');
-                                if (statusIcon) {
-                                    statusSpan.innerHTML = statusIcon;
-                                } else if (status) {
-                                    statusSpan.textContent = '[' + status + ']';
-                                }
-                                statusSpan.style.fontStyle = 'italic';
-                                statusSpan.style.fontSize = '10px';
-                                if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                    statusSpan.style.display = 'inline';
-                                }
-                                titleEl.appendChild(statusSeparator);
-                                titleEl.appendChild(statusSpan);
+                        // Keep native-style ordering familiar to users: Name - Category - Reason.
+                        if (comments) {
+                            const reasonSeparator = document.createTextNode(' - ');
+                            const reasonSpan = document.createElement('span');
+                            reasonSpan.className = 'appointment-reason-inline';
+                            reasonSpan.textContent = comments;
+                            if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
+                                reasonSpan.style.display = 'inline';
                             }
+                            titleEl.appendChild(reasonSeparator);
+                            titleEl.appendChild(reasonSpan);
+                        }
+                    }
+                }
 
-                            // Append the rest of the title (appointment type)
-                            const appointmentType = parts.slice(1).join(' - ');
-                            if (appointmentType) {
-                                const separator = document.createTextNode(' - ');
-                                const typeSpan = document.createElement('span');
-                                typeSpan.textContent = appointmentType;
-                                if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                    typeSpan.style.display = 'inline';
-                                }
-                                titleEl.appendChild(separator);
-                                titleEl.appendChild(typeSpan);
+                // If a patient appointment overlaps a template/open slot anchor,
+                // render it as the second chip to the right in time-grid views.
+                if (patientId && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay') && start && end) {
+                    const apptStartMs = start.getTime();
+                    const apptEndMs = end.getTime();
+                    const overlapsSlotAnchor = info.view.calendar.getEvents().some(function(ev) {
+                        if (!ev || ev.id === info.event.id || !ev.start || !ev.end) {
+                            return false;
+                        }
+                        const evProps = ev.extendedProps || {};
+                        const evPatientId = parseInt(evProps.patientId || 0, 10) || 0;
+                        const evIsSlotAnchor = evPatientId <= 0 && (
+                            !!evProps.isGeneratedSlot ||
+                            !!evProps.isProviderAvailability ||
+                            !!evProps.isOpenSlotLike
+                        );
+                        if (!evIsSlotAnchor) {
+                            return false;
+                        }
+                        const evStartMs = ev.start.getTime();
+                        const evEndMs = ev.end.getTime();
+                        return apptStartMs < evEndMs && apptEndMs > evStartMs;
+                    });
+
+                    if (overlapsSlotAnchor) {
+                        info.el.classList.add('has-slot-anchor-overlap');
+                        const apptHarness = info.el.closest('.fc-timegrid-event-harness');
+                        if (apptHarness) {
+                            apptHarness.classList.add('appointment-second-chip-harness');
+                        }
+                    }
+                }
+
+                // For the same overlapped windows, pin slot anchors to the left lane.
+                if (!patientId && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay') && start && end) {
+                    const slotStartMs = start.getTime();
+                    const slotEndMs = end.getTime();
+                    const isSlotAnchor = !!info.event.extendedProps.isGeneratedSlot
+                        || !!info.event.extendedProps.isProviderAvailability
+                        || !!info.event.extendedProps.isOpenSlotLike;
+                    if (isSlotAnchor) {
+                        const overlapsPatient = info.view.calendar.getEvents().some(function(ev) {
+                            if (!ev || ev.id === info.event.id || !ev.start || !ev.end) {
+                                return false;
+                            }
+                            const evPatientId = parseInt((ev.extendedProps && ev.extendedProps.patientId) || 0, 10) || 0;
+                            if (evPatientId <= 0) {
+                                return false;
+                            }
+                            const evStartMs = ev.start.getTime();
+                            const evEndMs = ev.end.getTime();
+                            return slotStartMs < evEndMs && slotEndMs > evStartMs;
+                        });
+
+                        if (overlapsPatient) {
+                            info.el.classList.add('slot-anchor-overlapped');
+                            const slotHarness = info.el.closest('.fc-timegrid-event-harness');
+                            if (slotHarness) {
+                                slotHarness.classList.add('slot-anchor-overlap-harness');
                             }
                         }
                     }
@@ -885,8 +1440,12 @@ function updateEventTime(info, calendar, providerUserId, facilityId, options = {
     .then(data => {
         if (data.success) {
             console.log('Event updated successfully for provider', providerUserId);
+            const hasWarning = !!(data.warning);
             if (typeof window.showMedexStatusToast === 'function') {
-                window.showMedexStatusToast('Appointment updated');
+                window.showMedexStatusToast(hasWarning ? 'Updated with warning' : 'Appointment updated', hasWarning ? 'error' : 'success', hasWarning ? 2800 : 1600);
+            }
+            if (hasWarning) {
+                alert(data.warning);
             }
             if (options.mode === 'receive' && info.event) {
                 // Remove transient dragged copy before refetching canonical data.
@@ -988,7 +1547,10 @@ console.log('Setting up event listeners...');
 // Initialize once when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, restoring filters and initializing calendars...');
+    restoreSidebarSectionStates();
+    bindSidebarSectionStatePersistence();
     restoreFilterSelections();
+    bindFilterBulkActions();
     initializeCalendars();
     startAutoRefresh();
 
@@ -1012,6 +1574,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Facility selection changed, saving and reinitializing calendars...');
                 saveFilterSelections();
                 initializeCalendars();
+            }
+        });
+    }
+
+    const slotStateFilter = document.getElementById('slot-state-filter');
+    if (slotStateFilter) {
+        slotStateFilter.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                if ((e.target.value === 'open_not_reschedulable' || e.target.value === 'held_staff') && e.target.checked) {
+                    const rbotCheckbox = slotStateFilter.querySelector('input[type="checkbox"][value="open_reschedulable_available"]');
+                    if (rbotCheckbox && !rbotCheckbox.checked) {
+                        rbotCheckbox.checked = true;
+                    }
+                }
+                saveFilterSelections();
+                refetchAllCalendars('slot-state-filter-change', true);
+            }
+        });
+    }
+
+    const appointmentCategoryFilter = document.getElementById('appointment-category-filter');
+    if (appointmentCategoryFilter) {
+        appointmentCategoryFilter.addEventListener('change', function(e) {
+            if (e.target.type === 'checkbox') {
+                saveFilterSelections();
+                refetchAllCalendars('appointment-category-filter-change', true);
             }
         });
     }
@@ -1060,9 +1648,13 @@ document.addEventListener('DOMContentLoaded', function() {
 function saveFilterSelections() {
     const providers = Array.from(document.querySelectorAll('#provider-filter input[type="checkbox"]:checked')).map(cb => cb.value);
     const facilities = Array.from(document.querySelectorAll('#facility-filter input[type="checkbox"]:checked')).map(cb => cb.value);
+    const slotStates = Array.from(document.querySelectorAll('#slot-state-filter input[type="checkbox"]:checked')).map(cb => cb.value);
+    const appointmentCategoryIds = Array.from(document.querySelectorAll('#appointment-category-filter input[type="checkbox"]:checked')).map(cb => cb.value);
     localStorage.setItem('medexSelectedProviders', JSON.stringify(providers));
     localStorage.setItem('medexSelectedFacilities', JSON.stringify(facilities));
-    console.log('Saved filter selections - providers:', providers, 'facilities:', facilities);
+    localStorage.setItem('medexSelectedSlotStates', JSON.stringify(slotStates));
+    localStorage.setItem('medexSelectedAppointmentCategoryIds', JSON.stringify(appointmentCategoryIds));
+    console.log('Saved filter selections - providers:', providers, 'facilities:', facilities, 'slot states:', slotStates, 'appointment categories:', appointmentCategoryIds);
 }
 
 // Restore filter selections from URL parameters (priority) or localStorage
@@ -1181,6 +1773,63 @@ function restoreFilterSelections() {
             cb.checked = preferredFacilities.includes(cb.value);
         });
     }
+
+    const storedSlotStates = readStoredArray('medexSelectedSlotStates');
+    const slotStatesToRestore = storedSlotStates.length > 0 ? storedSlotStates : DEFAULT_SLOT_STATE_FILTERS;
+    document.querySelectorAll('#slot-state-filter input[type="checkbox"]').forEach((cb) => {
+        cb.checked = slotStatesToRestore.includes(cb.value);
+    });
+
+    const storedCategoryIds = readStoredArray('medexSelectedAppointmentCategoryIds');
+    if (storedCategoryIds.length > 0) {
+        document.querySelectorAll('#appointment-category-filter input[type="checkbox"]').forEach((cb) => {
+            cb.checked = storedCategoryIds.includes(cb.value);
+        });
+    }
+}
+
+function restoreSidebarSectionStates() {
+    const sections = Array.from(document.querySelectorAll('#sidebar details.filter-section[id]'));
+    if (sections.length === 0) {
+        return;
+    }
+
+    let savedState = {};
+    try {
+        const raw = localStorage.getItem('medexSidebarSectionStates') || '{}';
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+            savedState = parsed;
+        }
+    } catch (e) {
+        savedState = {};
+    }
+
+    sections.forEach((section) => {
+        const key = section.id;
+        if (Object.prototype.hasOwnProperty.call(savedState, key)) {
+            section.open = !!savedState[key];
+        }
+    });
+}
+
+function bindSidebarSectionStatePersistence() {
+    const sections = Array.from(document.querySelectorAll('#sidebar details.filter-section[id]'));
+    if (sections.length === 0) {
+        return;
+    }
+
+    const saveState = () => {
+        const state = {};
+        sections.forEach((section) => {
+            state[section.id] = !!section.open;
+        });
+        localStorage.setItem('medexSidebarSectionStates', JSON.stringify(state));
+    };
+
+    sections.forEach((section) => {
+        section.addEventListener('toggle', saveState);
+    });
 }
 
 console.log('calendar.js initialization complete');
