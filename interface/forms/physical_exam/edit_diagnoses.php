@@ -80,12 +80,22 @@ if ($_POST['form_save']) {
     exit();
 }
 
- $dres = sqlStatement(
-     "SELECT * FROM form_physical_exam_diagnoses WHERE " .
-     "line_id = ? ORDER BY ordering, diagnosis",
-     [$line_id]
- );
-    ?>
+$existingDiagnosisRows = [];
+$dres = sqlStatement(
+    "SELECT ordering, diagnosis FROM form_physical_exam_diagnoses WHERE " .
+    "line_id = ? ORDER BY ordering, diagnosis",
+    [$line_id]
+);
+while ($drow = sqlFetchArray($dres)) {
+    $existingDiagnosisRows[] = $drow;
+}
+
+$diagnosisRows = array_pad(
+    $existingDiagnosisRows,
+    count($existingDiagnosisRows) + 5,
+    ['ordering' => null, 'diagnosis' => '']
+);
+?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
@@ -99,17 +109,16 @@ if ($_POST['form_save']) {
   <td width='95%'><?php echo xlt('Diagnosis'); ?></td>
  </tr>
 
-<?php for ($i = 1; $drow = sqlFetchArray($dres); ++$i) { ?>
+<?php foreach ($diagnosisRows as $idx => $drow) {
+    $i = $idx + 1;
+    $orderingValue = $drow['ordering'] ?? $i;
+    $ordering = is_scalar($orderingValue) ? (string) $orderingValue : (string) $i;
+    $diagnosisValue = $drow['diagnosis'] ?? '';
+    $diagnosis = is_scalar($diagnosisValue) ? (string) $diagnosisValue : '';
+    ?>
  <tr>
-  <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo attr($i); ?>' /></td>
-  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo attr($i); ?>]' value='<?php echo attr($drow['diagnosis']); ?>' style='width:100%' /></td>
- </tr>
-<?php } ?>
-
-<?php for ($j = 0; $j < 5; ++$j, ++$i) { ?>
- <tr>
-  <td><input type='text' size='3' name='form_ordering[<?php echo attr($i); ?>]' value='<?php echo $i?>' /></td>
-  <td><input type='text' size='20' name='form_diagnosis[<?php echo attr($i); ?>]' style='width:100%' /></td>
+  <td><input type='text' size='3' maxlength='5' name='form_ordering[<?php echo $i; ?>]' value='<?php echo attr($ordering); ?>' /></td>
+  <td><input type='text' size='20' maxlength='250' name='form_diagnosis[<?php echo $i; ?>]' value='<?php echo attr($diagnosis); ?>' style='width:100%' /></td>
  </tr>
 <?php } ?>
 
