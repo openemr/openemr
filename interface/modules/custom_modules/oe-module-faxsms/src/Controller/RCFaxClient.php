@@ -607,31 +607,35 @@ class RCFaxClient extends AppDispatch
         $response = ['success' => false, 'message' => '', 'url' => ''];
         $where = $this->getRequest('file_path') ?? $this->getSession('where');
 
-        if (empty($where)) {
+        if (!is_string($where) || $where === '') {
             die(xlt('Problem with download. Use browser back button'));
         }
 
-        $content = $this->getRequest('content', '');
-        $action = $this->getRequest('action');
+        $rawContent = $this->getRequest('content', '');
+        $content = is_string($rawContent) ? $rawContent : '';
+        $rawAction = $this->getRequest('action');
+        $action = is_string($rawAction) ? $rawAction : '';
 
-        if ($action == 'download') {
+        if ($action === 'download') {
             $this->sendFile($where);
             sleep(2);
             unlink($where);
             exit;
         }
 
-        if (!empty($content) && $action == 'setup') {
-            $decodedContent = base64_decode((string)$content);
-            if (file_put_contents($where, $decodedContent) !== false) {
+        if ($action === 'setup') {
+            if ($content !== '') {
+                $decodedContent = base64_decode($content);
+                if (file_put_contents($where, $decodedContent) !== false) {
+                    $response['success'] = true;
+                    $response['url'] = $where;
+                } else {
+                    $response['message'] = 'Failed to write file';
+                }
+            } else {
                 $response['success'] = true;
                 $response['url'] = $where;
-            } else {
-                $response['message'] = 'Failed to write file';
             }
-        } elseif ($action == 'setup') {
-            $response['success'] = true;
-            $response['url'] = $where;
         }
 
         return json_encode($response);
