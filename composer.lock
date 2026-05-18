@@ -1988,16 +1988,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "9.0.29",
+            "version": "9.0.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "ac6ca861830c556ed1c266de3f6fe5f983da09d5"
+                "reference": "585ce999a2d404ed48bf5b37a22ba369a885f2b9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/ac6ca861830c556ed1c266de3f6fe5f983da09d5",
-                "reference": "ac6ca861830c556ed1c266de3f6fe5f983da09d5",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/585ce999a2d404ed48bf5b37a22ba369a885f2b9",
+                "reference": "585ce999a2d404ed48bf5b37a22ba369a885f2b9",
                 "shasum": ""
             },
             "require": {
@@ -2060,7 +2060,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2026-04-24T11:10:46+00:00"
+            "time": "2026-05-07T12:07:12+00:00"
         },
         {
             "name": "giggsey/locale",
