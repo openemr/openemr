@@ -285,7 +285,7 @@
             "@rector-check",
             "@require-checker"
         ],
-        "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
+        "codespell": "if command -v codespell >/dev/null 2>&1; then codespell; else echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2; fi",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
         "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "phpcbf",
