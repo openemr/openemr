@@ -44,8 +44,10 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-$language_direction = $session->get('language_direction');
+if (!isset($language_direction)) {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $language_direction = $session->get('language_direction');
+}
 ?>
     i18n:{
         en: {
