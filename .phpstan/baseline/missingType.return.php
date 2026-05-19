@@ -874,22 +874,22 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Function isFacilityAllowed\\(\\) has no return type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isProductSelectable\\(\\) has no return type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isUserRestricted\\(\\) has no return type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function isWarehouseAllowed\\(\\) has no return type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
+    'path' => __DIR__ . '/../../interface/drugs/inventory_acl.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function array_key_exists_default\\(\\) has no return type specified\\.$#',

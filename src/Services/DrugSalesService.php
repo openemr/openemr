@@ -20,10 +20,38 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 use PHPMailer\PHPMailer\PHPMailer;
+use RuntimeException;
 
+/**
+ * In this codebase "sell" and "dispense" describe the same operation: decrementing
+ * drug_inventory.on_hand and inserting a drug_sales row. The DB table, this service
+ * class, and the public sellDrug() method consistently use "sale" terminology.
+ * The UI surfaces the operation to clinicians as "Dispense" because that is the
+ * clinical term. Domain code stays in the sale vocabulary.
+ */
 class DrugSalesService extends BaseService
 {
     const TABLE_NAME = 'drug_sales';
+
+    /**
+     * Global toggle key. When set (default), sellDrug() restricts inventory
+     * selection to the user's default warehouse and rejects off-site lots
+     * even when the caller pins them via $inventory_id. When the admin
+     * disables it, the lot picker can dispense from any warehouse, with
+     * off-site selections surfaced via UI warnings.
+     *
+     * Replaces the 2013 hardcoded SELL_FROM_ONE_WAREHOUSE flag.
+     */
+    private const RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY = 'restrict_sales_to_default_warehouse';
+
+    public static function restrictSalesToDefaultWarehouse(): bool
+    {
+        // OEGlobalsBag only sees keys that have a DB row. A fresh install
+        // (or any clinic that has not touched this setting) has no row, so
+        // we fall back to true — the safest mode and the one matching the
+        // configured default in library/globals.inc.php.
+        return OEGlobalsBag::getInstance()->getBoolean(self::RESTRICT_SALES_TO_DEFAULT_WAREHOUSE_KEY, true);
+    }
 
     public function __construct()
     {
@@ -217,7 +245,8 @@ class DrugSalesService extends BaseService
         $testonly = false,
         &$expiredlots = null,
         $pricelevel = '',
-        $selector = ''
+        $selector = '',
+        ?int $inventory_id = null
     ) {
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -291,8 +320,7 @@ class DrugSalesService extends BaseService
             return $sale_id;
         }
 
-        // Combining is never allowed for prescriptions and will not work with
-        // dispense_drug.php.
+        // Combining is never allowed for prescriptions.
         if ($prescription_id) {
             $allow_combining = 0;
         }
@@ -316,10 +344,30 @@ class DrugSalesService extends BaseService
             "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
+        // Honour the clinic-level policy: when restrict_sales_to_default_warehouse
+        // is on, the user must have a default warehouse and we filter to it.
+        // No default = no anchor for "on-site" = the policy cannot be applied,
+        // so we refuse the sale rather than silently dispensing from any
+        // warehouse (the pre-2026 loophole). The default_warehouse param is
+        // typed loose (legacy signature) so we accept null/'' alike.
+        $defaultWarehouseSet = $default_warehouse !== null && $default_warehouse !== '' && $default_warehouse !== false;
+        if (self::restrictSalesToDefaultWarehouse() && !$defaultWarehouseSet) {
+            throw new InvalidArgumentException(xl('Your clinic only allows dispensing from your default warehouse, but no default warehouse is configured for your user. Set one under Administration → Users.'));
+        }
+
         $sqlarr = [$drug_id];
-        if (OEGlobalsBag::getInstance()->get('SELL_FROM_ONE_WAREHOUSE') && $default_warehouse) {
+        if (self::restrictSalesToDefaultWarehouse()) {
             $query .= "AND di.warehouse_id = ? ";
             $sqlarr[] = $default_warehouse;
+        }
+
+        // When the caller pinned a specific lot (UI lot picker), restrict
+        // the candidate set to only that lot. Combining is meaningless
+        // when a single lot is pinned.
+        if ($inventory_id !== null && $inventory_id > 0) {
+            $query .= "AND di.inventory_id = ? ";
+            $sqlarr[] = $inventory_id;
+            $allow_combining = 0;
         }
 
         $query .= "ORDER BY $orderby";
@@ -481,6 +529,177 @@ class DrugSalesService extends BaseService
         return $sale_id;
     }
 
+    /**
+     * Return the lots eligible to fill a dispense for the given drug.
+     *
+     * Two modes:
+     * - $restrictToDefaultWarehouse = true (default): returns only lots from
+     *   the user's default warehouse. Matches sellDrug()'s auto-selection
+     *   behaviour. Off-site lots are not visible.
+     * - $restrictToDefaultWarehouse = false: returns all lots across
+     *   warehouses, with each row carrying an is_off_site flag. The caller
+     *   (lot picker UI) uses the flag to warn the user before dispensing
+     *   from a non-on-site lot — by clinic policy, those lots should be
+     *   transferred to the on-site warehouse first.
+     *
+     * "On site" is defined as $defaultWarehouse (the user's
+     * users.default_warehouse). If the user has no default warehouse, every
+     * lot is treated as off-site — the user has no anchor to compare
+     * against, so we surface the safest-to-question state.
+     *
+     * Excluded in both modes: expired lots, destroyed lots, lots with
+     * on_hand <= 0, and lots in warehouses marked seq > 99 (the
+     * sellDrug() "unavailable" convention).
+     *
+     * Order: on-site lots first, then off-site, each sub-group by warehouse
+     * seq, then nearest expiration. The first row is the safest default.
+     *
+     * @return list<array{
+     *     inventory_id: int,
+     *     lot_number: string,
+     *     expiration: ?string,
+     *     manufacturer: string,
+     *     warehouse_id: string,
+     *     warehouse_title: string,
+     *     on_hand: int,
+     *     is_off_site: bool
+     * }>
+     */
+    public function getAvailableLots(
+        int $drugId,
+        string $defaultWarehouse = '',
+        bool $restrictToDefaultWarehouse = true
+    ): array {
+        if ($drugId <= 0) {
+            return [];
+        }
+
+        $orderby = ($defaultWarehouse === '') ?
+            "" : "di.warehouse_id != '$defaultWarehouse', ";
+        $orderby .= "lo.seq, di.expiration, di.lot_number, di.inventory_id";
+
+        $today = date('Y-m-d');
+        $query = "SELECT di.inventory_id, di.lot_number, di.expiration, di.manufacturer, " .
+            "di.warehouse_id, di.on_hand, lo.seq, lo.title AS warehouse_title " .
+            "FROM drug_inventory AS di " .
+            "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
+            "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
+            "WHERE di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand > 0 " .
+            "AND (di.expiration IS NULL OR di.expiration > ?) ";
+        $params = [$drugId, $today];
+
+        if ($restrictToDefaultWarehouse && $defaultWarehouse !== '') {
+            $query .= "AND di.warehouse_id = ? ";
+            $params[] = $defaultWarehouse;
+        }
+
+        $query .= "ORDER BY $orderby";
+
+        $toInt = static function (mixed $v): int {
+            return is_numeric($v) ? (int)$v : 0;
+        };
+        $toString = static function (mixed $v): string {
+            return is_scalar($v) || $v === null ? (string)($v ?? '') : '';
+        };
+
+        $rows = QueryUtils::fetchRecords($query, $params);
+        $lots = [];
+        foreach ($rows as $row) {
+            $warehouseId = $toString($row['warehouse_id'] ?? '');
+            // Skip warehouses marked unavailable (seq > 99), matching sellDrug().
+            if ($warehouseId !== $defaultWarehouse) {
+                $seq = $toInt($row['seq'] ?? 0);
+                if ($seq > 99) {
+                    continue;
+                }
+            }
+            $expirationRaw = $row['expiration'] ?? null;
+            $rawTitle = $toString($row['warehouse_title'] ?? '');
+            // xl_list_label translates list_options titles; falls back to the
+            // raw title if no translation is registered.
+            $warehouseTitle = $rawTitle !== '' ? (string)xl_list_label($rawTitle) : '';
+            // When the user has no default warehouse, we have no anchor for
+            // "on-site" — every lot is treated as off-site so the UI warns
+            // on every selection.
+            $isOffSite = $defaultWarehouse === '' || $warehouseId !== $defaultWarehouse;
+            $lots[] = [
+                'inventory_id'    => $toInt($row['inventory_id'] ?? 0),
+                'lot_number'      => $toString($row['lot_number'] ?? ''),
+                'expiration'      => $expirationRaw !== null && $expirationRaw !== '' ? $toString($expirationRaw) : null,
+                'manufacturer'    => $toString($row['manufacturer'] ?? ''),
+                'warehouse_id'    => $warehouseId,
+                'warehouse_title' => $warehouseTitle,
+                'on_hand'         => $toInt($row['on_hand'] ?? 0),
+                'is_off_site'     => $isOffSite,
+            ];
+        }
+        return $lots;
+    }
+
+    /**
+     * Reverse all sales attached to a prescription.
+     *
+     * Used when a prescription is deleted: the orphaned drug_sales rows
+     * are removed (otherwise they would keep showing up in encounter
+     * reports with a now-dangling prescription_id), and — when the caller
+     * asks for it — the on_hand quantity that was decremented from the
+     * original lot(s) at sale time is added back.
+     *
+     * Non-dispensible sales (where inventory_id = 0) never affected
+     * inventory, so they are deleted regardless of the flag.
+     *
+     * Returns a summary for UI feedback / audit logging.
+     *
+     * @return array{sales_deleted: int, units_restored: float, restored_inventory: bool}
+     */
+    public function reverseSalesForPrescription(int $prescriptionId, bool $restoreInventory = true): array
+    {
+        if ($prescriptionId <= 0) {
+            return ['sales_deleted' => 0, 'units_restored' => 0.0, 'restored_inventory' => $restoreInventory];
+        }
+
+        if ($restoreInventory) {
+            // Add the dispensed quantity back to each lot. Skip rows with
+            // inventory_id = 0 (non-dispensible products — no inventory effect).
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE drug_sales AS ds " .
+                "JOIN drug_inventory AS di ON di.inventory_id = ds.inventory_id " .
+                "SET di.on_hand = di.on_hand + ds.quantity " .
+                "WHERE ds.prescription_id = ? AND ds.inventory_id != 0",
+                [$prescriptionId]
+            );
+        }
+
+        $unitsRestored = 0.0;
+        if ($restoreInventory) {
+            $row = QueryUtils::fetchRecords(
+                "SELECT COALESCE(SUM(quantity), 0) AS total " .
+                "FROM drug_sales WHERE prescription_id = ? AND inventory_id != 0",
+                [$prescriptionId]
+            )[0] ?? null;
+            $totalRaw = $row['total'] ?? 0;
+            $unitsRestored = is_numeric($totalRaw) ? (float)$totalRaw : 0.0;
+        }
+
+        $countRow = QueryUtils::fetchRecords(
+            "SELECT COUNT(*) AS c FROM drug_sales WHERE prescription_id = ?",
+            [$prescriptionId]
+        )[0] ?? null;
+        $countRaw = $countRow['c'] ?? 0;
+        $salesDeleted = is_numeric($countRaw) ? (int)$countRaw : 0;
+
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM drug_sales WHERE prescription_id = ?",
+            [$prescriptionId]
+        );
+
+        return [
+            'sales_deleted'      => $salesDeleted,
+            'units_restored'     => $unitsRestored,
+            'restored_inventory' => $restoreInventory,
+        ];
+    }
+
     public function send_drug_email($subject, $body): void
     {
         $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
@@ -501,5 +720,98 @@ class DrugSalesService extends BaseService
             $this->getLogger()->error("There has been a mail error sending to " . $recipient .
                     " " . $mail->ErrorInfo);
         }
+    }
+
+    /**
+     * Build the printable bottle-label text blocks for a completed sale.
+     *
+     * Returns the two text blocks the label page renders: a header (provider
+     * name, facility address, optional disclaimer) and a body (patient,
+     * drug, dose, lot, expiration, NDC). The caller is responsible for
+     * wrapping the strings in HTML or PDF output.
+     *
+     * @return array{header_text: string, label_text: string}
+     */
+    public function renderBottleLabel(int $saleId): array
+    {
+        $stringify = static function (mixed $v): string {
+            return is_scalar($v) || $v === null ? (string)($v ?? '') : '';
+        };
+
+        $facilityService = new FacilityService();
+        $facilityRaw = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
+        $facility = is_array($facilityRaw) ? array_map($stringify, $facilityRaw) : [];
+
+        $rowRaw = QueryUtils::fetchRecords(
+            "SELECT " .
+            "s.pid, s.quantity, s.prescription_id, " .
+            "i.manufacturer, i.lot_number, i.expiration, " .
+            "d.name, d.ndc_number, d.form, d.size, d.unit, " .
+            "r.date_modified, r.dosage, r.route, r.interval, r.substitute, r.refills, " .
+            "p.fname, p.lname, p.mname, " .
+            "u.fname AS ufname, u.mname AS umname, u.lname AS ulname " .
+            "FROM drug_sales AS s, drug_inventory AS i, drugs AS d, " .
+            "prescriptions AS r, patient_data AS p, users AS u WHERE " .
+            "s.sale_id = ? AND " .
+            "i.inventory_id = s.inventory_id AND " .
+            "d.drug_id = i.drug_id AND " .
+            "r.id = s.prescription_id AND " .
+            "p.pid = s.pid AND " .
+            "u.id = r.provider_id",
+            [$saleId]
+        )[0] ?? null;
+
+        if ($rowRaw === null) {
+            throw new RuntimeException(xl('Sale not found or missing related records') . ": $saleId");
+        }
+
+        // Normalize all DB fields to string up front so the label-composition
+        // code below operates on guaranteed strings (avoids mixed-typed casts).
+        $row = array_map($stringify, $rowRaw);
+
+        $oerConfig = OEGlobalsBag::getInstance()->get('oer_config');
+        $labelConfig = is_array($oerConfig) && is_array($oerConfig['druglabels'] ?? null)
+            ? array_map($stringify, $oerConfig['druglabels'])
+            : [];
+
+        $headerText = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
+            $facility['street'] . "\n" .
+            $facility['city'] . ', ' . $facility['state'] . ' ' . $facility['postal_code'] .
+            '  ' . $facility['phone'] . "\n";
+        if (($labelConfig['disclaimer'] ?? '') !== '') {
+            $headerText .= $labelConfig['disclaimer'] . "\n";
+        }
+
+        $dosageInt = (int)$row['dosage'];
+        $unitDisplay     = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_units'], $row['unit']));
+        $formDisplay     = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_form'], $row['form']));
+        $intervalDisplay = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_interval'], $row['interval']));
+        $routeDisplay    = $stringify(generate_display_field(['data_type' => '1','list_id' => 'drug_route'], $row['route']));
+        $labelText = $row['fname'] . ' ' . $row['lname'] . ' ' . $row['date_modified'] .
+            ' RX#' . sprintf('%06u', (int)$row['prescription_id']) . "\n" .
+            $row['name'] . ' ' . $row['size'] . ' ' .
+            $unitDisplay . ' ' .
+            xl('QTY') . ' ' . $row['quantity'] . "\n" .
+            xl('Take') . ' ' . $row['dosage'] . ' ' .
+            $formDisplay .
+            ($dosageInt > 1 ? 's ' : ' ') .
+            $intervalDisplay .
+            ' ' .
+            $routeDisplay .
+            sprintf(
+                "\n%s %s %s %s\n%s %s %s",
+                xl('Lot'),
+                $row['lot_number'],
+                xl('Exp'),
+                $row['expiration'],
+                xl('NDC'),
+                $row['ndc_number'],
+                $row['manufacturer']
+            );
+
+        return [
+            'header_text' => $headerText,
+            'label_text'  => $labelText,
+        ];
     }
 }

@@ -28,7 +28,7 @@
 
 require_once(__DIR__ . "/../interface/globals.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
-require_once(__DIR__ . "/../interface/drugs/drugs.inc.php");
+require_once(__DIR__ . "/../interface/drugs/inventory_acl.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/appointment_status.inc.php");
 require_once(__DIR__ . "/forms.inc.php");
@@ -39,6 +39,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\Services\DrugSalesService;
 
 // For logging checksums set this to true.
 define('CHECKSUM_LOGGING', true);
@@ -863,7 +864,7 @@ class FeeSheet
                             // Changing warehouse so check inventory in the new warehouse.
                             // Nothing is updated by this call.
                             if (
-                                !sellDrug(
+                                !(new DrugSalesService())->sellDrug(
                                     $drug_id,
                                     $inv_units,
                                     0,
@@ -888,7 +889,7 @@ class FeeSheet
                 } else { // Otherwise it's a new item...
                     // This only checks for sufficient inventory, nothing is updated.
                     if (
-                        !sellDrug(
+                        !(new DrugSalesService())->sellDrug(
                             $drug_id,
                             $inv_units,
                             0,
@@ -1319,7 +1320,7 @@ class FeeSheet
                                     [$inv_units, $tmprow['inventory_id']]
                                 );
                                 $tmpnull = null;
-                                $sale_id = sellDrug(
+                                $sale_id = (new DrugSalesService())->sellDrug(
                                     $drug_id,
                                     $inv_units,
                                     $fee,
@@ -1351,7 +1352,7 @@ class FeeSheet
                     $logarr = ['PROD', $drug_id, $selector, $pricelevel, $fee, $units, '', $warehouse_id];
                     $this->logFSMessage(xl('Item added'), '', $logarr);
                     $tmpnull = null;
-                    $sale_id = sellDrug(
+                    $sale_id = (new DrugSalesService())->sellDrug(
                         $drug_id,
                         $inv_units,
                         $fee,
