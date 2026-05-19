@@ -467,6 +467,69 @@ class FormVitals extends ORDataObject
         }
     }
 
+    /**
+     * Validates all numeric vital properties against VitalsFieldRanges.
+     *
+     * @return array{errors: list<string>, warnings: list<string>}
+     */
+    public function validate(): array
+    {
+        $errors = [];
+        $warnings = [];
+
+        $fieldPropertyMap = [
+            'weight' => 'weight',
+            'height' => 'height',
+            'bps' => 'bps',
+            'bpd' => 'bpd',
+            'pulse' => 'pulse',
+            'respiration' => 'respiration',
+            'temperature' => 'temperature',
+            'oxygen_saturation' => 'oxygen_saturation',
+            'oxygen_flow_rate' => 'oxygen_flow_rate',
+            'inhaled_oxygen_concentration' => 'inhaled_oxygen_concentration',
+            'head_circ' => 'head_circ',
+            'waist_circ' => 'waist_circ',
+            'ped_weight_height' => 'ped_weight_height',
+            'ped_bmi' => 'ped_bmi',
+            'ped_head_circ' => 'ped_head_circ',
+        ];
+
+        foreach ($fieldPropertyMap as $fieldName => $property) {
+            $value = $this->$property;
+            if ($value === null || $value === '' || $value === 0 || $value === '0') {
+                continue;
+            }
+
+            if (!is_numeric($value)) {
+                $errors[] = "Field '{$fieldName}' has a non-numeric value.";
+                continue;
+            }
+
+            $numericValue = (float) $value;
+            $range = VitalsFieldRanges::getRangeForField($fieldName);
+            if ($range === null) {
+                continue;
+            }
+
+            if ($numericValue < 0) {
+                $errors[] = "Field '{$fieldName}' cannot be negative.";
+                continue;
+            }
+
+            if ($numericValue < $range['min'] || $numericValue > $range['max']) {
+                $errors[] = "Field '{$fieldName}' is outside acceptable range ({$range['min']}–{$range['max']}).";
+                continue;
+            }
+
+            if ($numericValue < $range['warningMin'] || $numericValue > $range['warningMax']) {
+                $warnings[] = "Field '{$fieldName}' is outside typical clinical range ({$range['warningMin']}–{$range['warningMax']}).";
+            }
+        }
+
+        return ['errors' => $errors, 'warnings' => $warnings];
+    }
+
     public function persist()
     {
         if (empty($this->uuid)) {
