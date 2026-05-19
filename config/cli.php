@@ -15,5 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Console\Command;
 
 return [
+    Encryption\SyncCommand::class,
     InstallCommand::class,
 ];
