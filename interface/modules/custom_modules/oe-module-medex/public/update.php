@@ -28,9 +28,10 @@ $updateManager = new \OpenEMR\Modules\MedEx\UpdateManager();
 
 $action = $_GET['action'] ?? '';
 $downloadUrl = $_GET['url'] ?? '';
+$isReconcileRequest = $action === 'install' && $downloadUrl === '';
 
 // Handle AJAX installation request
-if ($action === 'install' && !empty($downloadUrl)) {
+if ($action === 'install' && (!empty($downloadUrl) || $isReconcileRequest)) {
     // Verify CSRF token for POST requests
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
@@ -39,8 +40,10 @@ if ($action === 'install' && !empty($downloadUrl)) {
         }
     }
 
-    // Start update installation
-    $result = $updateManager->installUpdate($downloadUrl, true);
+    // Start update installation or package reconcile
+    $result = $isReconcileRequest
+        ? $updateManager->reconcilePackages(true, true)
+        : $updateManager->installUpdate($downloadUrl, true);
 
     // Return JSON response if AJAX
     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
@@ -59,6 +62,21 @@ if ($action === 'install' && !empty($downloadUrl)) {
 // Check for updates
 $updateInfo = $updateManager->checkForUpdates(true); // Force fresh check
 $hasWritePermissions = $updateManager->hasWritePermissions();
+$reconcilePlan = is_array($updateInfo['reconcile_plan'] ?? null) ? $updateInfo['reconcile_plan'] : null;
+$hasPackageDrift = !empty($reconcilePlan['requires_reconcile']);
+$installActionUrl = 'update.php?action=install';
+if (!empty($updateInfo['download_url']) && !$hasPackageDrift) {
+    $installActionUrl .= '&url=' . urlencode((string)$updateInfo['download_url']);
+}
+$installButtonLabel = $hasPackageDrift ? xlt('Apply Package Changes') : xlt('Install Update Now');
+$installConfirmText = $hasPackageDrift
+    ? xlj('This will reconcile subscribed MedEx packages for this installation. A backup will be created automatically. Continue?')
+    : xlj('This will update the MedEx module. A backup will be created automatically. Continue?');
+$installVerb = $hasPackageDrift ? xlj('Reconciling...') : xlj('Installing...');
+$installSuccessLabel = $hasPackageDrift ? xlj('Reconcile Complete') : xlj('Update Complete');
+$installFailureLabel = $hasPackageDrift ? xlj('Reconcile Failed') : xlj('Update Failed');
+$installStartLog = $hasPackageDrift ? xlj('Starting package reconcile...') : xlj('Starting update installation...');
+$installBackupLog = $hasPackageDrift ? xlj('Creating backup before package reconcile...') : xlj('Creating backup of current version...');
 
 ?>
 <!DOCTYPE html>
@@ -276,7 +294,7 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
                 <strong><i class="fa fa-exclamation-triangle"></i> <?php echo xlt('Insufficient Permissions'); ?></strong><br>
                 <?php echo xlt('The module directory is not writable. Updates cannot be installed automatically.'); ?><br>
                 <br>
-                <strong><?php echo xlt('Directory'); ?>:</strong> <code><?php echo text($updateManager->moduleDir ?? 'unknown'); ?></code><br>
+                <strong><?php echo xlt('Directory'); ?>:</strong> <code><?php echo text($updateManager->getModuleDir()); ?></code><br>
                 <br>
                 <?php echo xlt('Please contact your system administrator or manually update the module files.'); ?>
             </div>
@@ -301,6 +319,21 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
                 <div class="info-row">
                     <span class="info-label"><?php echo xlt('Release Date'); ?>:</span>
                     <span class="info-value"><?php echo text(date('F j, Y', strtotime($updateInfo['release_date']))); ?></span>
+                </div>
+                <?php endif; ?>
+                <?php if ($hasPackageDrift): ?>
+                <div class="info-row">
+                    <span class="info-label"><?php echo xlt('Package Changes'); ?>:</span>
+                    <span class="info-value">
+                        <?php
+                        echo text(sprintf(
+                            'Install %d, Update %d, Remove %d',
+                            (int)($reconcilePlan['counts']['install'] ?? 0),
+                            (int)($reconcilePlan['counts']['update'] ?? 0),
+                            (int)($reconcilePlan['counts']['remove'] ?? 0)
+                        ));
+                        ?>
+                    </span>
                 </div>
                 <?php endif; ?>
             </div>
@@ -338,9 +371,9 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
             <div id="installLog"></div>
 
             <div class="action-buttons">
-                <?php if ($hasWritePermissions && !empty($updateInfo['download_url'])): ?>
+                <?php if ($hasWritePermissions && (!empty($updateInfo['download_url']) || $hasPackageDrift)): ?>
                     <button type="button" class="btn btn-success" id="installBtn" onclick="startInstallation()">
-                        <i class="fa fa-download"></i> <?php echo xlt('Install Update Now'); ?>
+                        <i class="fa fa-download"></i> <?php echo text($installButtonLabel); ?>
                     </button>
                 <?php endif; ?>
                 <a href="status.php" class="btn btn-secondary">
@@ -392,12 +425,12 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
         const installGuide = document.getElementById('installGuide');
         const stepItems = Array.from(document.querySelectorAll('#installStepList li[data-step]'));
 
-        if (!confirm(<?php echo xlj('This will update the MedEx module. A backup will be created automatically. Continue?'); ?>)) {
+        if (!confirm(<?php echo $installConfirmText; ?>)) {
             return;
         }
 
         btn.disabled = true;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + <?php echo xlj('Installing...'); ?>;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + <?php echo $installVerb; ?>;
         progressBar.style.display = 'block';
         installGuide.style.display = 'block';
         installLog.style.display = 'block';
@@ -424,12 +457,12 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
             installLog.scrollTop = installLog.scrollHeight;
         }
 
-        addLog('Starting update installation...');
-        addLog('Creating backup of current version...');
+        addLog(<?php echo $installStartLog; ?>);
+        addLog(<?php echo $installBackupLog; ?>);
 
         function setProgressFailed() {
             progressFill.style.width = '100%';
-            progressFill.textContent = <?php echo xlj('Update Failed'); ?>;
+            progressFill.textContent = <?php echo $installFailureLabel; ?>;
             progressFill.classList.add('failed');
         }
 
@@ -461,7 +494,7 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
         }
 
         // Make AJAX request to install
-        fetch('update.php?action=install&url=<?php echo urlencode($updateInfo['download_url'] ?? ''); ?>', {
+        fetch('<?php echo attr($installActionUrl); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -478,12 +511,14 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
                 progressFill.style.width = '100%';
                 progressFill.textContent = '100%';
                 progressFill.classList.remove('failed');
-                addLog('✓ Update installed successfully!');
-                addLog('New version: ' + (data.new_version || 'unknown'));
+                addLog(<?php echo xlj('Operation completed successfully.'); ?>);
+                if (data.new_version) {
+                    addLog('New version: ' + data.new_version);
+                }
                 if (data.backup_file) {
                     addLog('Backup saved: ' + data.backup_file);
                 }
-                btn.innerHTML = '<i class="fa fa-check"></i> ' + <?php echo xlj('Update Complete'); ?>;
+                btn.innerHTML = '<i class="fa fa-check"></i> ' + <?php echo $installSuccessLabel; ?>;
                 btn.classList.remove('btn-success');
                 btn.classList.add('btn-primary');
 
@@ -492,8 +527,8 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
                 }, 2000);
             } else {
                 applyServerSteps(data);
-                addLog('✗ Update failed: ' + (data.error || 'Unknown error'));
-                btn.innerHTML = '<i class="fa fa-times"></i> ' + <?php echo xlj('Update Failed'); ?>;
+                addLog('✗ ' + (data.error || 'Unknown error'));
+                btn.innerHTML = '<i class="fa fa-times"></i> ' + <?php echo $installFailureLabel; ?>;
                 btn.disabled = false;
                 setProgressFailed();
             }
@@ -502,7 +537,7 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
             clearInterval(progressInterval);
             markStep('install', 'failed');
             addLog('✗ Installation error: ' + error.message);
-            btn.innerHTML = '<i class="fa fa-times"></i> ' + <?php echo xlj('Update Failed'); ?>;
+            btn.innerHTML = '<i class="fa fa-times"></i> ' + <?php echo $installFailureLabel; ?>;
             btn.disabled = false;
             setProgressFailed();
         });

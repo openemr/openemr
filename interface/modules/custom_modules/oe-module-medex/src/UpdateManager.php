@@ -20,9 +20,14 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class UpdateManager
 {
-    const CURRENT_VERSION = '1.1.0';
+    const CURRENT_VERSION = '1.2.10';
     const UPDATE_CHECK_INTERVAL = 3600; // Check every hour
     const CACHE_TABLE = 'medex_prefs';
+    const UPDATE_MODE_PINNED_LOCAL = 'pinned_local';
+    const UPDATE_MODE_CENTRAL_MANAGED = 'central_managed';
+    const RELEASE_CHANNEL_STABLE = 'stable';
+    const RELEASE_CHANNEL_CANDIDATE = 'candidate';
+    const RELEASE_CHANNEL_DEV = 'dev';
 
     // Update priority levels
     const PRIORITY_CRITICAL = 'CRITICAL';   // Force update, security vulnerability
@@ -53,6 +58,7 @@ class UpdateManager
     public function checkForUpdates(bool $forceCheck = false): ?array
     {
         $currentVersion = $this->getCurrentVersion();
+        $policy = $this->getUpdatePolicy();
 
         // Never ping servers if the practice hasn't registered/configured MedEx
         if (!$this->api->isConfigured()) {
@@ -61,7 +67,7 @@ class UpdateManager
 
         // Check cache first unless force check
         if (!$forceCheck) {
-            $cached = $this->getCachedUpdateInfo();
+            $cached = $this->getCachedUpdateInfo($policy);
             if ($cached !== null) {
                 return $cached;
             }
@@ -69,31 +75,85 @@ class UpdateManager
 
         // Query MedEx API for latest version
         try {
-            $response = $this->api->makeRequest('index.php?route=api/oemr/module_version', [
-                'module' => 'medex',
-                'current_version' => $currentVersion,
-                'openemr_version' => $this->globalsBag->get('v_realpatch') ?? 'unknown'
-            ], 'GET');
+            $response = null;
+
+            if (($policy['mode'] ?? self::UPDATE_MODE_PINNED_LOCAL) === self::UPDATE_MODE_CENTRAL_MANAGED) {
+                $response = $this->fetchCentralManifestResponse(
+                    $currentVersion,
+                    (string)($policy['channel'] ?? self::RELEASE_CHANNEL_STABLE)
+                );
+            }
+
+            if ($response === null) {
+                $response = $this->fetchLegacyVersionResponse(
+                    $currentVersion,
+                    (string)($policy['channel'] ?? self::RELEASE_CHANNEL_STABLE)
+                );
+            }
 
             if (empty($response['success'])) {
                 $this->lastError = $response['error'] ?? 'Failed to check for updates';
                 return null;
             }
 
+            $reconcilePlan = null;
+            $packages = [];
+            $activeServices = [];
+            if (!empty($response['packages']) && is_array($response['packages'])) {
+                $packages = array_values($response['packages']);
+                $activeServices = array_values((array)($response['active_services'] ?? []));
+                $reconcileManager = new ReconcileManager($this);
+                $reconcilePlan = $reconcileManager->buildPlan($response);
+            }
+
+            $latestVersion = (string)($response['latest_version'] ?? $response['version'] ?? $currentVersion);
+            $updateAvailable = version_compare($latestVersion, $currentVersion, '>');
+            if (!$updateAvailable && is_array($reconcilePlan)) {
+                $updateAvailable = !empty($reconcilePlan['requires_reconcile']);
+            }
+
             $updateInfo = [
-                'update_available' => version_compare($response['latest_version'], $currentVersion, '>'),
+                'update_available' => $updateAvailable,
                 'current_version' => $currentVersion,
-                'latest_version' => $response['latest_version'] ?? $currentVersion,
+                'latest_version' => $latestVersion,
                 'priority' => $response['priority'] ?? self::PRIORITY_OPTIONAL,
                 'release_date' => $response['release_date'] ?? null,
-                'download_url' => $response['download_url'] ?? null,
-                'changelog' => $response['changelog'] ?? '',
+                'download_url' => $response['download_url'] ?? $response['package_url'] ?? null,
+                'changelog' => $response['changelog'] ?? ($response['notes'] ?? ''),
                 'requires_manual_steps' => $response['requires_manual_steps'] ?? false,
                 'manual_steps' => $response['manual_steps'] ?? '',
                 'critical_message' => $response['critical_message'] ?? null,
                 'min_openemr_version' => $response['min_openemr_version'] ?? null,
+                'packages' => $packages,
+                'active_services' => $activeServices,
+                'reconcile_plan' => $reconcilePlan,
+                'update_mode' => $policy['mode'] ?? self::UPDATE_MODE_PINNED_LOCAL,
+                'release_channel' => $policy['channel'] ?? self::RELEASE_CHANNEL_STABLE,
+                'auto_apply' => !empty($policy['auto_apply']),
+                'source' => $response['source'] ?? (($policy['mode'] ?? self::UPDATE_MODE_PINNED_LOCAL) === self::UPDATE_MODE_CENTRAL_MANAGED ? 'central_manifest' : 'legacy_version'),
                 'checked_at' => time()
             ];
+
+            if (
+                !empty($policy['auto_apply'])
+                && ($policy['mode'] ?? self::UPDATE_MODE_PINNED_LOCAL) === self::UPDATE_MODE_CENTRAL_MANAGED
+                && is_array($reconcilePlan)
+                && !empty($reconcilePlan['requires_reconcile'])
+            ) {
+                $autoApplyResult = $this->applyReconcilePlan($reconcilePlan, true);
+                $updateInfo['auto_apply_result'] = $autoApplyResult;
+                if (!empty($autoApplyResult['success'])) {
+                    $updateInfo['reconcile_plan'] = [
+                        'platform' => $reconcilePlan['platform'] ?? 'openemr',
+                        'install' => [],
+                        'update' => [],
+                        'remove' => [],
+                        'requires_reconcile' => false,
+                        'counts' => ['install' => 0, 'update' => 0, 'remove' => 0],
+                    ];
+                    $updateInfo['update_available'] = version_compare($latestVersion, $currentVersion, '>');
+                }
+            }
 
             // Cache the result
             $this->cacheUpdateInfo($updateInfo);
@@ -108,9 +168,152 @@ class UpdateManager
     }
 
     /**
+     * @param array<string,mixed> $reconcilePlan
+     * @return array<string,mixed>
+     */
+    private function applyReconcilePlan(array $reconcilePlan, bool $createBackup = true): array
+    {
+        if (!$this->hasWritePermissions()) {
+            return [
+                'success' => false,
+                'error' => 'Insufficient write permissions. Module directory is not writable.',
+                'directory' => $this->moduleDir,
+            ];
+        }
+
+        $backupResult = null;
+        if ($createBackup) {
+            $backupResult = $this->createBackup();
+            if (empty($backupResult['success'])) {
+                return [
+                    'success' => false,
+                    'error' => (string)($backupResult['error'] ?? 'Backup failed'),
+                ];
+            }
+        }
+
+        try {
+            $reconcileManager = new ReconcileManager($this);
+            $result = $reconcileManager->applyPlan($reconcilePlan);
+            if (empty($result['success'])) {
+                if ($createBackup && !empty($backupResult['backup_file'])) {
+                    $this->restoreBackup((string)$backupResult['backup_file']);
+                }
+                return $result;
+            }
+
+            $this->runMigrations();
+            $this->clearUpdateCache();
+
+            return [
+                'success' => true,
+                'message' => 'Packages reconciled successfully',
+                'backup_file' => $backupResult['backup_file'] ?? null,
+                'steps' => $result['steps'] ?? [],
+                'reconcile_plan' => $reconcilePlan,
+            ];
+        } catch (\Throwable $e) {
+            if ($createBackup && !empty($backupResult['backup_file'])) {
+                $this->restoreBackup((string)$backupResult['backup_file']);
+            }
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    private function fetchLegacyVersionResponse(string $currentVersion, string $channel): array
+    {
+        $response = $this->api->makeRequest('index.php?route=api/oemr/module_version', [
+            'module' => 'medex',
+            'current_version' => $currentVersion,
+            'openemr_version' => $this->globalsBag->get('v_realpatch') ?? 'unknown',
+            'release_channel' => $channel
+        ], 'GET');
+
+        if (is_array($response)) {
+            $response['source'] = $response['source'] ?? 'legacy_version';
+        }
+
+        return is_array($response) ? $response : ['success' => false, 'error' => 'Invalid update response'];
+    }
+
+    private function fetchCentralManifestResponse(string $currentVersion, string $channel): ?array
+    {
+        try {
+            $response = $this->api->makeRequest('index.php?route=api/oemr/module_manifest', [
+                'module' => 'medex',
+                'platform' => 'openemr',
+                'current_version' => $currentVersion,
+                'openemr_version' => $this->globalsBag->get('v_realpatch') ?? 'unknown',
+                'release_channel' => $channel
+            ], 'GET');
+
+            if (!is_array($response) || empty($response['success'])) {
+                return null;
+            }
+
+            $response['source'] = $response['source'] ?? 'central_manifest';
+            return $response;
+        } catch (\Throwable $e) {
+            error_log('[MedEx Update] Central manifest check failed: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function getUpdatePolicy(): array
+    {
+        $mode = $this->normalizeUpdateMode($this->getGlobalSetting('medex_module_update_mode', self::UPDATE_MODE_CENTRAL_MANAGED));
+        $channel = $this->normalizeReleaseChannel($this->getGlobalSetting('medex_module_release_channel', self::RELEASE_CHANNEL_STABLE));
+        $autoApply = $this->getGlobalSetting('medex_module_auto_apply', '0') === '1';
+
+        return [
+            'mode' => $mode,
+            'channel' => $channel,
+            'auto_apply' => $autoApply,
+        ];
+    }
+
+    private function getGlobalSetting(string $name, string $default = ''): string
+    {
+        try {
+            $row = QueryUtils::querySingleRow(
+                "SELECT gl_value FROM globals WHERE gl_name = ? ORDER BY gl_index DESC LIMIT 1",
+                [$name]
+            );
+            if (is_array($row) && array_key_exists('gl_value', $row)) {
+                return (string)$row['gl_value'];
+            }
+        } catch (\Throwable $e) {
+            error_log('[MedEx Update] Failed to load global setting ' . $name . ': ' . $e->getMessage());
+        }
+
+        return $default;
+    }
+
+    private function normalizeUpdateMode(string $mode): string
+    {
+        $mode = strtolower(trim($mode));
+        if ($mode === self::UPDATE_MODE_PINNED_LOCAL) {
+            return self::UPDATE_MODE_PINNED_LOCAL;
+        }
+        return self::UPDATE_MODE_CENTRAL_MANAGED;
+    }
+
+    private function normalizeReleaseChannel(string $channel): string
+    {
+        $channel = strtolower(trim($channel));
+        if (in_array($channel, [self::RELEASE_CHANNEL_STABLE, self::RELEASE_CHANNEL_CANDIDATE, self::RELEASE_CHANNEL_DEV], true)) {
+            return $channel;
+        }
+        return self::RELEASE_CHANNEL_STABLE;
+    }
+
+    /**
      * Get cached update info if still valid
      */
-    private function getCachedUpdateInfo(): ?array
+    private function getCachedUpdateInfo(array $policy = []): ?array
     {
         // Check if cache columns exist first
         try {
@@ -144,6 +347,20 @@ class UpdateManager
             }
 
             $cached = json_decode($result['module_update_cache'], true);
+            if (!is_array($cached)) {
+                return null;
+            }
+
+            if (!empty($policy)) {
+                $cachedMode = (string)($cached['update_mode'] ?? self::UPDATE_MODE_CENTRAL_MANAGED);
+                $cachedChannel = (string)($cached['release_channel'] ?? self::RELEASE_CHANNEL_STABLE);
+                if (
+                    $cachedMode !== (string)($policy['mode'] ?? self::UPDATE_MODE_CENTRAL_MANAGED)
+                    || $cachedChannel !== (string)($policy['channel'] ?? self::RELEASE_CHANNEL_STABLE)
+                ) {
+                    return null;
+                }
+            }
 
             // If cached info shows critical update, always recheck to ensure freshness
             if (!empty($cached['priority']) && $cached['priority'] === self::PRIORITY_CRITICAL) {
@@ -194,6 +411,11 @@ class UpdateManager
     public function hasWritePermissions(): bool
     {
         return is_writable($this->moduleDir);
+    }
+
+    public function downloadPackage(string $url): ?string
+    {
+        return $this->downloadUpdate($url);
     }
 
     /**
@@ -340,6 +562,29 @@ class UpdateManager
                 'steps' => $steps
             ];
         }
+    }
+
+    public function reconcilePackages(bool $forceCheck = false, bool $createBackup = true): array
+    {
+        $updateInfo = $this->checkForUpdates($forceCheck);
+        if (!is_array($updateInfo)) {
+            return [
+                'success' => false,
+                'error' => $this->lastError ?? 'Unable to fetch deployment manifest',
+            ];
+        }
+
+        $reconcilePlan = is_array($updateInfo['reconcile_plan'] ?? null) ? $updateInfo['reconcile_plan'] : null;
+        if ($reconcilePlan === null || empty($reconcilePlan['requires_reconcile'])) {
+            return [
+                'success' => true,
+                'message' => 'Packages already match the desired manifest',
+                'steps' => [],
+                'reconcile_plan' => $reconcilePlan,
+            ];
+        }
+
+        return $this->applyReconcilePlan($reconcilePlan, $createBackup);
     }
 
     /**
