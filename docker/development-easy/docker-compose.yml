@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:fa3349de65f185f50c94a74b5832664857f6c75dbe674e5c7da245f2ee592ea2
+    image: openemr/openemr:flex@sha256:a8c62b8b5bbe42dda6e495b2aededdd6ecfb1fdb2859630ecb9852ab571f5147
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -132,7 +132,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:0711effb3cf280492b6c50e4b67fd4059c874c517f7f65ba107c7021e8c7fa6e
+    image: phpmyadmin:5.2.3@sha256:ea0df755ca4cfdba9333420ddc8ec613f85bce148eb678f9cb40c1228d3b6087
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
