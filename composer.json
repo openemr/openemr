@@ -277,7 +277,6 @@
         ],
         "code-quality": [
             "@codespell",
-            "@conventional-commits:check",
             "@php-syntax-check",
             "@phpcbf",
             "@phpcs",
