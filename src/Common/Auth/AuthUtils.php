@@ -44,6 +44,7 @@ use Google_Client;
 use MyMailer;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -145,16 +146,11 @@ class AuthUtils
      */
     private function confirmPatientPassword($username, &$password, $email = '')
     {
-        // Set variables for log
-        $event = 'portalapi';
-        $beginLog = 'Portal API failure';
-
-        // Collect ip address for log
-        $ip = collectIpAddresses();
+        $usernameString = is_string($username) ? $username : null;
 
         // Check to ensure username and password are not empty
         if (empty($username) || empty($password)) {
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'empty username or password');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -165,25 +161,27 @@ class AuthUtils
         $patientInfo = privQuery($getPatientSQL, [$username]);
         if (empty($patientInfo) || empty($patientInfo['id']) || empty($patientInfo['pid'])) {
             // Patient portal information not found
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient portal information not found", $patientInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient portal information not found');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
-        } elseif (empty($patientInfo['portal_username']) || empty($patientInfo['portal_login_username']) || empty($patientInfo['portal_pwd'])) {
+        }
+        $patientPid = is_int($patientInfo['pid']) ? $patientInfo['pid'] : null;
+        if (empty($patientInfo['portal_username']) || empty($patientInfo['portal_login_username']) || empty($patientInfo['portal_pwd'])) {
             // Patient missing username, login username, or password
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient missing username, login username, or password", $patientInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient missing username, login username, or password', $patientPid);
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
         } elseif (!empty($patientInfo['portal_onetime'])) {
             // Patient onetime is set, so still in process of verifying account
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient account not yet verified (portal_onetime set)", $patientInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient account not yet verified (portal_onetime set)', $patientPid);
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
         } elseif ($patientInfo['portal_pwd_status'] != 1) {
             // Patient portal_pwd_status is not 1, so still in process of verifying account
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient account not yet verified (portal_pwd_status is not 1)", $patientInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient account not yet verified (portal_pwd_status is not 1)', $patientPid);
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -194,13 +192,15 @@ class AuthUtils
         $patientDataInfo = privQuery($getPatientDataSQL, [$patientInfo['pid']]);
         if (empty($patientDataInfo) || empty($patientDataInfo['pid'])) {
             // Patient not found
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient not found");
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient not found');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
-        } elseif ($patientDataInfo['allow_patient_portal'] != "YES") {
+        }
+        $patientDataPid = is_int($patientDataInfo['pid']) ? $patientDataInfo['pid'] : null;
+        if ($patientDataInfo['allow_patient_portal'] != "YES") {
             // Patient does not permit portal access
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient does not permit portal access", $patientDataInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient does not permit portal access', $patientDataPid);
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -208,19 +208,19 @@ class AuthUtils
             // Need to enforce email in credentials
             if (empty($email)) {
                 // Patient email was not included in credentials
-                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient email was not included in credentials", $patientDataInfo['pid']);
+                EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient email was not included in credentials', $patientDataPid);
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
                 return false;
             } elseif (empty($patientDataInfo['email'])) {
                 // Patient email missing from demographics
-                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient does not have an email in demographics", $patientDataInfo['pid']);
+                EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient does not have an email in demographics', $patientDataPid);
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
                 return false;
             } elseif ($patientDataInfo['email'] != $email) {
                 // Email not correct
-                EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient email not correct", $patientDataInfo['pid']);
+                EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient email not correct', $patientDataPid);
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
                 return false;
@@ -229,7 +229,7 @@ class AuthUtils
 
         // This error should never happen, but still gotta check for it
         if ($patientInfo['pid'] != $patientDataInfo['pid']) {
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient pid comparison with very unusual error");
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient pid comparison with very unusual error');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -238,14 +238,14 @@ class AuthUtils
         // Authentication
         // First, ensure the user hash is a valid hash
         if (!AuthHash::hashValid($patientInfo['portal_pwd'])) {
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient stored password hash is invalid", $patientDataInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient stored password hash is invalid', $patientDataPid);
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
         }
         // Second, authentication
         if (!AuthHash::passwordVerify($password, $patientInfo['portal_pwd'])) {
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". patient password incorrect", $patientDataInfo['pid']);
+            EventAuditLogger::getInstance()->logAuthFailure(AuthEvent::portalapi(), $usernameString, '', 'patient password incorrect', $patientDataPid);
             $this->clearFromMemory($password);
             return false;
         }
@@ -274,19 +274,18 @@ class AuthUtils
      */
     private function confirmUserPassword($username, &$password)
     {
-        // Set variables for log
+        $usernameString = is_string($username) ? $username : null;
+
+        // Resolve the auth event type for logging
         if ($this->loginAuth) {
-            $event = 'login';
-            $beginLog = 'failure';
+            $authEvent = AuthEvent::login();
         } elseif ($this->apiAuth) {
-            $event = 'api';
-            $beginLog = 'API failure';
+            $authEvent = AuthEvent::api();
         } else { // $this->otherAuth
-            $event = 'auth';
-            $beginLog = 'Auth failure';
+            $authEvent = AuthEvent::auth();
         }
 
-        // Collect ip address for log
+        // Collect ip address — still needed for IP-based rate limiting and error_log calls
         $ip = collectIpAddresses();
 
         // Check to ensure ip address has not been blocked
@@ -298,9 +297,9 @@ class AuthUtils
             if (!$returnArray['pass']) {
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
                 if ($returnArray['force_block']) {
-                    EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
+                    EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, '', 'IP address has been manually blocked');
                 } else {
-                    EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address exceeded maximum number of failed logins");
+                    EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, '', 'IP address exceeded maximum number of failed logins');
                 }
                 $this->clearFromMemory($password);
                 if ($returnArray['email_notification']) {
@@ -319,7 +318,7 @@ class AuthUtils
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, '', 'empty username or password');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -333,7 +332,7 @@ class AuthUtils
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, '', 'user not found');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -342,7 +341,7 @@ class AuthUtils
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not active");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, '', 'user not active');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -351,12 +350,13 @@ class AuthUtils
         // Check to ensure user is in a group (and collect the group name)
         $userService = new UserService();
         $authGroup = $userService->getAuthGroupForUser($username);
+        $authGroupString = is_string($authGroup) ? $authGroup : '';
         if (empty($authGroup)) {
             if ($this->loginAuth || $this->apiAuth) {
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, '', 'user not found in a group');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -368,7 +368,7 @@ class AuthUtils
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user not in any phpGACL groups');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -384,7 +384,7 @@ class AuthUtils
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user credentials not found');
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
@@ -397,7 +397,7 @@ class AuthUtils
             if (!$checkArray['pass']) {
                 $this->incrementLoginFailedCounter($username);
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
-                EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
+                EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user exceeded maximum number of failed logins');
                 $this->clearFromMemory($password);
                 if ($checkArray['email_notification']) {
                     $this->notifyUserBlock($username);
@@ -416,7 +416,7 @@ class AuthUtils
                     $this->incrementLoginFailedCounter($username);
                     $this->incrementIpLoginFailedCounter($ip['ip_string']);
                 }
-                EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
+                EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user failed ldap authentication');
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -428,7 +428,7 @@ class AuthUtils
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementIpLoginFailedCounter($ip['ip_string']);
                 }
-                EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
+                EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user stored password hash is invalid');
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
                 return false;
@@ -440,7 +440,7 @@ class AuthUtils
                     $this->incrementLoginFailedCounter($username);
                     $this->incrementIpLoginFailedCounter($ip['ip_string']);
                 }
-                EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
+                EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user password incorrect');
                 $this->clearFromMemory($password);
                 return false;
             }
@@ -463,7 +463,7 @@ class AuthUtils
                 // Utilize this during logins (and not during standard password checks within openemr such as esign)
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
-            EventAuditLogger::getInstance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
+            EventAuditLogger::getInstance()->logAuthFailure($authEvent, $usernameString, $authGroupString, 'user password is expired');
             error_log($username . ": " . $ip['ip_string'] . ". user password is expired");
             $this->clearFromMemory($password);
             return false;
