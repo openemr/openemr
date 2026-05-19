@@ -515,12 +515,12 @@ $ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert(<?php echo js_escape(xl('Please Enter End Date greater than Begin Date!')); ?>);
+                alert(<?php echo xlj('Please Enter End Date greater than Begin Date!'); ?>);
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert(<?php echo js_escape(xl('Please enter a title!')); ?>);
+                    alert(<?php echo xlj('Please enter a title!'); ?>);
                     return false;
                 }
             }

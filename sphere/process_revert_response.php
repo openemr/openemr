@@ -43,7 +43,8 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
 
     if (!empty($_POST['status']) && (($_POST['status'] == 'baddata') || ($_POST['status'] == 'error'))) {
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 0);
-        echo "<script>opener.sphereRevertNotSuccess(" . js_escape(xl("Aborted since unable to submit transaction") . ": " . $_POST['status'] . " " . $_POST['error'] . " " . $_POST['offenders']) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Aborted since unable to submit transaction") . ": " . $_POST['status'] . " " . $_POST['error'] . " " . $_POST['offenders']);
+        echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script>";
     } else if (!empty($_POST['hash']) && !empty($_POST['token'])) {
         $sphereRevert = new SphereRevert($_GET['front']);
 
@@ -68,18 +69,21 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
                     $completeRevertToString .= $key . ": " . $value . "\n";
                 }
             }
-            echo "<script>opener.sphereRevertNotSuccess(" . js_escape(xl("Aborted since unable to complete transaction") . ": " . $completeRevertToString) . ");dlgclose();</script></head><body></body></html>";
+            $msg = js_escape(xl("Aborted since unable to complete transaction") . ": " . $completeRevertToString);
+            echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script></head><body></body></html>";
             exit;
         }
 
         // Successful revert
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 1, $completeRevert['transid']);
-        echo "<script>opener.sphereRevertSuccess(" . js_escape(xl("Successful") . " " . $_POST['action']) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Successful") . " " . $_POST['action']);
+        echo "<script>opener.sphereRevertSuccess(" . $msg . ");dlgclose();</script>";
     } else {
         // catch all for errors that are not caught above
         $auditData['error_custom'] = "Unclear revert error with following querystring: " . $_POST['querystring'];
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 0);
-        echo "<script>opener.sphereRevertNotSuccess(" . js_escape(xl("Revert Error") . ": " . $_POST['querystring']) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Revert Error") . ": " . $_POST['querystring']);
+        echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script>";
     }
     ?>
 </head>

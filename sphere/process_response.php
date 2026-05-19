@@ -65,10 +65,12 @@ if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
         echo "<script>opener.sphereNotSuccess(" . xlj("Transaction Cancelled") . ");dlgclose();</script>";
     } elseif (($_POST['status_name'] == 'baddata') || ($_POST['status_name'] == 'error')) {
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 0, $auditData, $_POST['ticket'], $_POST['transid'] ?? null, $_POST['action_name'] ?? null, $_POST['amount'] ?? null);
-        echo "<script>opener.sphereNotSuccess(" . js_escape(xl("Transaction Error") . $description) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Transaction Error") . $description);
+        echo "<script>opener.sphereNotSuccess(" . $msg . ");dlgclose();</script>";
     } elseif ($_POST['status_name'] == 'decline') {
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 0, $auditData, $_POST['ticket'], $_POST['transid'], $_POST['action_name'], $_POST['amount']);
-        echo "<script>opener.sphereNotSuccess(" . js_escape(xl("Transaction Declined") . $description) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Transaction Declined") . $description);
+        echo "<script>opener.sphereNotSuccess(" . $msg . ");dlgclose();</script>";
     } elseif ($_POST['status_name'] == 'approved') {
         // Success!
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 1, $auditData, $_POST['ticket'], $_POST['transid'], $_POST['action_name'], $_POST['amount']);
@@ -91,7 +93,8 @@ if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
         }
     } else {
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 0, $auditData, $_POST['ticket'], $_POST['transid'] ?? null, $_POST['action_name'] ?? null, $_POST['amount'] ?? null);
-        echo "<script>opener.sphereNotSuccess(" . js_escape(xl("Transaction Not Successful") . $description) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Transaction Not Successful") . $description);
+        echo "<script>opener.sphereNotSuccess(" . $msg . ");dlgclose();</script>";
     }
     ?>
 </head>

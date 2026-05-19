@@ -42,7 +42,7 @@ if (empty($formid)) {
     $formid = sqlQuery($sql, [$session->get('pid'), $session->get('encounter')])['form_id'] ?? 0;
     if (!empty($formid)) {
         echo "<script>var message=" .
-            js_escape(xl("Already a Care Plan form for this encounter. Using existing Care Plan form.")) .
+            xlj("Already a Care Plan form for this encounter. Using existing Care Plan form.") .
             "</script>";
     }
 }
