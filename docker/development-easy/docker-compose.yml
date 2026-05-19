@@ -182,6 +182,23 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+  oidc-mock:
+    # Mock OIDC provider for E2E tests of the GCIP/OIDC authentication paths.
+    # Implements the authorization_code flow with dynamic client registration
+    # and a self-login form that accepts any subject the test supplies. See
+    # https://github.com/geigerzaehler/oidc-provider-mock for endpoint docs.
+    # Reachable from the openemr container at http://oidc-mock:9400
+    # (issuer, discovery at /.well-known/openid-configuration).
+    restart: unless-stopped
+    image: ghcr.io/geigerzaehler/oidc-provider-mock:latest@sha256:e5898750af70b8e10cce1807dc10ab3b81095b571f9e87d6f51e52f9e3e610cd
+    ports:
+    - "${WT_OIDC_MOCK_PORT:-9400}:9400"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9400/.well-known/openid-configuration', timeout=3).read()"]
+      start_period: 10s
+      interval: 30s
+      timeout: 5s
+      retries: 3
 volumes:
   databasevolume: {}
   assetvolume: {}

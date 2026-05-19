@@ -74,14 +74,25 @@ class BulkAPITestClient extends ApiTestClient
             $this->client_id = $identifier;
         }
 
+        $clientId = $this->client_id;
+        assert($clientId !== '');
+
         $oauthTokenUrl = $this->baseUrl . $authURL . '/token';
+
+        // SMART Backend Services / RFC 7515 §4.1.4: the OAuth server's
+        // JWT client-assertion validator requires a `kid` header so it
+        // can pick the right JWK out of the client's registered set.
+        // Pull the kid off the first key of the JWKS we just registered.
+        $kid = $this->extractKidFromJwks($credentials['jwks']);
+
         /** @var InMemory $privateKey */
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             $privateKey,
             /** @var InMemory $publicKey */
             $publicKey,
             $oauthTokenUrl,
-            $this->client_id
+            $clientId,
+            $kid,
         );
         $authBody = [
             "client_assertion_type" => CustomClientCredentialsGrant::OAUTH_JWT_CLIENT_ASSERTION_TYPE,
@@ -109,6 +120,43 @@ class BulkAPITestClient extends ApiTestClient
         }
 
         return $authResponse;
+    }
+
+    /**
+     * Extract the first key's `kid` from a registered JWKS.
+     *
+     * Accepts either the decoded JSON object form (stdClass with a
+     * `keys` array, what `json_decode((string) file_get_contents(...))`
+     * yields here) or a plain array form. Normalize to an array via a
+     * json round-trip so the rest of the method works on a single
+     * shape — keeps PHPStan from chasing dynamic stdClass properties
+     * and lets us treat both call paths identically. Returns null only
+     * when the structure is unrecognizable; callers then leave the
+     * JWT `kid` header off and the server-side rejection makes the
+     * fixture problem loud.
+     *
+     * @param mixed $jwks
+     * @return non-empty-string|null Filtered to non-empty so the caller
+     *   can pass it straight to `ClientCredentialsAssertionGenerator`,
+     *   whose `$kid` parameter is `non-empty-string|null`.
+     */
+    private function extractKidFromJwks($jwks): ?string
+    {
+        $encoded = json_encode($jwks);
+        if (!is_string($encoded)) {
+            return null;
+        }
+        $normalized = json_decode($encoded, true);
+        if (!is_array($normalized) || !isset($normalized['keys']) || !is_array($normalized['keys'])) {
+            return null;
+        }
+
+        $first = $normalized['keys'][0] ?? null;
+        if (!is_array($first) || !isset($first['kid']) || !is_string($first['kid']) || $first['kid'] === '') {
+            return null;
+        }
+
+        return $first['kid'];
     }
 
     /**

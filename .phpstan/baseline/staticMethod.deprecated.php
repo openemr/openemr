@@ -98,12 +98,6 @@ Returns a new instance from a string\\.$#',
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerLog.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method forUnsecuredSigner\\(\\) of class Lcobucci\\\\JWT\\\\Configuration\\:
-Deprecated since v4\\.3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeyParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method fromArray\\(\\) of class Laminas\\\\Code\\\\Generator\\\\DocBlockGenerator\\:
 this API is deprecated, and will be removed in the next major release\\. Please
             use the other constructors of this class instead\\.$#',
@@ -182,12 +176,6 @@ $ignoreErrors[] = [
 Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>getNationalDigits\\(\\) instead$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method forUnsecuredSigner\\(\\) of class Lcobucci\\\\JWT\\\\Configuration\\:
-Deprecated since v4\\.3$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method formatPhone\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:

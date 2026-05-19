@@ -11,17 +11,24 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
-use Lcobucci\JWT\Configuration;
+use Lcobucci\Clock\SystemClock;
+use Lcobucci\JWT\Encoding\JoseEncoder;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Parser;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
+use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Server\CryptTrait;
 
 class JsonWebKeyParser
 {
     use CryptTrait;
 
-    public function __construct($oaEncryptionKey, private $publicKeyLocation)
+    /**
+     * @param non-empty-string $publicKeyLocation
+     */
+    public function __construct($oaEncryptionKey, private string $publicKeyLocation)
     {
         $this->setEncryptionKey($oaEncryptionKey);
     }
@@ -52,17 +59,13 @@ class JsonWebKeyParser
 
     public function parseAccessToken($rawToken)
     {
-        if (empty($rawToken)) {
+        if (!is_string($rawToken) || $rawToken === '') {
             throw new \InvalidArgumentException("Token cannot be empty");
         }
 
-        // Create the jwtConfiguration object
-        //  Just using object for parsing, so keys not needed
-        //   (ie. not using forAsymmetricSigner and just using forUnsecuredSigner)
-        $configuration = Configuration::forUnsecuredSigner();
-
-        // Attempt to parse the JWT
-        $token = $configuration->parser()->parse($rawToken);
+        // Parse the JWT. No keys are needed for parsing; signature
+        // validation is performed separately below.
+        $token = (new Parser(new JoseEncoder()))->parse($rawToken);
         // defaults
         $result = [
             'active' => true,
@@ -76,7 +79,7 @@ class JsonWebKeyParser
         ];
 
         // Attempt to validate the JWT
-        $validator = $configuration->validator();
+        $validator = new Validator();
         try {
             if ($validator->validate($token, (new SignedWith(new Sha256(), InMemory::file($this->publicKeyLocation)))) === false) {
                 $result['active'] = false;
@@ -87,11 +90,36 @@ class JsonWebKeyParser
             $result['status'] = 'invalid_signature';
         }
 
-        // Ensure access token hasn't expired
-        $now   = new \DateTimeImmutable();
-        if ($token->isExpired($now) === true) {
+        // Round-6 #3 (CWE-287). Enforce the full validity window —
+        // not just exp. The pre-fix check used `isExpired()`, which
+        // gates on `exp` only; a JWT with valid signature and a
+        // future `nbf` (not-before) or implausible-future `iat`
+        // (issued-at) would still report active:true here.
+        // LooseValidAt enforces nbf, iat, and exp together, with a
+        // 1-minute drift tolerance to match the
+        // JWTClientAuthenticationService grant validator. On
+        // failure, distinguish "not yet valid" (future nbf) from
+        // "expired" (past exp) for the status field — RFC 7662
+        // active=false in both cases but operators can tell which
+        // gate fired.
+        $now = new \DateTimeImmutable();
+        $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
+        try {
+            if (!$validator->validate($token, new LooseValidAt($clock, new \DateInterval('PT1M')))) {
+                $result['active'] = false;
+                $result['status'] = $token->isExpired($now) ? 'expired' : 'not_yet_valid';
+            }
+        } catch (\RuntimeException) {
+            // RequiredConstraintsViolated / NoConstraintsGiven both
+            // extend \RuntimeException — the narrowest catch that
+            // covers lcobucci's validation throws without tripping
+            // the project's forbiddenCatchType rule (\Throwable and
+            // \Exception both include ErrorException). PHP-level
+            // errors propagate to TokenIntrospectionRestController's
+            // outer Throwable handler, which rewrites them to
+            // active:false per RFC 7662.
             $result['active'] = false;
-            $result['status'] = 'expired';
+            $result['status'] = 'invalid';
         }
 
         return $result;

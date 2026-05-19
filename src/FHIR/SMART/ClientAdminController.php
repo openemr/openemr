@@ -885,7 +885,11 @@ class ClientAdminController
     {
         $keyConfig = new OAuth2KeyConfig();
         $keyConfig->configKeyPairs();
-        $webKeyParser = new JsonWebKeyParser($keyConfig->getEncryptionKey(), $keyConfig->getPublicKeyLocation());
+        $publicKeyLocation = $keyConfig->getPublicKeyLocation();
+        if (!is_string($publicKeyLocation) || $publicKeyLocation === '') {
+            throw new OAuth2KeyException('OAuth2 public key location is not configured');
+        }
+        $webKeyParser = new JsonWebKeyParser($keyConfig->getEncryptionKey(), $publicKeyLocation);
 
         $tokenType = $webKeyParser->getTokenHintFromToken($rawToken);
         if ($tokenType === 'refresh_token') {

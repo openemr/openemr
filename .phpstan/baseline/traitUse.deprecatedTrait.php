@@ -32,12 +32,6 @@ Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoid
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:
-Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\AccessTokenRepository\\:
 Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
     'count' => 1,

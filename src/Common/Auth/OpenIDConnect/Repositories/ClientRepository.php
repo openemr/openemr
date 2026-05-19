@@ -136,7 +136,31 @@ class ClientRepository implements ClientRepositoryInterface
     }
 
     /**
-     * @return ClientEntity[]
+     * Return the raw `oauth_clients` row for a client_id, or null when no
+     * such row exists. Companion to `getClientEntity()` for callers that
+     * need the raw column values (`is_enabled`, `is_confidential`,
+     * `client_secret`) without hydration into a ClientEntity. Extracted
+     * from inline `QueryUtils::querySingleRow()` calls in
+     * TokenIntrospectionRestController so the introspection flow can be
+     * mocked through the repository seam.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function getRawClientRow(string $clientId): ?array
+    {
+        $row = QueryUtils::querySingleRow(
+            "Select * From oauth_clients Where client_id = ?",
+            [$clientId],
+        );
+        if (!is_array($row)) {
+            return null;
+        }
+        /** @var array<string, mixed> $row */
+        return $row;
+    }
+
+    /**
+     * @return list<ClientEntity>
      */
     public function listClientEntities(): array
     {

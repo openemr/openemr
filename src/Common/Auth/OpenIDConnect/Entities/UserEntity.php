@@ -10,21 +10,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClaimSetInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenIDConnectServer\Entities\ClaimSetInterface;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface
 {
-    public $userRole;
-    public $identifier;
-
-    protected $claimsType = 'oidc'; // default to oidc claims
+    private ?string $identifier = null;
 
     private string $fhirBaseUrl = '';
 
@@ -46,30 +45,16 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
         }
     }
 
-    public function getClaimsType(): string
-    {
-        return $this->claimsType;
-    }
-
-    public function setClaimsType(string $claimsType): void
-    {
-        if (in_array($claimsType, ['oidc', 'client'])) {
-            $this->claimsType = $claimsType;
-        } else {
-            throw OAuthServerException::invalidRequest('claimsType', 'Invalid claims type provided. Must be "oidc" or "client".');
-        }
-    }
-
     /**
-     * @return array
+     * @return array<string, mixed>
      * @throws OAuthServerException
      */
-    public function getClaims()
+    public function getClaims(): array
     {
-        $claims = [];
-        // TODO: @adunsulag as far as I can tell the UserEntity class is only used w/o the client_credentials grant type
-        // so we don't need this.  Will comment for now, but I believe we can remove this code.
-        // Note session type claims like nonce get added in the IdTokenSMARTResponse
+        // Note: session-type claims like nonce get added in OEIdTokenResponse.
+        if ($this->identifier === null || $this->identifier === '') {
+            throw new \RuntimeException('User entity identifier must be set before requesting claims');
+        }
         $fhirUserClaim = new FhirUserClaim();
         $fhirUserClaim->setFhirBaseUrl($this->fhirBaseUrl);
         $fhirUser = $fhirUserClaim->getFhirUser($this->identifier);
@@ -90,52 +75,42 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
                 'zip' => '',
             ];
         }
-            $claims = [
-                'name' => $user['fullname'],
-                'family_name' => $user['lastname'],
-                'given_name' => $user['firstname'],
-                'middle_name' => $user['middlename'],
-                'nickname' => '',
-                'preferred_username' => $user['username'] ?? '',
-                'profile' => '',
-                'picture' => '',
-                'website' => '',
-                'gender' => '',
-                'birthdate' => '',
-                'zoneinfo' => '',
-                // TODO: locale should be set to the user's locale
-                'locale' => 'US',
-                'updated_at' => '',
-                'email' => $user['email'],
-                'email_verified' => true,
-                'phone_number' => $user['phone'],
-                'phone_number_verified' => true,
-                'address' => $user['street'] . ' ' . $user['city'] . ' ' . $user['state'],
-                'zip' => $user['zip'],
-                'fhirUser' => $fhirUser,
-                'api:fhir' => true,
-                'api:oemr' => true,
-                'api:port' => true,
-            ];
-//        }
-//        // TODO: @adunsulag need to revisit the client_credentials grant type and how we handle claims
-//        if ($this->getClaimsType() === 'client') {
-//            $claims = [
-//                'api:fhir' => true,
-//                'api:oemr' => true,
-//                'api:port' => true,
-//            ];
-//        }
 
-            return $claims;
+        return [
+            'name' => $user['fullname'],
+            'family_name' => $user['lastname'],
+            'given_name' => $user['firstname'],
+            'middle_name' => $user['middlename'],
+            'nickname' => '',
+            'preferred_username' => $user['username'] ?? '',
+            'profile' => '',
+            'picture' => '',
+            'website' => '',
+            'gender' => '',
+            'birthdate' => '',
+            'zoneinfo' => '',
+            // TODO: locale should be set to the user's locale
+            'locale' => 'US',
+            'updated_at' => '',
+            'email' => $user['email'],
+            'email_verified' => true,
+            'phone_number' => $user['phone'],
+            'phone_number_verified' => true,
+            'address' => $user['street'] . ' ' . $user['city'] . ' ' . $user['state'],
+            'zip' => $user['zip'],
+            'fhirUser' => $fhirUser,
+            'api:fhir' => true,
+            'api:oemr' => true,
+            'api:port' => true,
+        ];
     }
 
-    public function getIdentifier()
+    public function getIdentifier(): ?string
     {
         return $this->identifier;
     }
 
-    public function setIdentifier($id): void
+    public function setIdentifier(string $id): void
     {
         $this->identifier = $id;
     }

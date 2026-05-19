@@ -17,25 +17,31 @@ namespace OpenEMR\Services;
 use DateInterval;
 use GuzzleHttp\Client;
 use Lcobucci\Clock\SystemClock;
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Rsa\Sha384 as LcobucciRsaSha384;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
+use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
+use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\JWT\Validation\Validator;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
+use OpenEMR\Common\Auth\Oidc\Discovery\SsrfSafeHttpClient;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeySet;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JWKValidatorException;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\RsaSha384Signer;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation\UniqueID;
+use OpenEMR\Common\Auth\OpenIDConnect\Logging\OAuthLogContext;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -67,12 +73,23 @@ class JWTClientAuthenticationService
     const MAX_CLOCK_DRIFT_MINUTES = 1;
 
     /**
+     * Required JWT `alg` header value for SMART Backend Services /
+     * RFC 7523 client assertions. Hardcoded so unrelated providers
+     * can't downgrade to a weaker (or `none`) algorithm.
+     */
+    private const ALG_RS384 = 'RS384';
+
+    /**
      * JWTClientAuthenticationService constructor
      *
-     * @param string $authTokenUrl The OAuth2 token endpoint URL to be used as audience
+     * @param non-empty-string $authTokenUrl The OAuth2 token endpoint URL to be used as audience
      * @param ClientRepository $clientRepository Repository for client operations
      * @param JWTRepository $jwtRepository Repository for JWT tracking (replay prevention)
      * @param ClientInterface|null $httpClient HTTP client for fetching JWKS
+     * @param OidcUrlValidator|null $urlValidator SSRF guard applied before any outbound JWKS fetch.
+     *     Production wiring should always inject this with strict flags (require https,
+     *     block private IPs); a null validator means JWKS URIs go unchecked, which is only
+     *     acceptable in tests that supply a mocked HTTP client.
      */
     public function __construct(
         private readonly string $authTokenUrl,
@@ -81,7 +98,8 @@ class JWTClientAuthenticationService
         /**
          * The http client that retrieves JWK URIs
          */
-        private ?ClientInterface $httpClient = null
+        private ?ClientInterface $httpClient = null,
+        private readonly ?OidcUrlValidator $urlValidator = null,
     ) {
         $this->logger = ServiceContainer::getLogger();
     }
@@ -103,7 +121,17 @@ class JWTClientAuthenticationService
     public function getHttpClient(): ClientInterface
     {
         if (!isset($this->httpClient)) {
-            $this->httpClient = new Client();
+            // If a URL validator was injected (production wiring), wrap the
+            // lazy-default Guzzle client in SsrfSafeHttpClient so DNS
+            // resolution and the network connection use the same validated
+            // IPs (CURLOPT_RESOLVE pin) — closing the rebinding/TOCTOU gap.
+            // Without a validator (older test paths) we keep the bare
+            // Guzzle client; tests pinning a mocked client via setHttpClient()
+            // are unaffected.
+            $client = new Client();
+            $this->httpClient = $this->urlValidator !== null
+                ? new SsrfSafeHttpClient($client, $this->urlValidator)
+                : $client;
         }
         return $this->httpClient;
     }
@@ -155,13 +183,12 @@ class JWTClientAuthenticationService
             );
         }
 
-        if (empty($jwt)) {
+        if (!is_string($jwt) || $jwt === '') {
             throw OAuthServerException::invalidRequest('client_assertion', 'Client assertion is required');
         }
 
         try {
-            $configuration = Configuration::forUnsecuredSigner();
-            $token = $configuration->parser()->parse($jwt);
+            $token = (new Parser(new JoseEncoder()))->parse($jwt);
 
             if (!$token instanceof Plain) {
                 throw OAuthServerException::invalidClient($request);
@@ -172,7 +199,7 @@ class JWTClientAuthenticationService
             // Both 'sub' and 'iss' should contain the client_id per RFC 7523
             $clientId = $claims->get('sub');
 
-            if (empty($clientId)) {
+            if (!is_string($clientId) || $clientId === '') {
                 $this->logger->error('JWT assertion missing required sub claim');
                 throw OAuthServerException::invalidClient($request);
             }
@@ -240,65 +267,139 @@ class JWTClientAuthenticationService
 
         $params = (array) $request->getParsedBody();
         $jwt = $params['client_assertion'] ?? '';
+        if (!is_string($jwt) || $jwt === '') {
+            $this->logger->error('JWT client assertion is missing or empty', ['client_id' => $clientId]);
+            throw OAuthServerException::invalidClient($request);
+        }
+        if (!is_string($clientId) || $clientId === '') {
+            $this->logger->error('Client identifier is missing or invalid');
+            throw OAuthServerException::invalidClient($request);
+        }
 
         try {
-            // Get the JSON Web Key Set for signature validation
+            // Get the JSON Web Key Set for signature validation. Passing the URL validator
+            // ensures that any outbound JWKS fetch (`jwks_uri`) is gated by the SSRF policy
+            // before the HTTP client is invoked.
             $jsonWebKeySet = new JsonWebKeySet(
                 $this->getHttpClient(),
                 $client->getJwksUri(),
-                $client->getJwks()
+                $client->getJwks(),
+                urlValidator: $this->urlValidator,
             );
 
-            // Configure JWT validation per RFC 7523 Section 3
-            $configuration = Configuration::forUnsecuredSigner();
+            // Parse the JWT before constructing constraints. We need the
+            // `kid` header to resolve the right JWK, which the lcobucci
+            // Signer interface (verify(expected, payload, key)) can't
+            // access — the key has to be pre-resolved at the call site.
+            // (This is Aisle round-4 finding #1 / CWE-400. The previous
+            // shape passed the JsonWebKeySet to a custom signer that
+            // tried to read kid from its `$this->headers`, which is only
+            // populated during signing — empty during verification — so
+            // it fell through to the legacy `getJSONWebKey()` resolver
+            // that bypassed all of round-3 #5's size/use/alg caps.)
+            $token = (new Parser(new JoseEncoder()))->parse($jwt);
 
-            // Set up validation constraints
-            $configuration->setValidationConstraints(
-            // 1. Clock validation with 1 minute drift tolerance
+            // The standard lcobucci Parser produces Plain (unencrypted
+            // JWS) tokens; an encrypted JWT (JWE) would be a different
+            // implementation. Treat anything else as a malformed
+            // client assertion rather than letting it fall through to
+            // OAuthLogContext::forJwtAssertion()'s Plain parameter,
+            // which would TypeError in production (assert() is
+            // optimized out under `assert.active=0`). Mirrors the
+            // shape check already used in extractClientIdFromJWT.
+            if (!$token instanceof Plain) {
+                $this->logger->error(
+                    'JWT client assertion is not a Plain (unencrypted) token',
+                    ['client_id' => $clientId],
+                );
+                throw OAuthServerException::invalidClient($request);
+            }
+
+            // Round-5 #3 (CWE-532 / CWE-117 / CWE-400). The full
+            // claims and headers come from an attacker-supplied JWT —
+            // logging them dumped sensitive material to debug logs,
+            // let an attacker forge log lines via control characters
+            // in claim names, and amplified into giant log records
+            // for huge JWTs. Route through OAuthLogContext for a
+            // sanitized fingerprint (kid/alg/jti scalars stripped of
+            // unsafe chars + capped lengths, plus the *names* of
+            // claims and headers — never the values).
+            $this->logger->debug(
+                'Parsed JWT token',
+                OAuthLogContext::forJwtAssertion($token, $clientId),
+            );
+
+            // SMART Backend Services / RFC 7515 §4.1.4: kid is required so
+            // the verifier can resolve the right JWK. Reject up front
+            // before any validation so the error message is precise.
+            $kid = $token->headers()->get('kid');
+            if (!is_string($kid) || $kid === '') {
+                $this->logger->error(
+                    'JWT client assertion missing required kid header',
+                    ['client_id' => $clientId],
+                );
+                throw new JWKValidatorException('JWT missing kid header');
+            }
+
+            // Resolve the signing key through the hardened path. This
+            // applies all of round-3 #5's caps (RSA modulus / exponent
+            // length, use=sig, alg-match) and round-3 #6's strict kid
+            // matching. Returns a PEM that lcobucci's stock Sha384
+            // signer accepts directly via Key\InMemory.
+            $publicKey = $jsonWebKeySet->getSigningKeyAsPem($kid, self::ALG_RS384);
+
+            // Single SystemClock shared by both LooseValidAt (for the iat/nbf/exp
+            // window) and UniqueID (for the replay-history "still within validity"
+            // lookup). UniqueID needs the clock to compare against current time —
+            // not the token's own exp — so a replay of the same token doesn't slip
+            // past the strict `jti_exp > ?` filter on the stored row.
+            $clock = new SystemClock(new \DateTimeZone(\date_default_timezone_get()));
+
+            // Configure JWT validation per RFC 7523 Section 3
+            /** @var list<Constraint> $constraints */
+            $constraints = [
+                // 1. Clock validation with 1 minute drift tolerance
                 new LooseValidAt(
-                    new SystemClock(new \DateTimeZone(\date_default_timezone_get())),
+                    $clock,
                     new DateInterval('PT' . self::MAX_CLOCK_DRIFT_MINUTES . 'M')
                 ),
-                // 2. Signature validation using RS384
-                new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
+                // 2. Signature validation using RS384 against the
+                // pre-resolved PEM. Uses lcobucci's stock signer; the
+                // legacy custom RsaSha384Signer was removed because it
+                // couldn't access JWT headers during verification (see
+                // pre-resolution comment above).
+                new SignedWith(new LcobucciRsaSha384(), $publicKey),
                 // 3. Issuer must be the client_id
                 new IssuedBy($clientId),
                 // 4. Audience must be the token endpoint
                 new PermittedFor($this->authTokenUrl),
                 // 5. JTI uniqueness check for replay prevention
-                new UniqueID($this->jwtRepository)
-            );
-
-            // Parse the JWT
-            $token = $configuration->parser()->parse($jwt);
-
-            $this->logger->debug(
-                'Parsed JWT token',
-                [
-                    'claims' => $token->claims()->all(),
-                    'headers' => $token->headers()->all()
-                ]
-            );
+                new UniqueID($this->jwtRepository, $clock),
+            ];
 
             // AI Generated - Start
             // Additional validations per SMART Backend Services
             $this->performAdditionalValidations($token, $clientId);
 
-            // Validate all constraints
-            $constraints = $configuration->validationConstraints();
-
             try {
                 // Note: @ suppresses phpseclib RSA validation notice that gets printed to screen
-                @$configuration->validator()->assert($token, ...$constraints);
+                @(new Validator())->assert($token, ...$constraints);
             } catch (RequiredConstraintsViolated $exception) {
+                // Round-5 #3 (same shape as the debug log above):
+                // sanitized fingerprint instead of the raw claim
+                // dump. The exception message + expected_audience
+                // give operators the "why" of the failure; the
+                // sanitized JWT context gives them the "what shape"
+                // without the attacker-controlled value bag.
                 $this->logger->error(
                     'JWT failed validation constraints',
-                    [
-                        'client_id' => $clientId,
-                        'exception' => $exception->getMessage(),
-                        'expected_audience' => $this->authTokenUrl,
-                        'claims' => $token->claims()->all()
-                    ]
+                    array_merge(
+                        OAuthLogContext::forJwtAssertion($token, $clientId),
+                        [
+                            'exception' => $exception->getMessage(),
+                            'expected_audience' => $this->authTokenUrl,
+                        ],
+                    ),
                 );
 
                 // Per ONC Inferno requirements, use 400 status instead of 401
@@ -366,22 +467,32 @@ class JWTClientAuthenticationService
             throw OAuthServerException::invalidRequest('client_assertion', 'Invalid issuer claim');
         }
 
-        // Check expiration is not too far in future (24 hours max per SMART spec)
+        // Require `exp` outright. RFC 7523 §3.4 lists it as a MUST for
+        // client-assertion JWTs. Beyond spec compliance, accepting a JWT
+        // without `exp` would store `jti_exp = NULL` in jwt_grant_history,
+        // and the replay-lookup filter `jti_exp > ?` excludes NULL rows
+        // (SQL: `NULL > x` is NULL, not true) — letting the same assertion
+        // be replayed forever. Reject before saveJwtHistory() so the
+        // storage layer never sees a NULL exp from this path.
         $exp = $claims->get('exp');
-        if ($exp instanceof \DateTimeInterface) {
-            $maxExp = (new \DateTimeImmutable())->add(
-                new DateInterval('PT' . self::MAX_JWT_EXPIRATION_HOURS . 'H')
+        if (!$exp instanceof \DateTimeInterface) {
+            $this->logger->error('JWT client assertion missing required exp claim');
+            throw OAuthServerException::invalidRequest('client_assertion', 'Missing exp claim');
+        }
+
+        // Check expiration is not too far in future (24 hours max per SMART spec)
+        $maxExp = (new \DateTimeImmutable())->add(
+            new DateInterval('PT' . self::MAX_JWT_EXPIRATION_HOURS . 'H')
+        );
+        if ($exp > $maxExp) {
+            $this->logger->error(
+                'JWT expiration exceeds maximum allowed time',
+                ['exp' => $exp->format('c'), 'max_exp' => $maxExp->format('c')]
             );
-            if ($exp > $maxExp) {
-                $this->logger->error(
-                    'JWT expiration exceeds maximum allowed time',
-                    ['exp' => $exp->format('c'), 'max_exp' => $maxExp->format('c')]
-                );
-                throw OAuthServerException::invalidRequest(
-                    'client_assertion',
-                    'Token expiration exceeds maximum allowed time'
-                );
-            }
+            throw OAuthServerException::invalidRequest(
+                'client_assertion',
+                'Token expiration exceeds maximum allowed time'
+            );
         }
 
         // Check 'iat' (issued at) is not too old (5 minutes)
@@ -424,7 +535,25 @@ class JWTClientAuthenticationService
 
             $jti = $token->claims()->get('jti');
 
-            $this->jwtRepository->saveJwtHistory($jti, $clientId, $exp);
+            // saveJwtHistory uses INSERT IGNORE against the UNIQUE KEY on
+            // jwt_grant_history.jti and returns false when the unique
+            // constraint blocked the row — a concurrent client-assertion
+            // submission slipped past UniqueID::assert()'s SELECT and
+            // already inserted. Treat as replay (fail closed).
+            $inserted = $this->jwtRepository->saveJwtHistory($jti, $clientId, $exp);
+            if (!$inserted) {
+                $this->logger->error(
+                    'JWT client assertion replay detected via uq_jti race-victim signal',
+                    ['client_id' => $clientId, 'jti' => $jti],
+                );
+                $oauthException = new OAuthServerException(
+                    'Client authentication failed',
+                    4,
+                    'invalid_client',
+                    400,
+                );
+                throw $oauthException;
+            }
 
             $this->logger->debug(
                 'Saved JWT history for replay prevention',
