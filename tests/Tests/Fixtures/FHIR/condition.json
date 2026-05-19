@@ -1,0 +1,50 @@
+[
+    {
+        "resourceType": "Condition",
+        "clinicalStatus": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                    "code": "active",
+                    "display": "Active"
+                }
+            ]
+        },
+        "verificationStatus": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/condition-ver-status",
+                    "code": "confirmed",
+                    "display": "Confirmed"
+                }
+            ]
+        },
+        "category": [
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/condition-category",
+                        "code": "problem-list-item",
+                        "display": "Problem List Item"
+                    }
+                ]
+            }
+        ],
+        "code": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": "44054006",
+                    "display": "Type 2 Diabetes Mellitus"
+                }
+            ],
+            "text": "Type 2 Diabetes Mellitus"
+        },
+        "onsetDateTime": "2020-03-15",
+        "note": [
+            {
+                "text": "test-fixture condition for diabetes"
+            }
+        ]
+    }
+]

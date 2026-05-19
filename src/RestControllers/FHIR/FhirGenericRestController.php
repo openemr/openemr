@@ -20,6 +20,8 @@ use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\FHIR\FhirValidationService;
+use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Validators\ProcessingResult;
@@ -33,11 +35,22 @@ class FhirGenericRestController implements IGlobalsAware {
 
     private array $aclChecks = [];
 
+    /**
+     * Expected FHIR resourceType for write operations on this route. Set by the
+     * route handler so deserializeFhirResource() can reject any payload whose
+     * resourceType does not match the route's bound resource. Required for
+     * post() and put(); not used for read paths.
+     */
+    private ?string $expectedResourceType = null;
+
     private ResourceConstraintFilterer $resourcePolicyEnforcementDecisionChecker;
 
     public function __construct(protected HttpRestRequest $request, protected FhirServiceBase $fhirService, OEGlobalsBag $globalsBag)
     {
         $this->setGlobalsBag($globalsBag);
+        if ($request->getSession()) {
+            $this->fhirService->setSession($request->getSession());
+        }
     }
 
     public function getResourcePolicyEnforcementDecisionChecker(): ResourceConstraintFilterer {
@@ -50,6 +63,17 @@ class FhirGenericRestController implements IGlobalsAware {
 
     public function addAclRestrictions(string $section, string $subSection = '', string $aclPermission = '') : void {
         $this->aclChecks[] = ['section' => $section, 'subSection' => $subSection, 'aclPermission' => $aclPermission];
+    }
+
+    /**
+     * Sets the FHIR resourceType this route accepts for writes. Required for
+     * post() and put() — the request body's resourceType must match this value
+     * exactly, otherwise the request is rejected with 400. This prevents a POST
+     * to one resource endpoint from instantiating a different FHIR class.
+     */
+    public function setExpectedResourceType(string $resourceType): void
+    {
+        $this->expectedResourceType = $resourceType;
     }
 
     protected function getFhirResourcesService(): FhirResourcesService
@@ -146,5 +170,153 @@ class FhirGenericRestController implements IGlobalsAware {
 
     public function canAccessResource(FHIRDomainResource $resource): bool {
         return $this->getResourcePolicyEnforcementDecisionChecker()->canAccessResource($resource, $this->getHttpRestRequest());
+    }
+
+    /**
+     * Creates a new FHIR resource
+     * @param array $fhirJson The FHIR resource as a JSON-decoded array
+     * @return Response 201 if the resource is created, 400 if invalid
+     */
+    public function post(array $fhirJson): Response
+    {
+        if ($this->getHttpRestRequest()->isPatientRequest()) {
+            return RestControllerHelper::responseHandler(null, null, 403);
+        }
+
+        foreach ($this->aclChecks as $aclCheck) {
+            RestConfig::request_authorization_check(
+                $this->getHttpRestRequest(),
+                $aclCheck['section'],
+                $aclCheck['subSection'],
+                $aclCheck['aclPermission']
+            );
+        }
+
+        $fhirValidationService = new FhirValidationService();
+        $validationResult = $fhirValidationService->validate($fhirJson);
+        if (!empty($validationResult)) {
+            return RestControllerHelper::responseHandler($validationResult, null, 400);
+        }
+
+        $fhirResource = $this->deserializeFhirResource($fhirJson);
+        if ($fhirResource instanceof Response) {
+            return $fhirResource;
+        }
+
+        try {
+            $processingResult = $this->getFhirService()->insert($fhirResource);
+        } catch (\InvalidArgumentException $e) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', $e->getMessage()),
+                null,
+                400
+            );
+        }
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+    }
+
+    /**
+     * Updates an existing FHIR resource
+     * @param string $fhirId The FHIR resource id (uuid)
+     * @param array $fhirJson The updated FHIR resource (complete resource)
+     * @return Response 200 if the resource is updated, 400 if invalid
+     */
+    public function put(string $fhirId, array $fhirJson): Response
+    {
+        if ($this->getHttpRestRequest()->isPatientRequest()) {
+            return RestControllerHelper::responseHandler(null, null, 403);
+        }
+
+        foreach ($this->aclChecks as $aclCheck) {
+            RestConfig::request_authorization_check(
+                $this->getHttpRestRequest(),
+                $aclCheck['section'],
+                $aclCheck['subSection'],
+                $aclCheck['aclPermission']
+            );
+        }
+
+        $fhirValidationService = new FhirValidationService();
+        $validationResult = $fhirValidationService->validate($fhirJson);
+        if (!empty($validationResult)) {
+            return RestControllerHelper::responseHandler($validationResult, null, 400);
+        }
+
+        $fhirResource = $this->deserializeFhirResource($fhirJson);
+        if ($fhirResource instanceof Response) {
+            return $fhirResource;
+        }
+
+        try {
+            $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
+        } catch (\InvalidArgumentException $e) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', $e->getMessage()),
+                null,
+                400
+            );
+        }
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+    }
+
+    /**
+     * Deserializes a FHIR JSON array into a FHIRDomainResource. The payload's
+     * resourceType must exactly match the route's expected type (set via
+     * setExpectedResourceType). The class to instantiate is taken from a
+     * static map (not from user input), so untrusted JSON cannot trigger
+     * autoload of an arbitrary class.
+     *
+     * @param array $fhirJson The FHIR resource as a JSON-decoded array
+     * @return FHIRDomainResource|Response The deserialized resource, or a 400 Response on error
+     */
+    private function deserializeFhirResource(array $fhirJson): FHIRDomainResource|Response
+    {
+        if ($this->expectedResourceType === null) {
+            // Misconfigured route: a write controller without an expected type
+            // would fall back to dynamic class resolution. Refuse to proceed.
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'exception', 'Server misconfiguration'),
+                null,
+                500
+            );
+        }
+
+        $resourceType = $fhirJson['resourceType'] ?? '';
+        if ($resourceType === '' || !is_string($resourceType)) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'invalid', 'resourceType is required'),
+                null,
+                400
+            );
+        }
+
+        // Strict equality against the route-bound type. Rejects payloads that
+        // try to switch the FHIR class (e.g. POST /Appointment with
+        // resourceType: "Patient") and avoids any string-derived class lookup.
+        if ($resourceType !== $this->expectedResourceType) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'invalid',
+                    'resourceType must be ' . $this->expectedResourceType
+                ),
+                null,
+                400
+            );
+        }
+
+        $className = 'OpenEMR\\FHIR\\R4\\FHIRDomainResource\\FHIR' . $this->expectedResourceType;
+        if (!class_exists($className)) {
+            // The expected type is set by trusted route code, so a missing
+            // class is a server misconfiguration rather than client error.
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource('error', 'exception', 'Unsupported resource type'),
+                null,
+                500
+            );
+        }
+
+        unset($fhirJson['resourceType']);
+        return new $className($fhirJson);
     }
 }

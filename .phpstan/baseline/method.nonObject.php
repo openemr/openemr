@@ -6842,6 +6842,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Document/BaseDocumentDownloader.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getMessages\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method isValid\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method getCodeWithType\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
@@ -7327,11 +7337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getReference\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRReference\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getUrl\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/UtilsService.php',
@@ -7367,7 +7372,32 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method addData\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method addErrorMessage\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method addInternalError\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method isValid\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method validateId\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method validate\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];
@@ -7675,6 +7705,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Validators/ImmunizationValidator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
