@@ -43,7 +43,12 @@
                             precision:field.precision, codes:field.codes, results: results, is_edit: false }
                         %}
                     {% endif %}
-                    {% if field.type == 'template' %}
+                    {# Skip the growth-chart action buttons here. They are
+                       rendered once in the editable section above; rendering
+                       them again would produce duplicate id="pdfchart" /
+                       id="htmlchart" in the DOM, which breaks the jQuery
+                       click handlers on the second pair. #}
+                    {% if field.type == 'template' and field.templateName != 'vitals_growthchart_actions.html.twig' %}
                         {% include field.templateName with {vitals: vitals, field: field, results: results, is_edit: false } %}
                     {% endif %}
                 {% endfor %}
