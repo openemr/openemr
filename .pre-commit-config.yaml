@@ -48,6 +48,14 @@ exclude: |
     public/assets/modified/|
     swagger/
   )
+
+# Constrain every hook to the pre-commit stage by default. Without this, hooks
+# whose upstream definitions omit `stages:` run at every stage (including
+# commit-msg), causing the file-content hooks to fire a second time when the
+# Conventional Commits hook runs at commit-msg. The conventional-commits hook
+# below sets its own `stages: [commit-msg]` which overrides this default.
+default_stages: [pre-commit]
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
   rev: v4.5.0
@@ -135,6 +143,7 @@ repos:
     entry: composer rector-fix --
     language: system
     files: \.php$
+    exclude: ^vendor/
 
   - id: composer-require-checker
     name: Composer Require Checker

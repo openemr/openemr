@@ -277,7 +277,6 @@
         ],
         "code-quality": [
             "@codespell",
-            "@conventional-commits:check",
             "@php-syntax-check",
             "@phpcbf",
             "@phpcs",
@@ -285,9 +284,9 @@
             "@rector-check",
             "@require-checker"
         ],
-        "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
+        "codespell": "if command -v codespell >/dev/null 2>&1; then codespell; else echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2; fi",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
-        "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
+        "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -d error_reporting=0 -l 2>&1 | awk '!/^No syntax errors detected in/ { print; fail=1 } END { exit fail+0 }'",
         "phpcbf": "phpcbf",
         "phpcs": "phpcs",
         "phpstan": "phpstan analyze --memory-limit=4G --configuration=phpstan.neon.dist",
