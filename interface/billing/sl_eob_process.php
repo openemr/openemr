@@ -11,7 +11,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2019-2020 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2026 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -592,9 +592,12 @@ function eob_process_era_callback(array &$out): void
 
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
+            /** @var array<string, mixed> $adj */
             foreach ($svc['adj'] as $adj) {
                 $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
+                $isContractualWriteoff = $adj['group_code'] === 'CO'
+                    && in_array($adj['reason_code'], ['45', '59'], true);
                 if ($adj['group_code'] === 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -628,17 +631,11 @@ function eob_process_era_callback(array &$out): void
                         );
                     }
 
-                    echo getMessageLine($bgcolor, $class, $description . ' ' .
-                    sprintf("%.2f", $adj['amount']));
+                    $amount = is_numeric($adj['amount']) ? (float)$adj['amount'] : 0.0;
+                    echo getMessageLine($bgcolor, $class, $description . ' ' . sprintf("%.2f", $amount));
                 } elseif (
-                    $svc['paid'] === 0
-                    && !(
-                        $adj['group_code'] === "CO"
-                        && (
-                            $adj['reason_code'] === '45'
-                            || $adj['reason_code'] === '59'
-                        )
-                    )
+                    $svc['paid'] === 0.0
+                    && !$isContractualWriteoff
                 ) {
                     $class = 'errdetail';
                     $error = true;
