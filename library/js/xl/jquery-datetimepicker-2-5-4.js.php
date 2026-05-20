@@ -32,6 +32,8 @@
  *  support internationalization of dates; note this setting does not yet work with the timepicker yet)
  *   -oeFormatShortDate() function for when placing a default formatted date in the field
  *   -DateToYYYYMMDD() function when insert the formatted date into database or codebase works on it
+ * $language_direction - optional; if pre-set by the caller before any output is sent, the session
+ *  will not be reopened mid-output. If not set, it will be read from the active session here.
  *
  *
  * @package   OpenEMR
@@ -44,6 +46,8 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+// If the caller already fetched $language_direction before output began,
+// skip the session read to avoid reopening the session after headers are sent.
 if (!isset($language_direction)) {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $language_direction = $session->get('language_direction');
