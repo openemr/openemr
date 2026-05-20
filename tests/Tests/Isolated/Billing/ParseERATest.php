@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolate\Billing;
+namespace OpenEMR\Tests\Isolated\Billing;
 
 use OpenEMR\Billing\ParseERA;
 use PHPUnit\Framework\TestCase;
@@ -122,7 +122,7 @@ class ParseERATest extends TestCase
 
         /** @var array<int|string, mixed> $out */
         $out = [];
-        $cb = function (array &$o, string $action) use (&$out): void {
+        $cb = function (array &$o) use (&$out): void {
             $out = $o;
         };
 
@@ -263,15 +263,18 @@ class ParseERATest extends TestCase
         $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
         /** @var array<int, mixed> $svcs */
         $svcs = $out['svc'];
+        $foundClaimRow = false;
 
         foreach ($svcs as $entry) {
             /** @var array<string, mixed> $entry */
             if ($entry['code'] === 'Claim') {
                 $this->assertIsFloat($entry['chg'], 'artificial Claim chg must be float');
+                $foundClaimRow = true;
                 $this->assertIsFloat($entry['paid'], 'artificial Claim paid must be float');
                 $this->assertSame(0.0, $entry['chg']);
                 $this->assertSame(0.0, $entry['paid']);
             }
         }
+        $this->assertTrue($foundClaimRow, 'Expected fixture to produce an artificial Claim row');
     }
 }
