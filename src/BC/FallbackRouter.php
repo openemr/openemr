@@ -175,9 +175,20 @@ readonly class FallbackRouter
 
         // @phpstan-ignore openemr.forbiddenRequestGlobals
         $_SERVER['SCRIPT_FILENAME'] = $targetFile;
+        // The built-in Windows webserver can expose a document root that
+        // causes legacy web-root detection to emit filesystem paths in asset
+        // URLs. Force the install root here so legacy bootstrap treats the app
+        // as mounted at `/`.
+        $_SERVER['DOCUMENT_ROOT'] = $this->installRoot;
+        $_SERVER['CONTEXT_DOCUMENT_ROOT'] = $this->installRoot;
+
+        $normalizedRoot = str_replace('\\', '/', $this->installRoot);
+        $normalizedTarget = str_replace('\\', '/', $targetFile);
+        $rootRelativePath = substr($normalizedTarget, strlen($normalizedRoot)) ?: '/';
+        $scriptName = '/' . ltrim($rootRelativePath, '/');
 
         // @phpstan-ignore openemr.forbiddenRequestGlobals, openemr.forbiddenRequestGlobals
-        $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->installRoot));
+        $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = $scriptName;
     }
 
     /**

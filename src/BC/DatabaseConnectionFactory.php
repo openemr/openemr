@@ -64,6 +64,12 @@ class DatabaseConnectionFactory
             );
         }
 
+        // Allow callers to handle failed connections gracefully instead of
+        // issuing queries against a false connection resource.
+        if (empty($conn->_connectionID)) {
+            return $conn;
+        }
+
         $conn->ExecuteNoLog("SET NAMES '$config->charset'");
         // "Turn off STRICT SQL"
         $conn->ExecuteNoLog("SET sql_mode = ''");
