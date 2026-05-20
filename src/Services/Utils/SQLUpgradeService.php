@@ -743,8 +743,8 @@ class SQLUpgradeService implements ISQLUpgradeService
                     // so collapse to a single row holding the current max id. DELETE-then-INSERT
                     // is safe for 0, 1, or N starting rows and avoids the multi-row UPDATE that
                     // fatals on a duplicate PRIMARY KEY.
-                    sqlStatementNoLog("DELETE FROM `categories_seq`");
-                    sqlStatementNoLog("INSERT INTO `categories_seq` (`id`) SELECT COALESCE(MAX(`id`), 0) FROM `categories`");
+                    QueryUtils::fetchRecordsNoLog("DELETE FROM `categories_seq`");
+                    QueryUtils::fetchRecordsNoLog("INSERT INTO `categories_seq` (`id`) SELECT COALESCE(MAX(`id`), 0) FROM `categories`");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;
