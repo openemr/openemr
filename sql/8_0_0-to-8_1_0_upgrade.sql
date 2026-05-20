@@ -173,6 +173,10 @@ UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = '
 UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'ethnicity' AND `option_id` = 'declne_to_specfy';
 #EndIf
 
+#IfNotRow2D list_options list_id ethnicity option_id decline_to_specify
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethnicity', 'decline_to_specify', 'Declined To Specify', 0, 0, 0);
+#EndIf
+
 --
 -- Rename the misspelled 'interpretter' column to 'interpreter' in patient_data,
 -- and update the layout_options field_id to match.
