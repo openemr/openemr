@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Billing;
+namespace OpenEMR\Tests\Isolate\Billing;
 
 use OpenEMR\Billing\ParseERA;
 use PHPUnit\Framework\TestCase;
