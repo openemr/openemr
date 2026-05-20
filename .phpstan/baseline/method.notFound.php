@@ -322,11 +322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeyParser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method phpseclib3\\\\Crypt\\\\Common\\\\AsymmetricKey\\:\\:withPadding\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
@@ -463,7 +458,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
-    'count' => 5,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
 ];
 $ignoreErrors[] = [

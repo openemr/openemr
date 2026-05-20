@@ -5132,24 +5132,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/JsonWebKeyParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method verify\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method withHash\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
@@ -7400,11 +7385,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method hasErrors\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method all\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',

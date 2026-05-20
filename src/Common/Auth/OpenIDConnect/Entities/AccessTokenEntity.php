@@ -29,12 +29,13 @@ class AccessTokenEntity implements AccessTokenEntityInterface
      */
     private bool $revoked = false;
 
-    private string $issuer;
+    private ?string $issuer = null;
 
     public function setIssuer(?string $issuer): void
     {
         $this->issuer = $issuer;
     }
+
     public function getIssuer(): ?string
     {
         return $this->issuer;
@@ -62,17 +63,32 @@ class AccessTokenEntity implements AccessTokenEntityInterface
     {
         $this->initJwtConfiguration();
 
+        $clientId = $this->getClient()->getIdentifier();
+        if ($clientId === '') {
+            throw new \RuntimeException('Access token client identifier must be a non-empty string');
+        }
+        $tokenId = $this->getIdentifier();
+        if (!is_string($tokenId) || $tokenId === '') {
+            throw new \RuntimeException('Access token identifier must be a non-empty string');
+        }
+        $userIdentifier = $this->getUserIdentifier();
+        if ($userIdentifier === null || $userIdentifier === '') {
+            throw new \RuntimeException('Access token user identifier must be set');
+        }
+        $userId = (string) $userIdentifier;
+
         $builder = $this->jwtConfiguration->builder()
-            ->permittedFor($this->getClient()->getIdentifier())
-            ->identifiedBy($this->getIdentifier())
+            ->permittedFor($clientId)
+            ->identifiedBy($tokenId)
             ->issuedAt(new DateTimeImmutable())
             ->canOnlyBeUsedAfter(new DateTimeImmutable())
             ->expiresAt($this->getExpiryDateTime())
-            ->relatedTo((string) $this->getUserIdentifier())
+            ->relatedTo($userId)
             ->withClaim('scopes', $this->getScopes());
         // add issuer to token
-        if ($this->getIssuer() != null) {
-            $builder = $builder->issuedBy($this->getIssuer());
+        $issuer = $this->getIssuer();
+        if ($issuer !== null && $issuer !== '') {
+            $builder = $builder->issuedBy($issuer);
         }
         return $builder->getToken($this->jwtConfiguration->signer(), $this->jwtConfiguration->signingKey());
     }

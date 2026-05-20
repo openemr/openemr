@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use InvalidArgumentException;
@@ -20,12 +22,12 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimSetRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 use function in_array;

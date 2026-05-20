@@ -710,18 +710,83 @@ if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_
     $ignoreAuth = true;
 }
 
-if (!$ignoreAuth) {
-    require_once("$srcdir/auth.inc.php");
-    $globalsBag->set('incoming_site_id', $GLOBALS['incoming_site_id'] ?? null);
-}
-
-// This is the background color to apply to form fields that are searchable.
-// Currently it is applicable only to the "Search or Add Patient" form.
-$globalsBag->set('layout_search_color', '#ff9919');
-
-// module configurations
+// Module bootstrap.
+//
+// Modules must be registered BEFORE auth.inc.php runs, because module
+// event listeners (notably the OIDC login-request handler from a custom
+// module) need to be wired to the EventDispatcher before auth.inc.php
+// dispatches OidcLoginRequestEvent. Otherwise the OIDC login flow can't
+// be intercepted by the module.
+//
+// But bootstrap is expensive — Laminas ModuleManager + a SELECT over
+// the `modules` table + per-module `is_readable` probes (up to 3 retries
+// with sleeps on failure) + `include` of every enabled module's
+// bootstrap.php. Running that on every unauthenticated request is an
+// unauthenticated resource-exhaustion vector (CWE-400): an attacker can
+// hit any protected URL in a loop and force the whole pipeline before
+// auth.inc.php redirects to the login screen.
+//
+// We gate bootstrap to the three cases that actually need modules:
+//   1. $ignoreAuth — explicitly public pages (login screen, portal, API
+//      entrypoints) that may call into module-registered hooks.
+//   2. An authenticated session already exists — the request will run
+//      to completion and likely hit module code. Logouts also fall in
+//      this branch: the session still has `authUser` at this point;
+//      `auth.inc.php` invalidates it later in the request.
+//   3. A real login submission (POST + the `new_login_session_management`
+//      hidden field that the login form emits) — we need the OIDC login
+//      listener registered before `auth.inc.php` dispatches the event.
+//
+// Any other request (no session, no login submission, not a public page)
+// is guaranteed to short-circuit at auth.inc.php via authLoginScreen(),
+// which redirects before touching module code. Skipping bootstrap here
+// means the attacker hits a cheap session check + redirect instead of
+// the full module pipeline.
+//
+// Aisle finding (CWE-400). The previous gate trusted bare
+// `?auth=login` / `?auth=logout` GET parameters, which an attacker can
+// append to any protected URL to force the expensive bootstrap. Require
+// POST + the form's hidden field so only the actual login submission
+// trips the bootstrap. Logout no longer has its own gate clause: a real
+// logout (GET `?auth=logout` from the menu) is covered by
+// $hasAuthenticatedSession; an attacker hitting `?auth=logout` without
+// a session falls through to the cheap redirect path.
+//
+// Aisle round-5 #8 (CWE-400). The earlier hidden-field check
+// (`new_login_session_management`) treated a public, guessable form
+// marker as proof-of-login-submission. An attacker could trivially
+// include it in a forged POST to keep forcing the bootstrap. Tighten
+// to require one of the actual login *payloads* `auth.inc.php`
+// consumes — password (`authUser` + `clearPass`), Google sign-in
+// (`used_google_signin` + `google_signin_token`), or OIDC
+// (`oidc_id_token`). A forged POST with arbitrary values for these
+// fields still reaches the auth path, but that path is rate-limited
+// per-IP by `IpLoginRateLimiter` (round-3 #4) — order-of-magnitude
+// harder to amplify than the bootstrap itself.
+//
 // upgrade fails for versions prior to 4.2.0 since no modules table
-$checkModulesTableExists = QueryUtils::existsTable('modules');
+$authAction = $_GET['auth'] ?? null; // @phpstan-ignore openemr.forbiddenRequestGlobals
+$sessionAuthUser = $session->get('authUser');
+$hasAuthenticatedSession = is_string($sessionAuthUser) && $sessionAuthUser !== '';
+$oidcIdToken = filter_input(INPUT_POST, 'oidc_id_token');
+$isLoginSubmission = filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST'
+    && $authAction === 'login'
+    && (
+        (
+            filter_input(INPUT_POST, 'authUser') !== null
+            && filter_input(INPUT_POST, 'clearPass') !== null
+        )
+        || (
+            filter_input(INPUT_POST, 'used_google_signin') !== null
+            && filter_input(INPUT_POST, 'google_signin_token') !== null
+        )
+        || (is_string($oidcIdToken) && $oidcIdToken !== '')
+    );
+$needsPreAuthModules = $ignoreAuth
+    || $hasAuthenticatedSession
+    || $isLoginSubmission;
+
+$checkModulesTableExists = $needsPreAuthModules && QueryUtils::existsTable('modules');
 
 if (!empty($checkModulesTableExists)) {
     $globalsBag->set('baseModDir', "interface/modules/"); //default path of modules
@@ -750,6 +815,15 @@ if (!empty($checkModulesTableExists)) {
         die();
     }
 }
+
+if (!$ignoreAuth) {
+    require_once("$srcdir/auth.inc.php");
+    $globalsBag->set('incoming_site_id', $GLOBALS['incoming_site_id'] ?? null);
+}
+
+// This is the background color to apply to form fields that are searchable.
+// Currently it is applicable only to the "Search or Add Patient" form.
+$globalsBag->set('layout_search_color', '#ff9919');
 
 // Don't change anything below this line. ////////////////////////////
 

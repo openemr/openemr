@@ -2,12 +2,15 @@
 
 /**
  * UniqueID.php
- * @package openemr
+ *
  * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation;
 
@@ -16,11 +19,14 @@ use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolation;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
+use Psr\Clock\ClockInterface;
 
 class UniqueID implements Constraint
 {
-    public function __construct(private readonly JWTRepository $jwtRepository)
-    {
+    public function __construct(
+        private readonly JWTRepository $jwtRepository,
+        private readonly ClockInterface $clock,
+    ) {
     }
 
     /** @throws ConstraintViolation */
@@ -33,11 +39,16 @@ class UniqueID implements Constraint
         if (empty($jti)) {
             throw new ConstraintViolation("jti claim is required for JWT");
         }
-        $expCheck = null;
-        if ($exp instanceof \DateTimeInterface) {
-            $expCheck = $exp->getTimestamp();
-        }
-        $existingJWT = $this->jwtRepository->getJwtGrantHistoryForJTI($jti, $expCheck);
+
+        // Look up by current clock time, NOT the token's own exp. The repo
+        // filter is `jti_exp > FROM_UNIXTIME(?)` and the stored value equals
+        // the token's exp, so passing the token's exp here makes the strict
+        // `>` comparison false on a replay (stored == supplied) and the
+        // existing row is missed. Passing now() instead asks "is there any
+        // record for this jti whose validity window is still open" — the
+        // semantics OidcTokenValidator already uses for the same table.
+        $nowTimestamp = $this->clock->now()->getTimestamp();
+        $existingJWT = $this->jwtRepository->getJwtGrantHistoryForJTI($jti, $nowTimestamp);
         if (!empty($existingJWT)) {
             ServiceContainer::getLogger()->emergency(
                 static::class . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",

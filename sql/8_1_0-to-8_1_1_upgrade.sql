@@ -112,3 +112,28 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+-- Aisle finding (CWE-362). The application-layer
+-- check-then-insert pattern in OidcTokenValidator and the
+-- UniqueID + JWTClientAuthenticationService pair has a TOCTOU
+-- race window: two concurrent presentations of the same JWT can
+-- both pass the SELECT and both INSERT, accepting the same
+-- token twice. Add a UNIQUE constraint on `jti` so the second
+-- INSERT is rejected at the database layer; the application
+-- detects the affected-rows = 0 case via INSERT IGNORE.
+--
+-- Pre-step: any duplicate rows (possible under the legacy
+-- non-unique schema) must be removed before the UNIQUE index
+-- can be added; the self-join DELETE keeps the newest row per
+-- jti. Idempotent on re-run (zero rows on a deduped table).
+DELETE old FROM jwt_grant_history old
+    INNER JOIN jwt_grant_history newer
+        ON old.jti = newer.jti AND old.id < newer.id;
+
+#IfIndex jwt_grant_history jti
+ALTER TABLE `jwt_grant_history` DROP INDEX `jti`;
+#EndIf
+
+#IfNotIndex jwt_grant_history uq_jti
+ALTER TABLE `jwt_grant_history` ADD UNIQUE KEY `uq_jti` (`jti`);
+#EndIf

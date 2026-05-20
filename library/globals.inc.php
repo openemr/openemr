@@ -2227,6 +2227,13 @@ $GLOBALS_METADATA = [
             xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ],
 
+        'trusted_proxies' => [
+            xl('Trusted Proxy IPs/CIDRs for Rate Limiting'),
+            'text',                           // data type
+            '',                               // default empty (no trusted proxies)
+            xl('Comma-separated list of reverse-proxy IPs or CIDR ranges. When set, the login rate limiter honors X-Forwarded-For only when REMOTE_ADDR matches one of these. Leave empty if OpenEMR is not behind a reverse proxy/CDN. Example: 10.0.0.0/8, 192.168.1.5')
+        ],
+
         'gbl_fac_warehouse_restrictions' => [
             xl('Enable Facility/Warehouse Permissions'),
             'bool',                           // data type

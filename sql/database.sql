@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 538
+-- v_database: 540
 --
 
 --
@@ -14236,15 +14236,34 @@ CREATE TABLE `form_vitals_calculation_form_vitals` (
    PRIMARY KEY (`fvc_uuid`, `vitals_id`)
 ) ENGINE=InnoDB COMMENT = 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records';
 
+-- Aisle round-5 #9 (CWE-20). The previous schema stored `jti` as
+-- VARCHAR(100) with a UNIQUE constraint directly on that column.
+-- IdP-issued JTIs and the validator's synthetic replay keys are both
+-- variable-length and can exceed 100 chars; under non-strict SQL mode
+-- MySQL silently truncates inserts, so two distinct long JTIs sharing
+-- the first 100 chars would collide on the UNIQUE constraint and
+-- either misclassify a legitimate token as a replay (false-positive
+-- DoS) or block insertion of the legitimate row.
+--
+-- Match the `oidc_token_revocation` shape from earlier in this file:
+-- store the full jti as VARCHAR(512) for forensic value, derive a
+-- fixed-length BINARY(32) sha256 column via GENERATED ALWAYS, and
+-- enforce uniqueness on the hash. The application's INSERT IGNORE
+-- and `WHERE jti = ?` queries don't need any change — the unique
+-- constraint still fires on duplicate jti (because the GENERATED
+-- column is deterministic), and the secondary `idx_jti` covers the
+-- raw-value lookup.
 DROP TABLE IF EXISTS `jwt_grant_history`;
 CREATE TABLE `jwt_grant_history` (
 `id` INT NOT NULL AUTO_INCREMENT
- , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
+ , `jti` VARCHAR(512) NOT NULL COMMENT 'Unique JWT id'
+ , `jti_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`jti`, 256))) STORED
  , `client_id` VARCHAR(80) NOT NULL COMMENT 'FK oauth2_clients.client_id'
  , `jti_exp` TIMESTAMP NULL DEFAULT NULL COMMENT 'jwt exp claim when the jwt expires'
  , `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'datetime the grant authorization was requested'
  , PRIMARY KEY (`id`)
- , KEY `jti` (`jti`)
+ , UNIQUE KEY `uq_jti_hash` (`jti_sha256`)
+ , KEY `idx_jti` (`jti`(255))
 ) ENGINE = InnoDB COMMENT = 'Holds JWT authorization grant ids to prevent replay attacks';
 
 DROP TABLE IF EXISTS `document_templates`;
@@ -15368,6 +15387,46 @@ CREATE TABLE `preference_value_sets` (
     -- General Preferences
     INSERT INTO preference_value_sets(`loinc_code`,`answer_code`,`answer_system`,`answer_display`,`sort_order`,`active`) VALUES
     ('95541-9', 314433002, 'http://snomed.info/sct', 'Preference for health professional (finding)', 1, 1);
+
+-- OIDC external identity mapping: links local users.id to external (issuer, subject).
+-- Uniqueness is enforced on SHA-256 hashes of the full issuer/external_id values
+-- because MySQL/MariaDB index-length limits make a prefix-based unique key on the
+-- raw VARCHARs unsafe (two pairs sharing the first 255 chars would collide and
+-- the upsert would rewrite the wrong row).
+DROP TABLE IF EXISTS `oidc_external_identity`;
+CREATE TABLE `oidc_external_identity` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `user_id` BIGINT NOT NULL COMMENT 'FK to users.id',
+    `issuer` VARCHAR(512) NOT NULL COMMENT 'OIDC iss claim',
+    `external_id` VARCHAR(512) NOT NULL COMMENT 'OIDC sub claim',
+    `issuer_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`issuer`, 256))) STORED,
+    `external_id_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`external_id`, 256))) STORED,
+    `email` VARCHAR(255) DEFAULT NULL COMMENT 'email at time of linking',
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_issuer_external_id_hash` (`issuer_sha256`, `external_id_sha256`),
+    UNIQUE KEY `uq_user_id` (`user_id`),
+    KEY `idx_issuer_external_id` (`issuer`(255), `external_id`(255)),
+    KEY `idx_user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- OIDC token revocation list: immediate-lockout entries for valid tokens.
+-- Uniqueness uses a SHA-256 hash of the full jti (see note on
+-- oidc_external_identity above). The hash lives on a UNIQUE KEY rather than
+-- the PRIMARY KEY because MariaDB does not allow generated columns in primary
+-- keys (MDEV-12862); a surrogate `id` provides the primary key.
+DROP TABLE IF EXISTS `oidc_token_revocation`;
+CREATE TABLE `oidc_token_revocation` (
+    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',
+    `jti_sha256` BINARY(32) GENERATED ALWAYS AS (UNHEX(SHA2(`jti`, 256))) STORED,
+    `revoked_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `token_expiry` DATETIME NOT NULL COMMENT 'When token would naturally expire',
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uq_jti_hash` (`jti_sha256`),
+    KEY `idx_jti` (`jti`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);

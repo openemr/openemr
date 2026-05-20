@@ -15,6 +15,7 @@ use JsonException;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -73,5 +74,78 @@ class ClientCredentialsGrantFlowTest extends TestCase
         $clientService = new ClientRepository();
         $client = $clientService->getClientEntity($client['client_id']);
         $this->assertNotFalse($client, "Client should be retrievable from repository");
+    }
+
+    /**
+     * SSRF regression at the DCR boundary: a client registration that submits
+     * a `jwks_uri` resolving to the AWS/GCP cloud-metadata IP must be rejected
+     * before storage. The strict policy is forced on for this test by setting
+     * OPENEMR__ENVIRONMENT to a non-dev value, mimicking production wiring.
+     *
+     * Counterpart to {@see testClientCredentialsGrantFlow}: that test posts
+     * inline `jwks` (no fetch needed); this one targets the URL path that
+     * an attacker would try to exploit.
+     *
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function testClientRegistrationRejectsUnsafeJwksUri(): void
+    {
+        $previousEnv = $_ENV['OPENEMR__ENVIRONMENT'] ?? null;
+        $_ENV['OPENEMR__ENVIRONMENT'] = 'production';
+
+        try {
+            $body = json_encode([
+                'application_type' => 'private',
+                'redirect_uris' => ['https://client.example.com/cb'],
+                'client_name' => 'SSRF probe — should be rejected',
+                'token_endpoint_auth_method' => 'private_key_jwt',
+                'contacts' => ['security@open-emr.org'],
+                'scope' => 'system/Patient.read',
+                // AWS/GCP/Azure cloud-metadata IP. The canonical SSRF target.
+                'jwks_uri' => 'https://169.254.169.254/latest/meta-data/jwks',
+            ], JSON_THROW_ON_ERROR);
+            $request = HttpRestRequest::create("/oauth2/register", 'POST', [], [], [], [
+                'CONTENT_TYPE' => 'application/json',
+            ], $body);
+
+            $storage = new MockFileSessionStorage();
+            $session = new Session($storage);
+            $session->set('site_id', 'default');
+            $globalsBag = new OEGlobalsBag(['webroot' => '']);
+            // Wire a real Kernel so AuthorizationController->buildJwksUrlValidator()
+            // can read isDev() — production mode (strict policy) is what we want here.
+            // Once a kernel is in the bag, OEGlobalsBag delegates path getters to it,
+            // so we must give the kernel a webRoot to avoid "Kernel was constructed
+            // without a webRoot" downstream.
+            $globalsBag->set('kernel', new Kernel(projectDir: '', webRoot: ''));
+            $kernel = $this->createMock(OEHttpKernel::class);
+            $kernel->method('getGlobalsBag')->willReturn($globalsBag);
+
+            $controller = new AuthorizationController($session, $kernel);
+            $response = $controller->clientRegistration($request);
+
+            // The controller serializes OAuthServerExceptions to a JSON response
+            // with a 4xx status + invalid_client_metadata body, rather than
+            // throwing. Both indicators are checked so a future refactor that
+            // changes one but not the other still trips this assertion.
+            $this->assertSame(400, $response->getStatusCode(), 'Expected 400 from invalid_client_metadata');
+            // The body stream has just been written to by generateHttpResponse(),
+            // so the cursor is at the end. Casting to string materializes the
+            // full payload regardless of position.
+            $responseBody = (string) $response->getBody();
+            $decoded = json_decode($responseBody, true, 512, JSON_THROW_ON_ERROR);
+            $this->assertIsArray($decoded, 'Error response body must be a JSON object');
+            $this->assertSame('invalid_client_metadata', $decoded['error'] ?? null);
+            $description = $decoded['error_description'] ?? $decoded['message'] ?? '';
+            $this->assertIsString($description, 'Error response must carry a string description');
+            $this->assertStringContainsString('jwks_uri', $description);
+        } finally {
+            if ($previousEnv === null) {
+                unset($_ENV['OPENEMR__ENVIRONMENT']);
+            } else {
+                $_ENV['OPENEMR__ENVIRONMENT'] = $previousEnv;
+            }
+        }
     }
 }

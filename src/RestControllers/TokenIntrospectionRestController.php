@@ -19,6 +19,7 @@ namespace OpenEMR\RestControllers;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Common\Auth\Oidc\Discovery\OidcUrlValidator;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
@@ -27,7 +28,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -63,6 +63,8 @@ class TokenIntrospectionRestController {
     protected ?AccessTokenRepository $accessTokenRepository = null;
 
     protected ?Psr17Factory $psr17Factory = null;
+
+    protected ?JWTClientAuthenticationService $jwtClientAuthenticationService = null;
 
     public function __construct(OEGlobalsBag $globalsBag)
     {
@@ -183,7 +185,11 @@ class TokenIntrospectionRestController {
 
     public function getJsonWebKeyParser() : JsonWebKeyParser {
         if (!isset($this->jsonWebKeyParser)) {
-            $this->jsonWebKeyParser = new JsonWebKeyParser($this->getOAuth2KeyConfig()->getEncryptionKey(), $this->getOAuth2KeyConfig()->getPublicKeyLocation());
+            $publicKeyLocation = $this->getOAuth2KeyConfig()->getPublicKeyLocation();
+            if (!is_string($publicKeyLocation) || $publicKeyLocation === '') {
+                throw new \RuntimeException('OAuth2 public key location is not configured');
+            }
+            $this->jsonWebKeyParser = new JsonWebKeyParser($this->getOAuth2KeyConfig()->getEncryptionKey(), $publicKeyLocation);
         }
         return $this->jsonWebKeyParser;
     }
@@ -217,11 +223,41 @@ class TokenIntrospectionRestController {
 
 
     public function getJWTClientAuthenticationService(): JWTClientAuthenticationService {
-        return new JWTClientAuthenticationService(
-            $this->getServerConfig()->getTokenUrl(),
-            $this->getClientRepository(),
-            $this->getJWTRepository(),
-            null
+        if (!isset($this->jwtClientAuthenticationService)) {
+            $tokenUrl = $this->getServerConfig()->getTokenUrl();
+            if ($tokenUrl === '') {
+                throw new \RuntimeException('OAuth2 token URL is not configured');
+            }
+            $service = new JWTClientAuthenticationService(
+                $tokenUrl,
+                $this->getClientRepository(),
+                $this->getJWTRepository(),
+                null,
+                $this->buildJwksUrlValidator(),
+            );
+            $service->setLogger($this->getSystemLogger());
+            $this->jwtClientAuthenticationService = $service;
+        }
+        return $this->jwtClientAuthenticationService;
+    }
+
+    public function setJWTClientAuthenticationService(JWTClientAuthenticationService $service): void
+    {
+        $this->jwtClientAuthenticationService = $service;
+    }
+
+    /**
+     * Build the SSRF safety gate applied before any outbound JWKS fetch in
+     * the JWT client-assertion path. Strict in production (https-only,
+     * private/loopback/link-local rejected); relaxed in dev so docker mock
+     * services keep working.
+     */
+    private function buildJwksUrlValidator(): OidcUrlValidator
+    {
+        $strictPolicy = !$this->getGlobalsBag()->getKernel()->isDev();
+        return new OidcUrlValidator(
+            requireHttps: $strictPolicy,
+            blockPrivateIps: $strictPolicy,
         );
     }
 
@@ -306,51 +342,67 @@ class TokenIntrospectionRestController {
         $result = ['active' => false];
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
-            // Handle JWT client authentication if present
-            if (!empty($clientAssertion) && !empty($clientAssertionType)) {
-                // Create JWT authentication service
-                $jwtAuthService = new JWTClientAuthenticationService(
-                    $this->getServerConfig()->getTokenUrl(),
-                    $this->getClientRepository(),
-                    new JWTRepository(),
-                    null
-                );
-                $jwtAuthService->setLogger($this->getSystemLogger());
+            // Round-6 #1 (CWE-287). Handle JWT client authentication if
+            // *either* parameter is present. The pre-fix gate required
+            // BOTH client_assertion AND client_assertion_type to be
+            // non-empty before entering the JWT branch — and even then,
+            // the inner hasJWTClientAssertion() check (which requires
+            // the type to exactly equal the canonical URN) returned
+            // false silently for any non-canonical type, dropping the
+            // request through to the introspection logic with NO
+            // authentication. An attacker could send `client_id=valid`
+            // plus garbage `client_assertion` + wrong
+            // `client_assertion_type` and get a full RFC 7662
+            // introspection response without authenticating. Tighten
+            // to: presence of either signals an attempted JWT-auth
+            // flow; if the shape doesn't match, fail closed.
+            if (!empty($clientAssertion) || !empty($clientAssertionType)) {
+                $jwtAuthService = $this->getJWTClientAuthenticationService();
 
                 // Convert the request to PSR-7 format for JWT validation
                 $psrRequest = $this->convertRestRequestToPsrRequest($request);
 
-                // Extract client ID from JWT and validate
-                if ($jwtAuthService->hasJWTClientAssertion($psrRequest)) {
-                    $extractedClientId = $jwtAuthService->extractClientIdFromJWT($psrRequest);
-
-                    // Verify extracted client ID matches provided client_id if both present
-                    if (!empty($clientId) && $clientId !== $extractedClientId) {
-                        throw new OAuthServerException('Client ID mismatch', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
-                    }
-
-                    $clientId = $extractedClientId;
-                    $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
-
-                    if (empty($client)) {
-                        throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                    }
-
-                    if (intval($client['is_enabled']) !== 1) {
-                        throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
-                    }
-
-                    // Create client entity for JWT validation
-                    $clientEntity = $this->getClientRepository()->getClientEntity($clientId);
-
-                    // Validate JWT assertion
-                    $jwtAuthService->validateJWTClientAssertion($psrRequest, $clientEntity);
-
-                    $this->getSystemLogger()->debug("tokenIntrospection() JWT client authentication successful");
+                if (!$jwtAuthService->hasJWTClientAssertion($psrRequest)) {
+                    throw new OAuthServerException(
+                        'Invalid client assertion',
+                        0,
+                        'invalid_request',
+                        Response::HTTP_BAD_REQUEST,
+                    );
                 }
+
+                $extractedClientId = $jwtAuthService->extractClientIdFromJWT($psrRequest);
+
+                // Verify extracted client ID matches provided client_id if both present
+                if (!empty($clientId) && $clientId !== $extractedClientId) {
+                    throw new OAuthServerException('Client ID mismatch', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
+                }
+
+                $clientId = $extractedClientId;
+                $client = $this->getClientRepository()->getRawClientRow((string) $clientId);
+
+                if (empty($client)) {
+                    throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                }
+
+                // `$client` is array<string, mixed> from the
+                // repository — narrow `is_enabled` to scalar before
+                // casting so phpstan doesn't flag intval(mixed).
+                $isEnabled = $client['is_enabled'] ?? 0;
+                if (!is_scalar($isEnabled) || (int) $isEnabled !== 1) {
+                    throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
+                }
+
+                // Create client entity for JWT validation
+                $clientEntity = $this->getClientRepository()->getClientEntity($clientId);
+
+                // Validate JWT assertion
+                $jwtAuthService->validateJWTClientAssertion($psrRequest, $clientEntity);
+
+                $this->getSystemLogger()->debug("tokenIntrospection() JWT client authentication successful");
             } else {
                 // so regardless of client type(private/public) we need client for client app type and secret.
-                $client = QueryUtils::querySingleRow("SELECT * FROM `oauth_clients` WHERE `client_id` = ?", [$clientId]);
+                $client = $this->getClientRepository()->getRawClientRow((string) $clientId);
                 if (empty($client)) {
                     throw new OAuthServerException('Not a registered client', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                 }
@@ -358,8 +410,10 @@ class TokenIntrospectionRestController {
                 if (empty($clientSecret) && !empty($client['is_confidential'])) {
                     throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
                 }
-                // lets verify secret to prevent bad guys.
-                if (intval($client['is_enabled'] !== 1)) {
+                // Same narrow-then-cast pattern as the JWT-assertion
+                // path above; `$client['is_enabled']` is mixed.
+                $isEnabled = $client['is_enabled'] ?? 0;
+                if (!is_scalar($isEnabled) || (int) $isEnabled !== 1) {
                     // client is disabled and we don't allow introspection of tokens for disabled clients.
                     throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                 }

@@ -86,7 +86,6 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
             $clientId
         );
 
-        $this->assertIsString($assertion);
         $this->assertNotEmpty($assertion);
 
         // JWT should have three parts separated by dots
@@ -372,6 +371,66 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
         $this->assertEquals('JWT', $token->headers()->get('typ'));
     }
 
+    /**
+     * Round-4 #1 follow-up. SMART Backend Services / RFC 7515 §4.1.4
+     * require a `kid` header so the OAuth server can pick the right
+     * JWK out of the client's registered set. The generator must
+     * thread an optional kid into the JWT header when supplied,
+     * leave it absent when not, and never silently drop it.
+     */
+    public function testKidHeaderIsEmittedWhenSupplied(): void
+    {
+        $this->ensureKeysAvailable();
+        // ensureKeysAvailable already markTestSkipped on null, but
+        // PHPStan can't narrow through that helper — assert here so
+        // these two new tests don't add to the existing baseline.
+        assert($this->privateKey !== null && $this->publicKey !== null);
+
+        $oauthTokenUrl = 'https://example.com/oauth/token';
+        $clientId = 'test-client-id';
+        $kid = '5c17409c-87f0-4713-814f-c864bfe876bc';
+
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $this->privateKey,
+            $this->publicKey,
+            $oauthTokenUrl,
+            $clientId,
+            $kid,
+        );
+
+        $parser = new Parser(new JoseEncoder());
+        $token = $parser->parse($assertion);
+
+        $this->assertTrue($token->headers()->has('kid'));
+        $this->assertEquals($kid, $token->headers()->get('kid'));
+    }
+
+    public function testKidHeaderIsAbsentWhenNotSupplied(): void
+    {
+        $this->ensureKeysAvailable();
+        assert($this->privateKey !== null && $this->publicKey !== null);
+
+        $oauthTokenUrl = 'https://example.com/oauth/token';
+        $clientId = 'test-client-id';
+
+        $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
+            $this->privateKey,
+            $this->publicKey,
+            $oauthTokenUrl,
+            $clientId,
+        );
+
+        $parser = new Parser(new JoseEncoder());
+        $token = $parser->parse($assertion);
+
+        $this->assertFalse(
+            $token->headers()->has('kid'),
+            'kid header must remain absent when caller does not supply one — '
+            . 'the parameter is opt-in to keep callers that test the generator in '
+            . 'isolation working.',
+        );
+    }
+
     public function testEmptyClientId(): void
     {
         $this->ensureKeysAvailable();
@@ -383,6 +442,7 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
             $this->privateKey,
             $this->publicKey,
             $oauthTokenUrl,
+            /** @phpstan-ignore argument.type (intentionally testing runtime behavior with empty string, violating the non-empty-string contract) */
             $clientId
         );
 
@@ -403,6 +463,7 @@ class ClientCredentialsAssertionGeneratorTest extends TestCase
         $assertion = ClientCredentialsAssertionGenerator::generateAssertion(
             $this->privateKey,
             $this->publicKey,
+            /** @phpstan-ignore argument.type (intentionally testing runtime behavior with empty string, violating the non-empty-string contract) */
             $oauthTokenUrl,
             $clientId
         );
