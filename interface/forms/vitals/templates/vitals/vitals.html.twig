@@ -37,6 +37,19 @@
 <body>
 
  <div class="container mt-3">
+    {% if validationErrors is defined and validationErrors is not empty %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>{{ "Validation errors"|xlt }}:</strong>
+        <ul class="mb-0">
+            {% for error in validationErrors %}
+                <li>{{ error|text }}</li>
+            {% endfor %}
+        </ul>
+        <button type="button" class="close" data-dismiss="alert" aria-label="{{ "Close"|xla }}">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
     <div class="row no-gutters">
         <div class="col-4">
             <h2 class="h2-responsive">

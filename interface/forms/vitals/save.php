@@ -26,5 +26,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $c = new C_FormVitals();
-echo $c->default_action_process();
-@formJump();
+$c->default_action_process();
+
+$validationErrors = $session->get('vitals_validation_errors');
+if (!empty($validationErrors)) {
+    $formUrl = OEGlobalsBag::getInstance()->getWebRoot()
+        . '/interface/forms/vitals/new.php?id=' . urlencode($_POST['id'] ?? '');
+    formJump($formUrl);
+} else {
+    formJump();
+}

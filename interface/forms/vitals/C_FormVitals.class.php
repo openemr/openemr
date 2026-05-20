@@ -172,15 +172,15 @@ class C_FormVitals
             ]
             ,[
                 'type' => 'textbox'
-                , xl('Pulse') => 'title'
+                ,'title' => xl('Pulse')
                 // eventually we could just grab the raw values...
                 ,'vitalsValue' => "get_pulse"
                 ,'precision' => 0
                 ,'input' => 'pulse'
                 ,'unit' => 'per min'
-                , xl('per min') => 'unitLabel'
+                ,'unitLabel' => xl('per min')
                 ,'codes' => 'LOINC:8867-4'
-                ,'valiuguufdation' => VitalsFieldRanges::getRangeForField('pulse')
+                ,'validation' => VitalsFieldRanges::getRangeForField('pulse')
             ]
             ,[
                 'type' => 'textbox'
@@ -190,6 +190,7 @@ class C_FormVitals
                 ,'precision' => 0
                 ,'input' => 'respiration'
                 ,'unit' => 'per min'
+                ,'unitLabel' => xl('per min')
                 ,'codes' => 'LOINC:9279-1'
                 ,'validation' => VitalsFieldRanges::getRangeForField('respiration')
             ]
@@ -352,8 +353,12 @@ class C_FormVitals
         }
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $validationErrors = $session->get('vitals_validation_errors', []);
+        $session->remove('vitals_validation_errors');
+
         $data = [
             'vitals' => $vitals
+            ,'validationErrors' => $validationErrors
             ,'vitalFields' => $vitalFields
             ,'FORM_ACTION' => OEGlobalsBag::getInstance()->getWebRoot()
             ,'DONT_SAVE_LINK' => OEGlobalsBag::getInstance()->get('form_exit_url')

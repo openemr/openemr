@@ -47,30 +47,30 @@ final class VitalsFieldRanges
                 'metricMin' => 0, 'metricMax' => 48.9, 'metricWarningMin' => 26.7, 'metricWarningMax' => 46.1,
             ],
             'oxygen_saturation' => [
-                'min' => 0, 'max' => 100, 'warningMin' => 0, 'warningMax' => 100,
+                'min' => 0, 'max' => 100, 'warningMin' => 70, 'warningMax' => 100,
             ],
             'oxygen_flow_rate' => [
-                'min' => 0, 'max' => 200, 'warningMin' => 0, 'warningMax' => 100,
+                'min' => 0, 'max' => 200, 'warningMin' => 0.1, 'warningMax' => 100,
             ],
             'inhaled_oxygen_concentration' => [
-                'min' => 0, 'max' => 100, 'warningMin' => 0, 'warningMax' => 100,
+                'min' => 0, 'max' => 100, 'warningMin' => 21, 'warningMax' => 100,
             ],
             'head_circ' => [
-                'min' => 0, 'max' => 75, 'warningMin' => 0, 'warningMax' => 50,
-                'metricMin' => 0, 'metricMax' => 190, 'metricWarningMin' => 0, 'metricWarningMax' => 127,
+                'min' => 0, 'max' => 75, 'warningMin' => 0.1, 'warningMax' => 50,
+                'metricMin' => 0, 'metricMax' => 190, 'metricWarningMin' => 0.25, 'metricWarningMax' => 127,
             ],
             'waist_circ' => [
-                'min' => 0, 'max' => 150, 'warningMin' => 0, 'warningMax' => 100,
-                'metricMin' => 0, 'metricMax' => 381, 'metricWarningMin' => 0, 'metricWarningMax' => 254,
+                'min' => 0, 'max' => 150, 'warningMin' => 0.1, 'warningMax' => 100,
+                'metricMin' => 0, 'metricMax' => 381, 'metricWarningMin' => 0.25, 'metricWarningMax' => 254,
             ],
             'ped_weight_height' => [
-                'min' => 0, 'max' => 100, 'warningMin' => 0, 'warningMax' => 100,
+                'min' => 0, 'max' => 100, 'warningMin' => 3, 'warningMax' => 97,
             ],
             'ped_bmi' => [
-                'min' => 0, 'max' => 100, 'warningMin' => 0, 'warningMax' => 100,
+                'min' => 0, 'max' => 100, 'warningMin' => 3, 'warningMax' => 97,
             ],
             'ped_head_circ' => [
-                'min' => 0, 'max' => 100, 'warningMin' => 0, 'warningMax' => 100,
+                'min' => 0, 'max' => 100, 'warningMin' => 3, 'warningMax' => 97,
             ],
         ];
     }

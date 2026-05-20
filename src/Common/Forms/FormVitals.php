@@ -495,14 +495,34 @@ class FormVitals extends ORDataObject
             'ped_head_circ' => 'ped_head_circ',
         ];
 
+        $fieldLabels = [
+            'weight' => xl('Weight'),
+            'height' => xl('Height/Length'),
+            'bps' => xl('BP Systolic'),
+            'bpd' => xl('BP Diastolic'),
+            'pulse' => xl('Pulse'),
+            'respiration' => xl('Respiration'),
+            'temperature' => xl('Temperature'),
+            'oxygen_saturation' => xl('Oxygen Saturation'),
+            'oxygen_flow_rate' => xl('Oxygen Flow Rate'),
+            'inhaled_oxygen_concentration' => xl('Inhaled Oxygen Concentration'),
+            'head_circ' => xl('Head Circumference'),
+            'waist_circ' => xl('Waist Circumference'),
+            'ped_weight_height' => xl('Pediatric Weight Height Percentile'),
+            'ped_bmi' => xl('Pediatric BMI Percentile'),
+            'ped_head_circ' => xl('Pediatric Head Circumference Percentile'),
+        ];
+
         foreach ($fieldPropertyMap as $fieldName => $property) {
             $value = $this->$property;
-            if ($value === null || $value === '' || $value === 0 || $value === '0') {
+            if ($value === null || $value === '') {
                 continue;
             }
 
+            $label = $fieldLabels[$fieldName] ?? $fieldName;
+
             if (!is_numeric($value)) {
-                $errors[] = "Field '{$fieldName}' has a non-numeric value.";
+                $errors[] = xl('Field') . " '{$label}' " . xl('has a non-numeric value.');
                 continue;
             }
 
@@ -513,17 +533,17 @@ class FormVitals extends ORDataObject
             }
 
             if ($numericValue < 0) {
-                $errors[] = "Field '{$fieldName}' cannot be negative.";
+                $errors[] = xl('Field') . " '{$label}' " . xl('cannot be negative.');
                 continue;
             }
 
             if ($numericValue < $range['min'] || $numericValue > $range['max']) {
-                $errors[] = "Field '{$fieldName}' is outside acceptable range ({$range['min']}–{$range['max']}).";
+                $errors[] = xl('Field') . " '{$label}' " . xl('is outside acceptable range') . " ({$range['min']}–{$range['max']}).";
                 continue;
             }
 
             if ($numericValue < $range['warningMin'] || $numericValue > $range['warningMax']) {
-                $warnings[] = "Field '{$fieldName}' is outside typical clinical range ({$range['warningMin']}–{$range['warningMax']}).";
+                $warnings[] = xl('Field') . " '{$label}' " . xl('is outside typical clinical range') . " ({$range['warningMin']}–{$range['warningMax']}).";
             }
         }
 
