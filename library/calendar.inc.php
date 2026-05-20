@@ -9,11 +9,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-//Require once the holidays controller for the is_holiday() function
-
 use OpenEMR\Core\OEGlobalsBag;
-
-require_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
+use OpenEMR\Services\HolidayCsvParser;
+use OpenEMR\Services\HolidayService;
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
@@ -93,5 +91,7 @@ function is_weekend_day($day)
  */
 function is_holiday($date)
 {
-    return Holidays_Controller::is_holiday($date);
+    static $service = null;
+    $service ??= new HolidayService(new HolidayCsvParser());
+    return $service->isHoliday((string) $date);
 }

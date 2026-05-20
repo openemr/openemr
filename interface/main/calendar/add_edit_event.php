@@ -48,7 +48,6 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/calendar
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/encounter_events.inc.php');
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient_tracker.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/group.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
@@ -63,6 +62,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
+use OpenEMR\Services\HolidayCsvParser;
+use OpenEMR\Services\HolidayService;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
@@ -1861,9 +1862,9 @@ function SubmitForm() {
         $edate->modify('tomorrow');
         $edate = $edate->format('Y-m-d');
         $is_holiday = false;
-        $holidays_controller = new Holidays_Controller();
-        $holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-        if (in_array($sdate, $holidays)) {
+        $holidayService = new HolidayService(new HolidayCsvParser());
+        $holidays = $holidayService->getHolidaysByDateRange($sdate, $edate);
+        if (in_array($sdate, $holidays, true)) {
             $is_holiday = true;
         }?>
     if (f.form_action.value != 'delete') {

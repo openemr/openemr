@@ -502,46 +502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Holidays_Controller\\:\\:get_file_csv_data\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Controller\\:\\:get_holidays_by_date_range\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Controller\\:\\:is_valid_csv_upload\\(\\) has parameter \\$file with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Csv\\:\\:is_header_row\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Csv\\:\\:read_next_data_row\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Storage\\:\\:create_events\\(\\) has parameter \\$holidays with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Storage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Storage\\:\\:get_holidays\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Storage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Holidays_Storage\\:\\:get_holidays_by_dates\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Storage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var for variable \\$module has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',

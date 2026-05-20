@@ -11717,26 +11717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'form_file\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'tmp_name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Storage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'description\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Storage.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
