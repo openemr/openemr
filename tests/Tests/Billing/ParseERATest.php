@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  * Tests for ParseERA float type correctness.
  *
  * These tests specifically cover the fix where chg/paid values were stored as
- * strings ('0') rather than floats (0.0), which caused the strict === 0
+ * strings ('0') rather than floats (0.0), which caused the strict === 0.0
  * comparison in sl_eob_process.php to be permanently dead code.
  */
 class ParseERATest extends TestCase
@@ -49,7 +49,7 @@ class ParseERATest extends TestCase
             'NM1*QC*1*DOE*JOHN****MI*123456789~',
             'SVC*HC:99213*100.00*0~',
             'DTM*472*20260101~',
-            'CAS*OA*96*100.00~',  // OA = Other Adjustments, not contractual
+            'CAS*OA*96*100.00~',
             'SE*15*0001~',
             'GE*1*1~',
             'IEA*1*000000001~',
@@ -58,8 +58,6 @@ class ParseERATest extends TestCase
 
     /**
      * Minimal 835 with zero paid and a contractual writeoff (CO*45).
-     * This exercises the $isContractualWriteoff = true path — should NOT
-     * trigger an error in sl_eob_process.
      */
     private function getZeroPaidContractualWriteoffFixture(): string
     {
@@ -77,7 +75,7 @@ class ParseERATest extends TestCase
             'NM1*QC*1*DOE*JOHN****MI*123456789~',
             'SVC*HC:99213*100.00*0~',
             'DTM*472*20260101~',
-            'CAS*CO*45*100.00~',  // CO*45 = contractual writeoff
+            'CAS*CO*45*100.00~',
             'SE*15*0001~',
             'GE*1*1~',
             'IEA*1*000000001~',
@@ -85,7 +83,7 @@ class ParseERATest extends TestCase
     }
 
     /**
-     * Minimal 835 with a non-zero paid amount to verify normal float parsing.
+     * Minimal 835 with a non-zero paid amount.
      */
     private function getNonZeroPaidFixture(): string
     {
@@ -116,12 +114,15 @@ class ParseERATest extends TestCase
 
     /**
      * Write fixture to a temp file, parse it, clean up, return $out.
+     *
+     * @return array<string, mixed>
      */
     private function parseFixture(string $content): array
     {
         $tmp = tempnam(sys_get_temp_dir(), 'era_test_');
         file_put_contents($tmp, $content);
 
+        /** @var array<string, mixed> $out */
         $out = [];
         $cb = function (array &$o, string $action) use (&$out): void {
             $out = $o;
@@ -140,25 +141,33 @@ class ParseERATest extends TestCase
     public function testPaidIsFloat(): void
     {
         $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        $this->assertIsFloat($out['svc'][0]['paid'], 'paid should be float, not string');
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        $this->assertIsFloat($svc['paid'], 'paid should be float, not string');
     }
 
     public function testChgIsFloat(): void
     {
         $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        $this->assertIsFloat($out['svc'][0]['chg'], 'chg should be float, not string');
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        $this->assertIsFloat($svc['chg'], 'chg should be float, not string');
     }
 
     public function testPaidValueParsedCorrectly(): void
     {
         $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        $this->assertSame(75.0, $out['svc'][0]['paid']);
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        $this->assertSame(75.0, $svc['paid']);
     }
 
     public function testChgValueParsedCorrectly(): void
     {
         $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        $this->assertSame(100.0, $out['svc'][0]['chg']);
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        $this->assertSame(100.0, $svc['chg']);
     }
 
     // -------------------------------------------------------------------------
@@ -168,87 +177,91 @@ class ParseERATest extends TestCase
     /**
      * Core regression test.
      *
-     * Old behavior: paid was stored as string '0', so ($svc['paid'] === 0)
-     * was always false — error detection was dead code.
+     * Old behavior: paid was stored as string '0', so ($svc['paid'] === 0.0)
+     * was always false — error detection in sl_eob_process was dead code.
      *
-     * New behavior: paid is float 0.0, so ($svc['paid'] === 0.0) is true
-     * and the error detection branch is live.
+     * New behavior: paid is float 0.0, so the comparison is live.
      */
     public function testZeroPaidIsFloatNotString(): void
     {
         $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
 
-        $paid = $out['svc'][0]['paid'];
-
-        // Must be float
+        $paid = $svc['paid'];
         $this->assertIsFloat($paid, 'zero paid should be float 0.0, not string "0"');
-
-        // Must be exactly 0.0 — strict comparison that sl_eob_process.php uses
         $this->assertSame(0.0, $paid);
-
-        // Prove the old string value is gone — this is what made === 0 dead code
-        $this->assertNotSame('0', $paid, 'paid must not be string "0"');
-
-        // The === 0.0 comparison sl_eob_process uses is now live
-        $this->assertTrue($paid === 0.0, '$svc["paid"] === 0.0 must be true for error detection');
     }
 
     // -------------------------------------------------------------------------
-    // Contractual writeoff (CO*45, CO*59) — should NOT be an error
+    // Contractual writeoff (CO*45) — paid 0.0 but should NOT be flagged
     // -------------------------------------------------------------------------
 
     public function testContractualWriteoffGroupCode(): void
     {
         $out = $this->parseFixture($this->getZeroPaidContractualWriteoffFixture());
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        /** @var array<string, mixed> $adj */
+        $adj = $svc['adj'][0];
 
-        $this->assertSame(0.0, $out['svc'][0]['paid']);
-        $this->assertSame('CO', $out['svc'][0]['adj'][0]['group_code']);
-        $this->assertSame('45', $out['svc'][0]['adj'][0]['reason_code']);
+        $this->assertSame(0.0, $svc['paid']);
+        $this->assertSame('CO', $adj['group_code']);
+        $this->assertSame('45', $adj['reason_code']);
     }
 
     public function testContractualWriteoffAmountIsFloat(): void
     {
         $out = $this->parseFixture($this->getZeroPaidContractualWriteoffFixture());
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        /** @var array<string, mixed> $adj */
+        $adj = $svc['adj'][0];
 
-        $amount = $out['svc'][0]['adj'][0]['amount'];
-        $this->assertIsFloat($amount);
-        $this->assertSame(100.0, $amount);
+        $this->assertIsFloat($adj['amount']);
+        $this->assertSame(100.0, $adj['amount']);
     }
 
     // -------------------------------------------------------------------------
-    // Non-contractual adjustment (OA*96) — should be detectable as error
+    // Non-contractual adjustment (OA*96) — zero paid, should be detectable
     // -------------------------------------------------------------------------
 
     public function testNonContractualAdjGroupCode(): void
     {
         $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        /** @var array<string, mixed> $adj */
+        $adj = $svc['adj'][0];
 
-        $this->assertSame('OA', $out['svc'][0]['adj'][0]['group_code']);
-        $this->assertSame('96', $out['svc'][0]['adj'][0]['reason_code']);
+        $this->assertSame('OA', $adj['group_code']);
+        $this->assertSame('96', $adj['reason_code']);
     }
 
     public function testNonContractualAdjAmountIsFloat(): void
     {
         $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
+        /** @var array<string, mixed> $svc */
+        $svc = $out['svc'][0];
+        /** @var array<string, mixed> $adj */
+        $adj = $svc['adj'][0];
 
-        $amount = $out['svc'][0]['adj'][0]['amount'];
-        $this->assertIsFloat($amount);
-        $this->assertSame(100.0, $amount);
+        $this->assertIsFloat($adj['amount']);
+        $this->assertSame(100.0, $adj['amount']);
     }
 
     // -------------------------------------------------------------------------
-    // Artificial 'Claim' row inserted by parseERA2100
+    // Artificial 'Claim' row — chg/paid initialized as 0.0 not '0'
     // -------------------------------------------------------------------------
 
-    public function testArtificialClaimRowChgIsFloat(): void
+    public function testArtificialClaimRowTypesAreFloat(): void
     {
-        // The unshift path initializes chg/paid as 0.0 — was '0' before
-        // This is triggered when a 2100 loop has no SVC segments
-        // Verify via the non-contractual fixture which goes through parseERA2100
         $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
+        /** @var array<int, mixed> $svcs */
+        $svcs = $out['svc'];
 
-        // If a synthetic Claim row was prepended, verify its types
-        foreach ($out['svc'] as $svc) {
+        foreach ($svcs as $svc) {
+            /** @var array<string, mixed> $svc */
             if ($svc['code'] === 'Claim') {
                 $this->assertIsFloat($svc['chg'], 'artificial Claim chg must be float');
                 $this->assertIsFloat($svc['paid'], 'artificial Claim paid must be float');
