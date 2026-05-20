@@ -10,7 +10,6 @@
 */
 
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\HolidayCsvParser;
 use OpenEMR\Services\HolidayService;
 
 // Returns an array of the facility ids and names that the user is allowed to access.
@@ -85,13 +84,12 @@ function is_weekend_day($day)
 }
 
 /**
- * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed event in the events table
- * @param int $day
- * @return bool
+ * Returns true when $date (YYYY-MM-DD or YYYY/MM/DD) is a holiday/closed date.
  */
-function is_holiday($date)
+function is_holiday(string $date): bool
 {
+    /** @var HolidayService|null $service */
     static $service = null;
-    $service ??= new HolidayService(new HolidayCsvParser());
-    return $service->isHoliday((string) $date);
+    $service ??= HolidayService::createForLegacyContext();
+    return $service->isHoliday($date);
 }

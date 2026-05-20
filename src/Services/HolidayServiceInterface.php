@@ -14,60 +14,53 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 interface HolidayServiceInterface
 {
     /**
-     * Accept the uploaded CSV ($_FILES['form_file']), validate it, store it,
-     * then import + synchronize it into the live calendar in one step.
+     * Persist the uploaded CSV, then import + publish it to the calendar
+     * in one atomic-from-the-user's-perspective operation.
      *
-     * @param array<string, mixed> $files raw $_FILES array
+     * @throws InvalidHolidayCsvException if the CSV fails validation.
+     * @throws \RuntimeException for filesystem or persistence failures.
      */
-    public function uploadAndSync(array $files): bool;
+    public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void;
 
     /**
-     * Accept the uploaded CSV without importing or synchronizing.
+     * Persist the uploaded CSV to the configured site directory.
      *
-     * @param array<string, mixed> $files raw $_FILES array
+     * @throws InvalidHolidayCsvException if the CSV fails validation.
+     * @throws \RuntimeException for filesystem failures.
      */
-    public function uploadCsv(array $files): bool;
+    public function uploadCsv(UploadedFile $upload): void;
 
     /**
-     * Re-read the stored CSV into calendar_external (the staging table).
-     */
-    public function importHolidaysFromCsv(): bool;
-
-    /**
-     * Push calendar_external rows into openemr_postcalendar_events so they
-     * appear on the calendar.
-     */
-    public function createHolidayEvents(): bool;
-
-    /**
-     * Metadata about the stored CSV file. Empty array when none is present.
+     * Re-read the stored CSV into the calendar_external staging table.
      *
-     * @return array{date?: string}
+     * @throws InvalidHolidayCsvException if the stored CSV is missing or invalid.
      */
-    public function getCsvFileData(): array;
+    public function importHolidaysFromCsv(): void;
 
     /**
-     * Absolute filesystem path to the stored CSV file (may or may not exist).
+     * Publish staged rows onto the live calendar.
+     */
+    public function publishHolidayEvents(?int $pcFacility = null): void;
+
+    /**
+     * Last-modified date of the stored CSV ("d/m/Y H:i:s"), or null if none.
+     */
+    public function getStoredCsvModifiedAt(): ?string;
+
+    /**
+     * Absolute filesystem path the service writes uploaded CSVs to.
      */
     public function getTargetFile(): string;
 
     /**
-     * Localized error message from the most recent failed operation, or ''.
-     */
-    public function getLastError(): string;
-
-    /**
-     * List of holiday/closed dates in the given inclusive range.
-     *
-     * @return list<string> dates as stored in pc_eventDate
+     * @return list<string> holiday dates within $startDate..$endDate inclusive.
      */
     public function getHolidaysByDateRange(string $startDate, string $endDate): array;
 
-    /**
-     * True when the given date is a holiday/closed date.
-     */
     public function isHoliday(string $date): bool;
 }

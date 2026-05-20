@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Holiday CSV parser.
+ * Holiday CSV parser built on league/csv.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,110 +16,80 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use DateTimeImmutable;
+use League\Csv\Exception as CsvException;
+use League\Csv\Reader;
+
 final class HolidayCsvParser implements HolidayCsvParserInterface
 {
-    private const CSV_LENGTH = 1000;
-    private const CSV_DELIMITER = ',';
-    private const CSV_ENCLOSURE = '"';
-    private const CSV_ESCAPE = '\\';
-
-    private string $lastError = '';
-
-    public function readNextDataRow($handle): ?array
-    {
-        while (
-            ($data = fgetcsv(
-                $handle,
-                self::CSV_LENGTH,
-                self::CSV_DELIMITER,
-                self::CSV_ENCLOSURE,
-                self::CSV_ESCAPE,
-            )) !== false
-        ) {
-            if (!isset($data[0]) || trim($data[0]) === '') {
-                continue;
-            }
-
-            if ($this->isHeaderRow($data)) {
-                continue;
-            }
-
-            return array_map(static fn($v): string => (string) $v, $data);
-        }
-
-        return null;
-    }
-
-    public function isValidCsvContent(string $path): bool
-    {
-        $this->lastError = '';
-        $handle = fopen($path, 'r');
-        if ($handle === false) {
-            $this->lastError = xl('Unable to read uploaded file');
-            return false;
-        }
-
-        try {
-            $rowNumber = 0;
-            while (($row = $this->readNextDataRow($handle)) !== null) {
-                $rowNumber++;
-
-                if (count($row) < 2) {
-                    $this->lastError = sprintf(
-                        xl('Row %1$d: CSV row must have date and description'),
-                        $rowNumber
-                    );
-                    return false;
-                }
-
-                $date = trim($row[0]);
-                if (!self::isValidHolidayDate($date)) {
-                    $this->lastError = sprintf(
-                        xl('Row %1$d: Invalid date format in CSV'),
-                        $rowNumber
-                    );
-                    return false;
-                }
-            }
-
-            if ($rowNumber === 0) {
-                $this->lastError = xl('CSV file is empty');
-                return false;
-            }
-
-            return true;
-        } finally {
-            fclose($handle);
-        }
-    }
-
-    public function getLastError(): string
-    {
-        return $this->lastError;
-    }
-
     /**
-     * @param array<int, mixed> $row
+     * Date formats accepted in column 0 of the CSV.
      */
-    private function isHeaderRow(array $row): bool
+    private const ACCEPTED_DATE_FORMATS = ['Y-m-d', 'Y/m/d'];
+
+    public function parse(string $path): iterable
     {
-        $first = strtolower(trim((string) ($row[0] ?? '')));
-        $second = strtolower(trim((string) ($row[1] ?? '')));
-        return $first === 'date' && $second === 'description';
+        try {
+            $reader = Reader::from($path);
+        } catch (CsvException $e) {
+            throw new InvalidHolidayCsvException(
+                xl('Unable to read uploaded file'),
+                previous: $e,
+            );
+        }
+
+        $rowNumber = 0;
+        $emitted = 0;
+        foreach ($reader->getRecords() as $record) {
+            $rowNumber++;
+            $rawFirst = $record[0] ?? null;
+            $first = is_string($rawFirst) ? trim($rawFirst) : '';
+            if ($first === '') {
+                continue;
+            }
+            $rawSecond = $record[1] ?? null;
+            $second = is_string($rawSecond) ? $rawSecond : '';
+            if ($rowNumber === 1 && self::isHeaderRow($first, $second)) {
+                continue;
+            }
+
+            if ($rawSecond === null) {
+                throw new InvalidHolidayCsvException(
+                    sprintf(xl('Row %1$d: CSV row must have date and description'), $rowNumber),
+                    rowNumber: $rowNumber,
+                );
+            }
+
+            $date = self::parseDate($first);
+            if ($date === null) {
+                throw new InvalidHolidayCsvException(
+                    sprintf(xl('Row %1$d: Invalid date format in CSV'), $rowNumber),
+                    rowNumber: $rowNumber,
+                );
+            }
+
+            $emitted++;
+            yield new HolidayRow($date, trim($second));
+        }
+
+        if ($emitted === 0) {
+            throw new InvalidHolidayCsvException(xl('CSV file is empty'));
+        }
     }
 
-    public static function isValidHolidayDate(string $date): bool
+    private static function isHeaderRow(string $first, string $second): bool
     {
-        if (preg_match('/^\d{4}\/\d{2}\/\d{2}$/', $date) === 1) {
-            $dt = \DateTimeImmutable::createFromFormat('Y/m/d', $date);
-            return $dt !== false && $dt->format('Y/m/d') === $date;
-        }
+        return strtolower($first) === 'date' && strtolower(trim($second)) === 'description';
+    }
 
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1) {
-            $dt = \DateTimeImmutable::createFromFormat('Y-m-d', $date);
-            return $dt !== false && $dt->format('Y-m-d') === $date;
+    private static function parseDate(string $value): ?DateTimeImmutable
+    {
+        foreach (self::ACCEPTED_DATE_FORMATS as $format) {
+            $dt = DateTimeImmutable::createFromFormat('!' . $format, $value);
+            if ($dt instanceof DateTimeImmutable && $dt->format($format) === $value) {
+                return $dt;
+            }
         }
-
-        return false;
+        return null;
     }
 }

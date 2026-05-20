@@ -16502,11 +16502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/calendar.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function is_holiday\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function craGetTimestamps\\(\\) has parameter \\$encounter_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/checkout_receipt_array.inc.php',

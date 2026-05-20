@@ -62,7 +62,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
-use OpenEMR\Services\HolidayCsvParser;
 use OpenEMR\Services\HolidayService;
 
  //Check access control
@@ -1862,7 +1861,7 @@ function SubmitForm() {
         $edate->modify('tomorrow');
         $edate = $edate->format('Y-m-d');
         $is_holiday = false;
-        $holidayService = new HolidayService(new HolidayCsvParser());
+        $holidayService = HolidayService::createForLegacyContext();
         $holidays = $holidayService->getHolidaysByDateRange($sdate, $edate);
         if (in_array($sdate, $holidays, true)) {
             $is_holiday = true;

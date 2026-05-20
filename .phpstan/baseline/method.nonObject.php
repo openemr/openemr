@@ -3037,11 +3037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method isHoliday\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/CategoryTree.class.php',

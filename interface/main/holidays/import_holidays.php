@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 set_time_limit(0);
 
 require_once('../../globals.php');
@@ -22,166 +24,67 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\HolidayCsvParser;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\HolidayService;
+use OpenEMR\Services\InvalidHolidayCsvException;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate('ACL check failed for admin/super: Holidays management', xl('Holidays management'));
 }
 
-$holidayService = new HolidayService(new HolidayCsvParser());
-$csvFileData = $holidayService->getCsvFileData();
-$errorMessage = '';
-$saved = false;
-
+$request = Request::createFromGlobals();
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$service = HolidayService::createForLegacyContext();
 
-// Download the stored CSV.
-if (!empty($_GET['download_file']) && ($_GET['download_file'] == 1)) {
+// CSV download branch.
+if ($request->query->getInt('download_file') === 1) {
     CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
-
-    $targetFile = $holidayService->getTargetFile();
-    if (!file_exists($targetFile)) {
-        echo xlt('file missing');
-    } else {
-        header('HTTP/1.1 200 OK');
-        header('Cache-Control: no-cache, must-revalidate');
-        header('Pragma: no-cache');
-        header('Expires: 0');
-        header('Content-type: text/csv');
-        header('Content-Disposition: attachment; filename=holiday.csv');
-        readfile($targetFile);
-        exit;
+    $target = $service->getTargetFile();
+    if (!is_file($target)) {
+        (new Response(xlt('file missing'), Response::HTTP_NOT_FOUND))->send();
+        return;
     }
-
-    die();
+    $response = new BinaryFileResponse($target);
+    $response->headers->set('Content-Type', 'text/csv');
+    $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'holiday.csv');
+    $response->send();
+    return;
 }
 
-// Upload, import, and sync in a single step.
-if (!empty($_POST['bn_upload'])) {
-    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $saved = $holidayService->uploadAndSync($_FILES);
-    if ($saved) {
-        $csvFileData = $holidayService->getCsvFileData();
-    } else {
-        $errorMessage = $holidayService->getLastError();
+$status = null;
+$errorMessage = '';
+
+try {
+    if ($request->request->get('bn_upload') !== null) {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        $upload = $request->files->get('form_file');
+        if (!$upload instanceof UploadedFile) {
+            throw new InvalidHolidayCsvException(xl('No file uploaded'));
+        }
+        $service->uploadAndSync($upload);
+        $status = 'success';
+    } elseif ($request->request->get('import_holidays') !== null) {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        $service->importHolidaysFromCsv();
+        $status = 'success';
+    } elseif ($request->request->get('sync') !== null) {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        $service->publishHolidayEvents();
+        $status = 'success';
     }
+} catch (InvalidHolidayCsvException | RuntimeException $e) {
+    $errorMessage = $e->getMessage();
 }
 
-// Re-import the already-stored CSV into calendar_external (advanced).
-if (!empty($_POST['import_holidays'])) {
-    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $saved = $holidayService->importHolidaysFromCsv();
-    if (!$saved) {
-        $errorMessage = $holidayService->getLastError();
-    }
-}
-
-// Push calendar_external rows onto the live calendar (advanced).
-if (!empty($_POST['sync'])) {
-    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $saved = $holidayService->createHolidayEvents();
-    if (!$saved && $errorMessage === '') {
-        $errorMessage = xl('Operation Failed');
-    }
-}
-
-?>
-
-<html>
-<head>
-    <title><?php echo xlt('Holidays management'); ?></title>
-    <?php Header::setupHeader(); ?>
-
-</head>
-
-<body class="body_top">
-<?php
-if ($saved) {
-    echo "<p style='color:green'>" .
-        xlt('Successfully Completed') .
-        "</p>\n";
-} elseif ($errorMessage !== '') {
-    echo "<p style='color:red'>" .
-        text($errorMessage) .
-    "</p>\n";
-}
-?>
-<div class="container-fluid">
-<form method='post' action='import_holidays.php' enctype='multipart/form-data'
-      onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-<div class="table-responsive">
-        <table class='table table-bordered text' cellpadding='4'>
-            <thead class='thead-light'>
-                <tr>
-                    <th align='center' colspan='2'>
-                        <?php echo xlt('CSV'); ?>
-                    </th>
-                </tr>
-            </thead>
-            <tr>
-                <td class='detail' nowrap>
-                    <?php echo xlt('CSV File'); ?>
-                    <input type="hidden" name="MAX_FILE_SIZE" value="350000000" />
-                </td>
-                <td class='detail' nowrap>
-                    <input type="file" name="form_file" size="40" />
-                </td>
-            </tr>
-            <tr>
-                <td class='detail' nowrap>
-                    <?php echo xlt('File on server (modification date)'); ?>
-                </td>
-                <td class='detail' nowrap>
-                    <?php if (!empty($csvFileData)) { ?>
-                        <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>")'><?php echo text($csvFileData['date']); ?></a>
-                    <?php } else { ?>
-                        <?php echo xlt('File not found'); ?>
-                    <?php } ?>
-                </td>
-            </tr>
-
-        <tr class='table-light'>
-                <td align='center' class='detail' colspan='2'>
-                    <input class='btn btn-primary' type='submit' name='bn_upload' value='<?php echo xla('Upload and apply to calendar'); ?>' />
-                </td>
-            </tr>
-        </table>
-    </div>
-</form>
-<div class="table-responsive">
-        <table class='table table-bordered'>
-            <thead class='thead-light'>
-                <tr>
-                    <th colspan='2'><?php echo xlt('Advanced'); ?></th>
-                </tr>
-            </thead>
-            <tr>
-                <td>
-                    <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                        <input type='submit' class='btn btn-secondary' name='import_holidays' value='<?php echo xla('Re-import from stored CSV'); ?>'><br />
-                    </form>
-                </td>
-                <td>
-                    <?php echo xlt('Re-read the previously uploaded CSV into the calendar_external staging table. Existing rows are replaced.'); ?>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                        <input type='submit' class='btn btn-secondary' name='sync' value='<?php echo xla('Synchronize to calendar'); ?>' /><br />
-                    </form>
-                </td>
-                <td>
-                    <?php echo xlt('Re-publish the calendar_external rows onto the calendar. Existing holiday events are replaced.'); ?>
-                </td>
-            </tr>
-        </table>
-</div>
-</div>
-</body>
-</html>
+$twig = (new TwigContainer())->getTwig();
+echo $twig->render('holidays/import.html.twig', [
+    'status' => $status,
+    'errorMessage' => $errorMessage,
+    'storedCsvModifiedAt' => $service->getStoredCsvModifiedAt(),
+    'csrfToken' => CsrfUtils::collectCsrfToken(session: $session),
+]);

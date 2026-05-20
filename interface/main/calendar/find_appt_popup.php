@@ -24,16 +24,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\HolidayCsvParser;
 use OpenEMR\Services\HolidayService;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
-?>
-
-<?php
- // check access controls
+// check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
@@ -235,7 +231,7 @@ $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
 $is_holiday = false;
-$holidayService = new HolidayService(new HolidayCsvParser());
+$holidayService = HolidayService::createForLegacyContext();
 $holidays = $holidayService->getHolidaysByDateRange($sdate, $edate);
 if (in_array($sdate, $holidays, true)) {
     $is_holiday = true;

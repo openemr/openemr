@@ -17,21 +17,11 @@ namespace OpenEMR\Services;
 interface HolidayCsvParserInterface
 {
     /**
-     * Read the next non-header, non-blank data row from an open CSV handle.
+     * Parse $path into a sequence of validated holiday rows.
      *
-     * @param resource $handle
-     * @return list<string>|null Null when the handle is exhausted.
+     * @return iterable<int, HolidayRow>
+     *
+     * @throws InvalidHolidayCsvException on any malformed row or empty file.
      */
-    public function readNextDataRow($handle): ?array;
-
-    /**
-     * Validate that the file at $path is a non-empty CSV whose rows have
-     * a parseable date in column 0 and at least two columns.
-     */
-    public function isValidCsvContent(string $path): bool;
-
-    /**
-     * Localized error message for the last failed validation, or '' if none.
-     */
-    public function getLastError(): string;
+    public function parse(string $path): iterable;
 }

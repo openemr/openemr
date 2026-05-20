@@ -20,162 +20,177 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use Doctrine\DBAL\Connection;
+use OpenEMR\BC\Database;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use RuntimeException;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class HolidayService implements HolidayServiceInterface
 {
     public const TABLE_NAME = 'calendar_external';
-    public const CATEGORY_HOLIDAY = '6';
-    public const CATEGORY_CLOSED = '7';
+    public const CATEGORY_HOLIDAY = 6;
+    public const CATEGORY_CLOSED = 7;
     public const UPLOAD_DIR = 'documents/holidays_storage';
     public const FILE_NAME = 'holidays_to_import.csv';
+    /**
+     * Default `pc_recurrspec` value for a one-off holiday event: no recurrence,
+     * no exclusion dates. Computed once at runtime from a named-field array so
+     * the schema is auditable instead of an opaque serialized blob.
+     */
+    private const NO_RECURRENCE_SPEC = [
+        'event_repeat_freq' => '0',
+        'event_repeat_freq_type' => '0',
+        'event_repeat_on_num' => '1',
+        'event_repeat_on_day' => '0',
+        'event_repeat_on_freq' => '0',
+        'exdate' => '',
+    ];
 
-    private readonly string $siteDir;
     private readonly string $targetFile;
-    private string $lastError = '';
+    private readonly Filesystem $filesystem;
     /** @var array<string, true>|null */
     private ?array $holidayDateSet = null;
 
     public function __construct(
+        private readonly Connection $connection,
         private readonly HolidayCsvParserInterface $csvParser,
-        ?string $siteDir = null,
+        string $siteDir,
+        ?Filesystem $filesystem = null,
     ) {
-        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
-        $this->targetFile = $this->siteDir . '/' . self::UPLOAD_DIR . '/' . self::FILE_NAME;
+        $this->targetFile = $siteDir . '/' . self::UPLOAD_DIR . '/' . self::FILE_NAME;
+        $this->filesystem = $filesystem ?? new Filesystem();
     }
 
-    public function uploadAndSync(array $files): bool
+    /**
+     * Construct an instance from the legacy global context. Use only at script
+     * entry points and inside procedural legacy functions; new code should
+     * inject dependencies through the constructor instead.
+     */
+    public static function createForLegacyContext(): self
     {
-        if (!$this->uploadCsv($files)) {
-            return false;
-        }
-
-        if (!$this->importHolidaysFromCsv()) {
-            return false;
-        }
-
-        return $this->createHolidayEvents();
+        // OpenEMR has not yet exposed a non-deprecated way to obtain a shared
+        // Doctrine\DBAL\Connection from a service. Until the BC layer settles,
+        // this factory is the single place that reaches into it.
+        // @phpstan-ignore method.deprecated
+        $connection = Database::instance()->getDbalConnection();
+        return new self(
+            connection: $connection,
+            csvParser: new HolidayCsvParser(),
+            siteDir: OEGlobalsBag::getInstance()->getString('OE_SITE_DIR'),
+        );
     }
 
-    public function uploadCsv(array $files): bool
+    public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void
     {
-        $this->lastError = '';
-        $file = $files['form_file'] ?? null;
-        if (!is_array($file)) {
-            $this->lastError = xl('No file uploaded');
-            return false;
-        }
-
-        $uploadDir = $this->siteDir . '/' . self::UPLOAD_DIR;
-        if (!is_dir($uploadDir) && !mkdir($uploadDir, 0700, true) && !is_dir($uploadDir)) {
-            $this->lastError = xl('Unable to create upload directory');
-            return false;
-        }
-
-        if (!$this->isValidCsvUpload($file)) {
-            return false;
-        }
-
-        $tmpName = $file['tmp_name'];
-        if (!is_string($tmpName) || !move_uploaded_file($tmpName, $this->targetFile)) {
-            $this->lastError = xl('Unable to save uploaded file');
-            return false;
-        }
-
-        return true;
+        $this->uploadCsv($upload);
+        $this->importHolidaysFromCsv();
+        $this->publishHolidayEvents($pcFacility);
     }
 
-    public function importHolidaysFromCsv(): bool
+    public function uploadCsv(UploadedFile $upload): void
     {
-        $this->lastError = '';
-        if ($this->getCsvFileData() === []) {
-            $this->lastError = xl('CSV file not found');
-            return false;
+        if (strtolower($upload->getClientOriginalExtension()) !== 'csv') {
+            throw new InvalidHolidayCsvException(xl('File must be a CSV'));
         }
 
-        $handle = fopen($this->targetFile, 'r');
-        if ($handle === false) {
-            $this->lastError = xl('CSV import failed');
-            return false;
+        // Validate first so we never persist a bad CSV.
+        $this->consume($this->csvParser->parse($upload->getPathname()));
+
+        $uploadDir = dirname($this->targetFile);
+        try {
+            $this->filesystem->mkdir($uploadDir, 0700);
+        } catch (IOException $e) {
+            throw new RuntimeException(xl('Unable to create upload directory'), previous: $e);
         }
 
         try {
-            $deleted = false;
-            while (($data = $this->csvParser->readNextDataRow($handle)) !== null) {
-                if (!$deleted) {
-                    $this->truncateCalendarExternal();
-                    $deleted = true;
-                }
-                $row = [$data[0], $data[1] ?? ''];
-                sqlStatement(
-                    'INSERT INTO ' . escape_table_name(self::TABLE_NAME)
-                        . '(date,description,source) VALUES (?,?,?)',
-                    [$row[0], $row[1], 'csv']
-                );
-            }
-        } finally {
-            fclose($handle);
+            $upload->move($uploadDir, basename($this->targetFile));
+        } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException $e) {
+            throw new RuntimeException(xl('Unable to save uploaded file'), previous: $e);
         }
-
-        return true;
     }
 
-    public function createHolidayEvents(): bool
+    public function importHolidaysFromCsv(): void
     {
-        $this->holidayDateSet = null;
-        $holidays = $this->getStagedHolidays();
-        if ($holidays === []) {
-            return true;
+        if (!$this->filesystem->exists($this->targetFile)) {
+            throw new InvalidHolidayCsvException(xl('CSV file not found'));
         }
 
-        $this->deleteHolidayEvents();
+        $rows = $this->consume($this->csvParser->parse($this->targetFile));
 
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $pcFacility = $session->get('pc_facility') ?? 0;
+        $this->connection->executeStatement(
+            'TRUNCATE TABLE ' . self::TABLE_NAME
+        );
+        foreach ($rows as $row) {
+            $this->connection->insert(self::TABLE_NAME, [
+                'date' => $row->dateForStorage(),
+                'description' => $row->description,
+                'source' => 'csv',
+            ]);
+        }
+    }
 
-        foreach ($holidays as $holiday) {
-            $row = [
-                self::CATEGORY_HOLIDAY,
-                0,
-                0,
-                $holiday['description'],
-                $holiday['date'],
-                86400,
-                'a:6:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";s:6:"exdate";s:0:"";}',
-                1,
-                1,
-                $pcFacility,
-                2,
-            ];
+    public function publishHolidayEvents(?int $pcFacility = null): void
+    {
+        $this->holidayDateSet = null;
+        $staged = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT date, description FROM calendar_external
+            SQL
+        );
+        if ($staged === []) {
+            return;
+        }
 
-            sqlInsert(
+        $this->connection->executeStatement(
+            <<<'SQL'
+            DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?
+            SQL,
+            [self::CATEGORY_HOLIDAY]
+        );
+
+        $pcFacility ??= $this->facilityFromSession();
+        $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
+
+        foreach ($staged as $row) {
+            $description = $row['description'];
+            $date = $row['date'];
+            if (!is_string($description) || !is_string($date)) {
+                continue;
+            }
+            $this->connection->executeStatement(
                 <<<'SQL'
                 INSERT INTO openemr_postcalendar_events (
                     pc_catid, pc_aid, pc_pid, pc_title, pc_time,
                     pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
                     pc_eventstatus, pc_facility, pc_sharing
-                ) VALUES (?,?,?,?,NOW(),?,?,?,?,?,?,?)
+                ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, 2)
                 SQL,
-                $row
+                [
+                    self::CATEGORY_HOLIDAY,
+                    $description,
+                    $date,
+                    $recurrSpec,
+                    $pcFacility,
+                ]
             );
         }
-
-        return true;
     }
 
-    public function getCsvFileData(): array
+    public function getStoredCsvModifiedAt(): ?string
     {
-        if (!file_exists($this->targetFile)) {
-            return [];
+        if (!$this->filesystem->exists($this->targetFile)) {
+            return null;
         }
-
         $mtime = filemtime($this->targetFile);
         if ($mtime === false) {
-            return [];
+            return null;
         }
-
-        return ['date' => date('d/m/Y H:i:s', $mtime)];
+        return date('d/m/Y H:i:s', $mtime);
     }
 
     public function getTargetFile(): string
@@ -183,15 +198,9 @@ final class HolidayService implements HolidayServiceInterface
         return $this->targetFile;
     }
 
-    public function getLastError(): string
-    {
-        return $this->lastError;
-    }
-
     public function getHolidaysByDateRange(string $startDate, string $endDate): array
     {
-        $holidays = [];
-        $res = sqlStatement(
+        $rows = $this->connection->fetchAllAssociative(
             <<<'SQL'
             SELECT pc_eventDate FROM openemr_postcalendar_events
             WHERE (pc_catid = ? OR pc_catid = ?)
@@ -199,89 +208,59 @@ final class HolidayService implements HolidayServiceInterface
             SQL,
             [self::CATEGORY_HOLIDAY, self::CATEGORY_CLOSED, $startDate, $endDate]
         );
-        while ($row = sqlFetchArray($res)) {
-            $holidays[] = (string) $row['pc_eventDate'];
+        $dates = [];
+        foreach ($rows as $row) {
+            $value = $row['pc_eventDate'] ?? null;
+            if (is_string($value)) {
+                $dates[] = $value;
+            }
         }
-
-        return $holidays;
+        return $dates;
     }
 
     public function isHoliday(string $date): bool
     {
         if ($this->holidayDateSet === null) {
-            $this->holidayDateSet = [];
-            $res = sqlStatement(
+            $rows = $this->connection->fetchAllAssociative(
                 <<<'SQL'
                 SELECT pc_eventDate FROM openemr_postcalendar_events
                 WHERE pc_catid = ? OR pc_catid = ?
                 SQL,
                 [self::CATEGORY_HOLIDAY, self::CATEGORY_CLOSED]
             );
-            while ($row = sqlFetchArray($res)) {
-                $this->holidayDateSet[(string) $row['pc_eventDate']] = true;
+            $set = [];
+            foreach ($rows as $row) {
+                $value = $row['pc_eventDate'] ?? null;
+                if (is_string($value)) {
+                    $set[$value] = true;
+                }
             }
+            $this->holidayDateSet = $set;
         }
 
         return isset($this->holidayDateSet[$date]);
     }
 
     /**
-     * @param array<string, mixed> $file
+     * Materialize a parsed-row iterable into a list, so the caller can iterate
+     * multiple times and validation errors surface before any persistence.
+     *
+     * @param iterable<int, HolidayRow> $rows
+     * @return list<HolidayRow>
      */
-    private function isValidCsvUpload(array $file): bool
+    private function consume(iterable $rows): array
     {
-        if (!empty($file['error'])) {
-            $this->lastError = xl('Upload failed');
-            return false;
+        $out = [];
+        foreach ($rows as $row) {
+            $out[] = $row;
         }
-
-        $tmpName = $file['tmp_name'] ?? '';
-        if (!is_string($tmpName) || $tmpName === '' || !is_uploaded_file($tmpName)) {
-            $this->lastError = xl('Invalid upload');
-            return false;
-        }
-
-        $name = (string) ($file['name'] ?? '');
-        $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-        if ($extension !== 'csv') {
-            $this->lastError = xl('File must be a CSV');
-            return false;
-        }
-
-        if (!$this->csvParser->isValidCsvContent($tmpName)) {
-            $this->lastError = $this->csvParser->getLastError();
-            return false;
-        }
-
-        return true;
+        return $out;
     }
 
-    /**
-     * @return list<array{date: string, description: string}>
-     */
-    private function getStagedHolidays(): array
+    private function facilityFromSession(): int
     {
-        $holidays = [];
-        $res = sqlStatement('SELECT date, description FROM ' . escape_table_name(self::TABLE_NAME));
-        while ($row = sqlFetchArray($res)) {
-            $holidays[] = [
-                'date' => (string) $row['date'],
-                'description' => (string) $row['description'],
-            ];
-        }
-        return $holidays;
-    }
-
-    private function truncateCalendarExternal(): void
-    {
-        sqlStatement('TRUNCATE TABLE ' . escape_table_name(self::TABLE_NAME));
-    }
-
-    private function deleteHolidayEvents(): void
-    {
-        sqlStatement(
-            'DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?',
-            [self::CATEGORY_HOLIDAY]
-        );
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $value = $session->get('pc_facility');
+        return is_numeric($value) ? (int) $value : 0;
     }
 }
