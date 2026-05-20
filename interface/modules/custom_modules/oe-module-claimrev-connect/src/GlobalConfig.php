@@ -16,10 +16,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
@@ -39,15 +41,32 @@ class GlobalConfig
     public const CONFIG_ENABLE_RESULTS_ELIGIBILITY = "oe_claimrev_eligibility_results_age";
     public const CONFIG_ENABLE_AUTO_SEND_ELIGIBILITY = "oe_claimrev_send_eligibility";
     public const CONFIG_X12_PARTNER_NAME = "oe_claimrev_x12_partner_name";
+    public const CONFIG_ENABLE_WATCHDOG = "oe_claimrev_enable_watchdog";
+    public const CONFIG_ENABLE_NOTIFICATIONS = "oe_claimrev_enable_notifications";
+    public const CONFIG_NOTIFICATION_RECIPIENT = "oe_claimrev_notification_recipient";
+    public const CONFIG_BENEFIT_CODE_FILTER = "oe_claimrev_benefit_code_filter";
+    public const CONFIG_OPTION_PORTAL_URL = "oe_claimrev_config_portal_url";
     public const CONFIG_OPTION_DEV_API_URL = 'oe_claimrev_config_dev_api_url';
     public const CONFIG_OPTION_DEV_SCOPE = 'oe_claimrev_config_dev_scope';
     public const CONFIG_OPTION_DEV_AUTHORITY = 'oe_claimrev_config_dev_authority';
+    public const CONFIG_ENABLE_TEST_MODE = 'oe_claimrev_enable_test_mode';
+    public const CONFIG_ENABLE_SWEEP = 'oe_claimrev_enable_sweep';
+    public const CONFIG_SWEEP_DAYS = 'oe_claimrev_sweep_days';
+    public const CONFIG_SWEEP_LOOKAHEAD = 'oe_claimrev_sweep_lookahead';
+    public const CONFIG_ENABLE_CALENDAR_INDICATORS = 'oe_claimrev_enable_calendar_indicators';
 
-    private readonly CryptoInterface $cryptoGen;
+    private readonly CryptoGen $cryptoGen;
 
+    /**
+     * @param array<string, mixed> $globalsArray
+     */
     public function __construct(private array $globalsArray)
     {
-        $this->cryptoGen = ServiceContainer::getCrypto();
+        $crypto = ServiceContainer::getCrypto();
+        if (!$crypto instanceof CryptoGen) {
+            throw new \RuntimeException('ServiceContainer::getCrypto() did not return a CryptoGen instance');
+        }
+        $this->cryptoGen = $crypto;
     }
 
     /**
@@ -69,11 +88,12 @@ class GlobalConfig
         return true;
     }
 
-    public function getClientId()
+    public function getClientId(): mixed
     {
         return $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTID);
     }
-    public function getClientSecret()
+
+    public function getClientSecret(): string|false
     {
         $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_CLIENTSECRET);
         return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
@@ -92,6 +112,10 @@ class GlobalConfig
             'P' => 'https://api.claimrev.com',
             'S' => 'https://testapi.claimrev.com',
         ],
+        'portal' => [
+            'P' => 'https://portal.claimrev.com',
+            'S' => 'https://testportal.claimrev.com',
+        ],
     ];
 
     private const DEV_URL_CONFIG_KEYS = [
@@ -101,7 +125,7 @@ class GlobalConfig
     ];
 
     /**
-     * @param 'scope'|'authority'|'api_server' $urlType
+     * @param 'scope'|'authority'|'api_server'|'portal' $urlType
      * @return non-empty-string
      * @throws ModuleNotConfiguredException if URL is not configured for the current environment
      */
@@ -110,7 +134,7 @@ class GlobalConfig
         $env = $this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT);
         $env = is_string($env) ? $env : 'P';
 
-        $url = ($env === 'D')
+        $url = ($env === 'D' && isset(self::DEV_URL_CONFIG_KEYS[$urlType]))
             ? $this->getGlobalSetting(self::DEV_URL_CONFIG_KEYS[$urlType])
             : (self::URL_CONFIGS[$urlType][$env] ?? null);
 
@@ -139,48 +163,56 @@ class GlobalConfig
         return $this->getEnvironmentUrl('api_server');
     }
 
+    /**
+     * Get the ClaimRev portal URL for claim editor links.
+     */
+    public function getPortalUrl(): string
+    {
+        $override = $this->getGlobalSetting(self::CONFIG_OPTION_PORTAL_URL);
+        if (is_string($override) && $override !== '') {
+            return rtrim($override, '/');
+        }
+
+        try {
+            return $this->getEnvironmentUrl('portal');
+        } catch (ModuleNotConfiguredException) {
+            return 'https://portal.claimrev.com';
+        }
+    }
 
 
-    public function getAutoSendFiles()
+
+    public function isTestModeEnabled(): bool
+    {
+        $value = $this->getGlobalSetting(self::CONFIG_ENABLE_TEST_MODE);
+        return $value !== null && $value !== '' && $value !== '0' && $value !== false;
+    }
+
+    public function getAutoSendFiles(): mixed
     {
         return $this->getGlobalSetting(self::CONFIG_AUTO_SEND_CLAIM_FILES);
     }
 
-    public function getGlobalSetting($settingKey)
+    public function getGlobalSetting(string $settingKey): mixed
     {
         return $this->globalsArray[$settingKey] ?? null;
     }
 
-    public function getGlobalSettingSectionConfiguration()
+    /**
+     * @return array<string, array{title: string, description: string, type: string, default: string}>
+     */
+    public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
             self::CONFIG_OPTION_ENVIRONMENT => [
-                'title' => 'ClaimRev Environment (P=Production)',
-                'description' => 'The system you connect to. P for production',
+                'title' => 'ClaimRev Environment',
+                'description' => 'Leave as P for production. Only change to D if directed by ClaimRev support.',
                 'type' => GlobalSetting::DATA_TYPE_TEXT,
                 'default' => 'P',
             ],
-            self::CONFIG_OPTION_DEV_API_URL => [
-                'title' => 'Development API Server URL',
-                'description' => 'API server URL when environment is set to D (Development)',
-                'type' => GlobalSetting::DATA_TYPE_TEXT,
-                'default' => '',
-            ],
-            self::CONFIG_OPTION_DEV_SCOPE => [
-                'title' => 'Development Scope URL',
-                'description' => 'OAuth scope URL when environment is set to D (Development)',
-                'type' => GlobalSetting::DATA_TYPE_TEXT,
-                'default' => '',
-            ],
-            self::CONFIG_OPTION_DEV_AUTHORITY => [
-                'title' => 'Development Authority URL',
-                'description' => 'OAuth authority URL when environment is set to D (Development)',
-                'type' => GlobalSetting::DATA_TYPE_TEXT,
-                'default' => '',
-            ],
             self::CONFIG_OPTION_CLIENTID => [
                 'title' => 'Client ID',
-                'description' => 'Contact ClaimRev for the client ID',
+                'description' => 'Available in the ClaimRev Portal under Client Connect',
                 'type' => GlobalSetting::DATA_TYPE_TEXT,
                 'default' => '',
             ],
@@ -200,7 +232,13 @@ class GlobalConfig
                 'title' => 'Eligibility Service Type Codes',
                 'description' => 'Comma Separated List of Service Type Codes',
                 'type' => GlobalSetting::DATA_TYPE_TEXT,
-                'default' => '30',
+                'default' => '',
+            ],
+            self::CONFIG_BENEFIT_CODE_FILTER => [
+                'title' => 'Benefit Code Filter',
+                'description' => 'Comma separated benefit information codes to display (e.g. 1,6,A,B,C). Leave blank to show all. Filtered locally only - does not affect what is sent to ClaimRev.',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => '',
             ],
             self::CONFIG_AUTO_SEND_CLAIM_FILES => [
                 'title' => 'Auto Send Claim Files',
@@ -242,6 +280,80 @@ class GlobalConfig
                 'title' => 'Turn on Eligibility Send Service',
                 'description' => 'Enables the sending of eligibility json to ClaimRev',
                 'type' => GlobalSetting::DATA_TYPE_BOOL,
+                'default' => '',
+            ],
+            self::CONFIG_ENABLE_NOTIFICATIONS => [
+                'title' => 'Enable ClaimRev Notifications',
+                'description' => 'Poll ClaimRev for account notifications and deliver them to OpenEMR user messages',
+                'type' => GlobalSetting::DATA_TYPE_BOOL,
+                'default' => '1',
+            ],
+            self::CONFIG_NOTIFICATION_RECIPIENT => [
+                'title' => 'Notification Recipient Username(s)',
+                'description' => 'OpenEMR username(s) to receive ClaimRev notifications. Separate multiple with semicolons (e.g. admin;biller1;biller2).',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => 'admin',
+            ],
+            self::CONFIG_ENABLE_WATCHDOG => [
+                'title' => 'Enable Service Watchdog',
+                'description' => 'Automatically resets ClaimRev background services that get stuck. Recommended to leave enabled.',
+                'type' => GlobalSetting::DATA_TYPE_BOOL,
+                'default' => '1',
+            ],
+            self::CONFIG_ENABLE_TEST_MODE => [
+                'title' => 'Enable Test Mode',
+                'description' => 'Shows a Test Mode option on the Payment Advice screen that generates simulated ERA data from OpenEMR billing records. For demonstration and training only.',
+                'type' => GlobalSetting::DATA_TYPE_BOOL,
+                'default' => '',
+            ],
+            // --- Eligibility Sweep settings ---
+            self::CONFIG_ENABLE_SWEEP => [
+                'title' => 'Enable Eligibility Sweep',
+                'description' => 'Automatically queue eligibility checks for upcoming appointments on scheduled days',
+                'type' => GlobalSetting::DATA_TYPE_BOOL,
+                'default' => '',
+            ],
+            self::CONFIG_SWEEP_DAYS => [
+                'title' => 'Sweep Days',
+                'description' => 'Comma-separated day numbers (0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat). E.g. 1,4 for Monday and Thursday.',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => '1,4',
+            ],
+            self::CONFIG_SWEEP_LOOKAHEAD => [
+                'title' => 'Sweep Lookahead Days',
+                'description' => 'Number of days ahead to check appointments for eligibility',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => '7',
+            ],
+            self::CONFIG_ENABLE_CALENDAR_INDICATORS => [
+                'title' => 'Enable Calendar Eligibility Indicators',
+                'description' => 'Show color indicators on the main OpenEMR calendar based on eligibility status. May impact calendar performance.',
+                'type' => GlobalSetting::DATA_TYPE_BOOL,
+                'default' => '',
+            ],
+            // --- Override settings (auto-configured for production, configurable for alternate identity providers) ---
+            self::CONFIG_OPTION_PORTAL_URL => [
+                'title' => 'Portal URL Override',
+                'description' => 'Auto-configured for production. Override only if using a custom portal URL.',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => '',
+            ],
+            self::CONFIG_OPTION_DEV_API_URL => [
+                'title' => 'API Server URL Override',
+                'description' => 'Auto-configured for production. Override to use a different API server or identity provider.',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => '',
+            ],
+            self::CONFIG_OPTION_DEV_SCOPE => [
+                'title' => 'OAuth Scope Override',
+                'description' => 'Auto-configured for production. Override when switching identity providers (e.g. Entra ID External, Zitadel).',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
+                'default' => '',
+            ],
+            self::CONFIG_OPTION_DEV_AUTHORITY => [
+                'title' => 'OAuth Authority URL Override',
+                'description' => 'Auto-configured for production. Override when switching identity providers (e.g. Entra ID External, Zitadel).',
+                'type' => GlobalSetting::DATA_TYPE_TEXT,
                 'default' => '',
             ],
         ];

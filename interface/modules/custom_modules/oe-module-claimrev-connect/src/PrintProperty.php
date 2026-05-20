@@ -10,62 +10,81 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 class PrintProperty
 {
-    public static function displayProperty($title, $propertyValue, $qualifier = "", $ending = "", $style = "")
+    public static function displayProperty(string $title, mixed $propertyValue, string $qualifier = "", string $ending = "", string $style = ""): void
     {
-        if ($propertyValue != '') {
-            echo("<div class='row'>");
-                echo("<div class='col'>");
-                    echo("<strong>");
-                        echo text($title);
-                    echo("</strong>");
-                echo("</div>");
-                echo("<div class='col' style='" . attr($style)  . "' >");
-            if ($ending == "%") {
-                $propertyValue *= 100;
-            }
-            echo text($qualifier . $propertyValue . $ending);
-                 echo("</div>");
+        if (in_array($propertyValue, [null, '', false], true)) {
+            return;
+        }
+
+        $valueStr = TypeCoerce::asString($propertyValue);
+        if ($ending === '%' && (is_int($propertyValue) || is_float($propertyValue))) {
+            $valueStr = TypeCoerce::asString($propertyValue * 100);
+        }
+
+        echo("<div class='row'>");
+            echo("<div class='col'>");
+                echo("<strong>");
+                    echo text($title);
+                echo("</strong>");
             echo("</div>");
-        }
-    }
-    public static function displayDateProperty($title, $propertyValue)
-    {
-        //if the property value was "" then it used today's date.  we don't want that!
-        if ($propertyValue != '') {
-            $date = date_create($propertyValue);
-            $strDate = date_format($date, 'Y-m-d');
-            PrintProperty::displayProperty($title, $strDate);
-        }
+            echo("<div class='col' style='" . attr($style)  . "' >");
+        echo text($qualifier . $valueStr . $ending);
+             echo("</div>");
+        echo("</div>");
     }
 
-    public static function printValidation($title, $validations)
+    public static function displayDateProperty(string $title, mixed $propertyValue): void
     {
-        if ($validations != null) {
-            echo("<div class='row'>");
-                echo("<div class='col'>");
-                    echo("<div class='card'>");
-                        echo("<div class='card-body'>");
-                            echo("<h6>");
-                                echo xlt($title);
-                            echo("</h6>");
-            foreach ($validations as $validation) {
-                PrintProperty::displayProperty("Is Valid Request", $validation->validRequestIndicator);
-                PrintProperty::displayProperty("Reject Reason", $validation->rejectReasonCode);
-                PrintProperty::displayProperty("Description", $validation->description);
-                PrintProperty::displayProperty("Follow-up Action", $validation->followUpActionCode);
+        // if the property value was "" then it used today's date. we don't want that!
+        if (!is_string($propertyValue) || $propertyValue === '') {
+            return;
+        }
+
+        $date = date_create($propertyValue);
+        if ($date === false) {
+            return;
+        }
+        $strDate = date_format($date, 'Y-m-d');
+        self::displayProperty($title, $strDate);
+    }
+
+    /**
+     * @param iterable<mixed, mixed>|null $validations
+     */
+    public static function printValidation(string $title, ?iterable $validations): void
+    {
+        if ($validations === null) {
+            return;
+        }
+        echo("<div class='row'>");
+            echo("<div class='col'>");
+                echo("<div class='card'>");
+                    echo("<div class='card-body'>");
+                        echo("<h6>");
+                            echo text($title);
+                        echo("</h6>");
+        foreach ($validations as $validation) {
+            if (!is_object($validation)) {
+                continue;
             }
-
-                        echo("</div>");
-
+            self::displayProperty("Is Valid Request", property_exists($validation, 'validRequestIndicator') ? $validation->validRequestIndicator : '');
+            self::displayProperty("Reject Reason", property_exists($validation, 'rejectReasonCode') ? $validation->rejectReasonCode : '');
+            self::displayProperty("Description", property_exists($validation, 'description') ? $validation->description : '');
+            self::displayProperty("Follow-up Action", property_exists($validation, 'followUpActionCode') ? $validation->followUpActionCode : '');
+        }
 
                     echo("</div>");
 
+
                 echo("</div>");
+
             echo("</div>");
-        }
+        echo("</div>");
     }
 }

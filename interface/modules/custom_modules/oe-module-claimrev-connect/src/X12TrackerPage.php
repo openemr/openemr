@@ -12,21 +12,31 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
+
+use OpenEMR\Common\Database\QueryUtils;
 
 class X12TrackerPage
 {
     /**
-     * @param array<string, mixed> $postData
+     * @param  array<string, mixed> $postData
+     * @return list<array<string, mixed>>
      */
-    public static function searchX12Tracker(array $postData)
+    public static function searchX12Tracker(array $postData): array
     {
-        $startDate = $postData['startDate'] ?? '';
-        $endDate = $postData['endDate'] ?? '';
+        $startDate = TypeCoerce::asString($postData['startDate'] ?? '') . ' 00:00:00';
+        $endDate = TypeCoerce::asString($postData['endDate'] ?? '') . ' 23:59:59';
 
         $sql = "SELECT * FROM x12_remote_tracker where created_at BETWEEN ? AND ?";
-        $files = sqlStatementNoLog($sql, [$startDate,$endDate]);
+        $rows = QueryUtils::fetchRecordsNoLog($sql, [$startDate, $endDate]);
 
-        return $files;
+        $out = [];
+        foreach ($rows as $row) {
+            /** @var array<string, mixed> $row */
+            $out[] = $row;
+        }
+        return $out;
     }
 }

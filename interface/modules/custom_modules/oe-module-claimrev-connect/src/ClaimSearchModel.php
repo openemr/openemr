@@ -10,18 +10,58 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
+declare(strict_types=1);
+
+namespace OpenEMR\Modules\ClaimRevConnector;
 
 class ClaimSearchModel
 {
-    public $patientFirstName = "";
-    public $patientLastName = "";
-    public $receivedDateStart;
-    public $receivedDateEnd;
-    public $serviceDateStart;
-    public $serviceDateEnd;
+    public string $objectId = "";
+    public string $patientFirstName = "";
+    public string $patientLastName = "";
+    public string $patientGender = "";
+    public ?string $patientBirthDate = null;
+    public ?string $receivedDateStart = null;
+    public ?string $receivedDateEnd = null;
+    public ?string $serviceDateStart = null;
+    public ?string $serviceDateEnd = null;
+    public string $payerName = "";
+    public string $payerNumber = "";
+    public ?float $payerPaidAmtStart = null;
+    public ?float $payerPaidAmtEnd = null;
+    public string $traceNumber = "";
+    /** @var list<string> */
+    public array $traceNumbers = [];
+    public string $patientControlNumber = "";
+    /** @var list<string> */
+    public array $patientControlNumbers = [];
+    public string $payerControlNumber = "";
+    /** @var list<string> */
+    public array $payerControlNumbers = [];
+    public string $billingProviderNpi = "";
+    public string $errorMessage = "";
+    /** @var list<int> */
+    public array $statusIds = [];
+    /** @var list<string> */
+    public array $accountNumbers = [];
+    /** @var list<int> */
+    public array $claimTypeIds = [];
+    /** @var list<int> */
+    public array $excludeStatusIds = [];
+    /** @var list<int> */
+    public array $paymentAdviceStatusIds = [];
+    /** @var list<array{fieldName: string, sortDirection: int, priority: int}> */
+    public array $sorting = [];
+    /** @var list<int> */
+    public array $tagIds = [];
+    /** @var list<int> */
+    public array $excludeTagIds = [];
+    /** @var list<string> */
+    public array $eraClassifications = [];
+    public PagingSearchModel $pagingSearch;
 
     public function __construct()
     {
+        $this->pagingSearch = new PagingSearchModel();
     }
 }

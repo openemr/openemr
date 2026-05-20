@@ -10,18 +10,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
     namespace OpenEMR\Modules\ClaimRevConnector;
 
 class FileSearchModel
 {
-    public $accountNumber = "";
+    public string $accountNumber = "";
     public int $fileStatus = 3;
     public ?string $ediType = "";
     public ?string $ediVersion = "";
     public ?string $payerNumber = "";
     public ?string $fileId = "";
-    public $receivedDateStart;
-    public $receivedDateEnd;
+    public ?string $receivedDateStart = null;
+    public ?string $receivedDateEnd = null;
 
     public function __construct()
     {

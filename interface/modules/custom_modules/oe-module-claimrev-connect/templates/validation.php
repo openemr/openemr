@@ -10,42 +10,39 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 /** @var \stdClass $data */
 /** @var \stdClass $eligibilityData */
 
-$validations = null;
+$asValidations = static fn(mixed $v): ?iterable => is_iterable($v) ? $v : null;
+
 if (property_exists($data, 'requestValidations')) {
-    $validations = $data->requestValidations;
-    PrintProperty::printValidation("Primary Validations", $validations);
+    PrintProperty::printValidation("Primary Validations", $asValidations($data->requestValidations));
 }
 if (property_exists($data, 'informationSourceName')) {
     $informationSourceName = $data->informationSourceName;
-
-    if ($informationSourceName != null && property_exists($informationSourceName, 'requestValidations')) {
-        $validations = $informationSourceName->requestValidations;
-        PrintProperty::printValidation("information Source Validations", $validations);
+    if (is_object($informationSourceName) && property_exists($informationSourceName, 'requestValidations')) {
+        PrintProperty::printValidation("information Source Validations", $asValidations($informationSourceName->requestValidations));
     }
 }
 
 if (property_exists($data, 'receiver')) {
     $receiver = $data->receiver;
-    if ($receiver != null && property_exists($receiver, 'requestValidations')) {
-        $validations = $receiver->requestValidations;
-        PrintProperty::printValidation("Receiver Validations", $validations);
+    if (is_object($receiver) && property_exists($receiver, 'requestValidations')) {
+        PrintProperty::printValidation("Receiver Validations", $asValidations($receiver->requestValidations));
     }
 }
 
 if (property_exists($data, 'subscriber')) {
     $subscriber = $data->subscriber;
-    if ($subscriber != null && property_exists($subscriber, 'requestValidations')) {
-        $validations = $subscriber->requestValidations;
-        PrintProperty::printValidation("Receiver Validations", $validations);
+    if (is_object($subscriber) && property_exists($subscriber, 'requestValidations')) {
+        PrintProperty::printValidation("Receiver Validations", $asValidations($subscriber->requestValidations));
     }
 }
 
 if (property_exists($eligibilityData, 'validations')) {
-    $mainValidations = $eligibilityData->validations;
-    PrintProperty::printValidation("Main Validations", $mainValidations);
+    PrintProperty::printValidation("Main Validations", $asValidations($eligibilityData->validations));
 }

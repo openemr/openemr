@@ -10,54 +10,61 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
+declare(strict_types=1);
+
+namespace OpenEMR\Modules\ClaimRevConnector;
 
 class RevenueToolsRequest
 {
-    //required for this module, does not go to claimrev
-    public $payerResponsibility;
+    // Required for this module, does not go to claimrev
+    public ?string $payerResponsibility = null;
 
-    //defaults that maybe set as global vars
-    public $accountNumber;//
-    public $serviceTypeCodes;//
-    public $includeCredit;//
-    public $productsToRun;//
+    // Defaults that may be set as global vars
+    public ?string $accountNumber = null;
+    /** @var list<string>|null */
+    public ?array $serviceTypeCodes = null;
+    public ?bool $includeCredit = null;
+    /** @var list<int>|null */
+    public ?array $productsToRun = null;
 
-    public $practiceName;//
-    public $requestingSoftware;//
+    public ?string $practiceName = null;
+    public ?string $requestingSoftware = null;
 
-    public $originatingSystemId;//
+    public ?string $originatingSystemId = null;
 
-    public $npi;//
-    public $pinCode;//
-    public $practiceState;//
-    public $subscriberId;//
-    public $patientFirstName;//
-    public $patientLastName;//
-    public $patientGender;//
-    public $patientDob;//
-    public $patientSsn;//
-    public $patientAddress1;//
-    public $patientAddress2;
-    public $patientCity;//
-    public $patientState;//
-    public $patientZip;//
-    public $patientEmailAddress;//
-    public $payers;
+    public ?string $npi = null;
+    public ?string $pinCode = null;
+    public ?string $practiceState = null;
+    public ?string $subscriberId = null;
+    public ?string $patientFirstName = null;
+    public ?string $patientLastName = null;
+    public ?string $patientGender = null;
+    public ?string $patientDob = null;
+    public ?string $patientSsn = null;
+    public ?string $patientAddress1 = null;
+    public ?string $patientAddress2 = null;
+    public ?string $patientCity = null;
+    public ?string $patientState = null;
+    public ?string $patientZip = null;
+    public ?string $patientEmailAddress = null;
+    /** @var list<RevenueToolsPayer>|null */
+    public ?array $payers = null;
 
-    public $subscriberFirstName;
-    public $subscriberLastName;
-    public $subscriberDob;
+    public ?string $subscriberFirstName = null;
+    public ?string $subscriberLastName = null;
+    public ?string $subscriberDob = null;
 
-    public $serviceBeginDate;
-    public $serviceEndDate;
-    public $procedureCodes;
-    public $diagnosisCodes;
-    public $clientId;
-    public $createDate;
-    public $uniqueTransactionNumber;
-    public $patientEmployer;
-    public $patientEmployerState;
+    public ?string $serviceBeginDate = null;
+    public ?string $serviceEndDate = null;
+    /** @var list<string>|null */
+    public ?array $procedureCodes = null;
+    /** @var list<string>|null */
+    public ?array $diagnosisCodes = null;
+    public ?string $clientId = null;
+    public ?string $createDate = null;
+    public ?string $uniqueTransactionNumber = null;
+    public ?string $patientEmployer = null;
+    public ?string $patientEmployerState = null;
 
     public function __construct()
     {

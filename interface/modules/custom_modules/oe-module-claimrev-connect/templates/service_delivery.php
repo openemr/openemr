@@ -12,8 +12,21 @@
 
 /** @var \stdClass $benefit */
 
-if ($benefit->serviceDeliveries != null && $benefit->serviceDeliveries) {
-    ?>
+declare(strict_types=1);
+
+$serviceDeliveries = property_exists($benefit, 'serviceDeliveries') && is_iterable($benefit->serviceDeliveries) ? $benefit->serviceDeliveries : null;
+if ($serviceDeliveries === null) {
+    return;
+}
+
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
+    }
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+?>
     <div class="row">
         <div class="col">
             <div class="card">
@@ -21,37 +34,42 @@ if ($benefit->serviceDeliveries != null && $benefit->serviceDeliveries) {
                     <h6><?php echo xlt("Services Delivery");?></h6>
                     <ul>
     <?php
-    foreach ($benefit->serviceDeliveries as $serviceDelivery) {
-        if ($serviceDelivery->benefitQuantity != "") {
-            ?>
-                                    <li>
-            <?php
-            if ($serviceDelivery->quantityQualifier != '') {
-                ?>
-                                            <span> <?php echo text($serviceDelivery->benefitQuantity); ?></span> <span><?php echo text($serviceDelivery->quantityQualifierDesc);  ?></span>
-                <?php
-            }
-            if ($serviceDelivery->sampleSelectionModulus != '') {
-                ?>
-                                        <?php echo text($serviceDelivery->sampleSelectionModulus); ?>
-                                            <span> <?php echo text($serviceDelivery->quantityQualifierDesc); ?></span> <?php echo xlt("per") ?> <span><?php  echo text($serviceDelivery->measurementCodeDesc);  ?></span>
-                                    <?php
-            }
-                                                            echo text($serviceDelivery->periodCount); ?> <?php echo text($serviceDelivery->timePeriodDesc);
-if ($serviceDelivery->frequencyCode != '') {
-    if ($serviceDelivery->FrequencyCodeDesc != '') {
+    foreach ($serviceDeliveries as $serviceDelivery) {
+        if (!is_object($serviceDelivery)) {
+            continue;
+        }
+        $benefitQuantity = $str($serviceDelivery, 'benefitQuantity');
+        if ($benefitQuantity === '') {
+            continue;
+        }
+        $quantityQualifier = $str($serviceDelivery, 'quantityQualifier');
+        $quantityQualifierDesc = $str($serviceDelivery, 'quantityQualifierDesc');
+        $sampleSelectionModulus = $str($serviceDelivery, 'sampleSelectionModulus');
+        $measurementCodeDesc = $str($serviceDelivery, 'measurementCodeDesc');
+        $periodCount = $str($serviceDelivery, 'periodCount');
+        $timePeriodDesc = $str($serviceDelivery, 'timePeriodDesc');
+        $frequencyCode = $str($serviceDelivery, 'frequencyCode');
+        $frequencyCodeDesc = $str($serviceDelivery, 'FrequencyCodeDesc');
+        $patternTimeCodeDesc = $str($serviceDelivery, 'patternTimeCodeDesc');
         ?>
-                                                <span> <?php echo text($serviceDelivery->FrequencyCodeDesc); ?></span> <span><?php echo text($serviceDelivery->patternTimeCodeDesc); ?> </span>
+                                    <li>
         <?php
-    }
-}
-?>
-                                    </li>
+        if ($quantityQualifier !== '') {
+            ?>
+                                            <span> <?php echo text($benefitQuantity); ?></span> <span><?php echo text($quantityQualifierDesc); ?></span>
             <?php
         }
-
-        ?>
-
+        if ($sampleSelectionModulus !== '') {
+            ?>
+                                        <?php echo text($sampleSelectionModulus); ?>
+                                            <span> <?php echo text($quantityQualifierDesc); ?></span> <?php echo xlt("per") ?> <span><?php echo text($measurementCodeDesc); ?></span>
+                                    <?php
+        }
+        echo text($periodCount); ?> <?php echo text($timePeriodDesc);
+if ($frequencyCode !== '' && $frequencyCodeDesc !== '') { ?>
+                                                <span> <?php echo text($frequencyCodeDesc); ?></span> <span><?php echo text($patternTimeCodeDesc); ?> </span>
+        <?php } ?>
+                                    </li>
         <?php
     }
     ?>
@@ -60,6 +78,3 @@ if ($serviceDelivery->frequencyCode != '') {
             </div>
         </div>
     </div>
-    <?php
-}
-?>

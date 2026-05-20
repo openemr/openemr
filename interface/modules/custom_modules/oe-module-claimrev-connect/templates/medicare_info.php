@@ -10,11 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
     use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 /** @var \stdClass $eligibilityData */
 
-if (property_exists($eligibilityData, 'medicarePartADate')) {
+if (property_exists($eligibilityData, 'medicarePartADate') && is_object($eligibilityData->medicarePartADate)) {
     if (property_exists($eligibilityData->medicarePartADate, 'startDate')) {
         PrintProperty::displayDateProperty("Medicare Part A Start Date:", $eligibilityData->medicarePartADate->startDate);
     }
@@ -22,7 +24,7 @@ if (property_exists($eligibilityData, 'medicarePartADate')) {
         PrintProperty::displayDateProperty("Medicare Part A End Date:", $eligibilityData->medicarePartADate->endDate);
     }
 }
-if (property_exists($eligibilityData, 'medicarePartBDate')) {
+if (property_exists($eligibilityData, 'medicarePartBDate') && is_object($eligibilityData->medicarePartBDate)) {
     if (property_exists($eligibilityData->medicarePartBDate, 'startDate')) {
         PrintProperty::displayDateProperty("Medicare Part B Start Date:", $eligibilityData->medicarePartBDate->startDate);
     }
@@ -46,6 +48,6 @@ if (property_exists($eligibilityData, 'medicareSupplementalPlanName')) {
 if (property_exists($eligibilityData, 'qualifiedMedicareBeneficiary')) {
     PrintProperty::displayProperty("Qualified Medicare Beneficiary", $eligibilityData->qualifiedMedicareBeneficiary);
 }
-if (property_exists($eligibilityData, 'qualifiedMedicareBeneficiary')) {
+if (property_exists($eligibilityData, 'railroadMedicareBeneficiary')) {
     PrintProperty::displayProperty("Railroad Medicare Beneficiary", $eligibilityData->railroadMedicareBeneficiary);
 }

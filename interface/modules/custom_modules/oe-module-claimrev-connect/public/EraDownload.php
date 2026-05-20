@@ -13,12 +13,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 require_once "../../../../globals.php";
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
 use OpenEMR\Modules\ClaimRevConnector\EraPage;
+use OpenEMR\Modules\ClaimRevConnector\ModuleInput;
 
 if (!AclMain::aclCheckCore('acct', 'bill')) {
     AccessDeniedHelper::denyWithTemplate(
@@ -27,18 +30,24 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     );
 }
 
-$rawEraId = $_GET['eraId'] ?? null;
-$eraId = is_string($rawEraId) ? $rawEraId : '';
+$eraId = ModuleInput::getString('eraId');
 
+$fileData = false;
+$errorStatus = 0;
+$errorMessage = '';
 try {
     $fileData = EraPage::downloadEra($eraId);
 } catch (\InvalidArgumentException) {
-    http_response_code(400);
-    echo xlt('Invalid ERA ID format');
-    exit;
+    $errorStatus = 400;
+    $errorMessage = xl('Invalid ERA ID format');
 } catch (ClaimRevApiException) {
-    http_response_code(500);
-    echo xlt('Failed to download ERA file. Please try again later.');
+    $errorStatus = 500;
+    $errorMessage = xl('Failed to download ERA file. Please try again later.');
+}
+
+if ($errorStatus !== 0) {
+    http_response_code($errorStatus);
+    echo text($errorMessage);
     exit;
 }
 

@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 class ClaimSearch
@@ -23,11 +25,7 @@ class ClaimSearch
      */
     public static function search(object $search): array|false
     {
-        try {
-            $api = ClaimRevApi::makeFromGlobals();
-            return $api->searchClaims($search);
-        } catch (ClaimRevException) {
-            return false;
-        }
+        $api = ClaimRevApi::makeFromGlobals();
+        return $api->searchClaims($search);
     }
 }

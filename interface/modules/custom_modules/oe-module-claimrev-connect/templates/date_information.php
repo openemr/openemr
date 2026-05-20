@@ -12,8 +12,21 @@
 
 /** @var \stdClass $benefit */
 
-if ($benefit->dates != null && $benefit->dates) {
-    ?>
+declare(strict_types=1);
+
+$dates = property_exists($benefit, 'dates') && is_iterable($benefit->dates) ? $benefit->dates : null;
+if ($dates === null) {
+    return;
+}
+
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
+    }
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+?>
         <div class="row">
             <div class="col">
                 <div class="card">
@@ -24,14 +37,17 @@ if ($benefit->dates != null && $benefit->dates) {
                                 <ul>
                                     <li>
     <?php
-    foreach ($benefit->dates as $dtp) {
+    foreach ($dates as $dtp) {
+        if (!is_object($dtp)) {
+            continue;
+        }
         ?>
                                             <div class="row">
                                                 <div class="col">
-        <?php echo text($dtp->dateDescription) ?>
+        <?php echo text($str($dtp, 'dateDescription')); ?>
                                                 </div>
                                                 <div class="col">
-        <?php echo xlt("Start"); ?>: <?php echo text(substr((string) $dtp->startDate, 0, 10));  ?> <?php echo xlt("End"); ?>: <?php echo text(substr((string) $dtp->endDate, 0, 10)); ?>
+        <?php echo xlt("Start"); ?>: <?php echo text(substr($str($dtp, 'startDate'), 0, 10)); ?> <?php echo xlt("End"); ?>: <?php echo text(substr($str($dtp, 'endDate'), 0, 10)); ?>
                                                 </div>
                                             </div>
         <?php
@@ -45,6 +61,3 @@ if ($benefit->dates != null && $benefit->dates) {
                 </div>
             </div>
         </div>
-    <?php
-}
-?>

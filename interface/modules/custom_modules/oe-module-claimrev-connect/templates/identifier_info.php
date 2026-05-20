@@ -12,8 +12,21 @@
 
 /** @var \stdClass $benefit */
 
-if ($benefit->identifiers != null && $benefit->identifiers) {
-    ?>
+declare(strict_types=1);
+
+$identifiers = property_exists($benefit, 'identifiers') && is_iterable($benefit->identifiers) ? $benefit->identifiers : null;
+if ($identifiers === null) {
+    return;
+}
+
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
+    }
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+?>
     <div class="row">
         <div class="col">
             <div class="card">
@@ -24,17 +37,20 @@ if ($benefit->identifiers != null && $benefit->identifiers) {
                             <ul>
                                 <li>
                                     <?php
-                                    foreach ($benefit->identifiers as $ident) {
+                                    foreach ($identifiers as $ident) {
+                                        if (!is_object($ident)) {
+                                            continue;
+                                        }
                                         ?>
                                             <div class="row">
                                                 <div class="col">
-                                                <?php echo text($ident->referenceQualifierDesc) ?>
+                                                <?php echo text($str($ident, 'referenceQualifierDesc')); ?>
                                                 </div>
                                                 <div class="col">
-                                                <?php echo text($ident->referenceValue) ?>
+                                                <?php echo text($str($ident, 'referenceValue')); ?>
                                                 </div>
                                                 <div class="col">
-                                                <?php echo text($ident->referenceDesc) ?>
+                                                <?php echo text($str($ident, 'referenceDesc')); ?>
                                                 </div>
                                             </div>
 
@@ -50,6 +66,3 @@ if ($benefit->identifiers != null && $benefit->identifiers) {
             </div>
         </div>
     </div>
-    <?php
-}
-?>

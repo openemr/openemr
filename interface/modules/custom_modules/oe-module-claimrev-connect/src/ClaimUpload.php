@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
@@ -26,13 +28,14 @@ class ClaimUpload extends BaseService
     public const STATUS_LOGIN_ERROR = 'login-error';
     public const STATUS_CHDIR_ERROR = 'chdir-error';
     public const STATUS_IN_PROGRESS = 'in-progress';
-    public const STATUS_UPLOAD_ERRROR = 'upload-error';
+    public const STATUS_UPLOAD_ERROR = 'upload-error';
     public const STATUS_SUCCESS = 'success';
 
     public const TABLE_NAME = 'x12_remote_tracker';
 
 
-    protected static $x12_partner_field_keys = [
+    /** @var array<string, string> */
+    protected static array $x12_partner_field_keys = [
         'x12_sftp_host' => 'X12 SFTP Host',
         'x12_sftp_port' => 'X12 SFTP Port',
         'x12_sftp_login' => 'X12 SFTP Login',
@@ -45,7 +48,8 @@ class ClaimUpload extends BaseService
         P.name, P.id AS x12_partner_id, P.x12_sftp_host, P.x12_sftp_port, P.x12_sftp_login, P.x12_sftp_pass,
         P.x12_sftp_remote_dir, P.x12_sftp_local_dir FROM x12_remote_tracker R";
 
-    protected $validationMessages = [];
+    /** @var list<string> */
+    protected array $validationMessages = [];
 
     public function __construct()
     {
@@ -96,7 +100,7 @@ class ClaimUpload extends BaseService
             try {
                 $api->uploadClaimFile($claim_file_contents, $x12_remoteFilename);
             } catch (ClaimRevApiException) {
-                $x12_remote['status'] = self::STATUS_UPLOAD_ERRROR;
+                $x12_remote['status'] = self::STATUS_UPLOAD_ERROR;
                 $x12_remote['messages'] = 'Could not upload file.';
                 $remoteTracker->update($x12_remote);
                 continue;

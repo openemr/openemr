@@ -12,16 +12,34 @@
 
 /** @var \stdClass $benefit */
 
-if ($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos) {
-    ?>
+declare(strict_types=1);
+
+$additionalInfos = property_exists($benefit, 'benefitAdditionalInfos') && is_iterable($benefit->benefitAdditionalInfos) ? $benefit->benefitAdditionalInfos : null;
+if ($additionalInfos === null) {
+    return;
+}
+
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
+    }
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+?>
     <div class="row">
         <div class="col">
             <div class="card">
                 <div class="card-body">
                     <h6><?php echo xlt("Eligibility or Benefit Additional Information"); ?></h6>
     <?php
-    foreach ($benefit->benefitAdditionalInfos as $ba) {
-        if ($ba->codeListQualifier != "") {
+    foreach ($additionalInfos as $ba) {
+        if (!is_object($ba)) {
+            continue;
+        }
+        $codeListQualifier = $str($ba, 'codeListQualifier');
+        $messageText = $str($ba, 'messageText');
+        if ($codeListQualifier !== '') {
             ?>
                             <dl class="row">
                                 <dt class="col">
@@ -29,19 +47,19 @@ if ($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos
 
                                 </dt>
                                 <dd class="col">
-                    <?php echo text($ba->codeListQualifier);?> <?php echo text($ba->industryCode);?> <?php echo text($ba->categoryCode); ?>
+                    <?php echo text($codeListQualifier); ?> <?php echo text($str($ba, 'industryCode')); ?> <?php echo text($str($ba, 'categoryCode')); ?>
                                 </dd>
                             <dl>
             <?php
         }
-        if ($ba->messageText != "") {
+        if ($messageText !== '') {
             ?>
                             <dl class="row">
                             <dt class="col">
                 <?php echo xlt("Message"); ?>
                             </dt>
                             <dd class="col">
-                <?php echo text($ba->messageText);?>
+                <?php echo text($messageText); ?>
                             </dd>
                         <dl>
             <?php
@@ -54,6 +72,3 @@ if ($benefit->benefitAdditionalInfos != null && $benefit->benefitAdditionalInfos
             </div>
         </div>
     </div>
-
-    <?php
-}

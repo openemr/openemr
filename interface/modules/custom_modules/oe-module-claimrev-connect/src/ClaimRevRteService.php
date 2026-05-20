@@ -10,23 +10,33 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 
 class ClaimRevRteService
 {
-    public static function createEligibilityFromAppointment($eid)
+    public static function createEligibilityFromAppointment(int|string $eid): void
     {
-        $row = EligibilityData::getPatientIdFromAppointment($eid);
-        if ($row != null) {
-            $pid = $row["pc_pid"];
-            $appointmentDate = $row["appointmentDate"];
-            $facilityId = $row["facilityId"];
-            $providerId = $row["providerId"];
-
-            $requestObjects = EligibilityObjectCreator::buildObject($pid, "", $appointmentDate, $facilityId, $providerId);
-            EligibilityObjectCreator::saveToDatabase($requestObjects, $pid);
+        $row = EligibilityData::getPatientIdFromAppointment((string) $eid);
+        if ($row === null) {
+            return;
         }
+
+        $pid = $row['pc_pid'];
+        $appointmentDate = $row['appointmentDate'];
+        $facilityId = $row['facilityId'];
+        $providerId = $row['providerId'];
+
+        $requestObjects = EligibilityObjectCreator::buildObject(
+            $pid,
+            "",
+            $appointmentDate !== '' ? $appointmentDate : null,
+            $facilityId !== 0 ? $facilityId : null,
+            $providerId !== 0 ? $providerId : null,
+        );
+        EligibilityObjectCreator::saveToDatabase($requestObjects, $pid);
     }
 }

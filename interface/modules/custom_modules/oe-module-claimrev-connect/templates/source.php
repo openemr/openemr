@@ -10,8 +10,20 @@
 
 /** @var \stdClass|null $source */
 
-if ($source != null) {
-    ?>
+declare(strict_types=1);
+
+if ($source === null) {
+    return;
+}
+
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
+    }
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+?>
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title"> <?php echo xlt("Payer Information"); ?></h5>
@@ -20,16 +32,14 @@ if ($source != null) {
                     <?php echo xlt("Payer Name"); ?>
                     </div>
                     <div class="col">
-                    <?php echo text($source->lastOrganizationName) ?>
+                    <?php echo text($str($source, 'lastOrganizationName')); ?>
                     </div>
                     <div class="col">
                     <?php echo xlt("Payer ID"); ?>
                     </div>
                     <div class="col">
-                    <?php echo text($source->identifier) ?>
+                    <?php echo text($str($source, 'identifier')); ?>
                     </div>
                 </div>
             </div>
         </div>
-    <?php
-}

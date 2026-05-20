@@ -10,39 +10,40 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 /** @var \stdClass $eligibilityData */
 
-if (property_exists($eligibilityData, 'deductibleReleaseReason')) {
-    PrintProperty::displayProperty("Deductible Release Reason:", $eligibilityData->deductibleReleaseReason);
-}
-if (property_exists($eligibilityData, 'deductible')) {
-    PrintProperty::displayProperty("Deductible:", $eligibilityData->deductible);
-}
-if (property_exists($eligibilityData, 'deductibleRemaining')) {
-    PrintProperty::displayProperty("Deductible Remaining:", $eligibilityData->deductibleRemaining);
-}
-if (property_exists($eligibilityData, 'outOfPocket')) {
-    PrintProperty::displayProperty("Out Of Pocket:", $eligibilityData->outOfPocket);
-}
-if (property_exists($eligibilityData, 'outOfPocketRemaining')) {
-    PrintProperty::displayProperty("Out Of Pocket Remaining:", $eligibilityData->outOfPocketRemaining);
-}
-if (property_exists($eligibilityData, 'lifetimeLimit')) {
-    PrintProperty::displayProperty("Lifetime Limit:", $eligibilityData->lifetimeLimit);
-}
-if (property_exists($eligibilityData, 'lifetimeLimitRemaining')) {
-    PrintProperty::displayProperty("Lifetime Limit Remaining:", $eligibilityData->lifetimeLimitRemaining);
-}
-if (property_exists($eligibilityData, 'spendDownAmount')) {
-    PrintProperty::displayProperty("Spend Down Amount:", $eligibilityData->spendDownAmount);
-}
-if (property_exists($eligibilityData, 'deductibleManagementPending')) {
-    PrintProperty::displayProperty("Management Pending:", $eligibilityData->deductibleManagementPending);
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
+    }
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+
+foreach (
+    [
+        'deductibleReleaseReason' => 'Deductible Release Reason:',
+        'deductible' => 'Deductible:',
+        'deductibleRemaining' => 'Deductible Remaining:',
+        'outOfPocket' => 'Out Of Pocket:',
+        'outOfPocketRemaining' => 'Out Of Pocket Remaining:',
+        'lifetimeLimit' => 'Lifetime Limit:',
+        'lifetimeLimitRemaining' => 'Lifetime Limit Remaining:',
+        'spendDownAmount' => 'Spend Down Amount:',
+        'deductibleManagementPending' => 'Management Pending:',
+    ] as $field => $label
+) {
+    if (property_exists($eligibilityData, $field)) {
+        PrintProperty::displayProperty($label, $eligibilityData->$field);
+    }
 }
 
-if (property_exists($eligibilityData, 'deductibles')) {
+$deductibles = property_exists($eligibilityData, 'deductibles') && is_iterable($eligibilityData->deductibles) ? $eligibilityData->deductibles : null;
+if ($deductibles !== null) {
     ?>
         <table class="table">
             <thead>
@@ -57,17 +58,20 @@ if (property_exists($eligibilityData, 'deductibles')) {
             </thead>
             <tbody>
             <?php
-            foreach ($eligibilityData->deductibles as $deductible) {
+            foreach ($deductibles as $deductible) {
+                if (!is_object($deductible)) {
+                    continue;
+                }
                 ?>
                         <tr>
-                            <td> <?php echo text($deductible->serviceTypeDescription) ?> (<?php echo text($deductible->serviceTypeCode) ?>)</td>
-                            <td> <?php echo text($deductible->coverageLevelDescription) ?> (<?php echo text($deductible->coverageLevelCode) ?>)</td>
-                            <td> <?php echo text($deductible->insuranceTypeDescription) ?> (<?php echo text($deductible->insuranceTypeCode) ?>)</td>
-                            <td> <?php echo text($deductible->inPlanNetwork) ?></td>
-                            <td> <?php echo text($deductible->annualAmount) ?></td>
-                            <td> <?php echo text($deductible->episodeAmount) ?></td>
-                            <td> <?php echo text($deductible->remainingAmount) ?></td>
-                            <td> <?php echo text($deductible->planName) ?></td>
+                            <td> <?php echo text($str($deductible, 'serviceTypeDescription')); ?> (<?php echo text($str($deductible, 'serviceTypeCode')); ?>)</td>
+                            <td> <?php echo text($str($deductible, 'coverageLevelDescription')); ?> (<?php echo text($str($deductible, 'coverageLevelCode')); ?>)</td>
+                            <td> <?php echo text($str($deductible, 'insuranceTypeDescription')); ?> (<?php echo text($str($deductible, 'insuranceTypeCode')); ?>)</td>
+                            <td> <?php echo text($str($deductible, 'inPlanNetwork')); ?></td>
+                            <td> <?php echo text($str($deductible, 'annualAmount')); ?></td>
+                            <td> <?php echo text($str($deductible, 'episodeAmount')); ?></td>
+                            <td> <?php echo text($str($deductible, 'remainingAmount')); ?></td>
+                            <td> <?php echo text($str($deductible, 'planName')); ?></td>
                         </tr>
                 <?php
             }
@@ -76,4 +80,3 @@ if (property_exists($eligibilityData, 'deductibles')) {
         </table>
     <?php
 }
-?>

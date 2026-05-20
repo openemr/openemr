@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
@@ -20,26 +22,38 @@ use OpenEMR\Modules\ClaimRevConnector\EraSearch;
 
 class EraPage
 {
-    public static function searchEras($postData)
+    /**
+     * @param array{startDate?: string, endDate?: string, downloadStatus?: int|string} $postData
+     * @return list<\stdClass>|null
+     */
+    public static function searchEras(array $postData): ?array
     {
-        $startDate = $postData['startDate'];
-        $endDate = $postData['endDate'];
-        $fileStatus = $postData['downloadStatus'];
+        $startDate = (string) ($postData['startDate'] ?? '');
+        $endDate = (string) ($postData['endDate'] ?? '');
+        $fileStatus = (int) ($postData['downloadStatus'] ?? 0);
 
         $model = new FileSearchModel();
-        $model->fileStatus = intval($fileStatus);
+        $model->fileStatus = $fileStatus;
         $model->ediType = "835";
-        $model->receivedDateStart = $startDate;
-        $model->receivedDateEnd = $endDate;
+        $model->receivedDateStart = $startDate !== '' ? $startDate : null;
+        $model->receivedDateEnd = $endDate !== '' ? $endDate : null;
 
-        if ($model->receivedDateStart == "") {
-            $model->receivedDateStart = null;
-        }
-        if ($model->receivedDateEnd == "") {
-            $model->receivedDateEnd = null;
-        }
         $data = EraSearch::search($model);
-        return $data;
+        if ($data === false) {
+            return null;
+        }
+
+        $results = [];
+        foreach ($data as $entry) {
+            if ($entry instanceof \stdClass) {
+                $results[] = $entry;
+            } elseif (is_object($entry)) {
+                $results[] = (object) get_object_vars($entry);
+            } elseif (is_array($entry)) {
+                $results[] = (object) $entry;
+            }
+        }
+        return $results;
     }
     /**
      * Download an ERA file by ID.

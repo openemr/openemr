@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 /**
@@ -24,6 +26,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
+use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
+use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
@@ -43,6 +47,7 @@ class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-claimrev-connect";
+    const MODULE_VERSION = "2.1.2";
 
     /**
      * @var GlobalConfig Holds our module global configuration values that can be used throughout the module.
@@ -52,7 +57,7 @@ class Bootstrap
     /**
      * @var string The folder name of the module.  Set dynamically from searching the filesystem.
      */
-    private $moduleDirectoryName;
+    private string $moduleDirectoryName = '';
 
     /**
      * @var \Twig\Environment The twig rendering environment
@@ -81,21 +86,24 @@ class Bootstrap
         $this->moduleDirectoryName = basename(dirname(__DIR__));
 
         // we inject our globals value.
-        $this->globalsConfig = new GlobalConfig($GLOBALS);
+        /** @var array<string, mixed> $globals */
+        $globals = $GLOBALS;
+        $this->globalsConfig = new GlobalConfig($globals);
         $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function subscribeToEvents()
     {
         $this->addGlobalSettings();
+        $this->registerMenuItems();
 
         // we only add the rest of our event listeners and configuration if we have been fully setup and configured
         if ($this->globalsConfig->isConfigured()) {
-            $this->registerMenuItems();
             $this->registerTemplateEvents();
             $this->subscribeToApiEvents();
             $this->registerDemographicsEvents();
             $this->registerEligibilityEvents();
+            $this->registerCalendarIndicators();
         }
     }
 
@@ -127,10 +135,10 @@ class Bootstrap
                 $section,
                 $key,
                 new GlobalSetting(
-                    xlt($config['title']),
+                    text($config['title']),
                     $config['type'],
                     $value,
-                    xlt($config['description']),
+                    text($config['description']),
                     true
                 )
             );
@@ -151,9 +159,30 @@ class Bootstrap
             $this->eventDispatcher->addListener(AppointmentSetEvent::EVENT_HANDLE, $this->renderAppointmentSetEvent(...));
         }
     }
-    public function renderAppointmentSetEvent(AppointmentSetEvent $event)
+    public function renderAppointmentSetEvent(AppointmentSetEvent $event): void
     {
-        ClaimRevRteService::createEligibilityFromAppointment($event->eid);
+        $eid = $event->eid;
+        if (!is_int($eid) && !is_string($eid)) {
+            return;
+        }
+        ClaimRevRteService::createEligibilityFromAppointment($eid);
+    }
+
+    public function registerCalendarIndicators(): void
+    {
+        if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_CALENDAR_INDICATORS)) {
+            $staleAgeRaw = $this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_RESULTS_ELIGIBILITY);
+            $staleAge = is_numeric($staleAgeRaw) && (int) $staleAgeRaw > 0 ? (int) $staleAgeRaw : 30;
+            $indicator = new CalendarEligibilityIndicator($staleAge);
+            $this->eventDispatcher->addListener(
+                CalendarUserGetEventsFilter::EVENT_NAME,
+                $indicator->filterCalendarEvents(...)
+            );
+            $this->eventDispatcher->addListener(
+                StyleFilterEvent::EVENT_NAME,
+                $indicator->addCalendarStylesheet(...)
+            );
+        }
     }
     public function renderEligibilitySection(pRenderEvent $event)
     {
@@ -260,21 +289,9 @@ class Bootstrap
         $menuItem->url = "/interface/modules/custom_modules/oe-module-claimrev-connect/public/index.php";
         $menuItem->children = [];
 
-        /**
-         * This defines the Access Control List properties that are required to use this module.
-         * Several examples are provided
-         */
-        $menuItem->acl_req = [];
-
-        /**
-         * If you would like to restrict this menu to only logged in users who have access to see all user data
-         */
-        //$menuItem->acl_req = ["admin", "users"];
-
-        /**
-         * If you would like to restrict this menu to logged in users who can access patient demographic information
-         */
-        //$menuItem->acl_req = ["users", "demo"];
+        // Match the ACL enforced on every page under public/ so users without
+        // billing access don't see a menu entry that immediately 403s on click.
+        $menuItem->acl_req = ["acct", "bill"];
 
 
         /**
@@ -289,8 +306,10 @@ class Bootstrap
         $menuItem->global_req = [];
 
         foreach ($menu as $item) {
-            if ($item->menu_id == 'modimg') {
-                $item->children[] = $menuItem;
+            if (is_object($item) && property_exists($item, 'menu_id') && $item->menu_id == 'modimg' && property_exists($item, 'children') && is_array($item->children)) {
+                $children = $item->children;
+                $children[] = $menuItem;
+                $item->children = $children;
                 break;
             }
         }
@@ -342,7 +361,7 @@ class Bootstrap
 
     private function getPublicPath()
     {
-        return self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+        return self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
     }
 
     private function getAssetPath()

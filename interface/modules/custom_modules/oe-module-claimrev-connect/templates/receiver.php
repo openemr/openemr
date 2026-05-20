@@ -12,14 +12,27 @@
 
 /** @var \stdClass|null $receiver */
 
-if ($receiver != null) {
-     $companyProviderCaption = "Company Name";
-     $companyProviderName = $receiver->lastOrganizationName;
-    if ($receiver->entityIdentifierCodeQualifier == "1") {
-         $companyProviderCaption = "Provider Name";
-         $companyProviderName = $receiver->firstName . " " . $receiver->middleName . " " .  $receiver->lastOrganizationName . " " . $receiver->suffix;
+declare(strict_types=1);
+
+if ($receiver === null) {
+    return;
+}
+
+$str = static function (object $o, string $prop): string {
+    if (!property_exists($o, $prop)) {
+        return '';
     }
-    ?>
+    $v = $o->$prop;
+    return is_string($v) ? $v : '';
+};
+
+$companyProviderCaption = "Company Name";
+$companyProviderName = $str($receiver, 'lastOrganizationName');
+if ($str($receiver, 'entityIdentifierCodeQualifier') === '1') {
+    $companyProviderCaption = "Provider Name";
+    $companyProviderName = $str($receiver, 'firstName') . " " . $str($receiver, 'middleName') . " " . $str($receiver, 'lastOrganizationName') . " " . $str($receiver, 'suffix');
+}
+?>
     <div class="card">
         <div class="card-body">
             <h5 class="card-title"><?php echo xlt("Receiver Information"); ?></h5>
@@ -28,17 +41,14 @@ if ($receiver != null) {
                     <?php echo xlt($companyProviderCaption); ?>
                 </div>
                 <div class="col">
-                    <?php echo text($companyProviderName) ?>
+                    <?php echo text($companyProviderName); ?>
                 </div>
                 <div class="col">
                     <?php echo xlt("ID"); ?>
                 </div>
                 <div class="col">
-                    <?php echo text($receiver->identifier) ?>
+                    <?php echo text($str($receiver, 'identifier')); ?>
                 </div>
             </div>
         </div>
     </div>
-     <?php
-}
-?>

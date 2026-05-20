@@ -12,9 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+declare(strict_types=1);
+
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsPayer;
@@ -22,18 +25,38 @@ use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
 
 class EligibilityObjectCreator
 {
-    public static function buildRevenueToolsRequest($pid, $pr, $eventDate = null, $providerId = null, $facilityId = null)
-    {
+    /**
+     * @param int|string                $pid
+     * @param string                    $pr             Mapped payer responsibility code
+     * @param string|null               $eventDate
+     * @param int|string|null           $providerId
+     * @param int|string|null           $facilityId
+     * @param list<int>|null            $productsToRun
+     */
+    public static function buildRevenueToolsRequest(
+        int|string $pid,
+        string $pr,
+        ?string $eventDate = null,
+        int|string|null $providerId = null,
+        int|string|null $facilityId = null,
+        ?array $productsToRun = null,
+    ): RevenueToolsRequest {
         $facilityName = "";
         $facilityState = "";
         $facilityNpi = "";
         $providerNpi = "";
         $providerPinCode = "";
 
-        $useFacility = OEGlobalsBag::getInstance()->get('oe_claimrev_config_use_facility_for_eligibility');
-        $serviceTypeCodes = OEGlobalsBag::getInstance()->get('oe_claimrev_config_service_type_codes');
+        $useFacility = OEGlobalsBag::getInstance()->getBoolean('oe_claimrev_config_use_facility_for_eligibility');
+        $serviceTypeCodesRaw = OEGlobalsBag::getInstance()->getString('oe_claimrev_config_service_type_codes');
+        $serviceTypeCodes = array_values(array_filter(
+            array_map(trim(...), explode(',', $serviceTypeCodesRaw)),
+            static fn(string $code): bool => $code !== '',
+        ));
         $accountNumber = "";
-        $productsToRun = [1];
+        if ($productsToRun === null || $productsToRun === []) {
+            $productsToRun = [1];
+        }
 
 
         $revenueTools = new RevenueToolsRequest();
@@ -41,7 +64,7 @@ class EligibilityObjectCreator
         $revenueTools->accountNumber = $accountNumber;
         $revenueTools->payerResponsibility = $pr;
         $revenueTools->includeCredit = false;
-        $revenueTools->serviceTypeCodes = explode(",", (string) $serviceTypeCodes);
+        $revenueTools->serviceTypeCodes = $serviceTypeCodes === [] ? null : $serviceTypeCodes;
         $revenueTools->productsToRun = $productsToRun;
 
 
@@ -54,113 +77,162 @@ class EligibilityObjectCreator
         }
 
         //only 1 will come back here
-        $patientData = EligibilityData::getPatientData($pid);
+        $patientData = EligibilityData::getPatientData((int) $pid);
 
         if ($patientData != null) {
             if ($facilityId == null) {
-                $facilityId = $patientData['facility_id'];
+                $facilityId = TypeCoerce::asInt($patientData['facility_id'] ?? 0);
             }
-            if ($providerId == null || $providerId < 1) {
-                $providerId = $patientData['providerID'];
+            if ($providerId == null || (int) $providerId < 1) {
+                $providerId = TypeCoerce::asInt($patientData['providerID'] ?? 0);
             }
 
-            $facilityData = EligibilityData::getFacilityData($facilityId);
-            $providerData = EligibilityData::getProviderData($providerId);
+            $facilityData = EligibilityData::getFacilityData((int) $facilityId);
+            $providerData = EligibilityData::getProviderData((int) $providerId);
 
             if ($facilityData != null) {
-                $facilityName = $facilityData['facility_name'];
-                $facilityState = $facilityData['facility_state'];
-                $facilityNpi = $facilityData['facility_npi'];
+                $facilityName = TypeCoerce::asString($facilityData['facility_name'] ?? '');
+                $facilityState = TypeCoerce::asString($facilityData['facility_state'] ?? '');
+                $facilityNpi = TypeCoerce::asString($facilityData['facility_npi'] ?? '');
             }
 
             if ($providerData != null) {
-                $providerPinCode = $providerData['provider_pin'];
-                $providerNpi = $providerData['provider_npi'];
+                $providerPinCode = TypeCoerce::asString($providerData['provider_pin'] ?? '');
+                $providerNpi = TypeCoerce::asString($providerData['provider_npi'] ?? '');
             }
 
             $revenueTools->practiceName = $facilityName;
             $revenueTools->practiceState = $facilityState;
             $revenueTools->npi = $facilityNpi;
 
-            if ($useFacility == false) {
+            if ($useFacility === false) {
                 $revenueTools->npi = $providerNpi;
             }
 
-            $revenueTools->patientFirstName = $patientData['fname'];
-            $revenueTools->patientLastName = $patientData['lname'];
-            $revenueTools->patientGender = $patientData['sex'];
-            $revenueTools->patientDob = $patientData['dob'];
-            $revenueTools->patientSsn = $patientData['ss'];
-            $revenueTools->patientAddress1 = $patientData['street'];
-            $revenueTools->patientCity = $patientData['city'];
-            $revenueTools->patientState = $patientData['state'];
-            $revenueTools->patientZip = $patientData['postal_code'];
-            $revenueTools->patientEmailAddress = $patientData['email'];
+            $revenueTools->patientFirstName = TypeCoerce::asString($patientData['fname'] ?? '');
+            $revenueTools->patientLastName = TypeCoerce::asString($patientData['lname'] ?? '');
+            $revenueTools->patientGender = TypeCoerce::asString($patientData['sex'] ?? '');
+            $revenueTools->patientDob = TypeCoerce::asString($patientData['dob'] ?? '');
+            $revenueTools->patientSsn = TypeCoerce::asString($patientData['ss'] ?? '');
+            $revenueTools->patientAddress1 = TypeCoerce::asString($patientData['street'] ?? '');
+            $revenueTools->patientCity = TypeCoerce::asString($patientData['city'] ?? '');
+            $revenueTools->patientState = TypeCoerce::asString($patientData['state'] ?? '');
+            $revenueTools->patientZip = TypeCoerce::asString($patientData['postal_code'] ?? '');
+            $revenueTools->patientEmailAddress = TypeCoerce::asString($patientData['email'] ?? '');
 
             $revenueTools->pinCode = $providerPinCode;
         }
         return $revenueTools;
     }
-    public static function buildObject($pid, $payer_responsibility, $eventDate = null, $facilityId = null, $providerId = null)
-    {
+    /**
+     * @param int|string                $pid
+     * @param string                    $payer_responsibility
+     * @param string|null               $eventDate
+     * @param int|string|null           $facilityId
+     * @param int|string|null           $providerId
+     * @param list<int>|null            $productsToRun
+     * @return list<RevenueToolsRequest>
+     */
+    public static function buildObject(
+        int|string $pid,
+        string $payer_responsibility,
+        ?string $eventDate = null,
+        int|string|null $facilityId = null,
+        int|string|null $providerId = null,
+        ?array $productsToRun = null,
+    ): array {
         $results = [];
-        $resultSubscribers = EligibilityData::getSubscriberData($pid, $payer_responsibility);
+        $resultSubscribers = EligibilityData::getSubscriberData((int) $pid, $payer_responsibility);
+        // Null productsToRun defaults to eligibility (see buildRevenueToolsRequest).
+        $hasEligibility = $productsToRun === null || in_array(1, $productsToRun, true);
+        $hasMbiFinder = $productsToRun !== null && in_array(5, $productsToRun, true);
+
+        // Coverage Discovery, Demographics, and MBI Finder don't need an
+        // insurance row — they query the payer using patient demographics.
+        // When the patient has no insurance and the caller isn't asking for
+        // Eligibility, build a single request from patient data alone.
+        if ($resultSubscribers === [] && !$hasEligibility) {
+            $pr = ValueMapping::mapPayerResponsibility($payer_responsibility);
+            $results[] = EligibilityObjectCreator::buildRevenueToolsRequest($pid, $pr, $eventDate, $providerId, $facilityId, $productsToRun);
+            return $results;
+        }
+
         foreach ($resultSubscribers as $subscriberRow) {
-            $payers = [];
-            $pr = ValueMapping::mapPayerResponsibility($subscriberRow['type']);
-            $revenueTools = EligibilityObjectCreator::buildRevenueToolsRequest($pid, $pr, $eventDate, $providerId, $facilityId);
-            $payer = new RevenueToolsPayer();
-            $payer->payerNumber = $subscriberRow['payerId'];
-            $payer->payerName = $subscriberRow['payer_name'];
-            $payer->subscriberNumber = $subscriberRow['policy_number'];
-            $revenueTools->subscriberFirstName = $subscriberRow['subscriber_fname'];
-            $revenueTools->subscriberLastName = $subscriberRow['subscriber_lname'];
-            if (!Utilities::isDateEmpty($subscriberRow['subscriber_dob'])) {
-                $revenueTools->subscriberDob = $subscriberRow['subscriber_dob'];
+            $pr = ValueMapping::mapPayerResponsibility(TypeCoerce::asString($subscriberRow['type'] ?? ''));
+            $revenueTools = EligibilityObjectCreator::buildRevenueToolsRequest($pid, $pr, $eventDate, $providerId, $facilityId, $productsToRun);
+            $subscriberNumber = TypeCoerce::asString($subscriberRow['policy_number'] ?? '');
+            $revenueTools->subscriberFirstName = TypeCoerce::asString($subscriberRow['subscriber_fname'] ?? '');
+            $revenueTools->subscriberLastName = TypeCoerce::asString($subscriberRow['subscriber_lname'] ?? '');
+            $subscriberDob = TypeCoerce::asString($subscriberRow['subscriber_dob'] ?? '');
+            if (!Utilities::isDateEmpty($subscriberDob)) {
+                $revenueTools->subscriberDob = $subscriberDob;
             }
 
-            array_push($payers, $payer);
-            $revenueTools->payers = $payers;
-            array_push($results, $revenueTools);
+            if ($hasEligibility) {
+                $payer = new RevenueToolsPayer();
+                $payer->payerNumber = TypeCoerce::asString($subscriberRow['payerId'] ?? '');
+                $payer->payerName = TypeCoerce::asString($subscriberRow['payer_name'] ?? '');
+                $payer->subscriberNumber = $subscriberNumber;
+                $revenueTools->payers = [$payer];
+            }
+
+            // MBI Finder reads the subscriber id from the top-level field; the
+            // payers array is intentionally omitted for non-eligibility products.
+            if ($hasMbiFinder) {
+                $revenueTools->subscriberId = $subscriberNumber;
+            }
+
+            $results[] = $revenueTools;
         }
 
         return $results;
     }
 
-    public static function saveSingleToDatabase($req, $pid)
+    /**
+     * @param int|string $pid
+     */
+    public static function saveSingleToDatabase(RevenueToolsRequest $req, int|string $pid): void
     {
+        // Symfony ParameterBag::getInt() throws on non-numeric values (incl. empty
+        // string), and the global comes from a config screen that defaults to ''.
+        // Read as string and coerce so an unset value falls back to 0.
+        $stale_age_raw = OEGlobalsBag::getInstance()->getString('oe_claimrev_eligibility_results_age', '0');
+        $stale_age = is_numeric($stale_age_raw) ? (int) $stale_age_raw : 0;
 
-        $stale_age = OEGlobalsBag::getInstance()->get('oe_claimrev_eligibility_results_age');
-        //status of re-check if results are still waiting on claimrev site
+        // If the existing record is too old or in a non-terminal state, drop
+        // it so the new one can take over.  We don't care about successful
+        // statuses — those should not be replaced.
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? "
+            . "AND (datediff(now(),create_date) >= ? or status in('error','waiting','creating') )",
+            [$pid, $req->payerResponsibility, $stale_age]
+        );
 
-        //if it's greater than aged date then lets remove completely from the tables, the new one will handle it. We don't care about statuses
-        $sql = "DELETE FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? AND (datediff(now(),create_date) >= ? or status in('error','waiting','creating') ) ";
-        $sqlarr = [$pid,$req->payerResponsibility, $stale_age];
-        $result = sqlStatement($sql, $sqlarr);
+        $existing = QueryUtils::fetchRecords(
+            "SELECT id FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ?",
+            [$pid, $req->payerResponsibility]
+        );
+        if ($existing === []) {
+            $newId = QueryUtils::sqlInsert(
+                "INSERT INTO mod_claimrev_eligibility (pid,payer_responsibility,status,create_date) VALUES(?,?,?,NOW())",
+                [$pid, $req->payerResponsibility, "creating"]
+            );
 
-        $sql = "SELECT * FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ?";
-        $sqlarr = [$pid,$req->payerResponsibility];
-        $result = sqlStatement($sql, $sqlarr);
-        if (sqlNumRows($result) <= 0) {
-            $status = "creating";
-            $sql = "INSERT INTO mod_claimrev_eligibility (pid,payer_responsibility,status,create_date) VALUES(?,?,?,NOW())";
-
-            $sqlarr = [$pid,$req->payerResponsibility,$status];
-            $result = sqlInsert($sql, $sqlarr);
-            $status = "waiting";
-
-            $req->originatingSystemId = strval($result);
-            $json = json_encode($req, true);
-            $sql = "UPDATE mod_claimrev_eligibility SET request_json = ?, status = ? where id = ?";
-            $sqlarr = [$json,$status,$result];
-            sqlStatement($sql, $sqlarr);
+            $req->originatingSystemId = (string) $newId;
+            $json = json_encode($req, JSON_UNESCAPED_SLASHES);
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE mod_claimrev_eligibility SET request_json = ?, status = ? where id = ?",
+                [$json, "waiting", $newId]
+            );
         }
     }
-    public static function saveToDatabase($requests, $pid)
-    {
-        //oe_claimrev_eligibility_results_age
-        //lets check for status for waiting or error and replace the json and reset-status, what to do if inprogress??
 
+    /**
+     * @param list<RevenueToolsRequest> $requests
+     * @param int|string                $pid
+     */
+    public static function saveToDatabase(array $requests, int|string $pid): void
+    {
         foreach ($requests as $req) {
             EligibilityObjectCreator::saveSingleToDatabase($req, $pid);
         }

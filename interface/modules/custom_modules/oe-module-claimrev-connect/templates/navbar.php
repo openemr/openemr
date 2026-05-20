@@ -12,6 +12,8 @@
 
 /** @var string $tab */
 
+declare(strict_types=1);
+
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="#"><?php echo xlt("ClaimRev Connect"); ?> </a>
@@ -34,6 +36,41 @@
                 echo "active";
                                 } ?>">
                 <a class="nav-link" href="era.php"><?php echo xlt("ERAs"); ?></a>
+            </li>
+            <li class="nav-item <?php if ($tab == "payments") {
+                echo "active";
+                                } ?>">
+                <a class="nav-link" href="payment_advice.php"><?php echo xlt("Payment Advice"); ?></a>
+            </li>
+            <li class="nav-item <?php if ($tab == "appointments") {
+                echo "active";
+                                } ?>" >
+                <a class="nav-link" href="appointments.php"><?php echo xlt("Appointments"); ?></a>
+            </li>
+            <li class="nav-item <?php if ($tab == "reconciliation") {
+                echo "active";
+                                } ?>">
+                <a class="nav-link" href="reconciliation.php"><?php echo xlt("Reconciliation"); ?></a>
+            </li>
+            <li class="nav-item <?php if ($tab == "patient_balance") {
+                echo "active";
+                                } ?>">
+                <a class="nav-link" href="patient_balance.php"><?php echo xlt("Patient Balance"); ?></a>
+            </li>
+            <li class="nav-item <?php if ($tab == "claim_status") {
+                echo "active";
+                                } ?>">
+                <a class="nav-link" href="claim_status.php"><?php echo xlt("Claim Status"); ?></a>
+            </li>
+            <li class="nav-item dropdown <?php if (in_array($tab, ['aging_report', 'denial_analytics', 'recoupment_report'])) {
+                echo "active";
+                                         } ?>">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown"><?php echo xlt("Analytics"); ?></a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item <?php echo ($tab == 'aging_report') ? 'active' : ''; ?>" href="aging_report.php"><?php echo xlt("AR Aging Report"); ?></a>
+                    <a class="dropdown-item <?php echo ($tab == 'denial_analytics') ? 'active' : ''; ?>" href="denial_analytics.php"><?php echo xlt("Denial Analytics"); ?></a>
+                    <a class="dropdown-item <?php echo ($tab == 'recoupment_report') ? 'active' : ''; ?>" href="recoupment_report.php"><?php echo xlt("Recoupment Report"); ?></a>
+                </div>
             </li>
             <li class="nav-item <?php if ($tab == "x12") {
                 echo "active";
