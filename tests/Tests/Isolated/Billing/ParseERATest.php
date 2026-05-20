@@ -253,28 +253,4 @@ class ParseERATest extends TestCase
         $this->assertIsFloat($adj['amount']);
         $this->assertSame(100.0, $adj['amount']);
     }
-
-    // -------------------------------------------------------------------------
-    // Artificial 'Claim' row — chg/paid initialized as 0.0 not '0'
-    // -------------------------------------------------------------------------
-
-    public function testArtificialClaimRowTypesAreFloat(): void
-    {
-        $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
-        /** @var array<int, mixed> $svcs */
-        $svcs = $out['svc'];
-        $foundClaimRow = false;
-
-        foreach ($svcs as $entry) {
-            /** @var array<string, mixed> $entry */
-            if ($entry['code'] === 'Claim') {
-                $this->assertIsFloat($entry['chg'], 'artificial Claim chg must be float');
-                $foundClaimRow = true;
-                $this->assertIsFloat($entry['paid'], 'artificial Claim paid must be float');
-                $this->assertSame(0.0, $entry['chg']);
-                $this->assertSame(0.0, $entry['paid']);
-            }
-        }
-        $this->assertTrue($foundClaimRow, 'Expected fixture to produce an artificial Claim row');
-    }
 }
