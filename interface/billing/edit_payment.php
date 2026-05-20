@@ -22,8 +22,12 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RawPostParser;
+use OpenEMR\Common\Http\RawPostParserException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -54,6 +58,7 @@ $recorder = new Recorder();
 
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim((string) $_POST['DeletePaymentDistributionId']) : '');
         $DeletePaymentDistributionIdArray = explode('_', $DeletePaymentDistributionId);
         $payment_id = $DeletePaymentDistributionIdArray[0];
@@ -86,6 +91,21 @@ if (isset($_POST["mode"])) {
 
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "FinishPayments") {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        // ModifyPayments posts one Payment$CountRow, AdjAmount$CountRow,
+        // etc. set per encounter row. For patients with many encounters this
+        // exceeds PHP's max_input_vars, silently truncating $_POST and
+        // producing a blank page. Re-parse the raw body so all rows survive,
+        // then repopulate $_POST — the per-row code below reads via
+        // formData(), trimPost(), and DistributionInsert(), all of which
+        // pull from the superglobal directly.
+        try {
+            RawPostParser::fromGlobals()->applyToGlobals();
+        } catch (RawPostParserException $e) {
+            ServiceContainer::getLogger()->warning('edit_payment.php: raw POST parse failed', ['exception' => $e]);
+            // Fall through with PHP's truncated $_POST; behaviour matches
+            // the pre-fix state rather than crashing the request.
+        }
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
         //===============================================================================
@@ -619,6 +639,7 @@ $ResultSearchSub = sqlStatement(
         $onclick = empty($payment_id) ? "top.restoreSession();return SavePayment();" : "return false;";
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <?php
             if (!empty($payment_id)) { ?>
             <fieldset>

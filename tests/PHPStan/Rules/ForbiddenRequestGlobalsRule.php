@@ -48,6 +48,7 @@ class ForbiddenRequestGlobalsRule implements Rule
      */
     private const ABSTRACTION_CLASSES = [
         \OpenEMR\Common\Http\HttpRestRequest::class,
+        \OpenEMR\Common\Http\RawPostParser::class,
         \OpenEMR\Core\OEEnvBag::class,
     ];
 
