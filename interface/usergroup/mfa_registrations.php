@@ -47,9 +47,7 @@ $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Delete the indicated MFA instance.
     sqlStatement(
         "DELETE FROM login_mfa_registrations WHERE user_id = ? AND method = ? AND name = ?",

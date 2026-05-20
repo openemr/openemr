@@ -95,7 +95,7 @@ class InstallerController extends AbstractActionController
             $allModules[] = $mod;
         }
 
-        $dir_path = OEGlobalsBag::getInstance()->get('srcdir') . "/../$baseModuleDir$customDir/";
+        $dir_path = OEGlobalsBag::getInstance()->getSrcDir() . "/../$baseModuleDir$customDir/";
         $dp = opendir($dir_path);
         $inDirCustom = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
@@ -104,7 +104,7 @@ class InstallerController extends AbstractActionController
             }
         }
         /* Laminas directory Unregistered scan */
-        $dir_path = OEGlobalsBag::getInstance()->get('srcdir') . "/../$baseModuleDir$zendModDir/module";
+        $dir_path = OEGlobalsBag::getInstance()->getSrcDir() . "/../$baseModuleDir$zendModDir/module";
         $dp = opendir($dir_path);
         $inDirLaminas = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
@@ -266,7 +266,7 @@ class InstallerController extends AbstractActionController
      */
     private function notifyModuleListener($action, $modId, $dirModule, $currentStatus): mixed
     {
-        $modPath = OEGlobalsBag::getInstance()->get('fileroot') . "/" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule;
+        $modPath = OEGlobalsBag::getInstance()->getProjectDir() . "/" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule;
         $moduleClassPath = $modPath . '/ModuleManagerListener.php';
         $className = 'ModuleManagerListener';
         $action = trim((string) $action);
@@ -285,7 +285,7 @@ class InstallerController extends AbstractActionController
         $namespace = $className::getModuleNamespace();
         if (!empty($namespace)) {
             try {
-                $classLoader = new ModulesClassLoader(OEGlobalsBag::getInstance()->get('fileroot'));
+                $classLoader = new ModulesClassLoader(OEGlobalsBag::getInstance()->getProjectDir());
                 $classLoader->registerNamespaceIfNotExists($namespace, $modPath . DIRECTORY_SEPARATOR . 'src');
             } catch (\Throwable $e) {
                 error_log('Error loading namespace: ' . $e->getMessage());
@@ -531,9 +531,9 @@ class InstallerController extends AbstractActionController
     {
         //SQL version of Module
         $dirModule = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
+        $ModulePath = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
         if (!is_dir($ModulePath)) {
-            $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule->modDirectory;
+            $ModulePath = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule->modDirectory;
         }
         $version_of_module = $ModulePath . "/version.php";
         $table_sql = $ModulePath . "/table.sql";
@@ -555,7 +555,7 @@ class InstallerController extends AbstractActionController
      */
     public function getFilesForUpgrade($modDirectory, $sqldir): false|array
     {
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $modDirectory;
+        $ModulePath = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $modDirectory;
         $versions = [];
         $dh = opendir($sqldir);
         if (!$dh) {
@@ -588,13 +588,13 @@ class InstallerController extends AbstractActionController
     public function makeButtonForSqlAction(InstModule $mod)
     {
         $dirModule = $this->InstallerTable->getRegistryEntry($mod->modId, "mod_directory");
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
+        $ModulePath = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
         $sqldir = $ModulePath . "/sql";
         if (!is_dir($sqldir)) {
             $sqldir = $ModulePath;
         }
         if (!is_dir($sqldir)) {
-            $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule->modDirectory;
+            $ModulePath = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule->modDirectory;
             $sqldir = $ModulePath . "/sql";
             if (!is_dir($sqldir)) {
                 $sqldir = $ModulePath;
@@ -628,7 +628,7 @@ class InstallerController extends AbstractActionController
     public function makeButtonForACLAction(InstModule $mod)
     {
         $dirModule = $this->InstallerTable->getRegistryEntry($mod->modId, "mod_directory");
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
+        $ModulePath = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
         $sqldir = $ModulePath . "/acl";
         $mod->acl_action = "";
 
@@ -682,7 +682,7 @@ class InstallerController extends AbstractActionController
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
             $modUri = "custom_modules/";
         }
-        if ($this->InstallerTable->installSQL($modId, $modType, OEGlobalsBag::getInstance()->get('fileroot') . "/" . OEGlobalsBag::getInstance()->get('baseModDir') . $modUri . $dirModule)) {
+        if ($this->InstallerTable->installSQL($modId, $modType, OEGlobalsBag::getInstance()->getProjectDir() . "/" . OEGlobalsBag::getInstance()->get('baseModDir') . $modUri . $dirModule)) {
             $values = [$registryEntry->mod_nick_name, $registryEntry->mod_enc_menu];
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $registryEntry->acl_version;
@@ -705,7 +705,7 @@ class InstallerController extends AbstractActionController
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
             $modUri = "custom_modules/";
         }
-        $modDir = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . $modUri . $Module->modDirectory;
+        $modDir = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . $modUri . $Module->modDirectory;
         $sqlInstallLocation = $modDir . '/sql';
         // if this is a custom module that for some reason doesn't have the SQL in a sql folder...
         if (!file_exists($sqlInstallLocation)) {
@@ -770,7 +770,7 @@ class InstallerController extends AbstractActionController
     public function InstallModuleACL($modId = '')
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
-        $modDir = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
+        $modDir = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
         if (file_exists($modDir . "/acl/acl_setup.php") && empty($modDir->acl_version)) {
             // Pass a variable, so below scripts can not be run on their own
@@ -842,7 +842,7 @@ class InstallerController extends AbstractActionController
         $dirModule = $registryEntry->modDirectory;
         $sqlInstalled = false;
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
-            $fullDirectory = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('customModDir') . "/" . $dirModule;
+            $fullDirectory = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('customModDir') . "/" . $dirModule;
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
             } else {
@@ -850,7 +850,7 @@ class InstallerController extends AbstractActionController
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
             }
         } elseif ($modType == InstModuleTable::MODULE_TYPE_ZEND) {
-            $fullDirectory = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule;
+            $fullDirectory = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule;
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
             } else {
@@ -894,7 +894,7 @@ class InstallerController extends AbstractActionController
     public function UpgradeModuleACL($modId = '')
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
-        $modDir = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
+        $modDir = OEGlobalsBag::getInstance()->getSrcDir() . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
         if (file_exists($modDir . "/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
             // Pass a variable, so below scripts can not be run on their own

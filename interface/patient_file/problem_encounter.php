@@ -51,9 +51,7 @@ $endjs = "";    // holds javascript to write at the end
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $form_pid = $_POST['form_pid'];
     $form_pelist = $_POST['form_pelist'];
@@ -125,7 +123,7 @@ var pselected = new Object();
 var eselected = new Object();
 var keyid = null; // id of currently hilited key, if any
 
-<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {

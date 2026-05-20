@@ -552,10 +552,11 @@ if (isset($_GET["mode"])) {
         }
     }
 }
-// added for form submits from usergroup_admin_add and user_admin.php
-// sjp 12/29/17
+// AJAX form submits from usergroup_admin_add and user_admin.php
+// return the alert message (empty on success) and stop rendering the page
 if (isset($_REQUEST["mode"])) {
-    exit(text(trim($alertmsg)));
+    echo text(trim($alertmsg));
+    return;
 }
 
 $form_inactive = !empty($_POST['form_inactive']);
@@ -595,7 +596,7 @@ function resetCounter(username) {
     request.append("function", "resetUsernameCounter");
     request.append("username", username);
     request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
-    fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
+    fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
         method: 'POST',
         credentials: 'same-origin',
         body: request

@@ -15,9 +15,9 @@
  */
 
 require_once('../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

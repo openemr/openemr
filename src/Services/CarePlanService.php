@@ -91,14 +91,15 @@ class CarePlanService extends BaseService
 
     /**
      * Returns a list of all care plan resources.  Search array can be a simple key => value array which does an exact
-     * match on passed in value.  For more complicated searching @param $search a key => value array
+     * match on passed in value.  For more complicated searching, use a key => value array.
      *
+     * @param array<string, ISearchField|string> $search
      * @param bool   $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
      * @param string $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      * @see CarePlanService::search().
      */
-    public function getAll($search, $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search, $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
             // code to support patient binding
@@ -115,7 +116,7 @@ class CarePlanService extends BaseService
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -128,7 +129,7 @@ class CarePlanService extends BaseService
         return $this->search($newSearch, $isAndCondition);
     }
 
-    public function search($search, $isAndCondition = true): ProcessingResult
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
             $this->populateSurrogateSearchFieldsForUUID($search['uuid'], $search);

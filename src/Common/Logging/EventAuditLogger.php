@@ -23,6 +23,9 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use OpenEMR\Encryption\CipherSuiteInterface;
+use Psr\Clock\ClockInterface;
+use SensitiveParameter;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -82,11 +85,12 @@ class EventAuditLogger
 
         return new self(
             sinks: $sinks,
-            cryptoGen: ServiceContainer::getCrypto(),
+            crypto: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
+            clock: ServiceContainer::getClock(),
         );
     }
 
@@ -95,11 +99,12 @@ class EventAuditLogger
      */
     public function __construct(
         private readonly array $sinks,
-        private readonly CryptoInterface $cryptoGen,
+        private readonly CipherSuiteInterface|CryptoInterface $crypto,
         private readonly bool $shouldEncrypt,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -242,14 +247,15 @@ class EventAuditLogger
             $cols = $params['cols'];
         }
 
-        $date1 = date("Y-m-d H:i:s", time());
-        if (isset($params['sdate']) && $params['sdate'] != "") {
-            $date1 = $params['sdate'];
+        $now = $this->clock->now()->format('Y-m-d H:i:s');
+        $date1 = $params['sdate'] ?? $now;
+        if ($date1 === '') {
+            $date1 = $now;
         }
 
-        $date2 = date("Y-m-d H:i:s", time());
-        if (isset($params['edate']) && $params['edate'] != "") {
-            $date2 = $params['edate'];
+        $date2 = $params['edate'] ?? $now;
+        if ($date2 === '') {
+            $date2 = $now;
         }
 
         $user = "";
@@ -637,11 +643,11 @@ class EventAuditLogger
         }
 
         if ($this->shouldEncrypt) {
-            $comments = $this->cryptoGen->encryptStandard($comments);
+            $comments = $this->encrypt($comments);
             if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->encrypt($api['request_url']);
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->encrypt($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->encrypt($api['response']);
             }
         } else {
             // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
@@ -652,7 +658,7 @@ class EventAuditLogger
         }
 
         // Collect timestamp and if pertinent, collect client cert name
-        $current_datetime = date("Y-m-d H:i:s");
+        $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
         $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.
@@ -799,5 +805,14 @@ class EventAuditLogger
         }
 
         return $event;
+    }
+
+    private function encrypt(#[SensitiveParameter] string $plaintext): string
+    {
+        if ($this->crypto instanceof CipherSuiteInterface) {
+            return $this->crypto->encrypt($plaintext);
+        } else {
+            return $this->crypto->encryptStandard($plaintext);
+        }
     }
 }

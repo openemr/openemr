@@ -22,10 +22,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
-require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
 require_once("$srcdir/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
@@ -554,7 +554,7 @@ function getContent()
                                     $tmp_files_remove[] = $from_file_tmp_web_name;
                                     echo " /><br /><br />";
                                 } else {
-                                    echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') .
+                                    echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() .
                                         "/controller.php?document&retrieve&patient_id=&document_id=" .
                                         attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br /><br />";
                                 }
@@ -625,7 +625,7 @@ function getContent()
                                         if ($extension === '.pdf' || $extension === '.zip') {
                                             echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
                                         } else {
-                                            echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                            echo "<img src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                                         }
                                     }
                                 }
@@ -880,7 +880,7 @@ function getContent()
     } else {
         ?>
         <?php if (!$printable) { ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
         <script>
             const searchBarHeight = document.querySelectorAll('.report_search_bar')[0].clientHeight;
             document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;

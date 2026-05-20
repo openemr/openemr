@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true since the new patient pid is written to the session via setpid() below.
+$sessionAllowWrite = true;
 require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
@@ -23,9 +25,7 @@ use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Validation for non-unique external patient identifier.
 $alertmsg = '';

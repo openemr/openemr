@@ -24,11 +24,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [

@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -38,7 +38,7 @@ class C_FormSOAP extends Controller
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => OEGlobalsBag::getInstance()->get('web_root'),
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
                 "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
                 "data" => $form
             ]
@@ -52,7 +52,7 @@ class C_FormSOAP extends Controller
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => OEGlobalsBag::getInstance()->get('web_root'),
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->getWebRoot(),
                 "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
                 "data" => $form
             ]

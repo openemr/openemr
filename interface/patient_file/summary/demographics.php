@@ -27,6 +27,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true since this script writes disablePreviousNameAdds to the session
+// on every load, alert_notify_pid whenever CDR is enabled, and pid + encounter when ?set_pid is provided.
+$sessionAllowWrite = true;
 require_once("../../globals.php");
 
 require_once("$srcdir/lists.inc.php");
@@ -659,7 +662,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         pid: pid,
                         rule_id: ruleId
                     });
-                    let launchUrl = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/rules/index.php?" + params;
+                    let launchUrl = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/rules/index.php?" + params;
                     e.preventDefault();
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
@@ -1125,7 +1128,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/allergies.html.twig', $viewArgs);
@@ -1149,7 +1152,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'listTouched' => (!empty(getListTouch($pid, 'medical_problem'))) ? true : false,
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
@@ -1171,7 +1174,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'listTouched' => (!empty(getListTouch($pid, 'medication'))) ? true : false,
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medication.html.twig', $viewArgs);
@@ -1219,9 +1222,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
                         $viewArgs['title'] = 'Prescription History';
                         $viewArgs['btnLabel'] = 'Add';
-                        $viewArgs['btnLink'] = OEGlobalsBag::getInstance()->get('webroot') . "/interface/eRx.php?page=compose";
+                        $viewArgs['btnLink'] = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/eRx.php?page=compose";
+                        $viewArgs['linkMethod'] = 'html';
                     } else {
-                        $viewArgs['btnLink'] = "editScripts('" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+                        $viewArgs['btnLink'] = "editScripts('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                         $viewArgs['linkMethod'] = "javascript";
                         $viewArgs['btnClass'] = "iframe";
                     }
@@ -1456,7 +1460,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'btnLabel' => 'Edit',
-                            'btnLink' => OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
+                            'btnLink' => OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
                             'btnCLass' => '',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',

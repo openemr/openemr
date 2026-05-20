@@ -85,7 +85,7 @@ class PortalCard extends CardModel
                 'isPortalEnabled' => isPortalEnabled(),
                 'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
                 'isPortalAllowed' => isPortalAllowed($pid),
-                'portalLoginHref' => OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/summary/create_portallogin.php",
+                'portalLoginHref' => OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . "/interface/patient_file/summary/create_portallogin.php",
                 'isApiAllowed' => isApiAllowed($pid),
                 'areCredentialsCreated' => areCredentialsCreated($pid),
                 'isContactEmail' => isContactEmail($pid),

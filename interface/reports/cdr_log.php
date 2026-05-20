@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 try {
     $request = Request::createFromGlobals();
-    if (empty($request->get('action'))) {
+    if (empty($request->query->get('action'))) {
         $request->query->set('action', 'log!view');
     }
     $controllerRouter = new ControllerRouter();

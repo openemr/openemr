@@ -95,7 +95,7 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         $serviceType = 'voice';
         $loginCred = $this->getRCCredentials($serviceType);
-        $moduleBaseUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-faxsms";
+        $moduleBaseUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
             'clientId' => $loginCred['appKey'],
             'clientSecret' => $loginCred['appSecret'],
@@ -149,7 +149,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => OEGlobalsBag::getInstance()->get('web_root') . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
+            'redirect_link' => OEGlobalsBag::getInstance()->getWebRoot() . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
                 "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
                 "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
             'email' => '',
@@ -225,7 +225,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $defaultUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);

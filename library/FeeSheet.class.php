@@ -574,7 +574,7 @@ class FeeSheet
         }
 
         if ($codetype == 'COPAY') {
-            $li['codetype'] = xl($codetype);
+            $li['codetype'] = xl('COPAY');
             if ($ndc_info) {
                 $li['codetype'] .= " ($ndc_info)";
             }

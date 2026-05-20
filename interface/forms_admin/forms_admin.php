@@ -28,19 +28,13 @@ if (!AclMain::aclCheckCore('admin', 'forms')) {
 }
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     updateRegistered($_GET['id'], "state=1");
 } elseif (!empty($_GET['method']) && ($_GET['method'] == "disable")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     updateRegistered($_GET['id'], "state=0");
 } elseif (!empty($_GET['method']) && ($_GET['method'] == "install_db")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $dir = getRegistryEntry($_GET['id'], "directory");
     if (installSQL("$srcdir/../interface/forms/{$dir['directory']}")) {
         updateRegistered($_GET['id'], "sql_run=1");
@@ -48,9 +42,7 @@ if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
         $err = xl('ERROR: could not open table.sql, broken form?');
     }
 } elseif (!empty($_GET['method']) && ($_GET['method'] == "register")) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     $newRegisteredFormId = registerForm($_GET['name']) or $err = xl('error while registering form!');
     if (empty($err)) {
         // below block of code will insert the patient portal template (if it has not yet already been added) if the
@@ -82,9 +74,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
            <div class="col-12 mt-3">
            <?php
             if (!empty($_POST)) {
-                if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                    CsrfUtils::csrfNotVerified();
-                }
+                CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
                 foreach ($_POST as $key => $val) {
                     if (preg_match('/nickname_(\d+)/', (string) $key, $matches)) {
                         sqlQuery("update registry set nickname = ? where id = ?", [$val, $matches[1]]);
@@ -132,7 +122,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     "select priority, category, nickname, aco_spec from registry where id = ?",
                                     [$registry['id']]
                                 );
-                                $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
+                                $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
                                 ?>
                             <tr>
                                 <td>
@@ -230,9 +220,9 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                    $form_title_file = @file(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/$fname/info.txt");
+                                    $form_title_file = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/$fname/info.txt");
                                     $form_title = $form_title_file ? $form_title_file[0] : $fname;
-                                    $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/" . $fname . "/patient_portal.php");
+                                    $patientPortalCompliant = file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
                                     <?php
                                     echo text(xl_form_title($form_title));

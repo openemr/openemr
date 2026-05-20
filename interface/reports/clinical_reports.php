@@ -31,9 +31,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $comarr = ['allow_sms' => xl('Allow SMS'),'allow_voice' => xl('Allow Voice Message'),'allow_mail' => xl('Allow Mail Message'),'allow_email' => xl('Allow Email')];
@@ -212,7 +210,7 @@ $communication = trim($_POST["communication"] ?? '');
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

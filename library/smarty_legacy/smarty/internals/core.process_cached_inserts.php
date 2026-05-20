@@ -25,7 +25,7 @@ function smarty_core_process_cached_inserts($params, &$smarty)
             $debug_start_time = smarty_core_get_microtime($_params, $smarty);
         }
 
-        $args = unserialize($insert_args[$i]);
+        $args = unserialize($insert_args[$i], ['allowed_classes' => false]);
         $name = $args['name'];
 
         if (isset($args['script'])) {

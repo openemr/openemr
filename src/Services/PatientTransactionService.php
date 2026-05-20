@@ -133,19 +133,23 @@ class PatientTransactionService extends BaseService
 
     public function insert($pid, $data)
     {
-        sqlBeginTrans();
-        $transactionId = $this->insertTransaction($pid, $data);
-        if ($transactionId == false) {
+        try {
+            return QueryUtils::inTransaction(function () use ($pid, $data) {
+                $transactionId = $this->insertTransaction($pid, $data);
+                if ($transactionId == false) {
+                    throw new PatientTransactionInsertFailedException('Failed to insert patient transaction');
+                }
+
+                $lbtDataId = $this->insertTransactionForm($transactionId, $data);
+                if ($lbtDataId == false) {
+                    throw new PatientTransactionInsertFailedException('Failed to insert patient transaction form');
+                }
+
+                return ["id" => $transactionId, "form_id" => $lbtDataId];
+            });
+        } catch (PatientTransactionInsertFailedException) {
             return false;
         }
-
-
-        $lbtDataId = $this->insertTransactionForm($transactionId, $data);
-        if ($lbtDataId == false) {
-            return false;
-        }
-        sqlCommitTrans();
-        return ["id" => $transactionId, "form_id" => $lbtDataId];
     }
 
     public function insertTransaction($pid, $data)
@@ -243,19 +247,19 @@ class PatientTransactionService extends BaseService
         $validFrom = $data["validFrom"];
         $validThrough = $data["validThrough"];
 
-        sqlBeginTrans();
-        $this->updateTransactionForm($tid, 'refer_from', $referById);
-        $this->updateTransactionForm($tid, 'refer_to', $referToId);
-        $this->updateTransactionForm($tid, 'body', $body);
-        $this->updateTransactionForm($tid, 'refer_date', $referralDate);
-        $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
-        $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
-        $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
-        $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
-        $this->updateTransactionForm($tid, 'refer_visits', $visits);
-        $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
-        $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
-        sqlCommitTrans();
+        QueryUtils::inTransaction(function () use ($tid, $referById, $referToId, $body, $referralDate, $referralDiagnosis, $riskLevel, $includeVitals, $authorization, $visits, $validFrom, $validThrough): void {
+            $this->updateTransactionForm($tid, 'refer_from', $referById);
+            $this->updateTransactionForm($tid, 'refer_to', $referToId);
+            $this->updateTransactionForm($tid, 'body', $body);
+            $this->updateTransactionForm($tid, 'refer_date', $referralDate);
+            $this->updateTransactionForm($tid, 'refer_diag', $referralDiagnosis);
+            $this->updateTransactionForm($tid, 'refer_risk_level', $riskLevel);
+            $this->updateTransactionForm($tid, 'refer_vitals', $includeVitals);
+            $this->updateTransactionForm($tid, 'refer_authorization', $authorization);
+            $this->updateTransactionForm($tid, 'refer_visits', $visits);
+            $this->updateTransactionForm($tid, 'refer_validFrom', $validFrom);
+            $this->updateTransactionForm($tid, 'refer_validThrough', $validThrough);
+        });
 
         return $this->getOneFromDb($tid);
     }

@@ -97,9 +97,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $form_pid = $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
@@ -367,7 +365,7 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
     <?php Header::setupHeader(); ?>
 <script>
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
 $(function () {
     var win = top.printLogSetup ? top : opener.top;
@@ -683,14 +681,14 @@ function toencounter(enc, datestr, topframe) {
 <script>
     var mypcc = '1';
 </script>
-    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
 <script>
     document.onclick=HideTheAjaxDivs;
 </script>
 
     <?php Header::setupAssets('topdialog'); ?>
 
-<script src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative(); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
 
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
@@ -712,7 +710,7 @@ $(function() {
         $("#paymentAmount").val(total);
     });
 });
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
         dlgclose();

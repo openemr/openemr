@@ -39,9 +39,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $row = sqlQuery("Select billing_note From patient_data Where pid=?", [$patient_id]);
     if (isset($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $thevalue = trim((string) $_POST['form_note']);
 

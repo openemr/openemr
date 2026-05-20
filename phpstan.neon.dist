@@ -16,6 +16,7 @@ parameters:
   - apis
   - ccdaservice
   - ccr
+  - cli
   - config
   - contrib
   - controller.php
@@ -26,7 +27,6 @@ parameters:
   - interface
   - ippf_upgrade.php
   - library
-  - modules
   - oauth2
   - portal
   - setup.php

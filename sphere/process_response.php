@@ -39,9 +39,7 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     require_once(__DIR__ . "/../interface/globals.php");
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], $session, 'sphere')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, key: 'csrf_token', subject: 'sphere', dieOnFail: true);
 
 if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));

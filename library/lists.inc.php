@@ -85,10 +85,13 @@ $res = sqlStatement(
     [collect_issue_type_category()]
 );
 while ($row = sqlFetchArray($res)) {
+    $pluralStr = is_string($row['plural'] ?? null) ? $row['plural'] : '';
+    $singularStr = is_string($row['singular'] ?? null) ? $row['singular'] : '';
+    $abbrStr = is_string($row['abbreviation'] ?? null) ? $row['abbreviation'] : '';
     $ISSUE_TYPES[$row['type']] = [
-    xl($row['plural']),
-    xl($row['singular']),
-    xl($row['abbreviation']),
+    xl_list_label($pluralStr),
+    xl_list_label($singularStr),
+    xl_list_label($abbrStr),
     $row['style'],
     $row['force_show'],
     $row['aco_spec']];

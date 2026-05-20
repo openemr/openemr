@@ -165,7 +165,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         // Add required id_token claims
         $builder = $builder
             ->permittedFor($accessToken->getClient()->getIdentifier())
-            ->issuedBy($this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('webroot') . "/oauth2/" . $this->session->get('site_id'))
+            ->issuedBy($this->globalsBag->get('site_addr_oath') . $this->globalsBag->getKernel()->getWebRoot() . "/oauth2/" . $this->session->get('site_id'))
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());

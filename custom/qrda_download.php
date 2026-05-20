@@ -31,9 +31,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $qrda_fname = $_GET['qrda_fname'];
 check_file_dir_name($qrda_fname);

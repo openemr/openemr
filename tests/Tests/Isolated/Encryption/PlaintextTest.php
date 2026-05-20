@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Claude <noreply@anthropic.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,7 +25,7 @@ final class PlaintextTest extends TestCase
 
         $plaintext = new Plaintext($data);
 
-        self::assertSame($data, $plaintext->wrapped);
+        self::assertSame($data, $plaintext->bytes);
     }
 
     public function testDebugInfoRedactsContent(): void
@@ -35,8 +35,8 @@ final class PlaintextTest extends TestCase
         $plaintext = new Plaintext($data);
         $debugInfo = $plaintext->__debugInfo();
 
-        self::assertArrayHasKey('wrapped', $debugInfo);
-        self::assertSame('****', $debugInfo['wrapped']);
+        self::assertArrayHasKey('bytes', $debugInfo);
+        self::assertSame('****', $debugInfo['bytes']);
         self::assertStringNotContainsString('secret', print_r($debugInfo, true));
     }
 

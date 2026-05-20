@@ -2398,36 +2398,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(c mixed  Unicode character\\.\\)\\: Unexpected token "mixed", expected variable at offset 64 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(from mixed  The source/sender address\\)\\: Unexpected token "mixed", expected variable at offset 93 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(text mixed  Input text of message\\.\\)\\: Unexpected token "mixed", expected variable at offset 79 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(text mixed  The text content of the message\\)\\: Unexpected token "mixed", expected variable at offset 144 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(to mixed  The destination address\\.\\)\\: Unexpected token "mixed", expected variable at offset 43 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(token mixed  The 16 character voucher number\\.\\)\\: Unexpected token "mixed", expected variable at offset 60 on line 3$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(type audit array params for portal audits
         \\$audit \\= Array\\(\\);
         \\$audit\\[\'patient_id\'\\]\\="";
@@ -3374,16 +3344,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 104 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingProcessor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\<type\\> \\$id\\)\\: Unexpected token "\\<", expected type at offset 334 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(\\<type\\> \\$pid\\)\\: Unexpected token "\\<", expected type at offset 359 on line 8$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(json array \\$options \\["G","P","T"\\], \\["G"\\] or could be legacy string with form "GPT", "G", "012"\\)\\: Unexpected token "array", expected variable at offset 99 on line 4$#',
@@ -4456,59 +4416,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(The text of the office note\\.\\)\\: Unexpected token "text", expected variable at offset 63 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$body New id\\.\\)\\: Unexpected token "\\$body", expected type at offset 103 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 112 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(true/false if the update was successful\\.\\)\\: Unexpected token "/false", expected TOKEN_HORIZONTAL_WS at offset 113 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ONoteService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(@isUuid Whether the code system value represents a unique uuid in the system and should be converted to binary\\)\\: Unexpected token "@isUuid", expected type at offset 118 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/TokenSearchValue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(void\\.\\)\\: Unexpected token "\\.", expected TOKEN_HORIZONTAL_WS at offset 221 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$includeRealpatch bool Include the realpatch\\)\\: Unexpected token "\\$includeRealpatch", expected type at offset 146 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$includeTag bool Include the tag\\)\\: Unexpected token "\\$includeTag", expected type at offset 101 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(void\\.\\)\\: Unexpected token "\\.", expected TOKEN_HORIZONTAL_WS at offset 221 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionServiceInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$includeRealpatch bool Include the realpatch\\)\\: Unexpected token "\\$includeRealpatch", expected type at offset 146 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionServiceInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$includeTag bool Include the tag\\)\\: Unexpected token "\\$includeTag", expected type at offset 101 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionServiceInterface.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(\\$validationResult array\\)\\: Unexpected token "\\$validationResult", expected type at offset 443 on line 10$#',

@@ -539,7 +539,7 @@ function ippf_generate_receipt($patient_id, $encounter = 0): void
 
     <script>
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     $(function () {
         var win = top.printLogSetup ? top : opener.top;
@@ -1502,9 +1502,7 @@ if ($patient_id && $encounter_id) {
 // If the Save button was clicked...
 //
 if (!empty($_POST['form_save']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // On a save, do the following:
     // Flag this form's drug_sales and billing items as billed.
@@ -1839,7 +1837,7 @@ while ($urow = sqlFetchArray($ures)) {
 <script>
     var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
     // This clears tax amounts in preparation for recomputing taxes.
     // TBD: Probably don't need this at all.
@@ -2149,7 +2147,7 @@ while ($urow = sqlFetchArray($ures)) {
             $.ajax({
                 dataType: "json",
                 async: false, // We cannot continue without an answer.
-                url: "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/check_szf_referrals_ajax.php",
+                url: "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/check_szf_referrals_ajax.php",
                 data: {
                     "pid": <?php echo intval($patient_id); ?>,
                     "encounter": <?php echo intval($encounter_id); ?>,
@@ -2689,8 +2687,8 @@ if (!$current_irnumber) {
         </td>
         <td class='text' align='right' colspan='<?php echo $form_num_amount_columns; ?>'>
             <input type='text' name='form_irnumber' size='10' value=''
-                onkeyup='maskkeyup(this,"<?php echo addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>")'
-                onblur='maskblur(this,"<?php echo addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>")'
+                onkeyup='maskkeyup(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
+                onblur='maskblur(this,<?php echo attr(js_escape(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))); ?>)'
         />
         </td>
     </tr>

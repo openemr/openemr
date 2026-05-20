@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Menu;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -48,13 +49,19 @@ class MainMenuRole extends MenuRole
         // Collect the selected menu of user
         $mainMenuRole = $this->getMenuRole();
 
+        // Validate that the menu role filename is a basename only (no path traversal)
+        if ($mainMenuRole !== basename($mainMenuRole) || str_contains($mainMenuRole, '..')) {
+            ServiceContainer::getLogger()->error("Invalid menu role filename rejected", ['filename' => $mainMenuRole]);
+            die("\nInvalid menu role filename.");
+        }
+
         // Load the selected menu
-        if (preg_match("/.json$/", $mainMenuRole)) {
+        if (str_ends_with($mainMenuRole, '.json')) {
             // load custom menu (includes .json in id)
             $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/" . $mainMenuRole));
         } else {
             // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/main/tabs/menu/menus/" . $mainMenuRole . ".json"));
+            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . "/interface/main/tabs/menu/menus/" . $mainMenuRole . ".json"));
         }
 
         // if error, then die and report error
@@ -90,10 +97,12 @@ class MainMenuRole extends MenuRole
             $dHandle = opendir($customMenuDir);
             while (false !== ($menuCustom = readdir($dHandle))) {
                 // Only process files that contain *.json
-                if (preg_match("/.json$/", $menuCustom)) {
+                if (str_ends_with($menuCustom, '.json')) {
                     $selectedTag = ($selected == $menuCustom) ? "selected" : "";
                     $output .= "<option value='" . attr($menuCustom) . "' " . $selectedTag . ">";
-                    // Drop the .json and translate the name
+                    // Drop the .json suffix and translate the name. Custom
+                    // menu filenames are dynamic, hence the @phpstan-ignore.
+                    // @phpstan-ignore argument.type (custom menu filenames are dynamic)
                     $output .= xlt(substr($menuCustom, 0, -5));
                     $output .= "</option>";
                 }
@@ -132,17 +141,18 @@ class MainMenuRole extends MenuRole
         $regrows = getFormsByCategory('1', false);
         foreach ($regrows as $entry) {
             $option_id = $entry['directory'];
-            $title = trim($entry['nickname'] ?? '');
-            if (empty($title)) {
-                $title = $entry['name'];
-            }
-            if ($entry['category'] != $reglastcat) {
+            $nickname = is_string($entry['nickname'] ?? null) ? trim($entry['nickname']) : '';
+            // Preserve the old empty() semantics: '' AND '0' both fall through
+            // to the form's name. (empty('0') returns true.)
+            $title = ($nickname !== '' && $nickname !== '0') ? $nickname : (is_string($entry['name'] ?? null) ? $entry['name'] : '');
+            $category = is_string($entry['category'] ?? null) ? $entry['category'] : '';
+            if ($category != $reglastcat) {
                 // New category. Close out the previous one if it exists.
                 if ($reglastcat) {
                     array_push($menu_list->children, $catEntry);
                 }
                 // Create the new category's object.
-                $reglastcat = $entry['category'];
+                $reglastcat = $category;
                 $catEntry = new \stdClass();
                 $catEntry->label = xl_form_title($reglastcat);
                 $catEntry->icon = 'fa-caret-right';
@@ -183,17 +193,18 @@ class MainMenuRole extends MenuRole
         $regrows = getFormsByCategory('1', true);
         foreach ($regrows as $entry) {
             $option_id = $entry['directory'];
-            $title = trim($entry['nickname'] ?? '');
-            if (empty($title)) {
-                $title = $entry['name'];
-            }
-            if ($entry['category'] != $reglastcat) {
+            $nickname = is_string($entry['nickname'] ?? null) ? trim($entry['nickname']) : '';
+            // Preserve the old empty() semantics: '' AND '0' both fall through
+            // to the form's name. (empty('0') returns true.)
+            $title = ($nickname !== '' && $nickname !== '0') ? $nickname : (is_string($entry['name'] ?? null) ? $entry['name'] : '');
+            $category = is_string($entry['category'] ?? null) ? $entry['category'] : '';
+            if ($category != $reglastcat) {
                 // New category. Close out the previous one if it exists.
                 if ($reglastcat) {
                     array_push($menu_list->children, $catEntry);
                 }
                 // Create the new category's object.
-                $reglastcat = $entry['category'];
+                $reglastcat = $category;
                 $catEntry = new \stdClass();
                 $catEntry->label = xl_form_title($reglastcat);
                 $catEntry->icon = 'fa-caret-right';

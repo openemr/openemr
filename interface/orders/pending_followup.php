@@ -84,9 +84,7 @@ $form_facility  = $_POST['form_facility'];
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     header("Pragma: public");
     header("Expires: 0");
@@ -120,7 +118,7 @@ if ($_POST['form_csvexport']) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -197,9 +195,7 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $sqlBindArray = [];
 

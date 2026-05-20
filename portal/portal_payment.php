@@ -102,6 +102,10 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
+
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
     $form_pid = $isPortal ? $pid : $_POST['form_pid'];
@@ -323,10 +327,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
 // "MAX(user) AS user " .
         "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", [$form_pid, $timestamp
     ]);
-
-// Create key for deleting, just in case.
-    $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
 
 // get facility from encounter
     $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);
@@ -624,6 +624,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
           style="text-align: center; margin: auto;">
 
     <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
+        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
         <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
@@ -1046,6 +1047,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 <div class="modal-body">
                     <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
+                        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
@@ -1116,6 +1118,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     </form>
                     <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
+                            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
                             <fieldset>
                                 <div class="form-group">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>

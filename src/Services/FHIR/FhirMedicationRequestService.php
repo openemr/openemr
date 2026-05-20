@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
@@ -363,7 +364,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $dateExtension->setUrl("dateAsserted");
         $dateAsserted = $dataRecord['medication_adherence_date_asserted'];
         // empty date
-        if ('0000-00-00 00:00:00' !== $dateAsserted) {
+        if (!Utilities::isDateEmpty($dateAsserted)) {
             $formattedDate = UtilsService::getLocalDateAsUTC($dataRecord['medication_adherence_date_asserted']);
             $dateExtension->setValueDateTime($formattedDate);
             $extension->addExtension($dateExtension);
@@ -469,10 +470,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
         if (isset($dataRecord['category'])) {
+            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
                     $dataRecord['category'] =>
-                        ['code' => $dataRecord['category'], 'description' => xlt($dataRecord['category_title'])
+                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
                             ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
                 ]
             ));

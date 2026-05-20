@@ -254,8 +254,7 @@ class SQLUpgradeService implements ISQLUpgradeService
         $special = false;
         $trim = true;
         $progress = 0;
-        while (!feof($fd)) {
-            $line = fgets($fd, 2048);
+        while (($line = fgets($fd)) !== false) {
             $line = rtrim($line);
 
             $progress += strlen($line);
@@ -787,6 +786,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
+            // Insert a space separator between concatenated lines so a
+            // continuation line starting at column 0 cannot fuse with the
+            // previous token (same bug class as #10935 in Installer). fgets()
+            // is unbounded, so every call returns a complete logical line
+            // and the separator is always safe to insert.
+            if ($query !== "") {
+                $query .= " ";
+            }
             $query .= $line;
 
             if (str_ends_with(trim($query), ';')) {
@@ -1483,7 +1490,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $versionService = new VersionService();
         $versionRecord = $versionService->fetch();
-        return intval($versionRecord['v_database'] ?? 0);
+        return $versionRecord['v_database'];
     }
 
     protected function migrateCareTeamsV1ToV2()

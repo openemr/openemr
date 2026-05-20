@@ -62,16 +62,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRx_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, numeric\\-string, numeric\\-string\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 2 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, numeric\\-string, numeric\\-string\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'ODDISC\'\\|\'OSDISC\' does not exist on string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -145,11 +135,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'sex\' might not exist on \'\'\\|array\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'file\' might not exist on array\\{function\\: string, line\\?\\: int, file\\?\\: string, class\\?\\: class\\-string, type\\?\\: \'\\-\\>\'\\|\'\\:\\:\', args\\?\\: list\\<mixed\\>, object\\?\\: object\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string, non\\-falsy\\-string&numeric\\-string\\}\\.$#',
@@ -397,14 +382,69 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/insurance_allocation_report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset 0 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1\\|2, 9\\?\\: 1\\|2, 10\\?\\: 1\\|2, 11\\?\\: 1\\|2, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 10 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1\\|2, 9\\?\\: 1\\|2, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 11 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1\\|2, 9\\?\\: 1\\|2, 10\\?\\: 1\\|2, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 12 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1\\|2, 9\\?\\: 1\\|2, 10\\?\\: 1\\|2, 11\\?\\: 1\\|2, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 3 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 4 might not exist on array\\{mixed, 0, 0, 0, 0\\|1, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 5 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 6 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 7 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 8 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset 9 might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1\\|2, 9\\?\\: 1, 10\\?\\: 1, 11\\?\\: 1, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset int\\<0, 11\\> does not exist on array\\{\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'username\' might not exist on array\\{password\\: \'NoLongerUsed\', username\\?\\: string, fname\\?\\: string, mname\\?\\: string, lname\\?\\: string, suffix\\?\\: string, email\\?\\: string, valedictory\\?\\: string, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset int\\<1, 12\\> might not exist on array\\{mixed, 0, 0, 0, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, 0\\|1\\|2, \\.\\.\\.\\}\\|non\\-empty\\-array\\{4\\?\\: 1\\|2, 5\\?\\: 1\\|2, 6\\?\\: 1\\|2, 7\\?\\: 1\\|2, 8\\?\\: 1\\|2, 9\\?\\: 1\\|2, 10\\?\\: 1\\|2, 11\\?\\: 1\\|2, \\.\\.\\.\\}\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
+    'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'ALL\' might not exist on array\\{\\}\\|array\\{ALL\\: string\\}\\.$#',
@@ -427,22 +467,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/OFX.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'excluded\' might not exist on array\\{pass_target\\: \\(array\\|float\\|int\\), percentage\\: string, total_patients\\: \\(array\\|float\\|int\\)\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\: \\(array\\|float\\|int\\), pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\)\\}\\.$#',
+    'message' => '#^Offset \'excluded\' might not exist on array\\{pass_target\\?\\: \\(array\\|float\\|int\\), percentage\\?\\: string, total_patients\\: \\(array\\|float\\|int\\), excluded\\?\\: \\(array\\|float\\|int\\), pass_filter\\?\\: \\(array\\|float\\|int\\)\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pass_filter\' might not exist on array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\?\\: \\(array\\|float\\|int\\), pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\)\\}\\.$#',
+    'message' => '#^Offset \'pass_filter\' might not exist on array\\{pass_target\\?\\: \\(array\\|float\\|int\\), percentage\\?\\: string, total_patients\\?\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\?\\: \\(array\\|float\\|int\\)\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pass_target\' might not exist on array\\{pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\: \\(array\\|float\\|int\\), pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\: \\(array\\|float\\|int\\)\\}\\.$#',
+    'message' => '#^Offset \'pass_target\' might not exist on non\\-empty\\-array\\{pass_target\\?\\: \\(array\\|float\\|int\\), percentage\\?\\: string, total_patients\\?\\: \\(array\\|float\\|int\\), excluded\\?\\: \\(array\\|float\\|int\\), pass_filter\\?\\: \\(array\\|float\\|int\\)\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'total_patients\' might not exist on array\\{pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\|array\\{total_patients\\: \\(array\\|float\\|int\\), excluded\\: \\(array\\|float\\|int\\), pass_filter\\: \\(array\\|float\\|int\\), pass_target\\: \\(array\\|float\\|int\\), percentage\\: string\\}\\.$#',
+    'message' => '#^Offset \'total_patients\' might not exist on array\\{pass_target\\?\\: \\(array\\|float\\|int\\), percentage\\: string, total_patients\\?\\: \\(array\\|float\\|int\\), excluded\\?\\: \\(array\\|float\\|int\\), pass_filter\\?\\: \\(array\\|float\\|int\\)\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
@@ -492,12 +532,32 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'GS\' might not exist on array\\{ISA\\: non\\-empty\\-array\\<array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\|array\\{start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string, count\\: int\\<1, max\\>, gscount\\: string\\}\\>, GS\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'AccAmt\' might not exist on array\\{Date\\: mixed, FileName\\: mixed, Control\\: string, Claim_ct\\?\\: int\\<0, max\\>, x12Partner\\?\\: mixed, Accept\\?\\: mixed, Reject\\?\\: mixed, AccAmt\\?\\: mixed, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'Accept\' might not exist on array\\{Date\\: mixed, FileName\\: mixed, Control\\: string, Claim_ct\\?\\: int\\<0, max\\>, x12Partner\\?\\: mixed, Accept\\?\\: mixed, Reject\\?\\: mixed, AccAmt\\?\\: mixed, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'RejAmt\' might not exist on array\\{Date\\: mixed, FileName\\: mixed, Control\\: string, Claim_ct\\?\\: int\\<0, max\\>, x12Partner\\?\\: mixed, Accept\\?\\: mixed, Reject\\?\\: mixed, AccAmt\\?\\: mixed, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'Reject\' might not exist on array\\{Date\\: mixed, FileName\\: mixed, Control\\: string, Claim_ct\\?\\: int\\<0, max\\>, x12Partner\\?\\: mixed, Accept\\?\\: mixed, Reject\\?\\: mixed, AccAmt\\?\\: mixed, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'GS\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\?\\: non\\-empty\\-array\\<array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\: non\\-empty\\-array\\<array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\>\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'ST\' might not exist on array\\{ISA\\?\\: non\\-empty\\-array\\<array\\{start\\?\\: numeric\\-string, sender\\?\\: string, receiver\\?\\: string, icn\\?\\: string, date\\?\\: string, version\\?\\: string, count\\?\\: int\\<1, max\\>, gscount\\?\\: string\\}\\>, GS\\: non\\-empty\\-array\\<non\\-empty\\-array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>\\}\\.$#',
+    'message' => '#^Offset \'ST\' might not exist on array\\{ST\\?\\: non\\-empty\\-array\\<int\\<0, max\\>, non\\-empty\\-array\\{start\\?\\: numeric\\-string, count\\?\\: string, stn\\?\\: string, gsn\\?\\: mixed, icn\\?\\: mixed, type\\?\\: string, trace\\?\\: string, acct\\?\\: list\\<string\\>, \\.\\.\\.\\}\\>, GS\\: non\\-empty\\-array\\<non\\-empty\\-array\\<\'count\'\\|\'date\'\\|\'gsn\'\\|\'icn\'\\|\'sender\'\\|\'srcid\'\\|\'start\'\\|\'stcount\'\\|\'type\', mixed\\>\\>, ISA\\?\\: non\\-empty\\-array\\<array\\{count\\?\\: int\\<1, max\\>, gscount\\?\\: string, start\\?\\: numeric\\-string, sender\\?\\: string, receiver\\?\\: string, icn\\?\\: string, date\\?\\: string, version\\?\\: string\\}\\>\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
 ];
@@ -507,7 +567,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'icn\' might not exist on array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\|array\\{start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string, count\\: int\\<1, max\\>, gscount\\: string\\}\\.$#',
+    'message' => '#^Offset \'icn\' might not exist on array\\{count\\: int\\<1, max\\>, gscount\\: string, start\\: numeric\\-string, sender\\: string, receiver\\: string, icn\\: string, date\\: string, version\\: string\\}\\|array\\{count\\: int\\<1, max\\>, gscount\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_x12file_class.php',
 ];
@@ -767,12 +827,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'client_name\' might not exist on array\\{client_id\\: mixed, client_id_issued_at\\: int\\<1, max\\>, registration_access_token\\: mixed, registration_client_uri_path\\: mixed, client_role\\: \'patient\'\\|\'user\', application_type\\?\\: bool\\|float\\|int\\|string\\|null, dsi_type\\: mixed, client_name\\?\\: bool\\|float\\|int\\|string\\|null, \\.\\.\\.\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'actions\' might not exist on array\\{hasRestrictions\\: true, restrictions\\?\\: non\\-empty\\-array\\<array\\{label\\: \'Clinical Test\'\\|\'Encounter Diagnoses\'\\|\'Health Concerns\'\\|\'Laboratory\'\\|\'Problem List Items\'\\|\'Social Determinants…\'\\|\'Social History\'\\|\'Survey\'\\|\'Vital Signs\', value\\: \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\', selected\\: true, actions\\: list\\{0\\?\\: \'c\'\\|\'d\'\\|\'r\'\\|\'s\'\\|\'u\', 1\\?\\: \'d\'\\|\'r\'\\|\'s\'\\|\'u\', 2\\?\\: \'d\'\\|\'s\'\\|\'u\', 3\\?\\: \'d\'\\|\'s\', 4\\?\\: \'s\'\\}\\}\\>\\}\\|array\\{name\\: mixed, description\\: string, context\\: mixed, version\\: mixed, actions\\: array\\{c\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, r\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, u\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, d\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, s\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}\\}, restrictions\\: array\\<array\\{label\\: mixed, value\\: mixed, selected\\: true, actions\\: mixed\\}\\>, hasRestrictions\\: true, isUnrestricted\\: bool, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'actions\' might not exist on array\\{hasRestrictions\\: true, restrictions\\?\\: non\\-empty\\-array\\<array\\{label\\: \'Clinical Test\'\\|\'Encounter Diagnoses\'\\|\'Health Concerns\'\\|\'Laboratory\'\\|\'Problem List Items\'\\|\'Social Determinants…\'\\|\'Social History\'\\|\'Survey\'\\|\'Vital Signs\', value\\: \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\', selected\\: true, actions\\: list\\{0\\?\\: \'c\'\\|\'d\'\\|\'r\'\\|\'s\'\\|\'u\', 1\\?\\: \'d\'\\|\'r\'\\|\'s\'\\|\'u\', 2\\?\\: \'d\'\\|\'s\'\\|\'u\', 3\\?\\: \'d\'\\|\'s\', 4\\?\\: \'s\'\\}\\}\\>\\}\\|array\\{name\\: mixed, description\\: string, context\\: mixed, version\\: mixed, actions\\: array\\{c\\: array\\{enabled\\: bool\\}, r\\: array\\{enabled\\: bool\\}, u\\: array\\{enabled\\: bool\\}, d\\: array\\{enabled\\: bool\\}, s\\: array\\{enabled\\: bool\\}\\}, restrictions\\: array\\<array\\{label\\: mixed, value\\: mixed, selected\\: true, actions\\: mixed\\}\\>, hasRestrictions\\: bool, isUnrestricted\\: bool, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/SMART/ScopePermissionParser.php',
 ];

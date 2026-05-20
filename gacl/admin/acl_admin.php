@@ -10,9 +10,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //ensure user has proper access
@@ -95,10 +93,7 @@ switch ($_POST['action']) {
         if ($_GET['action'] == 'edit' AND !empty($_GET['acl_id'])) {
             $gacl_api->debug_text('EDITING ACL');
 
-            //CSRF prevent
-            if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
             //Grab ACL information
             $query = '

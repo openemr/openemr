@@ -32,9 +32,7 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         if (strtolower((string) $type) == "copay") {

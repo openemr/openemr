@@ -18,8 +18,8 @@
 
 /* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
@@ -28,9 +28,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $nextLocation = 0;      // offset to resume scanning
 $keyLocation  = false;  // offset of a potential {string} to replace

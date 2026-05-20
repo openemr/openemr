@@ -49,9 +49,7 @@ if ($payment_method == "insurance") {
 }
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         // Get the provider ID from the new encounter form if possible, otherwise

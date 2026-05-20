@@ -23,9 +23,7 @@ $mode = $_GET['mode'];
 $id   = $_GET['id'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         BillingUtilities::addBilling($encounter, $type, $code, $text, $pid, $userauthorized, $session->get('authUserID'));

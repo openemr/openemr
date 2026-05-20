@@ -9,11 +9,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access constant class on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access constant class on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
 ];
 $ignoreErrors[] = [

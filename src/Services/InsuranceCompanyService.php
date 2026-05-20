@@ -24,6 +24,7 @@ use OpenEMR\Services\{
     AddressService,
     PhoneNumberService,
     Search\FhirSearchWhereClauseBuilder,
+    Search\ISearchField,
     Search\SearchFieldException
 };
 use OpenEMR\Validators\InsuranceCompanyValidator;
@@ -119,7 +120,7 @@ class InsuranceCompanyService extends BaseService
         return ['uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
@@ -209,7 +210,10 @@ class InsuranceCompanyService extends BaseService
         return $processingResult;
     }
 
-    public function getAll($search = [], $isAndCondition = true)
+    /**
+     * @param array<string, string> $search
+     */
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {

@@ -106,7 +106,7 @@ body {
 
 <script src="../../library/topdialog.js"></script>
 <script>
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 </script>
 
 </head>

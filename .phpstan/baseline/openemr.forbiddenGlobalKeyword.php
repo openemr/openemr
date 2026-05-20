@@ -232,21 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$limit\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$patient_name, \\$patient_address, \\$patient_city, \\$patient_state, \\$patient_zip, \\$patient_phone, \\$patient_dob\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$physician_name, \\$practice_address, \\$practice_city, \\$practice_state, \\$practice_zip, \\$practice_phone, \\$practice_fax, \\$practice_dea\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$cell_count, \\$CPR, \\$historical_ids, \\$USING_BOOTSTRAP, \\$BS_COL_CLASS\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
@@ -632,11 +617,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/growthchart/chart.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$webserver_root, \\$web_root\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$globalsBag\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/login/login.php',
@@ -762,14 +742,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/ReceiveHl7Results.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$SMS_NOTIFICATION_HOUR, \\$TYPE\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$bTestRun\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification_helpers.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$pid\\)\\. Use dependency injection instead\\.$#',
@@ -1422,11 +1397,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$service_name\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/ajax/execute_background_services.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$is_lbf, \\$pid, \\$table\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
@@ -1475,11 +1445,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$HTML_CHARSET\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$code_types\\)\\. Use dependency injection instead\\.$#',
@@ -1558,6 +1523,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$taxes\\)\\. Use dependency injection instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$webserver_root, \\$web_root\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
@@ -1680,46 +1650,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$pid\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/sql-ccr.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$EMAIL_NOTIFICATION_HOUR\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$SMS_GATEWAY_USENAME, \\$SMS_GATEWAY_PASSWORD, \\$SMS_GATEWAY_APIKEY\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$SMS_NOTIFICATION_HOUR, \\$EMAIL_NOTIFICATION_HOUR\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$SMS_NOTIFICATION_HOUR\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$data_info\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$log_folder_path\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$patient_info\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$smsgateway_info\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$ignoreAuth_onsite_portal\\)\\. Use dependency injection instead\\.$#',

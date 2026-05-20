@@ -62,7 +62,15 @@ abstract class AppDispatch
             self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = ServiceContainer::getCrypto();
-        if (!$this->verifyAcl()) {
+        // Background-service workers (bin/console background:services run,
+        // ajax/execute_background_services.php under cron) bootstrap with
+        // $ignoreAuth = true because there is no interactive session. In
+        // that context there is no authUser for AclMain to check against,
+        // so verifyAcl() would always fail and AccessDeniedHelper::deny()
+        // would exit(1) before the reminder job could run — the silent
+        // background-service failure reported in issue #11827.
+        $ignoreAuth = OEGlobalsBag::getInstance()->getBoolean('ignoreAuth');
+        if (!$ignoreAuth && !$this->verifyAcl()) {
             AccessDeniedHelper::deny('FaxSMS module access denied');
         }
         $this->dispatchActions();
@@ -145,7 +153,7 @@ abstract class AppDispatch
      * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession(string $param = null, mixed $default = null): mixed
+    public function getSession(?string $param = null, mixed $default = null): mixed
     {
         if ($param) {
             return $this->_session->get($param) ?? $default;
@@ -220,18 +228,13 @@ abstract class AppDispatch
      */
     static function getApiService(string $type)
     {
-        try {
-            if (empty($type)) {
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
-            }
-            self::setModuleType($type);
-            self::$_apiService = self::getServiceInstance($type);
-            return self::$_apiService;
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            exit;
+        if ($type === '') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
         }
+        self::setModuleType($type);
+        self::$_apiService = self::getServiceInstance($type);
+        return self::$_apiService;
     }
 
     /**
@@ -242,17 +245,12 @@ abstract class AppDispatch
      */
     static function setApiService(string $type): void
     {
-        try {
-            if (empty($type)) {
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
-            }
-            self::setModuleType($type);
-            self::$_apiService = self::getServiceInstance($type);
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            exit;
+        if ($type === '') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
         }
+        self::setModuleType($type);
+        self::$_apiService = self::getServiceInstance($type);
     }
 
     /**

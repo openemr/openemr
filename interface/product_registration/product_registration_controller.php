@@ -113,7 +113,7 @@ if ($method === 'POST') {
         // Update the last ask date and version
         $last_ask_date = date("Y-m-d H:i:s");
         $versionService = new VersionService();
-        $last_ask_version = $versionService->asString();
+        $last_ask_version = (string) $versionService->getSoftwareVersion();
 
         // Update the registration record
         //  (note that there will always be a existent record at this point and email registration has already been dealt with, if applicable)

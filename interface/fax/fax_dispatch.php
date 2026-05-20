@@ -19,7 +19,6 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -29,9 +28,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($_GET['file']) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $mode = 'fax';
     $filename = $_GET['file'];
@@ -41,9 +38,7 @@ if ($_GET['file']) {
 
     $filepath = OEGlobalsBag::getInstance()->getString('hylafax_basedir') . '/recvq/' . $filename;
 } elseif ($_GET['scan']) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $mode = 'scan';
     $filename = $_GET['scan'];
@@ -112,9 +107,7 @@ function mergeTiffs()
 // If we are submitting...
 //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $action_taken = false;
     $tmp1 = [];
@@ -319,7 +312,7 @@ if ($_POST['form_save']) {
         $cpstring = str_replace('{MESSAGE}', $form_message, $cpstring);
         fwrite($tmph, $cpstring);
         fclose($tmph);
-        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd((ServiceContainer::getCrypto())->decryptStandard(OEGlobalsBag::getInstance()->get('more_secure')['hylafax_enscript'])) .
+        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd(OPENEMR_HYLAFAX_ENSCRIPT) .
         " -o " . escapeshellarg($tmpfn2) . " " . escapeshellarg($tmpfn1), $tmp1, $tmp2);
         if ($tmp2) {
               $info_msg .= "enscript returned $tmp2: $tmp0 ";
@@ -404,7 +397,7 @@ if ($_POST['form_save']) {
         // Close this window and refresh the fax list.
         echo "<html>\n<body>\n<script>\n";
         if ($info_msg) {
-            echo " alert('" . addslashes($info_msg) . "');\n";
+            echo " alert(" . js_escape($info_msg) . ");\n";
         }
 
         echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -474,7 +467,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <script>
 
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
  function divclick(cb, divid) {
   var divstyle = document.getElementById(divid).style;
@@ -591,7 +584,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

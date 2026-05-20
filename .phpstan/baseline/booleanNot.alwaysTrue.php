@@ -44,26 +44,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TelehealthConfigurationVerifier.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/TelehealthGlobalConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/welcome.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
 ];
 $ignoreErrors[] = [
@@ -95,6 +75,11 @@ $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Negated boolean expression is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/stats_full.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always true\\.$#',

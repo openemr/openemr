@@ -895,6 +895,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             );
     }
 
+    /**
+     * @param literal-string $description
+     */
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description): void
     {
         $component = new FHIRObservationComponent();

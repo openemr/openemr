@@ -16,7 +16,7 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/VerificationIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/VerificationIF.php';
 
 class Utils_Verification implements VerificationIF
 {

@@ -784,9 +784,7 @@ class ContactRelationService extends BaseService
         int $ownerId,
         array $relatedPersonData
     ): array {
-        $committed = false;
-        try {
-            QueryUtils::startTransaction();
+        return QueryUtils::inTransaction(function () use ($ownerTable, $ownerId, $relatedPersonData) {
             $this->getLogger()->debug("Batch saving relationships", [
                 'owner_table' => $ownerTable,
                 'owner_id' => $ownerId,
@@ -800,155 +798,151 @@ class ContactRelationService extends BaseService
             }
 
             // Iterate through array of RelatedPerson objects
-            foreach ($relatedPersonData as $index => $relatedPerson) {
-                $action = $relatedPerson['data_action'] ?? '';
+            try {
+                foreach ($relatedPersonData as $index => $relatedPerson) {
+                    $action = $relatedPerson['data_action'] ?? '';
 
-                if (empty($action)) {
-                    continue;
-                }
+                    if (empty($action)) {
+                        continue;
+                    }
 
-                $owner_contact_relation_id = $relatedPerson['owner_contact_relation_id'] ?? null;
+                    $owner_contact_relation_id = $relatedPerson['owner_contact_relation_id'] ?? null;
 
-                // Handle INACTIVATE/DELETE
-                if ($action == 'INACTIVATE' || $action == 'DELETE') {
-                    if (!empty($owner_contact_relation_id)) {
-                        $result = $this->deactivateRelationship($owner_contact_relation_id);
-                        if ($result->hasData()) {
-                            $savedRecords[] = $result->getData()[0];
+                    // Handle INACTIVATE/DELETE
+                    if ($action == 'INACTIVATE' || $action == 'DELETE') {
+                        if (!empty($owner_contact_relation_id)) {
+                            $result = $this->deactivateRelationship($owner_contact_relation_id);
+                            if ($result->hasData()) {
+                                $savedRecords[] = $result->getData()[0];
+                            }
+                        }
+                        continue;
+                    }
+
+                    // Handle ADD and UPDATE
+                    $ownerContactId = $relatedPerson['owner_contact_id'] ?? null;
+
+                    if (empty($ownerContactId)) {
+                        $this->getLogger()->warning("Missing contact_id for relation", [
+                            'index' => $index
+                        ]);
+                        continue;
+                    }
+
+                    // Get target table and ID
+                    $targetTable = $relatedPerson['target_table'] ?? 'person';
+                    $targetId = $relatedPerson['target_id'] ?? null;
+
+                    if (empty($targetId)) {
+                        $this->getLogger()->warning("Missing target ID for relation", [
+                            'index' => $index,
+                            'target_table' => $targetTable
+                        ]);
+                        continue;
+                    }
+                    $targetId = (int)$targetId;
+
+                    // If target is a patient, get or create their person record
+                    if ($targetTable === 'patient_data') {
+                        $originalPatientId = $targetId;
+                        try {
+                            $targetPersonId = $this->getOrCreatePersonForPatient($targetId);
+                            $targetTable = 'person';
+                            $targetId = $targetPersonId;
+
+                            $this->getLogger()->debug("Resolved patient to person", [
+                                'patient_id' => $originalPatientId,
+                                'person_id' => $targetPersonId
+                            ]);
+                        } catch (\Throwable $e) {
+                            $this->getLogger()->error("Failed to get/create person for patient", [
+                                'patient_id' => $originalPatientId,
+                                'error' => $e->getMessage()
+                            ]);
+                            continue;
+                        }
+                    } else {
+                        // Target is already a person
+                        $targetTable = 'person';
+                    }
+
+                    $person_metadata = [
+                        'first_name' => $relatedPerson['first_name'] ?? '',
+                        'middle_name' => $relatedPerson['middle_name'] ?? '',
+                        'last_name' => $relatedPerson['last_name'] ?? '',
+                        'gender' => $relatedPerson['gender'] ?? '',
+                        'birth_date' => $relatedPerson['birth_date'] ?? ''
+                    ];
+
+                    if ($action == 'UPDATE') {
+                        if (empty($targetId)) {
+                            $this->getLogger()->warning("Missing person_id for UPDATE", [
+                                'index' => $index
+                            ]);
+                            continue;
+                        } else {  // UPDATE
+                            $personService = new PersonService();
+                            $personService->update($targetId, $person_metadata);
                         }
                     }
-                    continue;
-                }
 
-                // Handle ADD and UPDATE
-                $ownerContactId = $relatedPerson['owner_contact_id'] ?? null;
+                    $contact_relation_metadata = [
+                        'relationship' => $relatedPerson['relationship'] ?? '',
+                        'role' => $relatedPerson['role'] ?? '',
+                        'contact_priority' => $relatedPerson['contact_priority'] ?? 1,
+                        'is_primary_contact' => $relatedPerson['is_primary_contact'] ?? false,
+                        'is_emergency_contact' => $relatedPerson['is_emergency_contact'] ?? false,
+                        'can_make_medical_decisions' => $relatedPerson['can_make_medical_decisions'] ?? false,
+                        'can_receive_medical_info' => $relatedPerson['can_receive_medical_info'] ?? false,
+                        'start_date' => $relatedPerson['start_date'] ?? '',
+                        'end_date' => $relatedPerson['end_date'] ?? '',
+                        'notes' => $relatedPerson['notes'] ?? '',
+                        'active' => $relatedPerson['active'] ?? true
+                    ];
 
-                if (empty($ownerContactId)) {
-                    $this->getLogger()->warning("Missing contact_id for relation", [
-                        'index' => $index
-                    ]);
-                    continue;
-                }
-
-                // Get target table and ID
-                $targetTable = $relatedPerson['target_table'] ?? 'person';
-                $targetId = $relatedPerson['target_id'] ?? null;
-
-                if (empty($targetId)) {
-                    $this->getLogger()->warning("Missing target ID for relation", [
-                        'index' => $index,
-                        'target_table' => $targetTable
-                    ]);
-                    continue;
-                }
-                $targetId = (int)$targetId;
-
-                // If target is a patient, get or create their person record
-                if ($targetTable === 'patient_data') {
-                    try {
-                        $targetPersonId = $this->getOrCreatePersonForPatient($targetId);
-                        $targetTable = 'person';
-                        $targetId = $targetPersonId;
-
-                        $this->getLogger()->debug("Resolved patient to person", [
-                            'patient_id' => $targetId,
-                            'person_id' => $targetPersonId
-                        ]);
-                    } catch (\Throwable $e) {
-                        $this->getLogger()->error("Failed to get/create person for patient", [
-                            'patient_id' => $targetId,
-                            'error' => $e->getMessage()
-                        ]);
-                        continue;
+                    if ($action == 'ADD') {
+                        // For ADD, we need to create relationship to target person
+                        // createRelationship expects: contactId, targetTable, targetId
+                        $result = $this->createRelationship($ownerContactId, $targetTable, $targetId, $contact_relation_metadata);
+                    } else { // UPDATE
+                        if (empty($owner_contact_relation_id)) {
+                            $this->getLogger()->warning("Missing relation_id for UPDATE", [
+                                'index' => $index
+                            ]);
+                            continue;
+                        }
+                        $result = $this->updateRelationship($owner_contact_relation_id, $contact_relation_metadata);
                     }
-                } else {
-                    // Target is already a person
-                    $targetTable = 'person';
-                }
 
-                $person_metadata = [
-                    'first_name' => $relatedPerson['first_name'] ?? '',
-                    'middle_name' => $relatedPerson['middle_name'] ?? '',
-                    'last_name' => $relatedPerson['last_name'] ?? '',
-                    'gender' => $relatedPerson['gender'] ?? '',
-                    'birth_date' => $relatedPerson['birth_date'] ?? ''
-                ];
+                    if ($result->hasData()) {
+                        $savedRecords[] = $result->getData()[0];
+                    }
 
-                if ($action == 'UPDATE') {
-                    if (empty($targetId)) {
-                        $this->getLogger()->warning("Missing person_id for UPDATE", [
-                            'index' => $index
-                        ]);
-                        continue;
-                    } else {  // UPDATE
-                        $personService = new PersonService();
-                        $personService->update($targetId, $person_metadata);
+                    // now we need to go through and save the phone number and address information for the connected
+                    // relationship
+                    if (!empty($relatedPerson['telecoms'])) {
+                        $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
+                        $telecomService = new ContactTelecomService();
+                        $telecoms = $relatedPerson['telecoms'] ?? [];
+                        $telecomService->saveTelecomsForContact($contact->get_id(), $telecoms);
+                    }
+
+                    if (!empty($relatedPerson['addresses'])) {
+                        $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
+                        $addressService = new ContactAddressService();
+                        $addresses = $relatedPerson['addresses'] ?? [];
+                        $addressService->saveAddressesForContact($contact->get_id(), $addresses);
                     }
                 }
 
-                $contact_relation_metadata = [
-                    'relationship' => $relatedPerson['relationship'] ?? '',
-                    'role' => $relatedPerson['role'] ?? '',
-                    'contact_priority' => $relatedPerson['contact_priority'] ?? 1,
-                    'is_primary_contact' => $relatedPerson['is_primary_contact'] ?? false,
-                    'is_emergency_contact' => $relatedPerson['is_emergency_contact'] ?? false,
-                    'can_make_medical_decisions' => $relatedPerson['can_make_medical_decisions'] ?? false,
-                    'can_receive_medical_info' => $relatedPerson['can_receive_medical_info'] ?? false,
-                    'start_date' => $relatedPerson['start_date'] ?? '',
-                    'end_date' => $relatedPerson['end_date'] ?? '',
-                    'notes' => $relatedPerson['notes'] ?? '',
-                    'active' => $relatedPerson['active'] ?? true
-                ];
-
-                if ($action == 'ADD') {
-                    // For ADD, we need to create relationship to target person
-                    // createRelationship expects: contactId, targetTable, targetId
-                    $result = $this->createRelationship($ownerContactId, $targetTable, $targetId, $contact_relation_metadata);
-                } else { // UPDATE
-                    if (empty($owner_contact_relation_id)) {
-                        $this->getLogger()->warning("Missing relation_id for UPDATE", [
-                            'index' => $index
-                        ]);
-                        continue;
-                    }
-                    $result = $this->updateRelationship($owner_contact_relation_id, $contact_relation_metadata);
-                }
-
-                if ($result->hasData()) {
-                    $savedRecords[] = $result->getData()[0];
-                }
-
-                // now we need to go through and save the phone number and address information for the connected
-                // relationship
-                if (!empty($relatedPerson['telecoms'])) {
-                    $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
-                    $telecomService = new ContactTelecomService();
-                    $telecoms = $relatedPerson['telecoms'] ?? [];
-                    $telecomService->saveTelecomsForContact($contact->get_id(), $telecoms);
-                }
-
-                if (!empty($relatedPerson['addresses'])) {
-                    $contact = $this->contactService->getOrCreateForEntity('person', $targetId);
-                    $addressService = new ContactAddressService();
-                    $addresses = $relatedPerson['addresses'] ?? [];
-                    $addressService->saveAddressesForContact($contact->get_id(), $addresses);
-                }
+                return $savedRecords;
+            } catch (\Throwable $e) {
+                $this->getLogger()->error("Error batch saving relationships", [
+                    'error' => $e->getMessage()
+                ]);
+                throw $e;
             }
-
-            QueryUtils::commitTransaction();
-            $committed = true;
-        } catch (\Throwable $exception) {
-            $this->getLogger()->error("Error batch saving relationships", [
-                'error' => $exception->getMessage()
-            ]);
-            throw $exception;
-        } finally {
-            if (!$committed) {
-                QueryUtils::rollbackTransaction();
-            }
-        }
-
-        return $savedRecords;
+        });
     }
 
 

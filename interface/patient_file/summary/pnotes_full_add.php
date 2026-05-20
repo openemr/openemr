@@ -88,9 +88,7 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
@@ -461,7 +459,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         ,minDate : 0 //only future
     });
 

@@ -42,9 +42,7 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // This controls whether we show pt name, policy number and DOS.
@@ -315,7 +313,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -669,8 +667,19 @@ if (!empty($_POST['form_refresh'])) {
                         $rowmethod = xl('Unnamed insurance company');
                     }
                     if (!empty($insurance_id['provider'])) {
-                        $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?? '';
-                        $rowmethod = xl($insurance_company['name']);
+                        // getOneById delegates to sqlQuery which can return
+                        // array|false|null. Normalize to [] so the ['name']
+                        // lookup below can't trip on a non-array value.
+                        $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?: [];
+                        $insurance_company_name = $insurance_company['name'] ?? null;
+                        if (is_string($insurance_company_name) && trim($insurance_company_name) !== '') {
+                            $rowmethod = $insurance_company_name;
+                        } else {
+                            // Fall back to the same label the missing-provider
+                            // branch below uses, so empty payer keys don't get
+                            // bucketed as "Patient"/"Unknown" downstream.
+                            $rowmethod = xl('Unnamed insurance company');
+                        }
                     } elseif (!($row['payer_type'] == '0')) {
                         $rowmethod = xl('Unnamed insurance company');
                     }

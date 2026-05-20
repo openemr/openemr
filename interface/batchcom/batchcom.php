@@ -37,9 +37,7 @@ $sort_by_choices = [xl('Zip Code') => 'patient_data.postal_code', xl('Last Name'
 // process form
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //validation uses the functions in batchcom.inc.php
     //validate dates
@@ -297,7 +295,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     })();

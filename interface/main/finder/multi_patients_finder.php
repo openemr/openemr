@@ -25,9 +25,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // for editing selected patients
 if (isset($_GET['patients'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $patients = rtrim((string) $_GET['patients'], ";");
     $patients = explode(';', $patients);
@@ -151,7 +149,7 @@ if (isset($_GET['patients'])) {
                             '<td>' . text($result['ss']) . '</td>' .
                             '<td>' . text(oeFormatShortDate($result['DOB'])) . '</td>' .
                             '<td>' . text($result['pubpid']) . '</td>' .
-                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(addslashes((string) $result['pid'])) . ')"></i></td>' .
+                            '<td><i class="fas fa-trash-alt remove-patient" onclick="removePatient(' . attr(js_escape((string) $result['pid'])) . ')"></i></td>' .
                         '<tr>';
                 }
             } ?>
@@ -187,7 +185,7 @@ $('#by-id, #by-name').select2({
         },
         dataType: 'json',
     },
-    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient

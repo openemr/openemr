@@ -13,25 +13,28 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function generate_list_payment_category($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '', $onchange = '', $PaymentType = 'insurance', $screen = 'new_payment')
+use OpenEMR\BC\Utilities;
+
+function generate_list_payment_category(string $tag_name, string $list_id, string $currvalue, string $title, string $empty_name = ' ', string $class = '', string $onchange = '', string $PaymentType = 'insurance', string $screen = 'new_payment'): string
 {
     $s = '';
     $s .= "<select name='" . attr($tag_name) . "' id='" . attr($tag_name) . "'";
-    if ($class) {
+    if ($class !== '') {
         $s .= " class='" . attr($class) . "'";
     }
-    if ($onchange) {
+    if ($onchange !== '') {
         $s .= " onchange='" . $onchange . "'"; //Need to html escape $onchange prior to the generate_list_payment_category function call
     }
     $s .= " title='" . attr($title) . "'>";
-    if ($empty_name) {
+    if ($empty_name !== '') {
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         $s .= "<option value=''>" . xlt($empty_name) . "</option>";
     }
     $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", [$list_id]);
     $got_selected = false;
     while ($lrow = sqlFetchArray($lres)) {
         $s .= "<option   id='option_" . attr($lrow['option_id']) . "'" . " value='" . attr($lrow['option_id']) . "'";
-        if ((strlen((string) $currvalue) == 0 && $lrow['is_default']) || (strlen((string) $currvalue) > 0 && $lrow['option_id'] == $currvalue) || ($lrow['option_id'] == 'insurance_payment' && $screen == 'new_payment')) {
+        if ((strlen($currvalue) == 0 && $lrow['is_default']) || (strlen($currvalue) > 0 && $lrow['option_id'] == $currvalue) || ($lrow['option_id'] == 'insurance_payment' && $screen == 'new_payment')) {
             $s .= " selected";
             $got_selected = true;
         }
@@ -41,10 +44,10 @@ function generate_list_payment_category($tag_name, $list_id, $currvalue, $title,
         if ($PaymentType == 'patient' && $lrow['option_id'] == 'insurance_payment') {
             $s .= " style='background-color: var(--light)' ";
         }
-        $s .= ">" . text(xl_list_label($lrow['title'])) . "</option>\n";
+        $title_value = is_string($lrow['title'] ?? null) ? $lrow['title'] : '';
+        $s .= ">" . text(xl_list_label($title_value)) . "</option>\n";
     }
-    if (!$got_selected && strlen((string) $currvalue) > 0) {
-        $currescaped = text($currvalue);
+    if (!$got_selected && strlen($currvalue) > 0) {
         $s .= "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
         $s .= "</select>";
         $fontTitle = xl('Please choose a valid selection from the list.');
@@ -89,13 +92,13 @@ if ($payment_id > 0) {
     $InsuranceCompanyId = $row['payer_id'];
     $PatientId = $row['patient_id'];
     $CheckNumber = $row['reference'];
-    $CheckDate = $row['check_date'] == '0000-00-00' ? '' : $row['check_date'];
+    $CheckDate = Utilities::isDateEmpty($row['check_date']) ? '' : $row['check_date'];
     $PayTotal = $row['pay_total'];
-    $PostToDate = $row['post_to_date'] == '0000-00-00' ? '' : $row['post_to_date'];
+    $PostToDate = Utilities::isDateEmpty($row['post_to_date']) ? '' : $row['post_to_date'];
     $PaymentMethod = $row['payment_method'];
     $PaymentType = $row['payment_type'];
     $AdjustmentCode = $row['adjustment_code'];
-    $DepositDate = $row['deposit_date'] == '0000-00-00' ? '' : $row['deposit_date'];
+    $DepositDate = Utilities::isDateEmpty($row['deposit_date']) ? '' : $row['deposit_date'];
     $Description = $row['description'];
     if ($row['payment_type'] == 'insurance' || $row['payer_id'] * 1 > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies

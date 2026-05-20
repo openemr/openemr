@@ -25,9 +25,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)$session->get('pid');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
@@ -167,7 +165,7 @@ try {
     // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
     // Return to demographics (or wherever you prefer)
     // Redirect to health concerns selection page
-    $redirectUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_health_concerns.php"
+    $redirectUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_health_concerns.php"
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");

@@ -107,9 +107,7 @@ $case_sensitive_collation = "COLLATE utf8mb4_bin";
 $case_insensitive_collation = "COLLATE utf8mb4_general_ci";
 
 if (!empty($_POST['load'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // query for entering new definitions; uses cons_id because the constant already exists.
     if (!empty($_POST['cons_id'])) {
@@ -172,9 +170,7 @@ if (!empty($_POST['load'])) {
 }
 
 if (!empty($_POST['edit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['language_select'] == '') {
          exit(xlt("Please select a language"));

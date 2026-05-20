@@ -23,10 +23,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-// verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 // Match the same ACL check as the parent UI (billing_tracker.php)
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -42,7 +39,11 @@ foreach ($claim_files as $claim_file) {
     $element->x12_partner_id = text($claim_file['x12_partner_id']);
     $element->x12_partner_name = text($claim_file['name']);
     $element->x12_filename = text($claim_file['x12_filename']);
-    $element->status = xl($claim_file['status']);
+    $claimStatus = is_string($claim_file['status'] ?? null) ? $claim_file['status'] : '';
+    // Keep `status` as the raw enum so JS can compare against 'success'/'waiting'.
+    $element->status = $claimStatus;
+    // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+    $element->status_label = xl($claimStatus);
     $element->created_at = $claim_file['created_at'];
     $element->updated_at = $claim_file['updated_at'];
     $element->claims = json_decode((string) $claim_file['claims']);

@@ -43,11 +43,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
@@ -73,16 +68,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 28,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/notegen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
@@ -103,7 +88,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 75,
+    'count' => 92,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -453,6 +438,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_codes.php',
 ];
@@ -654,11 +644,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Provider.class.php',
 ];
 $ignoreErrors[] = [
@@ -723,7 +708,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 212,
+    'count' => 195,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
@@ -795,11 +780,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
@@ -1014,11 +994,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/Qdm/BaseTypes/AbstractType.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Core/TemplatePageEvent.php',
 ];
 $ignoreErrors[] = [
@@ -1074,21 +1049,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 17,
+    'count' => 16,
     'path' => __DIR__ . '/../../src/Services/CareTeamService.php',
 ];
 $ignoreErrors[] = [
@@ -1120,11 +1090,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
@@ -1165,11 +1130,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 17,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
@@ -1303,11 +1263,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FacilityService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Globals/GlobalSetting.php',
 ];
@@ -1320,11 +1275,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/GroupService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/ImmunizationService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
@@ -1353,7 +1303,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 10,
+    'count' => 8,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
@@ -1370,11 +1320,6 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/PractitionerRoleService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',

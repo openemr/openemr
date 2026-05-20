@@ -117,45 +117,29 @@ $logger->info("User logged in", ['userId' => $userId]);
 
 **Rationale:** Laminas-DB is deprecated and scheduled for removal.
 
-### NoCoversAnnotationRule
+### ForbiddenCoversRule
 
-**Purpose:** Prevents use of `@covers` annotations in test method docblocks.
+**Purpose:** Prevents use of `@covers` docblock annotations and `#[CoversClass]`/`#[CoversFunction]` PHP attributes in test files.
 
-**Rationale:** The `@covers` annotation in PHPUnit tests causes any code that is used transitively or ancillary to the annotated code to be excluded from coverage reports. This results in incomplete coverage information and makes it harder to understand which code paths are actually being exercised by our test suite.
-
-**Before (❌ Forbidden):**
-```php
-/**
- * @covers \OpenEMR\Services\SomeService
- */
-public function testSomeMethod(): void
-{
-    // test code
-}
-```
-
-**After (✅ Recommended):**
-```php
-public function testSomeMethod(): void
-{
-    // test code - coverage is tracked automatically for all exercised code
-}
-```
-
-### NoCoversAnnotationOnClassRule
-
-**Purpose:** Prevents use of `@covers` annotations in test class docblocks.
-
-**Rationale:** Same as `NoCoversAnnotationRule` - class-level `@covers` annotations also exclude transitively used code from coverage reports.
+**Rationale:** These annotations restrict PHPUnit's coverage attribution to only the listed symbols, which causes transitively used code to be excluded from coverage reports. This results in test file lines showing 0% in codecov patch coverage reports on test-only PRs.
 
 **Before (❌ Forbidden):**
 ```php
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * @covers \OpenEMR\Services\SomeService
  */
+#[CoversClass(SomeService::class)]
 class SomeServiceTest extends TestCase
 {
-    // tests
+    /**
+     * @covers \OpenEMR\Services\SomeService::someMethod
+     */
+    public function testSomeMethod(): void
+    {
+        // test code
+    }
 }
 ```
 
@@ -163,7 +147,10 @@ class SomeServiceTest extends TestCase
 ```php
 class SomeServiceTest extends TestCase
 {
-    // tests - coverage is tracked automatically for all exercised code
+    public function testSomeMethod(): void
+    {
+        // test code - coverage is tracked automatically for all exercised code
+    }
 }
 ```
 

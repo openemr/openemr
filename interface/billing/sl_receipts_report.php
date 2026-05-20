@@ -24,9 +24,9 @@
 // TODO: Replace tables with BS4 grid classes for GSoC
 
 require_once('../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably
@@ -126,7 +126,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -320,9 +320,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                 <?php
                 if (!empty($_POST['form_refresh'])) {
-                    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                        CsrfUtils::csrfNotVerified();
-                    }
+                    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                     ?>
                 <div id="report_results">

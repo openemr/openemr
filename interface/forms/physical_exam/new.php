@@ -93,9 +93,7 @@ if ($_POST['bn_save']) {
  // Skip rows that have no entries.
  // There are also 3 special rows with just one checkbox and a text
  // input field.  Maybe also a diagnosis line, not clear.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($formid) {
         $query = "DELETE FROM form_physical_exam WHERE forms_id = ?";

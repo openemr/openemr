@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -166,7 +168,7 @@ class AuthorizationController
         private bool $providerForm = true
     ) {
         $globalsBag = $this->kernel->getGlobalsBag();
-        $this->webroot = $globalsBag->get('webroot', '');
+        $this->webroot = $globalsBag->getWebRoot();
         $this->globalsBag = $globalsBag;
         if (empty($this->session->get('site_id'))) {
             // should never reach this but just in case
@@ -688,13 +690,14 @@ class AuthorizationController
         if ($this->grantType === 'authorization_code') {
             $this->getSystemLogger()->debug(
                 "logging global params",
-                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->globalsBag->get('web_root'), 'site_id' => $this->session->get('site_id')]
+                ['site_addr_oath' => $this->globalsBag->get('site_addr_oath'), 'web_root' => $this->webroot, 'site_id' => $this->session->get('site_id')]
             );
             $fhirServiceConfig = new ServerConfig();
+            $apiBase = $this->globalsBag->get('site_addr_oath') . $this->webroot . '/apis/' . $this->session->get('site_id', 'default');
             $expectedAudience = [
                 $fhirServiceConfig->getFhirUrl(),
-                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/api",
-                $this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('web_root') . '/apis/' . $this->session->get('site_id', 'default') . "/portal",
+                $apiBase . "/api",
+                $apiBase . "/portal",
             ];
             $grant = new CustomAuthCodeGrant(
                 new AuthCodeRepository(),
@@ -881,7 +884,7 @@ class AuthorizationController
             }
             //Check the validity of the authentication token
             if ($request->request->get('user_role') === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
-                if (!$mfaToken || !$mfa->check($mfaToken, $request->get('mfa_type'))) {
+                if (!$mfaToken || !$mfa->check($mfaToken, $request->request->get('mfa_type'))) {
                     $invalid = xl("Sorry, Invalid code!");
                     $loginTwigVars['mfaRequired'] = true;
                     $loginTwigVars['invalid'] = $invalid;
@@ -925,7 +928,10 @@ class AuthorizationController
         return $this->createServerResponse()->withStatus(Response::HTTP_TEMPORARY_REDIRECT)->withHeader("Location", $redirect);
     }
 
-    private function renderTwigPage($pageName, $template, $templateVars): ResponseInterface
+    /**
+     * @param array<string, mixed> $templateVars
+     */
+    private function renderTwigPage(string $pageName, string $template, array $templateVars): ResponseInterface
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
@@ -1150,13 +1156,16 @@ class AuthorizationController
 
     protected function getUserUuid($userId, $userRole): string
     {
+        if (!is_int($userId) && !is_string($userId)) {
+            return '';
+        }
         switch ($userRole) {
             case 'users':
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                UuidRegistry::createMissingUuidForRow('users', 'id', $userId);
                 $account_sql = "SELECT `uuid` FROM `users` WHERE `id` = ?";
                 break;
             case 'patient':
-                UuidRegistry::createMissingUuidsForTables(['patient_data']);
+                UuidRegistry::createMissingUuidForRow('patient_data', 'pid', $userId);
                 $account_sql = "SELECT `uuid` FROM `patient_data` WHERE `pid` = ?";
                 break;
             default:
@@ -1433,7 +1442,7 @@ class AuthorizationController
                 throw new OAuthServerException('Id token missing from request', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);
             }
             $post_logout_url = $request->query->get('post_logout_redirect_uri', '');
-            $state = $request->get('state', '');
+            $state = $request->query->get('state', '');
             $token_parts = explode('.', $id_token);
             $id_payload = $this->decodeToken($token_parts[1]);
 
@@ -1593,7 +1602,7 @@ class AuthorizationController
      */
     public static function getAuthBaseFullURL(OEGlobalsBag $globalsBag, SessionInterface $session): string
     {
-        $baseUrl = $globalsBag->get('webroot', '') . '/oauth2/' . $session->get('site_id', 'default');
+        $baseUrl = $globalsBag->getWebRoot() . '/oauth2/' . $session->get('site_id', 'default');
         // collect full url and issuing url by using 'site_addr_oath' global
         return $globalsBag->get('site_addr_oath', '') . $baseUrl;
     }
@@ -1670,7 +1679,7 @@ class AuthorizationController
         // if we have come back from an autosubmit we are going to check to see if we are logged in
 
         $launch = $request->getQueryParams()['launch'];
-        SMARTLaunchToken::deserializeToken($launch);
+        $launchToken = SMARTLaunchToken::deserializeToken($launch);
 
         $client = $authRequest->getClient();
         // only authorize scopes specifically allowed by the client regardless of what is sent in the request
@@ -1694,6 +1703,11 @@ class AuthorizationController
         parse_str($authorization, $code);
         $code = $code["code"];
         $apiSession['launch'] = $launch;
+        // Preserve patient context from the launch token in the skip-auth flow
+        $patientUuid = $launchToken->getPatient();
+        if ($patientUuid) {
+            $apiSession['puuid'] = $patientUuid;
+        }
         $apiSession['client_id'] = $client->getIdentifier();
         $apiSession['user_id'] = $userUuid;
         // scopes in the session are a single string.
@@ -1874,6 +1888,7 @@ class AuthorizationController
 
     protected function convertPostParamsToGet(HttpRestRequest $request): HttpRestRequest
     {
+        /** @var array<string, array<mixed>|bool|float|int|string|null> $parsedBody */
         $parsedBody = $request->getParsedBody();
         if (!empty($parsedBody)) {
             foreach ($parsedBody as $key => $value) {

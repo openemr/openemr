@@ -19,9 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PatientNameHistoryService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $post_items = $_POST;
 if ($post_items['task_name_history'] === 'save') {

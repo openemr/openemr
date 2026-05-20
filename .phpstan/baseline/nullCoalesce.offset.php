@@ -47,7 +47,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'totalscore\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'totalscore\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/sdoh/report.php',
 ];
@@ -62,22 +62,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/dated_reminders/dated_reminders_add.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'fname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'lname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'fname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'lname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
 ];
@@ -122,12 +122,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'fname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'lname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
@@ -217,7 +217,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ControllerRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'uuid\' on array\\{id\\: int, uuid\\: non\\-falsy\\-string, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'uuid\' on array\\{id\\: numeric\\-string, uuid\\: non\\-falsy\\-string, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
 ];

@@ -577,11 +577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$guid$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$value$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleType.php',

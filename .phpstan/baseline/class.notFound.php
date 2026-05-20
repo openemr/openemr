@@ -7,16 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var contains unknown class Dotenv\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var contains unknown class Kernel\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function pnConfigGetVar\\(\\) has invalid return type value\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
@@ -35,11 +25,6 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\CustomSkeletonFHIRResourceService not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:\\$loggedInUserId has unknown class Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\The as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleHealthCalendarController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Models\\\\TeleHealthUser\\:\\:getDateRegistered\\(\\) has invalid return type Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\DateTime\\.$#',
@@ -172,14 +157,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class echoOEGlobalsBag\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Caught class MpdfException not found\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcher\\.$#',
+    'count' => 17,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @var contains unknown class EventDispatcher\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\$encounterId of method ESign\\\\Encounter_Log\\:\\:__construct\\(\\) has invalid type ESign\\\\unknown\\.$#',
@@ -277,19 +267,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getUserSetting\\(\\) has invalid return type Effective\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function prevSetting\\(\\) has invalid return type Prior\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\PatientPortal\\\\Chat\\\\ChatController not found\\.$#',
@@ -1180,11 +1160,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\FhirProcedureSurgeryService\\:\\:createProvenanceResource\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\Procedure\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Procedure/FhirProcedureSurgeryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:getUserSetting\\(\\) has invalid return type OpenEMR\\\\Services\\\\Globals\\\\Effective\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:prevSetting\\(\\) has invalid return type OpenEMR\\\\Services\\\\Globals\\\\Prior\\.$#',

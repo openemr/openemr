@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services\Cda;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\CDA\CDAPostParseEvent;
 use OpenEMR\Events\CDA\CDAPreParseEvent;
@@ -1187,7 +1188,7 @@ class CdaTemplateParse
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bps'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][0]['observation']['value']['value'] ?? null;
                     $this->templateData['field_name_value_array']['vital_sign'][$i]['bpd'] = $vital_sign_data['organizer']['component'][$j]['observation']['entryRelationship'][1]['observation']['value']['value'] ?? null;
                 } else {
-                    if (array_key_exists($code, $vitals_array)) {
+                    if ($code !== null && array_key_exists($code, $vitals_array)) {
                         $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $vital_sign_data['organizer']['component'][$j]['observation']['value']['value'] ?? null;
                     }
                 }
@@ -1238,12 +1239,12 @@ class CdaTemplateParse
             ];
             $is_negated = !empty($entry['observation']['negationInd'] ?? false);
             $code = $entry['observation']['code']['code'] ?? null;
-            if (array_key_exists($code, $vitals_array)) {
+            if ($code !== null && array_key_exists($code, $vitals_array)) {
                 $this->templateData['field_name_value_array']['vital_sign'][$i][$vitals_array[$code]] = $entry['observation']['value']['value'] ?? null;
                 $this->templateData['field_name_value_array']['vital_sign'][$i]['vital_column'] = $vitals_array[$code] ?? '';
             } else {
                 // log missed exam
-                error_log('Missed Physical Exam code (likely vital): ' . $code);
+                ServiceContainer::getLogger()->warning('Missed Physical Exam code (likely vital)', ['code' => $code]);
             }
 
             if (!empty($entry['observation']['entryRelationship']['observation']['value']['code'] ?? null)) {

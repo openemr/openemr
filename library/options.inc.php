@@ -20,7 +20,7 @@
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
- * @copyright 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  * Note: there are translation wrappers for the lists and layout labels
@@ -62,6 +62,7 @@ require_once("patient.inc.php");
 require_once("lists.inc.php");
 require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
@@ -139,7 +140,7 @@ function generate_select_list(
     $list_id,
     $currvalue,
     $title,
-    $empty_name = ' ',
+    string $empty_name = ' ',
     $class = '',
     $onchange = '',
     $tag_id = '',
@@ -184,6 +185,10 @@ function generate_select_list(
 
     $attributes['title'] = attr($title);
 
+    // generate_select_list() previously translated $empty_name unconditionally
+    // via xlt(), so keep that behavior with xlt() rather than xl_list_label()
+    // which is gated on the translate_lists setting.
+    // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
         preg_match_all('/select2/m', ($class ?? ''), $matches, PREG_SET_ORDER, 0);
@@ -643,7 +648,7 @@ function generate_form_field($frow, $currvalue): void
             $showEmpty = false;
             $empty_title = "Unassigned";
         } else {
-            $empty_title = $frow['empty_title'];
+            $empty_title = is_string($frow['empty_title']) ? $frow['empty_title'] : '';
         }
     } else {
         $empty_title = "Unassigned";
@@ -809,6 +814,7 @@ function generate_form_field($frow, $currvalue): void
         "AND authorized = 1 " .
         "ORDER BY lname, fname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform'>";
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         echo "<option value=''>" . xlt($empty_title) . "</option>";
         $got_selected = false;
         while ($urow = sqlFetchArray($ures)) {
@@ -1010,6 +1016,7 @@ function generate_form_field($frow, $currvalue): void
         $cres = sqlStatement("SELECT pc_catid, pc_catname " .
         "FROM openemr_postcalendar_categories ORDER BY pc_catname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'" . " $lbfonchange $disabled>";
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         echo "<option value=''>" . xlt($empty_title) . "</option>";
         $got_selected = false;
         while ($crow = sqlFetchArray($cres)) {
@@ -1521,7 +1528,7 @@ function generate_form_field($frow, $currvalue): void
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
                 // If defined this is the filename of the default starting image.
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
@@ -1708,7 +1715,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             $showEmpty = false;
             $empty_title = "Unassigned";
         } else {
-            $empty_title = $frow['empty_title'];
+            $empty_title = is_string($frow['empty_title']) ? $frow['empty_title'] : '';
         }
     } else {
         $empty_title = "Unassigned";
@@ -2274,7 +2281,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2770,7 +2777,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -3531,7 +3538,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             }
 
             // filter out all the empty field data from the patient report.
-            if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
+            if (!Utilities::isDateEmpty($currvalue)) {
                 // Handle starting of a new row.
                 if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     disp_end_row();
@@ -4790,7 +4797,7 @@ function lbf_current_value($frow, $formid, $encounter)
 
 function signer_head()
 {
-    return "<link href=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
+    return "<link href=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using
@@ -4799,7 +4806,7 @@ function signer_head()
 //
 function lbf_canvas_head($small = true)
 {
-    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/js/literallycanvas.min.js\"></script>";
+    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/js/literallycanvas.min.js\"></script>";
     if ($small) {
         $s .= <<<EOD
 <style>

@@ -9,7 +9,10 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
  */
 
 require_once('../../globals.php');
@@ -17,72 +20,76 @@ require_once('../../globals.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-?>
-<?php
+
 // Check authorization.
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: CAMOS admin", xl("admin"));
 }
 
+// Cache escaped table names to avoid repeated SHOW TABLES lookups.
+// escape_table_name() on literals is needed for case-insensitive matching
+// on MySQL installs where the actual table case differs from the code.
+$tbl_camos_category = escape_table_name("form_CAMOS_category");
+$tbl_camos_subcategory = escape_table_name("form_CAMOS_subcategory");
+$tbl_camos_item = escape_table_name("form_CAMOS_item");
 
-if ($_POST['export']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
+if (filter_input(INPUT_POST, 'export')) {
+    if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
     $temp = tmpfile();
-    if ($temp === false) {
-        echo "<h1>" . xlt("failed") . "</h1>";
-    } else {
-        $query1 = "select id, category from " . mitigateSqlTableUpperCase("form_CAMOS_category");
-        $statement1 = sqlStatement($query1);
-        while ($result1 = sqlFetchArray($statement1)) {
-                $tmp = $result1['category'];
-                $tmp = "<category>$tmp</category>" . "\n";
-                fwrite($temp, $tmp);
-                $query2 = "select id,subcategory from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where category_id=?";
-                $statement2 = sqlStatement($query2, [$result1['id']]);
-            while ($result2 = sqlFetchArray($statement2)) {
-                $tmp = $result2['subcategory'];
-                $tmp = "<subcategory>$tmp</subcategory>" . "\n";
-                fwrite($temp, $tmp);
-                $query3 = "select item, content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where subcategory_id=?";
-                $statement3 = sqlStatement($query3, [$result2['id']]);
-                while ($result3 = sqlFetchArray($statement3)) {
-                    $tmp = $result3['item'];
-                    $tmp = "<item>$tmp</item>" . "\n";
-                    fwrite($temp, $tmp);
-                    $tmp = preg_replace(["/\n/","/\r/"], ["\\\\n","\\\\r"], (string) $result3['content']);
-                    $tmp = "<content>$tmp</content>" . "\n";
-                    fwrite($temp, $tmp);
+    if ($temp) {
+        try {
+            $statement1 = QueryUtils::sqlStatementThrowException("SELECT id, category FROM {$tbl_camos_category}");
+            /** @var array{id: int, category: ?string} $result1 */
+            while ($result1 = QueryUtils::fetchArrayFromResultSet($statement1)) {
+                fwrite($temp, "<category>" . htmlspecialchars($result1['category'] ?? '', ENT_XML1) . "</category>\n");
+                $statement2 = QueryUtils::sqlStatementThrowException("SELECT id, subcategory FROM {$tbl_camos_subcategory} WHERE category_id = ?", [$result1['id']]);
+                /** @var array{id: int, subcategory: ?string} $result2 */
+                while ($result2 = QueryUtils::fetchArrayFromResultSet($statement2)) {
+                    fwrite($temp, "<subcategory>" . htmlspecialchars($result2['subcategory'] ?? '', ENT_XML1) . "</subcategory>\n");
+                    $statement3 = QueryUtils::sqlStatementThrowException("SELECT item, content FROM {$tbl_camos_item} WHERE subcategory_id = ?", [$result2['id']]);
+                    /** @var array{item: ?string, content: ?string} $result3 */
+                    while ($result3 = QueryUtils::fetchArrayFromResultSet($statement3)) {
+                        fwrite($temp, "<item>" . htmlspecialchars($result3['item'] ?? '', ENT_XML1) . "</item>\n");
+                        $content = is_string($result3['content']) ? $result3['content'] : '';
+                        $tmp = preg_replace(["/\n/", "/\r/"], ["\\\\n", "\\\\r"], $content) ?? '';
+                        fwrite($temp, "<content>" . htmlspecialchars($tmp, ENT_XML1) . "</content>\n");
+                    }
                 }
             }
-        }
 
-        rewind($temp);
+            rewind($temp);
             header("Pragma: public");
             header("Expires: 0");
             header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Content-Type: text/plain");
-            header("Content-Disposition: attachment; filename=\"CAMOS_export.txt\"");
+            header("Content-Type: text/plain");
+            header('Content-Disposition: attachment; filename="CAMOS_export.txt"');
+            fpassthru($temp);
+        } finally {
+            fclose($temp);
+        }
 
-        fpassthru($temp);
-        fclose($temp);
+        exit;
+    } else {
+        echo "<h1>" . xlt("failed") . "</h1>";
     }
 }
 
-if ($_POST['import']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
+if (filter_input(INPUT_POST, 'import')) {
+    if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    ?>
-    <?php
+
     $fname = '';
-    foreach ($_FILES as $file) {
-        $fname = $file['tmp_name'];
+    $userfile = $_FILES['userfile'] ?? null;
+    if (is_array($userfile) && is_string($userfile['tmp_name'])) {
+        $fname = $userfile['tmp_name'];
     }
 
     $handle = @fopen($fname, "r");
@@ -98,35 +105,34 @@ if ($_POST['import']) {
         $content = '';
         while (!feof($handle)) {
             $buffer = fgets($handle);
+            if (!is_string($buffer)) {
+                continue;
+            }
             if (preg_match('/<category>(.*?)<\/category>/', $buffer, $matches)) {
-                $category = trim($matches[1]); //trim in case someone edited by hand and added spaces
-                $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
-                if ($result = sqlFetchArray($statement)) {
+                $category = trim(html_entity_decode($matches[1], ENT_XML1));
+                $statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_category} WHERE category LIKE ?", [$category]);
+                /** @var array{id: int} $result */
+                if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
                     $category_id = $result['id'];
                 } else {
-                    $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_category") . " (user, category) " .
-                    "values (?, ?)";
-                    sqlStatement($query, [$session->get('authUser'), $category]);
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
-                    if ($result = sqlFetchArray($statement)) {
+                    QueryUtils::sqlStatementThrowException("INSERT INTO {$tbl_camos_category} (user, category) VALUES (?, ?)", [$session->get('authUser'), $category]);
+                    $statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_category} WHERE category LIKE ?", [$category]);
+                    if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
                         $category_id = $result['id'];
                     }
                 }
             }
 
             if (preg_match('/<subcategory>(.*?)<\/subcategory>/', $buffer, $matches)) {
-                $subcategory = trim($matches[1]);
-                $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
-                "like ? and category_id = ?", [$subcategory, $category_id]);
-                if ($result = sqlFetchArray($statement)) {
+                $subcategory = trim(html_entity_decode($matches[1], ENT_XML1));
+                $statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_subcategory} WHERE subcategory LIKE ? AND category_id = ?", [$subcategory, $category_id]);
+                /** @var array{id: int} $result */
+                if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
                     $subcategory_id = $result['id'];
                 } else {
-                    $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " (user, subcategory, category_id) " .
-                    "values (?, ?, ?)";
-                    sqlStatement($query, [$session->get('authUser'), $subcategory, $category_id]);
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
-                    "like ? and category_id = ?", [$subcategory, $category_id]);
-                    if ($result = sqlFetchArray($statement)) {
+                    QueryUtils::sqlStatementThrowException("INSERT INTO {$tbl_camos_subcategory} (user, subcategory, category_id) VALUES (?, ?, ?)", [$session->get('authUser'), $subcategory, $category_id]);
+                    $statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_subcategory} WHERE subcategory LIKE ? AND category_id = ?", [$subcategory, $category_id]);
+                    if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
                         $subcategory_id = $result['id'];
                     }
                 }
@@ -137,55 +143,41 @@ if ($_POST['import']) {
                 (preg_match('/<(content)>(.*?)<\/content>/s', $buffer, $matches))
             ) {
                 $mode = $matches[1];
-                $value = trim($matches[2]);
+                $value = trim(html_entity_decode($matches[2], ENT_XML1));
                 $insert_value = '';
                 if ($mode == 'item') {
                     $postfix = 0;
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where item like ? " .
-                    "and subcategory_id = ?", [$value, $subcategory_id]);
-                    if ($result = sqlFetchArray($statement)) {//let's count until we find a number available
+                    $statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_item} WHERE item LIKE ? AND subcategory_id = ?", [$value, $subcategory_id]);
+                    /** @var array{id: int} $result */
+                    if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {//let's count until we find a number available
                         $postfix = 1;
                         $inserted_duplicate = false;
                         while ($inserted_duplicate === false) {
                             $insert_value = $value . "_" . $postfix;
-                            $inner_statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " " .
-                                "where item like ? " .
-                                "and subcategory_id = ?", [$insert_value, $subcategory_id]);
-                            if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
-                                    $inner_query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
-                                    "values (?, ?, ?)";
-                                    sqlStatement($inner_query, [$session->get('authUser'), $insert_value, $subcategory_id]);
-                                    $inserted_duplicate = true;
+                            $inner_statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_item} WHERE item LIKE ? AND subcategory_id = ?", [$insert_value, $subcategory_id]);
+                            if (!($inner_result = QueryUtils::fetchArrayFromResultSet($inner_statement))) {//doesn't exist
+                                QueryUtils::sqlStatementThrowException("INSERT INTO {$tbl_camos_item} (user, item, subcategory_id) VALUES (?, ?, ?)", [$session->get('authUser'), $insert_value, $subcategory_id]);
+                                $inserted_duplicate = true;
                             } else {
                                 $postfix++;
                             }
                         }
                     } else {
-                        $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
-                        "values (?, ?, ?)";
-                        sqlStatement($query, [$session->get('authUser'), $value, $subcategory_id]);
+                        QueryUtils::sqlStatementThrowException("INSERT INTO {$tbl_camos_item} (user, item, subcategory_id) VALUES (?, ?, ?)", [$session->get('authUser'), $value, $subcategory_id]);
                     }
 
                     if ($postfix == 0) {
                         $insert_value = $value;
                     }
 
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where item like ? " .
-                    "and subcategory_id = ?", [$insert_value, $subcategory_id]);
-                    if ($result = sqlFetchArray($statement)) {
+                    $statement = QueryUtils::sqlStatementThrowException("SELECT id FROM {$tbl_camos_item} WHERE item LIKE ? AND subcategory_id = ?", [$insert_value, $subcategory_id]);
+                    /** @var array{id: int} $result */
+                    if ($result = QueryUtils::fetchArrayFromResultSet($statement)) {
                         $item_id = $result['id'];
                     }
                 } elseif ($mode == 'content') {
-                    $statement = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where id = ?", [$item_id]);
-                    if ($result = sqlFetchArray($statement)) {
-                        //$content = "/*old*/\n\n".$result['content']."\n\n/*new*/\n\n$value";
-                        $content = $value;
-                    } else {
-                        $content = $value;
-                    }
-
-                    $query = "UPDATE " . mitigateSqlTableUpperCase("form_CAMOS_item") . " set content = ? where id = ?";
-                    sqlStatement($query, [$content, $item_id]);
+                    $value = str_replace(["\\n", "\\r"], ["\n", "\r"], $value);
+                    QueryUtils::sqlStatementThrowException("UPDATE {$tbl_camos_item} SET content = ? WHERE id = ?", [$value, $item_id]);
                 }
             }
         }

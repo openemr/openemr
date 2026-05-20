@@ -59,9 +59,7 @@ $financial_reporting = 0;
 $revenue_code = '';
 
 if (isset($mode) && $thisauthwrite) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $code_id = empty($_POST['code_id']) ? '' : $_POST['code_id'] + 0;
     $code = $_POST['code'];
@@ -323,7 +321,7 @@ if ($fend > ($count ?? null)) {
                         response(cache[term]);
                         return;
                     }
-                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
+                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
                         cache[term] = data;
                         response(data);
                     });

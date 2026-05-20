@@ -51,7 +51,7 @@ class RouteController
 
     public function parseRequest(Request $request)
     {
-        $parts = explode("/", (string) $request->get('action'));
+        $parts = explode("/", (string) $request->query->get('action'));
 
         $mainAction = $parts[0] ?? null;
         $mainActionChild = $parts[1] ?? null;
@@ -95,8 +95,8 @@ class RouteController
 
     public function cdrInfoAction(Request $request): Response
     {
-        $serviceId = $request->get('serviceId', '');
-        $csrfToken = $request->get('csrf_token', '');
+        $serviceId = $request->query->get('serviceId', '');
+        $csrfToken = $request->query->get('csrf_token', '');
 
         if (CsrfUtils::verifyCsrfToken($csrfToken, session: $this->session) === false) {
             return $this->notFoundAction($request);
@@ -134,7 +134,7 @@ class RouteController
         if ($service == null) {
             return $this->notFoundAction($request);
         }
-        $status = $request->get('status', '');
+        $status = $request->query->get('status', '');
         $saveMessage = "";
         $alertType = "";
         if ($status == 'success') {
@@ -176,7 +176,7 @@ class RouteController
     {
         // TODO: @adunsulag need to handle CSRF token in save action
         ['subAction' => $serviceId] = $this->parseRequest($request);
-        $csrfToken = $request->get('_token', '');
+        $csrfToken = $request->request->get('_token', '');
         if (!CsrfUtils::verifyCsrfToken($csrfToken, $this->session)) {
             throw new CsrfInvalidException(xlt('Authentication Error'));
         }
@@ -190,8 +190,9 @@ class RouteController
 
         $fields = $service->getFields();
         foreach ($fields as $field) {
-            $value = $request->get($field['name'], '');
-            $service->setFieldValue($field['name'], $value);
+            $fieldName = (string) $field['name'];
+            $value = $request->request->get($fieldName, '');
+            $service->setFieldValue($fieldName, $value);
         }
         try {
             $fields = $service->getFields();

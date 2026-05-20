@@ -26,9 +26,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $content_type = "text/plain";
 

@@ -42,6 +42,7 @@ require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -391,7 +392,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
         <?php
         echo report_header($pid);
-        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/eye_mag/report.php");
+        include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/eye_mag/report.php");
         ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";
@@ -1310,7 +1311,7 @@ function eye_mag_row_delete(string $table, string $where): void
     while ($trow = sqlFetchArray($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (!$value || $value == '0000-00-00 00:00:00') {
+            if (Utilities::isDateEmpty($value)) {
                 continue;
             }
 

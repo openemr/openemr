@@ -47,9 +47,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, "portal_index_reset")) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: "portal_index_reset", dieOnFail: true);
 }
 SessionUtil::setSession('credentials_update', 1);
 

@@ -125,7 +125,7 @@ function credentials($doc, $r): void
     $b->appendChild($productName);
     $productVersion = $doc->createElement("productVersion");
     $productVersion->appendChild(
-        $doc->createTextNode((new VersionService())->asString())
+        $doc->createTextNode((string) (new VersionService())->getSoftwareVersion())
     );
     $b->appendChild($productVersion);
     $r->appendChild($b);

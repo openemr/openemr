@@ -15,7 +15,7 @@
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../../globals.php");
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 function clinic_note_report($pid, $encounter, $cols, $id): void
 {
@@ -46,7 +46,8 @@ function clinic_note_report($pid, $encounter, $cols, $id): void
             }
 
             $key = ucwords(str_replace("_", " ", $key));
-            print "<td valign='top'><span class='bold'>" . xlt($key) . ": </span><span class='text'>" . text($value) . "&nbsp;</span></td>\n";
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+            printf('<td valign="top"><span class="bold">%s: </span><span class="text">%s&nbsp;</span></td>', xlt($key), text($value));
             $count++;
             if ($count == $cols) {
                 $count = 0;

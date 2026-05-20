@@ -2719,7 +2719,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
     if (empty($column)) {
         // simple search for any table entries
         $sql = sqlStatementCdrEngine("SELECT * " .
-            "FROM `" . escape_table_name($table)  . "` " .
+            "FROM " . escape_table_name($table)  . " " .
             " " . $whereTables . " " .
             "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, [$patient_id]);
     } else {
@@ -2737,7 +2737,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             $sql = sqlStatementCdrEngine(
                 "SELECT b." . escape_sql_column_name($column, [$table]) . " " .
                 "FROM forms a " .
-                "LEFT JOIN `" . escape_table_name($table) . "` " . " b " .
+                "LEFT JOIN " . escape_table_name($table) . " " . " b " .
                 "ON (a.form_id=b.id AND a.formdir LIKE '" . add_escape_custom(substr($table, 5)) . "') " .
                 "WHERE a.deleted != '1' " .
                 "AND b." . escape_sql_column_name($column, [$table]) . "" . $compSql .
@@ -2754,7 +2754,7 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
 
             // search for number of specific items
             $sql = sqlStatementCdrEngine("SELECT " . escape_sql_column_name($column, [$table]) . " " .
-                "FROM `" . escape_table_name($table) . "` " .
+                "FROM " . escape_table_name($table) . " " .
                 " " . $whereTables . " " .
                 "WHERE " . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
@@ -2901,7 +2901,7 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
 
     // search for number of specific items
     $sql = sqlStatementCdrEngine("SELECT `result` " .
-        "FROM `" . escape_table_name($table)  . "` " .
+        "FROM " . escape_table_name($table)  . " " .
         "WHERE `category`=? " .
         "AND `item`=? " .
         "AND `complete`=? " .

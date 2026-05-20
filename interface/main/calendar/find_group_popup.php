@@ -27,9 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $info_msg = "";
@@ -195,7 +193,7 @@ if ($searchby && $searchparm) {
         <?php echo xlt('for') . ':'; ?>
         <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo attr($searchparam ?? ""); ?>'>        &nbsp;
         <input type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>'>
-        <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif"></div>
+        <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif"></div>
     </form>
 </div>
 

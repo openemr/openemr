@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -87,10 +88,7 @@ class PatientNameHistoryService extends BaseService
 
     public static function formatPreviousName($item)
     {
-        if (
-            $item['previous_name_enddate'] === '0000-00-00'
-            || $item['previous_name_enddate'] === '00/00/0000'
-        ) {
+        if (Utilities::isDateEmpty($item['previous_name_enddate'])) {
             $item['previous_name_enddate'] = '';
         }
         $item['previous_name_enddate'] = oeFormatShortDate($item['previous_name_enddate']);

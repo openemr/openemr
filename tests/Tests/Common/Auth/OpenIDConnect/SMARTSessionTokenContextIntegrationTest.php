@@ -39,6 +39,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
@@ -64,6 +65,7 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
 
     const KEY_PATH_PRIVATE = __DIR__ . '/../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key';
     private OEGlobalsBag $oldGlobals;
+    private mixed $oldKernel = null;
 
     private ServerConfig $serverConfig;
 
@@ -83,6 +85,10 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
         foreach ($this->globalsBag->all() as $key => $value) {
             $GLOBALS[$key] = $value;
         }
+        // ServerConfig reads webRoot from the Kernel, so provide one with the test value
+        $this->oldKernel = $GLOBALS['kernel'] ?? null;
+        $webserverRoot = OEGlobalsBag::getInstance()->getProjectDir() ?: '/var/www/openemr';
+        $GLOBALS['kernel'] = new Kernel($webserverRoot, '/openemr');
         $this->serverConfig = new ServerConfig();
         // Use a real session with mock storage for integration testing
         $this->session = new Session(new MockArraySessionStorage());
@@ -129,6 +135,11 @@ class SMARTSessionTokenContextIntegrationTest extends TestCase
             } else {
                 $GLOBALS[$key] = $value;
             }
+        }
+        if ($this->oldKernel !== null) {
+            $GLOBALS['kernel'] = $this->oldKernel;
+        } else {
+            unset($GLOBALS['kernel']);
         }
     }
 

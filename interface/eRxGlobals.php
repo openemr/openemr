@@ -11,7 +11,6 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Services\VersionService;
 
 class eRxGlobals
 {
@@ -49,15 +48,6 @@ class eRxGlobals
         if (array_key_exists($key, $this->configuration)) {
             return $this->configuration[$key];
         }
-    }
-
-    /**
-     * Return the version of OpenEMR
-     * @return string OpenEMR version
-     */
-    public function getOpenEMRVersion()
-    {
-        return (new VersionService())->asString();
     }
 
     /**

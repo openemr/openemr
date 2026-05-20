@@ -99,7 +99,7 @@ $display_div = "style='display:block;'";
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -117,7 +117,7 @@ $display_div = "style='display:block;'";
             form_from_doc_date: frmdate,
             form_to_doc_date: todate
         });
-        document.location='<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/display_documents.php?' + params;
+        document.location='<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/display_documents.php?' + params;
     }
 
 </script>
@@ -216,7 +216,7 @@ $display_div = "style='display:block;'";
                 <?php
                 if (sqlNumRows($resultSet)) {
                     while ($row = sqlFetchArray($resultSet)) {
-                        $url = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
+                        $url = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
                         // Get the notes for this document.
                         $notes = [];
                         $note = '';

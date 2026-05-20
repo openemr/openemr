@@ -123,10 +123,7 @@ class CareTeamViewCard extends CardModel
     private function handleFormSubmission()
     {
         if (($_POST['save_care_team'] ?? '') === 'true') {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
             $teamId = ValidationUtils::validateInt($_POST['team_id']);
             $teamId = $teamId === false ? null : $teamId;
