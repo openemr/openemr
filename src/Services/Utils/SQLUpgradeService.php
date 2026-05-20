@@ -737,8 +737,14 @@ class SQLUpgradeService implements ISQLUpgradeService
                             $eyeFormCategoryParent['rght'] + 5
                         ]
                     );
-                    // update categories_seq
-                    sqlStatementNoLog("UPDATE `categories_seq` SET `id` = (SELECT MAX(`id`) FROM `categories`)");
+                    // Resynchronize categories_seq after manually assigning category ids above.
+                    // categories_seq is a single-row sequence table consumed by ADODB GenID()
+                    // (see Tree.class.php). Historical upgrade data may have left multiple rows,
+                    // so collapse to a single row holding the current max id. DELETE-then-INSERT
+                    // is safe for 0, 1, or N starting rows and avoids the multi-row UPDATE that
+                    // fatals on a duplicate PRIMARY KEY.
+                    QueryUtils::fetchRecordsNoLog("DELETE FROM `categories_seq`");
+                    QueryUtils::fetchRecordsNoLog("INSERT INTO `categories_seq` (`id`) SELECT COALESCE(MAX(`id`), 0) FROM `categories`");
                     $this->echo("<p class='text-success'>Completed conversion of categories for eye form insertion.</p>\n");
                     $this->flush_echo();
                     $skipping = false;
