@@ -30,8 +30,6 @@ class ParseERATest extends TestCase
 
     /**
      * Minimal 835 with zero paid and a non-contractual adjustment (OA*96).
-     * This exercises the path where $svc['paid'] === 0.0 should be TRUE,
-     * meaning the error detection branch in sl_eob_process is reachable.
      */
     private function getZeroPaidNonContractualFixture(): string
     {
@@ -115,14 +113,14 @@ class ParseERATest extends TestCase
     /**
      * Write fixture to a temp file, parse it, clean up, return $out.
      *
-     * @return array<string, mixed>
+     * @return array<int|string, mixed>
      */
     private function parseFixture(string $content): array
     {
         $tmp = tempnam(sys_get_temp_dir(), 'era_test_');
         file_put_contents($tmp, $content);
 
-        /** @var array<string, mixed> $out */
+        /** @var array<int|string, mixed> $out */
         $out = [];
         $cb = function (array &$o, string $action) use (&$out): void {
             $out = $o;
@@ -134,39 +132,61 @@ class ParseERATest extends TestCase
         return $out;
     }
 
+    /**
+     * Extract first svc row from parsed output.
+     *
+     * @param array<int|string, mixed> $out
+     * @return array<string, mixed>
+     */
+    private function firstSvc(array $out): array
+    {
+        /** @var array<int, mixed> $svcs */
+        $svcs = $out['svc'];
+        /** @var array<string, mixed> $svc */
+        $svc = $svcs[0];
+        return $svc;
+    }
+
+    /**
+     * Extract first adj row from a svc row.
+     *
+     * @param array<string, mixed> $svc
+     * @return array<string, mixed>
+     */
+    private function firstAdj(array $svc): array
+    {
+        /** @var array<int, mixed> $adjs */
+        $adjs = $svc['adj'];
+        /** @var array<string, mixed> $adj */
+        $adj = $adjs[0];
+        return $adj;
+    }
+
     // -------------------------------------------------------------------------
     // Type tests — chg/paid are floats, not strings
     // -------------------------------------------------------------------------
 
     public function testPaidIsFloat(): void
     {
-        $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getNonZeroPaidFixture()));
         $this->assertIsFloat($svc['paid'], 'paid should be float, not string');
     }
 
     public function testChgIsFloat(): void
     {
-        $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getNonZeroPaidFixture()));
         $this->assertIsFloat($svc['chg'], 'chg should be float, not string');
     }
 
     public function testPaidValueParsedCorrectly(): void
     {
-        $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getNonZeroPaidFixture()));
         $this->assertSame(75.0, $svc['paid']);
     }
 
     public function testChgValueParsedCorrectly(): void
     {
-        $out = $this->parseFixture($this->getNonZeroPaidFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getNonZeroPaidFixture()));
         $this->assertSame(100.0, $svc['chg']);
     }
 
@@ -184,13 +204,9 @@ class ParseERATest extends TestCase
      */
     public function testZeroPaidIsFloatNotString(): void
     {
-        $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
-
-        $paid = $svc['paid'];
-        $this->assertIsFloat($paid, 'zero paid should be float 0.0, not string "0"');
-        $this->assertSame(0.0, $paid);
+        $svc = $this->firstSvc($this->parseFixture($this->getZeroPaidNonContractualFixture()));
+        $this->assertIsFloat($svc['paid'], 'zero paid should be float 0.0, not string "0"');
+        $this->assertSame(0.0, $svc['paid']);
     }
 
     // -------------------------------------------------------------------------
@@ -199,11 +215,8 @@ class ParseERATest extends TestCase
 
     public function testContractualWriteoffGroupCode(): void
     {
-        $out = $this->parseFixture($this->getZeroPaidContractualWriteoffFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
-        /** @var array<string, mixed> $adj */
-        $adj = $svc['adj'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getZeroPaidContractualWriteoffFixture()));
+        $adj = $this->firstAdj($svc);
 
         $this->assertSame(0.0, $svc['paid']);
         $this->assertSame('CO', $adj['group_code']);
@@ -212,11 +225,8 @@ class ParseERATest extends TestCase
 
     public function testContractualWriteoffAmountIsFloat(): void
     {
-        $out = $this->parseFixture($this->getZeroPaidContractualWriteoffFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
-        /** @var array<string, mixed> $adj */
-        $adj = $svc['adj'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getZeroPaidContractualWriteoffFixture()));
+        $adj = $this->firstAdj($svc);
 
         $this->assertIsFloat($adj['amount']);
         $this->assertSame(100.0, $adj['amount']);
@@ -228,11 +238,8 @@ class ParseERATest extends TestCase
 
     public function testNonContractualAdjGroupCode(): void
     {
-        $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
-        /** @var array<string, mixed> $adj */
-        $adj = $svc['adj'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getZeroPaidNonContractualFixture()));
+        $adj = $this->firstAdj($svc);
 
         $this->assertSame('OA', $adj['group_code']);
         $this->assertSame('96', $adj['reason_code']);
@@ -240,11 +247,8 @@ class ParseERATest extends TestCase
 
     public function testNonContractualAdjAmountIsFloat(): void
     {
-        $out = $this->parseFixture($this->getZeroPaidNonContractualFixture());
-        /** @var array<string, mixed> $svc */
-        $svc = $out['svc'][0];
-        /** @var array<string, mixed> $adj */
-        $adj = $svc['adj'][0];
+        $svc = $this->firstSvc($this->parseFixture($this->getZeroPaidNonContractualFixture()));
+        $adj = $this->firstAdj($svc);
 
         $this->assertIsFloat($adj['amount']);
         $this->assertSame(100.0, $adj['amount']);
@@ -260,13 +264,13 @@ class ParseERATest extends TestCase
         /** @var array<int, mixed> $svcs */
         $svcs = $out['svc'];
 
-        foreach ($svcs as $svc) {
-            /** @var array<string, mixed> $svc */
-            if ($svc['code'] === 'Claim') {
-                $this->assertIsFloat($svc['chg'], 'artificial Claim chg must be float');
-                $this->assertIsFloat($svc['paid'], 'artificial Claim paid must be float');
-                $this->assertSame(0.0, $svc['chg']);
-                $this->assertSame(0.0, $svc['paid']);
+        foreach ($svcs as $entry) {
+            /** @var array<string, mixed> $entry */
+            if ($entry['code'] === 'Claim') {
+                $this->assertIsFloat($entry['chg'], 'artificial Claim chg must be float');
+                $this->assertIsFloat($entry['paid'], 'artificial Claim paid must be float');
+                $this->assertSame(0.0, $entry['chg']);
+                $this->assertSame(0.0, $entry['paid']);
             }
         }
     }
