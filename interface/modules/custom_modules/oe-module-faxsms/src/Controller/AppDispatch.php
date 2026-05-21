@@ -149,26 +149,32 @@ abstract class AppDispatch
     abstract function fetchReminderCount(): string|bool;
 
     /**
-     * @param string|null $param
-     * @param mixed|null  $default
-     * @return mixed|null
-     */
-    /**
-     * Return the initialized readonly session when available. Some service
-     * factory paths can reach credential setup before the AppDispatch
-     * constructor has completed, so do not assign to $_session here.
+     * Returns the initialized instance session when the normal controller
+     * constructor path has assigned it. For static service factory paths that
+     * can reach setup/credentials before the parent constructor has run, fall
+     * back to the active OpenEMR session without assigning to the readonly
+     * property outside the constructor.
      *
      * @return SessionInterface
      */
     private function activeSession(): SessionInterface
     {
-        if (isset($this->_session)) {
-            return $this->_session;
+        $sessionProperty = new \ReflectionProperty(self::class, '_session');
+        if ($sessionProperty->isInitialized($this)) {
+            $session = $sessionProperty->getValue($this);
+            if ($session instanceof SessionInterface) {
+                return $session;
+            }
         }
 
         return SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
+    /**
+     * @param string|null $param
+     * @param mixed|null $default
+     * @return mixed|null
+     */
     public function getSession(?string $param = null, mixed $default = null): mixed
     {
         $session = $this->activeSession();
@@ -387,7 +393,7 @@ abstract class AppDispatch
 
     /**
      * @param string $key
-     * @param mixed  $value
+     * @param mixed $value
      * @return $this
      */
     public function setSession(string $key, $value): static
@@ -596,7 +602,6 @@ abstract class AppDispatch
                 'api_token' => '',
                 'fax_number' => ''
             ];
-            return $credentials;
         } else {
             $credentials = $credentials['credentials'];
         }
@@ -635,7 +640,6 @@ abstract class AppDispatch
     /**
      * This is available to all services
      * regardless if EmailClient is enabled.
-     *
      * @param        $email
      * @param        $from_name
      * @param        $body
