@@ -40,6 +40,7 @@ final class HolidayCsvParser implements HolidayCsvParserInterface
 
         $rowNumber = 0;
         $emitted = 0;
+        $sawNonEmptyRow = false;
         foreach ($reader->getRecords() as $record) {
             $rowNumber++;
             $rawFirst = $record[0] ?? null;
@@ -49,9 +50,11 @@ final class HolidayCsvParser implements HolidayCsvParserInterface
             }
             $rawSecond = $record[1] ?? null;
             $second = is_string($rawSecond) ? $rawSecond : '';
-            if ($rowNumber === 1 && self::isHeaderRow($first, $second)) {
+            if (!$sawNonEmptyRow && self::isHeaderRow($first, $second)) {
+                $sawNonEmptyRow = true;
                 continue;
             }
+            $sawNonEmptyRow = true;
 
             if ($rawSecond === null) {
                 throw new InvalidHolidayCsvException(

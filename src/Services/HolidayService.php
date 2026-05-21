@@ -104,8 +104,11 @@ final class HolidayService implements HolidayServiceInterface
             throw new InvalidHolidayCsvException(xl('File must be a CSV'));
         }
 
-        // Validate first so we never persist a bad CSV.
-        $this->consume($this->csvParser->parse($upload->getPathname()));
+        // Validate first so we never persist a bad CSV. Iterate without
+        // materializing so a multi-megabyte upload doesn't get held in memory.
+        foreach ($this->csvParser->parse($upload->getPathname()) as $_) {
+            // intentionally empty — parse() throws on invalid rows
+        }
 
         $uploadDir = dirname($this->targetFile);
         try {
@@ -160,9 +163,6 @@ final class HolidayService implements HolidayServiceInterface
             );
         } catch (DbalException $e) {
             throw new RuntimeException(xl('Failed to read staged holidays'), previous: $e);
-        }
-        if ($staged === []) {
-            return;
         }
 
         $pcFacility ??= $this->facilityFromSession();
