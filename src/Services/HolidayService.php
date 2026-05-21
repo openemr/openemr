@@ -130,12 +130,13 @@ final class HolidayService implements HolidayServiceInterface
             throw new InvalidHolidayCsvException(xl('CSV file not found'));
         }
 
-        $rows = $this->consume($this->csvParser->parse($this->targetFile));
+        $rows = $this->csvParser->parse($this->targetFile);
 
         try {
             // DELETE rather than TRUNCATE so the change participates in the
             // surrounding transaction (TRUNCATE issues an implicit commit on
-            // MySQL/MariaDB).
+            // MySQL/MariaDB). Stream rows from the parser straight into the
+            // INSERT so large CSVs don't get materialized in memory.
             $this->connection->transactional(function () use ($rows): void {
                 $this->connection->executeStatement(
                     'DELETE FROM ' . self::TABLE_NAME
@@ -228,14 +229,18 @@ final class HolidayService implements HolidayServiceInterface
 
     public function getHolidaysByDateRange(string $startDate, string $endDate): array
     {
-        $rows = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-            SELECT pc_eventDate FROM openemr_postcalendar_events
-            WHERE (pc_catid = ? OR pc_catid = ?)
-              AND pc_eventDate >= ? AND pc_eventDate <= ?
-            SQL,
-            [self::CATEGORY_HOLIDAY, self::CATEGORY_CLOSED, $startDate, $endDate]
-        );
+        try {
+            $rows = $this->connection->fetchAllAssociative(
+                <<<'SQL'
+                SELECT pc_eventDate FROM openemr_postcalendar_events
+                WHERE (pc_catid = ? OR pc_catid = ?)
+                  AND pc_eventDate >= ? AND pc_eventDate <= ?
+                SQL,
+                [self::CATEGORY_HOLIDAY, self::CATEGORY_CLOSED, $startDate, $endDate]
+            );
+        } catch (DbalException $e) {
+            throw new RuntimeException(xl('Failed to look up holidays'), previous: $e);
+        }
         $dates = [];
         foreach ($rows as $row) {
             $value = $row['pc_eventDate'] ?? null;
@@ -251,13 +256,17 @@ final class HolidayService implements HolidayServiceInterface
         // Stored dates use Y-m-d; accept either separator in input.
         $date = strtr($date, '/', '-');
         if ($this->holidayDateSet === null) {
-            $rows = $this->connection->fetchAllAssociative(
-                <<<'SQL'
-                SELECT pc_eventDate FROM openemr_postcalendar_events
-                WHERE pc_catid = ? OR pc_catid = ?
-                SQL,
-                [self::CATEGORY_HOLIDAY, self::CATEGORY_CLOSED]
-            );
+            try {
+                $rows = $this->connection->fetchAllAssociative(
+                    <<<'SQL'
+                    SELECT pc_eventDate FROM openemr_postcalendar_events
+                    WHERE pc_catid = ? OR pc_catid = ?
+                    SQL,
+                    [self::CATEGORY_HOLIDAY, self::CATEGORY_CLOSED]
+                );
+            } catch (DbalException $e) {
+                throw new RuntimeException(xl('Failed to look up holidays'), previous: $e);
+            }
             $set = [];
             foreach ($rows as $row) {
                 $value = $row['pc_eventDate'] ?? null;
@@ -269,22 +278,6 @@ final class HolidayService implements HolidayServiceInterface
         }
 
         return isset($this->holidayDateSet[$date]);
-    }
-
-    /**
-     * Materialize a parsed-row iterable into a list, so the caller can iterate
-     * multiple times and validation errors surface before any persistence.
-     *
-     * @param iterable<int, HolidayRow> $rows
-     * @return list<HolidayRow>
-     */
-    private function consume(iterable $rows): array
-    {
-        $out = [];
-        foreach ($rows as $row) {
-            $out[] = $row;
-        }
-        return $out;
     }
 
     private function facilityFromSession(): int
