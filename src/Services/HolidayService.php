@@ -88,14 +88,18 @@ final class HolidayService implements HolidayServiceInterface
     public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void
     {
         $this->uploadCsv($upload);
+        if (!$this->filesystem->exists($this->targetFile)) {
+            throw new InvalidHolidayCsvException(xl('CSV file not found'));
+        }
         try {
             $this->connection->transactional(function () use ($pcFacility): void {
-                $this->importHolidaysFromCsv();
-                $this->publishHolidayEvents($pcFacility);
+                $this->doImportStagedRows($this->csvParser->parse($this->targetFile));
+                $this->doPublishStagedRows($pcFacility);
             });
         } catch (DbalException $e) {
             throw new RuntimeException(xl('Failed to apply holidays to the calendar'), previous: $e);
         }
+        $this->holidayDateSet = null;
     }
 
     public function uploadCsv(UploadedFile $upload): void
@@ -133,21 +137,8 @@ final class HolidayService implements HolidayServiceInterface
         $rows = $this->csvParser->parse($this->targetFile);
 
         try {
-            // DELETE rather than TRUNCATE so the change participates in the
-            // surrounding transaction (TRUNCATE issues an implicit commit on
-            // MySQL/MariaDB). Stream rows from the parser straight into the
-            // INSERT so large CSVs don't get materialized in memory.
             $this->connection->transactional(function () use ($rows): void {
-                $this->connection->executeStatement(
-                    'DELETE FROM ' . self::TABLE_NAME
-                );
-                foreach ($rows as $row) {
-                    $this->connection->insert(self::TABLE_NAME, [
-                        'date' => $row->dateForStorage(),
-                        'description' => $row->description,
-                        'source' => 'csv',
-                    ]);
-                }
+                $this->doImportStagedRows($rows);
             });
         } catch (DbalException $e) {
             throw new RuntimeException(xl('Failed to import holidays into the staging table'), previous: $e);
@@ -157,50 +148,8 @@ final class HolidayService implements HolidayServiceInterface
     public function publishHolidayEvents(?int $pcFacility = null): void
     {
         try {
-            $staged = $this->connection->fetchAllAssociative(
-                <<<'SQL'
-                SELECT date, description FROM calendar_external
-                SQL
-            );
-        } catch (DbalException $e) {
-            throw new RuntimeException(xl('Failed to read staged holidays'), previous: $e);
-        }
-
-        $pcFacility ??= $this->facilityFromSession();
-        $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
-
-        try {
-            $this->connection->transactional(function () use ($staged, $pcFacility, $recurrSpec): void {
-                $this->connection->executeStatement(
-                <<<'SQL'
-                DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?
-                SQL,
-                [self::CATEGORY_HOLIDAY]
-                );
-
-                foreach ($staged as $row) {
-                    $description = $row['description'];
-                    $date = $row['date'];
-                    if (!is_string($description) || !is_string($date)) {
-                        continue;
-                    }
-                    $this->connection->executeStatement(
-                    <<<'SQL'
-                    INSERT INTO openemr_postcalendar_events (
-                        pc_catid, pc_aid, pc_pid, pc_title, pc_time,
-                        pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
-                        pc_eventstatus, pc_facility, pc_sharing
-                    ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, 2)
-                    SQL,
-                    [
-                        self::CATEGORY_HOLIDAY,
-                        $description,
-                        $date,
-                        $recurrSpec,
-                        $pcFacility,
-                    ]
-                    );
-                }
+            $this->connection->transactional(function () use ($pcFacility): void {
+                $this->doPublishStagedRows($pcFacility);
             });
         } catch (DbalException $e) {
             throw new RuntimeException(xl('Failed to publish holiday events'), previous: $e);
@@ -208,6 +157,76 @@ final class HolidayService implements HolidayServiceInterface
 
         // Invalidate the in-memory cache only after the commit succeeds.
         $this->holidayDateSet = null;
+    }
+
+    /**
+     * DELETE all staged rows and INSERT the parsed CSV rows. Must be called
+     * inside a transaction so the swap is atomic. Streams rows from the
+     * generator straight into INSERT so large CSVs don't get materialized.
+     *
+     * @param iterable<int, HolidayRow> $rows
+     */
+    private function doImportStagedRows(iterable $rows): void
+    {
+        // DELETE rather than TRUNCATE so the change participates in the
+        // surrounding transaction (TRUNCATE issues an implicit commit on
+        // MySQL/MariaDB).
+        $this->connection->executeStatement('DELETE FROM ' . self::TABLE_NAME);
+        foreach ($rows as $row) {
+            $this->connection->insert(self::TABLE_NAME, [
+                'date' => $row->dateForStorage(),
+                'description' => $row->description,
+                'source' => 'csv',
+            ]);
+        }
+    }
+
+    /**
+     * Read the staging table and republish it onto the calendar. Must be
+     * called inside a transaction so the read and the delete+insert see a
+     * consistent snapshot of calendar_external.
+     */
+    private function doPublishStagedRows(?int $pcFacility): void
+    {
+        $staged = $this->connection->fetchAllAssociative(
+            <<<'SQL'
+            SELECT date, description FROM calendar_external
+            SQL
+        );
+
+        $pcFacility ??= $this->facilityFromSession();
+        $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
+
+        $this->connection->executeStatement(
+            <<<'SQL'
+            DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?
+            SQL,
+            [self::CATEGORY_HOLIDAY]
+        );
+
+        foreach ($staged as $row) {
+            $description = $row['description'];
+            $date = $row['date'];
+            if (!is_string($description) || !is_string($date)) {
+                continue;
+            }
+            $this->connection->executeStatement(
+                <<<'SQL'
+                INSERT INTO openemr_postcalendar_events (
+                    pc_catid, pc_aid, pc_pid, pc_title, pc_time,
+                    pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
+                    pc_eventstatus, pc_facility, pc_sharing
+                ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, 2)
+                SQL,
+                [
+                    self::CATEGORY_HOLIDAY,
+                    $description,
+                    $date,
+                    $recurrSpec,
+                    $pcFacility,
+                ]
+            );
+        }
     }
 
     public function getStoredCsvModifiedAt(): ?string
