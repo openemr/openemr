@@ -23,7 +23,6 @@ namespace OpenEMR\Services;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\Database;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -185,6 +184,12 @@ final class HolidayService implements HolidayServiceInterface
      * Read the staging table and republish it onto the calendar. Must be
      * called inside a transaction so the read and the delete+insert see a
      * consistent snapshot of calendar_external.
+     *
+     * Holidays are inserted with `pc_facility = 0`, the OpenEMR sentinel
+     * for "all facilities", so a clinician viewing any facility (or "All
+     * Facilities") in the calendar sees them. The category-scoped DELETE
+     * is symmetric — it removes every previous holiday event regardless
+     * of facility — so the publish is consistent across the org.
      */
     private function doPublishStagedRows(): void
     {
@@ -194,7 +199,6 @@ final class HolidayService implements HolidayServiceInterface
             SQL
         );
 
-        $pcFacility = $this->facilityFromSession();
         $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
 
         $this->connection->executeStatement(
@@ -223,7 +227,7 @@ final class HolidayService implements HolidayServiceInterface
                     $description,
                     $date,
                     $recurrSpec,
-                    $pcFacility,
+                    0, // pc_facility: "all facilities" — holidays are org-wide
                 ]
             );
         }
@@ -297,12 +301,5 @@ final class HolidayService implements HolidayServiceInterface
         }
 
         return isset($this->holidayDateSet[$date]);
-    }
-
-    private function facilityFromSession(): int
-    {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $value = $session->get('pc_facility');
-        return is_numeric($value) ? (int) $value : 0;
     }
 }
