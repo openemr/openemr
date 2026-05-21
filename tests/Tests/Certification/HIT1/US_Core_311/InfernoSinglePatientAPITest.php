@@ -182,7 +182,7 @@ class InfernoSinglePatientAPITest extends TestCase
 
     public function testBodyHeight(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'body_height', 'smart_auth_info');
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'bodyheight', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Height Observation Resource test failed");
     }
 
@@ -200,7 +200,7 @@ class InfernoSinglePatientAPITest extends TestCase
 
     public function testBodyWeight(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'body_weight', 'smart_auth_info');
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'bodyweight', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], "Us Core Body Weight Observation Resource test failed");
     }
 
@@ -260,7 +260,7 @@ class InfernoSinglePatientAPITest extends TestCase
     }
 
 
-    protected function getTestSuitePrefix()
+    protected function getTestSuitePrefix(): string
     {
         if (self::TEST_SUITE === self::TEST_SUITE_US_CORE_V311) {
             return 'us_core_v311-us_core_v311_fhir_api-us_core_v311_';
@@ -334,6 +334,7 @@ class InfernoSinglePatientAPITest extends TestCase
     protected function getTestGroupResponse(string $testGroupId, $credentialsKeyName = 'smart_credentials'): array
     {
         $accessToken = self::$testClient->getAccessToken();
+        assert($accessToken !== null, 'Access token must be set before running test groups');
         $testRunData = [
             'test_session_id' => self::$sessionId,
             'test_group_id' => $testGroupId,

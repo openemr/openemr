@@ -5,7 +5,6 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @link      https://opencoreemr.com
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Andrew Moore <amoore@cpan.org>
  * @author    Boyd Stephen Smith Jr. <bss@iguanasuicide.net>
@@ -21,7 +20,7 @@
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2026 Stephen Waite <stephen.waite@open-emr.org>
- * @copyright 2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  * Note: there are translation wrappers for the lists and layout labels
@@ -63,18 +62,20 @@ require_once("patient.inc.php");
 require_once("lists.inc.php");
 require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PatientNameHistoryService;
-use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $facilityService = new FacilityService();
 
@@ -118,7 +119,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-            [$GLOBALS['pid'], $GLOBALS['encounter']]
+            [OEGlobalsBag::getInstance()->get('pid'), OEGlobalsBag::getInstance()->get('encounter')]
         );
         if (!empty($tmp['date'])) {
             $asof = substr((string) $tmp['date'], 0, 10);
@@ -139,7 +140,7 @@ function generate_select_list(
     $list_id,
     $currvalue,
     $title,
-    $empty_name = ' ',
+    string $empty_name = ' ',
     $class = '',
     $onchange = '',
     $tag_id = '',
@@ -150,7 +151,7 @@ function generate_select_list(
     $include_inactive = false,
     $tabIndex = false
 ) {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $attributes = [];
     $_options = [];
     $_metadata = [];
@@ -184,6 +185,10 @@ function generate_select_list(
 
     $attributes['title'] = attr($title);
 
+    // generate_select_list() previously translated $empty_name unconditionally
+    // via xlt(), so keep that behavior with xlt() rather than xl_list_label()
+    // which is gated on the translate_lists setting.
+    // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
         preg_match_all('/select2/m', ($class ?? ''), $matches, PREG_SET_ORDER, 0);
@@ -222,8 +227,8 @@ function generate_select_list(
         // This block should be migrated to the ListService but the service currently does not translate or offer a sort option.
 
         // sort by title
-        $order_by_sql = ($GLOBALS['gb_how_sort_list'] == '0') ? "seq, title" : "title, seq";
-        if (!$GLOBALS['translate_lists']) {
+        $order_by_sql = (OEGlobalsBag::getInstance()->get('gb_how_sort_list') == '0') ? "seq, title" : "title, seq";
+        if (!OEGlobalsBag::getInstance()->getBoolean('translate_lists')) {
             // do not translate
             $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = ? ORDER BY $order_by_sql", [$list_id, $active]);
         } else {
@@ -583,7 +588,7 @@ function generate_form_field($frow, $currvalue): void
 {
     global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $currescaped = htmlspecialchars($currvalue ?? '', ENT_QUOTES);
 
@@ -643,7 +648,7 @@ function generate_form_field($frow, $currvalue): void
             $showEmpty = false;
             $empty_title = "Unassigned";
         } else {
-            $empty_title = $frow['empty_title'];
+            $empty_title = is_string($frow['empty_title']) ? $frow['empty_title'] : '';
         }
     } else {
         $empty_title = "Unassigned";
@@ -687,7 +692,7 @@ function generate_form_field($frow, $currvalue): void
         if ($data_type == 46) {
             // support for single-selection list with comment support
             $selectedValues = explode("|", (string) $currvalue);
-            if (!preg_match('/^comment_/', (string) $currvalue) || (count($selectedValues) == 1)) {
+            if (!str_starts_with((string) $currvalue, 'comment_') || (count($selectedValues) == 1)) {
                 $display = "display:none";
                 $comment = "";
             } else {
@@ -713,7 +718,13 @@ function generate_form_field($frow, $currvalue): void
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'
+        // Use type="email" for fields with email validation for native browser validation
+        $fieldValidation = null;
+        if (is_array($frow) && array_key_exists('validation', $frow) && is_string($frow['validation'])) {
+            $fieldValidation = $frow['validation'];
+        }
+        $inputType = ($fieldValidation === 'email') ? 'email' : 'text';
+        echo "<input type='{$inputType}'
             class='form-control{$smallform}'
             name='form_{$field_id_esc}'
             id='form_{$field_id_esc}'
@@ -733,7 +744,7 @@ function generate_form_field($frow, $currvalue): void
             echo " onchange='$tmp'";
         }
 
-        $tmp = htmlspecialchars((string) $GLOBALS['gbl_mask_patient_id'], ENT_QUOTES);
+        $tmp = htmlspecialchars(OEGlobalsBag::getInstance()->getString('gbl_mask_patient_id'), ENT_QUOTES);
         // If mask is for use at save time, treat as no mask.
         if (str_contains($tmp, '^')) {
             $tmp = '';
@@ -784,7 +795,7 @@ function generate_form_field($frow, $currvalue): void
                 $dateValue  = oeFormatShortDate(substr($currescaped, 0, 10));
                 echo "<input type='text' size='10' class='datepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" .  attr($dateValue)  . "'";
             } else {
-                $dateValue  = oeFormatDateTime(substr($currescaped, 0, 20), 0);
+                $dateValue  = DateFormatterUtils::oeFormatDateTime(substr($currescaped, 0, 20), 0);
                 echo "<input type='text' size='20' class='datetimepicker$datetimepickerclass form-control$smallform' name='form_$field_id_esc' id='form_$field_id_esc'" . " value='" . attr($dateValue) . "'";
             }
         }
@@ -809,6 +820,7 @@ function generate_form_field($frow, $currvalue): void
         "AND authorized = 1 " .
         "ORDER BY lname, fname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' $lbfonchange $disabled class='form-control$smallform'>";
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         echo "<option value=''>" . xlt($empty_title) . "</option>";
         $got_selected = false;
         while ($urow = sqlFetchArray($ures)) {
@@ -874,7 +886,7 @@ function generate_form_field($frow, $currvalue): void
          * if anyone wants to render something after the pharmacy section on the demographics form,
          * they would have to listen to this event.
         */
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION);
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -1010,6 +1022,7 @@ function generate_form_field($frow, $currvalue): void
         $cres = sqlStatement("SELECT pc_catid, pc_catname " .
         "FROM openemr_postcalendar_categories ORDER BY pc_catname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'" . " $lbfonchange $disabled>";
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
         echo "<option value=''>" . xlt($empty_title) . "</option>";
         $got_selected = false;
         while ($crow = sqlFetchArray($cres)) {
@@ -1064,7 +1077,7 @@ function generate_form_field($frow, $currvalue): void
                 echo "<td width='" . attr($tdpct) . "%' nowrap>";
                 echo "<input type='checkbox' name='form_{$field_id_esc}[$option_id_esc]'" .
                 "id='form_{$field_id_esc}[$option_id_esc]' class='form-check-inline' value='1' $lbfonchange";
-                if (in_array($option_id, $avalue)) {
+                if (in_array($option_id, $avalue) || ($avalue === [''] && $lrow['is_default'])) {
                     echo " checked";
                 }
                 // Added 5-09 by BM - Translate label if applicable
@@ -1189,7 +1202,7 @@ function generate_form_field($frow, $currvalue): void
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -1521,7 +1534,7 @@ function generate_form_field($frow, $currvalue): void
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
                 // If defined this is the filename of the default starting image.
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
@@ -1537,7 +1550,7 @@ function generate_form_field($frow, $currvalue): void
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
     } elseif ($data_type == 41 || $data_type == 42) {
         $datatype = 'patient-signature';
-        $cpid = $GLOBALS['pid'];
+        $cpid = OEGlobalsBag::getInstance()->get('pid');
         $cuser = $session->get('authUserID');
         if ($data_type == 42) {
             $datatype = 'admin-signature';
@@ -1686,7 +1699,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
     global $rootdir, $date_init, $ISSUE_TYPES;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $currescaped = htmlspecialchars((string) $currvalue, ENT_QUOTES);
 
@@ -1708,7 +1721,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             $showEmpty = false;
             $empty_title = "Unassigned";
         } else {
-            $empty_title = $frow['empty_title'];
+            $empty_title = is_string($frow['empty_title']) ? $frow['empty_title'] : '';
         }
     } else {
         $empty_title = "Unassigned";
@@ -1792,7 +1805,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
             if (!$modtmp) {
                 echo text(oeFormatShortDate($currvalue));
             } else {
-                echo text(oeFormatDateTime($currvalue));
+                echo text(DateFormatterUtils::oeFormatDateTime($currvalue));
             }
             if ($agestr) {
                 echo "&nbsp;(" . text($agestr) . ")";
@@ -2044,7 +2057,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2274,7 +2287,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2349,7 +2362,7 @@ function generate_display_field($frow, $currvalue)
 {
     global $ISSUE_TYPES, $facilityService;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $data_type  = $frow['data_type'];
     $field_id   = $frow['field_id'] ?? null;
@@ -2411,7 +2424,7 @@ function generate_display_field($frow, $currvalue)
             if (!$modtmp) {
                 $s .= text(oeFormatShortDate($currvalue));
             } else {
-                $s .= text(oeFormatDateTime($currvalue));
+                $s .= text(DateFormatterUtils::oeFormatDateTime($currvalue));
             }
             if ($agestr) {
                 $s .= "&nbsp;(" . text($agestr) . ")";
@@ -2440,7 +2453,7 @@ function generate_display_field($frow, $currvalue)
          * if anyone wants to render something after the pharmacy section on the patient chart/dashboard,
          * they would have to listen to this event.
         */
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION);
     } elseif ($data_type == 13) { // squads
         $squads = AclExtended::aclGetSquads();
         if ($squads) {
@@ -2585,7 +2598,7 @@ function generate_display_field($frow, $currvalue)
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2770,7 +2783,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = OEGlobalsBag::getInstance()->getWebRoot() . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2899,7 +2912,7 @@ function generate_plaintext_field($frow, $currvalue)
         $s = $billingCodeType->buildPlaintextView($frow, $currvalue);
     } elseif ($data_type == 4) { // date
         $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
-        $s = !$modtmp ? text(oeFormatShortDate($currvalue)) : text(oeFormatDateTime($currvalue));
+        $s = !$modtmp ? text(oeFormatShortDate($currvalue)) : text(DateFormatterUtils::oeFormatDateTime($currvalue));
         $description = (isset($frow['description']) ? htmlspecialchars(xl_layout_label($frow['description']), ENT_QUOTES) : '');
         $age_asof_date = '';
         // Optional display of age or gestational age.
@@ -3034,7 +3047,7 @@ function generate_plaintext_field($frow, $currvalue)
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -3449,7 +3462,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if ('HIS' == $formtype) {
         $formtype .= '%'; // TBD: DEM also?
@@ -3499,7 +3512,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             if ($formtype == 'DEM') {
                 if (str_starts_with((string) $field_id, 'em_')) {
                     // Skip employer related fields, if it's disabled.
-                    if ($GLOBALS['omit_employers']) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                         continue;
                     }
 
@@ -3522,7 +3535,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             if (strcmp((string) $this_group, (string) $last_group) != 0) {
                 $group_name = $grparr[$this_group]['grp_title'];
                 // totally skip generating the employer category, if it's disabled.
-                if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                     continue;
                 }
 
@@ -3531,7 +3544,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             }
 
             // filter out all the empty field data from the patient report.
-            if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
+            if (!Utilities::isDateEmpty($currvalue)) {
                 // Handle starting of a new row.
                 if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     disp_end_row();
@@ -3639,7 +3652,7 @@ function display_layout_tabs($formtype, $result1, $result2 = ''): void
             }
             $prev_group = $this_group;
             $group_name = $grparr[$this_group]['grp_title'];
-            if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                 continue;
             }
             ?>
@@ -3694,7 +3707,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
         while ($frow = sqlFetchArray($fres)) {
             $this_group = $frow['group_id'] ?? "" ;
 
-            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -3732,7 +3745,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 if ($formtype == 'DEM') {
                     if (str_starts_with((string) $field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
-                        if ($GLOBALS['omit_employers']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                             continue;
                         }
 
@@ -3764,7 +3777,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 if (strcmp($this_group, $last_group) != 0) {
                     $group_name = $grparr[$this_group]['grp_title'];
                     // totally skip generating the employer category, if it's disabled.
-                    if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                    if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                         continue;
                     }
                     $last_group = $this_group;
@@ -3945,7 +3958,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
             $group_name = $grparr[$this_group]['grp_title'];
             $group_name_esc = text($group_name);
 
-            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -4037,7 +4050,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 if ($formtype == 'DEM') {
                     if (str_starts_with((string) $field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
-                        if ($GLOBALS['omit_employers']) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                             continue;
                         }
 
@@ -4059,7 +4072,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 // Handle a data category (group) change.
                 if (strcmp((string) $this_group, (string) $last_group) != 0) {
                     // totally skip generating the employer category, if it's disabled.
-                    if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                    if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                         continue;
                     }
 
@@ -4275,7 +4288,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
             }
         } elseif ($data_type == 46) {
             $reslist = trim((string) $_POST["$prefix$field_id"]);
-            if (preg_match('/^comment_/', $reslist)) {
+            if (str_starts_with($reslist, 'comment_')) {
                 $res_comment = str_replace('|', ' ', $_POST["{$prefix}text_$field_id"]);
                 $value = $reslist . "|" . $res_comment;
             } else {
@@ -4430,7 +4443,7 @@ function generate_layout_validation($form_id): void
  *                           use '0' for "unspecified facility"
  *                           use '' for "All facilities" (the default)
  * @param string $name - the name/id for select form (defaults to "form_facility")
- * @param boolean $allow_unspecified - include an option for "unspecified" facility
+ * @param bool $allow_unspecified - include an option for "unspecified" facility
  *                                     defaults to true
  * @return void - just echo the html encoded string
  *
@@ -4541,22 +4554,22 @@ function dropdown_facility(
  * This forms the header and functionality component of the widget. The information that is displayed
  * then follows this function followed by a closing div tag
  *
- * @var $title is the title of the section (already translated)
- * @var $label is identifier used in the tag id's and sql columns
- * @var $buttonLabel is the button label text (already translated)
- * @var $buttonLink is the button link information
- * @var $buttonClass is any additional needed class elements for the button tag
- * @var $linkMethod is the button link method ('javascript' vs 'html')
- * @var $bodyClass is to set class(es) of the body
- * @var $auth is a flag to decide whether to show the button
- * @var $fixedWidth is to flag whether width is fixed
- * @var $forceExpandAlways is a flag to force the widget to always be expanded
+ * @param mixed $title is the title of the section (already translated)
+ * @param mixed $label is identifier used in the tag id's and sql columns
+ * @param mixed $buttonLabel is the button label text (already translated)
+ * @param mixed $buttonLink is the button link information
+ * @param mixed $buttonClass is any additional needed class elements for the button tag
+ * @param mixed $linkMethod is the button link method ('javascript' vs 'html')
+ * @param mixed $bodyClass is to set class(es) of the body
+ * @param mixed $auth is a flag to decide whether to show the button
+ * @param mixed $fixedWidth is to flag whether width is fixed
+ * @param mixed $forceExpandAlways is a flag to force the widget to always be expanded
  *
  * @todo Convert to a modern layout
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if ($fixedWidth) {
         echo "<div class='section-header'>";
     } else {
@@ -4790,11 +4803,7 @@ function lbf_current_value($frow, $formid, $encounter)
 
 function signer_head()
 {
-    return <<<EOD
-<link href="{$GLOBALS['web_root']}/portal/sign/css/signer_modal.css?v={$GLOBALS['v_js_includes']}" rel="stylesheet"/>
-<script src="{$GLOBALS['web_root']}/portal/sign/assets/signature_pad.umd.js?v={$GLOBALS['v_js_includes']}"></script>
-<script src="{$GLOBALS['web_root']}/portal/sign/assets/signer_api.js?v={$GLOBALS['v_js_includes']}"></script>
-EOD;
+    return "<link href=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/css/signer_modal.css?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signature_pad.umd.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getWebRoot() . "/portal/sign/assets/signer_api.js?v=" . OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using
@@ -4803,12 +4812,7 @@ EOD;
 //
 function lbf_canvas_head($small = true)
 {
-    $s = <<<EOD
-<link  href="{$GLOBALS['assets_static_relative']}/literallycanvas/css/literallycanvas.css" rel="stylesheet" />
-<script src="{$GLOBALS['assets_static_relative']}/react/build/react-with-addons.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/react/build/react-dom.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/literallycanvas/js/literallycanvas.min.js"></script>
-EOD;
+    $s = "<link  href=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . OEGlobalsBag::getInstance()->getKernel()->getAssetsRelative() . "/literallycanvas/js/literallycanvas.min.js\"></script>";
     if ($small) {
         $s .= <<<EOD
 <style>
@@ -4855,9 +4859,9 @@ EOD;
 /**
  *  Test if modifier($test) is in array of options for data type.
  * @deprecated use LayoutsUtils::isOption
- * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
+ * @param array $options json ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
- * @return boolean
+ * @return bool
  */
 function isOption($options, string $test): bool
 {

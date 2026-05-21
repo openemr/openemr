@@ -24,7 +24,7 @@
  * </example>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2019 Stephen Nielson <stephen@nielson.org>
@@ -54,7 +54,7 @@ class ModulesClassLoader
      * @param string          $prefix  The prefix/namespace, with trailing '\\'
      * @param string[]|string $paths   The PSR-4 base directories to
      *
-     * @return boolean
+     * @return bool
      * @throws \InvalidArgumentException
      *
      */

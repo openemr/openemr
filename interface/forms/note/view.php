@@ -4,7 +4,7 @@
  * Work/School Note Form view.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Nikolai Vitsyn
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2004-2005 Nikolai Vitsyn
@@ -15,19 +15,29 @@
 
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+
+require_once("$srcdir/api.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$session->get('authUser')]);
 
 /* name of this form */
 $form_name = "note";
 
 // get the record from the database
+$obj = [];
 if ($_GET['id'] != "") {
     $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
@@ -39,14 +49,14 @@ if ($_GET['id'] != "") {
 
 <script>
 // required for textbox date verification
-var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
 $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -61,7 +71,7 @@ function PrintForm() {
 <body class="body_top">
 
 <form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=update&id=" . attr_url($_GET["id"]);?>" name="my_form" id="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
 

@@ -23,25 +23,25 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Collections Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Collections Report", xl("Collections Report"));
 }
 
 $alertmsg = '';
@@ -61,6 +61,7 @@ $is_all         = $form_category == 'All';
 $is_ageby_lad   = str_contains(($_POST['form_ageby'] ?? ''), 'Last');
 $form_facility  = $_POST['form_facility'] ?? null;
 $form_provider  = $_POST['form_provider'] ?? null;
+$provider_name  = '';
 $form_payer_id  = $_POST['form_payer_id'] ?? null;
 // reposition the page after closing invoice variables
 $form_page_y    = $_POST['form_page_y'] ?? '';
@@ -416,7 +417,7 @@ if (!empty($_POST['form_csvexport'])) {
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         $(function () {
@@ -433,7 +434,7 @@ if (!empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -455,7 +456,7 @@ if (!empty($_POST['form_csvexport'])) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
 <form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -622,6 +623,7 @@ if (!empty($_POST['form_csvexport'])) {
                                echo "   <select name='form_provider' class='form-control'>\n";
                                echo "    <option value=''>-- " . xlt('All') . " --\n";
 
+                               $provider_name = '';
                         while ($urow = sqlFetchArray($ures)) {
                             $provid = $urow['id'];
                             echo "    <option value='" . attr($provid) . "'";
@@ -787,6 +789,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
     $eres = sqlStatement($query, $sqlArray);
 
+    $invlines = [];
+    $ins_id = 0;
+    $insposition = 0;
     while ($erow = sqlFetchArray($eres)) {
         $patient_id = $erow['pid'];
         $encounter_id = $erow['encounter'];
@@ -1097,7 +1102,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
                 echo "  <th class='dehead' align='left'>";
-                echo $form_age_inc * $c;
+                echo text((string) ($form_age_inc * $c));
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
                 } else {

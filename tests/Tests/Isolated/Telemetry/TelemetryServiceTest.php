@@ -7,7 +7,7 @@
  * Uses stubs and mocks to test business logic in isolation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,28 +15,40 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Telemetry;
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Core\Kernel;
+use OpenEMR\Services\SoftwareVersion;
 use OpenEMR\Services\VersionServiceInterface;
-use OpenEMR\Telemetry\GeoTelemetry;
 use OpenEMR\Telemetry\GeoTelemetryInterface;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class TelemetryServiceTest extends TestCase
 {
+    private bool $hadKernel;
+    private mixed $originalKernel;
+
+    protected function setUp(): void
+    {
+        $this->hadKernel = array_key_exists('kernel', $GLOBALS);
+        $this->originalKernel = $GLOBALS['kernel'] ?? null;
+    }
+
+    protected function tearDown(): void
+    {
+        if ($this->hadKernel) {
+            $GLOBALS['kernel'] = $this->originalKernel;
+        } else {
+            unset($GLOBALS['kernel']);
+        }
+    }
+
     public function testIsTelemetryEnabledReturnsTrueWhenTelemetryDisabledIsZero(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         // Create a partial mock of TelemetryService to mock the fetchRecords method
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -57,14 +69,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testIsTelemetryEnabledReturnsFalseWhenTelemetryDisabledIsNotZero(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         // Create a partial mock of TelemetryService to mock the fetchRecords method
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -85,14 +92,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventReturnsErrorForMissingEventType(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -110,14 +112,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventReturnsErrorForMissingEventLabel(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -135,14 +132,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventReturnsErrorForEmptyEventType(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -161,14 +153,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventSuccessfullyReportsEvent(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -212,14 +199,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventReturnsErrorWhenRepositoryFails(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -256,14 +238,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventStripsQueryParameters(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -290,20 +267,14 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventWithNormalizeUrlEnabled(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
-        // Set up GLOBALS to test the normalization behavior
-        $originalWebroot = $GLOBALS['webroot'] ?? null;
-        $GLOBALS['webroot'] = '/openemr';
+        // Set up a Kernel with webroot to test URL normalization
+        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '/openemr');
 
         $data = [
             'eventType' => 'click',
@@ -327,25 +298,13 @@ class TelemetryServiceTest extends TestCase
         $decodedResult = json_decode($result, true);
 
         $this->assertEquals(["success" => true], $decodedResult);
-
-        // Restore original webroot
-        if ($originalWebroot !== null) {
-            $GLOBALS['webroot'] = $originalWebroot;
-        } else {
-            unset($GLOBALS['webroot']);
-        }
     }
 
     public function testReportClickEventHandlesMissingOptionalFields(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -377,14 +336,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportUsageDataReturnsFalseWhenTelemetryDisabled(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         // Create a partial mock to mock the isTelemetryEnabled method
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -409,16 +363,9 @@ class TelemetryServiceTest extends TestCase
      */
     public function testReportUsageDataWithMockedDependencies(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
 
         // Create a partial mock to mock the dependencies we can control
@@ -465,8 +412,8 @@ class TelemetryServiceTest extends TestCase
 
         // Mock version service
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock successful HTTP response
         $telemetryService->expects($this->once())
@@ -492,16 +439,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportUsageDataHandlesGeoTelemetryError(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
 
         // Create a partial mock
@@ -537,8 +477,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock successful HTTP response despite geo error
         $telemetryService->expects($this->once())
@@ -561,16 +501,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportUsageDataHandlesHttpError(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
 
         // Create a partial mock
@@ -605,8 +538,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock HTTP error response
         $telemetryService->expects($this->once())
@@ -628,14 +561,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testTrackApiRequestEventCallsReportClickEventWhenTelemetryEnabled(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         // Create a partial mock to mock both isTelemetryEnabled and reportClickEvent
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -666,14 +594,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testTrackApiRequestEventDoesNotCallReportClickEventWhenTelemetryDisabled(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         // Create a partial mock to mock both isTelemetryEnabled and reportClickEvent
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -702,14 +625,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testTrackApiRequestEventHandlesEmptyData(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         // Create a partial mock to mock both isTelemetryEnabled and reportClickEvent
         $telemetryService = $this->getMockBuilder(TelemetryService::class)
@@ -735,14 +653,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testTrackApiRequestEventMethodSignature(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -767,20 +680,14 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportClickEventNormalizesUrlWithoutWebroot(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
-        // Set up GLOBALS with empty webroot to test the fallback behavior
-        $originalWebroot = $GLOBALS['webroot'] ?? null;
-        $GLOBALS['webroot'] = '';
+        // Set up a Kernel with empty webroot to test the fallback behavior
+        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '');
 
         $data = [
             'eventType' => 'click',
@@ -804,25 +711,15 @@ class TelemetryServiceTest extends TestCase
         $decodedResult = json_decode($result, true);
 
         $this->assertEquals(["success" => true], $decodedResult);
-
-        // Restore original webroot
-        if ($originalWebroot !== null) {
-            $GLOBALS['webroot'] = $originalWebroot;
-        } else {
-            unset($GLOBALS['webroot']);
-        }
     }
 
     public function testReportClickEventNormalizesUrlWithFragmentOnly(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
+        $GLOBALS['kernel'] = new Kernel('/var/www/openemr', '/openemr');
+
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
+        $mockLogger = $this->createMock(LoggerInterface::class);
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
@@ -853,16 +750,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportUsageDataLogsCurlError(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
 
         // Create a partial mock
@@ -897,8 +787,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock cURL response with error
         $curlError = 'Connection timeout';
@@ -943,16 +833,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportUsageDataLogsHttpError(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
 
         // Create a partial mock
@@ -987,8 +870,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock HTTP error response (404 Not Found)
         $telemetryService->expects($this->once())
@@ -1011,16 +894,9 @@ class TelemetryServiceTest extends TestCase
 
     public function testReportUsageDataHandlesSuccessfulResponseWithInvalidJson(): void
     {
-        /** @var TelemetryRepository|MockObject $mockRepository */
         $mockRepository = $this->createMock(TelemetryRepository::class);
-
-        /** @var VersionServiceInterface|MockObject $mockVersionService */
         $mockVersionService = $this->createMock(VersionServiceInterface::class);
-
-        /** @var SystemLogger|MockObject $mockLogger */
-        $mockLogger = $this->createMock(SystemLogger::class);
-
-        /** @var GeoTelemetryInterface|MockObject $mockGeoTelemetry */
+        $mockLogger = $this->createMock(LoggerInterface::class);
         $mockGeoTelemetry = $this->createMock(GeoTelemetryInterface::class);
 
         // Create a partial mock
@@ -1055,8 +931,8 @@ class TelemetryServiceTest extends TestCase
             ->willReturn([]);
 
         $mockVersionService->expects($this->once())
-            ->method('asString')
-            ->willReturn('7.0.0');
+            ->method('getSoftwareVersion')
+            ->willReturn(new SoftwareVersion(7, 0, 0, '', 0, 0, 0));
 
         // Mock successful HTTP response but with invalid JSON
         $telemetryService->expects($this->once())

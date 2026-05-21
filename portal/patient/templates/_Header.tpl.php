@@ -12,11 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 $assets_static_relative = $globalsBag->getString('assets_static_relative');
 $web_root = $globalsBag->getString('web_root');

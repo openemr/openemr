@@ -4,7 +4,7 @@
  * Implementation of ButtonIF for encounter module
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -14,8 +14,10 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/ButtonIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ButtonIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ViewableIF.php';
 
 class Encounter_Button implements ButtonIF
 {
@@ -30,12 +32,12 @@ class Encounter_Button implements ButtonIF
 
     public function isViewable()
     {
-        return $GLOBALS['esign_all'];
+        return OEGlobalsBag::getInstance()->getBoolean('esign_all');
     }
 
     public function getViewScript()
     {
-        return $GLOBALS['srcdir'] . '/ESign/views/encounter/esign_button.php';
+        return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/encounter/esign_button.php';
     }
 
     public function render(?SignableIF $signable = null)

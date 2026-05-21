@@ -4,7 +4,7 @@
  * letter.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2007-2011 Rod Roark <rod@sunsetsystems.com>
@@ -13,30 +13,27 @@
  */
 
 require_once("../globals.php");
-require_once($GLOBALS['srcdir'] . "/patient.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
-$template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$template_dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 // array of field name tags to allow internationalization
@@ -119,9 +116,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while saving to the file') . ' ' . text($template_dir) . "/autosaved" . ' . ' .
@@ -171,10 +166,10 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'] ?? '', $cpstring);
 
     if ($form_format == "pdf") {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
-            include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
+        $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
+        if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php")) {
+            include(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php");
         } else {
             $pdf->selectFont('Helvetica');
             $pdf->ezText($cpstring, 12);
@@ -217,7 +212,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir() . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -242,9 +237,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -264,9 +257,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -281,9 +272,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . text($template_dir) . "/" . text($_POST['newtemplatename']);
@@ -300,15 +289,14 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -323,9 +311,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
-    }
+    $temp_bodytext = $cryptoGen->encryptForFilesystem($temp_bodytext);
 
     if (! fwrite($fh, $temp_bodytext)) {
         echo xlt('Error while writing to file') . ' ' . text($template_dir) . "/" . text($_POST['form_template']);
@@ -341,15 +327,14 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
-    if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
-    }
+    $bodytext = $cryptoGen->decryptFromFilesystem($bodytext);
 
     // translate from constant to the definition
     foreach ($FIELD_TAG as $key => $value) {
@@ -481,7 +466,7 @@ function insertAtCursor(myField, myValue) {
 <body class="body_top" onunload='imclosing()'>
 
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 
@@ -542,7 +527,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template" class='form-control'>
    <option value="">(<?php echo xlt('none{{Template}}'); ?>)</option>
 <?php
-$tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$tpldir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) {
     die(xlt('Cannot read') . ' ' . text($tpldir));
@@ -554,15 +539,7 @@ while (false !== ($tfname = readdir($dh))) {
         continue;
     }
 
-    if (preg_match("/\.php$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.jpg$/", $tfname)) {
-        continue;
-    }
-
-    if (preg_match("/\.png$/", $tfname)) {
+    if (in_array(strtolower(pathinfo($tfname, PATHINFO_EXTENSION)), ['php', 'jpg', 'png'], true)) {
         continue;
     }
 
@@ -709,7 +686,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 

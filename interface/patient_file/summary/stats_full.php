@@ -4,26 +4,38 @@
  * stats_full.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+require_once($srcdir . '/lists.inc.php');
+require_once($webserver_root . '/custom/code_types.inc.php');
+require_once($srcdir . '/options.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid', 0);
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 
 // Check if user has permission for any issue type.
 $auth = false;
@@ -37,11 +49,10 @@ foreach ($ISSUE_TYPES as $type => $dummy) {
 if ($auth) {
     $tmp = getPatientData($pid, "squad");
     if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-        die(xlt('Not authorized'));
+        AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
     }
 } else {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Issues")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for issue types: Patient Issues", xl("Patient Issues"));
 }
 
  // Collect parameter(s)
@@ -50,6 +61,8 @@ if ($auth) {
 // Get patient's preferred language for the patient education URL.
 $tmp = getPatientData($pid, 'language');
 $language = $tmp['language'];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -122,7 +135,7 @@ function deleteSelectedIssues(tableName) {
 
     const params = new URLSearchParams({
         issue: ids,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
@@ -161,7 +174,7 @@ function newEncounter() {
 </script>
 <script>
 <?php
-require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
+require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal
 ?>
 </script>
 <?php
@@ -193,7 +206,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
-                <?php require_once("$include_root/patient_file/summary/dashboard_header.php") ?>
+                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php") ?>
             </div>
         </div>
         <?php
@@ -219,7 +232,21 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $canSelect = $btnDelete;
                     $btnAdd = false;
                     if (AclMain::aclCheckIssue($t, '', ['write', 'addonly'])) {
-                        if (in_array($t, ['allergy', 'medications']) && $GLOBALS['erx_enable']) {
+                        // Check if we should use eRx interface for allergies/medications.
+                        // Only redirect to eRx.php if the user has an eRx role configured,
+                        // otherwise allow them to add allergies via the normal interface.
+                        $userHasErxRole = false;
+                        if (in_array($t, ['allergy', 'medications']) && OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
+                            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                            $erxRoleRow = QueryUtils::fetchSingleValue(
+                                "SELECT newcrop_user_role FROM users WHERE id = ?",
+                                'newcrop_user_role',
+                                [$session->get('authUserID')]
+                            );
+                            $userHasErxRole = $erxRoleRow !== null && $erxRoleRow !== '';
+                        }
+
+                        if ($userHasErxRole) {
                             $btnAdd = [
                                 'href' => '../../eRx.php?page=medentry',
                                 'onclick' => 'top.restoreSession()',
@@ -232,7 +259,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                     }
 
-                    $condition = ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
+                    $condition = (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_medication_display') && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
                     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition ORDER BY begdate", [$pid, $t]);
                     $noIssues = false;
                     $nothingRecorded = false;
@@ -336,10 +363,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                             $shortBegDate = trim(oeFormatShortDate($row['begdate']) ?? '');
                             $shortEndDate = trim(oeFormatShortDate($row['enddate']) ?? '');
-                            $fullBegDate = trim(oeFormatDateTime($row['begdate']) ?? '');
-                            $fullEndDate = trim(oeFormatDateTime($row['enddate']) ?? '');
+                            $fullBegDate = trim(DateFormatterUtils::oeFormatDateTime($row['begdate']) ?? '');
+                            $fullEndDate = trim(DateFormatterUtils::oeFormatDateTime($row['enddate']) ?? '');
                             $shortModDate = trim(oeFormatShortDate($row['modifydate']) ?? '');
-                            $fullModDate = trim(oeFormatDateTime($row['modifydate']) ?? '');
+                            $fullModDate = trim(DateFormatterUtils::oeFormatDateTime($row['modifydate']) ?? '');
 
                             $outcome = ($row['outcome']) ?  generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']) : false;
                             ?>
@@ -462,7 +489,7 @@ $(function () {
           {
               type: this.name,
               patient_id: <?php echo js_escape($pid); ?>,
-              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
           }
       );
       $(this).hide();

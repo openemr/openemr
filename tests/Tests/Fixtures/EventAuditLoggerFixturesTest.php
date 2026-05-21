@@ -6,10 +6,9 @@
  * of database-dependent functionality like the patient portal menu lookup
  *
  * @package   OpenEMR\Tests\Fixtures
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com/
+ * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\TestCase;
 
 final class EventAuditLoggerFixturesTest extends TestCase
@@ -38,7 +37,6 @@ final class EventAuditLoggerFixturesTest extends TestCase
      */
     private array $modifiedGlobalKeys = [
         'enable_auditlog',
-        'enable_auditlog_encryption',
         'enable_atna_audit'
     ];
 
@@ -56,7 +54,6 @@ final class EventAuditLoggerFixturesTest extends TestCase
 
         // Enable audit logging for comprehensive testing
         $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['enable_auditlog_encryption'] = false;
 
         $this->eventAuditLogger = EventAuditLogger::getInstance();
 

@@ -4,7 +4,7 @@
  * Patient Portal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,6 @@
 
 require_once(__DIR__ . '/../../interface/globals.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -32,11 +31,11 @@ class ApplicationTable
      *            SQL Query Statement
      * @param array $params
      *            SQL Parameters
-     * @param boolean $log
+     * @param bool $log
      *            Logging True / False
-     * @param boolean $error
+     * @param bool $error
      *            Error Display True / False
-     * @return type
+     * @return mixed
      */
     public function zQuery($sql, $params = '', $log = false, $error = true)
     {
@@ -46,7 +45,7 @@ class ApplicationTable
         try {
             $return = sqlStatement($sql, $params);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -59,15 +58,20 @@ class ApplicationTable
         return $return;
     }
 
-    public function getPortalAuditRec($recid)
+    public function getPortalAuditRec($recid, ?int $patientId = null)
     {
         $return = false;
         $result = false;
         try {
-            $sql = "Select * From onsite_portal_activity Where  id = ?";
-            $return = sqlStatementNoLog($sql, $recid);
+            if ($patientId !== null) {
+                $sql = "Select * From onsite_portal_activity Where id = ? And patient_id = ?";
+                $return = sqlStatementNoLog($sql, [$recid, $patientId]);
+            } else {
+                $sql = "Select * From onsite_portal_activity Where id = ?";
+                $return = sqlStatementNoLog($sql, $recid);
+            }
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->errorHandler($e, $sql);
         }
         if ($result === true) {
@@ -93,7 +97,7 @@ class ApplicationTable
                                     "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
             $return = sqlStatementNoLog($sql, $audit);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $audit);
             }
@@ -121,11 +125,11 @@ class ApplicationTable
      *            Parameters for actions
      * @param array $auditvals
      *            Parameters of audit
-     * @param boolean $log
+     * @param bool $log
      *            openemr Logging True / False
-     * @param boolean $error
+     * @param bool $error
      *            Error Display True / False
-     * @param type audit array params for portal audits
+     * @param mixed $type audit array params for portal audits
      *         $audit = Array();
      *         $audit['patient_id']="";
      *         $audit['activity']="";
@@ -142,7 +146,7 @@ class ApplicationTable
      */
     public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $return = false;
         $result = false;
         $audit =  [];
@@ -186,7 +190,7 @@ class ApplicationTable
 
             $return = sqlStatementNoLog($logsql, $audit);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $logsql, $audit);
             }
@@ -200,10 +204,10 @@ class ApplicationTable
         return $return;
     }
 
-    public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
+    public function portalLog($event = '', mixed $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
         $globalsBag = OEGlobalsBag::getInstance();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $groupname = $globalsBag->get('groupname') ?? 'none';
         $user = $session->get('portal_username') ?? $session->get('authUser') ?? null;
         $log_from = $session->has('portal_username') ? 'onsite-portal' : 'portal-dashboard';
@@ -240,7 +244,7 @@ class ApplicationTable
      * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
-     * @param type $e
+     * @param \Throwable $e
      * @param string $sql
      * @param array $binds
      */
@@ -332,8 +336,8 @@ class ApplicationTable
         $temp = explode(' ', (string) $input_date); // split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
 
-        $output_format = ApplicationTable::dateFormat($output_format);
-        $input_format = ApplicationTable::dateFormat($input_format);
+        $output_format = $this->dateFormat($output_format);
+        $input_format = $this->dateFormat($input_format);
 
         preg_match("/[^ymd]/", (string) $output_format, $date_seperator_output);
         $seperator_output = $date_seperator_output[0];
@@ -369,8 +373,9 @@ class ApplicationTable
         return QueryUtils::generateId();
     }
 
-    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
+    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", mixed $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
+        $patient_id = (is_string($patient_id) || is_int($patient_id)) && $patient_id !== '' ? intval($patient_id) : null;
         EventAuditLogger::getInstance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
     }
 }// app query class

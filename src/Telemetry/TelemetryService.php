@@ -10,12 +10,13 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
-use OpenEMR\Services\VersionServiceInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Services\VersionServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Provides telemetry reporting functionality.
@@ -29,15 +30,21 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
 
+    protected LoggerInterface $logger;
+
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository     $repository
-     * @param ?VersionServiceInterface $versionService
+     * @param TelemetryRepository     $repository
+     * @param VersionServiceInterface $versionService
      * @param ?LoggerInterface         $logger
      */
-    public function __construct(protected ?TelemetryRepository $repository = new TelemetryRepository(), protected ?VersionServiceInterface $versionService = new VersionService(), protected ?LoggerInterface $logger = new SystemLogger())
-    {
+    public function __construct(
+        protected TelemetryRepository $repository = new TelemetryRepository(),
+        protected VersionServiceInterface $versionService = new VersionService(),
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
@@ -123,13 +130,13 @@ class TelemetryService
     public function reportUsageData(): int|bool
     {
         if (empty($this->isTelemetryEnabled())) {
-            error_log("Telemetry is not enabled, so do not send a usage report.");
+            $this->logger->debug("Telemetry is not enabled, so do not send a usage report.");
             return false;
         }
 
         $site_uuid = $this->getUniqueInstallationUuid();
         if (empty($site_uuid)) {
-            error_log("Site UUID not found.");
+            $this->logger->warning("Site UUID not found.");
         }
 
         // server geo data - don't let geo lookup failures prevent telemetry reporting
@@ -138,7 +145,7 @@ class TelemetryService
             $geo = $this->createGeoTelemetry();
             $serverGeoData = $geo->getServerGeoData();
             if (isset($serverGeoData['error'])) {
-                error_log("Telemetry: Unable to fetch server geolocation - " . $serverGeoData['error'] . ". Continuing with telemetry report.");
+                $this->logger->warning("Telemetry: Unable to fetch server geolocation - {error}. Continuing with telemetry report.", ['error' => $serverGeoData['error']]);
                 // Use null values for geo data if lookup fails
                 $serverGeoData = [
                     'country' => null,
@@ -149,8 +156,8 @@ class TelemetryService
                     'error' => $serverGeoData['error']
                 ];
             }
-        } catch (\Exception $e) {
-            error_log("Telemetry: Exception during geolocation lookup - " . $e->getMessage() . ". Continuing with telemetry report.");
+        } catch (\Throwable $e) {
+            $this->logger->warning("Telemetry: Exception during geolocation lookup - {message}. Continuing with telemetry report.", ['message' => $e->getMessage(), 'exception' => $e]);
             $serverGeoData = [
                 'country' => null,
                 'region' => null,
@@ -165,7 +172,7 @@ class TelemetryService
         $interval = date("Ym", strtotime("-33 Days"));
 
         $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
-        $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
+        $time_zone = $timeZoneResult['zone'] ?? OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
         $populationData = $this->repository->fetchSitePopulationData();
@@ -173,7 +180,7 @@ class TelemetryService
         $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
-            'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
+            'portal_enabled' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable'),
         ];
 
         $localeData = [
@@ -183,7 +190,7 @@ class TelemetryService
             'location' => json_encode($serverGeoData),
             'time_zone' => $time_zone,
             'locale' => locale_get_default(),
-            'version' => $this->versionService->asString(),
+            'version' => (string) $this->versionService->getSoftwareVersion(),
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),
@@ -203,7 +210,7 @@ class TelemetryService
         $response = $curlResult['response'];
         $httpStatus = $curlResult['httpStatus'];
         if (!empty($curlResult['error'])) {
-            error_log("cURL error: " . $curlResult['error']);
+            $this->logger->error("cURL error: {error}", ['error' => $curlResult['error']]);
         }
 
         if (in_array($httpStatus, [200, 201, 204])) {
@@ -211,13 +218,13 @@ class TelemetryService
             if ($responseData) {
                 $this->repository->clearTelemetryData(); // clear telemetry data after successful report //TODO: REMOVE comment RELEASE
             } else {
-                error_log("Error in response: " . json_encode($responseData));
+                $this->logger->error("Error in response: {response}", ['response' => json_encode($responseData)]);
             }
         } else {
-            error_log("HTTP error: " . $httpStatus);
+            $this->logger->error("HTTP error: {httpStatus}", ['httpStatus' => $httpStatus]);
         }
 
-        error_log("Telemetry sent: " . $httpStatus . ': ' . json_encode($serverGeoData));
+        $this->logger->debug("Telemetry sent: {httpStatus}: {geoData}", ['httpStatus' => $httpStatus, 'geoData' => json_encode($serverGeoData)]);
         return $httpStatus;
     }
 
@@ -238,7 +245,8 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        $normalized = !empty($GLOBALS['webroot']) ? preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path) : $path;
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
+        $normalized = ($webRoot !== '') ? preg_replace('#^(' . preg_quote($webRoot, '#') . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 
@@ -277,7 +285,7 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);

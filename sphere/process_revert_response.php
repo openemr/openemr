@@ -7,7 +7,7 @@
  * Csrf prevention is maintained.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,22 +15,22 @@
 
 require_once(__DIR__ . "/../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere_revert')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, key: 'csrf_token', subject: 'sphere_revert', dieOnFail: true);
 
-if ($GLOBALS['payment_gateway'] != 'Sphere') {
+if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    die(xlt("Unauthorized access."));
+    AccessDeniedHelper::deny('Unauthorized access to Sphere revert');
 }
 ?>
 
@@ -43,7 +43,8 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
 
     if (!empty($_POST['status']) && (($_POST['status'] == 'baddata') || ($_POST['status'] == 'error'))) {
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 0);
-        echo "<script>opener.sphereRevertNotSuccess(" . js_escape(xl("Aborted since unable to submit transaction") . ": " . $_POST['status'] . " " . $_POST['error'] . " " . $_POST['offenders']) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Aborted since unable to submit transaction") . ": " . $_POST['status'] . " " . $_POST['error'] . " " . $_POST['offenders']);
+        echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script>";
     } else if (!empty($_POST['hash']) && !empty($_POST['token'])) {
         $sphereRevert = new SphereRevert($_GET['front']);
 
@@ -68,18 +69,21 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
                     $completeRevertToString .= $key . ": " . $value . "\n";
                 }
             }
-            echo "<script>opener.sphereRevertNotSuccess(" . js_escape(xl("Aborted since unable to complete transaction") . ": " . $completeRevertToString) . ");dlgclose();</script></head><body></body></html>";
+            $msg = js_escape(xl("Aborted since unable to complete transaction") . ": " . $completeRevertToString);
+            echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script></head><body></body></html>";
             exit;
         }
 
         // Successful revert
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 1, $completeRevert['transid']);
-        echo "<script>opener.sphereRevertSuccess(" . js_escape(xl("Successful") . " " . $_POST['action']) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Successful") . " " . $_POST['action']);
+        echo "<script>opener.sphereRevertSuccess(" . $msg . ");dlgclose();</script>";
     } else {
         // catch all for errors that are not caught above
         $auditData['error_custom'] = "Unclear revert error with following querystring: " . $_POST['querystring'];
         PaymentProcessing::saveRevertAudit($_POST['uuid_tx'], $_POST['action'], $auditData, 0);
-        echo "<script>opener.sphereRevertNotSuccess(" . js_escape(xl("Revert Error") . ": " . $_POST['querystring']) . ");dlgclose();</script>";
+        $msg = js_escape(xl("Revert Error") . ": " . $_POST['querystring']);
+        echo "<script>opener.sphereRevertNotSuccess(" . $msg . ");dlgclose();</script>";
     }
     ?>
 </head>

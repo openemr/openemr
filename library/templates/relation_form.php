@@ -15,16 +15,18 @@
  *
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactRelationService;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonService;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Initialize services
 $contactService = new ContactService();
@@ -63,7 +65,7 @@ try {
             $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
             $targetContactId = $targetContact->get_id();
             if (empty($targetContactId)) {
-                $logger->errorLogCaller("No contact found for related person", [
+                $logger->error("No contact found for related person {person_id}", [
                     'person_id' => $targetId,
                     'owner_contact_relation_id' => $record['owner_contact_relation_id']
                 ]);
@@ -144,7 +146,7 @@ try {
             $relatedPersons[] = $relatedPerson;
         }
     }
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Error loading relations for form", [
         'foreign_table' => $foreign_table,
         'foreign_id' => $foreign_id,
@@ -177,6 +179,7 @@ $widgetConstants = [
     'textbox' => 2
 ];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Prepare template variables
 $templateVars = [
     'table_id' => $table_id,
@@ -198,9 +201,9 @@ $templateVars = [
     'owner_id' => $foreign_id,
     'owner_contact_id' => $ownerContactId,
     'target_contact_id' => $targetContactId,
-    'webroot' => $GLOBALS['webroot'],
-    'srcdir' => $GLOBALS['srcdir'],
-    'csrfToken' => CsrfUtils::collectCsrfToken()
+    'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
+    'srcdir' => OEGlobalsBag::getInstance()->getSrcDir(),
+    'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
 ];
 
 // TODO: @adunsulag - Remove debug log after testing
@@ -214,10 +217,10 @@ $logger->debug("Sending to TWIG", [
                     'owner_table' => $foreign_table,
                     'owner_id' => $foreign_id,
                     'owner_contact_id' => $ownerContactId,
-                    'csrfToken' => CsrfUtils::collectCsrfToken()
+                    'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
                 ]);
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/relation_form.html.twig', $templateVars);

@@ -21,7 +21,7 @@
  *
  *
  *
- * @link: https://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @package ediHistory
  */
 
@@ -37,7 +37,7 @@
 /**
  * Provide a more user-friendly date in csv tables
  *
- * @param string        YYYYMMDD
+ * @param string $strdate YYYYMMDD
  * @return string       YYYY-MM-DD
  */
 function edih_parse_date($strdate)
@@ -77,7 +77,7 @@ function edih_parse_date($strdate)
  * @uses edih_parse_date()
  * @uses edih_x12_transaction()
  * @uses edih_get_segment()
- * @param object     edih_x12_obj
+ * @param mixed $obj835 edih_x12_obj
  * @return array
  */
 function edih_835_csv_data($obj835)
@@ -101,6 +101,8 @@ function edih_835_csv_data($obj835)
         //
         $gsdate = '';
         $trace = '';
+        $ft = '';
+        $payer_id = '';
         //
         if (array_key_exists('GS', $env_ar)) {
             // for unlikely case of 'mixed' GS types in file
@@ -264,6 +266,7 @@ function edih_837_csv_data($obj837)
         //
         $ret_ar[$icn]['claim'] = [];
         $ret_ar[$icn]['file'] = [];
+        $gsdate = '';
         //$ret_ar[$icn]['type'] = $ft;
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
@@ -310,6 +313,8 @@ function edih_837_csv_data($obj837)
                     //array('PtName'=>0, 'SvcDate'=>1, 'CLM01'=>2, 'InsLevel'=>3, 'Control'=>4, 'FileName'=>5, 'Fee'=>6, 'PtPaid'=>7, 'Provider'=>8 );
 
                     //'f837': $hdr = array('PtName', 'SvcDate', 'CLM01', 'InsLevel', 'Control', 'FileName', 'Fee', 'PtPaid', 'Provider' )
+                    $cdx = 0;
+                    $hl = '';
                     foreach ($trans as $seg) {
                         if (strncmp((string) $seg, 'BHT' . $de, 4) === 0) {
                             $cdx = count($ret_ar[$icn]['claim']);
@@ -492,6 +497,9 @@ function edih_277_csv_data($obj277)
                 //
                 foreach ($asegs as $trans) {
                     //
+                    $cdx = 0;
+                    $hl = '';
+                    $sar = [];
                     foreach ($trans as $seg) {
                         //
                         if (strncmp((string) $seg, 'BHT' . $de, 4) === 0) {
@@ -710,7 +718,7 @@ function edih_277_csv_data($obj277)
 /**
  * parse an x12 278 file into data rows for csv tables
  *
- * @param object   x12_file_object
+ * @param mixed $obj278 x12_file_object
  * @return array
  */
 function edih_278_csv_data($obj278)
@@ -747,6 +755,9 @@ function edih_278_csv_data($obj278)
         $ret_ar[$icn]['claim'] = [];
         $ret_ar[$icn]['file'] = [];
         $rspdate = $isa['date'];
+        $cdx = 0;
+        $rqst = '';
+        $payer_name = '';
         //
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
@@ -769,6 +780,11 @@ function edih_278_csv_data($obj278)
             //$isadate = $env_ar['ISA'][$st['icn']]['date'];
             $isaicn = $st['icn'];
             $has_le = false;
+            $rqst = '';
+            $rej_ct = 0;
+            $payer_name = '';
+            $cdx = 0;
+            $sar = [];
             //
             // for "claim" array
             //
@@ -949,8 +965,8 @@ function edih_278_csv_data($obj278)
  * @uses csv_file_type()
  * @uses csv_search_record()
  *
- * @param string    concatenate ISA13 and ST02 for source file
- * @param string    type of source file
+ * @param string $rsp_trace concatenate ISA13 and ST02 for source file
+ * @param string $file_type type of source file
  * @return array
  */
 function edih_rsp_st_match($rsp_trace, $file_type)
@@ -981,7 +997,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
     $batch_srch = csv_search_record($ft, 'claim', ['s_val' => $rsp_trace, 's_col' => 4, 'r_cols' => 'All'], '1');
     if (is_array($batch_srch) && count($batch_srch[0])) {
         $info_ar['pt_name'] = $batch_srch[0][0]; // $batch_srch['PtName'];
-        $info_ar['clm01'] = ($rtp == 'f837') ? $batch_srch[0][2] : $batch_srch[0][4]; // $batch_srch['CLM01'] : $batch_srch['BHT03'];
+        $info_ar['clm01'] = ($ft == 'f837') ? $batch_srch[0][2] : $batch_srch[0][4]; // $batch_srch['CLM01'] : $batch_srch['BHT03'];
         $info_ar['svcdate'] = $batch_srch[0][1]; // ($rtp == 'f270') ? $batch_srch['ReqDate'] : $batch_srch['SvcDate'];
         $info_ar['batch_name'] = $batch_srch[0][5]; // $batch_srch['FileName'];
     }
@@ -1000,7 +1016,7 @@ function edih_rsp_st_match($rsp_trace, $file_type)
  *
  * @uses edih_x12_file()  edi HC file class
  * @uses edih_997_837_st_match()
- * @param object  edih_x12_file object of type 999/997
+ * @param mixed $obj997 edih_x12_file object of type 999/997
  * @return array
  */
 function edih_997_csv_data($obj997)
@@ -1028,6 +1044,8 @@ function edih_997_csv_data($obj997)
         //
         $ret_ar[$icn]['claim'] = [];
         $ret_ar[$icn]['file'] = [];
+        $rspdate = '';
+        $rsptype = '';
 
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
@@ -1061,6 +1079,12 @@ function edih_997_csv_data($obj997)
             //$isasender = $env_ar['ISA'][$st['icn']]['sender'];
             $isadate = $env_ar['ISA'][$st['icn']]['date'];
             $isaicn = $st['icn'];
+            $rspsttype = '';
+            $bht03syn = '';
+            $err_seg = '';
+            $ptname = '';
+            $svcdate = '';
+            $have_pt = false;
             // match 997/999 response to sent file ISA control
             $ret_ar[$icn]['file'][$fdx]['Trace'] = $st['trace'] ?: '';
             $bticn = $st['trace'] ?: '';
@@ -1220,7 +1244,7 @@ function edih_997_csv_data($obj997)
 /**
  * parse an x12 270/271 file into data rows for csv tables
  *
- * @param object   x12_file_object
+ * @param mixed $obj270 x12_file_object
  * @return array
  */
 function edih_271_csv_data($obj270)
@@ -1259,6 +1283,11 @@ function edih_271_csv_data($obj270)
         $ret_ar[$icn]['file'] = [];
         $rspdate = $isa['date'];
         $x12ptnr = $isa['receiver'];
+        $gsdate = '';
+        $payer_name = '';
+        $cdx = 0;
+        $isrsp = false;
+        $rej_ct = 0;
         //
         foreach ($env_ar['GS'] as $gs) {
             if ($gs['icn'] == $icn) {
@@ -1277,6 +1306,8 @@ function edih_271_csv_data($obj270)
             $stsegs = array_slice($seg_ar, $st['start'], $st['count']);
             $loopid = '0';
             $hl = 0;
+            $bnfteq = '';
+            $sar = [];
             //
             $isaicn = $st['icn'];
             $stn = $st['stn'];

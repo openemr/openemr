@@ -2,11 +2,11 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
+use Nyholm\Psr7\Response as Psr7Response;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Nyholm\Psr7\Response as Psr7Response;
 use Symfony\Component\HttpKernel\Event\ViewEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 

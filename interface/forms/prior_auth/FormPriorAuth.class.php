@@ -4,13 +4,14 @@
  * prior auth form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * class PriorAuth
@@ -55,7 +56,7 @@ class FormPriorAuth extends ORDataObject implements \Stringable
             $id = "";
         }
 
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         $this->activity = 1;
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";

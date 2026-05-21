@@ -4,7 +4,7 @@
  * To be run by cron hourly, sending phone reminders
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @author  Robert Down <robertdown@live.com>
@@ -15,11 +15,12 @@
  */
 
 require_once(__DIR__ . "/../../interface/globals.php");
-require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
-require_once($GLOBALS['srcdir'] . "/reminders.php");
-require_once($GLOBALS['srcdir'] . "/report_database.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/maviq_phone_api.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/reminders.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 //Remove time limit, since script can take many minutes
 set_time_limit(0);
@@ -31,8 +32,8 @@ $report_id = $_GET['report_id'] ?: "";
 // is increased, this cpu intensive script will have less affect on the performance
 // of other server activities, albeit it may negatively impact the performance
 // of this script (note this is only applicable for linux).
-if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
-    proc_nice($GLOBALS['pat_rem_clin_nice']);
+if (empty($report_id) && !empty(OEGlobalsBag::getInstance()->get('pat_rem_clin_nice'))) {
+    proc_nice(OEGlobalsBag::getInstance()->get('pat_rem_clin_nice'));
 }
 ?>
 
@@ -63,6 +64,8 @@ if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
               <td class='text' align='left' colspan="3"><br />
 
                 <?php
+                $results_log = ['type' => '', 'date_report' => '', 'data' => ''];
+                $send_rem_log = [];
                 if ($report_id) {
                 // collect log from a previous run to show
                     $results_log = collectReportDatabase($report_id);

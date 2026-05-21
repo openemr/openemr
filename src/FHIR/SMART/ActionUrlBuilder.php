@@ -31,6 +31,6 @@ class ActionUrlBuilder
     }
     private function getCSRFToken()
     {
-        return CsrfUtils::collectCsrfToken($this->csrfTokenName, $this->session);
+        return CsrfUtils::collectCsrfToken($this->session, $this->csrfTokenName);
     }
 }

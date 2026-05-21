@@ -223,7 +223,7 @@ assets:
     script: limitedcustom_config.js
   search-highlight:
     basePath: '%webroot%/library/js/'
-    script: SearchHighlight.js
+    script: searchHighlight.js
   track-anything:
     basePath: '%webroot%/interface/forms/track_anything/'
     link: style.css

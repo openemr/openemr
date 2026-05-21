@@ -15,7 +15,9 @@ namespace OpenEMR\Reports\AmcTracking;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AmcTrackingController
 {
@@ -190,13 +192,18 @@ class AmcTrackingController
      *
      * @param array $params
      * @param bool $showResults
+     * @param SessionInterface|null $session Active session for CSRF token generation;
+     *                                       defaults to the current session via SessionWrapperFactory.
      * @return array
      */
-    public function prepareTemplateData(array $params, bool $showResults = false): array
+    public function prepareTemplateData(array $params, bool $showResults = false, ?SessionInterface $session = null): array
     {
+        $session ??= SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken($session);
+
         $data = [
-            'csrf_token' => CsrfUtils::collectCsrfToken(),
-            'csrf_token_raw' => CsrfUtils::collectCsrfToken(),
+            'csrf_token' => $csrfToken,
+            'csrf_token_raw' => $csrfToken,
             'begin_date' => isset($params['begin_date'])
                 ? oeFormatDateTime($params['begin_date'], 'global', true)
                 : '',

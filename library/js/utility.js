@@ -2,7 +2,7 @@
  * Javascript utility functions for openemr
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -523,7 +523,7 @@ async function persistUserOption(option, value) {
  * Turn on/off in Globals->Logging
  *
  * @package   OpenEMR Utilities
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  */
 

@@ -1,10 +1,10 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
  * @subpackage plugins
  */
-
 
 /**
  * Smarty {html_select_time} function plugin
@@ -16,8 +16,8 @@
  *          (Smarty online manual)
  * @author Roberto Berto <roberto@berto.net>
  * @credits Monte Ohrt <monte AT ohrt DOT com>
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param Smarty $smarty
  * @return string
  * @uses smarty_make_timestamp()
  */

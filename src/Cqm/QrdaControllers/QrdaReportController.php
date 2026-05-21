@@ -4,7 +4,7 @@
  * QrdaDocumentController.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,9 @@ namespace OpenEMR\Cqm\QrdaControllers;
 
 use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\XmlUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
 
@@ -44,11 +47,11 @@ class QrdaReportController
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
         $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
-        if (empty($document)) {
+        if ($document === '') {
             return '';
         }
         if ($type === 'html') {
-            $xml = simplexml_load_string($document);
+            $xml = XmlUtils::loadString($document);
             $xsl = new DOMDocument();
             $xsl->load(__DIR__ . '/../../../interface/modules/zend_modules/public/xsl/qrda.xsl');
             $proc = new XSLTProcessor();
@@ -120,7 +123,7 @@ class QrdaReportController
             chmod($zip_directory, 0777);
         }
         // local xml save directory
-        $directory = $GLOBALS['OE_SITE_DIR'] . '/documents/' . 'cat1_reports';
+        $directory = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . 'cat1_reports';
         $directory .= ($bypid ? '/all_measures' : "/measures");
         if (!is_dir($directory)) {
             if (!mkdir($directory, 0755, true) && !is_dir($directory)) {
@@ -275,7 +278,7 @@ class QrdaReportController
         }
 
         // Create local storage directory for permanent copies
-        $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
+        $directory = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
         if (!is_dir($directory)) {
             if (!mkdir($directory, 0775, true) && !is_dir($directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));
@@ -355,11 +358,12 @@ class QrdaReportController
         // Clean up temporary directory
         $this->cleanupDirectory($zip_directory);
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Log the event
         EventAuditLogger::getInstance()->newEvent(
             "qrda3-export",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "QRDA3 download - " . count($measures) . " measures, " . count($pids) . " patients"
         );
@@ -448,18 +452,19 @@ class QrdaReportController
 
             // Save file locally. Placeholder for future use.
 
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Log the event
             EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-export",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 "QRDA III Consolidated download - " . count($measures) . " measures"
             );
 
             // Stream download to browser
             $this->streamXmlDownload($filename, $xml);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Consolidated QRDA III download failed: " . $e->getMessage());
 
             // Send error response

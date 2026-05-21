@@ -9,7 +9,7 @@
  * RM choose a selection of providers from the drop down menu
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
@@ -30,37 +30,38 @@ require_once("../../library/patient.inc.php");
 /**
  * @global $srcdir
  */
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/appointments.inc.php";
-require_once "$srcdir/clinical_rules.php";
+$srcDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once $srcDir . '/options.inc.php';
+require_once $srcDir . '/appointments.inc.php';
+require_once $srcDir . '/clinical_rules.php';
 
 use OpenEMR\Common\{
+    Acl\AccessDeniedHelper,
     Acl\AclMain,
     Csrf\CsrfUtils,
     Logging\SystemLogger,
-    Twig\TwigContainer,
+    Session\SessionUtil,
+    Session\SessionWrapperFactory,
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('patients', 'appt')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Appointments Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Appointments Report", xl("Appointments Report"));
 }
 
 # Clear the pidList session whenever load this page.
 # This session will hold array of patients that are listed in this
 # report, which is then used by the 'Superbills' and 'Address Labels'
 # features on this report.
-unset($_SESSION['pidList']);
-unset($_SESSION['apptdateList']);
+SessionUtil::unsetSession(['pidList', 'apptdateList']);
 
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'] ?? null;
@@ -128,12 +129,13 @@ function fetch_rule_txt($list_id, $option_id): array|false
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
-function fetch_reminders($pid, $appt_date): array
+function appointments_fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
     $seq_due = [];
     $seq_cat = [];
     $seq_act = [];
+    $rems_out = [];
     foreach ($rems as $ix => $rem) {
         $rem_out = [];
         $rule_txt = fetch_rule_txt('rule_reminder_due_opt', $rem['due_status']);
@@ -178,7 +180,7 @@ if (empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -235,7 +237,7 @@ if (empty($_POST['form_csvexport'])) {
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -500,13 +502,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $appointments = array_merge($appointments, $availableSlots);
     }
 
+    /** @var array<int, array<string, mixed>> $appointments */
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
         // include provider as well
         // RM generate csv file with same column headers row as used in the report itself
         $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB', 'Type', 'Status'];
         $csvfields = [];
-        for ($i = 0; $i < count($appointments); ++$i) {
+        $iMax = count($appointments);
+        for ($i = 0; $i < $iMax; ++$i) {
               $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
               $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
               $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
@@ -528,7 +532,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $spreadsheet->downloadSpreadsheet();
             }
         } catch (RuntimeException $e) {
-            $logger = new SystemLogger();
+            $logger = ServiceContainer::getLogger();
             $logger->logError($e->getMessage());
         }
     } else {
@@ -567,7 +571,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
             <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
                 <?php
-                    echo date('D', strtotime((string) $appointment['pc_eventDate']));
+                    echo text(date('D', strtotime((string) $appointment['pc_eventDate'])));
                 ?>
             </td>
 
@@ -614,7 +618,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $rems = [];
                 if ($patient_id && $incl_reminders) {
                     // collect reminders first, so can skip it if empty
-                    $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+                    $rems = appointments_fetch_reminders($patient_id, $appointment['pc_eventDate']);
                 }
                 ?>
                 <?php
@@ -646,8 +650,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $lastdocname = $docname;
         }
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
-        $_SESSION['pidList'] = $pid_list;
-        $_SESSION['apptdateList'] = $apptdate_list;
+        $session->set('pidList', $pid_list);
+        $session->set('apptdateList', $apptdate_list);
     } // end not form_csvexport
 
     if (empty($_POST['form_csvexport'])) { ?>

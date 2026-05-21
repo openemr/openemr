@@ -4,7 +4,7 @@
  * SDOH (USCDI v3) widget view page.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,13 +19,17 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once(dirname(__FILE__, 3) . "/globals.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 /** Lookup a list option title by (list_id, option_id). */
 function hs_lo_title(string $listId, ?string $value): string
@@ -79,8 +83,9 @@ function hs_badge_class(?string $val): string
 }
 
 $authorized = AclMain::aclCheckCore('patients', 'med');
-$self_form = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh.php";
-$list_url  = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_list.php";
+$siteId = $session->get('site_id');
+$self_form = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh.php";
+$list_url  = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/history/history_sdoh_list.php";
 
 $info = [];
 if ($authorized && !empty($pid)) {
@@ -189,12 +194,12 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
                     <span class="font-weight-bold"><?php echo xlt("SDOH (USCDI v3)"); ?></span>
                     <span class="btn-group btn-group-sm">
                     <?php
-                    $newUrl  = $self_form . '?' . http_build_query(['pid' => $pid, 'new' => 1]);
-                    $listUrl = $list_url  . '?' . http_build_query(['pid' => $pid]);
+                    $newUrl  = $self_form . '?' . http_build_query(['pid' => $pid, 'new' => 1, 'site' => $siteId]);
+                    $listUrl = $list_url  . '?' . http_build_query(['pid' => $pid, 'site' => $siteId]);
                     ?>
                     <a class="btn btn-outline-primary" href="<?php echo attr($newUrl); ?>"><?php echo xlt("New Assessment"); ?></a>
                     <?php if (!empty($info['id'])) :
-                        $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id']]);
+                        $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id'], 'site' => $siteId]);
                         ?>
                         <a class="btn btn-primary" href="<?php echo attr($editUrl); ?>"><?php echo xlt("Edit"); ?></a>
                     <?php endif; ?>

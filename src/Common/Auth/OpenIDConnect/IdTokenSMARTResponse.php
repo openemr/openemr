@@ -5,7 +5,7 @@
  * @see http://hl7.org/fhir/smart-app-launch/scopes-and-launch-context/index.html
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,8 +14,8 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use Lcobucci\JWT\Encoding\ChainedFormatter;
-use Lcobucci\JWT\Token\Builder;
 use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Builder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use LogicException;
@@ -39,7 +39,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
     const SCOPE_SMART_LAUNCH_PATIENT = 'launch/patient';
 
     /**
-     * @var boolean
+     * @var bool
      */
     private $isAuthorizationGrant;
 
@@ -165,7 +165,7 @@ class IdTokenSMARTResponse extends IdTokenResponse
         // Add required id_token claims
         $builder = $builder
             ->permittedFor($accessToken->getClient()->getIdentifier())
-            ->issuedBy($this->globalsBag->get('site_addr_oath') . $this->globalsBag->get('webroot') . "/oauth2/" . $this->session->get('site_id'))
+            ->issuedBy($this->globalsBag->get('site_addr_oath') . $this->globalsBag->getKernel()->getWebRoot() . "/oauth2/" . $this->session->get('site_id'))
             ->issuedAt(new \DateTimeImmutable('@' . time()))
             ->expiresAt(new \DateTimeImmutable('@' . $accessToken->getExpiryDateTime()->getTimestamp()))
             ->relatedTo($userEntity->getIdentifier());

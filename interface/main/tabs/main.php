@@ -4,60 +4,68 @@
  * main.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../globals.php');
-require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Api.php';
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEEnvBag;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
+use OpenEMR\Services\VersionService;
+use OpenEMR\Tabs\DefaultTabsFilter;
 use OpenEMR\Telemetry\TelemetryService;
-use Symfony\Component\Filesystem\Path;
 
 const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
+$versionService = new VersionService();
+$softwareVersion = text((string) $versionService->getSoftwareVersion());
 // Registration status and options.
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductDialogStatus();
-$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
+$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? false;
 $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
 
 // Check if telemetry is disabled via environment variable
-// Telemetry disable flag (set env var to: 1/true)
-$val = getenv(ENV_DISABLE_TELEMETRY);
-if ($val === false || $val === '') {
-    $val = $_ENV[ENV_DISABLE_TELEMETRY] ?? $_SERVER[ENV_DISABLE_TELEMETRY] ?? null;
-}
-$disableTelemetry = ($val !== null) && filter_var($val, FILTER_VALIDATE_BOOLEAN);
+$disableTelemetry = OEEnvBag::getInstance()->getBoolean(ENV_DISABLE_TELEMETRY);
+// Check if background service piggybacking is disabled via environment variable
+$noBackgroundTasks = OEEnvBag::getInstance()->getBoolean('OPENEMR__NO_BACKGROUND_TASKS');
 if ($disableTelemetry) {
     $allowRegisterDialog = false;
     $allowTelemetry = false;
 }
 
 // If running unit tests, then disable the registration dialog
-if ($_SESSION['testing_mode'] ?? false) {
+if ($session->get('testing_mode', false)) {
     $allowRegisterDialog = false;
 }
 // If the user is not a super admin, then disable the registration dialog
@@ -67,10 +75,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
+$token_main_php = $session->get('token_main_php');
 if (
-    (empty($_SESSION['token_main_php'])) ||
-    (empty($_GET['token_main'])) ||
-    ($_GET['token_main'] != $_SESSION['token_main_php'])
+    $token_main_php === null ||
+    (!array_key_exists('token_main', $_GET) || $_GET['token_main'] === '') ||
+    $_GET['token_main'] !== $token_main_php
 ) {
 // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
@@ -78,24 +87,24 @@ if (
 }
 // this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
 //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
-if ($GLOBALS['prevent_browser_refresh'] > 1) {
-    unset($_SESSION['token_main_php']);
+if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
+    SessionUtil::unsetSession('token_main_php');
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
 ?>
 <!DOCTYPE html>
 <html>
 
 <head>
-    <title><?php echo text($openemr_name); ?></title>
+    <title><?php echo text(OEGlobalsBag::getInstance()->getString('openemr_name')); ?></title>
 
     <script>
         // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
         //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
-        <?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
+        <?php if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 0) { ?>
         window.addEventListener('beforeunload', (event) => {
             if (!timed_out) {
                 event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
@@ -103,7 +112,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         });
         <?php } ?>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         // Since this should be the parent window, this is to prevent calls to the
         // window that opened this window. For example when a new window is opened
@@ -118,27 +127,35 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         // some globals to access using top.variable
         // note that 'let' or 'const' does not allow global scope here.
         // only use var
-        var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] ?>";
+        var isPortalEnabled = "<?php echo OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable') ?>";
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
-        var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
-        var webroot_url = <?php echo js_escape($web_root); ?>;
-        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> ||
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>;
+        // Separate CSRF token for calls to the REST/LocalApi stack (sent as the APICSRFTOKEN header).
+        var api_csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>;
+        <?php
+        $sessionSiteId = $session->get('site_id');
+        $sessionSiteIdString = is_string($sessionSiteId) ? $sessionSiteId : '';
+        ?>
+        var site_id_js = <?php echo js_escape($sessionSiteIdString); ?>;
+        var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
+        var webroot_url = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
+        var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
         'ltr';
         var jsGlobals = {};
         // used in tabs_view_model.js.
-        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
+        jsGlobals.enable_group_therapy = <?php echo js_escape((int) OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')); ?>;
         jsGlobals.languageDirection = jsLanguageDirection;
-        jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
-        jsGlobals.time_display_format = <?php echo js_escape($GLOBALS['time_display_format']); ?>;
-        jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone'] ?? ''); ?>;
-        jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
-        var WindowTitleAddPatient = <?php echo($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false'); ?>;
-        var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
-        const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
-        const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
+        jsGlobals.date_display_format = <?php echo js_escape(OEGlobalsBag::getInstance()->get('date_display_format')); ?>;
+        jsGlobals.time_display_format = <?php echo js_escape(OEGlobalsBag::getInstance()->get('time_display_format')); ?>;
+        jsGlobals.timezone = <?php echo js_escape(OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? ''); ?>;
+        jsGlobals.assetVersion = <?php echo js_escape(OEGlobalsBag::getInstance()->get('v_js_includes')); ?>;
+        var WindowTitleAddPatient = <?php echo(OEGlobalsBag::getInstance()->getBoolean('window_title_add_patient_name') ? 'true' : 'false'); ?>;
+        var WindowTitleBase = <?php echo js_escape(OEGlobalsBag::getInstance()->getString('openemr_name')); ?>;
+        const isSms = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null); ?>";
+        const isFax = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax')) ?? null?>";
         const isServicesOther = (isSms || isFax);
         var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
+        var noBackgroundTasks = <?php echo $noBackgroundTasks ? 'true' : 'false'; ?>;
 
         /**
          * Async function to get session value from the server
@@ -155,7 +172,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
          */
         async function getSessionValue(key) {
             restoreSession();
-            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default')); ?>;
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>;
             const config = {
                 url: `${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${csrf_token_js}`,
                 method: 'POST',
@@ -244,24 +261,27 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             // run background-services
             // delay 10 seconds to prevent both utility trigger at close to same time.
             // Both call globals so that is my concern.
-            setTimeout(function () {
-                restoreSession();
-                request = new FormData;
-                request.append("skip_timeout_reset", "1");
-                request.append("ajax", "1");
-                request.append("csrf_token_form", csrf_token_js);
-                fetch(webroot_url + "/library/ajax/execute_background_services.php", {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: request
-                }).then((response) => {
-                    if (response.status !== 200) {
-                        console.log('Background Service start failed. Status Code: ' + response.status);
-                    }
-                }).catch(function (error) {
-                    console.log('HTML Background Service start Request failed: ', error);
-                });
-            }, 10000);
+            if (!noBackgroundTasks) {
+                setTimeout(function () {
+                    restoreSession();
+                    // Call the REST "run all due" endpoint via LocalApi (APICSRFTOKEN header).
+                    // The REST stack does not touch SessionTracker, so no skip_timeout_reset
+                    // equivalent is needed to avoid resetting the session expiration timer.
+                    fetch(webroot_url + "/apis/" + site_id_js + "/api/background_service/$run", {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: {
+                            'APICSRFTOKEN': api_csrf_token_js
+                        }
+                    }).then((response) => {
+                        if (response.status !== 200) {
+                            console.log('Background Service start failed. Status Code: ' + response.status);
+                        }
+                    }).catch(function (error) {
+                        console.log('HTML Background Service start Request failed: ', error);
+                    });
+                }, 10000);
+            }
 
             // auto run this function every 60 seconds
             var repeater = setTimeout("goRepeaterServices()", 60000);
@@ -300,7 +320,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         // set up global translations for js
         function setupI18n(lang_id) {
             restoreSession();
-            return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
+            return fetch(<?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
             }).then((response) => {
@@ -312,7 +332,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             })
         }
 
-        setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
+        setupI18n(<?php echo js_escape($session->get('language_choice')); ?>).then(translationsJson => {
             i18next.init({
                 lng: 'selected',
                 debug: false,
@@ -342,36 +362,34 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         }
     </script>
 
-    <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/frame_proxies.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/dialog_utils.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script src="js/shortcuts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="js/custom_bindings.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/user_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/patient_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/therapy_group_data_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/tabs_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/application_view_model.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/frame_proxies.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/dialog_utils.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+    <script src="js/shortcuts.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
 
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
     // prepare Ensora eRx globals that are used in creating the menu
-    if ($GLOBALS['erx_enable']) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
-        $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
-        if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
-            $GLOBALS['newcrop_user_role_erxadmin'] = 1;
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
+        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$session->get('authUser')]);
+        OEGlobalsBag::getInstance()->set('newcrop_user_role', $newcrop_user_role_sql['newcrop_user_role']);
+        if (OEGlobalsBag::getInstance()->get('newcrop_user_role') === 'erxadmin') {
+            OEGlobalsBag::getInstance()->set('newcrop_user_role_erxadmin', 1);
         }
     }
 
     // prepare track anything to be used in creating the menu
     $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
-    $GLOBALS['track_anything_state'] = ($track_anything_sql['state'] ?? 0);
+    OEGlobalsBag::getInstance()->set('track_anything_state', $track_anything_sql['state'] ?? 0);
     // prepare Issues popup link global that is used in creating the menu
-    $GLOBALS['allow_issue_menu_link'] = (
-        (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
-        || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
-        && AclMain::aclCheckCore('patients', 'med', '', 'write')
-    );
+    OEGlobalsBag::getInstance()->set('allow_issue_menu_link', (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
+    || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
+    && AclMain::aclCheckCore('patients', 'med', '', 'write'));
 
     // we use twig templates here so modules can customize some of these files
     // at some point we will twigify all of main.php so we can extend it.
@@ -383,40 +401,45 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     <?php
     echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
     echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
-        'openemr_name' => $GLOBALS['openemr_name']
+        'openemr_name' => OEGlobalsBag::getInstance()->getString('openemr_name')
     ]);
     // Collect the menu then build it
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
-    <?php $userQuery = sqlQuery("select * from users where username = ?", [$_SESSION['authUser']]); ?>
+    <?php $userQuery = sqlQuery("select * from users where username = ?", [$session->get('authUser')]); ?>
 
     <script>
         <?php
-        if ($_SESSION['default_open_tabs']) :
-            // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
-            $visible = "true";
-            foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
-                $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, (string) $fileroot)) {
-                    unset($_SESSION['default_open_tabs'][$i]);
-                    continue;
-                }
-                $url = json_encode($webroot . "/" . $tab['notes']);
-                $target = json_encode($tab['option_id']);
-                $label = json_encode(xl("Loading") . " " . $tab['title']);
-                $loading = xlj("Loading");
-                echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
-                $visible = "false";
-            endforeach;
-        endif;
+        $default_open_tabs = $session->get('default_open_tabs');
+        $valid_tabs = (new DefaultTabsFilter())->filter(
+            $default_open_tabs,
+            OEGlobalsBag::getInstance()->getKernel()->getProjectDir(),
+        );
+        // Persist the filtered/normalized list back to the session if any
+        // entries were dropped or the legacy `id`/`label` keys were
+        // rewritten to the modern `option_id`/`title` shape, so the next
+        // load doesn't have to redo the work.
+        if ($valid_tabs !== $default_open_tabs) {
+            $session->set('default_open_tabs', $valid_tabs);
+        }
+        // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
+        $visible = "true";
+        foreach ($valid_tabs as $tab) {
+            $url = json_encode(OEGlobalsBag::getInstance()->getWebRoot() . "/" . $tab['notes']);
+            $target = json_encode($tab['option_id']);
+            $label = json_encode(xl("Loading") . " " . $tab['title']);
+            $loading = xlj("Loading");
+            echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
+            $visible = "false";
+        }
         ?>
 
-        app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
+        app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($session->get("authUser"))
             . ',' . json_encode($userQuery['fname'])
             . ',' . json_encode($userQuery['lname'])
-            . ',' . json_encode($_SESSION['authProvider']); ?>));
+            . ',' . json_encode($session->get('authProvider')); ?>));
     </script>
     <style>
       html,
@@ -435,8 +458,10 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 <body class="min-vw-100">
     <?php
     // fire off an event here
-    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $dispatcher = OEGlobalsBag::getInstance()->hasKernel()
+        ? OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
+        : null;
+    if ($dispatcher !== null) {
         $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
     }
     ?>
@@ -444,10 +469,11 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
     $disp_mainBox = '';
-    if (isset($_SESSION['app1'])) {
+    $app1 = $session->get('app1');
+    if (!empty($app1)) {
         $rs = sqlquery(
             "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-            ['apps', $_SESSION['app1']]
+            ['apps', $app1]
         );
         if ($rs['app_url'] != "main/main_screen.php") {
             echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
@@ -458,21 +484,29 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
-                <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                    <img src="<?php echo $menuLogo; ?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo'); ?>">
-                </a>
-            <?php endif; ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('display_main_menu_logo')) {
+                $bag = OEGlobalsBag::getInstance();
+                $logoLinkDefault = 'https://www.open-emr.org/';
+                $logoTitleDefault = xl('OpenEMR Website');
+                $logoLink = trim($bag->getString('main_menu_logo_link', $logoLinkDefault));
+                $logoTitle = trim($bag->getString('main_menu_logo_title', $logoTitleDefault));
+                $logoImg = '<img src="' . attr($menuLogo) . '" class="d-inline-block align-middle" height="16" alt="' . xla('Main Menu Logo') . '">';
+                if ($logoLink !== '') {
+                    echo '<a class="navbar-brand" href="' . attr($logoLink) . '" title="' . attr($logoTitle) . '" rel="noopener" target="_blank">' . $logoImg . '</a>' . "\n";
+                } else {
+                    echo '<span class="navbar-brand">' . $logoImg . '</span>' . "\n";
+                }
+            } ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
-            <?php if ($GLOBALS['search_any_patient'] != 'none') : ?>
+            <?php if (OEGlobalsBag::getInstance()->get('search_any_patient') != 'none') : ?>
                 <form name="frm_search_globals" class="form-inline">
                     <div class="input-group">
-                        <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
+                        <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?? '' ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">
                         <div class="input-group-append">
-                            <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type); ?>')}">
+                            <button type="button" id="search_globals" class="btn btn-sm btn-secondary <?php echo $search_globals_class ?? '' ?>" title='<?php echo xla("Search for patient by entering whole or part of any demographics field information"); ?>' data-bind="event: {mousedown: viewPtFinder.bind( $data, '<?php echo xla("The search field cannot be empty. Please enter a search term") ?>', '<?php echo attr($search_any_type ?? ''); ?>')}">
                                 <i class="fa fa-search">&nbsp;</i></button>
                         </div>
                     </div>
@@ -482,7 +516,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             <span id="userData" data-bind="template: {name: 'user-data-template', data: application_data}"></span>
             <?php
             // fire off a nav event
-            $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_NAV);
+            $dispatcher?->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_NAV);
             ?>
         </nav>
         <div id="attendantData" class="body_title acck" data-bind="template: {name: app_view_model.attendant_template_type, data: application_data}"></div>
@@ -491,9 +525,12 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>
         <?php echo $twig->render("product_registration/product_registration_modal.html.twig", [
-            'webroot' => $webroot,
+            'webroot' => OEGlobalsBag::getInstance()->getWebRoot(),
             'allowEmail' => $allowEmail ?? false,
             'allowTelemetry' => $allowTelemetry ?? false]); ?>
+    </div>
+    <div id="versionFooter" class="text-muted" style="position:fixed; bottom:4px; inset-inline-end:8px; font-size:11px; pointer-events:none; z-index:4;">
+        <?php echo $softwareVersion; ?>
     </div>
     <script>
         ko.applyBindings(app_view_model);
@@ -520,20 +557,18 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
             }
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
-        <?php if (($_ENV['OPENEMR__NO_BACKGROUND_TASKS'] ?? 'false') !== 'true') { ?>
         $(function () {
             goRepeaterServices();
         });
-        <?php } ?>
     </script>
     <?php
 
     // fire off an event here
-    $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
+    $dispatcher?->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 
-    if (!empty($allowRegisterDialog)) { // disable if running unit tests.
+    if ($allowRegisterDialog !== false) { // disable if running unit tests.
         // Include the product registration js, telemetry and usage data reporting dialog
-        echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => $webroot]);
+        echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => OEGlobalsBag::getInstance()->getWebRoot()]);
     }
 
     ?>

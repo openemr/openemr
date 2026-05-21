@@ -4,7 +4,7 @@
  * AppointmentService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
@@ -14,9 +14,10 @@
 
 namespace OpenEMR\Services;
 
-use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceDeleteEvent;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -114,6 +115,7 @@ class AppointmentService extends BaseService
             }
             return true;
         });
+        $validator->optional('pc_website')->string();
 
         return $validator->validate($appointment);
     }
@@ -128,6 +130,8 @@ class AppointmentService extends BaseService
                        pd.DOB,
                        pd.pid,
                        providers.uuid AS pce_aid_uuid,
+                       providers.fname AS pce_aid_fname,
+                       providers.lname AS pce_aid_lname,
                        providers.npi AS pce_aid_npi,
                        pce.pc_aid,
                        pce.pc_apptstatus,
@@ -141,6 +145,8 @@ class AppointmentService extends BaseService
                        pce.pc_pid,
                        pce.pc_duration,
                        pce.pc_title,
+                       pce.pc_website,
+                       pce.pc_informant,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -160,7 +166,9 @@ class AppointmentService extends BaseService
                                pc_billing_location,
                                pc_catid,
                                pc_pid,
-                               pc_title
+                               pc_title,
+                               pc_website,
+                               pc_informant
                             FROM
                                  openemr_postcalendar_events
                        ) pce
@@ -205,6 +213,8 @@ class AppointmentService extends BaseService
                        pd.pid,
                        pd.uuid AS puuid,
                        providers.uuid AS pce_aid_uuid,
+                       providers.fname AS pce_aid_fname,
+                       providers.lname AS pce_aid_lname,
                        providers.npi AS pce_aid_npi,
                        pce.pc_aid,
                        pce.pc_apptstatus,
@@ -217,6 +227,8 @@ class AppointmentService extends BaseService
                        pce.pc_catid,
                        pce.pc_pid,
                        pce.pc_title,
+                       pce.pc_website,
+                       pce.pc_informant,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -254,6 +266,8 @@ class AppointmentService extends BaseService
                        pd.pid,
                        pd.uuid AS puuid,
                        providers.uuid AS pce_aid_uuid,
+                       providers.fname AS pce_aid_fname,
+                       providers.lname AS pce_aid_lname,
                        providers.npi AS pce_aid_npi,
                        pce.pc_aid,
                        pce.pc_apptstatus,
@@ -269,6 +283,8 @@ class AppointmentService extends BaseService
                        pce.pc_pid,
                        pce.pc_hometext,
                        pce.pc_title,
+                       pce.pc_website,
+                       pce.pc_informant,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -304,11 +320,14 @@ class AppointmentService extends BaseService
         $endTime = (new \DateTime())->setTimestamp($startUnixTime)->add($endTimeInterval);
         $uuid = (new UuidRegistry())->createUuid();
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
         $sql .= "     uuid=?,";
         $sql .= "     pc_pid=?,";
         $sql .= "     pc_catid=?,";
         $sql .= "     pc_title=?,";
+        $sql .= "     pc_time=NOW(),";
         $sql .= "     pc_duration=?,";
         $sql .= "     pc_hometext=?,";
         $sql .= "     pc_eventDate=?,";
@@ -317,10 +336,11 @@ class AppointmentService extends BaseService
         $sql .= "     pc_endTime=?,";
         $sql .= "     pc_facility=?,";
         $sql .= "     pc_billing_location=?,";
-        $sql .= "     pc_informant=1,";
+        $sql .= "     pc_informant=?,";
         $sql .= "     pc_eventstatus=1,";
         $sql .= "     pc_sharing=1,";
-        $sql .= "     pc_aid=?";
+        $sql .= "     pc_aid=?,";
+        $sql .= "     pc_website=?";
 
         $results = sqlInsert(
             $sql,
@@ -337,7 +357,9 @@ class AppointmentService extends BaseService
                 $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
-                $data["pc_aid"] ?? null
+                $session->get('authUserID') ?? 1, // Grab authenticated user ID or default to 1
+                $data["pc_aid"] ?? null,
+                $data["pc_website"] ?? null,
             ]
         );
 
@@ -355,7 +377,7 @@ class AppointmentService extends BaseService
         // =======================================
         //  multi providers event
         // =======================================
-        if ($GLOBALS['select_multi_providers']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
             // what is multiple key around this $eid?
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
@@ -610,6 +632,9 @@ class AppointmentService extends BaseService
 
         $userService = new UserService();
         $user = $userService->getUser($appointment['pc_aid']);
+        if ($user === false) {
+            throw new \RuntimeException("User not found for appointment");
+        }
         $authGroup = $userService->getAuthGroupForUser($user['username']);
 
         $pos_code = QueryUtils::fetchSingleValue(
@@ -619,7 +644,7 @@ class AppointmentService extends BaseService
         );
 
         $visit_reason = $appointment['pc_hometext'] ?? xl('Please indicate visit reason');
-        if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+        if (OEGlobalsBag::getInstance()->getBoolean('auto_create_prevent_reason')) {
             $visit_reason = 'Please indicate visit reason';
         }
         $data = [

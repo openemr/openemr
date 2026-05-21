@@ -5,7 +5,7 @@
  * triggers esign behavior.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -15,8 +15,10 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ViewableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/SignableIF.php';
 
 interface ButtonIF extends ViewableIF
 {

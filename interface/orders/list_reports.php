@@ -4,7 +4,7 @@
  * List procedure orders and reports, and fetch new reports and their results.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -13,31 +13,32 @@
  * @copyright Copyright (c) 2013-2016 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $orphanLog = '';
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
-    require_once("$include_root/procedure_tools/quest/QuestResultClient.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+$includeRoot = \OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot();
+if (file_exists("$includeRoot/procedure_tools/quest/QuestResultClient.php")) {
+    require_once("$includeRoot/procedure_tools/quest/QuestResultClient.php");
 }
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Orders and Reports")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Procedure Orders and Reports", xl("Procedure Orders and Reports"));
 }
 
 $form_patient = !empty($_POST['form_patient']);
@@ -57,8 +58,8 @@ if (!empty($_POST['form_xmit'])) {
         $ppid = (int)$row['lab_id'];
         $errmsg = '';
         try {
-            $result = gen_hl7_order($formid);
-            $errmsg = send_hl7_order($ppid, $result->hl7);
+            $result = default_gen_hl7_order($formid);
+            $errmsg = default_send_hl7_order($ppid, $result->hl7);
         } catch (Hl7OrderGenerationException $e) {
             $errmsg = $e->getMessage();
         }
@@ -145,7 +146,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $("#wait").addClass('d-none');
@@ -471,7 +472,7 @@ function doWait(e){
 
             if ($form_patient) {
                 $where .= " AND po.patient_id = ?";
-                $sqlBindArray[] = $pid;
+                $sqlBindArray[] = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid');
             }
 
             if ($form_provider) {
@@ -575,7 +576,7 @@ function doWait(e){
                     echo "</a></td>\n";
                     echo "  <td>";
                     // Order ID comes with a link to open the manifest in a new window/tab.
-                    echo "<a href='" . $GLOBALS['webroot'];
+                    echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot();
                     echo "/interface/orders/order_manifest.php?orderid=";
                     echo attr_url($order_id);
                     echo "' target='_blank' onclick='top.restoreSession()' ";

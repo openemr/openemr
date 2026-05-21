@@ -4,7 +4,7 @@
  * InsuranceCompanyService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -18,17 +18,19 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\{
     AddressService,
     PhoneNumberService,
     Search\FhirSearchWhereClauseBuilder,
+    Search\ISearchField,
     Search\SearchFieldException
 };
 use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 
 class InsuranceCompanyService extends BaseService
 {
@@ -79,7 +81,7 @@ class InsuranceCompanyService extends BaseService
     }
     public static function getDisplayNameForInsuranceRecord($insuranceCompany)
     {
-        switch ($GLOBALS['insurance_information']) {
+        switch (OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
                 $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ")";
                 break;
@@ -118,7 +120,7 @@ class InsuranceCompanyService extends BaseService
         return ['uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
@@ -195,10 +197,10 @@ class InsuranceCompanyService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 $exception->getMessage(),
                 ['trace' => $exception->getTraceAsString(),
                  'field' => $exception->getField()]
@@ -208,7 +210,10 @@ class InsuranceCompanyService extends BaseService
         return $processingResult;
     }
 
-    public function getAll($search = [], $isAndCondition = true)
+    /**
+     * @param array<string, string> $search
+     */
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
@@ -452,9 +457,8 @@ class InsuranceCompanyService extends BaseService
     public function getAllByPayerID($cms_id)
     {
         $insuranceCompanyResult = $this->search(['cms_id' => $cms_id]);
-        if ($insuranceCompanyResult->hasData()) {
-            $result = $insuranceCompanyResult->getData();
-        }
-        return $result;
+        return $insuranceCompanyResult->hasData()
+            ? $insuranceCompanyResult->getData()
+            : [];
     }
 }

@@ -5,7 +5,7 @@
  * namespace OnsitePortal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,27 +15,33 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $v_js_includes = $globalsBag->get('v_js_includes');
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -53,16 +59,9 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
-use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Utils\FormatMoney;
-use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
-
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $recorder = new Recorder();
 
@@ -85,47 +84,14 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
+$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = [];
 $invdata = [];
 if ($edata) {
-    $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
+    $ccdataRaw = $cryptoGen->decryptFromDatabase(is_string($edata['checksum']) ? $edata['checksum'] : null);
+    $ccdata = json_decode($ccdataRaw, true);
     $invdata = json_decode((string) $edata['table_args'], true);
-    echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
-}
-
-// Compute taxes from a tax rate string and a possibly taxable amount.
-//
-function calcTaxes($row, $amount)
-{
-    $total = 0;
-    if (empty($row['taxrates'])) {
-        return $total;
-    }
-
-    $arates = explode(':', (string) $row['taxrates']);
-    if (empty($arates)) {
-        return $total;
-    }
-
-    foreach ($arates as $value) {
-        if (empty($value)) {
-            continue;
-        }
-
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", [$value
-        ]);
-        if (empty($trow['option_value'])) {
-            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
-            continue;
-        }
-
-        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-// echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
-        $total += $tax;
-    }
-
-    return $total;
+    echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
 }
 
 $now = time();
@@ -136,6 +102,10 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 ]);
 
 $alertmsg = ''; // anything here pops up in an alert box
+
+if (filter_input(INPUT_SERVER, 'REQUEST_METHOD') === 'POST') {
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'portal-payment', dieOnFail: true);
+}
 
 // If the Save button was clicked...
 if ($_POST['form_save'] ?? '') {
@@ -359,10 +329,6 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         "MAX(user) AS user, " . "MAX(encounter) as encounter " . "FROM payments WHERE " . "pid = ? AND dtime = ?", [$form_pid, $timestamp
     ]);
 
-// Create key for deleting, just in case.
-    $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
-    $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
-
 // get facility from encounter
     $tmprow = sqlQuery("SELECT facility_id FROM form_encounter WHERE encounter = ?", [$payrow['encounter']]);
     $frow = sqlQuery("SELECT * FROM facility " . " WHERE id = ?", [$tmprow['facility_id']
@@ -391,7 +357,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
@@ -486,7 +452,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_public_key'))); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -659,6 +625,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
           style="text-align: center; margin: auto;">
 
     <form id="invoiceForm" method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/portal_payment.php'>
+        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
         <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>'/>
         <input type='hidden' name='form_save' value='<?php echo xla('Invoice'); ?>'/>
         <table>
@@ -958,24 +925,24 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 $sum_copay += (float)$inscopay;
                 $sum_balance += $balance;
                 ?>
-<tr id="tr_<?=$idx?>">
+<tr id="tr_<?=attr((string)$idx)?>">
     <td class="detail"><?=text(oeFormatShortDate($dispdate))?></td>
     <td class="detail" id="<?=attr($dispdate)?>" align='left'><?=text($enc)?>: <?=text($reason)?></td>
-    <td class="detail" align="center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
-    <td class="detail" align="center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
-    <td class="detail" align="center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
-    <td class="detail" align="center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
-    <td class="detail" align="center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
-    <td class="detail" align="center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
-    <td class="detail" align="center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="detail" align="center" id="td_charges_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="detail" align="center" id="td_inspaid_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="detail" align="center" id="td_ptpaid_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="detail" align="center" id="td_patient_copay_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="detail" align="center" id="td_copay_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="detail" align="center" id="balance_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="detail" align="center" id="duept_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($duept))?></td>
     <td class="detail" align="center">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=$enc?>"
+            data-encounter-id="<?=attr($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=$enc?>]"
-            id="paying_<?=$idx?>"
+            name="form_upay[<?=attr($enc)?>]"
+            id="paying_<?=attr((string)$idx)?>"
             value=""
             onchange="coloring();calctotal()"
             autocomplete="off"
@@ -1079,14 +1046,16 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                     <!--<button type="button" class="close" data-dismiss="modal">&times;</button>-->
                 </div>
                 <div class="modal-body">
-                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere') { ?>
+                    <?php if ($globalsBag->get('payment_gateway') !== 'Stripe' && $globalsBag->get('payment_gateway') !== 'Sphere' && $globalsBag->get('payment_gateway') !== 'Rainforest') { ?>
                     <form id='paymentForm' method='post' action='<?php echo $globalsBag->getString("webroot") ?>/portal/lib/paylib.php'>
+                        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
                         <fieldset>
                             <div class="form-group">
                                 <label label-default="label-default"
                                        class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                 <div class="controls">
-                                    <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                    <?php /** @phpstan-ignore-next-line */ ?>
+                                    <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1148,13 +1117,15 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                             <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
                         </fieldset>
                     </form>
-                    <?php } else { ?>
+                    <?php } else { // stripe/sphere/rainforest ?>
                         <form method="post" name="payment-form" id="payment-form">
+                            <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken($session, 'portal-payment')); ?>'/>
                             <fieldset>
                                 <div class="form-group">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>
                                     <div class="controls">
-                                        <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                        <?php /** @phpstan-ignore-next-line */ ?>
+                                        <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -1238,7 +1209,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptFromDatabase($globalsBag->getString('gateway_api_key'))); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
@@ -1250,6 +1221,19 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     <?php
     if ($globalsBag->get('payment_gateway') === 'Sphere' && $session->has('patient_portal_onsite_two')) {
         echo (new SpherePayment('patient', $pid))->renderSphereJs();
+    }
+    if ($globalsBag->get('payment_gateway') === 'Rainforest' && $session->has('patient_portal_onsite_two')) {
+        if ($globalsBag->getBoolean('gateway_mode_production')) {
+            echo '<script type="module" src="https://static.rainforestpay.com/payment.js"></script>';
+        } else {
+            echo '<script type="module" src="https://static.rainforestpay.com/sandbox.payment.js"></script>';
+        }
+        echo '<script type="text/javascript">';
+        echo $twig->render('payments/rainforest.js', [
+            'csrf' => CsrfUtils::collectCsrfToken($session, 'rainforest'),
+            'endpoint' => 'portal_payment.rainforest.php',
+        ]);
+        echo '</script>';
     }
     ?>
 

@@ -4,7 +4,7 @@
  * Batch Email processor, included from batchcom
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  cfapress
  * @author  Jason 'Toolbox' Oettinger <jason@oettinger.email>
  * @copyright Copyright (c) 2008 cfapress
@@ -17,11 +17,22 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
+// This script is meant to be required from batchcom.php, which sets $res
+// (the SQL result of the patient query). Direct access has nothing to send.
+if (!isset($res)) {
+    require_once(__DIR__ . '/batchcom.php');
+    exit;
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+$m_error = false;
+$m_error_count = 0;
 
 ?>
 <html>
@@ -41,7 +52,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     <ul class="col-md-12">
         <?php
         $email_sender = $_POST['email_sender'];
-        $sent_by = $_SESSION['authUserID'];
+        $sent_by = $session->get('authUserID');
 
         while ($row = sqlFetchArray($res)) {
             // prepare text for ***NAME*** tag
@@ -70,7 +81,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     </ul>
     <?php
     if ($m_error) {
-        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text($m_error_count) . ' ' . xlt('emails not sent') . '</div>';
+        echo '<div class="alert alert-danger">' . xlt('Could not send email due to a server problem.') . ' ' . text((string) $m_error_count) . ' ' . xlt('emails not sent') . '</div>';
     }
     ?>
 </main>

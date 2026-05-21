@@ -4,7 +4,7 @@
  * RestControllerHelper
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,16 +12,13 @@
 
 namespace OpenEMR\RestControllers;
 
+use Http\Message\Encoding\GzipEncodeStream;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
-use Http\Message\Encoding\GzipEncodeStream;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Services\FHIR\IResourceSearchableService;
-use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
@@ -31,7 +28,11 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementOperation;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
+use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -211,23 +212,23 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
             http_response_code($successStatusCode ?? 0);
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
 
             if (!$isMultipleResultResponse) {
                 $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
             } else {
                 $pagination = $processingResult->getPagination();
                 // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
-                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($_SERVER['REDIRECT_URL'] ?? '');
+                $bundleUrl = (OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '') . ($_SERVER['REDIRECT_URL'] ?? '');
                 $getParams = $_GET;
                 // cleanup _limit and _offset
                 unset($getParams['_limit']);
@@ -248,7 +249,7 @@ class RestControllerHelper
         return $httpResponseBody;
     }
 
-    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false)
+    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false): ResponseInterface
     {
         $httpResponseBody = [
             "validationErrors" => [],
@@ -260,22 +261,22 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             $statusCode = Response::HTTP_BAD_REQUEST;
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
 
             if (!$isMultipleResultResponse) {
                 $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
             } else {
                 $pagination = $processingResult->getPagination();
                 // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
-                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($request->server->get('REDIRECT_URL', ''));
+                $bundleUrl = (OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '') . ($request->server->get('REDIRECT_URL', ''));
                 $getParams = $request->query->all();
                 // cleanup _limit and _offset
                 unset($getParams['_limit']);
@@ -315,18 +316,18 @@ class RestControllerHelper
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
             return new JsonResponse($httpResponseBody, Response::HTTP_BAD_REQUEST);
         } elseif (count($processingResult->getData()) <= 0) {
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
             return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
             return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
         } else {
             $dataResult = $processingResult->getData();
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
+            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
             return new JsonResponse($dataResult[0], $successStatusCode);
         }
     }
@@ -437,7 +438,7 @@ class RestControllerHelper
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
         } elseif (is_string($operation) && str_starts_with($operation, '$')) {
-            (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
+            ServiceContainer::getLogger()->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
 
@@ -590,8 +591,9 @@ class RestControllerHelper
      */
     private static function filterServiceClassForResource(string $resource, ?string $serviceClass)
     {
-        if (!empty($GLOBALS['kernel'])) {
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $globalsBag = OEGlobalsBag::getInstance();
+        if ($globalsBag->hasKernel()) {
+            $dispatcher = $globalsBag->getKernel()->getEventDispatcher();
             $event = $dispatcher->dispatch(new RestApiResourceServiceEvent($resource, $serviceClass), RestApiResourceServiceEvent::EVENT_HANDLE);
             return $event->getServiceClass();
         }

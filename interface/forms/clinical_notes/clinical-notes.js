@@ -3,7 +3,7 @@
  *
  * @package OpenEMR
  * @subpackage Forms
- * @link   http://www.open-emr.org
+ * @link   https://www.open-emr.org
  * @author Jacob T Paul <jacob@zhservices.com>
  * @author Vinish K <vinish@zhservices.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
@@ -1113,16 +1113,12 @@
                 datetimepickerTranslated('.datepicker', {
                     timepicker: false
                     , showSeconds: false
-                    , formatInput: false
+                    , formatInput: true
                 });
             });
 
             // initialize
             $(".clinical_notes_type").change(typeChange);
-
-            // init code values by triggering the change in case
-            // there are any default values set in the template
-            $(".clinical_notes_type").trigger("change");
             $(".btn-add").click(duplicateRow);
             $(".btn-delete").click(deleteRow);
             if (typeof config.alertMessage !== 'undefined' && config.alertMessage != '') {

@@ -4,7 +4,7 @@
  * Billing notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2007 Rod Roark <rod@sunsetsystems.com>
@@ -14,21 +14,20 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table
 
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Note")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill: Billing Note", xl("Billing Note"));
 }
 ?>
 <html>
@@ -39,9 +38,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 <body>
     <?php
     if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $fenote = trim((string) $_POST['form_note']);
         if ($_POST['form_submit']) {
@@ -73,7 +70,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         <h2><?php echo xlt('Billing Note'); ?></h2>
         <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
             <div class="form-group">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
             </div>
             <div class="form-group">

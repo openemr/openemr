@@ -49,6 +49,7 @@ $apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
 **Purpose:** Prevents use of legacy functions:
 - Legacy `sql.inc.php` functions in the `src/` directory
 - `call_user_func()` and `call_user_func_array()` functions (use modern PHP syntax instead)
+- `error_log()` function (use `Psr\Log\LoggerInterface` instead, through OpenEMR\BC\ServiceContainer::getLogger() if needed)
 
 **Rationale for SQL functions:** Contributors should use `QueryUtils` or `DatabaseQueryTrait` instead for modern database patterns.
 
@@ -89,51 +90,56 @@ $result = $callable($arg1, $arg2);
 $result = $callable(...$args);
 ```
 
+**Rationale for error_log:**
+- **Structured logging** - Use PSR-3 log levels and context arrays
+- **Centralized configuration** - Log destinations and formats can be configured globally
+- **Testability** - `LoggerInterface` can be mocked in unit tests
+- **Consistency** - Uniform logging pattern across the codebase
+
+**Before (❌ Forbidden):**
+```php
+error_log("Something went wrong: " . $error);
+error_log("User {$userId} logged in");
+```
+
+**After (✅ Recommended):**
+```php
+use OpenEMR\BC\ServiceContainer();
+
+$logger = ServiceContainer::getLogger();
+$logger->error("Something went wrong", ['error' => $error]);
+$logger->info("User logged in", ['userId' => $userId]);
+```
+
 ### ForbiddenClassesRule
 
 **Purpose:** Prevents use of `laminas-db` classes outside of the `zend_modules` directory.
 
 **Rationale:** Laminas-DB is deprecated and scheduled for removal.
 
-### NoCoversAnnotationRule
+### ForbiddenCoversRule
 
-**Purpose:** Prevents use of `@covers` annotations in test method docblocks.
+**Purpose:** Prevents use of `@covers` docblock annotations and `#[CoversClass]`/`#[CoversFunction]` PHP attributes in test files.
 
-**Rationale:** The `@covers` annotation in PHPUnit tests causes any code that is used transitively or ancillary to the annotated code to be excluded from coverage reports. This results in incomplete coverage information and makes it harder to understand which code paths are actually being exercised by our test suite.
-
-**Before (❌ Forbidden):**
-```php
-/**
- * @covers \OpenEMR\Services\SomeService
- */
-public function testSomeMethod(): void
-{
-    // test code
-}
-```
-
-**After (✅ Recommended):**
-```php
-public function testSomeMethod(): void
-{
-    // test code - coverage is tracked automatically for all exercised code
-}
-```
-
-### NoCoversAnnotationOnClassRule
-
-**Purpose:** Prevents use of `@covers` annotations in test class docblocks.
-
-**Rationale:** Same as `NoCoversAnnotationRule` - class-level `@covers` annotations also exclude transitively used code from coverage reports.
+**Rationale:** These annotations restrict PHPUnit's coverage attribution to only the listed symbols, which causes transitively used code to be excluded from coverage reports. This results in test file lines showing 0% in codecov patch coverage reports on test-only PRs.
 
 **Before (❌ Forbidden):**
 ```php
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * @covers \OpenEMR\Services\SomeService
  */
+#[CoversClass(SomeService::class)]
 class SomeServiceTest extends TestCase
 {
-    // tests
+    /**
+     * @covers \OpenEMR\Services\SomeService::someMethod
+     */
+    public function testSomeMethod(): void
+    {
+        // test code
+    }
 }
 ```
 
@@ -141,8 +147,56 @@ class SomeServiceTest extends TestCase
 ```php
 class SomeServiceTest extends TestCase
 {
-    // tests - coverage is tracked automatically for all exercised code
+    public function testSomeMethod(): void
+    {
+        // test code - coverage is tracked automatically for all exercised code
+    }
 }
+```
+
+### Disallowed empty() (via phpstan-strict-rules)
+
+**Purpose:** Prevents use of the `empty()` language construct.
+
+**What it catches:**
+- `if (empty($var))` - Empty check on any variable
+- `empty($array['key'])` - Empty check on array access
+- `!empty($value)` - Negated empty checks
+
+**Rationale:**
+- **Surprising behavior** - `empty("0")` returns `true` (string "0" is considered empty)
+- **Silent failures** - `empty()` on undefined variables returns `true` without warning
+- **Type confusion** - `empty(0)`, `empty(0.0)`, `empty([])`, `empty(null)`, `empty(false)`, and `empty("")` all return `true`
+
+**Before (❌ Forbidden):**
+```php
+if (empty($value)) {
+    // What are we actually checking for?
+}
+```
+
+**After (✅ Recommended):**
+```php
+// Be explicit about what you're checking
+if ($value === null) {              // Check for null
+if ($value === '') {                // Check for empty string
+if ($value === null || $value === '') {  // Check for null or empty string
+if (count($array) === 0) {          // Check for empty array
+if (!$array) {                      // Boolean check on array (empty array is falsy)
+
+// For checking if a variable or key exists
+if (isset($var)) {                  // Check if variable is set and not null
+if (isset($array['key'])) {         // Check if array key exists and is not null
+if (array_key_exists('key', $array)) {  // Check if array key exists (even if null)
+```
+
+**Configuration:** This rule is provided by `phpstan/phpstan-strict-rules` with only `disallowedEmpty` enabled:
+
+```yaml
+parameters:
+  strictRules:
+    allRules: false
+    disallowedEmpty: true
 ```
 
 ### ForbiddenCurlFunctionsRule
@@ -195,7 +249,7 @@ try {
     $data = json_decode($response->getBody()->getContents(), true);
 } catch (GuzzleException $e) {
     // handle error with proper exception
-    error_log('API request failed: ' . $e->getMessage());
+    $this->logger->error('API request failed', ['exception' => $e]);
 }
 ```
 
@@ -214,10 +268,47 @@ $data = json_decode($response->getBody()->getContents(), true);
 
 ## Baseline
 
-Existing violations of these rules are recorded in `phpstan-database-baseline.neon` so they won't cause errors. However, new code should follow these patterns.
+Existing violations are recorded in `.phpstan/baseline/` as individual PHP files, organized by error type. The `loader.php` file includes all baseline files. New code should follow the patterns documented above.
+
+To regenerate the baseline after fixing violations:
+
+```bash
+composer phpstan-baseline
+```
+
+To wipe and rebuild the baseline from scratch (ignoring whatever is currently on disk):
+
+```bash
+composer phpstan-baseline-reset
+```
+
+This deletes every file under `.phpstan/baseline/`, writes a minimal empty `loader.php`, and then runs `composer phpstan-baseline` to rebuild the per-identifier files from the current codebase. Use this instead of `composer phpstan-baseline` when you want a clean regeneration — for example, when the baseline has drifted, or when the existing files are in a state PHPStan can't even load (leftover merge conflict markers, a truncated file, etc.).
+
+### Fatal-category caps
+
+Certain baseline files hold errors for code that cannot run at load or call time. `.phpstan/fatal-baseline-caps.php` records the current count per file and `tests/Tests/Isolated/PHPStan/FatalBaselineCapsIsolatedTest.php` asserts the actual count equals the cap. Two modes:
+
+- **Whole-file (`all`)** — every baseline entry counts. Used for identifiers where each entry is a symbol that simply doesn't exist:
+  - `class.notFound`, `method.notFound`, `staticMethod.notFound`, `trait.notFound`, `interface.notFound`
+  - `function.notFound`
+  - `classConstant.notFound`, `constant.notFound`
+  - `include.fileNotFound`, `includeOnce.fileNotFound`, `requireOnce.fileNotFound`, `require.fileNotFound`
+  - `return.missing`, `variable.undefined`
+
+- **Confident non-object (`confidentNonObject`)** — only entries whose reported type narrows to a definitely-non-object (e.g. `on bool`, `on null`, `on array`) count. PHPStan also fires `*.nonObject` on `mixed` and class-union types like `SomeClass|null`; those aren't certain crashes and are excluded. Covered identifiers:
+  - `method.nonObject`, `staticMethod.nonObject`
+  - `property.nonObject`, `classConstant.nonObject`
+  - `clone.nonObject`
+
+If you regenerate the baseline and a count changes:
+
+- **Count went down** — lower the cap in `fatal-baseline-caps.php` to match.
+- **Count went up** — fix the underlying code instead of raising the cap. Each entry resolves to one of four fixes: delete dead code, wrap optional code in `class_exists()` / `function_exists()` / `defined()`, add a PHPStan stub, or install the missing dependency.
+
+See openemr/openemr#11792 for the plan to drive every cap to zero.
 
 ## Running PHPStan
 
 ```bash
-vendor/bin/phpstan --memory-limit=8G analyze
+composer phpstan
 ```

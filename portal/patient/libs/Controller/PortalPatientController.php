@@ -97,7 +97,7 @@ class PortalPatientController extends AppBasePortalController
             $output->currentPage = 1;
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -120,7 +120,7 @@ class PortalPatientController extends AppBasePortalController
             }
 
             $this->RenderJSON($newv, $this->JSONPCallback(), false, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -174,7 +174,7 @@ class PortalPatientController extends AppBasePortalController
             $patient->Race = $this->SafeGetVal($json, 'race', $patient->Race);
             $patient->Ethnicity = $this->SafeGetVal($json, 'ethnicity', $patient->Ethnicity);
             $patient->Religion = $this->SafeGetVal($json, 'religion', $patient->Religion);
-            //$patient->Interpretter = $this->SafeGetVal($json, 'interpretter', $patient->Interpretter);
+            //$patient->Interpreter = $this->SafeGetVal($json, 'interpreter', $patient->Interpreter);
             //$patient->Migrantseasonal = $this->SafeGetVal($json, 'migrantseasonal', $patient->Migrantseasonal);
             $patient->FamilySize = $this->SafeGetVal($json, 'familySize', $patient->FamilySize);
             /*$patient->MonthlyIncome = $this->SafeGetVal($json, 'monthlyIncome', $patient->MonthlyIncome);
@@ -220,7 +220,7 @@ class PortalPatientController extends AppBasePortalController
                 // $patient->Save(); //active records save
                 $this->RenderJSON($patient, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -256,7 +256,7 @@ class PortalPatientController extends AppBasePortalController
             } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -276,7 +276,7 @@ class PortalPatientController extends AppBasePortalController
             $output = new stdClass();
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

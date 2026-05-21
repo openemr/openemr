@@ -12,6 +12,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_DocumentCategory.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$total_acl_check_time on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../gacl/admin/acl_test3.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$divnos on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/billing_report.php',
@@ -292,34 +297,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Variable \\$provider_id on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/find_patient_popup.php',
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$msg on left side of \\?\\? is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$new_recurrfreq on left side of \\?\\? is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$day on left side of \\?\\? is never defined\\.$#',
+    'message' => '#^Variable \\$viewtype on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$month on left side of \\?\\? is never defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$year on left side of \\?\\? is never defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$classes on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -335,6 +320,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$_REQUEST on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/public/index.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$provider_info on left side of \\?\\?\\= always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Services/ModuleService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$file_mime on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -365,16 +355,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$route on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/index.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$args on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$db_patient on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$vendors on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -492,6 +472,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/procedure_provider_edit.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$arep on left side of \\?\\? is never defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$attendant_type on left side of \\?\\? is never defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$from_title on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/letter.php',
@@ -537,6 +527,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/facility_admin.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$uuid on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$events on left side of \\?\\? is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
@@ -569,16 +564,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$s on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/formdata.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$s on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$text on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
@@ -612,6 +602,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$allow_portal_uploads on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$state on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../setup.php',
@@ -643,7 +638,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$forms_encounters on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
 ];
 $ignoreErrors[] = [
@@ -697,6 +692,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$mainObservations on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ObservationService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$result on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientPortalService.php',
@@ -742,9 +742,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$DateValue on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Variable \\$records on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
+    'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

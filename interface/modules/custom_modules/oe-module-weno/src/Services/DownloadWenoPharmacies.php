@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -19,8 +19,9 @@ if (!$GLOBALS ?? null) {
 use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use mysqli;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use ZipArchive;
 
 class DownloadWenoPharmacies
@@ -45,7 +46,7 @@ class DownloadWenoPharmacies
         // Use existing connection.
         // Compared to creating a new connection, this method is slower by 3 seconds.
         // Using the sqlStatement() method is even slower by 10 seconds. That's 13 seconds slower overall.
-        $connect = $GLOBALS['dbh'];
+        $connect = OEGlobalsBag::getInstance()->get('dbh');
         if ($connect->connect_error) {
             $wenoLog->insertWenoLog("Pharmacy Directory", "Connection Failed.");
             error_log("Connection failed: " . $connect->connect_error);
@@ -142,7 +143,7 @@ class DownloadWenoPharmacies
 
             $connect->commit();
            // $connect->close();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $connect->rollback();
             error_log(text($e->getMessage()));
             return false;
@@ -189,7 +190,7 @@ class DownloadWenoPharmacies
 
         try {
             $zip = new ZipArchive();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Error extracting zip file: ' . errorLogEscape($e->getMessage()));
             return "PHPError_install_zip_archive";
         }
@@ -198,6 +199,7 @@ class DownloadWenoPharmacies
             $zip->extractTo($path_to_extract);
             $files = glob($path_to_extract . "/*.csv");
             $csvFile = '';
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // search for the lite version either daily or weekly csv file
             if ($files) {
                 foreach ($files as $file) {
@@ -221,8 +223,8 @@ class DownloadWenoPharmacies
                     if ($count !== false) {
                         EventAuditLogger::getInstance()->newEvent(
                             "pharmacy_log",
-                            $_SESSION['authUser'],
-                            $_SESSION['authProvider'],
+                            $session->get('authUser'),
+                            $session->get('authProvider'),
                             1,
                             "Background Task Pharmacy Download Imported $count Pharmacies Successfully."
                         );
@@ -231,8 +233,8 @@ class DownloadWenoPharmacies
                     } else {
                         EventAuditLogger::getInstance()->newEvent(
                             "pharmacy_log",
-                            $_SESSION['authUser'],
-                            $_SESSION['authProvider'],
+                            $session->get('authUser'),
+                            $session->get('authProvider'),
                             0,
                             "Pharmacy Import download failed."
                         );
@@ -249,8 +251,8 @@ class DownloadWenoPharmacies
                 } else {
                     EventAuditLogger::getInstance()->newEvent(
                         "pharmacy_log",
-                        $_SESSION['authUser'],
-                        $_SESSION['authProvider'],
+                        $session->get('authUser'),
+                        $session->get('authProvider'),
                         0,
                         "No CSV file found in the zip archive."
                     );
@@ -262,11 +264,11 @@ class DownloadWenoPharmacies
                 $wenolog = new WenoLogService();
                 $isError = $wenolog->scrapeWenoErrorHtml($scrape);
                 if ($isError['is_error']) {
-                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
+                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
                     error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
                     $wenolog->insertWenoLog("Pharmacy Directory", errorLogEscape($isError['messageText']));
                 } else {
-                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
+                    EventAuditLogger::getInstance()->newEvent("pharmacy_background", $session->get('authUser'), $session->get('authProvider'), 0, "Pharmacy Failed download! Weno error Other");
                     error_log("Pharmacy Failed download! Weno error: Other");
                     $wenoLog->insertWenoLog("Pharmacy Directory", "Failed");
                 }

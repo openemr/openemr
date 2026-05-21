@@ -4,21 +4,26 @@
  * transactions.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/transactions.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/transactions.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 ?>
 <html>
@@ -35,10 +40,10 @@ use OpenEMR\OeUI\OemrUI;
     // Process click on Delete button.
     function deleteme(transactionId) {
         top.restoreSession();
-        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 450);
+        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 500, 450);
         return false;
     }
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
+<?php require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 <?php
 $arrOeUiSettings = [
@@ -60,7 +65,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <div class="row">
             <div class="col-sm-12">
-                <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
+                <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
             </div>
         </div>
         <?php
@@ -110,7 +115,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         //  (note this only contains a date without a time)
                                         $date = oeFormatShortDate($item['refer_date']);
                                     } else {
-                                        $date = oeFormatDateTime($item['date']);
+                                        $date = DateFormatterUtils::oeFormatDateTime($item['date']);
                                     }
 
                                     $id = $item['id'];

@@ -4,7 +4,7 @@
  * SurgeryService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Shubham Pandey <shubham.pandey1706gmail.com>
  * @copyright Copyright (c) 2021 Shubham Pandey <shubham.pandey1706gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,8 +15,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchModifier;
-use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -40,7 +39,7 @@ class SurgeryService extends BaseService
         return ['uuid', 'euuid', 'puuid', 'recorder_uuid'];
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT
                     surgeries.id,
@@ -131,12 +130,12 @@ class SurgeryService extends BaseService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, ISearchField|string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search = [], $isAndCondition = true, $puuidBind = null)
     {
         $sqlBindArray = [];
 

@@ -4,7 +4,7 @@
  * AMC Tracking - Front Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenEMR <dev@open-emr.org>
@@ -13,11 +13,13 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/amc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/amc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AmcTracking\AmcTrackingController;
@@ -27,19 +29,17 @@ $globalsBag = OEGlobalsBag::getInstance();
 
 // Security Check: ACL
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    $kernel = $globalsBag->get('kernel');
-    echo (new TwigContainer(null, $kernel))->getTwig()->render(
-        'core/unauthorized.html.twig',
-        ['pageTitle' => xl("Automated Measure Calculations (AMC) Tracking")]
+    AccessDeniedHelper::denyWithTemplate(
+        "ACL check failed for patients/med: AMC Tracking",
+        xl("Automated Measure Calculations (AMC) Tracking")
     );
-    exit;
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Security Check: CSRF
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Initialize controller with OEGlobalsBag
@@ -57,7 +57,7 @@ $params = !empty($_POST) ? $controller->getFormParameters() : [
 $showResults = !empty($_POST['form_refresh']) && !empty($params['rule']);
 
 // Prepare data for template
-$templateData = $controller->prepareTemplateData($params, $showResults);
+$templateData = $controller->prepareTemplateData($params, $showResults, $session);
 
 // Render template
 $kernel = $globalsBag->get('kernel');

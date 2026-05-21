@@ -7,7 +7,7 @@
  * http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-adi-documentation
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -26,11 +26,10 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\Observation\FhirObservationAdvanceDirectiveService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class FhirObservationAdvanceDirectiveServiceUSCore8Test extends TestCase
 {

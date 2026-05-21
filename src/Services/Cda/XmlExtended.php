@@ -36,7 +36,7 @@ class XmlExtended extends Xml implements ReaderInterface
             ));
         }
         $this->reader = new XMLReader();
-        $this->reader->open($filename, null, LIBXML_XINCLUDE | LIBXML_COMPACT | LIBXML_PARSEHUGE);
+        $this->reader->open($filename, null, LIBXML_COMPACT | LIBXML_PARSEHUGE);
 
         $this->directory = dirname($filename);
 
@@ -70,7 +70,7 @@ class XmlExtended extends Xml implements ReaderInterface
             return [];
         }
         $this->reader = new XMLReader();
-        $this->reader->XML($string, null, LIBXML_XINCLUDE | LIBXML_COMPACT | LIBXML_PARSEHUGE);
+        $this->reader->XML($string, null, LIBXML_COMPACT | LIBXML_PARSEHUGE);
         $this->directory = null;
         set_error_handler(
             function ($error, $message = ''): void {

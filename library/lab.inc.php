@@ -4,7 +4,7 @@
  * lab.inc
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
@@ -150,8 +150,8 @@ function getBarId($lab_id, $pid): bool|array|string|null
 
 /**
  *
- * @param <type> $facilityID
- * @return <type> the result set, false if the input is malformed
+ * @param mixed $facilityID
+ * @return mixed the result set, false if the input is malformed
  */
 function getFacilityInfo($facilityID): bool|array
 {

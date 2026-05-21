@@ -4,7 +4,7 @@
 * Review of Systems Checks form
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    sunsetsystems <sunsetsystems>
 * @author    cfapress <cfapress>
 * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -15,12 +15,20 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+
+require_once("$srcdir/api.inc.php");
 
 $returnurl = 'encounter_top.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -34,7 +42,7 @@ $returnurl = 'encounter_top.php';
             <div class="col-12">
                 <h2><?php echo xlt("Review of Systems Checks");?></h2>
                 <form method="post" action="<?php echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('General')?></legend>
                         <div class="container">

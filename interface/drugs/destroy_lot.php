@@ -4,7 +4,7 @@
  * destroy lot
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2021 Rod Roark <rod@sunsetsystems.com>
@@ -15,18 +15,19 @@
 require_once("../globals.php");
 require_once("drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $drug_id = $_REQUEST['drug'];
 $lot_id  = $_REQUEST['lot'];
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Destroy Lot")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/drugs: Destroy Lot", xl("Destroy Lot"));
 }
 
 if (!$drug_id) {
@@ -55,7 +56,7 @@ if (!$lot_id) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -74,12 +75,11 @@ if (!$lot_id) {
 
 <body class="body_top">
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     sqlStatement(
         "UPDATE drug_inventory SET " .
@@ -102,7 +102,7 @@ if ($_POST['form_save']) {
   //
     echo "<script>\n";
     if ($info_msg) {
-        echo " alert('" . addslashes($info_msg) . "');\n";
+        echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
     echo " window.close();\n";
@@ -118,7 +118,7 @@ if ($_POST['form_save']) {
 <form method='post' name='theform' onsubmit='return validate(this);'
  action='destroy_lot.php?drug=<?php echo attr_url($drug_id) ?>&lot=<?php echo attr_url($lot_id) ?>'>
 
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

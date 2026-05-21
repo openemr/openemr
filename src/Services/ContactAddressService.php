@@ -4,14 +4,14 @@
  * Contact Address Service
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -214,7 +214,7 @@ class ContactAddressService extends BaseService
             ]);
 
             return $savedRecords;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving addresses for contact", [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
@@ -260,7 +260,7 @@ class ContactAddressService extends BaseService
     {
         try {
             return $contactAddress->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving contact address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -416,8 +416,8 @@ class ContactAddressService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactAddressId, $contactId]);
 
             return true;
-        } catch (\Exception $e) {
-            $this->getLogger()->error("Error setting primary address", ['error' => $e->getMessage()]);
+        } catch (SqlQueryException $e) {
+            $this->getLogger()->error("Error setting primary address", ['exception' => $e]);
             return false;
         }
     }
@@ -441,7 +441,7 @@ class ContactAddressService extends BaseService
             }
 
             return $contactAddress->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -472,7 +472,7 @@ class ContactAddressService extends BaseService
             $this->cleanupOrphanedContact($contactId);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting contact address", ['error' => $e->getMessage()]);
             return false;
         }
@@ -677,7 +677,7 @@ class ContactAddressService extends BaseService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error copying address", ['error' => $e->getMessage()]);
             return null;
         }

@@ -12,10 +12,13 @@
 
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Application\Listener\Listener;
 
+/**
+ * @method \Laminas\Http\Request getRequest()
+ */
 class SetupController extends AbstractActionController
 {
     /**

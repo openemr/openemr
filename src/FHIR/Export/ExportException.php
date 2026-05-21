@@ -4,7 +4,7 @@
  * ExportException thrown when the system experiences an error during the export operations.  It tracks the last resource
  * identifier that was successfully exported so the system can attempt to retry or resume operation at a later point
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

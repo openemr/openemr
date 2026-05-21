@@ -4,7 +4,7 @@
  * other.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //the number of rows to display before resetting and starting a new column:
 $N = 10
@@ -35,7 +35,7 @@ $N = 10
 
 <dl>
 
-<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"
+<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 <script>
 function clearform(atrib){

@@ -33,10 +33,11 @@
  *
  * @package OpenEMR
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Return listing of report results.
@@ -90,7 +91,7 @@ function listingReportDatabase($start_date = '', $end_date = '')
 /**
  * Simply reserves a report id for use in the report results tracking/storing/viewing item in database..
  *
- * @return  integer           Report id that was assigned in database
+ * @return int Report id that was assigned in database
  */
 function bookmarkReportDatabase()
 {
@@ -110,8 +111,8 @@ function bookmarkReportDatabase()
  *
  * @param   string   $type       Report type identifier
  * @param   array    $fields     Array containing pertinent report details (Do NOT use 'bookmark', 'progress','type','progress_patients', 'data', 'date_report' or 'no_json_support' as keys in array; they will be ignored)
- * @param   integer  $report_id  Report id (if have already bookmarked a report id)
- * @return  integer              Report id that is assigned to the report
+ * @param int $report_id Report id (if have already bookmarked a report id)
+ * @return int Report id that is assigned to the report
  */
 function beginReportDatabase($type, $fields, $report_id = null)
 {
@@ -154,8 +155,8 @@ function beginReportDatabase($type, $fields, $report_id = null)
  * Insert total items to process in database.
  * For performance reasons, it is assumed that the total_items does not already exists in current database entry.
  *
- * @param   integer  $report_id    Report id
- * @param   integer  $total_items  Total number of items that will be processed
+ * @param int $report_id Report id
+ * @param int $total_items Total number of items that will be processed
  */
 function setTotalItemsReportDatabase($report_id, $total_items): void
 {
@@ -167,8 +168,8 @@ function setTotalItemsReportDatabase($report_id, $total_items): void
  * Update report results in database(basically update number of items (patients) that has been processed in pending reports).
  * For performance reasons, it is assumed that the progress_items token already exists in current database entry.
  *
- * @param   integer  $report_id           Report id
- * @param   integer  $items_processed  Number of items that have been processed
+ * @param int $report_id Report id
+ * @param int $items_processed Number of items that have been processed
  */
 function updateReportDatabase($report_id, $items_processed): void
 {
@@ -181,7 +182,7 @@ function updateReportDatabase($report_id, $items_processed): void
  * For performance reasons, it is assumed that the data and progress tokens already exists in current database entry.
  * For performance reasons, it is assumed that the date_report_complete does not already exists in current database entry.
  *
- * @param   integer  $report_id  Report id
+ * @param int $report_id Report id
  * @param   string   $data       Report results/data
  */
 function finishReportDatabase($report_id, $data): void
@@ -200,7 +201,7 @@ function finishReportDatabase($report_id, $data): void
 /**
  * Collect report results from database.
  *
- * @param   integer  $report_id  Report id
+ * @param int $report_id Report id
  * @return  array                Array of id/values for a report
  */
 function collectReportDatabase($report_id)
@@ -221,7 +222,7 @@ function collectReportDatabase($report_id)
 /**
  * Get status of report from database.
  *
- * @param   integer  $report_id  Report id
+ * @param int $report_id Report id
  * @return  string               Status report (PENDING, COMPLETE, or return a string with progress)
  */
 function getStatusReportDatabase($report_id)
@@ -253,10 +254,10 @@ function getStatusReportDatabase($report_id)
 /**
  * Insert itemization item into database.
  *
- * @param   integer  $report_id         Report id
- * @param   integer  $itemized_test_id  Itemized test id
- * @param   integer  $pass              0 is fail, 1 is pass, 2 is exclude
- * @param   integer  $patient_id        Patient pid
+ * @param int $report_id Report id
+ * @param int $itemized_test_id Itemized test id
+ * @param int $pass 0 is fail, 1 is pass, 2 is exclude
+ * @param int $patient_id Patient pid
  * @param   string   $numerator_label  Numerator label (if applicable)
  * @param   string   $rule_id  The name of the rule that was used to generate this item
  * @param   string   $itemized_details  JSON of itemized details about this rule (if applicable)
@@ -270,10 +271,10 @@ function insertItemReportTracker($report_id, $itemized_test_id, $pass, $patient_
 /**
  * Collect a rules display title for itemized report.
  *
- * @param   integer  $report_id         Report id
- * @param   integer  $itemized_test_id  Itemized test id
- * @param   integer  $numerator_label   Numerator label (if applicable)
- * @return  string/boolean              Rule title for itemization display (false if nothing found)
+ * @param int $report_id Report id
+ * @param int $itemized_test_id Itemized test id
+ * @param int $numerator_label Numerator label (if applicable)
+ * @return string|bool Rule title for itemization display (false if nothing found)
  */
 function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerator_label = '')
 {
@@ -373,13 +374,13 @@ function collectItemizedRuleDisplayTitle($report_id, $itemized_test_id, $numerat
 /**
  * Collect patient listing from CDR reports itemization.
  *
- * @param   integer  $report_id         Report id
- * @param   integer  $itemized_test_id  Itemized test id
+ * @param int $report_id Report id
+ * @param int $itemized_test_id Itemized test id
  * @param   string   $pass              options are 'fail', 'pass', 'exclude', 'init_patients', 'exception' and 'all'
- * @param   integer  $numerator_label   Numerator label (if applicable)
- * @param   integer  $sqllimit          Sql query pagination info
- * @param   integer  $fstart            Sql query pagination info
- * @return  array/integer               Array list or a count
+ * @param int $numerator_label Numerator label (if applicable)
+ * @param int $sqllimit Sql query pagination info
+ * @param int $fstart Sql query pagination info
+ * @return array|int Array list or a count
  */
 function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass = 'all', $numerator_label = '', $count = false, $sqllimit = 'all', $fstart = 0)
 {
@@ -471,6 +472,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
         $row['total_patients'] ??= 0;
@@ -516,7 +518,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
         }
 
         if (isset($row['itemized_test_id'])) {
-            $csrf_token = CsrfUtils::collectCsrfToken();
+            $csrf_token = CsrfUtils::collectCsrfToken(session: $session);
 
             $base_link = sprintf(
                 "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"
@@ -524,7 +526,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
                 urlencode((string) $report_id),
                 urlencode((string) $row['itemized_test_id']),
                 urlencode($row['numerator_label'] ?? ''),
-                urlencode((string) $csrf_token)
+                urlencode($csrf_token)
             );
 
             // we need the provider & group id here...

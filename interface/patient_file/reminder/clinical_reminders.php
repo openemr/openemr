@@ -4,7 +4,7 @@
  * clinical reminders gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ensofttek, LLC
@@ -15,14 +15,15 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/clinical_rules.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/clinical_rules.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 ?>
 
@@ -239,7 +240,7 @@ $patient_id = $_GET['patient_id'] ?: "";
         type: 'passive_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
       });
     });
 
@@ -250,7 +251,7 @@ $patient_id = $_GET['patient_id'] ?: "";
         type: 'active_alert',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
       });
     });
 
@@ -261,7 +262,7 @@ $patient_id = $_GET['patient_id'] ?: "";
         type: 'normal',
         setting: this.value,
         patient_id: <?php echo js_escape($patient_id); ?>,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
       });
     });
 

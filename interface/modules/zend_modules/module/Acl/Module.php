@@ -34,11 +34,7 @@ class Module
     {
         return [
             'factories' => [
-                \Acl\Model\AclTable::class =>  function ($sm) {
-                    $dbAdapter = $sm->get(\Laminas\Db\Adapter\Adapter::class);
-                    $table = new AclTable($dbAdapter);
-                    return $table;
-                },
+                AclTable::class => fn($sm) => new AclTable(),
             ],
         ];
     }

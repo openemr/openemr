@@ -328,7 +328,7 @@ http://hl7.org/fhir/NamingSystem/iccbba-other-di.
     }
 
     /**
-     * @param boolean $returnSXE
+     * @param bool $returnSXE
      * @param \SimpleXMLElement $sxe
      * @return string|\SimpleXMLElement
      */

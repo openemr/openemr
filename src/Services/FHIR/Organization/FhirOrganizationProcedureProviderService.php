@@ -3,7 +3,7 @@
 /**
  * FhirOrganizationProcedureProviderService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,9 +19,7 @@ use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\ProcedureProviderService;
-use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -86,7 +84,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
      * Parses an OpenEMR organization record, returning the equivalent FHIR Organization Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIROrganization
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

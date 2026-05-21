@@ -4,7 +4,7 @@
  * edih_csv_inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
@@ -28,6 +28,9 @@
  * function (in ibr_uploads.php) ibr_upload_match_file($param_ar, $fidx, &$html_str)
  *   contains a regular expression that must be correct
  *
+
+use OpenEMR\Core\OEGlobalsBag;
+
  * Also, the constant IBR_HISTORY_DIR must be correct
  * **************************
  * </pre>
@@ -141,7 +144,7 @@ function csv_log_html($logname = '')
 /**
  * list log files and store old logs in an archive
  *
- * @param bool
+ * @param bool $list
  * @return array (json)
  */
 function csv_log_manage($list = true)
@@ -257,8 +260,8 @@ function csv_log_manage($list = true)
 /**
  * open or save a user notes file
  *
- * @param string
- * @param bool
+ * @param string $content
+ * @param bool $open
  * @return string
  */
 function csv_notes_file($content = '', $open = true)
@@ -327,10 +330,10 @@ function csv_notes_file($content = '', $open = true)
 function csv_edih_basedir()
 {
     // should be something like /var/www/htdocs/openemr/sites/default
-    if (isset($GLOBALS['OE_SITE_DIR'])) {
+    if (OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
         // debug
         //echo 'csv_edih_basedir OE_SITE_DIR '.$GLOBALS['OE_SITE_DIR'].'<br />'.PHP_EOL;
-        return $GLOBALS['OE_SITE_DIR'] . DS . 'documents' . DS . 'edi' . DS . 'history';
+        return OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DS . 'documents' . DS . 'edi' . DS . 'history';
     } else {
         csv_edihist_log('csv_edih_basedir: failed to obtain OpenEMR Site directory');
         return false;
@@ -374,7 +377,7 @@ function csv_edih_tmpdir()
  * @uses csv_edih_basedir()
  *
  * @param string &$out_str  referenced, should be created in calling function
- * @return boolean
+ * @return bool
  */
 function csv_setup()
 {
@@ -383,7 +386,7 @@ function csv_setup()
     $out_str = '';
     $chr = 0;
     // $GLOBALS['OE_SITE_DIR'] should be like /var/www/htdocs/openemr/sites/default
-    $sitedir = $GLOBALS['OE_SITE_DIR'];
+    $sitedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
     //$sitedir = csv_edih_basedir();
     //
     if (is_readable($sitedir)) {
@@ -525,7 +528,6 @@ function csv_setup()
  * Empty all contents of tmp dir /documents/edi/history/tmp
  *
  * @uses csv_edih_tmpdir()
- * @param  none
  * @return bool
  */
 function csv_clear_tmpdir()
@@ -574,44 +576,33 @@ function csv_clear_tmpdir()
  *
  * @uses csv_check_filepath()
  *
- * @param string   filepath or filename
- * @parm string    file x12 type
- * @return object  edih_x12_file class
+ * @param  string $filepath  filepath or filename
+ * @param  string $type      file x12 type
+ * @return edih_x12_file|false
  */
-function csv_check_x12_obj($filepath, $type = '')
+function csv_check_x12_obj($filepath, $type = ''): edih_x12_file|false
 {
-    //
-    $x12obj = false;
-    $ok = false;
-    //
     $fp = csv_check_filepath($filepath, $type);
-    //
-    if ($fp) {
-        $x12obj = new edih_x12_file($fp);
-        if ('edih_x12_file' == $x12obj::class) {
-            if ($x12obj->edih_valid() == 'ovigs') {
-                $ok = count($x12obj->edih_segments());
-                $ok = ($ok) ?  count($x12obj->edih_envelopes()) : false;
-                $ok = ($ok) ?  count($x12obj->edih_delimiters()) : false;
-                if (!$ok) {
-                    csv_edihist_log("csv_check_x12_obj: object missing properties [$filepath]");
-                    csv_edihist_log($x12obj->edih_message());
-                    return false;
-                }
-            } else {
-                csv_edihist_log("csv_check_x12_obj: invalid object $filepath");
-                return false;
-            }
-        } else {
-            csv_edihist_log("csv_check_x12_obj: object not edih_x12_file $filepath");
-            return false;
-        }
-    } else {
+    if (!$fp) {
         csv_edihist_log("csv_check_x12_obj: invalid file path $filepath");
         return false;
     }
 
-    //
+    $x12obj = new edih_x12_file($fp);
+    if ($x12obj->edih_valid() != 'ovigs') {
+        csv_edihist_log("csv_check_x12_obj: invalid object $filepath");
+        return false;
+    }
+
+    $ok = count($x12obj->edih_segments())
+        && count($x12obj->edih_envelopes())
+        && count($x12obj->edih_delimiters());
+    if (!$ok) {
+        csv_edihist_log("csv_check_x12_obj: object missing properties [$filepath]");
+        csv_edihist_log($x12obj->edih_message());
+        return false;
+    }
+
     return $x12obj;
 }
 
@@ -668,8 +659,8 @@ function csv_check_filepath($filename, $type = 'ALL')
 /**
  * verify file type parameter
  *
- * @param string    file type
- * @param bool      return GS02 code or fXXX
+ * @param string $type file type
+ * @param bool $gs_code return GS02 code or fXXX
  * @return string   file type or empty
  */
 function csv_file_type($type, $gs_code = false)
@@ -747,7 +738,7 @@ function csv_parameters($type = 'ALL')
     // OpenEMR copies each batch file to sites/default/documents/edi and this project never writes to that directory
     // batch reg ex -- '/20[01][0-9]-[01][0-9]-[0-3][0-9]-[0-9]{4}-batch*\.txt/' '/\d{4}-\d{2}-\d{2}-batch*\.txt$/'
     //
-    $p_ar['f837'] = ['type' => 'f837', 'directory' => $GLOBALS['OE_SITE_DIR'] . DS . 'documents' . DS . 'edi', 'claims_csv' => $edihist_dir . DS . 'csv' . DS . 'claims_f837.csv',
+    $p_ar['f837'] = ['type' => 'f837', 'directory' => OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DS . 'documents' . DS . 'edi', 'claims_csv' => $edihist_dir . DS . 'csv' . DS . 'claims_f837.csv',
                         'files_csv' => $edihist_dir . DS . 'csv' . DS . 'files_f837.csv', 'filedate' => 'Date', 'claimdate' => 'SvcDate', 'regex' => '/\-batch(.*)\.txt$/'];
     //
     //$p_ar['csv'] = array("type"=>'csv', "directory"=>$edihist_dir.'/csv', "claims_csv"=>'ibr_parameters.csv',
@@ -778,7 +769,7 @@ function csv_parameters($type = 'ALL')
 /**
  * determine if a csv table has data for select dropdown
  *
- * @param string   default 'json'
+ * @param string $outtp default 'json'
  * @return array   json if argument is 'json'
  */
 function csv_table_select_list($outtp = 'json')
@@ -828,7 +819,7 @@ function csv_table_select_list($outtp = 'json')
 /**
  * list existing archive files
  *
- * @param string   default 'json'
+ * @param string $outtp default 'json'
  * @return array   json if argument is 'json'
  */
 function csv_archive_select_list($outtp = 'json')
@@ -1022,8 +1013,8 @@ function csv_newfile_list($type)
  * The error segment string is specially created in edih_997_csv_data()
  * Simple analysis, but the idea is just to identify the bad segment
  *
- * @param string            error segment from edih_997_csv_data()
- * @param bool              true if only the 1st segmentID is wanted
+ * @param string $err_seg error segment from edih_997_csv_data()
+ * @param bool $id true if only the 1st segmentID is wanted
  * return array|string
  */
 function edih_errseg_parse($err_seg, $id = false)
@@ -1082,7 +1073,7 @@ function edih_errseg_parse($err_seg, $id = false)
  *
  * @uses csv_table_header()
  *
- * @param array   data_ar    data array from edih_XXX_csv_data()
+ * @param array $csvdata data_ar data array from edih_XXX_csv_data()
  * @return array|bool        ordered array or false on error
  */
 function edih_csv_order($csvdata)
@@ -1203,8 +1194,8 @@ function edih_format_percent($str_val)
  * HTML string for table thead element
  *
  * @uses csv_table_header()
- * @param string
- * @param string
+ * @param string $file_type
+ * @param string $csv_type
  * @return string
  */
 function csv_thead_html($file_type, $csv_type, $tblhd = null)
@@ -1382,7 +1373,7 @@ function csv_files_header($file_type, $csv_type) {
 /**
  * adapted from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
  *
- * @param int
+ * @param int $bytes
  *
  * @return string
  */
@@ -1405,7 +1396,7 @@ function csv_convert_bytes($bytes)
 /**
  * Determine whether an array is multidimensional
  *
- * @param array
+ * @param mixed $array
  * @return bool   false if arrayis multidimensional
  */
 function csv_singlerecord_test($array)
@@ -1538,7 +1529,7 @@ function csv_array_flatten($array)
  * @uses csv_parameters()
  * @usescsv_table_header()
  *
- * @param array    data array from parse functions
+ * @param array $csv_data data array from parse functions
  * @return bool    true if no error
  */
 function edih_csv_write($csv_data)
@@ -1550,6 +1541,7 @@ function edih_csv_write($csv_data)
     }
 
     //
+    $rws = 0;
     foreach ($csv_data as $isa) {
         // should be array[icn] => [file][j][key]  [claim][j][key]  [type]
         $ft = $isa['type'] ?? '';
@@ -1741,9 +1733,8 @@ function csv_search_record($file_type, $csv_type, $search_ar, $expect = '1')
  *
  * @uses csv_parameters()
  * @uses csv_pid_enctr_parse()
- * @param string                     patient control-- pid-encounter, encounter, or pid
- * @param string                     filetype -- x12 type or f837, f277, etc
- * @param string                     search type encounter, pid, or clm01
+ * @param string $clm01    patient control -- pid-encounter, encounter, or pid
+ * @param string $filetype filetype -- x12 type or f837, f277, etc
  * @return array|bool                [i] data row array  or empty on error
  */
 function csv_file_by_enctr($clm01, $filetype = 'f837')
@@ -1888,9 +1879,9 @@ function csv_file_by_controlnum($type, $control_num)
  * Note: the 997/999 trace is the ISA13 of a batch file
  *
  *
- * @param string     trace value (TRN02, TA101, or BHT03)
- * @param string     from type (default is f835)
- * @param string     to type (default is f835)
+ * @param string $trace trace value (TRN02, TA101, or BHT03)
+ * @param string $from_type from type (default is f835)
+ * @param string $to_type to type (default is f835)
  * @return string    file name or empty string
  */
 function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
@@ -1945,7 +1936,7 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
         $type = 'f278';
         $csv_type = 'claim';
     } else {
-        csv_edihist_log('csv_file_by_trace: incorrect file type ' . $file_type);
+        csv_edihist_log('csv_file_by_trace: incorrect file type ' . $from_type);
         return $fn;
     }
 
@@ -1978,8 +1969,8 @@ function csv_file_by_trace($trace, $from_type = 'f835', $to_type = 'f837')
 /**
  * list claim records with Denied or Reject status in  given file
  *
- * @param string
- * @param string
+ * @param string $filetype
+ * @param string $filename
  *
  * @return array
  */
@@ -2061,6 +2052,8 @@ function csv_pid_enctr_parse($pid_enctr)
     }
 
     $pval = trim($pid_enctr);
+    $pid = '';
+    $enc = '';
     if (strpos($pval, '-')) {
         $pid = substr($pval, 0, strpos($pval, '-'));
         $enc = substr($pval, strpos($pval, '-') + 1);

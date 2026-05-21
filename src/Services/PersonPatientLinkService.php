@@ -5,17 +5,17 @@
  * Manages links between person records and patient_data records
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 class PersonPatientLinkService extends BaseService
 {
@@ -26,7 +26,7 @@ class PersonPatientLinkService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
     }
 
     /**
@@ -100,7 +100,7 @@ class PersonPatientLinkService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to create link");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("Error linking person to patient", [
                 'error' => $e->getMessage(),
                 'person_id' => $personId,
@@ -135,7 +135,7 @@ class PersonPatientLinkService extends BaseService
             } else {
                 $processingResult->addInternalError("Link not found or already inactive");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("Error unlinking person from patient", [
                 'error' => $e->getMessage(),
                 'person_id' => $personId,

@@ -11,7 +11,7 @@
  * column of the SQL-Ledger acc_trans table or ar_session table.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -22,27 +22,27 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipts Summary")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Receipts Summary", xl("Receipts Summary"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // This controls whether we show pt name, policy number and DOS.
@@ -184,7 +184,7 @@ function showLineItem(
                 "p.pid = ? AND fe.pid = p.pid AND " .
                 "fe.encounter = ? LIMIT 1", [$patient_id, $encounter_id]);
             if (!empty($irnumber)) {
-                echo text($invnumber);
+                echo text($irnumber);
             } else {
                 echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
                       attr($patient_id) . "-" . attr($encounter_id) .
@@ -313,7 +313,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -357,7 +357,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Receipts Summary'); ?></span>
 
 <form method='post' action='receipts_by_method_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <div id="report_parameters">
     <div class="form-row col-md-6">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -413,7 +413,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 
                         echo "   </select>\n";
                     } else {
-                        echo "<input type='hidden' name='form_provider' value='" . attr($_SESSION['authUserID']) . "'>";
+                        echo "<input type='hidden' name='form_provider' value='" . attr($session->get('authUserID')) . "'>";
                     }
                     ?>
                 </td>
@@ -421,7 +421,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
         <div class="form-group col-auto">
             <label for="form_proc_codefull">
             <?php
-            if (!$GLOBALS['simplified_demographics']) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                 echo xlt('Procedure/Service');
             }
             ?>
@@ -429,7 +429,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             <input type='text' name='form_proc_codefull' id='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Click to select optional procedure code'); ?>'
             <?php
-            if ($GLOBALS['simplified_demographics']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                 echo "style='display:none'";
             } ?> />
         </div>
@@ -534,7 +534,7 @@ if (!empty($_POST['form_refresh'])) {
         $form_provider = $_POST['form_provider'];
         if (!AclMain::aclCheckCore('acct', 'rep_a')) {
             // only allow user to see their encounter information
-            $form_provider = $_SESSION['authUserID'];
+            $form_provider = $session->get('authUserID');
         }
 
 
@@ -651,6 +651,7 @@ if (!empty($_POST['form_refresh'])) {
             }
 
           // Compute reporting key: insurance company name or payment method.
+            $rowmethod = '';
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
@@ -667,8 +668,19 @@ if (!empty($_POST['form_refresh'])) {
                         $rowmethod = xl('Unnamed insurance company');
                     }
                     if (!empty($insurance_id['provider'])) {
-                        $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?? '';
-                        $rowmethod = xl($insurance_company['name']);
+                        // getOneById delegates to sqlQuery which can return
+                        // array|false|null. Normalize to [] so the ['name']
+                        // lookup below can't trip on a non-array value.
+                        $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?: [];
+                        $insurance_company_name = $insurance_company['name'] ?? null;
+                        if (is_string($insurance_company_name) && trim($insurance_company_name) !== '') {
+                            $rowmethod = $insurance_company_name;
+                        } else {
+                            // Fall back to the same label the missing-provider
+                            // branch below uses, so empty payer keys don't get
+                            // bucketed as "Patient"/"Unknown" downstream.
+                            $rowmethod = xl('Unnamed insurance company');
+                        }
                     } elseif (!($row['payer_type'] == '0')) {
                         $rowmethod = xl('Unnamed insurance company');
                     }

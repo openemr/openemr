@@ -5,7 +5,7 @@
  * (note this consolidated several libraries and maintained the author/copyright credits)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -20,6 +20,7 @@ namespace OpenEMR\Menu;
 require_once(__DIR__ . "/../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 
 abstract class MenuRole implements MenuRoleInterface
 {
@@ -51,8 +52,13 @@ abstract class MenuRole implements MenuRoleInterface
                 }
             }
 
-            // Translate the labels
-            $entry->label = xlt($entry->label);
+            // Translate the labels with HTML escaping. At least one render
+            // site (twAddTab in src/Tabs/TabsWrapper.php) concatenates the
+            // label directly into an anchor and an id attribute without
+            // escaping, so labels must be HTML-safe at rest.
+            $rawLabel = $entry->label ?? null;
+            // @phpstan-ignore argument.type (menu labels are dynamic content)
+            $entry->label = xlt(is_string($rawLabel) ? $rawLabel : '');
             // Recursive update of children
             if (isset($entry->children)) {
                 $this->menuUpdateEntries($entry->children);
@@ -97,12 +103,12 @@ abstract class MenuRole implements MenuRoleInterface
                         if (str_starts_with((string) $curSetting, '!')) {
                             $curSetting = substr((string) $curSetting, 1);
                             // If the global isn't set at all, or if it is false, then show it
-                            if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting]) {
+                            if (!OEGlobalsBag::getInstance()->has($curSetting) || !OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $noneSet = false;
                             }
                         } else {
                             // If the setting is both set and true, then show it
-                            if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting]) {
+                            if (OEGlobalsBag::getInstance()->has($curSetting) && OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $noneSet = false;
                             }
                         }
@@ -116,12 +122,12 @@ abstract class MenuRole implements MenuRoleInterface
                     if (str_starts_with((string) $srcEntry->global_req, '!')) {
                         $globalSetting = substr((string) $srcEntry->global_req, 1);
                         // If the setting is both set and true, then skip this entry
-                        if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
+                        if (OEGlobalsBag::getInstance()->has($globalSetting) && OEGlobalsBag::getInstance()->get($globalSetting)) {
                             $includeEntry = false;
                         }
                     } else {
                         // If the global isn't set at all, or if it is false then skip the entry
-                        if (!isset($GLOBALS[$srcEntry->global_req]) || !$GLOBALS[$srcEntry->global_req]) {
+                        if (!OEGlobalsBag::getInstance()->has($srcEntry->global_req) || !OEGlobalsBag::getInstance()->get($srcEntry->global_req)) {
                             $includeEntry = false;
                         }
                     }
@@ -139,12 +145,12 @@ abstract class MenuRole implements MenuRoleInterface
                         if (str_starts_with((string) $curSetting, '!')) {
                             $curSetting = substr((string) $curSetting, 1);
                             // If the setting is both set and true, then do not show it
-                            if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting]) {
+                            if (OEGlobalsBag::getInstance()->has($curSetting) && OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $allSet = false;
                             }
                         } else {
                             // If the global isn't set at all, or if it is false, then do not show it
-                            if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting]) {
+                            if (!OEGlobalsBag::getInstance()->has($curSetting) || !OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $allSet = false;
                             }
                         }
@@ -158,12 +164,12 @@ abstract class MenuRole implements MenuRoleInterface
                     if (str_starts_with((string) $srcEntry->global_req_strict, '!')) {
                         $globalSetting = substr((string) $srcEntry->global_req_strict, 1);
                         // If the setting is both set and true, then skip this entry
-                        if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
+                        if (OEGlobalsBag::getInstance()->has($globalSetting) && OEGlobalsBag::getInstance()->get($globalSetting)) {
                             $includeEntry = false;
                         }
                     } else {
                         // If the global isn't set at all, or if it is false then skip the entry
-                        if (!isset($GLOBALS[$srcEntry->global_req_strict]) || !$GLOBALS[$srcEntry->global_req_strict]) {
+                        if (!OEGlobalsBag::getInstance()->has($srcEntry->global_req_strict) || !OEGlobalsBag::getInstance()->get($srcEntry->global_req_strict)) {
                             $includeEntry = false;
                         }
                     }

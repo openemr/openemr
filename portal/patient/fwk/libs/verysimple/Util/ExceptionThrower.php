@@ -13,7 +13,7 @@
  *          // @TODO PHP command here
  *          ExceptionThrower::Stop();
  *          }
- *          catch (Exception $ex)
+ *          catch (\Throwable $ex)
  *          {
  *          ExceptionThrower::Stop();
  *          // handle or re-throw exception

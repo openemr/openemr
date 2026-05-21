@@ -1,7 +1,8 @@
 <?php
 
-use OpenEMR\Common\Translation\TranslationCache;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Translation\TranslationCache;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!(function_exists('xlWarmCache'))) {
     /**
@@ -10,7 +11,7 @@ if (!(function_exists('xlWarmCache'))) {
      */
     function xlWarmCache(): void
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $language_choice = $session->get('language_choice');
         $lang_id = !empty($language_choice) ? (int)$language_choice : 1;
         TranslationCache::warm($lang_id);
@@ -25,15 +26,15 @@ if (!(function_exists('xl'))) {
      * Note: In some installation scenarios this function may already be declared,
      * so we check to ensure it hasn't been declared yet.
      *
-     * @param string $constant The text constant to translate
+     * @param literal-string $constant The text constant to translate
      * @return string The translated string
      */
     function xl($constant)
     {
-        if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
             return $constant;
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $language_choice = $session->get('language_choice');
         // set language id
         $lang_id = !empty($language_choice) ? $language_choice : 1;
@@ -73,7 +74,7 @@ if (!(function_exists('xl'))) {
             $string = "$constant";
         }
         // remove dangerous characters and remove comments
-        if (!empty($GLOBALS['translate_no_safe_apostrophe'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('translate_no_safe_apostrophe')) {
             $patterns =  ['/\n/','/\r/','/\{\{.*\}\}/'];
             $replace =  [' ','',''];
             $string = preg_replace($patterns, $replace, (string) $string);
@@ -112,7 +113,8 @@ if (!(function_exists('xl'))) {
  */
 function xl_list_label($constant)
 {
-    return $GLOBALS['translate_lists'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_lists') ? xl($constant) : $constant;
 }
 
 /**
@@ -126,7 +128,8 @@ function xl_list_label($constant)
  */
 function xl_layout_label($constant)
 {
-    return $GLOBALS['translate_layout'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_layout') ? xl($constant) : $constant;
 }
 
 /**
@@ -140,7 +143,8 @@ function xl_layout_label($constant)
  */
 function xl_gacl_group($constant)
 {
-    return $GLOBALS['translate_gacl_groups'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_gacl_groups') ? xl($constant) : $constant;
 }
 
 /**
@@ -154,7 +158,8 @@ function xl_gacl_group($constant)
  */
 function xl_form_title($constant)
 {
-    return $GLOBALS['translate_form_titles'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_form_titles') ? xl($constant) : $constant;
 }
 
 /**
@@ -168,7 +173,8 @@ function xl_form_title($constant)
  */
 function xl_document_category($constant)
 {
-    return $GLOBALS['translate_document_categories'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_document_categories') ? xl($constant) : $constant;
 }
 
 /**
@@ -182,7 +188,8 @@ function xl_document_category($constant)
  */
 function xl_appt_category($constant)
 {
-    return $GLOBALS['translate_appt_categories'] ? xl($constant) : $constant;
+    // @phpstan-ignore argument.type (intentionally accepts dynamic content)
+    return OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories') ? xl($constant) : $constant;
 }
 // ---------------------------------------------------------------------------
 

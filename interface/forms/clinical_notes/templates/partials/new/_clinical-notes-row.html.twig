@@ -8,7 +8,7 @@
                 <div class="row pl-2">
                     <div class="col-12">
                         <label for="code_date_{{ index|attr }}" class="h5">{{ "Date"|xlt }}:</label>
-                        <input type='text' id="code_date_{{ index|attr }}" name='code_date[]' class="form-control code_date datepicker" value='{{ obj.date|default('')|attr }}' title='{{ 'yyyy-mm-dd Date of service'|xla }}' />
+                        <input type='text' id="code_date_{{ index|attr }}" name='code_date[]' class="form-control code_date datepicker" value='{{ obj.date|shortDate|default('')|attr }}' title='{{ 'yyyy-mm-dd Date of service'|xla }}' />
                     </div>
                     {% if clinical_notes_type|length > 0 %}
                         <div class="col-12">
@@ -61,7 +61,7 @@
                         <!-- Last edited date -->
                         <div class="col-12">
                             <label class="h6">{{ 'Last Updated'|xlt }}:</label>
-                            <span>{{ obj.last_updated|text }}</span>
+                            <span>{{ obj.last_updated|oeFormatDateTime|text }}</span>
                         </div>
                     </div>
                 </div>
@@ -107,7 +107,7 @@
                             {% if obj.linked_results is defined and obj.linked_results|length > 0 %}
                                 {% for result in obj.linked_results %}
                                     <div class="result-item badge badge-info mr-1 mb-1" data-uuid="{{ result.uuid|attr }}">
-                                        <span title="{{ result.procedure_name|attr }} {{ result.result_text|attr }}: {{ result.result|attr }} ({{ result.date|attr }})">
+                                        <span title="{{ result.procedure_name|attr }} {{ result.result_text|attr }}: {{ result.result|attr }} ({{ result.date|oeFormatDateTime|attr }})">
                                             {{ result.result_text|text }}: {{ result.result|text }}
                                         </span>
                                         <button type="button" class="btn-close-result ml-1" data-note-index="{{ index|attr }}" data-uuid="{{ result.uuid|attr }}" title="{{ 'Remove result'|xla }}">&times;</button>

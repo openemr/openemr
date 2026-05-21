@@ -15,8 +15,8 @@
 namespace OpenEMR\Common\ORDataObject;
 
 use DateTime;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Person extends ORDataObject implements \JsonSerializable, \Stringable
 {
@@ -55,7 +55,7 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
     public function __construct(private $id = "")
     {
         parent::__construct("person");
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->setThrowExceptionOnError(true);
         $this->uuid = null;
         $this->title = "";
@@ -132,13 +132,13 @@ class Person extends ORDataObject implements \JsonSerializable, \Stringable
      */
     public function persist()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Generate UUID if creating new record
         if (empty($this->id) && empty($this->uuid)) {
             try {
                 // createUuid() returns bytes directly - no uuidToBytes() needed!
                 $this->uuid = (new UuidRegistry(['table_name' => 'person']))->createUuid();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log but don't fail - UUID is optional
                 error_log("Failed to generate UUID for person: " . $e->getMessage());
             }

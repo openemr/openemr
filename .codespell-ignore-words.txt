@@ -41,7 +41,6 @@ grp
 inout
 inpt
 insid
-interpretter
 keypair
 marge
 mis
@@ -81,6 +80,9 @@ skelton
 # Smarty template modifier names
 spacify
 
+# Software design terminology
+wither
+
 # Third-party library terms
 afterall
 atleast
@@ -117,5 +119,4 @@ esy
 hightlight
 occurance
 seperator
-uncomplete
 vlaue

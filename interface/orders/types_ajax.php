@@ -4,7 +4,7 @@
  * types_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -16,10 +16,11 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('patients', 'lab')) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to order types');
 }
 
 $id = ($_GET['id'] ?? '') + 0;
@@ -30,9 +31,12 @@ $render = '';
 
 $render .= "<table class=\"table\">";
 // Determine indentation level for this container.
-for ($level = 0, $parentid = $id; $parentid; ++$level) {
+$level = 0;
+$parentid = $id;
+while ($parentid) {
     $row = sqlQuery("SELECT parent FROM procedure_type WHERE procedure_type_id = ?", [$parentid]);
     $parentid = $row['parent'] + 0;
+    ++$level;
 }
 
 $res = sqlStatement("SELECT * FROM procedure_type WHERE parent = ? " .

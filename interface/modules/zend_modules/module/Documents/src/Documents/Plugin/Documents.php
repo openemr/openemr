@@ -12,14 +12,12 @@
 
 namespace Documents\Plugin;
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
-use Application\Model\ApplicationTable;
-use Application\Listener\Listener;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
-use C_Document;
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/controllers/C_Document.class.php");
 
 class Documents extends AbstractPlugin
 {
@@ -28,18 +26,16 @@ class Documents extends AbstractPlugin
   /**
    *
    * Documents Table Object
-   * @param type $sm Service Manager
    **/
-    public function __construct($sm)
+    public function __construct()
     {
-        $sm->get(\Laminas\Db\Adapter\Adapter::class);
         $this->documentsTable = new DocumentsTable();
     }
 
     /**
      * getDocument Retrieve Documents from Couch/HDD
-     * @param Integer $documentId Document ID
-     * @param Boolean $doEncryption Download Encrypted File
+     * @param int $documentId Document ID
+     * @param bool $doEncryption Download Encrypted File
      * @param  String $encryption_key Key for Document Encryption
      * @return String File Content
      */
@@ -53,12 +49,11 @@ class Documents extends AbstractPlugin
 
     public static function fetchXmlDocuments()
     {
-        $obj = new ApplicationTable();
         $query = "SELECT doc.id
 	    FROM categories_to_documents AS cat_doc
 	    JOIN documents AS doc ON doc.imported = 0 AND doc.id = cat_doc.document_id AND doc.mimetype = 'text/xml'
 	    WHERE cat_doc.category_id = 1";
-        $result = $obj->zQuery($query);
+        $result = QueryUtils::fetchRecords($query);
         $count  = 0;
         $module = [];
         foreach ($result as $row) {

@@ -138,7 +138,7 @@ class VerySimpleStringUtil
      * returning HTML content.
      *
      * @param string $text
-     * @param bool true to sanitize the text before parsing for display security
+     * @param bool $sanitize true to sanitize the text before parsing for display security
      * @return string HTML
      */
     static function ConvertEmailToMailTo($text, $sanitize = false)
@@ -156,7 +156,7 @@ class VerySimpleStringUtil
      * returning HTML content.
      *
      * @param string $text
-     * @param bool true to sanitize the text before parsing for display security
+     * @param bool $sanitize true to sanitize the text before parsing for display security
      * @return string HTML
      */
     static function ConvertUrlToLink($text, $sanitize = false)

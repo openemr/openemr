@@ -4,7 +4,7 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,50 +12,47 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
-use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\HttpUtils;
-use OpenEMR\Common\Utils\RandomGenUtils;
-use Psr\Log\LoggerInterface;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ClientRepository implements ClientRepositoryInterface
 {
     use SystemLoggerAwareTrait;
 
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
-    /**
-     * @return CryptoGen
-     */
-    public function getCryptoGen(): CryptoGen
+    public function getCryptoGen(): CryptoInterface
     {
         return $this->cryptoGen;
     }
 
     /**
-     * @param CryptoGen $cryptoGen
      * @return ClientRepository
      */
-    public function setCryptoGen(CryptoGen $cryptoGen): ClientRepository
+    public function setCryptoGen(CryptoInterface $cryptoGen): ClientRepository
     {
         $this->cryptoGen = $cryptoGen;
         return $this;
     }
 
-    // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
+    // TODO: @adunsulag this function needs to be updated to remove usage of superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
-        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUserID'); // future use for provider client.
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
         $skip_ehr_launch_authorization_flow = ($info['skip_ehr_launch_authorization_flow'] ?? false) == true ? 1 : 0;
 
@@ -82,7 +79,7 @@ class ClientRepository implements ClientRepositoryInterface
             $scopeRepo->hasScopesThatRequireManualApproval(
                 $is_confidential_client == 1,
                 $scopes,
-                $GLOBALS['oauth_app_manual_approval'] ?? '0'
+                OEGlobalsBag::getInstance()->get('oauth_app_manual_approval') ?? '0'
             )
         ) {
             $is_client_enabled = 0; // disabled
@@ -93,7 +90,7 @@ class ClientRepository implements ClientRepositoryInterface
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $cryptoGen = $this->getCryptoGen();
-            $info['client_secret'] = $cryptoGen->encryptStandard($info['client_secret']);
+            $info['client_secret'] = $cryptoGen->encryptForDatabase(is_string($info['client_secret']) ? $info['client_secret'] : null);
         }
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
@@ -130,12 +127,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function generateClientId()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+        return HttpUtils::base64url_encode(random_bytes(32));
     }
 
     public function generateClientSecret()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(64));
+        return HttpUtils::base64url_encode(random_bytes(64));
     }
 
     /**
@@ -199,7 +196,11 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (new CryptoGen())->decryptStandard($client['client_secret']);
+                try {
+                    $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+                } catch (CryptoGenException) {
+                    return false;
+                }
                 if (empty($secret)) {
                     return false;
                 }
@@ -278,12 +279,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function generateRegistrationAccessToken()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+        return HttpUtils::base64url_encode(random_bytes(32));
     }
 
     public function generateRegistrationClientUriPath()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(16));
+        return HttpUtils::base64url_encode(random_bytes(16));
     }
 
     public function saveSkipEHRLaunchFlow(ClientEntity $client, bool $skipFlow)

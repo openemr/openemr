@@ -1,0 +1,22 @@
+<?php
+// vim: ft=php
+
+/**
+ * PHPStan stub for Pdo\Mysql class added in PHP 8.4.
+ *
+ * This stub allows PHPStan to analyze code that references Pdo\Mysql constants
+ * while still targeting PHP 8.2+ as the minimum version. The actual runtime
+ * code uses class_exists() checks to fall back to PDO::MYSQL_ATTR_* constants
+ * on older PHP versions.
+ *
+ * @see https://www.php.net/manual/en/class.pdo-mysql.php
+ */
+
+namespace Pdo;
+
+class Mysql extends \PDO
+{
+    public const int ATTR_SSL_KEY = 1006;
+    public const int ATTR_SSL_CERT = 1007;
+    public const int ATTR_SSL_CA = 1008;
+}

@@ -3,7 +3,7 @@
 /*
  * FhirConditionProblemsHealthConcernService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for portions marked as AI Generated which were created with the assistance of Claude.AI and Microsoft Copilot
@@ -14,12 +14,11 @@ namespace OpenEMR\Services\FHIR\Condition;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
 use OpenEMR\Services\FHIR\Condition\Trait\FhirConditionTrait;
-use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
@@ -221,7 +220,7 @@ class FhirConditionProblemListItemService extends FhirServiceBase implements IPa
      * Parses an OpenEMR condition record, returning the equivalent FHIR Condition Resource
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCondition
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)

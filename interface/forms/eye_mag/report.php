@@ -25,7 +25,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,8 +38,12 @@ require_once(__DIR__ . "/../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../library/patient.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FacilityService;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_name = "eye_mag";
 global $form_folder;
@@ -74,7 +80,7 @@ if (!($id ?? '')) {
 // Get users preferences, for this user
 // (and if not the default where a fresh install begins from, or someone else's)
 $query  = "SELECT * FROM form_eye_mag_prefs where PEZONE='PREFS' AND id=? ORDER BY ZONE_ORDER,ordering";
-$result = sqlStatement($query, [$_SESSION['authUserID']]);
+$result = sqlStatement($query, [$session->get('authUserID')]);
 while ($prefs = sqlFetchArray($result)) {
     $LOCATION = $prefs['LOCATION'];
     ${$LOCATION} = text($prefs['GOVALUE']);
@@ -122,6 +128,9 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
                     forms.pid=? ";
     $objQuery = sqlQuery($query, [$encounter,$pid]);
     @extract($objQuery);
+    // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
+    $encounter_date ??= null;
+    // End column defaults.
 
     $dated = new DateTime($encounter_date);
     $dated = $dated->format('Y/m/d');
@@ -141,32 +150,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
    * @return string => returns the HTML of the report selected
    */
 
-    if ($choice == 'DRAW') {
-        /*
-      $side="OU";
-      $zone = array("HPI","PMH","VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
-        //  for ($i = 0; $i < count($zone); ++$i) {
-        //  show only 2 for now in the encounter page
-      ($choice =='drawing') ? ($count = count($zone)) : ($count ='2');
-      for ($i = 0; $i < $count; ++$i) {
-        $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
-        $sql = "SELECT * from documents where url='file://".$file_location."'";
-        $doc = sqlQuery($sql);
-        if (file_exists($file_location) && ($doc['id'] > '0')) {
-        $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=$doc[id]&as_file=false";
-        ?><div style='position:relative;float:left;width:100px;height:75px;'>
-        <img src='<?php echo $filetoshow; ?>' width=100 heght=75>
-        </div> <?
-        } else {
-             // $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
-        }
-        ?>
-
-        <?php
-      }
-      } else if ($choice == "drawing") {
-        */
-        ?>
+    if ($choice == 'DRAW') { ?>
       <div class="borderShadow">
         <?php display_draw_section("VISION", $encounter, $pid); ?>
     </div>
@@ -202,6 +186,7 @@ function left_overs(): void
   /*
   * Keep: this could be co-opted to export an XML/HL7 type of document
   */
+    global $table_name, $id;
     $count = 0;
     $data = formFetch($table_name, $id);
 
@@ -223,6 +208,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
     global $PDF_OUTPUT;
     global $facilityService;
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
   //if $cols == 'Fax', we are here from taskman, making a fax and this a one page short form - leave out PMSFH, prescriptions
   //and any clinical area that is blank.
      $query = "  select  *,form_encounter.date as encounter_date
@@ -253,6 +239,71 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
     $encounter_data = sqlQuery($query, [$encounter, $pid]);
     @extract($encounter_data);
+    // Default columns from joined form_eye_* tables so PHPStan can verify them after @extract.
+    $ACT ??= null; $ACT10CCDIST ??= null; $ACT10CCNEAR ??= null; $ACT10SCDIST ??= null; $ACT10SCNEAR ??= null;
+    $ACT11CCDIST ??= null; $ACT11CCNEAR ??= null; $ACT11SCDIST ??= null; $ACT11SCNEAR ??= null;
+    $ACT1CCDIST ??= null; $ACT1CCNEAR ??= null; $ACT1SCDIST ??= null; $ACT1SCNEAR ??= null; $ACT2CCDIST ??= null;
+    $ACT2CCNEAR ??= null; $ACT2SCDIST ??= null; $ACT2SCNEAR ??= null; $ACT3CCDIST ??= null; $ACT3CCNEAR ??= null;
+    $ACT3SCDIST ??= null; $ACT3SCNEAR ??= null; $ACT4CCDIST ??= null; $ACT4CCNEAR ??= null; $ACT4SCDIST ??= null;
+    $ACT4SCNEAR ??= null; $ACT5CCDIST ??= null; $ACT5CCNEAR ??= null; $ACT5SCDIST ??= null; $ACT5SCNEAR ??= null;
+    $ACT6CCDIST ??= null; $ACT6CCNEAR ??= null; $ACT6SCDIST ??= null; $ACT6SCNEAR ??= null; $ACT7CCDIST ??= null;
+    $ACT7CCNEAR ??= null; $ACT7SCDIST ??= null; $ACT7SCNEAR ??= null; $ACT8CCDIST ??= null; $ACT8CCNEAR ??= null;
+    $ACT8SCDIST ??= null; $ACT8SCNEAR ??= null; $ACT9CCDIST ??= null; $ACT9CCNEAR ??= null; $ACT9SCDIST ??= null;
+    $ACT9SCNEAR ??= null; $AMSLEROD ??= null; $AMSLEROS ??= null; $ANTSEG_COMMENTS ??= null; $ARNEARODVA ??= null;
+    $ARNEAROSVA ??= null; $ARODADD ??= null; $ARODAXIS ??= null; $ARODCYL ??= null; $ARODPRISM ??= null;
+    $ARODSPH ??= null; $ARODVA ??= null; $AROSADD ??= null; $AROSAXIS ??= null; $AROSCYL ??= null;
+    $AROSPRISM ??= null; $AROSSPH ??= null; $AROSVA ??= null; $ASSOCIATED1 ??= null; $ASSOCIATED2 ??= null;
+    $ASSOCIATED3 ??= null; $CACCDIST ??= null; $CACCNEAR ??= null; $CC1 ??= null; $CC2 ??= null; $CC3 ??= null;
+    $CHRONIC1 ??= null; $CHRONIC2 ??= null; $CHRONIC3 ??= null; $CONTEXT1 ??= null; $CONTEXT2 ??= null;
+    $CONTEXT3 ??= null; $CONTRASTODVA ??= null; $CONTRASTOSVA ??= null; $CRCOMMENTS ??= null;
+    $CRNEARODVA ??= null; $CRNEAROSVA ??= null; $CRODADD ??= null; $CRODAXIS ??= null; $CRODCYL ??= null;
+    $CRODPRISM ??= null; $CRODSPH ??= null; $CRODVA ??= null; $CROSADD ??= null; $CROSAXIS ??= null;
+    $CROSCYL ??= null; $CROSPRISM ??= null; $CROSSPH ??= null; $CROSVA ??= null; $CTLBRANDOD ??= null;
+    $CTLBRANDOS ??= null; $CTLMANUFACTUREROD ??= null; $CTLMANUFACTUREROS ??= null; $CTLODADD ??= null;
+    $CTLODAXIS ??= null; $CTLODBC ??= null; $CTLODCYL ??= null; $CTLODDIAM ??= null; $CTLODSPH ??= null;
+    $CTLODVA ??= null; $CTLOSADD ??= null; $CTLOSAXIS ??= null; $CTLOSBC ??= null; $CTLOSCYL ??= null;
+    $CTLOSDIAM ??= null; $CTLOSSPH ??= null; $CTLOSVA ??= null; $CTLSUPPLIEROD ??= null; $CTLSUPPLIEROS ??= null;
+    $DACCDIST ??= null; $DACCNEAR ??= null; $DIL_MEDS ??= null; $DIMODPUPILSIZE1 ??= null;
+    $DIMODPUPILSIZE2 ??= null; $DIMOSPUPILSIZE1 ??= null; $DIMOSPUPILSIZE2 ??= null; $DURATION1 ??= null;
+    $DURATION2 ??= null; $DURATION3 ??= null; $EXT_COMMENTS ??= null; $GLAREODVA ??= null; $GLAREOSVA ??= null;
+    $HERTELBASE ??= null; $HPI1 ??= null; $HPI2 ??= null; $HPI3 ??= null; $IOPTIME ??= null; $LADNEXA ??= null;
+    $LBROW ??= null; $LCAROTID ??= null; $LCNV ??= null; $LCNVII ??= null; $LIODVA ??= null; $LIOSVA ??= null;
+    $LLF ??= null; $LLL ??= null; $LMCT ??= null; $LMRD ??= null; $LOCATION1 ??= null; $LOCATION2 ??= null;
+    $LOCATION3 ??= null; $LTEMPART ??= null; $LUL ??= null; $LVFISSURE ??= null; $MODIFY1 ??= null;
+    $MODIFY2 ??= null; $MODIFY3 ??= null; $MOTILITYNORMAL ??= null; $MOTILITY_L0 ??= null; $MOTILITY_LI ??= null;
+    $MOTILITY_LL ??= null; $MOTILITY_LLIO ??= null; $MOTILITY_LLSO ??= null; $MOTILITY_LR ??= null;
+    $MOTILITY_LRSO ??= null; $MOTILITY_LS ??= null; $MOTILITY_R0 ??= null; $MOTILITY_RI ??= null;
+    $MOTILITY_RL ??= null; $MOTILITY_RLIO ??= null; $MOTILITY_RLSO ??= null; $MOTILITY_RR ??= null;
+    $MOTILITY_RRIO ??= null; $MOTILITY_RRSO ??= null; $MOTILITY_RS ??= null; $MRNEARODVA ??= null;
+    $MRNEAROSVA ??= null; $MRODADD ??= null; $MRODAXIS ??= null; $MRODCYL ??= null; $MRODPRISM ??= null;
+    $MRODSPH ??= null; $MRODVA ??= null; $MROSADD ??= null; $MROSAXIS ??= null; $MROSCYL ??= null;
+    $MROSPRISM ??= null; $MROSSPH ??= null; $MROSVA ??= null; $NEURO_COMMENTS ??= null; $NPC ??= null;
+    $ODAC ??= null; $ODACD ??= null; $ODAPD ??= null; $ODAXIALLENGTH ??= null; $ODCMT ??= null; $ODCOINS ??= null;
+    $ODCOLOR ??= null; $ODCONJ ??= null; $ODCORNEA ??= null; $ODCUP ??= null; $ODDISC ??= null; $ODECL ??= null;
+    $ODGONIO ??= null; $ODHERTEL ??= null; $ODIOPAP ??= null; $ODIOPFTN ??= null; $ODIOPTPN ??= null;
+    $ODIRIS ??= null; $ODK1 ??= null; $ODK2 ??= null; $ODK2AXIS ??= null; $ODKTHICKNESS ??= null;
+    $ODLENS ??= null; $ODLT ??= null; $ODMACULA ??= null; $ODNEARVA_1 ??= null; $ODNPA ??= null; $ODNPC ??= null;
+    $ODPDMeasured ??= null; $ODPERIPH ??= null; $ODPUPILREACTIVITY ??= null; $ODPUPILSIZE1 ??= null;
+    $ODPUPILSIZE2 ??= null; $ODREDDESAT ??= null; $ODSCHIRMER1 ??= null; $ODSCHIRMER2 ??= null; $ODTBUT ??= null;
+    $ODVA_1 ??= null; $ODVESSELS ??= null; $ODVF ??= null; $ODVF1 ??= null; $ODVF2 ??= null; $ODVF3 ??= null;
+    $ODVF4 ??= null; $ODVITREOUS ??= null; $ODW2W ??= null; $OSAC ??= null; $OSACD ??= null; $OSAPD ??= null;
+    $OSAXIALLENGTH ??= null; $OSCMT ??= null; $OSCOINS ??= null; $OSCOLOR ??= null; $OSCONJ ??= null;
+    $OSCORNEA ??= null; $OSCUP ??= null; $OSDISC ??= null; $OSECL ??= null; $OSGONIO ??= null; $OSHERTEL ??= null;
+    $OSIOPAP ??= null; $OSIOPFTN ??= null; $OSIOPTPN ??= null; $OSIRIS ??= null; $OSK1 ??= null; $OSK2 ??= null;
+    $OSK2AXIS ??= null; $OSKTHICKNESS ??= null; $OSLENS ??= null; $OSLT ??= null; $OSMACULA ??= null;
+    $OSNEARVA_1 ??= null; $OSNPA ??= null; $OSNPC ??= null; $OSPDMeasured ??= null; $OSPERIPH ??= null;
+    $OSPUPILREACTIVITY ??= null; $OSPUPILSIZE1 ??= null; $OSPUPILSIZE2 ??= null; $OSREDDESAT ??= null;
+    $OSSCHIRMER1 ??= null; $OSSCHIRMER2 ??= null; $OSTBUT ??= null; $OSVA_1 ??= null; $OSVESSELS ??= null;
+    $OSVF ??= null; $OSVF1 ??= null; $OSVF2 ??= null; $OSVF3 ??= null; $OSVF4 ??= null; $OSVITREOUS ??= null;
+    $OSW2W ??= null; $PAMODVA ??= null; $PAMOSVA ??= null; $PHODVA ??= null; $PHOSVA ??= null;
+    $PUPIL_COMMENTS ??= null; $PUPIL_NORMAL ??= null; $QUALITY1 ??= null; $QUALITY2 ??= null; $QUALITY3 ??= null;
+    $RADNEXA ??= null; $RBROW ??= null; $RCAROTID ??= null; $RCNV ??= null; $RCNVII ??= null;
+    $RETINA_COMMENTS ??= null; $RLF ??= null; $RLL ??= null; $RMCT ??= null; $RMRD ??= null; $RTEMPART ??= null;
+    $RUL ??= null; $RVFISSURE ??= null; $RX_TYPE ??= null; $SCNEARODVA ??= null; $SCNEAROSVA ??= null;
+    $SCODVA ??= null; $SCOSVA ??= null; $SEVERITY1 ??= null; $SEVERITY2 ??= null; $SEVERITY3 ??= null;
+    $STEREOPSIS ??= null; $TIMING1 ??= null; $TIMING2 ??= null; $TIMING3 ??= null; $VERTFUSAMPS ??= null;
+    $display_Add ??= null; $encounter_date ??= null; $pend ??= null;
+    // End column defaults.
     $providerID = getProviderIdOfEncounter($encounter);
     $providerNAME = getProviderName($providerID);
     $dated = new DateTime($encounter_date);
@@ -287,12 +338,8 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
 
     if ($PDF_OUTPUT) {
         $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
-        $facility = null;
-        if ($_SESSION['pc_facility']) {
-            $facility = $facilityService->getById($_SESSION['pc_facility']);
-        } else {
-            $facility = $facilityService->getPrimaryBillingLocation();
-        }
+        $pc_facility = $session->get('pc_facility');
+        $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
     }
 
     ?><br /><br />
@@ -305,7 +352,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             <b><?php echo xlt('Chief Complaint'); ?>:</b> &nbsp;<?php echo text($CC1); ?>
                             <br/><br/>
                             <b><?php echo xlt('HPI'); ?>:</b>
-                            &nbsp;<?php echo $HPI1; ?>
+                            &nbsp;<?php echo text($HPI1); ?>
                             <br/>
                             <div style="padding-left:20px;">
                                 <?php
@@ -444,11 +491,11 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                         <span style="font-weight:bold;"><?php echo xlt('Chronic or Inactive Problems'); ?>:</span> <br/>
                                         &nbsp;<?php echo text($CHRONIC1) . "<br />";
                                         if ($CHRONIC2) {
-                                            echo "&nbsp;" . $CHRONIC2 . "<br />";
+                                            echo "&nbsp;" . text($CHRONIC2) . "<br />";
                                         }
 
                                         if ($CHRONIC3) {
-                                            echo "&nbsp;" . $CHRONIC3 . "<br />";
+                                            echo "&nbsp;" . text($CHRONIC3) . "<br />";
                                         }
                                 } ?>
                             </div>
@@ -475,7 +522,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-                    $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
+                    $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
                 if (empty($result) || empty($result['id'])) {
                     //echo "no photo";
@@ -487,16 +534,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         if (!empty($fileTemp)) {
                             if ($PDF_OUTPUT) {
                                 // tmp file in ../documents/temp since need to be available via webroot
-                                $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                                $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
                                 file_put_contents($from_file_tmp_web_name, $fileTemp);
                                 echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;'>";
                                 $tmp_files_remove[] = $from_file_tmp_web_name;
                             } else {
-                                $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
+                                $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture";
                                 echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                             }
                         }
-                    } catch (Exception $ex) {
+                    } catch (\Throwable $ex) {
                         echo "No patient photo " . $ex;
                     }
                 }
@@ -800,32 +847,32 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['1']; ?>
+                                <?php echo text($ODVF['1']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['2']; ?>
+                                <?php echo text($ODVF['2']); ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['1']; ?>
+                                <?php echo text($OSVF['1']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['2']; ?>
+                                <?php echo text($OSVF['2']); ?>
                             </td>
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['3']; ?>
+                                <?php echo text($ODVF['3']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['4']; ?>
+                                <?php echo text($ODVF['4']); ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['3']; ?>
+                                <?php echo text($OSVF['3']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['4']; ?>
+                                <?php echo text($OSVF['4']); ?>
                             </td>
                         </tr>
                     </table>
@@ -849,7 +896,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         echo "<br /><br />&nbsp;" . xlt('D&V Full OU{{Ductions and Versions full both eyes}}') . "&nbsp;<br /><br />";
                     } else {
                         if ($PDF_OUTPUT) {
-                            $background = "url(" . $GLOBALS["fileroot"] . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
+                            $background = "url(" . OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/" . $form_folder . "/images/eom.jpg)";
                         } else {
                             $background = "url(../../forms/" . $form_folder . "/images/eom.bmp)";
                         }
@@ -885,40 +932,40 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 </tr>
                                 <tr>
                                     <td style="font-weight:600;">
-                                        <table style="background: <?php echo $background; ?> no-repeat center center;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;padding-bottom:5px;">
+                                        <table style="background: <?php echo attr($background); ?> no-repeat center center;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;padding-bottom:5px;">
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_RRSO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RS; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RLSO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RRSO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RS); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RLSO); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_RR; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_R0; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RL; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RR); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_R0); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RL); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_RRIO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RI; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RLIO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RRIO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RI); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RLIO); ?></td>
                                             </tr>
                                         </table>
                                     </td>
                                     <td style="text-align:center;font-weight:600;padding-left:20px;">
-                                        <table style="background: <?php echo $background; ?> no-repeat center center;background-size: 100% auto; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50) -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;Xpadding-bottom:5px;">
+                                        <table style="background: <?php echo attr($background); ?> no-repeat center center;background-size: 100% auto; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50) -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;Xpadding-bottom:5px;">
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_LRSO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LS; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LLSO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LRSO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LS); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LLSO); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_LR; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_L0; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LL; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LR); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_L0); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LL); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_LLIO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LI; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LLIO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LLIO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LI); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LLIO); ?></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -1144,7 +1191,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODNEARVA_$i"}) ?: "-"); ?></td>
                     </tr>
                     <tr>
-                        <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo $RX_TYPE; ?></td>
+                        <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo text($RX_TYPE); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSSPH_$i"}) ?: "-"); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSCYL_$i"}) ?: "-"); ?></td>
@@ -1335,7 +1382,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
         if ($GLAREODVA || ($CONTRASTODVA ?? '') || $ODK1 || $ODK2 || $LIODVA || ($PAMODBA ?? '')) { ?>
             <table>
                 <tr>
-                    <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>"
+                    <td id="LayerVision_ADDITIONAL" class="refraction <?php echo attr($display_Add); ?>"
                         style="padding:10px;font-size:10px;">
                         <table id="Additional" style="padding:5;font-size:10px;">
                             <tr>
@@ -2397,7 +2444,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             }
 
             if ($item['codetext'] > '') {
-                echo $item['codetext'] . "<br />";
+                echo text($item['codetext']) . "<br />";
             } else {
                 if ($item['code'] > '') {
                     if ($item['codetype'] > '') {
@@ -2405,7 +2452,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
                 }
             }
-            echo $item['plan'] . "</div><br />";
+            echo text($item['plan']) . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, [$form_id, $pid]);
@@ -2418,7 +2465,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                     <?php
                     while ($plan_row = sqlFetchArray($PLAN_results)) {
-                        echo $plan_row['ORDER_DETAILS'] . "<br />";
+                        echo text($plan_row['ORDER_DETAILS']) . "<br />";
                     }
                     ?>
                 </div>
@@ -2436,16 +2483,16 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 if ($PDF_OUTPUT) {
                     //display a stored optional electronic sig for this providerID, ie the patient's Doc not the tech
                     //Isn't there a place in sites/..default../images for a jpg signature file for Rx printing or some other openEMR task?
-                    $from_file = $GLOBALS["webserver_root"] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
+                    $from_file = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
                     if (file_exists($from_file)) {
                         echo "<img style='width:50mm;' src='$from_file'><hr style='width:40mm;' />";
                     } else {
                         echo "<br /><br />";
                     }
                 } else {
-                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
+                    $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg";
                     if (file_exists($signature)) {
-                        echo "<img style='width:50mm;' src='" . $GLOBALS['web_root'] . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
+                        echo "<img style='width:50mm;' src='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/sign_" . $providerID . ".jpg'><hr style='width:40mm;' />";
                     } else {
                         echo "<br /><br />";
                     }
@@ -2513,19 +2560,19 @@ function display_draw_image($zone, $encounter, $pid): void
             $tempDocC = new C_Document();
             $fileTemp = $tempDocC->retrieve_action($pid, $doc['id'], false, true, true);
             // tmp file in ../documents/temp since need to be available via webroot
-            $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+            $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
             file_put_contents($from_file_tmp_web_name, $fileTemp);
             echo "<img src='" . $from_file_tmp_web_name . "' style='width:220px;height:120px;'>";
             $tmp_files_remove[] = $from_file_tmp_web_name;
         } else {
-            $filetoshow = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document&retrieve&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc['id']) . "&as_file=false&blahblah=" . attr_url(random_int(0, mt_getrandmax()));
             echo "<img src='" . $filetoshow . "' style='width:220px;height:120px;'>";
         }
     } else {
         //else show base_image
         $filetoshow = "../../forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
         if ($PDF_OUTPUT) {
-            $filetoshow = $GLOBALS["webroot"] . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
+            $filetoshow = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . $form_folder . "/images/" . $side . "_" . $zone . "_BASE.jpg";
         }
 
       // uncomment to show base image, no touch up by user.

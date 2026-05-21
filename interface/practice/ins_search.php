@@ -13,7 +13,7 @@
  * function.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -28,7 +28,9 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\{
     AddressService,
     InsuranceCompanyService,
@@ -42,7 +44,7 @@ $info_msg = "";
 $insuranceCompany = new InsuranceCompanyService();
 $phoneNumber = new PhoneNumberService();
 $ins_type_code_array = $insuranceCompany->getInsuranceTypes();
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -67,7 +69,7 @@ td {
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
  // This is invoked when our Search button is clicked.
  function dosearch() {
@@ -75,7 +77,7 @@ td {
     $("#form_entry").hide();
     var f = document.forms[0];
     const params = new URLSearchParams({
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
         form_addr1: f.form_addr1.value,
         form_addr2: f.form_addr2.value,
         form_attn: f.form_attn.value,
@@ -182,9 +184,7 @@ if (
     ($_POST['form_save'] ?? '')
     || ($_POST['form_update'] ?? '')
 ) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
     $ins_name = $_POST['form_name'];
@@ -264,7 +264,7 @@ if (
 <div id="form_entry">
 
 <form method='post' name='theform' action='ins_search.php' onsubmit='return validate(this)'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <center>
 
 <p>

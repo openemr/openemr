@@ -5,7 +5,7 @@
  * associated procedure_order_id as inactive.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -16,27 +16,35 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/forms.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Delete Encounter Form")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Delete Encounter Form", xl("Delete Encounter Form"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // when the Cancel button is pressed, where do we go?
 $returnurl = 'forms.php';
 
 if (!empty($_POST['confirm'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
@@ -65,10 +73,10 @@ if (!empty($_POST['confirm'])) {
         );
     }
     // log the event
-    EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
+    EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
-    $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
+    $address = OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/patient_file/encounter/" . $returnurl;
     echo "\n<script>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }
@@ -87,7 +95,7 @@ if (!empty($_POST['confirm'])) {
                 <h2><?php echo xlt('Delete Encounter Form'); ?></h2>
                 <form method="post" action="<?php echo $rootdir; ?>/forms/procedure_order/delete.php"
                     name="my_form" id="my_form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <?php
                     // output each GET variable as a hidden form input
                     foreach ($_GET as $key => $value) {

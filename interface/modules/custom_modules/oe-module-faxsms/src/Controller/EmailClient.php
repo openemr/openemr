@@ -4,24 +4,24 @@
  * Email Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
-use Symfony\Component\HttpClient\HttpClient;
 
 class EmailClient extends AppDispatch
 {
@@ -31,18 +31,18 @@ class EmailClient extends AppDispatch
     public $serverUrl;
     public $credentials;
     public string $portalUrl;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private readonly bool $smtpEnabled;
 
     public function __construct()
     {
-        if (empty($GLOBALS['oe_enable_email'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
-        $this->crypto = new CryptoGen();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
-        $this->smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
+        $this->crypto = ServiceContainer::getCrypto();
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
+        $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
+        $this->smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
         parent::__construct();
     }
 
@@ -119,7 +119,7 @@ class EmailClient extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
+        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
@@ -144,15 +144,15 @@ class EmailClient extends AppDispatch
         if (!$this->smtpEnabled) {
             throw new SmtpNotConfiguredException(sprintf(
                 "SMTP not configured (SMTP_HOST=%s, SMTP_PORT=%s, SMTP_USER=%s)",
-                $GLOBALS['SMTP_HOST'] ?? 'NOT_SET',
-                $GLOBALS['SMTP_PORT'] ?? 'NOT_SET',
-                !empty($GLOBALS['SMTP_USER']) ? 'SET' : 'NOT_SET'
+                OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? 'NOT_SET',
+                OEGlobalsBag::getInstance()->getInt('SMTP_PORT'),
+                !empty(OEGlobalsBag::getInstance()->getString('SMTP_USER')) ? 'SET' : 'NOT_SET'
             ));
         }
-        $from_name = text($GLOBALS["Patient Reminder Sender Name"] ?? 'UNK');
+        $from_name = text(OEGlobalsBag::getInstance()->get("Patient Reminder Sender Name") ?? 'UNK');
         $desc = text($body);
         $mail = new MyMailer();
-        $from = text($GLOBALS["practice_return_email_path"]);
+        $from = text(OEGlobalsBag::getInstance()->getString("practice_return_email_path"));
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);

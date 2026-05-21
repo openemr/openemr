@@ -4,7 +4,7 @@
  * Fax SMS Authentication Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Exception;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\SDK;
 
@@ -74,29 +75,46 @@ trait AuthenticateTrait
             } else {
                 return $this->loginWithJWT();
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text($e->getMessage());
         }
     }
 
     /**
-     * @param string $authBack
      * @return array
      */
-    private function getCachedAuth(string $authBack): array
+    private function getCachedAuth(string $file): array
     {
-        if (file_exists($authBack)) {
-            $cachedAuth = file_get_contents($authBack);
-            $cachedAuth = json_decode($this->crypto->decryptStandard($cachedAuth), true);
-
-            // Don't delete cache immediately - validate first
-            if ($this->isValidCachedAuth($cachedAuth)) {
-                return $cachedAuth;
-            }
-            // If cached auth is invalid, delete the file
-            unlink($authBack); // Only delete if invalid
+        if (!file_exists($file)) {
+            return [];
         }
-        return [];
+        try {
+            $error = false;
+
+            $contents = file_get_contents($file);
+            if ($contents === false) {
+                // exists but not readable
+                $error = true;
+                return [];
+            }
+
+            $json = $this->crypto->decryptFromFilesystem($contents);
+            $data = json_decode((string) $json, true, flags: JSON_THROW_ON_ERROR);
+
+            if (!$this->isValidCachedAuth($data)) {
+                $error = true;
+                return [];
+            }
+            return $data;
+        } catch (CryptoGenException) {
+            $error = true;
+            return [];
+        } finally {
+            // If the cache file was invalid in any way, remove the temp file
+            if ($error) {
+                unlink($file);
+            }
+        }
     }
 
     private function isValidCachedAuth(array $authData): bool
@@ -133,7 +151,7 @@ trait AuthenticateTrait
                     continue;
                 }
                 return js_escape(['error' => "API Error: " . text($e->getMessage()) . " - " . text($e->getCode())]);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape(['error' => "Error: " . text($e->getMessage())]);
             }
         }
@@ -148,7 +166,8 @@ trait AuthenticateTrait
     private function cacheAuthData($platform): void
     {
         $data = $platform->auth()->data();
-        $encryptedData = $this->crypto->encryptStandard(json_encode($data));
+        $jsonData = json_encode($data, flags: JSON_THROW_ON_ERROR);
+        $encryptedData = $this->crypto->encryptForFilesystem($jsonData);
         file_put_contents($this->cacheDir . DIRECTORY_SEPARATOR . 'platform.json', $encryptedData);
     }
 

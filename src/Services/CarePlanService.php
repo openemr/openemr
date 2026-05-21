@@ -4,7 +4,7 @@
  * CarePlanService.php
  *
  * @package    openemr
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Stephen Nielson <stephen@nielson.org>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -15,10 +15,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
-use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\ReferenceSearchField;
@@ -29,7 +26,6 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
-use Twig\Token;
 
 class CarePlanService extends BaseService
 {
@@ -95,14 +91,15 @@ class CarePlanService extends BaseService
 
     /**
      * Returns a list of all care plan resources.  Search array can be a simple key => value array which does an exact
-     * match on passed in value.  For more complicated searching @param $search a key => value array
+     * match on passed in value.  For more complicated searching, use a key => value array.
      *
+     * @param array<string, ISearchField|string> $search
      * @param bool   $isAndCondition Whether the search should be a UNION of search values or INTERSECTION of search values
      * @param string $puuidBind      - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult
      * @see CarePlanService::search().
      */
-    public function getAll($search, $isAndCondition = true, $puuidBind = null)
+    public function getAll(array $search, $isAndCondition = true, $puuidBind = null)
     {
         if (!empty($puuidBind)) {
             // code to support patient binding
@@ -119,7 +116,7 @@ class CarePlanService extends BaseService
         $newSearch = [];
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
@@ -132,7 +129,7 @@ class CarePlanService extends BaseService
         return $this->search($newSearch, $isAndCondition);
     }
 
-    public function search($search, $isAndCondition = true): ProcessingResult
+    public function search(array $search, $isAndCondition = true): ProcessingResult
     {
         if (isset($search['uuid']) && $search['uuid'] instanceof ISearchField) {
             $this->populateSurrogateSearchFieldsForUUID($search['uuid'], $search);

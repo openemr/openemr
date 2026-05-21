@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class Users
@@ -71,6 +71,7 @@ class Users
     public function getProvidersOfEvent($eid)
     {
 
+        $providers = [];
         $multiple = $this->checkIfMultiple($eid);
         if ($multiple > 0) {
             $sql = "SELECT pc_aid From " . self::EVENTS_TABLE . " WHERE pc_multiple = ?";

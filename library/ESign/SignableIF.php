@@ -5,7 +5,7 @@
  * and verified
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -15,7 +15,9 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/VerifiableIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/VerifiableIF.php';
 
 interface SignableIF extends VerifiableIF
 {

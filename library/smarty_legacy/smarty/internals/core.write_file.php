@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -10,8 +11,8 @@
  *
  * @param string $filename
  * @param string $contents
- * @param boolean $create_dirs
- * @return boolean
+ * @param bool $create_dirs
+ * @return bool
  */
 function smarty_core_write_file($params, &$smarty)
 {

@@ -5,7 +5,7 @@
  * Production-ready version with proper data handling, escaping, and translation
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,26 +13,26 @@
 
 $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $rec_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $is_new = isset($_GET['new']) ? (int)$_GET['new'] : 0;
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH form');
 }
 
-$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 
 // Fetch record
 if ($is_new) {

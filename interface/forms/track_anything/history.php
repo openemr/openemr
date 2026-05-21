@@ -4,7 +4,7 @@
  * Encounter form to track any clinical parameter.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Joe Slam <trackanything@produnis.de>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Joe Slam <trackanything@produnis.de>
@@ -13,12 +13,20 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$pid = PatientSessionUtil::getPid();
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
 
 $returnurl = 'encounter_top.php';
+$fromencounter = 0;
 if (empty($formid)) {
     $formid = $_POST['formid'] ?? null; // call from track_anything encounter
     $fromencounter = 1;
@@ -60,14 +68,17 @@ $localplot_c    = [];  # dummy counter for localplot
 $globalplot     = 0;        # flag if global plot-button is shown
 $globalplot_c   = [];  # flag if global plot-button is shown
 $track_count    = 0;        # counts tracks and generates div-ids
+$row            = 0;        # cumulative data-row counter (used at $row++ inside loop)
 //-----------end setup vars
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 echo "<html><head>";
 // Javascript support and Javascript-functions
 //******* **********************************
 ?>
 
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader('dygraphs'); ?>
 
@@ -105,7 +116,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                      items:  theitems,
                      track:  thetrack,
                      thecheckboxes: checkedBoxes,
-                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                    },
              dataType: "json",
              success: function(returnData){
@@ -164,7 +175,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {
@@ -421,7 +432,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {

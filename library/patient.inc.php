@@ -4,26 +4,32 @@
  * patient.inc.php includes functions for manipulating patient information.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
+use OpenEMR\Billing\InsurancePolicyTypes;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
-use OpenEMR\Billing\InsurancePolicyTypes;
-use OpenEMR\Services\InsuranceCompanyService;
-use OpenEMR\Services\EmployerService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 require_once(__DIR__ . "/dupscore.inc.php");
 
@@ -136,14 +142,14 @@ function getFacility($facid = 0)
 {
     global $facilityService;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $facility = null;
 
     if ($facid > 0) {
         return $facilityService->getById($facid);
     }
 
-    if ($GLOBALS['login_into_facility']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
         //facility is saved in sessions
         $facility  = $facilityService->getById($session->get('facilityId'));
     } else {
@@ -225,7 +231,7 @@ GET FACILITIES
 returns all facilities or just the id for the first one
 (FACILITY FILTERING (lemonsoftware))
 
-@param string - if 'first' return first facility ordered by id
+@param string $first if 'first' return first facility ordered by id
 @return array | int for 'first' case
 */
 function getFacilities($first = '')
@@ -254,11 +260,14 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     //--------------------------------
     //(CHEMED) facility filter
     $param2 = "";
+    $sqlBindArray = [];
     if ($facility) {
-        if ($GLOBALS['restrict_user_facility']) {
-            $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility) . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+        if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
+            $param2 = " AND (facility_id = ? OR ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+            array_push($sqlBindArray, $facility, $facility);
         } else {
-            $param2 = " AND facility_id = '" . add_escape_custom($facility) . "' ";
+            $param2 = " AND facility_id = ? ";
+            $sqlBindArray[] = $facility;
         }
     }
 
@@ -270,12 +279,12 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     }
 
 // removing active from query since is checked above with $providers_only argument
-    $query = "select distinct id, username, lname, fname, mname, authorized, info, facility, suffix, valedictory " .
-        "from users where username != '' and id $command '" .
-        add_escape_custom($providerID) . "' " . $param1 . $param2;
+    $query = "select distinct id, username, lname, fname, mname, authorized, info, facility, suffix, valedictory
+        from users where username != '' and id $command ? " . $param1 . $param2;
+    array_unshift($sqlBindArray, $providerID);
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
-    $rez = sqlStatement($query);
+    $rez = QueryUtils::sqlStatementThrowException($query, $sqlBindArray);
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $returnval[$iter] = $row;
     }
@@ -435,7 +444,7 @@ function getInsuranceNameByDate(
  * @deprecated use EmployerService->getMostRecentEmployerData()
  * @param $pid
  * @param $given
- * @return \OpenEMR\Common\Database\recordset
+ * @return array|false
  */
 function getEmployerData($pid, $given = "*")
 {
@@ -459,7 +468,7 @@ function genPatientHeaderFooter($pid, $DOS = null)
 
     // Footer
     $s .= '<htmlpagefooter name="PageFooter1"><div style="text-align: right; font-weight: bold;">';
-    $s .= '<div style="float: right; width:33%; text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
+    $s .= '<div style="float: right; width:33%; text-align: left;">' . DateFormatterUtils::oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
     $s .= '<div style="float: right; width:33%; text-align: center;">{PAGENO}/{nbpg}</div>';
     $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
     $s .= '</div></htmlpagefooter>';
@@ -474,11 +483,11 @@ function genPatientHeaderFooter($pid, $DOS = null)
 function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): void
 {
   // When the limit is exceeded, find out what the unlimited count would be.
-    $GLOBALS['PATIENT_INC_COUNT'] = $count;
+    OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $count);
   // if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
     if ($limit != "all") {
         $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where", $whereBindArray);
-        $GLOBALS['PATIENT_INC_COUNT'] = $tmp['count'];
+        OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $tmp['count']);
     }
 }
 
@@ -505,7 +514,7 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): v
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $names = getPatientNameSplit($term);
 
     foreach ($names as $key => $val) {
@@ -552,11 +561,12 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         array_push($sqlBindArray, $names['last'], $names['first']);
     }
 
-    if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
-            $where .= " AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= " AND ( patient_data." . $restrictCol .
                 " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                $restrictCol . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -631,15 +641,16 @@ function getPatientNameSplit($term)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
     $where = "pubpid LIKE ? ";
     array_push($sqlBindArray, $pid . "%");
-    if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id']) {
-        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
-            $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field')) && OEGlobalsBag::getInstance()->getBoolean('pt_restrict_by_id')) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= "AND ( patient_data." . $restrictCol .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                    add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                    $restrictCol . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -812,12 +823,13 @@ function getPatientPID($args)
         $command = "like";
     }
 
-    $sql = "select $given from patient_data where pid $command '" . add_escape_custom($pid) . "' order by $orderby";
+    $sql = "select $given from patient_data where pid $command ? order by $orderby";
+    $sqlBindArray = [$pid];
     if ($limit != "all") {
         $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
-    $rez = sqlStatement($sql);
+    $rez = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $returnval[$iter] = $row;
     }
@@ -851,7 +863,7 @@ function getPatientName($pid)
  * would be "John B Doe Jr". No additional punctuation is added. Spaces are
  * correctly omitted if the middle name of suffix does not apply.
  *
- * @var $pid int The Patient ID
+ * @var int $pid The Patient ID
  * @returns string The Full Name
  */
 function getPatientFullNameAsString($pid): string
@@ -902,15 +914,16 @@ function getPatientNameFirstLast($pid)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB . "%");
-    if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
-            $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= "AND ( patient_data." . $restrictCol .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                    add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                    $restrictCol . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -1007,7 +1020,7 @@ function newPatientData(
     $email = "",
     $language = "",
     $ethnoracial = "",
-    $interpretter = "",
+    $interpreter = "",
     $migrantseasonal = "",
     $family_size = "",
     $monthly_income = "",
@@ -1052,60 +1065,39 @@ function newPatientData(
       "list_id = 'pricelevel' AND activity = 1 ORDER BY is_default DESC, seq ASC LIMIT 1");
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
 
-    $query = ("replace into patient_data set
-        id='" . add_escape_custom($db_id) . "',
-        title='" . add_escape_custom($title) . "',
-        fname='" . add_escape_custom($fname) . "',
-        lname='" . add_escape_custom($lname) . "',
-        mname='" . add_escape_custom($mname) . "',
-        sex='" . add_escape_custom($sex) . "',
-        DOB='" . add_escape_custom($DOB) . "',
-        street='" . add_escape_custom($street) . "',
-        postal_code='" . add_escape_custom($postal_code) . "',
-        city='" . add_escape_custom($city) . "',
-        state='" . add_escape_custom($state) . "',
-        country_code='" . add_escape_custom($country_code) . "',
-        drivers_license='" . add_escape_custom($drivers_license) . "',
-        ss='" . add_escape_custom($ss) . "',
-        occupation='" . add_escape_custom($occupation) . "',
-        phone_home='" . add_escape_custom($phone_home) . "',
-        phone_biz='" . add_escape_custom($phone_biz) . "',
-        phone_contact='" . add_escape_custom($phone_contact) . "',
-        status='" . add_escape_custom($status) . "',
-        contact_relationship='" . add_escape_custom($contact_relationship) . "',
-        referrer='" . add_escape_custom($referrer) . "',
-        referrerID='" . add_escape_custom($referrerID) . "',
-        email='" . add_escape_custom($email) . "',
-        language='" . add_escape_custom($language) . "',
-        ethnoracial='" . add_escape_custom($ethnoracial) . "',
-        interpretter='" . add_escape_custom($interpretter) . "',
-        migrantseasonal='" . add_escape_custom($migrantseasonal) . "',
-        family_size='" . add_escape_custom($family_size) . "',
-        monthly_income='" . add_escape_custom($monthly_income) . "',
-        homeless='" . add_escape_custom($homeless) . "',
-        financial_review='" . add_escape_custom($financial_review) . "',
-        pubpid='" . add_escape_custom($pubpid) . "',
-        pid= '" . add_escape_custom($pid) . "',
-        providerID = '" . add_escape_custom($providerID) . "',
-        genericname1 = '" . add_escape_custom($genericname1) . "',
-        genericval1 = '" . add_escape_custom($genericval1) . "',
-        genericname2 = '" . add_escape_custom($genericname2) . "',
-        genericval2 = '" . add_escape_custom($genericval2) . "',
-        billing_note= '" . add_escape_custom($billing_note) . "',
-        phone_cell = '" . add_escape_custom($phone_cell) . "',
-        pharmacy_id = '" . add_escape_custom($pharmacy_id) . "',
-        hipaa_mail = '" . add_escape_custom($hipaa_mail) . "',
-        hipaa_voice = '" . add_escape_custom($hipaa_voice) . "',
-        hipaa_notice = '" . add_escape_custom($hipaa_notice) . "',
-        hipaa_message = '" . add_escape_custom($hipaa_message) . "',
-        squad = '" . add_escape_custom($squad) . "',
-        fitness='" . add_escape_custom($fitness) . "',
-        referral_source='" . add_escape_custom($referral_source) . "',
-        regdate='" . add_escape_custom($regdate) . "',
-        pricelevel='" . add_escape_custom($pricelevel) . "',
-        date=NOW()");
-
-    $id = sqlInsert($query);
+    $id = QueryUtils::sqlInsert(
+        "REPLACE INTO patient_data SET
+            id = ?, title = ?, fname = ?, lname = ?, mname = ?,
+            sex = ?, DOB = ?, street = ?, postal_code = ?, city = ?,
+            state = ?, country_code = ?, drivers_license = ?, ss = ?,
+            occupation = ?, phone_home = ?, phone_biz = ?, phone_contact = ?,
+            status = ?, contact_relationship = ?, referrer = ?, referrerID = ?,
+            email = ?, language = ?, ethnoracial = ?, interpreter = ?,
+            migrantseasonal = ?, family_size = ?, monthly_income = ?,
+            homeless = ?, financial_review = ?, pubpid = ?, pid = ?,
+            providerID = ?, genericname1 = ?, genericval1 = ?,
+            genericname2 = ?, genericval2 = ?, billing_note = ?,
+            phone_cell = ?, pharmacy_id = ?, hipaa_mail = ?,
+            hipaa_voice = ?, hipaa_notice = ?, hipaa_message = ?,
+            squad = ?, fitness = ?, referral_source = ?,
+            regdate = ?, pricelevel = ?, date = NOW()",
+        [
+            $db_id, $title, $fname, $lname, $mname,
+            $sex, $DOB, $street, $postal_code, $city,
+            $state, $country_code, $drivers_license, $ss,
+            $occupation, $phone_home, $phone_biz, $phone_contact,
+            $status, $contact_relationship, $referrer, $referrerID,
+            $email, $language, $ethnoracial, $interpreter,
+            $migrantseasonal, $family_size, $monthly_income,
+            $homeless, $financial_review, $pubpid, $pid,
+            $providerID, $genericname1, $genericval1,
+            $genericname2, $genericval2, $billing_note,
+            $phone_cell, $pharmacy_id, $hipaa_mail,
+            $hipaa_voice, $hipaa_notice, $hipaa_message,
+            $squad, $fitness, $referral_source,
+            $regdate, $pricelevel,
+        ]
+    );
 
     if (!$db_id) {
       // find the last inserted id for new patient case
@@ -1123,51 +1115,12 @@ function newPatientData(
     return $foo['pid'];
 }
 
-// Supported input date formats are:
-//   mm/dd/yyyy
-//   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
-//   yyyy/mm/dd
-//   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
-//
-function fixDate($date, $default = "0000-00-00")
-{
-    $fixed_date = $default;
-    $date = trim((string) $date);
-    if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
-        $dmy = preg_split("'[/.-]'", $date);
-        if ($dmy[0] > 99) {
-            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
-        } else {
-            if ($dmy[0] != 0 || $dmy[1] != 0 || $dmy[2] != 0) {
-                if ($dmy[2] < 1000) {
-                    $dmy[2] += 1900;
-                }
-
-                if ($dmy[2] < 1910) {
-                    $dmy[2] += 100;
-                }
-            }
-            // Determine if MDY date format is used, preferring Date Display Format from
-            // global settings if it's not YMD, otherwise guessing from country code.
-            $using_mdy = empty($GLOBALS['date_display_format']) ?
-                ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
-            if ($using_mdy) {
-                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
-            } else {
-                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[1], $dmy[0]);
-            }
-        }
-    }
-
-    return $fixed_date;
-}
-
 function pdValueOrNull($key, $value)
 {
     if (
         (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
         str_starts_with((string) $key, 'userdate') || $key == 'deceased_date') &&
-        (empty($value) || $value == '0000-00-00')
+        Utilities::isDateEmpty($value)
     ) {
         return "NULL";
     } else {
@@ -1185,7 +1138,7 @@ function pdValueOrNull($key, $value)
  *
  * @param $pid
  * @param $new
- * @param false $create
+ * @param bool $create
  * @return mixed
  */
 function updatePatientData($pid, $new, $create = false)
@@ -1220,21 +1173,17 @@ function newEmployerData(
     $country = ""
 ) {
 
-    return sqlInsert("insert into employer_data set
-        name='" . add_escape_custom($name) . "',
-        street='" . add_escape_custom($street) . "',
-        postal_code='" . add_escape_custom($postal_code) . "',
-        city='" . add_escape_custom($city) . "',
-        state='" . add_escape_custom($state) . "',
-        country='" . add_escape_custom($country) . "',
-        pid='" . add_escape_custom($pid) . "',
-        date=NOW()
-        ");
+    return QueryUtils::sqlInsert(
+        "INSERT INTO employer_data SET
+            name = ?, street = ?, postal_code = ?, city = ?,
+            state = ?, country = ?, pid = ?, date = NOW()",
+        [$name, $street, $postal_code, $city, $state, $country, $pid]
+    );
 }
 
-// Create or update employer data from an array.
-//
 /**
+ * Create or update employer data from an array.
+ *
  * @param $pid
  * @param $new
  * @param $create
@@ -1450,9 +1399,8 @@ function parseAgeInfo($dob, $target)
 }
 
 /**
- *
- * @param type $dob
- * @param type $date
+ * @param string $dob
+ * @param ?string $date
  * @return array containing
  *      age - decimal age in years
  *      age_in_months - decimal age in months
@@ -1501,8 +1449,8 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
 /**
  * Returns a string to be used to display a patient's age
  *
- * @param type $dobYMD
- * @param type $asOfYMD
+ * @param string $dobYMD
+ * @param ?string $asOfYMD
  * @return string suitable for displaying patient's age based on preferences
  */
 function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
@@ -1520,8 +1468,8 @@ function dateToDB($date)
  * Get up to 3 insurances (primary, secondary, tertiary) that are effective
  * for the given patient on the given date.
  *
- * @param int     The PID of the patient.
- * @param string  Date in yyyy-mm-dd format.
+ * @param int $patient_id The PID of the patient.
+ * @param string $encdate Date in yyyy-mm-dd format.
  * @return array  Array of 0-3 insurance_data rows.
  */
 function getEffectiveInsurances($patient_id, $encdate)
@@ -1575,9 +1523,9 @@ function getAllinsurances($pid)
  * to insurance.  If you want to include what insurance owes, set the second
  * parameter to true.
  *
- * @param int     The PID of the patient.
- * @param boolean Indicates if amounts owed by insurance are to be included.
- * @param int     Optional encounter id. If value is passed, will fetch only bills from specified encounter.
+ * @param int $pid The PID of the patient.
+ * @param bool $with_insurance Indicates if amounts owed by insurance are to be included.
+ * @param int $eid Optional encounter id. If value is passed, will fetch only bills from specified encounter.
  * @return number The balance.
  */
 function get_patient_balance($pid, $with_insurance = false, $eid = false, $in_collection = false)
@@ -1719,14 +1667,17 @@ function is_patient_deceased($pid, $date = '')
     }
 }
 
-// This computes, sets and returns the dup score for the given patient.
-//
+// Compute dupscore for a single patient using symmetric comparison (p2.pid != p1.pid).
+// This is required for single-patient updates (e.g., after demographics change) to detect
+// matches with higher-PID patients. Batch operations in dupscore.cli.php and calculateScores()
+// intentionally use asymmetric comparison (p2.pid < p1.pid) as a performance optimization
+// that works correctly when processing all patients.
 function updateDupScore($pid)
 {
     $row = sqlQuery(
         "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-        "p1.pid = ? AND p2.pid < p1.pid",
+        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1",
         [$pid]
     );
     $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];

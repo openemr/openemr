@@ -4,7 +4,7 @@
  * FhirCareTeamService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
@@ -97,7 +97,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
      * Compliant with US Core 8.0 and USCDI v5 requirements
      *
      * @param  array   $dataRecord The source OpenEMR data record
-     * @param  boolean $encode     Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRCareTeam|string|false
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -217,7 +217,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 $codes = [
                     'code' => $roleMapping[$role],
                     'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                    'description' => $dataRecordProvider['role_title'] ?? xlt($dataRecordProvider['role'])
+                    'description' => $dataRecordProvider['role_title'] ?? '',
                 ];
                 return UtilsService::createCodeableConcept([$codes['code'] => $codes]);
             }
@@ -416,7 +416,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                         $codes = [
                             'code' => $roleMapping[$role],
                             'system' => self::CARE_TEAM_MEMBER_FUNCTION_SYSTEM,
-                            'description' => $person['role_title'] ?? xlt($person['role'])
+                            'description' => $person['role_title'] ?? '',
                         ];
                         $participant->addRole(UtilsService::createCodeableConcept([$codes['code'] => $codes]));
                     }

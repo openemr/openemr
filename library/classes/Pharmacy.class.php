@@ -8,7 +8,7 @@
  * @author    duhlman
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) duhlman
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,9 +17,11 @@ define("TRANSMIT_EMAIL", 2);
 define("TRANSMIT_FAX", 3);
 define("TRANSMIT_ERX", 4);
 
-use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\PhoneType;
 
@@ -231,8 +233,8 @@ class Pharmacy extends ORDataObject
         $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
             "FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
-        $res = sqlQ($sql);
-        while ($row = sqlFetchArray($res)) {
+        $records = QueryUtils::fetchRecords($sql);
+        foreach ($records as $row) {
             $d_string = $row['city'];
             if (($row['city'] ?? '') !== '' && ($row['state'] ?? '') !== '') {
                 $d_string .= ", ";
@@ -251,7 +253,7 @@ class Pharmacy extends ORDataObject
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id ";
-        if ($GLOBALS['weno_rx_enable'] ?? false) {
+        if (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false) {
             $sql .= "WHERE state = '" . add_escape_custom($this->state) . "' ";
         }
         $sql .= "ORDER BY name";

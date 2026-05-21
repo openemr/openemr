@@ -3,11 +3,14 @@
 /**
  * procedure_reason_row.php is a template file for the procedure order reason data elements.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+/** @var int $i (loop index from including file procedure_order/common.php) */
+/** @var array<string, array{code: string, description: string}> $reasonCodeStatii (set in including file) */
 
 ?>
 <tr class="reasonCodeContainer reason_code <?php echo !empty($oprow['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr($i); ?>">

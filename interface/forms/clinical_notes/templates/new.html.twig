@@ -3,7 +3,7 @@ The Edit/Create template of the clinical note form.
 
 @package OpenEMR
 @subpackage Forms
-@link   http://www.open-emr.org
+@link   https://www.open-emr.org
 @author Jacob T Paul <jacob@zhservices.com>
 @author Vinish K <vinish@zhservices.com>
 @author Brady Miller <brady.g.miller@gmail.com>
@@ -18,7 +18,7 @@ The Edit/Create template of the clinical note form.
 #}
 {% extends "core/base.html.twig" %}
 {% block head %}
-    {{ setupHeader(['i18next', 'il8formatting', 'datetime-picker','datetime-picker-translated']) }}
+    {{ setupHeader(['i18next', 'i18formatting', 'datetime-picker','datetime-picker-translated']) }}
     <script src="{{ webroot }}/interface/forms/clinical_notes/clinical-notes.js?v={{ assetVersion|url_encode }}"></script>
     <script>
         if (window.oeFormsClinicalNotes) {

@@ -4,20 +4,23 @@
  * Imports patient demographics from our custom XML format.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
 require_once("../interface/globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 function setInsurance($pid, $ainsurance, $asubscriber, $seq): void
@@ -55,14 +58,12 @@ function setInsurance($pid, $ainsurance, $asubscriber, $seq): void
 
  // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Import Patient Demographics XML")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/demo write: Import Patient Demographics XML", xl("Import Patient Demographics XML"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_import'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $apatient    = [];
     $apcp        = [];
@@ -129,7 +130,7 @@ if (!empty($_POST['form_import'])) {
     $olddata = getPatientData($pid);
 
     if ($olddata['squad'] && ! AclMain::aclCheckCore('squads', $olddata['squad'])) {
-        die("You are not authorized to access this squad.");
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 
     newPatientData(
@@ -193,7 +194,7 @@ if (!empty($_POST['form_import'])) {
 
     echo "<html>\n<body>\n<script>\n";
     if ($alertmsg) {
-        echo " alert('" . addslashes((string) $alertmsg) . "');\n";
+        echo " alert(" . js_escape((string) $alertmsg) . ");\n";
     }
 
     echo " if (!opener.closed && opener.refreshme) opener.refreshme();\n";
@@ -209,7 +210,7 @@ if (!empty($_POST['form_import'])) {
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
 <form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-12">

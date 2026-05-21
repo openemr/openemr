@@ -1,4 +1,5 @@
 <?php
+
 $type = 'Core';
 $name = 'ZapfDingbats';
 $up = -100;

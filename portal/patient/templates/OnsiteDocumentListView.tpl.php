@@ -4,7 +4,7 @@
  * Patient Portal Documents
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,12 +14,12 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 
 $pid = $this->cpid;
@@ -41,11 +41,11 @@ $auto_render_name = $this->auto_render_name ?? '';
 $referer_flag = $this->referer_flag ?? 0;
 $assets_static_relative = $globalsBag->get('assets_static_relative');
 $v_js_includes = $globalsBag->get('v_js_includes');
-$allow_portal_uploads = $globalsBag->get('allow_portal_uploads');
+$allow_portal_uploads = $globalsBag->getBoolean('allow_portal_uploads');
 
 // for location assign
 $referer = "$webroot/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&referer_flag=" . attr_url($referer_flag);
-$referer_portal = "../home.php?site=" . (urlencode((string) $session->get('site_id', null) ?: 'default'));
+$referer_portal = "../home.php?site=" . (urlencode((string)$session->get('site_id', null) ?: 'default'));
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -86,15 +86,15 @@ $templateService = new DocumentTemplateService();
     </title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
-    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib', $session->getSymfonySession()));
+    $csrf_php = js_escape(CsrfUtils::collectCsrfToken(session: $session));
     $urlAjax = "$webroot/library/ajax/upload.php?parent_id=Patient&patient_id=" . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
-    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) .
+    echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape((int) $isnew) . ";var newFilename=" . js_escape($new_filename) .
         ";var help_id=" . js_escape($help_id) . ";</script>";
-    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var isDashboard=" . js_escape($is_dashboard) .
+    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var isDashboard=" . js_escape((int) $is_dashboard) .
         ";var webRoot=" . js_escape($webroot) . ";var doc_edit=" . js_escape($doc_edit) . ";var webroot_url = webRoot;</script>";
     echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
@@ -278,7 +278,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function fetchPdf(divName, docid, printContents = null) {
-            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib', $session->getSymfonySession())); ?>;
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             top.restoreSession();
             if (document.getElementById('tempFrame')) {
                 let killFrame = document.getElementById('tempFrame');
@@ -511,10 +511,10 @@ $templateService = new DocumentTemplateService();
         }
     </script>
     <div class="container-xl px-1">
-        <div class="text-center"> <span class="h3 mt-1 mr-1"><?php echo xlt("Documents and Forms") ?></span>
-        <?php if (!empty($is_portal)) { ?>
-            <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
-        <?php } ?>
+        <div class="text-center"><span class="h3 mt-1 mr-1"><?php echo xlt("Documents and Forms") ?></span>
+            <?php if (!empty($is_portal)) { ?>
+                <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
+            <?php } ?>
         </div>
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
@@ -566,7 +566,7 @@ $templateService = new DocumentTemplateService();
                 <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit to Dashboard'); ?></a>
                 <?php } elseif (!$is_module && !$is_dashboard) {
-                    $referer_portal = "../home.php?site=" . (urlencode((string) $session->get('site_id')) ?? null) ?: 'default';
+                    $referer_portal = "../home.php?site=" . (urlencode((string)$session->get('site_id')) ?? null) ?: 'default';
                     ?>
                     <a class="btn btn-outline-primary mb-1" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                 <?php }
@@ -591,21 +591,21 @@ $templateService = new DocumentTemplateService();
                         </header>
                         <!-- File upload -->
                         <?php if ($allow_portal_uploads ?? 1) { ?>
-                        <div class="card col-12 col-lg-5 col-md-3">
-                            <div id="hideUpload" class="card-body" style="display: none;">
-                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
-                                <div class="row">
-                                    <div class="container-fluid h-25" id="file-queue-container">
-                                        <div id="file-queue">
-                                            <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
-                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
-                                            </form>
-                                            <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
+                            <div class="card col-12 col-lg-5 col-md-3">
+                                <div id="hideUpload" class="card-body" style="display: none;">
+                                    <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('Uploads') ?></h4>
+                                    <div class="row">
+                                        <div class="container-fluid h-25" id="file-queue-container">
+                                            <div id="file-queue">
+                                                <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
+                                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
+                                                </form>
+                                                <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                         <?php } ?>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
@@ -614,7 +614,7 @@ $templateService = new DocumentTemplateService();
                                     <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib', $session->getSymfonySession())); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />

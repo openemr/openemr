@@ -15,10 +15,12 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 
 $info_msg = "";
 
@@ -148,7 +150,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                     <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo xla('If name, any part of lastname or lastname,firstname'); ?>' />
                     <div class="col">
                         <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>' />
-                        <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+                        <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif" /></div>
                     </div>
                 </div>
             </form>
@@ -173,7 +175,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
         <?php elseif (count($result) >= 100) : ?>
             <div id="searchstatus" class="alert alert-danger rounded-0"><?php echo text(xl('More than 100 records found. Please narrow your search criteria.')); ?></div>
         <?php elseif (count($result) < 100) : ?>
-            <div id="searchstatus" class="alert alert-success rounded-0"><?php echo text(count($result ?? [])) . ' '; ?><?php echo text(xl('records found.')); ?></div>
+            <div id="searchstatus" class="alert alert-success rounded-0"><?php echo text(count(is_array($result) ? $result : [])) . ' '; ?><?php echo text(xl('records found.')); ?></div>
         <?php endif; ?>
 
         <?php if (isset($result)) : ?>
@@ -258,7 +260,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                             <?php $datetimepicker_timepicker = false; ?>
                             <?php $datetimepicker_showseconds = false; ?>
                             <?php $datetimepicker_formatInput = true; ?>
-                            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                         });
                     } else {

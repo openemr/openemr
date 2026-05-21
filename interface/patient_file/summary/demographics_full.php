@@ -4,33 +4,40 @@
  * Edit demographics.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright  Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
- * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/validation/LBF_Validation.php");
-require_once("$srcdir/patientvalidation.inc.php");
-require_once("$srcdir/pid.inc.php");
-require_once("$srcdir/patient.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/validation/LBF_Validation.php");
+require_once($srcdir . "/patientvalidation.inc.php");
+require_once($srcdir . "/pid.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
-use OpenEMR\Services\DemographicsRelatedPersonsService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+
+/** @var string $date_init */
+$date_init = OEGlobalsBag::getInstance()->get('date_init', '');
+$condition_str = '';
 
 // Session pid must be right or bad things can happen when demographics are saved!
 //
@@ -49,21 +56,21 @@ $result2 = getEmployerData($pid);
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE, 10);
+    $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
     if (
         !$updateEvent->authorized() ||
         !AclMain::aclCheckCore('patients', 'demo', '', 'write')
     ) {
-        die(xlt('Updating demographics is not authorized.'));
+        AccessDeniedHelper::deny('Updating demographics is not authorized');
     }
 
     if ($result['squad'] && !AclMain::aclCheckCore('squads', $result['squad'])) {
-        die(xlt('You are not authorized to access this squad.'));
+        AccessDeniedHelper::deny('Unauthorized access to patient squad');
     }
 } else {
     if (!AclMain::aclCheckCore('patients', 'demo', '', ['write', 'addonly'])) {
-        die(xlt('Adding demographics is not authorized.'));
+        AccessDeniedHelper::deny('Adding demographics is not authorized');
     }
 }
 
@@ -76,7 +83,7 @@ $CPR = 4; // cells per row
     ?>
     <title><?php echo xlt('Edit Current Patient'); ?></title>
 
-    <?php include_once($GLOBALS['srcdir'] . "/options.js.php"); ?>
+    <?php include_once($srcdir . "/options.js.php"); ?>
 
     <script>
 
@@ -92,7 +99,7 @@ $CPR = 4; // cells per row
                 theme: "bootstrap4",
                 dropdownAutoWidth: true,
                 width: 'resolve',
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($srcdir . '/js/xl/select2.js.php'); ?>
             }).on("select2:unselecting", function (e) {
                 $(this).data('state', 'unselected');
                 var data = e.params.args.data;
@@ -108,7 +115,7 @@ $CPR = 4; // cells per row
                     // delete from table.
                     const url = top.webroot_url + '/library/ajax/specialty_form_ajax.php?delete=true';
                     let doData = new FormData();
-                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                     doData.append('id', data.id);
                     doData.append('task_name_history', 'delete');
                     fetch(url, {
@@ -139,7 +146,7 @@ $CPR = 4; // cells per row
                 theme: "bootstrap4",
                 dropdownAutoWidth: true,
                 width: 'resolve',
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($srcdir . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -153,7 +160,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -162,7 +169,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -171,7 +178,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -180,7 +187,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -189,7 +196,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -198,7 +205,7 @@ $CPR = 4; // cells per row
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require($srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -219,7 +226,7 @@ $CPR = 4; // cells per row
             }
         });
 
-        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         //code used from http://tech.irt.org/articles/js037/
         function replace(string, text, by) {
@@ -344,7 +351,7 @@ $CPR = 4; // cells per row
             }
 
 //Patient Data validations
-            <?php if ($GLOBALS['erx_enable']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
             alertMsg = '';
             for (i = 0; i < f.length; i++) {
                 if (f[i].type == 'text' && f[i].value) {
@@ -390,7 +397,7 @@ $CPR = 4; // cells per row
       }
 
       <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($session->get('language_direction') == 'ltr')) { ?>
+        if (OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics') && ($session->get('language_direction') == 'ltr')) { ?>
       div.label_custom {
         text-align: right !important;
       }
@@ -415,8 +422,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <body class="body_top">
 
         <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
-        onsubmit="submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0; ?>,event,'DEM',constraints)">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+        onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0; ?>,event,'DEM',constraints)">
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='mode' value='save' />
         <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
         <input type="hidden" name="isSwapClicked" value="" />
@@ -483,7 +490,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         ];
 
         // hard code validation for old validation, in the new validation possible to add match rules
-        <?php if ($GLOBALS['new_validate'] == 0) { ?>
+        <?php if (!OEGlobalsBag::getInstance()->getBoolean('new_validate')) { ?>
         // fix inconsistently formatted phone numbers from the database
         var f = document.forms[0];
         if (f.form_phone_contact) phonekeyup(f.form_phone_contact, mypcc);
@@ -491,7 +498,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         if (f.form_phone_biz) phonekeyup(f.form_phone_biz, mypcc);
         if (f.form_phone_cell) phonekeyup(f.form_phone_cell, mypcc);
 
-            <?php if (!$GLOBALS['simplified_demographics']) { ?>
+            <?php if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) { ?>
         phonekeyup(f.i1subscriber_phone, mypcc);
         phonekeyup(f.i2subscriber_phone, mypcc);
         phonekeyup(f.i3subscriber_phone, mypcc);
@@ -507,22 +514,22 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
     </script>
 
     <!-- include support for the list-add selectbox feature -->
-    <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+    <?php require OEGlobalsBag::getInstance()->getProjectDir() . "/library/options_listadd.inc.php"; ?>
 
     <?php /*Include the validation script and rules for this form*/
     $form_id = "DEM";
     //LBF forms use the new validation depending on the global value
-    $use_validate_js = $GLOBALS['new_validate'];
+    $use_validate_js = OEGlobalsBag::getInstance()->getBoolean('new_validate');
 
     ?>
-    <?php include_once("$srcdir/validation/validation_script.js.php"); ?>
+    <?php include_once($srcdir . "/validation/validation_script.js.php"); ?>
 
 
     <script>
         var duplicateFieldsArray = [];
 
         //This code deals with demographics before save action -
-        <?php if (($GLOBALS['gbl_edit_patient_form'] == '1') && (checkIfPatientValidationHookIsActive())) :?>
+        <?php if ((OEGlobalsBag::getInstance()->get('gbl_edit_patient_form') == '1') && (checkIfPatientValidationHookIsActive())) :?>
         //Use the Zend patient validation hook.
         //TODO - get the edit part of patient validation hook to work smoothly and then
         //       remove the closeBeforeOpening=1 in the url below.
@@ -531,14 +538,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
         // Use hook to open the controller and get the new patient validation .
         // when no params are sent this window will be closed from the zend controller.
-        var url = '<?php echo $GLOBALS['web_root'] . "/interface/modules/zend_modules/public/patientvalidation";?>';
+        var url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/zend_modules/public/patientvalidation";?>';
         $("#submit_btn").attr("name", "btnSubmit");
         $("#submit_btn").attr("id", "btnSubmit");
         $("#btnSubmit").click(function (event) {
 
             top.restoreSession();
 
-            if (!submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>, event, 'DEM', constraints)) {
+            if (!submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>, event, 'DEM', constraints)) {
                 event.preventDefault();
                 return;
             }
@@ -606,9 +613,9 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 theme: "bootstrap4",
                 dropdownAutoWidth: true,
                 width: 'resolve',
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require($srcdir . '/js/xl/select2.js.php'); ?>
             });
-            <?php if ($GLOBALS['usps_apiv3_client_id']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>

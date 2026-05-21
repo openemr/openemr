@@ -4,7 +4,7 @@
  * Trending script for graphing objects.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,12 +13,14 @@
  */
 
 require_once("../../globals.php");
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $formname = $_GET["formname"];
 $is_lbf = str_starts_with((string) $formname, 'LBF');
@@ -36,7 +38,7 @@ if ($is_lbf) {
 
 //Bring in the style sheet
 ?>
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -90,7 +92,7 @@ function show_graph(table_graph, name_graph, title_graph)
             table: table_graph,
             name: name_graph,
             title: title_graph,
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         }),
         dataType: "json",
         success: function(returnData){
@@ -115,7 +117,7 @@ function show_graph(table_graph, name_graph, title_graph)
         error: function() {
             // hide the chart div
           $('#chart').hide();
-          <?php if ($GLOBALS['graph_data_warning']) { ?>
+          <?php if (OEGlobalsBag::getInstance()->getBoolean('graph_data_warning')) { ?>
           if(!title_graph){
               alert(<?php echo xlj('This item does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
           }
@@ -165,11 +167,11 @@ $(function () {
 <?php
 if ($is_lbf) {
   // Use the List Based Forms engine for all LBFxxxxx forms.
-    include_once("$incdir/forms/LBF/new.php");
+    include_once($webserver_root . "/interface/forms/LBF/new.php");
 } else {
   // ensure the path variable has no illegal characters
     check_file_dir_name($formname);
 
-    include_once("$incdir/forms/$formname/new.php");
+    include_once($webserver_root . "/interface/forms/$formname/new.php");
 }
 ?>

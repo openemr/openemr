@@ -4,7 +4,7 @@
  * Ajax interface for popup of multi select patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Amiel Elboim <amielel@matrix.co.il
@@ -13,16 +13,19 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $type = $_GET['type'];
 $search = $_GET['search'] ?? '';
+$results = [];
 
 switch ($type) {
     case 'by-id':

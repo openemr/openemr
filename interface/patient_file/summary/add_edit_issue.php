@@ -4,7 +4,7 @@
  * add or edit a medical problem.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Thomas Pantelis <tompantelis@gmail.com>
@@ -15,34 +15,42 @@
  */
 
 require_once '../../globals.php';
-require_once $GLOBALS['srcdir'] . '/lists.inc.php';
-require_once $GLOBALS['srcdir'] . '/patient.inc.php';
-require_once $GLOBALS['srcdir'] . '/options.inc.php';
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
-require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once $srcdir . '/lists.inc.php';
+require_once $srcdir . '/patient.inc.php';
+require_once $srcdir . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php';
+require_once $srcdir . '/csv_like_join.php';
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+$webroot = OEGlobalsBag::getInstance()->getWebRoot();
+$v_js_includes = OEGlobalsBag::getInstance()->getString('v_js_includes');
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
+/** @var array<string, array<int, mixed>> $ISSUE_CLASSIFICATIONS */
+$ISSUE_CLASSIFICATIONS = OEGlobalsBag::getInstance()->get('ISSUE_CLASSIFICATIONS', []);
 
 // TBD - Resolve functional issues if opener is included in Header
 ?>
 <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script>
-    <?php require $GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
+    <?php require $srcdir . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
 </script>
 <?php
 
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Following hidden field received in the form will be used to ensure integrity of form values
     // 'issue', 'thispid', 'thisenc'
@@ -59,7 +67,7 @@ if (!empty($_POST['form_save'])) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once $GLOBALS['srcdir'] . '/ippf_issues.inc.php';
+        require_once $srcdir . '/ippf_issues.inc.php';
     }
 }
 
@@ -69,17 +77,12 @@ $info_msg = "";
 $thistype = empty($_REQUEST['thistype']) ? '' : $_REQUEST['thistype'];
 
 if ($thistype && !$issue && !AclMain::aclCheckIssue($thistype, '', ['write', 'addonly'])) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Not authorized to add issue of this type');
 }
 
 $tmp = getPatientData($thispid, "squad");
 if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt("Not authorized for this squad!"));
-}
-
-function QuotedOrNull($fld)
-{
-    return ($fld) ? "'" . add_escape_custom($fld) . "'" : "NULL";
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
@@ -201,9 +204,7 @@ function ActiveIssueCodeRecycleFn($thispid2, $ISSUE_TYPES2): void
 // If we are saving, then save and close the window.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $i = 0;
     $text_type = "unknown";
@@ -409,7 +410,7 @@ function getCodeText($code)
     ///////////
     ?>
 
-    <?php require $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
+    <?php require $srcdir . "/restoreSession.php"; ?>
 
     ///////////////////////////
     function onActiveCodeSelected() {
@@ -656,7 +657,7 @@ function getCodeText($code)
         param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText(<?php echo xlj('Processing'); ?>);
 
         top.restoreSession();
-        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken('udi', $session->getSymfonySession())); ?>;
+        let url = '../../../library/ajax/udi.php?udi=' + encodeURIComponent(udi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken($session, 'udi')); ?>;
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',
@@ -726,7 +727,7 @@ function getCodeText($code)
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+            <?php require $srcdir . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
             ?>
         });
@@ -771,7 +772,7 @@ function getCodeText($code)
                     <div class="container-fluid">
                         <div class="row">
                             <div class='col-sm-6'>
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                 <?php
                                 // action setting not required in html5.  By default form will submit to itself.
                                 // Provide key values previously passed as part of action string.
@@ -916,7 +917,7 @@ function getCodeText($code)
                                     generate_form_field(['data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'], ($irow['occurrence'] ?? null));
                                     ?>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : '';?>">
+                                <div class="form-group col-sm-12 col-md-4 <?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : '';?>">
                                     <label for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                                     <?php
                                     echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
@@ -959,7 +960,7 @@ function getCodeText($code)
                                     <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                                     <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby'] ?? '') ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : ''; ?>">
+                                <div class="form-group col-sm-12 col-md-4 <?php echo (OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : ''; ?>">
                                     <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                                     <?php if (true) { ?>
                                         <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination'] ?? '') ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />

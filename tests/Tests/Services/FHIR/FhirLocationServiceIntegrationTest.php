@@ -8,7 +8,7 @@
  * locations for patients in the group are included while excluding others.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,9 +16,7 @@
 
 namespace OpenEMR\Tests\Integration\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
@@ -26,6 +24,7 @@ use OpenEMR\Services\FHIR\FhirLocationService;
 use OpenEMR\Services\LocationService;
 use OpenEMR\Services\PatientService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class FhirLocationServiceIntegrationTest extends TestCase
 {
@@ -54,7 +53,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
         parent::setUp();
 
         $this->fhirLocationService = new FhirLocationService();
-        $this->fhirLocationService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirLocationService->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->locationService = new LocationService();
     }
 
@@ -411,7 +410,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
             try {
                 $sql = "DELETE FROM `{$table}` WHERE uuid = ?";
                 QueryUtils::sqlStatementThrowException($sql, [$uuid]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log error but don't fail test cleanup
                 error_log("Failed to cleanup test data from {$table}: " . $e->getMessage());
             }
@@ -422,7 +421,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
             try {
                 $sql = "DELETE FROM facility WHERE id = ?";
                 QueryUtils::sqlStatementThrowException($sql, [$facilityId]);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup facility {$facilityId}: " . $e->getMessage());
             }
         }

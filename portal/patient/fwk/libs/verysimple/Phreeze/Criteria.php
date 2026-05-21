@@ -38,7 +38,7 @@ class Criteria
 
     /**
      *
-     * @var $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
+     * @var mixed $Filters a CriteriaFilter or array of CriteriaFilters to be applied to the query
      */
     public $Filters;
     public function __construct(private $_constructor_where = "", private $_constructor_order = "")
@@ -98,10 +98,8 @@ class Criteria
      * Criterias to foreign objects may be added as long as they
      * have an immediate relationship to the foreign table
      *
-     * @param
-     *          Criteria
-     * @param
-     *          string [optional] id of the foreign key map. If the same table is joined
+     * @param Criteria $criteria
+     * @param string $keymap_id [optional] id of the foreign key map. If the same table is joined
      *          multiple times, then you should specify which keymap to use
      */
     public function AddAnd(Criteria $criteria, $keymap_id = null)
@@ -146,10 +144,8 @@ class Criteria
      * Criterias to foreign objects may be added as long as they
      * have an immediate relationship to the foreign table
      *
-     * @param
-     *          Criteria
-     * @param
-     *          string [optional] id of the foreign key map. If the same table is joined
+     * @param Criteria $criteria
+     * @param string $keymap_id [optional] id of the foreign key map. If the same table is joined
      *          multiple times, then you should specify which keymap to use
      */
     public function AddOr(Criteria $criteria, $keymap_id = null)
@@ -218,67 +214,67 @@ class Criteria
                             $this->_where .= $this->_where_delim . ' ' . $filter->GetWhere($this);
                             $this->_where_delim = " and";
                         }
-                    } elseif (str_ends_with($prop, "_Equals") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_Equals") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_Equals", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " = " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_NotEquals") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_NotEquals") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_NotEquals", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " != " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_IsEmpty") && $this->$prop ?? '') {
+                    } elseif (str_ends_with((string) $prop, "_IsEmpty") && $this->$prop ?? '') {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsEmpty", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " = ''";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_IsNotEmpty") && $this->$prop ?? '') {
+                    } elseif (str_ends_with((string) $prop, "_IsNotEmpty") && $this->$prop ?? '') {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsNotEmpty", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " != ''";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_IsLike") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_IsLike") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsLike", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " like '%" . $this->Escape($val) . "%'";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_IsNotLike") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_IsNotLike") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_IsNotLike", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " not like '%" . $this->Escape($val) . "%'";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_BeginsWith") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_BeginsWith") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BeginsWith", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " like '" . $this->Escape($val) . "%'";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_EndsWith") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_EndsWith") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_EndsWith", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " like '%" . $this->Escape($val) . "'";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_GreaterThan") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_GreaterThan") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_GreaterThan", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " > " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_GreaterThanOrEqual") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_GreaterThanOrEqual") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_GreaterThanOrEqual", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " >= " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_LessThan") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_LessThan") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LessThan", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " < " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_LessThanOrEqual") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_LessThanOrEqual") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LessThanOrEqual", "", $prop));
                         $this->_where .= $this->_where_delim . " " . $dbfield . " <= " . $this->GetQuotedSql($val) . "";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_BitwiseOr") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_BitwiseOr") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BitwiseOr", "", $prop));
                         $this->_where .= $this->_where_delim . " (" . $dbfield . " | '" . $this->Escape($val) . ")";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_BitwiseAnd") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_BitwiseAnd") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_BitwiseAnd", "", $prop));
                         $this->_where .= $this->_where_delim . " (" . $dbfield . " & " . $this->Escape($val) . ")";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_LiteralFunction") && strlen($this->$prop ?? '')) {
+                    } elseif (str_ends_with((string) $prop, "_LiteralFunction") && strlen($this->$prop ?? '')) {
                         $dbfield = $this->GetFieldFromProp(str_replace("_LiteralFunction", "", $prop));
                         $this->_where .= $this->_where_delim . " (" . $dbfield . " " . $val . ")";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_In") && isset($val)) {
+                    } elseif (str_ends_with((string) $prop, "_In") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
                             $val = explode(',', (string) $val);
@@ -303,7 +299,7 @@ class Criteria
 
                         $this->_where .= ")";
                         $this->_where_delim = " and";
-                    } elseif (str_ends_with($prop, "_NotIn") && isset($val)) {
+                    } elseif (str_ends_with((string) $prop, "_NotIn") && isset($val)) {
                         // if a string was passed in then treat it as comma-delimited
                         if (! is_array($val)) {
                             $val = explode(',', (string) $val);

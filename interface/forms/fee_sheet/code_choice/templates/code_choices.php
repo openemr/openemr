@@ -4,7 +4,7 @@
  * code_choices.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2014 Kevin Yeh <kevin.y@integralemr.com>

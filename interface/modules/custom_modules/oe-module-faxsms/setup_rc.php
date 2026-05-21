@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,11 +14,13 @@ namespace OpenEMR\Modules\FaxSMS\Controllers;
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // kick off app endpoints controller
-$serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? '';
+$serviceType = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
@@ -27,6 +29,7 @@ if (!$clientApp->verifyAcl()) {
 }
 $c = $clientApp->getCredentials();
 $module_config = $_REQUEST['module_config'] ?? 1;
+$pid = $session->get('pid') ?? 0;
 echo "<script>var pid=" . js_escape($pid) . "</script>";
 ?>
 <!DOCTYPE html>

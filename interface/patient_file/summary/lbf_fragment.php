@@ -4,7 +4,7 @@
  * Functions to globally validate and prepare data for sql database insertion.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -13,12 +13,13 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $lbf_form_id = $_GET['formname'];
 ?>
@@ -51,7 +52,7 @@ $lbf_form_id = $_GET['formname'];
         <br />
         <br />
         <?php
-        include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
+        include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/LBF/report.php");
         lbf_report('', '', 2, $result['form_id'], $lbf_form_id);
         ?>
         <span class='text'>

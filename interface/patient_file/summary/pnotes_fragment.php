@@ -4,7 +4,7 @@
  * Display patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -13,23 +13,26 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/pnotes.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // form parameter docid can be passed to restrict the display to a document.
 $docid = empty($_REQUEST['docid']) ? 0 : 0 + $_REQUEST['docid'];
 
 //ajax for type 2 notes widget
 if (isset($_GET['docUpdateId'])) {
-    return disappearPnote($_GET['docUpdateId']);
+    return disappearPnote($_GET['docUpdateId'], $pid);
 }
 
 ?>
@@ -37,7 +40,7 @@ if (isset($_GET['docUpdateId'])) {
   <div class='tab current'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = $GLOBALS['num_of_messages_displayed'];
+    $N = OEGlobalsBag::getInstance()->getInt('num_of_messages_displayed');
     $has_note = 0;
     $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
@@ -71,7 +74,7 @@ if (isset($_GET['docUpdateId'])) {
             echo "<thead>\n<tr>";
             echo "<th class='text' >" . xlt('From') . "</th>\n";
             echo "<th class='text' >" . xlt('To{{Destination}}') . "</th>\n";
-            if ($GLOBALS['messages_due_date']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) {
                 echo "<th class='text' >" . xlt('Due date') . "</th>\n";
             } else {
                 echo "<th class='text' >" . xlt('Date') . "</th>\n";
@@ -91,7 +94,7 @@ if (isset($_GET['docUpdateId'])) {
                 // Modified 6/2009 by BM to incorporate the patient notes into the list_options listings
                 echo "<td class='text'>" . text($iter['user']) . "</td>\n";
                 echo "<td class='text'>" . text($iter['assigned_to']) . "</td>\n";
-                echo "<td class='text'>" . text(oeFormatDateTime(date('Y-m-d H:i', strtotime((string) $iter['date'])))) . "</td>\n";
+                echo "<td class='text'>" . text(DateFormatterUtils::oeFormatDateTime(date('Y-m-d H:i', strtotime((string) $iter['date'])))) . "</td>\n";
                 echo "  <td class='text'><b>";
                 echo generate_display_field(['data_type' => '1','list_id' => 'note_type'], $iter['title']);
                 echo "</b></td>\n";
@@ -122,7 +125,7 @@ if (isset($_GET['docUpdateId'])) {
             <br/>
             <span class='text'>
             <?php echo xlt('Displaying the following number of most recent messages'); ?>:
-            <b><?php echo text($N);?></b><br />
+            <b><?php echo $N;?></b><br />
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
         } ?>

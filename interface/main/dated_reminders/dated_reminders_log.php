@@ -4,35 +4,38 @@
  * Used for adding dated reminders.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Craig Bezuidenhout <http://www.tajemo.co.za/>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 tajemo.co.za <http://www.tajemo.co.za/>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
-    require_once("../../globals.php");
-    require_once("$srcdir/dated_reminder_functions.php");
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
-    use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Core\Header;
-
-    $isAdmin = AclMain::aclCheckCore('admin', 'users');
+$isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
 <?php
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var int $authUserID */
+$authUserID = $session->get('authUserID');
 /*
     -------------------  HANDLE POST ---------------------
 */
 if ($_GET) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if (!$isAdmin) {
-        if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = [intval($_SESSION['authUserID'])];
-        }
+        // Force non-admin users to only see their own reminders,
+        // regardless of any user-supplied sentBy/sentTo parameters.
+        $currentUser = [intval($authUserID)];
+        $_GET['sentBy'] = $currentUser;
+        $_GET['sentTo'] = $currentUser;
     }
 
     $remindersArray = [];
@@ -80,13 +83,13 @@ if ($_GET) {
         foreach ($remindersArray as $RA) {
             echo '<tr>
                     <td>' . text($RA['messageID']) . '</td>
-                    <td>' . text(oeFormatDateTime($RA['sDate'])) . '</td>
+                    <td>' . text(DateFormatterUtils::oeFormatDateTime($RA['sDate'])) . '</td>
                     <td>' . text($RA['fromName']) . '</td>
                     <td>' . text($RA['ToName']) . '</td>
                     <td>' . text($RA['PatientName']) . '</td>
                     <td>' . text($RA['message']) . '</td>
                     <td>' . text(oeFormatShortDate($RA['dDate'])) . '</td>
-                    <td>' . text(oeFormatDateTime($RA['pDate'])) . '</td>
+                    <td>' . text(DateFormatterUtils::oeFormatDateTime($RA['pDate'])) . '</td>
                     <td>' . text($RA['processedByName']) . '</td>
                 </tr>';
         }
@@ -130,7 +133,7 @@ if ($_GET) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
       })
@@ -142,7 +145,7 @@ if ($_GET) {
         <div id="overDiv" style="position:absolute; visibility:hidden; z-index:1000;"></div>
         <?php
         $allUsers = [];
-        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($_SESSION['authUserID'])]);
+        $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [$authUserID]);
         for ($i = 0; $uRow = sqlFetchArray($uSQL); $i++) {
             $allUsers[] = $uRow;
         }
@@ -156,7 +159,7 @@ if ($_GET) {
             </div>
             <div class="col-12 filter-section mb-3">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0"><?php echo xlt('Filters') ?></h5>
@@ -186,7 +189,7 @@ if ($_GET) {
                                         <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
-                                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                        <option value="<?php echo attr($authUserID); ?>"><?php echo xlt('Myself') ?></option>
                                         <?php
                                         if ($isAdmin) {
                                             foreach ($allUsers as $user) {
@@ -205,7 +208,7 @@ if ($_GET) {
                                         <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
-                                        <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                        <option value="<?php echo attr($authUserID); ?>"><?php echo xlt('Myself') ?></option>
                                         <?php
                                         if ($isAdmin) {
                                             foreach ($allUsers as $user) {

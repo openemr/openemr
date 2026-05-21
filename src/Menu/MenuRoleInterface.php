@@ -5,7 +5,6 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @link      https://opencoreemr.com
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -13,7 +12,7 @@
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

@@ -4,21 +4,29 @@
  * superbill_codes.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$encounter = $session->get('encounter', 0);
+$pid = $session->get('pid', 0);
+$userauthorized = $session->get('userauthorized', 0);
 require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+/** @var array<string, array<string, mixed>> $code_types */
+$code_types = OEGlobalsBag::getInstance()->get('code_types');
+$tback = '';
+$tmore = '';
+
 
 //the number of rows to display before resetting and starting a new column:
 $N = 10;
@@ -32,9 +40,7 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         if (strtolower((string) $type) == "copay") {
@@ -114,7 +120,7 @@ while ($index < $numlines) {
                 "&fee="      . attr_url($code["fee"]) .
                 "&code="     . attr_url($code["code"]) .
                 "&text="     . attr_url($code["code_text"]) .
-                "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) .
+                "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
             "' onclick='top.restoreSession()'>";
             echo "<b>" . text($code['code']) . "</b>" . "&nbsp;" . text($code['modifier']) . "&nbsp;" . text($code['code_text']);
             echo "</a></dd>\n";

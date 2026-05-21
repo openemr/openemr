@@ -5,7 +5,7 @@
  *  Dates are hard-coded from 2026-04-01 to 2026-09-30
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2022 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,24 +13,20 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\RealWorldTesting;
 
-$globalsBag = OEGlobalsBag::getInstance();
-
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl('2026 Real World Testing Report')]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: 2026 Real World Testing Report", xl('2026 Real World Testing Report'));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], 'rwt_2026_report')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'rwt_2026_report', dieOnFail: true);
 }
 
 // dates for this report are hard-coded (see header for details)
@@ -65,7 +61,7 @@ $end_date = '2026-09-30';
         <?php echo xlt("This report is required for OpenEMR instances in the United States that utilize ONC certification. This reports collects metrics that are used in Real World Testing that are required for the OpenEMR Foundation to maintain the ONC certification. This report calculates metrics from April 1, 2026 to September 30, 2026. Please run this report sometime in October or November of 2026 and then print it to a pdf and email the pdf to the OpenEMR Foundation at hello@open-emr.org. In the email, please confirm your practice is in the United States and state the clinical setting of your practice (this can be 'Primary/Specialty Care' setting, 'Behavioral Health Care' setting, or any other setting).") ?>
     </div>
     <form method='post' name='theform' id='theform' action='rwt_2026_report.php' onsubmit='return top.restoreSession()'>
-        <input type='hidden' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('rwt_2026_report')); ?>' />
+        <input type='hidden' name='csrf_token_form' value='<?php echo CsrfUtils::collectCsrfToken($session, 'rwt_2026_report'); ?>' />
         <div class='mt-4'>
             <button type='submit' class='btn btn-primary' name='start_button' value='start_button' onclick='document.getElementById("start_button_spinner").style.display = "inline-block"'>
                 <span id='start_button_spinner' style='display: none;' class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> <?php echo xlt('Start Report'); ?>

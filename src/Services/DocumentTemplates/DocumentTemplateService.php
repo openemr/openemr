@@ -13,8 +13,8 @@
 namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
-use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\QuestionnaireService;
 use RuntimeException;
 
 /**
@@ -72,7 +72,7 @@ class DocumentTemplateService extends QuestionnaireService
      *
      * @param int    $pid
      * @param string $category
-     * @param false  $is_portal
+     * @param bool  $is_portal
      * @return array
      */
     public function getPortalAssignedTemplates($pid = 0, $category = '', $is_portal = false): array
@@ -164,7 +164,7 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         return $results;
@@ -339,7 +339,8 @@ class DocumentTemplateService extends QuestionnaireService
     {
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $rtn = 0;
         try {
             sqlQuery('DELETE From `document_template_profiles` WHERE `template_id` = 0');
             $sql = 'INSERT INTO `document_template_profiles` (`id`, `template_id`, `profile`, `template_name`, `category`, `provider`, `modified_date`, `member_of`, `active`) VALUES (NULL, 0, ?, "", "Group", ?, current_timestamp(), ?, ?)';
@@ -349,13 +350,13 @@ class DocumentTemplateService extends QuestionnaireService
                     $rtn = sqlInsert($sql, [$profile, $session->get('authUserID'), $group['group'] ?? '', $group['active']]);
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
         sqlStatementNoLog('SET autocommit=1');
 
-        return $rtn ?? 0;
+        return $rtn;
     }
 
     /**
@@ -366,12 +367,13 @@ class DocumentTemplateService extends QuestionnaireService
     {
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
+        $rtn = false;
         try {
             $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` > ?', [null, 0]);
             foreach ($patients as $id => $groups) {
                 $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', [$groups, $id]);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -380,7 +382,7 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param false $patients_only
+     * @param bool $patients_only
      * @return array|string[][]
      */
     public function fetchPortalAuthUsers($patients_only = false): array
@@ -456,7 +458,7 @@ class DocumentTemplateService extends QuestionnaireService
     /**
      * @param null  $category
      * @param mixed $pid
-     * @return
+     * @return mixed
      */
     public function getTemplateListByCategory($category = null, $pid = 0, $name = null): bool|array|null
     {
@@ -578,7 +580,7 @@ class DocumentTemplateService extends QuestionnaireService
             throw new RuntimeException(xlt("Template rejected. JavaScript not allowed"));
         }
 
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $name = null;
         if (!empty($pid)) {
@@ -602,6 +604,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function setProfileActiveStatus($profiles): int
     {
         sqlQuery("UPDATE `document_template_profiles` SET `active` = '0' WHERE `template_id` = 0");
+        $rtn = true;
         foreach ($profiles as $profile) {
             $rtn = sqlQuery("UPDATE `document_template_profiles` SET `active` = '1' WHERE `profile` = ? AND `template_id` = 0", [$profile]);
         }
@@ -653,7 +656,7 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -685,7 +688,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $result = $this->insertTemplate($pid, $destination_category, $name, $content, $template['mime'], $profile);
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -744,7 +747,7 @@ class DocumentTemplateService extends QuestionnaireService
         sqlStatementNoLog('SET autocommit=0');
         sqlStatementNoLog('START TRANSACTION');
         try {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             sqlQuery("DELETE FROM `document_template_profiles` WHERE `template_id` > 0");
             $rtn = false;
             foreach ($profiles_array as $profile_array) {
@@ -760,7 +763,7 @@ class DocumentTemplateService extends QuestionnaireService
                         $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -774,7 +777,7 @@ class DocumentTemplateService extends QuestionnaireService
     public function fetchDefaultGroups(): array
     {
         $rtn = sqlStatement('SELECT `option_id`, `title`, `seq` FROM `list_options` WHERE `list_id` = ? ORDER BY `seq`', ['Patient_Groupings']);
-        $category_list = [];
+        $group_list = [];
         while ($row = sqlFetchArray($rtn)) {
             $group_list[$row['option_id']] = $row;
         }

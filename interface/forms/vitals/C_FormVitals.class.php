@@ -12,17 +12,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir() . "/library/patient.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\VitalsService;
 
@@ -47,7 +49,7 @@ class C_FormVitals
 
     public function __construct(public $template_mod = "general", public $context = '')
     {
-        $this->units_of_measurement = $GLOBALS['units_of_measurement'];
+        $this->units_of_measurement = OEGlobalsBag::getInstance()->get('units_of_measurement');
         $this->interpretationsList = $this->get_interpretation_list_options();
         $this->template_dir = __DIR__ . "/templates/vitals/";
     }
@@ -77,13 +79,14 @@ class C_FormVitals
         }
 
         // get the patient's current age
-        $patient_data = getPatientData($GLOBALS['pid']);
+        $patient_data = getPatientData(OEGlobalsBag::getInstance()->get('pid'));
         $patient_dob = $patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
 
         $i = 1;
+        $results = [];
         // eventually we want this just to use the service search date but we will move this here.
-        $records = $vitalsService->getVitalsHistoryForPatient($GLOBALS['pid'], $form_id);
+        $records = $vitalsService->getVitalsHistoryForPatient(OEGlobalsBag::getInstance()->get('pid'), $form_id);
 
         foreach ($records as $result) {
             $historicalVitals = new FormVitals();
@@ -99,7 +102,7 @@ class C_FormVitals
         if (
             $form_id === 0
             && $this->context == 'dashboard'
-            && is_countable($results)
+            && $results !== []
         ) {
             $vitals_history_count = count($results);
             $vitals = $results[$vitals_history_count];
@@ -248,7 +251,7 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
-                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'hide' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
                 ,'codes' => "LOINC:9843-4"
             ]
             ,[
@@ -264,7 +267,7 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
-                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'hide' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
                 ,'codes' => "LOINC:9843-4"
             ]
             ,[
@@ -322,34 +325,35 @@ class C_FormVitals
             ]
         ];
 
-        $resultsCount = count($results ?? []);
+        $resultsCount = count($results);
         $hasMoreVitals = false;
         $vitalsHistoryLookback = [];
-        $maxHistoryCols = $GLOBALS['gbl_vitals_max_history_cols'] ?? 2;
+        $maxHistoryCols = OEGlobalsBag::getInstance()->getInt('gbl_vitals_max_history_cols');
         if ($maxHistoryCols > 0 && $resultsCount > $maxHistoryCols) {
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
         } else {
-            $vitalsHistoryLookback = $results ?? null;
+            $vitalsHistoryLookback = $results;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $data = [
             'vitals' => $vitals
             ,'vitalFields' => $vitalFields
-            ,'FORM_ACTION' => $GLOBALS['web_root']
-            ,'DONT_SAVE_LINK' => $GLOBALS['form_exit_url']
-            ,'STYLE' => $GLOBALS['style']
+            ,'FORM_ACTION' => OEGlobalsBag::getInstance()->getWebRoot()
+            ,'DONT_SAVE_LINK' => OEGlobalsBag::getInstance()->get('form_exit_url')
+            ,'STYLE' => OEGlobalsBag::getInstance()->get('style')
             ,'units_of_measurement' => $this->units_of_measurement
             ,'MEASUREMENT_METRIC_ONLY' => FormVitals::MEASUREMENT_METRIC_ONLY
             ,'MEASUREMENT_USA_ONLY' => FormVitals::MEASUREMENT_USA_ONLY
             ,'MEASUREMENT_PERSIST_IN_METRIC' => FormVitals::MEASUREMENT_PERSIST_IN_METRIC
             ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
-            ,'hide_circumferences' => $GLOBALS['gbl_vitals_options'] > 0
-            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
-            ,'results' => $results ?? null
+            ,'hide_circumferences' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
+            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session)
+            ,'results' => $results
             ,'vitalsHistoryLookback' => $vitalsHistoryLookback
             ,'hasMoreVitals' => $hasMoreVitals
-            ,'results_count' => count(($results ?? []))
+            ,'results_count' => count($results)
             ,'reasonCodeStatii' => $reasonCodeStatii
             ,'interpretation_options' => $this->interpretationsList
             ,'VIEW' => true
@@ -358,7 +362,7 @@ class C_FormVitals
             ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', (string) $patient_age)))
             ,'has_id' => $form_id
         ];
-        $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer($this->template_dir, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
         echo $twig->render("vitals.html.twig", $data);
     }
@@ -416,7 +420,18 @@ class C_FormVitals
 
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
-        $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+        $vitalsArray = [];
+        if (!empty($_POST['id'])) {
+            $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+            // Verify the vital belongs to this patient/encounter to prevent IDOR.
+            // If not, treat as a new form (ignore the supplied id).
+            if (
+                !empty($vitalsArray)
+                && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])
+            ) {
+                $vitalsArray = [];
+            }
+        }
         // vitals form returns string representation of uuid, need to convert it back to binary
         if (isset($vitalsArray['uuid'])) {
             $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);
@@ -449,14 +464,15 @@ class C_FormVitals
 
         $this->populate_session_user_information($obj);
 
-        if ($GLOBALS['encounter'] < 1) {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') < 1) {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // have to set these global settings in order for us to save.
-        $obj->set_encounter($GLOBALS['encounter']);
-        $obj->set_pid($GLOBALS['pid']);
-        $obj->set_authorized($_SESSION['userauthorized']);
+        $obj->set_encounter(OEGlobalsBag::getInstance()->get('encounter'));
+        $obj->set_pid(OEGlobalsBag::getInstance()->get('pid'));
+        $obj->set_authorized($session->get('userauthorized'));
 
         // handle all of the vital details that we need here.
         $detailsToUpdate = [];
@@ -486,7 +502,7 @@ class C_FormVitals
                     $details->set_interpretation_codes($value); // for now the option_id is the code
                     $details->set_interpretation_title($interpretation['title']);
                 } else {
-                    (new SystemLogger())->error(
+                    ServiceContainer::getLogger()->error(
                         "Passed in interpretation does not exist in list options, clearing interpretation id",
                         ['form_id' => $this->vitals->get_id(), 'column' => $column, 'interpretation' => $value]
                     );
@@ -524,7 +540,8 @@ class C_FormVitals
 
     private function populate_session_user_information(FormVitals $vitals)
     {
-        $vitals->set_groupname($_SESSION['authProvider']);
-        $vitals->set_user($_SESSION['authUser']);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $vitals->set_groupname($session->get('authProvider'));
+        $vitals->set_user($session->get('authUser'));
     }
 }

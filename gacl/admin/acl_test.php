@@ -1,4 +1,5 @@
 <?php
+
 /*
 meinhard_jahn@web.de, 20041102: link to acl_test2.php and acl_test3.php
 */
@@ -10,13 +11,12 @@ if (!empty($_GET['debug'])) {
 //First make sure user has access
 require_once("../../interface/globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: ACL Administration", xl("ACL Administration"));
 }
 
 @set_time_limit(600);
@@ -25,6 +25,10 @@ require_once('../profiler.inc.php');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 

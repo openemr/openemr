@@ -6,7 +6,7 @@
  * from adminacl_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak01@hotmail.com>
  * @copyright Copyright (c) 2007-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -16,17 +16,19 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Access Control List Administration")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/acl: Access Control List Administration", xl("Access Control List Administration"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <html>
@@ -95,7 +97,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "acl",
                         action: "add",
                         title: title,
@@ -167,7 +169,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "acl",
                         action: "remove",
                         title: title,
@@ -217,7 +219,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "username",
                         action: "list"
                     },
@@ -266,7 +268,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "acl",
                         action: "list"
                     },
@@ -372,7 +374,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         name: identityFormatted,
                         control: control,
                         action: action,

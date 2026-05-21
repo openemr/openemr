@@ -2,15 +2,15 @@
 
 namespace OpenEMR\Tests\Api;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Capability FHIR Endpoint Test Cases.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -49,12 +49,12 @@ class IntrospectionTest extends TestCase
         if ($type == 'private') {
             $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()), "Refresh token was not sent via client authorization for private client");
         }
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayHasKey("Authorization", $actualHeaders);
         $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
         $this->client->setHeaders(
             [

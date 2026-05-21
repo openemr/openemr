@@ -5,7 +5,7 @@
  * Use this to diagnose CSRF token issues
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,16 +16,17 @@ require_once(__DIR__ . "/../../interface/globals.php");
 $srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\PersonPatientLinkService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonPatientLinkService;
+use OpenEMR\Services\PersonService;
 
 // Initialize logger early
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Set JSON header
 header('Content-Type: application/json');
@@ -36,9 +37,10 @@ $rawInput = file_get_contents('php://input');
 // Parse JSON
 $jsonInput = json_decode($rawInput, true);
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // normal token validation
 $csrfToken = $jsonInput['csrf_token'] ?? $_POST['csrf_token'] ?? $_GET['csrf_token'] ?? null;
-if (!CsrfUtils::verifyCsrfToken($csrfToken)) {
+if (!CsrfUtils::verifyCsrfToken($csrfToken, session: $session)) {
     CsrfUtils::csrfNotVerified(); // die
 }
 // Initialize services
@@ -50,7 +52,7 @@ $action = $jsonInput['action'] ?? $_POST['action'] ?? $_GET['action'] ?? '';
 
 $logger->debug("Processing action", [
     'action' => $action,
-    'user' => $_SESSION['authUser']
+    'user' => $session->get('authUser')
 ]);
 
 try {
@@ -90,7 +92,7 @@ try {
                 ]
             ], JSON_PRETTY_PRINT);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Person search AJAX error", [
         'action' => $action,
         'error' => $e->getMessage(),
@@ -511,7 +513,7 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
 //                'email' => $email
 //            ]);
 //        }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Exception adding telecoms", [
             'contact_id' => $contactId,
             'error' => $e->getMessage()

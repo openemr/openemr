@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once __DIR__ . '/../globals.php';
@@ -49,7 +49,7 @@ switch ($method) {
 
         $controller = new TherapyGroupsController();
         if ($_GET['group_id'] == 'from_session') {
-            $controller->index($therapy_group);
+            $controller->index(\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group'));
         } else {
             $controller->index($_GET['group_id']);
         }

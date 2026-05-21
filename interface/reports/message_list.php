@@ -4,7 +4,7 @@
  * This report lists messages sent during a time span
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -17,26 +17,25 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, OEGlobalsBag::getInstance()->get('kernel')))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Message List")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Message List", xl("Message List"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $userService = new UserService();
@@ -72,7 +71,7 @@ if (!empty($_POST['form_csvexport'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -123,7 +122,7 @@ if (!empty($_POST['form_csvexport'])) {
 </div>
 
 <form name='theform' id='theform' method='post' action='message_list.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -243,10 +242,18 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $patient_name    = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
         $patient_id      = $row['pubpid'];
         $patient_dob     = $row['dob'];
-        $msg_type        = $row['title'];
-        $msg_status      = $row['message_status'];
-        $username        = $userService->getUser($row['update_by']);
-        $update_by       = $username['username'];
+        $msg_type        = is_string($row['title'] ?? null) ? $row['title'] : '';
+        $msg_status      = is_string($row['message_status'] ?? null) ? $row['message_status'] : '';
+        $updateById      = $row['update_by'];
+        if ($updateById) {
+            $userRecord = $userService->getUser($updateById);
+            if ($userRecord === false) {
+                throw new \RuntimeException("User not found for update_by: " . json_encode($updateById));
+            }
+            $update_by = $userRecord['username'];
+        } else {
+            $update_by = '';
+        }
         $update_date     = $row['update_date'];
         if ($_POST['form_csvexport']) {
             echo csvEscape(oeFormatShortDate(substr((string) $msg_date, 0, 10))) . ',';
@@ -255,7 +262,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
             echo csvEscape($row['fname']) . ',';
             echo csvEscape($patient_id) . ',';
             echo csvEscape($patient_dob) . ',';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             echo csvEscape(xl($msg_type)) . ',';
+            // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
             echo csvEscape(xl($msg_status)) . ',';
             echo csvEscape($update_by) . ',';
             echo csvEscape(oeFormatShortDate(substr((string) $update_date, 0, 10))) . "\n";

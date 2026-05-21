@@ -1773,9 +1773,22 @@ limitations under the License.
   </xsl:template>
 
   <xsl:template xmlns:n1="urn:hl7-org:v3" xmlns:in="urn:lantana-com:inline-variable-data" match="n1:linkHtml">
-    <xsl:element name="a">
-      <xsl:copy-of select="@* | text()"/>
-    </xsl:element>
+    <a>
+      <xsl:variable name="href" select="normalize-space(@href)"/>
+      <xsl:choose>
+        <xsl:when test="starts-with($href, 'http://') or starts-with($href, 'https://')">
+          <xsl:attribute name="href">
+            <xsl:value-of select="$href"/>
+          </xsl:attribute>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:attribute name="href">#</xsl:attribute>
+        </xsl:otherwise>
+      </xsl:choose>
+      <xsl:attribute name="rel">noopener noreferrer</xsl:attribute>
+      <xsl:attribute name="target">_blank</xsl:attribute>
+      <xsl:apply-templates/>
+    </a>
   </xsl:template>
 
   <!--   RenderMultiMedia

@@ -12,11 +12,9 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Validators\ProcessingResult;
 
 class TreatmentInterventionPreferenceService extends BaseService
 {

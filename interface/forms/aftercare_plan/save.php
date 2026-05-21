@@ -4,7 +4,7 @@
  * aftercare_plan save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Naina Mohamed <naina@capminds.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012-2013 Naina Mohamed <naina@capminds.com> CapMinds Technologies
@@ -13,14 +13,25 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (! $encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
@@ -51,9 +62,9 @@ if (empty($id)) {
     $newid = sqlInsert(
         "INSERT INTO form_aftercare_plan SET $sets",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             $_POST["provider"],
             $_POST["client_name"],
@@ -74,9 +85,9 @@ if (empty($id)) {
     sqlStatement(
         "UPDATE form_aftercare_plan SET $sets WHERE id = ?;",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             $_POST["provider"],
             $_POST["client_name"],

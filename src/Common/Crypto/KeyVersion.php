@@ -19,7 +19,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -27,6 +27,9 @@ namespace OpenEMR\Common\Crypto;
 
 enum KeyVersion: int
 {
+    public const PREFIX_LENGTH = 3;
+    public const CURRENT = self::SEVEN;
+
     case ONE = 1;
     case TWO = 2;
     case THREE = 3;
@@ -88,7 +91,7 @@ enum KeyVersion: int
      *
      * @param string $version The string version (e.g., "one", "two", etc.)
      * @return self
-     * @throws InvalidArgumentException If version string is invalid
+     * @throws \InvalidArgumentException If version string is invalid
      */
     public static function fromString(string $version): self
     {
@@ -113,11 +116,11 @@ enum KeyVersion: int
      */
     public static function fromPrefix(string $value): self
     {
-        if (strlen($value) < 3) {
-            throw new \ValueError("Input string must be at least 3 bytes long");
+        if (strlen($value) < self::PREFIX_LENGTH) {
+            throw new \ValueError("Input string must be at least " . self::PREFIX_LENGTH . " bytes long");
         }
 
-        $prefix = substr($value, 0, 3);
+        $prefix = substr($value, 0, self::PREFIX_LENGTH);
         if (!ctype_digit($prefix)) {
             throw new \ValueError("Invalid KeyVersion prefix");
         }

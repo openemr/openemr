@@ -16,14 +16,14 @@
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace OpenEMR\Common\Utils;
 
 class StringUtils
 {
-    public static function trimExcessWhitespace($string)
+    public static function trimExcessWhitespace(mixed $string): string
     {
         return trim((string) preg_replace('/\s+/', ' ', (string) $string));
     }

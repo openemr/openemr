@@ -13,16 +13,21 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/report.inc.php");
 
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FacilityService;
 
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/api.inc.php");
+require_once($srcdir . "/forms.inc.php");
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/report.inc.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $facilityService = new FacilityService();
 
 $form_name = "Eye Form";
@@ -31,12 +36,14 @@ require_once("php/" . $form_folder . "_functions.php");
 
 $RX_expir = "+1 years";
 $CTL_expir = "+6 months";
-if (!($_REQUEST['pid'] ?? '') && $_REQUEST['id']) {
+if (!($_REQUEST['pid'] ?? '') && ($_REQUEST['id'] ?? '')) {
     $_REQUEST['pid'] = $_REQUEST['id'];
 }
-if (!$_REQUEST['pid']) {
-    $_REQUEST['pid'] = $_SESSION['pid'];
+if (!($_REQUEST['pid'] ?? '')) {
+    $_REQUEST['pid'] = $session->get('pid');
 }
+$pid = $_REQUEST['pid'];
+$form_id = $_REQUEST['form_id'] ?? null;
 
 $query = "select  *,form_encounter.date as encounter_date
                from forms,form_encounter,form_eye_base,
@@ -69,6 +76,33 @@ $query = "select  *,form_encounter.date as encounter_date
     $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
     @extract($data);
 
+    // Defaults for the form columns extracted from the joined form_eye_*
+    // tables above. The query always returns a row for the encounter, but
+    // individual columns can be NULL when never populated in the UI; PHPStan
+    // can't see through @extract() so declare every read up-front.
+    $ODPDMeasured ??= '';
+    $OSPDMeasured ??= '';
+    $ODHPD ??= '';
+    $ODHBASE ??= '';
+    $ODVPD ??= '';
+    $ODVBASE ??= '';
+    $ODSLABOFF ??= '';
+    $ODVERTEXDIST ??= '';
+    $OSHPD ??= '';
+    $OSHBASE ??= '';
+    $OSVPD ??= '';
+    $OSVBASE ??= '';
+    $OSSLABOFF ??= '';
+    $OSVERTEXDIST ??= '';
+    $ODMPDN ??= '';
+    $OSMPDN ??= '';
+    $BPDN ??= '';
+    $LENS_MATERIAL ??= '';
+    $LENS_TREATMENTS ??= '';
+    $CTL_COMMENTS ??= '';
+    $CTLODQUANTITY ??= '';
+    $CTLOSQUANTITY ??= '';
+
     $ODMPDD     = $ODPDMeasured;
     $OSMPDD     = $OSPDMeasured;
     $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
@@ -82,6 +116,9 @@ $query = "select  *,form_encounter.date as encounter_date
     $practice_data = $facilityService->getPrimaryBusinessEntity();
 
     $visit_date = oeFormatShortDate($data['encounter_date']);
+
+$RXTYPE ??= '';
+$encounter ??= '';
 
 if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in dispense table
     $table_name = "form_eye_mag_dispense";
@@ -103,7 +140,7 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
             }
         }
         $fields['RXTYPE'] = $RXTYPE;
-        $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $_SESSION['userauthorized']);
+        $insert_this_id = formUpdate($table_name, $fields, $_POST['id'], $session->get('userauthorized'));
     }
 
     exit;
@@ -120,23 +157,62 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
 
     formHeader("OpenEMR Eye: " . text($prov_data['facility']));
 
-if ($_REQUEST['REFTYPE']) {
+// Pre-initialize variables that the REFTYPE branches below populate selectively.
+// Each REFTYPE (W / AR / MR / CR / CTL) sets a different subset, but the form
+// markup further down reads them all unconditionally, so default everything to ''.
+$REFTYPE = '';
+$RXTYPE = '';
+$Single = '';
+$Bifocal = '';
+$Trifocal = '';
+$Progressive = '';
+$ODSPH = '';
+$ODCYL = '';
+$ODAXIS = '';
+$ODPRISM = '';
+$ODADD = '';
+$ODADD2 = '';
+$ODMIDADD = '';
+$ODBC = '';
+$ODDIAM = '';
+$ODVA = '';
+$OSSPH = '';
+$OSCYL = '';
+$OSAXIS = '';
+$OSPRISM = '';
+$OSADD = '';
+$OSADD2 = '';
+$OSMIDADD = '';
+$OSBC = '';
+$OSDIAM = '';
+$OSVA = '';
+$COMMENTS = '';
+$CTLBRANDOD = '';
+$CTLBRANDOS = '';
+$CTLMANUFACTUREROD = '';
+$CTLMANUFACTUREROS = '';
+$CTLSUPPLIEROD = '';
+$CTLSUPPLIEROS = '';
+$insert_this_id = null;
+
+if ($_REQUEST['REFTYPE'] ?? '') {
     $REFTYPE = $_REQUEST['REFTYPE'];
-    if ($REFTYPE == "AR") {
-        $RXTYPE = "Bifocal";
-    }
 
-    if ($REFTYPE == "MR") {
-        $RXTYPE = "Bifocal";
-    }
+    // Map the rx_type numeric code passed from view.php to a display string and
+    // set the corresponding checkbox state. Default to Single (0) if the value
+    // is missing or not one of the four expected codes.
+    $valid_rx_types = ['0' => 'Single', '1' => 'Bifocal', '2' => 'Trifocal', '3' => 'Progressive'];
+    $rx_type_raw    = (string) ($_REQUEST['rx_type'] ?? '');
+    $RXTYPE         = $valid_rx_types[$rx_type_raw] ?? 'Single';
 
-    if ($REFTYPE == "CTL") {
-        $RXTYPE = "Bifocal";
-    }
+    $Single     = ($RXTYPE === 'Single')      ? "checked='checked'" : '';
+    $Bifocal    = ($RXTYPE === 'Bifocal')     ? "checked='checked'" : '';
+    $Trifocal   = ($RXTYPE === 'Trifocal')    ? "checked='checked'" : '';
+    $Progressive = ($RXTYPE === 'Progressive') ? "checked='checked'" : '';
 
-    $id = $_REQUEST['id'];
+    $id = $_REQUEST['id'] ?? null;
     $table_name = "form_eye_mag";
-    $encounter = !$_REQUEST['encounter'] ? $_SESSION['encounter'] : $_REQUEST['encounter'];
+    $encounter = !($_REQUEST['encounter'] ?? '') ? $session->get('encounter') : $_REQUEST['encounter'];
 
 
 
@@ -156,20 +232,6 @@ if ($_REQUEST['REFTYPE']) {
         $ODADD2 = $wearing['ODADD'];
         $OSMIDADD = $wearing['OSMIDADD'];
         $OSADD2 = $wearing['OSADD'];
-        @extract($wearing);
-        if ($wearing['RX_TYPE'] == '0') {
-            $Single = "checked='checked'";
-            $RXTYPE = "Single";
-        } elseif ($wearing['RX_TYPE'] == '1') {
-            $Bifocal = "checked='checked'";
-            $RXTYPE = "Bifocal";
-        } elseif ($wearing['RX_TYPE'] == '2') {
-            $Trifocal = "checked='checked'";
-            $RXTYPE = "Trifocal";
-        } elseif ($wearing['RX_TYPE'] == '3') {
-            $Progressive = "checked='checked'";
-            $RXTYPE = "Progressive";
-        }
 
         //do LT and Lens materials
     } elseif ($REFTYPE == "AR") {
@@ -184,7 +246,6 @@ if ($_REQUEST['REFTYPE']) {
         $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['ARODADD'];
         $OSADD2     = $data['AROSADD'];
-        $Bifocal    = "checked='checked'";
     } elseif ($REFTYPE == "MR") {
         $ODSPH      = $data['MRODSPH'];
         $ODAXIS     = $data['MRODAXIS'];
@@ -197,7 +258,6 @@ if ($_REQUEST['REFTYPE']) {
         $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['MRODADD'];
         $OSADD2     = $data['MROSADD'];
-        $Bifocal    = "checked='checked'";
     } elseif ($REFTYPE == "CR") {
         $ODSPH      = $data['CRODSPH'];
         $ODAXIS     = $data['CRODAXIS'];
@@ -260,7 +320,7 @@ if ($_REQUEST['REFTYPE']) {
 
         $fields['RXTYPE'] = $RXTYPE;
         $fields['REFDATE'] = $data['date'];
-        $insert_this_id = formSubmit($table_name, $fields, $form_id, $_SESSION['userauthorized']);
+        $insert_this_id = formSubmit($table_name, $fields, $form_id, $session->get('userauthorized'));
     }
 }
 
@@ -359,7 +419,7 @@ if ($_REQUEST['dispensed'] ?? '') {
         </style>
         <script language="JavaScript">
         <?php
-        require_once("$srcdir/restoreSession.php");  ?>
+        require_once($srcdir . "/restoreSession.php");  ?>
 
             function delete_me(delete_id) {
                 top.restoreSession();
@@ -394,6 +454,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                 ?>
             </table>
             <?php
+            $i = 0;
             while ($row = sqlFetchArray($dispensed)) {
                 $i++;
                 $Single = '';
@@ -428,7 +489,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                 ?>
                     <div class="position-relative text-center mt-2 mb-2 mx-auto" id="RXID_<?php echo attr($row['id']); ?>">
                         <i class="float-right fas fa-times"
-                           onclick="delete_me('<?php echo attr(addslashes((string) $row['id'])); ?>');"
+                           onclick="delete_me(<?php echo attr(js_escape((string) $row['id'])); ?>);"
                            title="<?php echo xla('Remove this Prescription from the list of RXs dispensed'); ?>"></i>
                         <div class="table-responsive">
                             <table class="table mt-1 mb-1 mx-auto">
@@ -465,7 +526,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                     } elseif ($row['REFTYPE'] == "CTL") {
                                         echo xlt('Contact Lens');
                                     } else {
-                                        echo $row['REFTYPE'];
+                                        echo text($row['REFTYPE']);
                                     } ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>
@@ -780,7 +841,7 @@ if ($_REQUEST['dispensed'] ?? '') {
     <!-- jQuery library -->
 
     <script language="JavaScript">
-        <?php require_once("$srcdir/restoreSession.php"); ?>
+        <?php require_once($srcdir . "/restoreSession.php"); ?>
         function pick_rxType(rxtype, id) {
             var url = "../../forms/eye_mag/SpectacleRx.php";
             var formData = {
@@ -901,7 +962,7 @@ if ($REFTYPE == "CTL") {
     &nbsp;&nbsp;     <?php echo text($expir_date); ?>
 </p>
 
-<form method="post" action="<?php echo $rootdir; ?>/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
+<form method="post" action="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo text($form_folder); ?>/SpectacleRx.php?mode=update"
       id="Spectacle" class="eye_mag pure-form text-center" name="Spectacle">
     <!-- start container for the main body of the form -->
     <input type="hidden" name="REFDATE" id="REFDATE" value="<?php echo attr($data['date']); ?>">
@@ -940,7 +1001,7 @@ if ($REFTYPE == "CTL") {
                                             <label for="RXTYPE_Bifocal"><?php echo xlt('Bifocal'); ?></label>
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Bifocal',<?php echo attr_js($insert_this_id); ?>);"
-                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal ?? ''); ?> />
+                                                   value="Bifocal" id="RXTYPE_Bifocal" name="RXTYPE" <?php echo attr($Bifocal); ?> />
                                         </span>
                                         <br/>
                                         <span id="Trifocal_span" name="Trifocal_span">
@@ -948,7 +1009,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Trifocal',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Trifocal" id="RXTYPE_Trifocal"
-                                                   name="RXTYPE" <?php echo attr($Trifocal ?? ''); ?>>
+                                                   name="RXTYPE" <?php echo attr($Trifocal); ?>>
                                         </span>
                                         <br/>
                                         <span id="Progressive_span">
@@ -958,7 +1019,7 @@ if ($REFTYPE == "CTL") {
                                             <input type="radio" disabled
                                                    onclick="pick_rxType('Progressive',<?php echo attr_js($insert_this_id); ?>);"
                                                    value="Progressive" id="RXTYPE_Progressive"
-                                                   name="RXTYPE" <?php echo attr($Progressive ?? ''); ?>>
+                                                   name="RXTYPE" <?php echo attr($Progressive); ?>>
                                         </span>
                                         <br/>
                                     </td>
@@ -1250,12 +1311,12 @@ if ($REFTYPE == "CTL") {
             </tr>
             <tr>
                 <?php
-                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
+                    $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/eye_mag/images/sign_" . attr($session->get('authUserID')) . ".jpg";
                 if (file_exists($signature)) {
                     ?>
                 <td class="center" style="margin:25px auto;">
                             <span style="position:relative;padding-left:40px;">
-                                <img src='<?php echo $web_root; ?>/interface/forms/eye_mag/images/sign_<?php echo attr($_SESSION['authUserID']); ?>.jpg'
+                                <img src='<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/eye_mag/images/sign_<?php echo attr($session->get('authUserID')); ?>.jpg'
                                      style="width:240px;height:85px;border-block-end: 1pt solid black;margin:5px;"/>
                                     </span><br/>
 
@@ -1271,7 +1332,11 @@ if ($REFTYPE == "CTL") {
                     : <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
                     if ($prov_data['suffix']) {
                         echo ", " . $prov_data['suffix'];
-                    } ?><br/>
+                    } ?>
+                    <?php if (isset($prov_data['state_license_number']) && is_string( $prov_data['state_license_number'])) { ?>
+                        <br/><?php echo xlt('State License Number'); ?>: <?php echo text($prov_data['state_license_number']); ?>
+                    <?php } ?>
+
                     <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled></small>
                 </td>
             </tr>
@@ -1302,6 +1367,10 @@ if ($REFTYPE == "CTL") {
             });
         });
         <?php
+        // $detailed is set inside the CTL/non-CTL table branches above; default
+        // to '0' for the case where neither branch executes (no PD/prism data
+        // and no contact-lens row), so the header stays collapsed by default.
+        $detailed ??= '0';
         if (!$detailed) {
             echo "$('.header').trigger('click');";
         } ?>

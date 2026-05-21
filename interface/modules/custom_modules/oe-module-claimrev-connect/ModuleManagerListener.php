@@ -18,18 +18,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-/*
- * Do not declare a namespace
- * If you want Laminas manager to set namespace set it in getModuleNamespace
- * otherwise uncomment below and set path.
- *
- * */
-
-/*
-    $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
-    $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\ClaimRevConnector\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
-*/
-
 use OpenEMR\Core\AbstractModuleActionListener;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */

@@ -7,10 +7,9 @@
  * Access restriction should be configured at the infrastructure level.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com/
+ * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -60,6 +59,10 @@ try {
             $ignoreAuth = true;
             // Skip audit logging - health checks should not pollute the audit log
             $skipAuditLog = true;
+            // Allow session writes — each probe starts a fresh session (no cookie)
+            // so globals.php always writes site_id, triggering a read_and_close
+            // reopen. Marking writable avoids that reopen and its log warning.
+            $sessionAllowWrite = true;
             require_once __DIR__ . "/../../interface/globals.php";
 
             // Run full health checks

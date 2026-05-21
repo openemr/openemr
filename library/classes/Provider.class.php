@@ -14,6 +14,7 @@ The original location of this file is /home/duhlman/uml-generated-code/prescript
  *
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 
 class Provider extends ORDataObject
@@ -61,8 +62,8 @@ class Provider extends ORDataObject
     function utility_provider_array()
     {
         $provider_array = [];
-        $res = sqlQ("Select id,fname,lname  from users where authorized = 1");
-        while ($row = sqlFetchArray($res)) {
+        $records = QueryUtils::fetchRecords("Select id,fname,lname  from users where authorized = 1");
+        foreach ($records as $row) {
                     $provider_array[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
 
@@ -73,9 +74,9 @@ class Provider extends ORDataObject
     {
         $psa = [];
         $sql = "SELECT id FROM "  . $this->_table . " where authorized = 1 " . $sort;
-        $results = sqlQ($sql);
+        $records = QueryUtils::fetchRecords($sql);
 
-        while ($row = sqlFetchArray($results)) {
+        foreach ($records as $row) {
                     $psa[] = new Provider($row['id']);
         }
 

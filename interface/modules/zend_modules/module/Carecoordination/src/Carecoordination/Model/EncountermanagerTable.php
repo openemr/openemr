@@ -13,23 +13,22 @@
 
 namespace Carecoordination\Model;
 
-// TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
-
 use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
-use Application\Model\ApplicationTable;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\XmlUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
-class EncountermanagerTable extends AbstractTableGateway
+// TODO: we need to refactor all of this so it can go into a class for this functionality
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/ccr/transmitCCD.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
+
+class EncountermanagerTable
 {
     public function getEncounters($data, $getCount = null)
     {
@@ -94,18 +93,13 @@ class EncountermanagerTable extends AbstractTableGateway
 
         $query .= " ORDER BY fe.pid, fe.date ";
 
-        $appTable = new ApplicationTable();
-
         if ($getCount) {
-            $res = $appTable->zQuery($query, $query_data);
-            $resCount = $res->count();
-            return $resCount;
+            $res = QueryUtils::fetchRecords($query, $query_data);
+            return count($res);
         }
 
         $query .= " LIMIT " . CommonPlugin::escapeLimit($data['limit_start']) . "," . CommonPlugin::escapeLimit($data['results']);
-        $resDetails = $appTable->zQuery($query, $query_data);
-
-        return $resDetails;
+        return QueryUtils::fetchRecords($query, $query_data);
     }
 
     public function getStatus($data)
@@ -127,9 +121,7 @@ class EncountermanagerTable extends AbstractTableGateway
 				LEFT JOIN form_encounter AS fe ON fe. pid = cc.pid AND fe.encounter = cc.encounter
 				LEFT JOIN users AS u ON u.id = cc.user_id
 				WHERE cc.pid in (?) ORDER BY cc.pid, cc.time desc";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$pid]);
-        return $result;
+        return QueryUtils::fetchRecords($query, [$pid]);
     }
 
     public function convert_to_yyyymmdd($date)
@@ -160,6 +152,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }
@@ -171,17 +164,17 @@ class EncountermanagerTable extends AbstractTableGateway
     public function getFile($id)
     {
         $query = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where id=?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$id]);
+        $result = QueryUtils::fetchRecords($query, [$id]);
         foreach ($result as $row) {
             if ($row['couch_docid'] != '') {
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
+                $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                    $cryptoGen = ServiceContainer::getCrypto();
+                    $content = $cryptoGen->decryptFromFilesystem(is_string($respData) ? $respData : '');
                 } else {
-                    $content = base64_decode((string) $resp->data);
+                    $content = base64_decode(is_string($respData) ? $respData : '');
                 }
             } elseif (!$row['couch_docid']) {
                 if (!filesize($row['ccda_data'])) {
@@ -189,8 +182,8 @@ class EncountermanagerTable extends AbstractTableGateway
                 }
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
+                    $cryptoGen = ServiceContainer::getCrypto();
+                    $content = $cryptoGen->decryptFromFilesystem(fread($fccda, filesize($row['ccda_data'])));
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
@@ -203,7 +196,7 @@ class EncountermanagerTable extends AbstractTableGateway
         }
     }
 
-    private function getCcdaAsPdf($ccda)
+    private function getCcdaAsPdf(string $ccda)
     {
         $dompdf = new Dompdf();
         $dompdf->loadHtml($this->getCcdaAsHTML($ccda));
@@ -211,9 +204,19 @@ class EncountermanagerTable extends AbstractTableGateway
         return $dompdf->output();
     }
 
-    public function getCcdaAsHTML($ccda)
+    private function getCcdaAsXml(string $ccda): string
     {
-        $xml = simplexml_load_string((string) $ccda);
+        $xml = XmlUtils::loadString($ccda);
+        $output = $xml->asXML();
+        if ($output === false) {
+            throw new \RuntimeException("Failed to serialize CCDA as XML");
+        }
+        return $output;
+    }
+
+    public function getCcdaAsHTML(string $ccda)
+    {
+        $xml = XmlUtils::loadString($ccda);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.
@@ -239,7 +242,6 @@ class EncountermanagerTable extends AbstractTableGateway
      */
     public function transmitCcdToRecipients($data = [])
     {
-        $appTable = new ApplicationTable();
         $ccda_combination = $data['ccda_combination'];
         $recipients = $data['recipients'];
         $xml_type = strtolower($data['xml_type'] ?? '');
@@ -247,19 +249,22 @@ class EncountermanagerTable extends AbstractTableGateway
         $d_Address = '';
         // no point in continuing if we are not setup here
         $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-        if ($GLOBALS['phimail_enable'] == false) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        $verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? true : false;
+        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
+        $elec_sent = [];
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];
                 $arr = explode('|', (string) $ccda_combination);
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
-                    $result = $appTable->zQuery($query, [$value]);
+                    $result = QueryUtils::fetchRecords($query, [$value]);
+                    $ccda_id = null;
+                    $trans_id = null;
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
@@ -276,20 +281,19 @@ class EncountermanagerTable extends AbstractTableGateway
                     $document = $documents[0];
                     $ccda = $document->get_data();
                     // use the filename that exists in the document for what is sent
-                    $fileName = $document->get_name();
-                    if (empty($ccda) || empty($fileName)) {
+                    $fileName = (string) $document->get_name();
+                    $ccdaString = (string) $ccda;
+                    if ($ccdaString === '' || $fileName === '') {
                         throw new \RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
                             . $document->get_id());
                     }
 
-                    if ($xml_type == 'html') {
-                        $ccda_file = $this->getCcdaAsHTML($ccda);
-                    } elseif ($xml_type == 'pdf') {
-                        $ccda_file = $this->getCcdaAsPdf($ccda);
-                    } elseif ($xml_type == 'xml') {
-                        $xml = simplexml_load_string($ccda);
-                        $ccda_file = $xml->saveXML();
-                    }
+                    $ccda_file = match ($xml_type) {
+                        'html' => $this->getCcdaAsHTML($ccdaString),
+                        'pdf' => $this->getCcdaAsPdf($ccdaString),
+                        'xml' => $this->getCcdaAsXml($ccdaString),
+                        default => throw new \RuntimeException("Unsupported CCDA export type: " . $xml_type),
+                    };
                     $replaceExt = "." . $xml_type;
                     $extpos = strrpos($fileName, ".xml");
                     if ($extpos !== false) {
@@ -304,8 +308,8 @@ class EncountermanagerTable extends AbstractTableGateway
                     }
                 }
             }
-        } catch (\Exception $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
+        } catch (\Throwable $exception) {
+            ServiceContainer::getLogger()->error("EncountermanagerTable: " . $exception->getMessage(), ['data' => $data, 'exception' => $exception]);
             return ("Delivery failed to send");
         }
 
@@ -331,17 +335,11 @@ class EncountermanagerTable extends AbstractTableGateway
     public function getFileID($pid, $limit = 1)
     {
         $limit = CommonPlugin::escapeLimit($limit);
-        $appTable = new ApplicationTable();
         $query = "SELECT cc.id, pd.fname, pd.lname, pd.pid FROM ccda AS cc
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?
 		    ORDER BY cc.id DESC LIMIT $limit";
-        $res = $appTable->zQuery($query, [$pid]);
-        foreach ($res as $row) {
-            $res_cur[] = $row;
-        }
-
-        return $res_cur;
+        return QueryUtils::fetchRecords($query, [$pid]);
     }
 
     /*
@@ -357,8 +355,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $fname = $data['fname'];
         $lname = $data['lname'];
         $direct_address = $data['direct_address'];
-        $appTable = new ApplicationTable();
         $query = "INSERT INTO users SET username = ? ,password = ? ,authorized = ?,fname = ?,lname = ?,email = ?,active = ?,abook_type = ?";
-        $appTable->zQuery($query, ['', '', 0, $fname, $lname, $direct_address, 1, 'emr_direct']);
+        QueryUtils::sqlStatementThrowException($query, ['', '', 0, $fname, $lname, $direct_address, 1, 'emr_direct']);
     }
 }
