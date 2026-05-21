@@ -1856,8 +1856,8 @@ function SubmitForm() {
     <?php } else { ?>
         <?php
     /*Support Multi-Provider Events in features*/
-        $sdate = $date;
-        $edate = new DateTime($date);
+        $sdate = (string) $date;
+        $edate = new DateTime($sdate);
         $edate->modify('tomorrow');
         $edate = $edate->format('Y-m-d');
         $is_holiday = false;

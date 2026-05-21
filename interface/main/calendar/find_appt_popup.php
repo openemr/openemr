@@ -232,8 +232,9 @@ $ckavail = true;
 //////
 $is_holiday = false;
 $holidayService = HolidayService::createForLegacyContext();
-$holidays = $holidayService->getHolidaysByDateRange($sdate, $edate);
-if (in_array($sdate, $holidays, true)) {
+$sdateStr = (string) $sdate;
+$holidays = $holidayService->getHolidaysByDateRange($sdateStr, $edate);
+if (in_array($sdateStr, $holidays, true)) {
     $is_holiday = true;
     $ckavail = true;
 }

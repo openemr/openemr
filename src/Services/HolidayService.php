@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\Database;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -87,10 +88,14 @@ final class HolidayService implements HolidayServiceInterface
     public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void
     {
         $this->uploadCsv($upload);
-        $this->connection->transactional(function () use ($pcFacility): void {
-            $this->importHolidaysFromCsv();
-            $this->publishHolidayEvents($pcFacility);
-        });
+        try {
+            $this->connection->transactional(function () use ($pcFacility): void {
+                $this->importHolidaysFromCsv();
+                $this->publishHolidayEvents($pcFacility);
+            });
+        } catch (DbalException $e) {
+            throw new RuntimeException(xl('Failed to apply holidays to the calendar'), previous: $e);
+        }
     }
 
     public function uploadCsv(UploadedFile $upload): void
@@ -124,30 +129,38 @@ final class HolidayService implements HolidayServiceInterface
 
         $rows = $this->consume($this->csvParser->parse($this->targetFile));
 
-        // DELETE rather than TRUNCATE so the change participates in the
-        // surrounding transaction (TRUNCATE issues an implicit commit on
-        // MySQL/MariaDB).
-        $this->connection->transactional(function () use ($rows): void {
-            $this->connection->executeStatement(
-                'DELETE FROM ' . self::TABLE_NAME
-            );
-            foreach ($rows as $row) {
-                $this->connection->insert(self::TABLE_NAME, [
-                    'date' => $row->dateForStorage(),
-                    'description' => $row->description,
-                    'source' => 'csv',
-                ]);
-            }
-        });
+        try {
+            // DELETE rather than TRUNCATE so the change participates in the
+            // surrounding transaction (TRUNCATE issues an implicit commit on
+            // MySQL/MariaDB).
+            $this->connection->transactional(function () use ($rows): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM ' . self::TABLE_NAME
+                );
+                foreach ($rows as $row) {
+                    $this->connection->insert(self::TABLE_NAME, [
+                        'date' => $row->dateForStorage(),
+                        'description' => $row->description,
+                        'source' => 'csv',
+                    ]);
+                }
+            });
+        } catch (DbalException $e) {
+            throw new RuntimeException(xl('Failed to import holidays into the staging table'), previous: $e);
+        }
     }
 
     public function publishHolidayEvents(?int $pcFacility = null): void
     {
-        $staged = $this->connection->fetchAllAssociative(
-            <<<'SQL'
-            SELECT date, description FROM calendar_external
-            SQL
-        );
+        try {
+            $staged = $this->connection->fetchAllAssociative(
+                <<<'SQL'
+                SELECT date, description FROM calendar_external
+                SQL
+            );
+        } catch (DbalException $e) {
+            throw new RuntimeException(xl('Failed to read staged holidays'), previous: $e);
+        }
         if ($staged === []) {
             return;
         }
@@ -155,21 +168,22 @@ final class HolidayService implements HolidayServiceInterface
         $pcFacility ??= $this->facilityFromSession();
         $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
 
-        $this->connection->transactional(function () use ($staged, $pcFacility, $recurrSpec): void {
-            $this->connection->executeStatement(
+        try {
+            $this->connection->transactional(function () use ($staged, $pcFacility, $recurrSpec): void {
+                $this->connection->executeStatement(
                 <<<'SQL'
                 DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?
                 SQL,
                 [self::CATEGORY_HOLIDAY]
-            );
+                );
 
-            foreach ($staged as $row) {
-                $description = $row['description'];
-                $date = $row['date'];
-                if (!is_string($description) || !is_string($date)) {
-                    continue;
-                }
-                $this->connection->executeStatement(
+                foreach ($staged as $row) {
+                    $description = $row['description'];
+                    $date = $row['date'];
+                    if (!is_string($description) || !is_string($date)) {
+                        continue;
+                    }
+                    $this->connection->executeStatement(
                     <<<'SQL'
                     INSERT INTO openemr_postcalendar_events (
                         pc_catid, pc_aid, pc_pid, pc_title, pc_time,
@@ -184,9 +198,12 @@ final class HolidayService implements HolidayServiceInterface
                         $recurrSpec,
                         $pcFacility,
                     ]
-                );
-            }
-        });
+                    );
+                }
+            });
+        } catch (DbalException $e) {
+            throw new RuntimeException(xl('Failed to publish holiday events'), previous: $e);
+        }
 
         // Invalidate the in-memory cache only after the commit succeeds.
         $this->holidayDateSet = null;
