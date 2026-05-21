@@ -57,9 +57,9 @@ abstract class AppDispatch
         $this->_cookies = &$_COOKIE;
         $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
-        $this->authUser = (int)$this->getSession('authUserID');
+        $this->authUser = (int)($this->_session->get('authUserID') ?? 0);
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $this->activeSession()->get('oefax_current_module_type') ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = ServiceContainer::getCrypto();
         // Background-service workers (bin/console background:services run,
@@ -149,32 +149,43 @@ abstract class AppDispatch
     abstract function fetchReminderCount(): string|bool;
 
     /**
-     * Returns the initialized instance session when the normal controller
-     * constructor path has assigned it. For static service factory paths that
-     * can reach setup/credentials before the parent constructor has run, fall
-     * back to the active OpenEMR session without assigning to the readonly
-     * property outside the constructor.
-     *
-     * @return SessionInterface
+     * @param string|null $param
+     * @param mixed|null $default
+     * @return mixed|null
      */
     private function activeSession(): SessionInterface
     {
-        $sessionProperty = new \ReflectionProperty(self::class, '_session');
+        static $sessionProperty = null;
+        if ($sessionProperty === null) {
+            $sessionProperty = new \ReflectionProperty(self::class, '_session');
+        }
+
         if ($sessionProperty->isInitialized($this)) {
+            /** @var SessionInterface $session */
             $session = $sessionProperty->getValue($this);
-            if ($session instanceof SessionInterface) {
-                return $session;
-            }
+            return $session;
         }
 
         return SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
-    /**
-     * @param string|null $param
-     * @param mixed|null $default
-     * @return mixed|null
-     */
+    private function cryptoService(): CryptoInterface
+    {
+        static $cryptoProperty = null;
+        if ($cryptoProperty === null) {
+            $cryptoProperty = new \ReflectionProperty(self::class, 'crypto');
+        }
+
+        if ($cryptoProperty->isInitialized($this)) {
+            /** @var CryptoInterface $crypto */
+            $crypto = $cryptoProperty->getValue($this);
+            return $crypto;
+        }
+
+        $this->crypto = ServiceContainer::getCrypto();
+        return $this->crypto;
+    }
+
     public function getSession(?string $param = null, mixed $default = null): mixed
     {
         $session = $this->activeSession();
@@ -467,7 +478,7 @@ abstract class AppDispatch
 
         // encrypt for safety.
         $jsonSetup = json_encode($setup);
-        $content = $this->crypto->encryptForDatabase($jsonSetup !== false ? $jsonSetup : null);
+        $content = $this->cryptoService()->encryptForDatabase($jsonSetup !== false ? $jsonSetup : null);
         if (empty($vendor) || empty($setup)) {
             return xlt('Error: Missing vendor, user or credential items');
         }
@@ -532,7 +543,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
+        $decrypt = $this->cryptoService()->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $credentials = json_decode($decrypt, true);
         if (empty($credentials['email_message'] ?? '')) {
             $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -548,7 +559,7 @@ abstract class AppDispatch
             $this->authUser = 0;
         }
         $encoded = json_encode($credentials);
-        $encrypted = $this->crypto->encryptForDatabase($encoded !== false ? $encoded : null);
+        $encrypted = $this->cryptoService()->encryptForDatabase($encoded !== false ? $encoded : null);
         sqlStatement(
             "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
@@ -606,7 +617,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
+        $decrypt = $this->cryptoService()->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $decode = json_decode($decrypt, true);
         if (empty($decode['smsMessage'])) {
             $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
