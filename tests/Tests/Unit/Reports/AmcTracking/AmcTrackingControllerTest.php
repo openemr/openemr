@@ -14,8 +14,9 @@ namespace OpenEMR\Tests\Unit\Reports\AmcTracking;
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AmcTracking\AmcTrackingController;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Unit tests for AmcTrackingController
@@ -24,7 +25,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 class AmcTrackingControllerTest extends TestCase
 {
     private AmcTrackingController $controller;
+    /** @var MockObject&OEGlobalsBag */
     private MockObject $mockGlobalsBag;
+    /** @var MockObject&SessionInterface */
+    private MockObject $mockSession;
     private array $postBackup = [];
     private array $globalsBackup = [];
 
@@ -53,6 +57,15 @@ class AmcTrackingControllerTest extends TestCase
                 'srcdir' => __DIR__ . '/../../../../library',
                 'kernel' => null,
                 default => null,
+            });
+
+        // Create mock SessionInterface with a CSRF private key
+        $this->mockSession = $this->createMock(SessionInterface::class);
+        $this->mockSession
+            ->method('get')
+            ->willReturnCallback(fn($key, $default = null) => match ($key) {
+                'csrf_private_key' => str_repeat('a', 32),
+                default => $default,
             });
 
         // Initialize controller with mocked OEGlobalsBag
@@ -230,7 +243,7 @@ class AmcTrackingControllerTest extends TestCase
             'provider' => '',
         ];
 
-        $data = $this->controller->prepareTemplateData($params, false);
+        $data = $this->controller->prepareTemplateData($params, false, $this->mockSession);
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('csrf_token', $data);
@@ -260,7 +273,7 @@ class AmcTrackingControllerTest extends TestCase
             'provider' => '5',
         ];
 
-        $data = $this->controller->prepareTemplateData($params, false);
+        $data = $this->controller->prepareTemplateData($params, false, $this->mockSession);
 
         // Verify oemrUiSettings structure
         $this->assertArrayHasKey('oemrUiSettings', $data);

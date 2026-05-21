@@ -15,7 +15,9 @@ namespace OpenEMR\Reports\AmcTracking;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AmcTrackingController
 {
@@ -89,32 +91,38 @@ class AmcTrackingController
         string $provider
     ): array {
         // Use the existing amcTrackingRequest function
-        $srcdir = $this->globalsBag->get('srcdir');
+        $srcdir = $this->globalsBag->getSrcDir();
         require_once($srcdir . '/amc.php');
 
-        $results = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
+        $rawResults = amcTrackingRequest($rule, $begin_date, $end_date, $provider);
 
         // Format the results for template consumption
+        /** @var array<int, array<string, mixed>> $results */
+        $results = is_array($rawResults) ? $rawResults : [];
         return $this->formatResults($results);
     }
 
     /**
      * Format results for template display
      *
-     * @param array $results
-     * @return array
+     * @param array<int, array<string, mixed>> $results
+     * @return array<int, array<string, mixed>>
      */
     private function formatResults(array $results): array
     {
         $formatted = [];
 
         foreach ($results as $result) {
+            if (!is_array($result)) {
+                continue;
+            }
+
             $formatted[] = [
-                'pid' => $result['pid'],
-                'lname' => $result['lname'],
-                'fname' => $result['fname'],
-                'date' => oeFormatDateTime($result['date'], 'global', true),
-                'id' => $result['id'] ?? null,
+                'pid'   => $result['pid'] ?? null,
+                'lname' => $result['lname'] ?? '',
+                'fname' => $result['fname'] ?? '',
+                'date'  => oeFormatDateTime((string) ($result['date'] ?? ''), 'global', true),
+                'id'    => $result['id'] ?? null,
             ];
         }
 
@@ -190,13 +198,18 @@ class AmcTrackingController
      *
      * @param array $params
      * @param bool $showResults
+     * @param SessionInterface|null $session Active session for CSRF token generation;
+     *                                       defaults to the current session via SessionWrapperFactory.
      * @return array
      */
-    public function prepareTemplateData(array $params, bool $showResults = false): array
+    public function prepareTemplateData(array $params, bool $showResults = false, ?SessionInterface $session = null): array
     {
+        $session ??= SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken($session);
+
         $data = [
-            'csrf_token' => CsrfUtils::collectCsrfToken(),
-            'csrf_token_raw' => CsrfUtils::collectCsrfToken(),
+            'csrf_token' => $csrfToken,
+            'csrf_token_raw' => $csrfToken,
             'begin_date' => isset($params['begin_date'])
                 ? oeFormatDateTime($params['begin_date'], 'global', true)
                 : '',
