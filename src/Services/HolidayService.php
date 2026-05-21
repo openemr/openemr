@@ -85,16 +85,16 @@ final class HolidayService implements HolidayServiceInterface
         );
     }
 
-    public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void
+    public function uploadAndSync(UploadedFile $upload): void
     {
         $this->uploadCsv($upload);
         if (!$this->filesystem->exists($this->targetFile)) {
             throw new InvalidHolidayCsvException(xl('CSV file not found'));
         }
         try {
-            $this->connection->transactional(function () use ($pcFacility): void {
+            $this->connection->transactional(function (): void {
                 $this->doImportStagedRows($this->csvParser->parse($this->targetFile));
-                $this->doPublishStagedRows($pcFacility);
+                $this->doPublishStagedRows();
             });
         } catch (DbalException $e) {
             throw new RuntimeException(xl('Failed to apply holidays to the calendar'), previous: $e);
@@ -145,11 +145,11 @@ final class HolidayService implements HolidayServiceInterface
         }
     }
 
-    public function publishHolidayEvents(?int $pcFacility = null): void
+    public function publishHolidayEvents(): void
     {
         try {
-            $this->connection->transactional(function () use ($pcFacility): void {
-                $this->doPublishStagedRows($pcFacility);
+            $this->connection->transactional(function (): void {
+                $this->doPublishStagedRows();
             });
         } catch (DbalException $e) {
             throw new RuntimeException(xl('Failed to publish holiday events'), previous: $e);
@@ -186,7 +186,7 @@ final class HolidayService implements HolidayServiceInterface
      * called inside a transaction so the read and the delete+insert see a
      * consistent snapshot of calendar_external.
      */
-    private function doPublishStagedRows(?int $pcFacility): void
+    private function doPublishStagedRows(): void
     {
         $staged = $this->connection->fetchAllAssociative(
             <<<'SQL'
@@ -194,7 +194,7 @@ final class HolidayService implements HolidayServiceInterface
             SQL
         );
 
-        $pcFacility ??= $this->facilityFromSession();
+        $pcFacility = $this->facilityFromSession();
         $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
 
         $this->connection->executeStatement(

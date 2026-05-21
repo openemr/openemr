@@ -25,7 +25,7 @@ interface HolidayServiceInterface
      * @throws InvalidHolidayCsvException if the CSV fails validation.
      * @throws \RuntimeException for filesystem or persistence failures.
      */
-    public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void;
+    public function uploadAndSync(UploadedFile $upload): void;
 
     /**
      * Persist the uploaded CSV to the configured site directory.
@@ -43,9 +43,11 @@ interface HolidayServiceInterface
     public function importHolidaysFromCsv(): void;
 
     /**
-     * Publish staged rows onto the live calendar.
+     * Publish staged rows onto the live calendar. Holidays are
+     * organization-wide; the published events appear on every facility's
+     * calendar regardless of which session triggered the publish.
      */
-    public function publishHolidayEvents(?int $pcFacility = null): void;
+    public function publishHolidayEvents(): void;
 
     /**
      * Last-modified date of the stored CSV ("d/m/Y H:i:s"), or null if none.
