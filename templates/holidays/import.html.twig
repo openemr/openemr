@@ -32,8 +32,8 @@
                     <tr>
                         <td class="detail" nowrap>{{ "File on server (modification date)"|xlt }}</td>
                         <td class="detail" nowrap>
-                            {% if storedCsvModifiedAt is not empty %}
-                                <a href="import_holidays.php?download_file=1&amp;csrf_token_form={{ csrfToken|attr_url }}" target="_blank" rel="noopener" onclick="top.restoreSession()">{{ storedCsvModifiedAt|text }}</a>
+                            {% if storedCsvModifiedAt is not null %}
+                                <a href="import_holidays.php?download_file=1&amp;csrf_token_form={{ csrfToken|attr_url }}" target="_blank" rel="noopener" onclick="top.restoreSession()">{{ storedCsvModifiedAt|date("d/m/Y H:i:s")|text }}</a>
                             {% else %}
                                 {{ "File not found"|xlt }}
                             {% endif %}

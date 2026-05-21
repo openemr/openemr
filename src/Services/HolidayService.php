@@ -20,13 +20,16 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use DateTimeImmutable;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\Database;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
+use SplFileInfo;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 final class HolidayService implements HolidayServiceInterface
@@ -135,7 +138,7 @@ final class HolidayService implements HolidayServiceInterface
 
         try {
             $upload->move($uploadDir, basename($this->targetFile));
-        } catch (\Symfony\Component\HttpFoundation\File\Exception\FileException $e) {
+        } catch (FileException $e) {
             throw new RuntimeException(xl('Unable to save uploaded file'), previous: $e);
         }
     }
@@ -247,16 +250,16 @@ final class HolidayService implements HolidayServiceInterface
         }
     }
 
-    public function getStoredCsvModifiedAt(): ?string
+    public function getStoredCsvModifiedAt(): ?DateTimeImmutable
     {
         if (!$this->filesystem->exists($this->targetFile)) {
             return null;
         }
-        $mtime = filemtime($this->targetFile);
-        if ($mtime === false) {
-            return null;
-        }
-        return date('d/m/Y H:i:s', $mtime);
+        // SplFileInfo::getMTime() throws RuntimeException on failure rather
+        // than returning false the way the bare filemtime() does.
+        return (new DateTimeImmutable())->setTimestamp(
+            (new SplFileInfo($this->targetFile))->getMTime()
+        );
     }
 
     public function getTargetFile(): string

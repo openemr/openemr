@@ -50,11 +50,12 @@ final class HolidayCsvParser implements HolidayCsvParserInterface
             }
             $rawSecond = $record[1] ?? null;
             $second = is_string($rawSecond) ? $rawSecond : '';
-            if (!$sawNonEmptyRow && self::isHeaderRow($first, $second)) {
+            if (!$sawNonEmptyRow) {
                 $sawNonEmptyRow = true;
-                continue;
+                if (self::isHeaderRow($first, $second)) {
+                    continue;
+                }
             }
-            $sawNonEmptyRow = true;
 
             if ($rawSecond === null) {
                 throw new InvalidHolidayCsvException(

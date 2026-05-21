@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
+use DateTimeImmutable;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 interface HolidayServiceInterface
@@ -50,9 +51,9 @@ interface HolidayServiceInterface
     public function publishHolidayEvents(): void;
 
     /**
-     * Last-modified date of the stored CSV ("d/m/Y H:i:s"), or null if none.
+     * Last-modified timestamp of the stored CSV, or null if none.
      */
-    public function getStoredCsvModifiedAt(): ?string;
+    public function getStoredCsvModifiedAt(): ?DateTimeImmutable;
 
     /**
      * Absolute filesystem path the service writes uploaded CSVs to.
