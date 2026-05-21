@@ -23,7 +23,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AmcTracking\AmcTrackingController;
 
 // Get OEGlobalsBag instance
-$globalsBag = OEGlobalsBag::getInstance(true);
+$globalsBag = OEGlobalsBag::getInstance();
 
 // Security Check: ACL
 if (!AclMain::aclCheckCore('patients', 'med')) {

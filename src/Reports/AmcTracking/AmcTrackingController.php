@@ -24,7 +24,7 @@ class AmcTrackingController
     public function __construct(?OEGlobalsBag $globalsBag = null)
     {
         // Use provided OEGlobalsBag or get singleton with compatibility mode
-        $this->globalsBag = $globalsBag ?? OEGlobalsBag::getInstance(true);
+        $this->globalsBag = $globalsBag ?? OEGlobalsBag::getInstance();
     }
     /**
      * Get form parameters from POST request with defaults
