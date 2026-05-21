@@ -103,6 +103,11 @@ final class HolidayService implements HolidayServiceInterface
 
     public function uploadCsv(UploadedFile $upload): void
     {
+        if (!$upload->isValid()) {
+            throw new InvalidHolidayCsvException(
+                sprintf(xl('Upload failed: %s'), $upload->getErrorMessage())
+            );
+        }
         if (strtolower($upload->getClientOriginalExtension()) !== 'csv') {
             throw new InvalidHolidayCsvException(xl('File must be a CSV'));
         }
