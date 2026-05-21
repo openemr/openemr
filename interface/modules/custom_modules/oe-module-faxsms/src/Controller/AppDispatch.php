@@ -42,7 +42,7 @@ abstract class AppDispatch
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies;
-    private readonly ?SessionInterface $_session;
+    private readonly SessionInterface $_session;
     protected $authUser;
 
     /**
@@ -50,11 +50,18 @@ abstract class AppDispatch
      */
     public function __construct()
     {
-        $this->initializeRuntimeContext();
+        $this->_request = &$_REQUEST;
+        $this->_query = &$_GET;
+        $this->_post = &$_POST;
+        $this->_server = &$_SERVER;
+        $this->_cookies = &$_COOKIE;
+        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $this->getSession('oefax_current_module_type') ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->activeSession()->get('oefax_current_module_type') ?? null;
         }
+        $this->crypto = ServiceContainer::getCrypto();
         // Background-service workers (bin/console background:services run,
         // ajax/execute_background_services.php under cron) bootstrap with
         // $ignoreAuth = true because there is no interactive session. In
@@ -71,43 +78,6 @@ abstract class AppDispatch
     }
 
     /**
-     * Initialize context used by both routed controllers and service clients.
-     *
-     * Some service clients are instantiated directly through getApiService()
-     * and can call inherited helpers before AppDispatch::__construct() runs.
-     * Lazy initialization prevents typed-property fatals on those paths.
-     *
-     * @return void
-     */
-    private function initializeRuntimeContext(): void
-    {
-        if (!isset($this->_request)) {
-            $this->_request = &$_REQUEST;
-        }
-        if (!isset($this->_query)) {
-            $this->_query = &$_GET;
-        }
-        if (!isset($this->_post)) {
-            $this->_post = &$_POST;
-        }
-        if (!isset($this->_server)) {
-            $this->_server = &$_SERVER;
-        }
-        if (!isset($this->_cookies)) {
-            $this->_cookies = &$_COOKIE;
-        }
-        if (!isset($this->_session)) {
-            $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
-        }
-        if (!isset($this->crypto)) {
-            $this->crypto = ServiceContainer::getCrypto();
-        }
-        if (!isset($this->authErrorDefault)) {
-            $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
-        }
-    }
-
-    /**
      * @return void
      */
     private function dispatchActions(): void
@@ -120,7 +90,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $serviceType = $_REQUEST['type'] ?? $this->getSession('oefax_current_module_type') ?? null;
+            $serviceType = $_REQUEST['type'] ?? $this->activeSession()->get('oefax_current_module_type') ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -183,15 +153,31 @@ abstract class AppDispatch
      * @param mixed|null  $default
      * @return mixed|null
      */
-    public function getSession(?string $param = null, mixed $default = null): mixed
+    /**
+     * Return the initialized readonly session when available. Some service
+     * factory paths can reach credential setup before the AppDispatch
+     * constructor has completed, so do not assign to $_session here.
+     *
+     * @return SessionInterface
+     */
+    private function activeSession(): SessionInterface
     {
-        $this->initializeRuntimeContext();
-
-        if ($param) {
-            return $this->_session->get($param) ?? $default;
+        if (isset($this->_session)) {
+            return $this->_session;
         }
 
-        return $this->_session;
+        return SessionWrapperFactory::getInstance()->getActiveSession();
+    }
+
+    public function getSession(?string $param = null, mixed $default = null): mixed
+    {
+        $session = $this->activeSession();
+
+        if ($param) {
+            return $session->get($param) ?? $default;
+        }
+
+        return $session;
     }
 
     /**
@@ -201,8 +187,6 @@ abstract class AppDispatch
      */
     public function getQuery($param = null, $default = null): mixed
     {
-        $this->initializeRuntimeContext();
-
         if ($param) {
             return $this->_query[$param] ?? $default;
         }
@@ -380,8 +364,6 @@ abstract class AppDispatch
      */
     public function getPost($param = null, $default = null): mixed
     {
-        $this->initializeRuntimeContext();
-
         if ($param) {
             return $this->_post[$param] ?? $default;
         }
@@ -396,8 +378,6 @@ abstract class AppDispatch
      */
     public function getServer($param = null, $default = null): mixed
     {
-        $this->initializeRuntimeContext();
-
         if ($param) {
             return $this->_server[$param] ?? $default;
         }
@@ -499,8 +479,6 @@ abstract class AppDispatch
      */
     public function getRequest($param = null, $default = null): mixed
     {
-        $this->initializeRuntimeContext();
-
         if ($param) {
             return $this->_request[$param] ?? $default;
         }
