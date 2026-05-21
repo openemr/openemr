@@ -29,7 +29,7 @@ $c = new C_FormVitals();
 $c->default_action_process();
 
 $validationErrors = $session->get('vitals_validation_errors');
-if (!empty($validationErrors)) {
+if ($validationErrors !== null && $validationErrors !== []) {
     $formUrl = OEGlobalsBag::getInstance()->getWebRoot()
         . '/interface/forms/vitals/new.php?id=' . urlencode($_POST['id'] ?? '');
     formJump($formUrl);
