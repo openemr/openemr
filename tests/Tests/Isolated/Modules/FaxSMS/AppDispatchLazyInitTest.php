@@ -28,6 +28,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 final class AppDispatchLazyInitTest extends TestCase
 {
+    /**
+     * @codeCoverageIgnore Fixture wiring; runs before coverage attribution.
+     */
     public static function setUpBeforeClass(): void
     {
         $loaders = ClassLoader::getRegisteredLoaders();
@@ -62,26 +65,31 @@ final class AppDispatchLazyInitTest extends TestCase
                 $this->sessionResult = $this->getSession('authUserID');
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function authenticate(): string|int|bool
             {
                 return false;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function sendFax(): string|bool
             {
                 return false;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function sendSMS(): mixed
             {
                 return null;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function sendEmail(): mixed
             {
                 return null;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function fetchReminderCount(): string|bool
             {
                 return false;
@@ -102,26 +110,31 @@ final class AppDispatchLazyInitTest extends TestCase
                 $this->session = $this->getSession();
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function authenticate(): string|int|bool
             {
                 return false;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function sendFax(): string|bool
             {
                 return false;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function sendSMS(): mixed
             {
                 return null;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function sendEmail(): mixed
             {
                 return null;
             }
 
+            /** @codeCoverageIgnore Stub satisfies abstract contract. */
             public function fetchReminderCount(): string|bool
             {
                 return false;
