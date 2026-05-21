@@ -148,17 +148,9 @@ abstract class AppDispatch
      */
     abstract function fetchReminderCount(): string|bool;
 
-    /**
-     * @param string|null $param
-     * @param mixed|null $default
-     * @return mixed|null
-     */
     private function activeSession(): SessionInterface
     {
-        static $sessionProperty = null;
-        if ($sessionProperty === null) {
-            $sessionProperty = new \ReflectionProperty(self::class, '_session');
-        }
+        $sessionProperty = new \ReflectionProperty(self::class, '_session');
 
         if ($sessionProperty->isInitialized($this)) {
             /** @var SessionInterface $session */
@@ -171,10 +163,7 @@ abstract class AppDispatch
 
     private function cryptoService(): CryptoInterface
     {
-        static $cryptoProperty = null;
-        if ($cryptoProperty === null) {
-            $cryptoProperty = new \ReflectionProperty(self::class, 'crypto');
-        }
+        $cryptoProperty = new \ReflectionProperty(self::class, 'crypto');
 
         if ($cryptoProperty->isInitialized($this)) {
             /** @var CryptoInterface $crypto */
