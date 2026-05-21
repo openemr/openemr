@@ -4,7 +4,7 @@
  *  Lab Requisition Form
  *
  * @package   OpenEMR
- * @link      https://www.open-emr.org
+ * @link      http://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -13,22 +13,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
-
-// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
-$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
-
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
-formHeader("Form:Lab Requisition");
+use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+formHeader("Form:Lab Requisition");
 
 $returnurl = 'encounter_top.php';
 
@@ -37,22 +29,17 @@ $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
-$encounter = $session->get('encounter');
+$encounter = $_SESSION['encounter'];
 
 $oid = fetchProcedureId($pid, $encounter);
 
 
 
     $patient_id = $pid;
-    $pdata = getPatientData($pid);
-    $facility = getFacility();
-    $ins = getAllinsurances($pid);
-
-if (empty($ins)) {
-    $responsibleParty = getSelfPay($pid);
-}
-    $order = getProceduresInfo($oid, $encounter);
-
+    $pdata      = getPatientData($pid);
+    $facility   = getFacility();
+    $ins        = getAllinsurances($pid);
+    $order      = getProceduresInfo($oid, $encounter);
 
     $prov_id   = $order[5];
     $lab       = $order[7];
@@ -60,6 +47,38 @@ if (empty($ins)) {
     $npi       = getNPI($prov_id);
     $pp        = getProcedureProvider($lab);
     $provLabId = getLabconfig();
+
+    // Determine responsible party from the procedure order billing_type.
+    // 'C' = Client/Clinic, 'P' = Patient, 'T' = Third Party/Insurance
+    $billingType      = $oid ? getProcedureBillingType((int) $oid) : '';
+    $responsibleParty = [];
+
+    if ($billingType === 'C') {
+        // Bill Clinic: responsible party is the practice facility
+        $responsibleParty = [
+            'name'         => $facility['name'] ?? '',
+            'address'      => $facility['street'] ?? '',
+            'city_st_zip'  => trim(($facility['city'] ?? '') . ', ' . ($facility['state'] ?? '') . ' ' . ($facility['postal_code'] ?? '')),
+            'relationship' => xlt('Client Billing'),
+        ];
+    } elseif ($billingType === 'P') {
+        // Bill Patient: responsible party is the patient
+        $responsibleParty = [
+            'name'         => trim(($pdata['fname'] ?? '') . ' ' . ($pdata['lname'] ?? '')),
+            'address'      => $pdata['street'] ?? '',
+            'city_st_zip'  => trim(($pdata['city'] ?? '') . ', ' . ($pdata['state'] ?? '') . ' ' . ($pdata['postal_code'] ?? '')),
+            'relationship' => xlt('Self'),
+        ];
+    } elseif ($billingType === 'T' && !empty($ins[0])) {
+        // Bill Third Party/Insurance: responsible party is the primary subscriber
+        $subName = trim(($ins[0]['subscriber_fname'] ?? '') . ' ' . ($ins[0]['subscriber_lname'] ?? ''));
+        $responsibleParty = [
+            'name'         => $subName,
+            'address'      => $ins[0]['line1'] ?? '',
+            'city_st_zip'  => trim(($ins[0]['city'] ?? '') . ', ' . ($ins[0]['state'] ?? '') . ' ' . ($ins[0]['zip'] ?? '')),
+            'relationship' => getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'] ?? ''),
+        ];
+    }
 ?>
 
 <!DOCTYPE html>
@@ -244,16 +263,11 @@ table, th, td {
                         <?php echo xlt('City,St,Zip') ?>:      <br />
                         <?php echo xlt('Relationship') ?>:     <br />
                        </div>
-                       <div class="pFill"><?php echo "/"; ?><br />
-                        <?php echo "/"; ?><br />
-                        <?php echo "/"; ?><br />
-                        <?php if (!empty($responsibleParty)) {
-                            echo 'self';}
-                        if (!empty($ins[0]['subscriber_relationship']) && $ins[0]['subscriber_relationship'] == 'child') {
-                            echo xlt("Parent");}
-
-                        ?><br />
-
+                       <div class="pFill">
+                        <?php echo !empty($responsibleParty['name'])        ? text($responsibleParty['name'])        : '/'; ?><br />
+                        <?php echo !empty($responsibleParty['address'])     ? text($responsibleParty['address'])     : '/'; ?><br />
+                        <?php echo !empty($responsibleParty['city_st_zip']) ? text($responsibleParty['city_st_zip']) : '/'; ?><br />
+                        <?php echo !empty($responsibleParty['relationship']) ? text($responsibleParty['relationship']) : '/'; ?><br />
                        </div>
                    </td>
 
@@ -262,6 +276,7 @@ table, th, td {
                   <tr style="height:125px">
                    <td style="vertical-align:top; width:400px;">
                       <span class="fs-4"><strong><?php print xlt("Primary Insurance") ?>:</strong></span><br />
+                      <?php if ($billingType === 'T' && !empty($ins[0])): ?>
                       <div class="plist">
                         <?php echo xlt('Bill Type') ?>:<br />
                         <?php echo xlt('Payor/Carrier Code') ?>:<br />
@@ -274,26 +289,25 @@ table, th, td {
                         <?php echo xlt('Employer') ?>:<br />
                         <?php echo xlt('Relationship') ?>:<br />
                       </div>
-                    <div class="pFill">
-                        <?php if (empty($ins[0]['name'])) {
-                            echo "Patient Bill";
-                        } else {
-                            echo xlt("Insurance");} ?><br />
-                        <?php echo "/"; ?><br />
+                      <div class="pFill">
+                        <?php echo xlt('Insurance'); ?><br />
+                        <?php echo '/'; ?><br />
                         <?php echo text($ins[0]['name']); ?><br />
                         <?php echo text($ins[0]['line1']); ?><br />
-                        <?php echo text($ins[0]['city']) . ", " . text($ins[0]['state']) . " " . text($ins[0]['zip']); ?><br />
+                        <?php echo text($ins[0]['city']) . ', ' . text($ins[0]['state']) . ' ' . text($ins[0]['zip']); ?><br />
                         <?php echo text($ins[0]['policy_number']); ?><br />
                         <?php echo text($ins[0]['group_number']); ?><br />
-                        <?php echo "/"; ?><br />
+                        <?php echo '/'; ?><br />
                         <?php echo text($ins[0]['subscriber_employer']); ?><br />
-                        <?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'])); ?><br />
-
-
-                       </div>
+                        <?php echo text(getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'] ?? '')); ?><br />
+                      </div>
+                      <?php else: ?>
+                      <p><?php echo $billingType === 'C' ? xlt('Clinic Billing') : xlt('Patient Billing'); ?></p>
+                      <?php endif; ?>
                    </td>
                    <td style="vertical-align:top">
                       <span class="fs-4"><strong><?php print xlt("Secondary Insurance") ?>:</strong></span><br />
+                      <?php if ($billingType === 'T' && !empty($ins[1])): ?>
                       <div class="plist">
                         <?php echo xlt('Bill Type') ?>:<br />
                         <?php echo xlt('Payor/Carrier Code') ?>:<br />
@@ -306,33 +320,31 @@ table, th, td {
                         <?php echo xlt('Employer') ?>:<br />
                         <?php echo xlt('Relationship') ?>:<br />
                        </div>
-                     <div class="pFill">
-                        <?php if (empty($ins[1]['name'])) {
-                            echo " ";
-                        } else {
-                            echo xlt("Insurance");
-                        }; ?><br />
-                        <?php echo "/"; ?><br />
+                      <div class="pFill">
+                        <?php echo xlt('Insurance'); ?><br />
+                        <?php echo '/'; ?><br />
                         <?php echo text($ins[1]['name']); ?><br />
                         <?php echo text($ins[1]['line1']); ?><br />
-                        <?php echo text($ins[1]['city']) . ", " . text($ins[1]['state']) . " " . $ins[1]['zip']; ?><br />
+                        <?php echo text($ins[1]['city']) . ', ' . text($ins[1]['state']) . ' ' . text($ins[1]['zip']); ?><br />
                         <?php echo text($ins[1]['policy_number']); ?><br />
                         <?php echo text($ins[1]['group_number']); ?><br />
-                        <?php echo "/"; ?><br />
+                        <?php echo '/'; ?><br />
                         <?php echo text($ins[1]['subscriber_employer']); ?><br />
-                        <?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'])); ?><br />
-
-                       </div>
+                        <?php echo text(getListItemTitle('sub_relation', $ins[1]['subscriber_relationship'] ?? '')); ?><br />
+                      </div>
+                      <?php else: ?>
+                      <p><?php echo xlt('None'); ?></p>
+                      <?php endif; ?>
                    </td>
                </tr>
 
                <tr style="height:125px">
                    <td style="vertical-align:top; width:400px;">
                        <div class="notes">
-                         <span clas="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span><br />
-                            <?php echo text($order[2]) . " " . text($order[3]); ?><br />
-                            <?php echo text($order[17]) . " " . text($order[16]); ?><br />
-                            <?php echo text($order[28]) . " " . text($order[29]); ?><br />
+                         <span class="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span><br />
+                            <?php echo text($order[2]) . ' ' . text($order[3]); ?><br />
+                            <?php echo isset($order[16]) ? text($order[16]) . ' ' . text($order[17] ?? '') : ''; ?><br />
+                            <?php echo isset($order[30]) ? text($order[30]) . ' ' . text($order[31] ?? '') : ''; ?><br />
                        </div>
                    </td>
                    <td style="vertical-align:top">
@@ -343,8 +355,8 @@ table, th, td {
                    <div class="dx">
                      <span class="fs-4"><strong><?php echo xlt('Dx Codes') ?>:</strong></span><br />
                         <?php echo text($order[4]); ?><br />
-                        <?php echo text($order[18]); ?><br />
-                        <?php echo text($order[30]); ?><br />
+                        <?php echo isset($order[18]) ? text($order[18]) : ''; ?><br />
+                        <?php echo isset($order[32]) ? text($order[32]) : ''; ?><br />
                    </div>
                    </td>
                </tr>
@@ -367,17 +379,11 @@ table, th, td {
         </div>
 </div>
 <div class="reqHeader" id="non-printable">
-     <input type="button" onclick="printDiv('printableArea')" value="Print">
+     <input type="button" onclick="window.print()" value="<?php echo xla('Print'); ?>">
 </div>
-
 <script>
-function printDiv(divname)
-{
-    var printContents = document.getElementById(divname).innerHTML;
-    var originalContents = document.body.innerHTML;
-    window.print();
-    document.body.innerHTML = originalContents;
-}
+// Print is handled via window.print() directly.
+// The @media print CSS above hides #non-printable and shows #printable.
 </script>
 </body>
 </html>
