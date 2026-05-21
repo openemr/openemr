@@ -87,8 +87,10 @@ final class HolidayService implements HolidayServiceInterface
     public function uploadAndSync(UploadedFile $upload, ?int $pcFacility = null): void
     {
         $this->uploadCsv($upload);
-        $this->importHolidaysFromCsv();
-        $this->publishHolidayEvents($pcFacility);
+        $this->connection->transactional(function () use ($pcFacility): void {
+            $this->importHolidaysFromCsv();
+            $this->publishHolidayEvents($pcFacility);
+        });
     }
 
     public function uploadCsv(UploadedFile $upload): void
@@ -122,21 +124,25 @@ final class HolidayService implements HolidayServiceInterface
 
         $rows = $this->consume($this->csvParser->parse($this->targetFile));
 
-        $this->connection->executeStatement(
-            'TRUNCATE TABLE ' . self::TABLE_NAME
-        );
-        foreach ($rows as $row) {
-            $this->connection->insert(self::TABLE_NAME, [
-                'date' => $row->dateForStorage(),
-                'description' => $row->description,
-                'source' => 'csv',
-            ]);
-        }
+        // DELETE rather than TRUNCATE so the change participates in the
+        // surrounding transaction (TRUNCATE issues an implicit commit on
+        // MySQL/MariaDB).
+        $this->connection->transactional(function () use ($rows): void {
+            $this->connection->executeStatement(
+                'DELETE FROM ' . self::TABLE_NAME
+            );
+            foreach ($rows as $row) {
+                $this->connection->insert(self::TABLE_NAME, [
+                    'date' => $row->dateForStorage(),
+                    'description' => $row->description,
+                    'source' => 'csv',
+                ]);
+            }
+        });
     }
 
     public function publishHolidayEvents(?int $pcFacility = null): void
     {
-        $this->holidayDateSet = null;
         $staged = $this->connection->fetchAllAssociative(
             <<<'SQL'
             SELECT date, description FROM calendar_external
@@ -146,39 +152,44 @@ final class HolidayService implements HolidayServiceInterface
             return;
         }
 
-        $this->connection->executeStatement(
-            <<<'SQL'
-            DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?
-            SQL,
-            [self::CATEGORY_HOLIDAY]
-        );
-
         $pcFacility ??= $this->facilityFromSession();
         $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
 
-        foreach ($staged as $row) {
-            $description = $row['description'];
-            $date = $row['date'];
-            if (!is_string($description) || !is_string($date)) {
-                continue;
-            }
+        $this->connection->transactional(function () use ($staged, $pcFacility, $recurrSpec): void {
             $this->connection->executeStatement(
                 <<<'SQL'
-                INSERT INTO openemr_postcalendar_events (
-                    pc_catid, pc_aid, pc_pid, pc_title, pc_time,
-                    pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
-                    pc_eventstatus, pc_facility, pc_sharing
-                ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, 2)
+                DELETE FROM openemr_postcalendar_events WHERE pc_catid = ?
                 SQL,
-                [
-                    self::CATEGORY_HOLIDAY,
-                    $description,
-                    $date,
-                    $recurrSpec,
-                    $pcFacility,
-                ]
+                [self::CATEGORY_HOLIDAY]
             );
-        }
+
+            foreach ($staged as $row) {
+                $description = $row['description'];
+                $date = $row['date'];
+                if (!is_string($description) || !is_string($date)) {
+                    continue;
+                }
+                $this->connection->executeStatement(
+                    <<<'SQL'
+                    INSERT INTO openemr_postcalendar_events (
+                        pc_catid, pc_aid, pc_pid, pc_title, pc_time,
+                        pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
+                        pc_eventstatus, pc_facility, pc_sharing
+                    ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, 2)
+                    SQL,
+                    [
+                        self::CATEGORY_HOLIDAY,
+                        $description,
+                        $date,
+                        $recurrSpec,
+                        $pcFacility,
+                    ]
+                );
+            }
+        });
+
+        // Invalidate the in-memory cache only after the commit succeeds.
+        $this->holidayDateSet = null;
     }
 
     public function getStoredCsvModifiedAt(): ?string
@@ -220,6 +231,8 @@ final class HolidayService implements HolidayServiceInterface
 
     public function isHoliday(string $date): bool
     {
+        // Stored dates use Y-m-d; accept either separator in input.
+        $date = strtr($date, '/', '-');
         if ($this->holidayDateSet === null) {
             $rows = $this->connection->fetchAllAssociative(
                 <<<'SQL'
