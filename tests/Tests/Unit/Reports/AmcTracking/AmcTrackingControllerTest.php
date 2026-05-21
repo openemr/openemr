@@ -14,8 +14,8 @@ namespace OpenEMR\Tests\Unit\Reports\AmcTracking;
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AmcTracking\AmcTrackingController;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -25,7 +25,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 class AmcTrackingControllerTest extends TestCase
 {
     private AmcTrackingController $controller;
+    /** @var MockObject&OEGlobalsBag */
     private MockObject $mockGlobalsBag;
+    /** @var MockObject&SessionInterface */
     private MockObject $mockSession;
     private array $postBackup = [];
     private array $globalsBackup = [];

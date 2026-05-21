@@ -60,7 +60,7 @@ $showResults = !empty($_POST['form_refresh']) && !empty($params['rule']);
 $templateData = $controller->prepareTemplateData($params, $showResults, $session);
 
 // Render template
-$kernel = $globalsBag->get('kernel');
+$kernel = $globalsBag->getKernel();
 $twigContainer = new TwigContainer(null, $kernel);
 $twig = $twigContainer->getTwig();
 
