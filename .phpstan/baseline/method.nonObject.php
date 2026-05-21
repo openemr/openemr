@@ -3447,16 +3447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method has\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method edih_delimiters\\(\\) on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
