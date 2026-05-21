@@ -28,9 +28,6 @@
  * function (in ibr_uploads.php) ibr_upload_match_file($param_ar, $fidx, &$html_str)
  *   contains a regular expression that must be correct
  *
-
-use OpenEMR\Core\OEGlobalsBag;
-
  * Also, the constant IBR_HISTORY_DIR must be correct
  * **************************
  * </pre>
@@ -68,6 +65,8 @@ use OpenEMR\Core\OEGlobalsBag;
  *
  * TO_DO functions to zip old files, put them aside, and remove them from csv tables
  */
+
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Constant that is checked in included files to prevent direct access.
