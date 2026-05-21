@@ -49,6 +49,15 @@ final class HolidayService implements HolidayServiceInterface
         'event_repeat_on_freq' => '0',
         'exdate' => '',
     ];
+    /**
+     * pc_sharing = 1 (SHARING_PUBLIC). The legacy code wrote `2` with a
+     * comment claiming "SHARING_PUBLIC", but per
+     * interface/main/calendar/modules/PostCalendar/common.api.php
+     * SHARING_BUSY = 2 — which makes the calendar mask the holiday's
+     * pc_title to "Busy" for any viewer who is not the event's author
+     * (pc_aid = 0 for holidays, so every real user matches the mask).
+     */
+    private const SHARING_PUBLIC = 1;
 
     private readonly string $targetFile;
     private readonly Filesystem $filesystem;
@@ -86,10 +95,9 @@ final class HolidayService implements HolidayServiceInterface
 
     public function uploadAndSync(UploadedFile $upload): void
     {
+        // uploadCsv() either throws or leaves a valid CSV at $this->targetFile;
+        // no extra exists() check needed here.
         $this->uploadCsv($upload);
-        if (!$this->filesystem->exists($this->targetFile)) {
-            throw new InvalidHolidayCsvException(xl('CSV file not found'));
-        }
         try {
             $this->connection->transactional(function (): void {
                 $this->doImportStagedRows($this->csvParser->parse($this->targetFile));
@@ -238,16 +246,6 @@ final class HolidayService implements HolidayServiceInterface
             );
         }
     }
-
-    /**
-     * pc_sharing = 1 (SHARING_PUBLIC). The legacy code wrote `2` with a
-     * comment claiming "SHARING_PUBLIC", but per
-     * interface/main/calendar/modules/PostCalendar/common.api.php
-     * SHARING_BUSY = 2 — which makes the calendar mask the holiday's
-     * pc_title to "Busy" for any viewer who is not the event's author
-     * (pc_aid = 0 for holidays, so every real user matches the mask).
-     */
-    private const SHARING_PUBLIC = 1;
 
     public function getStoredCsvModifiedAt(): ?string
     {
