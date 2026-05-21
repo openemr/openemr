@@ -225,7 +225,7 @@ final class HolidayService implements HolidayServiceInterface
                     pc_catid, pc_aid, pc_pid, pc_title, pc_time,
                     pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
                     pc_eventstatus, pc_facility, pc_sharing
-                ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, 2)
+                ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, ?)
                 SQL,
                 [
                     self::CATEGORY_HOLIDAY,
@@ -233,10 +233,21 @@ final class HolidayService implements HolidayServiceInterface
                     $date,
                     $recurrSpec,
                     0, // pc_facility: "all facilities" — holidays are org-wide
+                    self::SHARING_PUBLIC,
                 ]
             );
         }
     }
+
+    /**
+     * pc_sharing = 1 (SHARING_PUBLIC). The legacy code wrote `2` with a
+     * comment claiming "SHARING_PUBLIC", but per
+     * interface/main/calendar/modules/PostCalendar/common.api.php
+     * SHARING_BUSY = 2 — which makes the calendar mask the holiday's
+     * pc_title to "Busy" for any viewer who is not the event's author
+     * (pc_aid = 0 for holidays, so every real user matches the mask).
+     */
+    private const SHARING_PUBLIC = 1;
 
     public function getStoredCsvModifiedAt(): ?string
     {
