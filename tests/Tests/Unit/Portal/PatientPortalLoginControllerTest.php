@@ -38,6 +38,7 @@ class PatientPortalLoginControllerTest extends TestCase
     private RecordingPortalAuditLogger $log;
     private OEGlobalsBag $globalsBag;
     private PatientPortalLoginController $controller;
+    private bool $originalEnforceSigninEmail;
 
     private const PID = 42;
     private const SITE = 'default';
@@ -48,8 +49,10 @@ class PatientPortalLoginControllerTest extends TestCase
         $this->session = new InMemoryPortalSessionAccessor();
         $this->repo = new InMemoryPortalLoginCredentialsRepository();
         $this->log = new RecordingPortalAuditLogger();
-        // Reset OEGlobalsBag to a known-empty state for the test.
         $this->globalsBag = OEGlobalsBag::getInstance();
+        // Capture the singleton's prior value so tearDown can restore it instead of
+        // overwriting whatever the surrounding suite had configured.
+        $this->originalEnforceSigninEmail = $this->globalsBag->getBoolean('enforce_signin_email');
         $this->globalsBag->set('enforce_signin_email', null);
         $this->controller = new PatientPortalLoginController($this->repo, $this->log);
     }
@@ -57,7 +60,7 @@ class PatientPortalLoginControllerTest extends TestCase
     protected function tearDown(): void
     {
         unset($_SESSION['csrf_private_key']);
-        $this->globalsBag->set('enforce_signin_email', null);
+        $this->globalsBag->set('enforce_signin_email', $this->originalEnforceSigninEmail);
         parent::tearDown();
     }
 
