@@ -166,7 +166,11 @@ class PatientPortalLoginController
             if ($codeNew !== null && $codeNewConfirm !== null && hash_equals($codeNewConfirm, $codeNew)) {
                 $newHash = (new AuthHash())->passwordHash($codeNew);
                 if (!is_string($newHash) || $newHash === '') {
+                    // @codeCoverageIgnoreStart — AuthHash::passwordHash returns mixed but in
+                    // practice produces a bcrypt string; this defensive branch only fires on
+                    // a configuration breakage that would also break the rest of the system.
                     throw new \RuntimeException('OpenEMR is not working because unable to create a hash.');
+                    // @codeCoverageIgnoreEnd
                 }
                 // The legacy script reads $_POST['login_uname'] without an empty() check,
                 // so '0' is a valid login username here. Narrow with is_string only — no
@@ -237,9 +241,13 @@ class PatientPortalLoginController
         if ($redirectParam !== null) {
             $safeRedirect = ModulesApplication::filterSafeLocalModuleFiles([$redirectParam]);
             $safeUrl = $safeRedirect[0] ?? null;
+            // @codeCoverageIgnoreStart — filterSafeLocalModuleFiles uses realpath() against
+            // the live modules directory, so an accepted redirect requires a real on-disk
+            // file under interface/modules/. Exercised by the E2E suite, not unit tests.
             if (is_string($safeUrl) && $safeUrl !== '') {
                 return new PatientPortalLoginResult($safeUrl, false, $successLogArgs, false, true);
             }
+            // @codeCoverageIgnoreEnd
         }
 
         return new PatientPortalLoginResult('./home.php', false, $successLogArgs, true, true);
@@ -306,7 +314,9 @@ class PatientPortalLoginController
         if ($authHashPortal->passwordNeedsRehash($auth['portal_pwd'])) {
             $reHash = $authHashPortal->passwordHash($pass);
             if (!is_string($reHash) || $reHash === '') {
+                // @codeCoverageIgnoreStart — see the matching defensive branch in login().
                 throw new \RuntimeException('OpenEMR is not working because unable to create a hash.');
+                // @codeCoverageIgnoreEnd
             }
             $this->repository->updatePasswordHash($auth['id'], $reHash);
         }

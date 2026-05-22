@@ -68,7 +68,7 @@ class PatientPortalLoginControllerTest extends TestCase
     {
         $hash = (new AuthHash())->passwordHash($passwordPlain);
         if (!is_string($hash)) {
-            $this->fail('AuthHash::passwordHash unexpectedly returned non-string in test fixture');
+            $this->fail('AuthHash::passwordHash unexpectedly returned non-string in test fixture'); // @codeCoverageIgnore
         }
         return [
             'id' => 7,
@@ -383,6 +383,169 @@ class PatientPortalLoginControllerTest extends TestCase
         $this->assertSame(self::PID, $result->portalLogArgs[1]);
         $this->assertIsString($result->portalLogArgs[2]);
         $this->assertStringContainsString(':success', $result->portalLogArgs[2]);
+    }
+
+    // ---------------------------------------------------------------------
+    // Additional branch coverage
+    // ---------------------------------------------------------------------
+
+    public function testLanguageChoiceFromPostOverridesSession(): void
+    {
+        $this->session->set('itsme', 1);
+        $this->session->set('language_choice', 7);
+
+        $this->controller->login(
+            self::SITE,
+            ['languageChoice' => '3'],
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+
+        $this->assertSame(3, $this->session->get('language_choice'));
+    }
+
+    public function testRedirectsSilentlyWhenAuthPidMismatchesPatientDataPid(): void
+    {
+        $this->session->set('itsme', 1);
+        $auth = $this->seededAuth();
+        $auth['pid'] = 99; // mismatched
+        $this->repo->stubByLoginUsername['alice_login'] = $auth;
+        // patient_data fixture is keyed at pid=99 because that's the lookup pid the
+        // controller will use (it joins via $auth['pid']); set userData with the WRONG
+        // mirror pid 42 to trigger the defensive guard.
+        $this->repo->stubPatientData[99] = $this->seededPatientData();
+        $this->repo->stubPatientData[99]['pid'] = 42;
+
+        $result = $this->controller->login(
+            self::SITE,
+            ['uname' => 'alice_login', 'pass' => 'goodpass'],
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+
+        $this->assertSame('index.php?site=default&w', $result->redirectUrl);
+        $this->assertTrue($result->destroySessionCookie);
+        $this->assertSame([], $this->log->calls, 'pid-mismatch guard is silent (no audit)');
+    }
+
+    public function testMismatchedNewPasswordsLeavesAuthorisationFalseAndLogsNotAuthorized(): void
+    {
+        // pwd_status=1 + passwordUpdate mode set, but new passwords don't match -> the
+        // change-flow doesn't run, but pwd_status==1 makes $authorizedPortal true and the
+        // patient logs in normally. To exercise the "!authorizedPortal" terminal log, use
+        // pwd_status=0 with mismatched pass_new so neither branch sets $authorizedPortal=true.
+        // The earlier-line pwd_status==0 bounce-back is also gated by !$authorizedPortal,
+        // so we'd hit THAT — not the terminal log. The legacy behaviour for "mismatched
+        // pass_new under pwd_status=0" is therefore "go back to the password-change form,"
+        // and we cover the terminal-log path differently: with pwd_status set to neither
+        // 0 nor 1 (a forced "in-between" state that the password-change attempt fails to
+        // resolve).
+        $this->session->set('itsme', 1);
+        $this->session->set('password_update', 1);
+        $auth = $this->seededAuth();
+        $auth['portal_pwd_status'] = 2; // neither 0 nor 1 — exercises the terminal !authorizedPortal
+        $this->repo->stubByUsername['alice'] = $auth;
+        $this->repo->stubPatientData[self::PID] = $this->seededPatientData();
+
+        $result = $this->controller->login(
+            self::SITE,
+            [
+                'uname' => 'alice',
+                'pass' => 'goodpass',
+                'pass_new' => 'NewPass123!',
+                'pass_new_confirm' => 'Different!',
+                'login_uname' => 'alice_login',
+            ],
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+
+        $this->assertSame('index.php?site=default&w', $result->redirectUrl);
+        $this->assertTrue($result->destroySessionCookie);
+        $this->assertSame('login', $this->log->calls[0]['event']);
+        $this->assertSame('alice:not authorized', $this->log->calls[0]['comments']);
+    }
+
+    public function testSuccessfulLoginWithMissingProviderInfoFallsBackToBlanks(): void
+    {
+        $this->session->set('itsme', 1);
+        $this->repo->stubByLoginUsername['alice_login'] = $this->seededAuth();
+        $this->repo->stubPatientData[self::PID] = $this->seededPatientData();
+        // No provider info stub — fetchProviderInfo returns null; controller falls back.
+
+        $result = $this->controller->login(
+            self::SITE,
+            ['uname' => 'alice_login', 'pass' => 'goodpass'],
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+
+        $this->assertSame('./home.php', $result->redirectUrl);
+        $this->assertSame(' ', $this->session->get('providerName'), 'fname + space + lname; both empty');
+        $this->assertNull($this->session->get('providerUName'));
+    }
+
+    public function testOneTimePinResetHappyPath(): void
+    {
+        // Patient is in the one-time PIN reset flow: the session carries the PIN they
+        // received out-of-band plus the `forward` token; the row is keyed by portal_onetime.
+        $this->session->set('itsme', 1);
+        $this->session->set('password_update', 2);
+        $this->session->set('pin', '987654');
+        // portal_onetime is 32 chars of opaque + 6 chars of validate-PIN appended.
+        $oneTimeToken = str_repeat('a', 32) . '987654';
+        $this->session->set('forward', $oneTimeToken);
+
+        $auth = $this->seededAuth();
+        $auth['portal_pwd'] = 'plaintext-pin-mode-pwd'; // mode 2 compares column directly
+        $auth['portal_onetime'] = $oneTimeToken;
+        $this->repo->stubByOneTimeToken[$oneTimeToken] = $auth;
+        $this->repo->stubPatientData[self::PID] = $this->seededPatientData();
+        $this->repo->stubProviderInfo[11] = ['fname' => 'Dr', 'lname' => 'Who', 'username' => 'drwho'];
+
+        $result = $this->controller->login(
+            self::SITE,
+            ['uname' => 'alice', 'pass' => 'plaintext-pin-mode-pwd', 'token_pin' => '987654'],
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+
+        $this->assertSame('./home.php', $result->redirectUrl);
+        $this->assertSame(self::PID, $this->session->get('pid'), 'PIN-reset login establishes the session');
+        $this->assertSame([$oneTimeToken], $this->repo->clearedOneTimeTokens, 'PIN-reset token consumed');
+        $this->assertFalse($this->session->has('forward'), 'forward cleared post-PIN');
+        $this->assertFalse($this->session->has('pin'), 'pin cleared post-PIN');
+    }
+
+    public function testOneTimePinResetInvalidPinRejected(): void
+    {
+        $this->session->set('itsme', 1);
+        $this->session->set('password_update', 2);
+        $this->session->set('pin', '987654');
+        $oneTimeToken = str_repeat('a', 32) . '987654';
+        $this->session->set('forward', $oneTimeToken);
+
+        $auth = $this->seededAuth();
+        $auth['portal_pwd'] = 'pwd';
+        $auth['portal_onetime'] = $oneTimeToken;
+        $this->repo->stubByOneTimeToken[$oneTimeToken] = $auth;
+
+        $result = $this->controller->login(
+            self::SITE,
+            ['uname' => 'alice', 'pass' => 'pwd', 'token_pin' => '111111'], // wrong PIN
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+
+        $this->assertSame('index.php?site=default&w&u', $result->redirectUrl);
+        $this->assertSame([$oneTimeToken], $this->repo->clearedOneTimeTokens, 'token consumed regardless of PIN validity');
+        $this->assertSame('alice:invalid username', $this->log->calls[0]['comments']);
     }
 
     public function testUnsafeRedirectFallsBackToHomeWithCacheHeaders(): void

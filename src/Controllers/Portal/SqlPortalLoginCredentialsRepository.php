@@ -1,6 +1,8 @@
 <?php
 
 /**
+ * @codeCoverageIgnore — production SQL adapter; exercised by the e2e suite, not unit tests.
+ *
  * SqlPortalLoginCredentialsRepository — production implementation against the
  * patient_access_onsite and patient_data tables via QueryUtils.
  *

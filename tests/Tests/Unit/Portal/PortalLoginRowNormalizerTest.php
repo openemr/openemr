@@ -191,4 +191,40 @@ class PortalLoginRowNormalizerTest extends TestCase
         $this->assertSame('', $normalized['lname']);
         $this->assertNull($normalized['username']);
     }
+
+    // ---------------------------------------------------------------------
+    // Column-coercion edge cases (non-string inputs)
+    // ---------------------------------------------------------------------
+
+    public function testIntColumnPassesThroughActualInts(): void
+    {
+        // ADODB returns numeric columns as strings, but some adapters or test fixtures
+        // hand back actual ints — the coercer should accept those too.
+        $normalized = PortalLoginRowNormalizer::patientDataRow([
+            'pid' => 99,
+            'fname' => 'Alice',
+            'lname' => 'Smith',
+            'email' => 'a@b',
+            'providerID' => 11,
+            'allow_patient_portal' => 'YES',
+        ]);
+
+        $this->assertSame(99, $normalized['pid']);
+        $this->assertSame(11, $normalized['providerID']);
+    }
+
+    public function testStringColumnCoercesIntAndFloatToString(): void
+    {
+        // If a fixture or adapter hands a numeric value where a string column is expected
+        // (legacy code does this for things like provider names that look numeric), the
+        // coercer should stringify rather than fall through to the default.
+        $normalized = PortalLoginRowNormalizer::providerInfoRow([
+            'fname' => 42,        // int
+            'lname' => 1.5,       // float
+            'username' => 'drwho',
+        ]);
+
+        $this->assertSame('42', $normalized['fname']);
+        $this->assertSame('1.5', $normalized['lname']);
+    }
 }
