@@ -108,7 +108,14 @@ final class InfernoSinglePatientAPITest extends TestCase
             throw new \RuntimeException('Failed to obtain access token for Inferno Single Patient API tests');
         }
         $infernoUrl = getenv('INFERNO_BASE_URL', true) ?: self::DEFAULT_INFERNO_BASE_URL;
-        self::$infernoClient = new Client(['timeout' => self::TIMEOUT, 'base_uri' => $infernoUrl . '/api/']);
+        self::$infernoClient = new Client([
+            'timeout' => self::TIMEOUT,
+            'base_uri' => $infernoUrl . '/api/',
+            // Let the explicit assertSame(200, ...) checks run and surface the
+            // actual status in the failure message instead of being short-circuited
+            // by a Guzzle ClientException / ServerException.
+            'http_errors' => false,
+        ]);
         $response = self::$infernoClient->post('test_sessions?test_suite_id=' . self::currentSuite());
         $jsonResponse = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($jsonResponse, 'Test session response must be a JSON object');
