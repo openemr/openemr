@@ -95,7 +95,7 @@ $request = [
         ?? $symfonyRequest->query->get('redirect'),
 ];
 
-// Resolve the site id from the session, then $_GET, then the literal 'default'.
+// Resolve the site id from the session, then the query string, then the literal 'default'.
 // Inline narrowing (rather than `(string) (... ?? ... ?? 'default')`) so unexpected
 // types from the session or query string fall through to the default.
 $siteId = 'default';
@@ -103,7 +103,7 @@ $fromSession = $session->get('site_id');
 if (is_string($fromSession) && $fromSession !== '') {
     $siteId = $fromSession;
 } else {
-    $fromGet = $_GET['site'] ?? null;
+    $fromGet = $symfonyRequest->query->get('site');
     if (is_string($fromGet) && $fromGet !== '') {
         $siteId = $fromGet;
     }

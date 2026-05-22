@@ -33,14 +33,14 @@ class SqlPortalLoginCredentialsRepository implements PortalLoginCredentialsRepos
     private const FIELDS_WITH_ONETIME = self::FIELDS . ', portal_onetime';
 
     /**
-     * @param (callable(int): mixed)|null $providerLookup
+     * @param \Closure(int): mixed|null $providerLookup
      *   Resolves a provider user id to display info. The default null means provider info is not
      *   available (returns null from fetchProviderInfo). The script wires this to
-     *   UserSettingsService::getUserIDInfo. Return is `mixed` because the underlying lookup is
+     *   UserSettingsService::getUserIDInfo(...). Return is `mixed` because the underlying lookup is
      *   untyped; fetchProviderInfo narrows with is_array() before passing through the normaliser.
      */
     public function __construct(
-        private $providerLookup = null,
+        private readonly ?\Closure $providerLookup = null,
     ) {
     }
 
