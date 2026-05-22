@@ -49547,27 +49547,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../templates/super/rules/controllers/log/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'lname\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'query\' on array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'username\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'uuid\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
 ];
