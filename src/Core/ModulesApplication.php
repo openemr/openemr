@@ -245,10 +245,20 @@ class ModulesApplication
             $projectDir = $globalsBag->getProjectDir();
             $webRoot = $globalsBag->getWebRoot();
             $moduleRootLocation = self::getModuleRootRealpath();
+            // realpath() of the modules directory can fail (missing tree, permissions);
+            // without a module root, nothing can be on the safelist.
+            if ($moduleRootLocation === false) {
+                return [];
+            }
             $filteredFiles = array_filter(array_map(function ($scriptSrc) use ($projectDir, $webRoot, $moduleRootLocation) {
                 // scripts that have any kind of parameters in them such as a cache buster mess up finding the real path
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
+                // parse_url returns null/false for malformed inputs (e.g. an absolute URL
+                // with no path, or a non-string $scriptSrc); fail closed for those cases.
+                if (!is_string($scriptSrcPath) || $scriptSrcPath === '') {
+                    return null;
+                }
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
                 $pos = stripos($scriptSrcPath, $webRoot);
                 if ($pos !== false) {
