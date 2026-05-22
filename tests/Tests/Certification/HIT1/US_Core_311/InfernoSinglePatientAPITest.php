@@ -117,7 +117,15 @@ final class InfernoSinglePatientAPITest extends TestCase
             'http_errors' => false,
         ]);
         $response = self::$infernoClient->post('test_sessions?test_suite_id=' . self::currentSuite());
-        $jsonResponse = json_decode((string) $response->getBody(), true, flags: JSON_THROW_ON_ERROR);
+        $body = (string) $response->getBody();
+        if ($response->getStatusCode() !== 200) {
+            throw new \RuntimeException(sprintf(
+                'Inferno test_sessions returned HTTP %d: %s',
+                $response->getStatusCode(),
+                $body,
+            ));
+        }
+        $jsonResponse = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
         self::assertIsArray($jsonResponse, 'Test session response must be a JSON object');
         $sessionId = $jsonResponse['id'] ?? null;
         if (!is_string($sessionId) || $sessionId === '') {
