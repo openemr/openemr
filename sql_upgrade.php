@@ -31,9 +31,8 @@ if (php_sapi_name() === 'cli') {
     // @phpstan-ignore openemr.forbiddenRequestGlobals (Required for write)
     $_SERVER['HTTP_HOST'] = 'default';
 
-    assert(isset($argv));
     // Parse --from=VERSION argument for CLI upgrades
-    foreach ($argv as $arg) {
+    foreach ($argv ?? [] as $arg) {
         if (str_starts_with($arg, '--from=')) {
             $cliFromVersion = substr($arg, 7);
             break;

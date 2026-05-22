@@ -50,7 +50,11 @@ class BulkAPITestClient extends ApiTestClient
     public function setAuthToken(string $authURL, array $credentials = [], string $client = 'private'): ResponseInterface
     {
         if (($credentials['client_id'] ?? '') !== '') {
-            assert(is_string($credentials['client_id']));
+            // @codeCoverageIgnoreStart Defensive guard against malformed credentials input.
+            if (!is_string($credentials['client_id'])) {
+                throw new \InvalidArgumentException('credentials[client_id] must be a string');
+            }
+            // @codeCoverageIgnoreEnd
             $this->client_id = $credentials['client_id'];
         }
         if (!(($credentials['jwks'] ?? null) === null && ($credentials['private_key'] ?? null) === null && ($credentials['public_key'] ?? null) === null)) {
@@ -141,7 +145,11 @@ class BulkAPITestClient extends ApiTestClient
         $clientRepository = new ClientRepository();
         $clientRepository->setSystemLogger(new NullLogger());
         $clientEntity = $clientRepository->getClientEntity($this->client_id);
-        assert($clientEntity instanceof ClientEntity);
+        // @codeCoverageIgnoreStart Defensive guard against ClientRepository contract drift.
+        if (!$clientEntity instanceof ClientEntity) {
+            throw new \RuntimeException('Expected ' . ClientEntity::class . ' from ClientRepository::getClientEntity');
+        }
+        // @codeCoverageIgnoreEnd
         $clientRepository->saveIsEnabled($clientEntity, true);
         return $clientEntity;
     }

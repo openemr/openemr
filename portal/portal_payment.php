@@ -49,7 +49,10 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
         exit();
     }
 }
-assert(isset($pid)); // Set by globals.php via session; PHPStan can't see through require_once
+// $pid is set by globals.php via session; PHPStan can't see through require_once
+if (!isset($pid)) {
+    throw new \RuntimeException('$pid must be set by globals.php before requiring this script');
+}
 $srcdir = $globalsBag->getString('srcdir');
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/patient.inc.php");

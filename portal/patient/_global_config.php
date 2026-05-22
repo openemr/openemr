@@ -212,7 +212,9 @@ class GlobalConfig
             }
 
             $engine = new $engine_class(self::$TEMPLATE_PATH, self::$TEMPLATE_CACHE_PATH);
-            assert($engine instanceof IRenderEngine);
+            if (!$engine instanceof IRenderEngine) {
+                throw new \LogicException(sprintf('Template engine %s must implement %s', $engine_class, IRenderEngine::class));
+            }
             $this->render_engine = $engine;
             $this->render_engine->assign("ROOT_URL", self::$ROOT_URL);
             $this->render_engine->assign("PHREEZE_VERSION", Phreezer::$Version);

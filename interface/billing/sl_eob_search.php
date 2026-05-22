@@ -53,7 +53,9 @@ require_once($srcDir . '/patient.inc.php');
 require_once($srcDir . '/appointments.inc.php');
 require_once(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . '/statement.inc.php');
 // statement.inc.php sets $STMT_TEMP_FILE
-assert(isset($STMT_TEMP_FILE));
+if (!isset($STMT_TEMP_FILE)) {
+    throw new \RuntimeException('$STMT_TEMP_FILE must be set by statement.inc.php');
+}
 require_once($srcDir . '/api.inc.php');
 require_once($srcDir . '/forms.inc.php');
 require_once($srcDir . '/../controllers/C_Document.class.php');

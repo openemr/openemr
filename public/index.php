@@ -16,7 +16,9 @@ use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
 
 $container = require_once __DIR__ . '/../bootstrap.php';
-assert($container instanceof TypedContainerInterface);
+if (!$container instanceof TypedContainerInterface) {
+    throw new \LogicException('bootstrap.php must return a ' . TypedContainerInterface::class);
+}
 
 $request = ServerRequest::fromGlobals();
 
