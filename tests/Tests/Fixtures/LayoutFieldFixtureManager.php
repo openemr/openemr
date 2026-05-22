@@ -80,12 +80,15 @@ final class LayoutFieldFixtureManager
 
     private function seedListOptions(): void
     {
-        // ON DUPLICATE KEY UPDATE rather than INSERT IGNORE: if a row already
-        // exists for (list_id, option_id), overwrite its title/seq/activity
-        // with the sentinel values so the snapshot suite gets deterministic
-        // output even on a database with leftover non-sentinel rows. The
-        // overwrite is reversed at cleanup() because we only delete rows
-        // whose title starts with the sentinel.
+        // Refuse to seed if a non-sentinel row already occupies any target
+        // (list_id, option_id) key. Blindly overwriting + later cleaning up
+        // by sentinel title would silently destroy a real list with the
+        // same id — better to surface the conflict explicitly so a developer
+        // can rename their list or this manager can be re-namespaced. After
+        // the guard passes, ON DUPLICATE KEY UPDATE is safe: any existing
+        // row is one we previously seeded and is being refreshed to the
+        // current sentinel values.
+        $this->assertNoForeignRowAt(self::LIST_ID, 'lists');
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity)
              VALUES ('lists', ?, ?, 999, 0, 1)
@@ -93,6 +96,7 @@ final class LayoutFieldFixtureManager
             [self::LIST_ID, self::SENTINEL . ' list']
         );
         foreach (self::LIST_OPTION_IDS as $index => $optionId) {
+            $this->assertNoForeignRowAt($optionId, self::LIST_ID);
             QueryUtils::sqlStatementThrowException(
                 "INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity)
                  VALUES (?, ?, ?, ?, 0, 1)
@@ -100,6 +104,34 @@ final class LayoutFieldFixtureManager
                 [self::LIST_ID, $optionId, self::SENTINEL . ' ' . $optionId, ($index + 1) * 10]
             );
         }
+    }
+
+    /**
+     * Throw if a list_options row exists at (list_id, option_id) with a title
+     * that does not begin with the sentinel. Rows that match the sentinel are
+     * fine — those are leftovers from a previous test run.
+     */
+    private function assertNoForeignRowAt(string $optionId, string $listId): void
+    {
+        $row = QueryUtils::fetchRecords(
+            'SELECT title FROM list_options WHERE list_id = ? AND option_id = ? LIMIT 1',
+            [$listId, $optionId]
+        );
+        if ($row === []) {
+            return;
+        }
+        $title = $row[0]['title'] ?? '';
+        if (is_string($title) && str_starts_with($title, self::SENTINEL)) {
+            return;
+        }
+        throw new \RuntimeException(sprintf(
+            'LayoutFieldFixtureManager refuses to overwrite an existing non-sentinel '
+            . 'list_options row at (list_id=%s, option_id=%s). Rename or remove the '
+            . 'existing row, or change LayoutFieldFixtureManager::LIST_ID to a value '
+            . 'that does not collide with project data.',
+            $listId,
+            $optionId
+        ));
     }
 
     /**

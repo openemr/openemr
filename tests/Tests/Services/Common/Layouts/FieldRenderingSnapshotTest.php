@@ -61,6 +61,11 @@ final class FieldRenderingSnapshotTest extends TestCase
     /** @var array{hadPid: bool, pid: mixed} */
     private static array $previousOEGlobalsBagPid = ['hadPid' => false, 'pid' => null];
 
+    private static ?string $previousTimezone = null;
+
+    /** "Today" pinned at setUpBeforeClass so the renderer's 'now'|date('Y-m-d') and the normalizer agree across day-boundary edges. */
+    private static string $today = '';
+
     /** $GLOBALS keys this test class mutates and is responsible for restoring */
     private const TOUCHED_GLOBALS = [
         'disable_translation',
@@ -103,6 +108,17 @@ final class FieldRenderingSnapshotTest extends TestCase
             'hadPid' => $bag->has('pid'),
             'pid'    => $bag->has('pid') ? $bag->get('pid') : null,
         ];
+
+        // Pin the timezone so the renderer's Twig 'now'|date('Y-m-d') and
+        // self::normalize()'s today-replacement compute the same date — both
+        // read PHP's default. UTC is the conservative choice; restore in
+        // tearDownAfterClass.
+        self::$previousTimezone = date_default_timezone_get();
+        date_default_timezone_set('UTC');
+        // Pin "today" once at setup so a long suite run that crosses
+        // midnight does not see two different dates between the renderer
+        // and the normalizer.
+        self::$today = date('Y-m-d');
 
         $GLOBALS['disable_translation'] = true;
         $GLOBALS['fileroot'] ??= dirname(__DIR__, 5);
@@ -170,6 +186,11 @@ final class FieldRenderingSnapshotTest extends TestCase
             $bag->set('pid', self::$previousOEGlobalsBagPid['pid']);
         } else {
             $bag->remove('pid');
+        }
+
+        if (self::$previousTimezone !== null) {
+            date_default_timezone_set(self::$previousTimezone);
+            self::$previousTimezone = null;
         }
     }
 
@@ -571,13 +592,13 @@ final class FieldRenderingSnapshotTest extends TestCase
         // Address/telecom/relation Twig templates default period_start and
         // start_date inputs to {{ 'now'|date('Y-m-d') }}; without
         // normalization today's date leaks into the rendered output and the
-        // snapshot starts failing on the next calendar day. Replace exactly
-        // today's date — not any YYYY-MM-DD — so fixed test-input dates the
-        // data provider supplies (e.g. data_type 4's `2026-01-15`) are
-        // preserved verbatim.
-        $today = date('Y-m-d');
+        // snapshot starts failing on the next calendar day. Use the date
+        // pinned at setUpBeforeClass — both the renderer and this normalizer
+        // read PHP's default timezone (forced to UTC), so they agree, and
+        // pinning once avoids a day-boundary race if a long run straddles
+        // midnight.
         $deflaked = (string) preg_replace(
-            "/value='" . preg_quote($today, '/') . "'/",
+            "/value='" . preg_quote(self::$today, '/') . "'/",
             "value='__TODAY__'",
             $deflaked
         );
