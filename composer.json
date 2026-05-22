@@ -302,6 +302,7 @@
         "rector-check": "php -d memory_limit=4g ./vendor/bin/rector process --dry-run",
         "rector-fix": "php -d memory_limit=4g ./vendor/bin/rector process",
         "require-checker": "php -d memory_limit=4g ./vendor/bin/composer-require-checker check --config-file=.composer-require-checker.json",
+        "update-layout-field-fixtures": "UPDATE_FIXTURES=1 phpunit --filter FieldRenderingSnapshotTest",
         "update-twig-fixtures": "UPDATE_FIXTURES=1 phpunit -c phpunit-isolated.xml --filter TwigTemplateRenderTest"
     }
 }
