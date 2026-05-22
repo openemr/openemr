@@ -52,7 +52,7 @@ use PHPUnit\Framework\TestCase;
  *   optional: bool,
  *   outputs: Output[],
  *   requests?: Request[],
- *   result: 'pass'|'skip'|'omit'|'error',
+ *   result: 'pass'|'fail'|'skip'|'omit'|'error',
  *   result_message?: string,
  *   test_id?: string,
  *   test_group_id?: string,
@@ -402,7 +402,7 @@ final class InfernoSinglePatientAPITest extends TestCase
     protected function getTestGroupResponse(string $testGroupId, string $credentialsKeyName = 'smart_credentials'): array
     {
         $accessToken = self::$testClient->getAccessToken();
-        assert($accessToken !== null, 'Access token must be set before running test groups');
+        $this->assertNotNull($accessToken, 'Access token must be set before running test groups');
         $testRunData = [
             'test_session_id' => self::$sessionId,
             'test_group_id' => $testGroupId,
@@ -414,6 +414,7 @@ final class InfernoSinglePatientAPITest extends TestCase
         $this->assertIsArray($testRunJsonResponse, 'Test run response must be a JSON object');
         $testRunId = $testRunJsonResponse['id'] ?? null;
         $this->assertIsString($testRunId, 'Test run ID must be a string');
+        $this->assertNotSame('', $testRunId, 'Test run ID must be a non-empty string');
 
         // Poll /test_runs/$testRunId?include_results=false every 500 ms until the
         // status is 'done'; if it never reaches 'done' before the timeout, fail.
