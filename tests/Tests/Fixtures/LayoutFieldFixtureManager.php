@@ -22,6 +22,10 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * @codeCoverageIgnore Seed/cleanup execute from setUpBeforeClass/
+ * tearDownAfterClass, which run before/after PHPUnit coverage instrumentation
+ * starts. The bytes the snapshot suite produces are the test's coverage signal.
  */
 
 declare(strict_types=1);
@@ -38,6 +42,15 @@ final class LayoutFieldFixtureManager
 
     /** @var list<string> option_ids seeded into LIST_ID */
     public const LIST_OPTION_IDS = ['opt1', 'opt2', 'opt3'];
+
+    /**
+     * Foreign reference the renderer's address/telecom/relation templates pass
+     * to ContactService::getOrCreateForEntity when blank_form is true. A
+     * `contact` row is created on first call; the corresponding cleanup
+     * removes it so the integration database stays clean across runs.
+     */
+    private const BLANK_CONTACT_FOREIGN_TABLE = 'patient_data';
+    private const BLANK_CONTACT_FOREIGN_ID = 0;
 
     public function seed(): void
     {
@@ -59,23 +72,45 @@ final class LayoutFieldFixtureManager
             "DELETE FROM list_options WHERE list_id = 'lists' AND option_id = ? AND title LIKE ?",
             [self::LIST_ID, $titlePrefix]
         );
+        $this->cleanupBlankFormContact();
     }
 
     private function seedListOptions(): void
     {
+        // ON DUPLICATE KEY UPDATE rather than INSERT IGNORE: if a row already
+        // exists for (list_id, option_id), overwrite its title/seq/activity
+        // with the sentinel values so the snapshot suite gets deterministic
+        // output even on a database with leftover non-sentinel rows. The
+        // overwrite is reversed at cleanup() because we only delete rows
+        // whose title starts with the sentinel.
         QueryUtils::sqlStatementThrowException(
-            "INSERT IGNORE INTO list_options
-                (list_id, option_id, title, seq, is_default, activity)
-             VALUES ('lists', ?, ?, 999, 0, 1)",
+            "INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity)
+             VALUES ('lists', ?, ?, 999, 0, 1)
+             ON DUPLICATE KEY UPDATE title = VALUES(title), seq = VALUES(seq), activity = VALUES(activity)",
             [self::LIST_ID, self::SENTINEL . ' list']
         );
         foreach (self::LIST_OPTION_IDS as $index => $optionId) {
             QueryUtils::sqlStatementThrowException(
-                "INSERT IGNORE INTO list_options
-                    (list_id, option_id, title, seq, is_default, activity)
-                 VALUES (?, ?, ?, ?, 0, 1)",
+                "INSERT INTO list_options (list_id, option_id, title, seq, is_default, activity)
+                 VALUES (?, ?, ?, ?, 0, 1)
+                 ON DUPLICATE KEY UPDATE title = VALUES(title), seq = VALUES(seq), activity = VALUES(activity)",
                 [self::LIST_ID, $optionId, self::SENTINEL . ' ' . $optionId, ($index + 1) * 10]
             );
         }
+    }
+
+    /**
+     * Remove the `contact` row ContactService::getOrCreateForEntity creates
+     * when the address/telecom/relation templates render with blank_form=true
+     * (foreign_id=0). Without this the integration database accumulates one
+     * row per CI run, which can drift the autoinc counter and affect tests
+     * that come after.
+     */
+    private function cleanupBlankFormContact(): void
+    {
+        QueryUtils::sqlStatementThrowException(
+            'DELETE FROM contact WHERE foreign_table_name = ? AND foreign_id = ?',
+            [self::BLANK_CONTACT_FOREIGN_TABLE, self::BLANK_CONTACT_FOREIGN_ID]
+        );
     }
 }

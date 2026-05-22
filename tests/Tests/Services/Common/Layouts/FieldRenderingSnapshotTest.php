@@ -72,6 +72,11 @@ final class FieldRenderingSnapshotTest extends TestCase
         'gbl_time_zone',
     ];
 
+    /**
+     * @codeCoverageIgnore PHPUnit runs setUpBeforeClass before coverage
+     * instrumentation starts, so its lines never register as hit even though
+     * every test in the class depends on it.
+     */
     public static function setUpBeforeClass(): void
     {
         require_once __DIR__ . '/../../../../../library/options.inc.php';
@@ -129,6 +134,10 @@ final class FieldRenderingSnapshotTest extends TestCase
         self::$fixtures->seed();
     }
 
+    /**
+     * @codeCoverageIgnore Runs after the last test in the class — PHPUnit
+     * stops coverage instrumentation before invoking it.
+     */
     public static function tearDownAfterClass(): void
     {
         self::$fixtures?->cleanup();
@@ -233,7 +242,8 @@ final class FieldRenderingSnapshotTest extends TestCase
      * @param array<string, mixed> $overrides
      * @return array<string, mixed>
      *
-     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     * @codeCoverageIgnore Called from the data provider, which runs before
+     * coverage instrumentation starts.
      */
     private static function baseFrow(int $dataType, string $fieldId, array $overrides = []): array
     {
