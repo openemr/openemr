@@ -51,7 +51,7 @@ use PHPUnit\Framework\TestCase;
  *   messages?: Message[],
  *   optional: bool,
  *   outputs: Output[],
- *   requests: Request[],
+ *   requests?: Request[],
  *   result: 'pass'|'skip'|'omit'|'error',
  *   result_message?: string,
  *   test_id?: string,
@@ -280,13 +280,13 @@ final class InfernoSinglePatientAPITest extends TestCase
 
     public function testOrganization(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'encounter', 'smart_auth_info');
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'organization', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], 'Us Core Organization Resource test failed');
     }
 
     public function testPractitioner(): void
     {
-        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'encounter', 'smart_auth_info');
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'practitioner', 'smart_auth_info');
         $this->assertResultsPassed($response['results'], 'Us Core Practitioner Resource test failed');
     }
 
@@ -300,7 +300,11 @@ final class InfernoSinglePatientAPITest extends TestCase
     {
         // data_absent_reason is not a standalone runnable in US Core 3.1.1 suite.
         // It's tested as part of the G10 certification suite (test 4.32).
-        $this->markTestSkipped('data_absent_reason test group is only available in G10 certification suite');
+        if (self::currentSuite() !== self::TEST_SUITE_G10_CERTIFICATION) {
+            $this->markTestSkipped('data_absent_reason test group is only available in G10 certification suite');
+        }
+        $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'data_absent_reason', 'smart_auth_info');
+        $this->assertResultsPassed($response['results'], 'Us Core Data Absent Reason test failed');
     }
 
     // Provenance runs last because it is the most complex test and can take a while.
@@ -358,7 +362,7 @@ final class InfernoSinglePatientAPITest extends TestCase
                     $this->assertArrayHasKey('result_message', $result, 'Message should be present for non-pass results');
                     $failMessage = $assertMessage . ' ' . $result['result_message'];
                 }
-                foreach ($result['requests'] as $request) {
+                foreach ($result['requests'] ?? [] as $request) {
                     if ($request['result_id'] === $result['id']) {
                         $failMessage .= "\nRequest: " . $request['verb'] . ' ' . $request['url'] . ' status ' . $request['status'];
                     }
