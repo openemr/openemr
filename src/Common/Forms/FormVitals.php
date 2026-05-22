@@ -522,7 +522,7 @@ class FormVitals extends ORDataObject
             $label = $fieldLabels[$fieldName] ?? $fieldName;
 
             if (!is_numeric($value)) {
-                $errors[] = xl('Field') . " '{$label}' " . xl('has a non-numeric value.');
+                $errors[] = sprintf(xl('Field "%1$s" has a non-numeric value.'), $label);
                 continue;
             }
 
@@ -533,17 +533,17 @@ class FormVitals extends ORDataObject
             }
 
             if ($numericValue < 0) {
-                $errors[] = xl('Field') . " '{$label}' " . xl('cannot be negative.');
+                $errors[] = sprintf(xl('Field "%1$s" cannot be negative.'), $label);
                 continue;
             }
 
             if ($numericValue < $range['min'] || $numericValue > $range['max']) {
-                $errors[] = xl('Field') . " '{$label}' " . xl('is outside acceptable range') . " ({$range['min']}–{$range['max']}).";
+                $errors[] = sprintf(xl('Field "%1$s" is outside acceptable range (%2$s–%3$s).'), $label, $range['min'], $range['max']);
                 continue;
             }
 
             if ($numericValue < $range['warningMin'] || $numericValue > $range['warningMax']) {
-                $warnings[] = xl('Field') . " '{$label}' " . xl('is outside typical clinical range') . " ({$range['warningMin']}–{$range['warningMax']}).";
+                $warnings[] = sprintf(xl('Field "%1$s" is outside typical clinical range (%2$s–%3$s).'), $label, $range['warningMin'], $range['warningMax']);
             }
         }
 
