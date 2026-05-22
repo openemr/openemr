@@ -554,7 +554,7 @@ services:
       retries: 3
   mariadb-very-very-old:
     restart: always
-    image: mariadb:10.6.25@sha256:6055d4ee6a6045626442cafe4feaf7419e878c65baf3af658265e24114af1cd7
+    image: mariadb:10.6.26@sha256:16561f8bcfc46d452f3877452f79cab2a0e4b7981ade5e899e2a972161ba5677
     command: [mysqld, --character-set-server=utf8mb4]
     environment:
       MYSQL_ROOT_PASSWORD: root
