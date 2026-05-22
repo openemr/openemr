@@ -65,11 +65,13 @@ use PHPUnit\Framework\TestCase;
  */
 final class InfernoSinglePatientAPITest extends TestCase
 {
-    // Alice Jones (96506861-511f-4f6d-bc97-b65a78cf1995),
-    // Jeremy Bates (96891ab2-01ad-49f9-9958-cdad71bd33c1),
-    // Happy Child (968944d0-180a-48ac-8049-636ae8ac6127),
-    // and John Appleseed (969f72c3-0256-488e-b25b-8fff3af18b1b)
-    // are the patients used in the Inferno Single Patient API tests.
+    // Patients used in the Inferno Single Patient API tests:
+    // - Alice Jones (96506861-511f-4f6d-bc97-b65a78cf1995)
+    // - Jeremy Bates (96891ab2-01ad-49f9-9958-cdad71bd33c1)
+    // - Happy Child (968944d0-180a-48ac-8049-636ae8ac6127)
+    // John Appleseed (969f72c3-0256-488e-b25b-8fff3af18b1b) is intentionally
+    // excluded here because the US Core 3.1.1 / G10 Single Patient API
+    // suites only need three patients in PATIENT_IDS.
     public const PATIENT_IDS = '96506861-511f-4f6d-bc97-b65a78cf1995,96891ab2-01ad-49f9-9958-cdad71bd33c1,968944d0-180a-48ac-8049-636ae8ac6127';
     public const PATIENT_ID_PRIMARY = '96506861-511f-4f6d-bc97-b65a78cf1995';
 
