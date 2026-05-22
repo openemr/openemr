@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Http;
 
-class RawRequestBodyReader
+final class RawRequestBodyReader
 {
     private ?string $cache = null;
 
@@ -35,7 +35,11 @@ class RawRequestBodyReader
     /**
      * Returns the raw request body. The stream is read once per instance.
      *
-     * @throws RawPostParserException if the stream cannot be read.
+     * @throws RawPostParserException if the stream cannot be read. The
+     *         exception message includes the underlying PHP error message
+     *         (via error_get_last) so failures on tempfile / data:// /
+     *         open_basedir-restricted paths surface with a real reason
+     *         rather than just the path that couldn't be opened.
      */
     public function read(): string
     {
@@ -43,10 +47,11 @@ class RawRequestBodyReader
             return $this->cache;
         }
 
-        $raw = @file_get_contents($this->streamIdentifier);
+        $raw = file_get_contents($this->streamIdentifier);
         if ($raw === false) {
+            $reason = error_get_last()['message'] ?? 'unknown error';
             throw new RawPostParserException(
-                sprintf('Unable to read raw request body from %s', $this->streamIdentifier),
+                sprintf('Unable to read raw request body from %s: %s', $this->streamIdentifier, $reason),
             );
         }
 

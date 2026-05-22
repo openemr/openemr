@@ -452,12 +452,21 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         $parsedPost = RawPostParser::fromGlobals()->applyToGlobals();
     } catch (RawPostParserException $e) {
         $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. Your edits in the browser have not been discarded.');
-        ServiceContainer::getLogger()->warning('edit_layout.php: raw POST parse failed', ['exception' => $e]);
+        ServiceContainer::getLogger()->warning('raw POST parse failed', [
+            'component' => 'edit_layout',
+            'layout_id' => $layout_id,
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
     }
     $fldPayload = $parsedPost['fld'] ?? null;
     if ($saveError === null && (!is_array($fldPayload) || $fldPayload === [])) {
         $saveError = xl('Save did not complete: no field rows were submitted. Please contact your administrator.');
-        ServiceContainer::getLogger()->warning('edit_layout.php: save received no fld[] payload');
+        ServiceContainer::getLogger()->warning('save received no fld[] payload', [
+            'component' => 'edit_layout',
+            'layout_id' => $layout_id,
+        ]);
     }
     // If we are saving, then save.
     $fld = is_array($fldPayload) ? $fldPayload : [];

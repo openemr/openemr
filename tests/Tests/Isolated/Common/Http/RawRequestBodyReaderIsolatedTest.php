@@ -54,8 +54,23 @@ class RawRequestBodyReaderIsolatedTest extends TestCase
     {
         $reader = new RawRequestBodyReader('/this/path/does/not/exist/openemr');
 
-        $this->expectException(RawPostParserException::class);
-        $this->expectExceptionMessage('Unable to read raw request body');
-        $reader->read();
+        // Use error_reporting() instead of set_error_handler() so the test
+        // still exercises the real error_get_last() path — set_error_handler
+        // would intercept the warning before PHP records it. With
+        // error_reporting(0) the warning is suppressed at the report
+        // boundary but still populates error_get_last().
+        $prior = error_reporting(0);
+        $caught = null;
+        try {
+            $reader->read();
+        } catch (RawPostParserException $e) {
+            $caught = $e;
+        } finally {
+            error_reporting($prior);
+        }
+
+        $this->assertNotNull($caught, 'expected RawPostParserException');
+        $this->assertStringContainsString('Unable to read raw request body', $caught->getMessage());
+        $this->assertStringContainsString('No such file or directory', $caught->getMessage());
     }
 }

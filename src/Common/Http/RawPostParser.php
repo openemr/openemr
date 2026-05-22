@@ -9,8 +9,14 @@
  * POST; PHP just refuses to expose more than `max_input_vars` of it through
  * `$_POST`. `parse_str()` is bound by the same limit (PHP 7+), so the parser
  * splits the body into chunks below the configured ceiling, parses each chunk
- * with `parse_str()`, and merges the results. `post_max_size` still caps the
- * body PHP populates `php://input` with, so memory remains bounded.
+ * with `parse_str()`, and merges the results.
+ *
+ * `post_max_size` still caps how much of the body PHP ever exposes via
+ * `php://input`. If the body exceeds that ceiling PHP silently discards the
+ * tail and `parse_str()` would happily parse the truncated bytes; the parser
+ * compares the bytes it read against the request's `Content-Length` and
+ * throws when they diverge, so post_max_size truncation never reaches the
+ * caller as a quiet partial result.
  *
  * Use only for `application/x-www-form-urlencoded` POSTs. Multipart bodies
  * (file uploads) cannot be re-parsed this way: PHP consumes them before
@@ -20,14 +26,15 @@
  * get fresh state per test method. Inject at the controller boundary; do not
  * call from inside services.
  *
- * `$_SERVER['CONTENT_TYPE']` is read intentionally as a transitional pattern
- * at the legacy-script boundary. Do not add further superglobal reads here.
+ * `$_SERVER['CONTENT_TYPE']` and `$_SERVER['CONTENT_LENGTH']` are read
+ * intentionally as a transitional pattern at the legacy-script boundary. Do
+ * not add further superglobal reads here.
  *
  * Limitation: the merge step uses `array_replace_recursive`, which does not
- * append-merge auto-indexed arrays (`foo[]=1&foo[]=2`). Both target endpoints
- * use explicit indices (`fld[1][id]`, `Payment3`), so this is not a concern
- * in practice; callers that emit `foo[]=…` patterns over the chunk boundary
- * should switch to explicit indices.
+ * append-merge bracket-bare auto-indexed arrays (`foo[]=1&foo[]=2`). Rather
+ * than silently produce a different shape from native `$_POST` parsing for
+ * such inputs, the parser rejects them up front; callers must use explicit
+ * indices (`foo[0]`, `foo[1]`, ...) instead.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -40,7 +47,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Http;
 
-class RawPostParser
+final class RawPostParser
 {
     /**
      * Fraction of `max_input_vars` used as the parse_str() chunk size. Leaves
@@ -74,13 +81,14 @@ class RawPostParser
     public function __construct(
         private readonly RawRequestBodyReader $reader,
         private readonly string $contentType,
+        private readonly ?int $contentLength = null,
     ) {
     }
 
     /**
-     * Factory using the request's Content-Type header and the default
-     * php://input stream — the production path. Tests should construct
-     * directly.
+     * Factory using the request's Content-Type / Content-Length headers and
+     * the default php://input stream — the production path. Tests should
+     * construct directly.
      */
     public static function fromGlobals(): self
     {
@@ -88,7 +96,12 @@ class RawPostParser
         // pattern for reading $_SERVER without tripping the forbidden-
         // globals PHPStan rule. Header is normalised by PHP to CONTENT_TYPE.
         $contentType = filter_input(INPUT_SERVER, 'CONTENT_TYPE') ?? '';
-        return new self(new RawRequestBodyReader(), (string) $contentType);
+        $contentLength = filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT);
+        return new self(
+            new RawRequestBodyReader(),
+            (string) $contentType,
+            is_int($contentLength) ? $contentLength : null,
+        );
     }
 
     /**
@@ -99,7 +112,11 @@ class RawPostParser
      *
      * @throws RawPostParserException if the request is multipart/form-data
      *                                (php://input is not populated by PHP),
-     *                                or the raw body cannot be read.
+     *                                if the raw body cannot be read, if the
+     *                                bytes read are shorter than the request's
+     *                                Content-Length (post_max_size truncation),
+     *                                or if the body contains a bracket-bare
+     *                                auto-indexed key.
      */
     public function parse(): array
     {
@@ -109,22 +126,49 @@ class RawPostParser
 
         if (stripos($this->contentType, 'multipart/form-data') !== false) {
             throw new RawPostParserException(
-                'RawPostParser cannot read multipart/form-data bodies; '
-                . 'PHP consumes them before php://input is available.',
+                'RawPostParser cannot read multipart/form-data bodies; PHP consumes them before php://input is available.',
             );
         }
 
         $raw = $this->reader->read();
+
+        // post_max_size truncation guard. PHP silently discards body bytes
+        // past post_max_size before php://input is populated; parse_str
+        // would then happily parse the truncated bytes and we'd produce a
+        // partial-but-plausible $_POST. Compare bytes read against the
+        // request's advertised length so the failure surfaces loudly.
+        if ($this->contentLength !== null && strlen($raw) < $this->contentLength) {
+            throw new RawPostParserException(
+                sprintf(
+                    'Raw body truncated: read %d bytes, Content-Length %d (likely exceeds post_max_size)',
+                    strlen($raw),
+                    $this->contentLength,
+                ),
+            );
+        }
+
         if ($raw === '') {
             return $this->cache = [];
         }
-        // Implementation note: chunked parse_str() below tolerates bodies past
-        // the runtime max_input_vars ceiling. See class docblock for the full
-        // rationale; the chunk size is computed at parse time so a runtime
-        // ini change is honoured.
+
+        $pairs = explode('&', $raw);
+
+        // Reject bracket-bare auto-indexed keys (foo[]=1&foo[]=2) up front
+        // rather than silently produce a different shape from native $_POST
+        // via array_replace_recursive. Forces callers onto explicit indices.
+        foreach ($pairs as $pair) {
+            if ($pair === '') {
+                continue;
+            }
+            $keyPart = explode('=', $pair, 2)[0];
+            if (str_contains($keyPart, '[]')) {
+                throw new RawPostParserException(
+                    'RawPostParser does not support bracket-bare auto-indexed keys (e.g. foo[]=1). Use explicit indices (foo[0], foo[1], ...).',
+                );
+            }
+        }
 
         $chunkSize = $this->chunkSize();
-        $pairs = explode('&', $raw);
         $parsed = [];
         foreach (array_chunk($pairs, $chunkSize) as $chunk) {
             $chunkParsed = [];
@@ -137,11 +181,17 @@ class RawPostParser
     /**
      * Boundary helper for legacy scripts: parse the raw body and write the
      * result into `$_POST` so the downstream code's existing reads
-     * (`$_POST[...]`, `formData()`, `trimPost()`) see the full body. Returns
-     * the parsed array so callers can also read it directly without making a
-     * second `$_POST` access at the call site. Concentrating the mutation
-     * inside this abstraction class is the project-sanctioned pattern for
-     * the `openemr.forbiddenRequestGlobals` rule.
+     * (`$_POST[...]`, `formData()`, `trimPost()`) see the full body. Also
+     * rebuilds `$_REQUEST` from `$_GET`, the new `$_POST`, and `$_COOKIE`
+     * because PHP builds `$_REQUEST` once at request start from the
+     * (truncated) `$_POST` and never re-derives it; legacy handlers that
+     * read loop bounds or money-disposition fields out of `$_REQUEST` would
+     * otherwise still see the pre-truncation values.
+     *
+     * Refuses to overwrite a non-empty `$_POST` with an empty parsed array,
+     * which would happen if `php://input` was already consumed by another
+     * layer in the request lifecycle. That branch returns the existing
+     * `$_POST` unchanged rather than wiping the user's submission.
      *
      * @return array<array-key, mixed>
      *
@@ -150,7 +200,36 @@ class RawPostParser
     public function applyToGlobals(): array
     {
         $parsed = $this->parse();
+
+        if ($parsed === [] && $_POST !== []) {
+            // php://input was already consumed by some earlier layer and
+            // we'd be silently clobbering PHP's truncated $_POST with
+            // nothing. That is strictly worse than the truncation bug; bail.
+            return $_POST;
+        }
+
         $_POST = $parsed;
+
+        // Re-derive $_REQUEST from the new $_POST plus existing $_GET and
+        // $_COOKIE. PHP's request_order ini setting governs the order; the
+        // default "GP" is honoured by walking GET first, then POST. We
+        // intentionally do not include $_COOKIE here unless request_order
+        // mentions 'C', matching PHP's own builder.
+        $order = ini_get('request_order') ?: ini_get('variables_order') ?: 'GP';
+        $request = [];
+        for ($i = 0, $n = strlen($order); $i < $n; $i++) {
+            $source = match ($order[$i]) {
+                'G' => $_GET,
+                'P' => $_POST,
+                'C' => $_COOKIE,
+                default => null,
+            };
+            if (is_array($source)) {
+                $request = array_replace($request, $source);
+            }
+        }
+        $_REQUEST = $request;
+
         return $parsed;
     }
 

@@ -17,6 +17,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Http;
 
-class RawPostParserException extends \RuntimeException
+final class RawPostParserException extends \RuntimeException
 {
 }

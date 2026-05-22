@@ -54,6 +54,9 @@ $screen = 'edit_payment';
 
 $recorder = new Recorder();
 
+/** @var string|null $saveError User-visible error when the body could not be re-parsed. */
+$saveError = null;
+
 // Deletion of payment distribution code
 
 if (isset($_POST["mode"])) {
@@ -89,23 +92,35 @@ if (isset($_POST["mode"])) {
 //Modify Payment Code.
 //===============================================================================
 
-if (isset($_POST["mode"])) {
-    if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "FinishPayments") {
-        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+// CSRF + raw-body re-parse for the two mutating modes. Done in a top
+// guard block so a parser failure can fail closed: $saveError is set, the
+// existing write block below short-circuits on it, and the page renders
+// the banner instead of silently committing a partial post.
+$paymentMode = filter_input(INPUT_POST, 'mode');
+if (in_array($paymentMode, ['ModifyPayments', 'FinishPayments'], true)) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    try {
         // ModifyPayments posts one Payment$CountRow, AdjAmount$CountRow,
-        // etc. set per encounter row. For patients with many encounters this
-        // exceeds PHP's max_input_vars, silently truncating $_POST and
-        // producing a blank page. Re-parse the raw body so all rows survive,
-        // then repopulate $_POST — the per-row code below reads via
-        // formData(), trimPost(), and DistributionInsert(), all of which
-        // pull from the superglobal directly.
-        try {
-            RawPostParser::fromGlobals()->applyToGlobals();
-        } catch (RawPostParserException $e) {
-            ServiceContainer::getLogger()->warning('edit_payment.php: raw POST parse failed', ['exception' => $e]);
-            // Fall through with PHP's truncated $_POST; behaviour matches
-            // the pre-fix state rather than crashing the request.
-        }
+        // etc. set per encounter row. For patients with many encounters
+        // this exceeds PHP's max_input_vars and silently truncates $_POST.
+        // applyToGlobals re-parses the raw body and also rebuilds $_REQUEST
+        // so loop-bound reads (CountIndexAbove/Below) see the full payload.
+        RawPostParser::fromGlobals()->applyToGlobals();
+    } catch (RawPostParserException $e) {
+        $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. No payments were modified.');
+        ServiceContainer::getLogger()->error('raw POST parse failed', [
+            'component' => 'edit_payment',
+            'mode' => $paymentMode,
+            'payment_id' => filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT),
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
+    }
+}
+
+if ($saveError === null && isset($_POST["mode"])) {
+    if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "FinishPayments") {
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
         //===============================================================================
@@ -604,6 +619,11 @@ $ResultSearchSub = sqlStatement(
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="container-fluid">
+        <?php if ($saveError !== null) { ?>
+            <div class="alert alert-danger m-2" role="alert" id="payment-save-error">
+                <?php echo text($saveError); ?>
+            </div>
+        <?php } ?>
         <?php
         if (($_REQUEST['ParentPage'] ?? '') == 'new_payment') {
             ?>
