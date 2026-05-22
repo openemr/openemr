@@ -459,11 +459,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMREthnicityRecord(FHIRPatient $patientResource, $ethnicity)
     {
-        // TODO: this is a required field, so not sure what we want to do if this is missing?
-        if (!empty($ethnicity)) {
-            $ethnicityExtension = new FHIRExtension();
-            $ethnicityExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
+        $ethnicityExtension = new FHIRExtension();
+        $ethnicityExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
 
+        if (!empty($ethnicity)) {
             $ombCategoryExtension = new FHIRExtension();
             $ombCategoryExtension->setUrl("ombCategory");
 
@@ -486,8 +485,25 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             }
 
             $ethnicityExtension->addExtension($textExtension);
-            $patientResource->addExtension($ethnicityExtension);
+        } else {
+            // US Core requires ethnicity extension even when data is missing.
+            // Use Data Absent Reason per http://hl7.org/fhir/us/core/general-guidance.html#missing-data
+            $ombCategoryExtension = new FHIRExtension();
+            $ombCategoryExtension->setUrl("ombCategory");
+            $coding = new FHIRCoding();
+            $coding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_NULL_FLAVOR));
+            $coding->setCode('UNK');
+            $coding->setDisplay('Unknown');
+            $ombCategoryExtension->setValueCoding($coding);
+            $ethnicityExtension->addExtension($ombCategoryExtension);
+
+            $textExtension = new FHIRExtension();
+            $textExtension->setUrl("text");
+            $textExtension->setValueString('Unknown');
+            $ethnicityExtension->addExtension($textExtension);
         }
+
+        $patientResource->addExtension($ethnicityExtension);
     }
 
     private function parseOpenEMRSocialSecurityRecord(FHIRPatient $patientResource, $ssn)
