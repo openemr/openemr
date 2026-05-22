@@ -394,9 +394,11 @@ class PatientPortalLoginControllerTest extends TestCase
         $this->session->set('itsme', 1);
         $this->session->set('language_choice', 7);
 
+        // uname/pass are required to get past the presence-check bail; the
+        // credentials don't have to validate — language is set before lookupAuth runs.
         $this->controller->login(
             self::SITE,
-            ['languageChoice' => '3'],
+            ['uname' => 'whoever', 'pass' => 'whatever', 'languageChoice' => '3'],
             [],
             $this->session,
             $this->globalsBag
