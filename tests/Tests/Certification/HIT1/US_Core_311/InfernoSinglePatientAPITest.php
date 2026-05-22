@@ -344,7 +344,7 @@ final class InfernoSinglePatientAPITest extends TestCase
     {
         foreach ($results as $result) {
             $failMessage = '';
-            if ($result['result'] === 'skip') {
+            if (in_array($result['result'], ['skip', 'omit'], true)) {
                 continue;
             }
             $testId = $result['test_id'] ?? '';
