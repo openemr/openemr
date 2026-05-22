@@ -251,11 +251,16 @@ class ModulesApplication
                 return [];
             }
             $filteredFiles = array_filter(array_map(function ($scriptSrc) use ($projectDir, $webRoot, $moduleRootLocation) {
+                // Callers can pass arbitrary array elements; parse_url would raise TypeError
+                // on a non-string. Fail closed before touching anything else.
+                if (!is_string($scriptSrc)) {
+                    return null;
+                }
                 // scripts that have any kind of parameters in them such as a cache buster mess up finding the real path
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // parse_url returns null/false for malformed inputs (e.g. an absolute URL
-                // with no path, or a non-string $scriptSrc); fail closed for those cases.
+                // with no path); fail closed for those too.
                 if (!is_string($scriptSrcPath) || $scriptSrcPath === '') {
                     return null;
                 }
