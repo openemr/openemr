@@ -46,10 +46,14 @@ class PatientPortalLoginController
     private const PASSWORD_UPDATE_REQUIRED = 1;
     private const PASSWORD_UPDATE_ONE_TIME_RESET = 2;
 
+    private readonly PortalPasswordHasher $passwordHasher;
+
     public function __construct(
         private readonly PortalLoginCredentialsRepository $repository,
         private readonly PortalAuditLogger $logit,
+        ?PortalPasswordHasher $passwordHasher = null,
     ) {
+        $this->passwordHasher = $passwordHasher ?? new AuthHashPortalPasswordHasher();
     }
 
     /**
@@ -164,13 +168,9 @@ class PatientPortalLoginController
             $codeNew = $this->stringOrNull($post['pass_new'] ?? null);
             $codeNewConfirm = $this->stringOrNull($post['pass_new_confirm'] ?? null);
             if ($codeNew !== null && $codeNewConfirm !== null && hash_equals($codeNewConfirm, $codeNew)) {
-                $newHash = (new AuthHash())->passwordHash($codeNew);
-                if (!is_string($newHash) || $newHash === '') {
-                    // @codeCoverageIgnoreStart — AuthHash::passwordHash returns mixed but in
-                    // practice produces a bcrypt string; this defensive branch only fires on
-                    // a configuration breakage that would also break the rest of the system.
+                $newHash = $this->passwordHasher->hash($codeNew);
+                if ($newHash === false || $newHash === '') {
                     throw new \RuntimeException('OpenEMR is not working because unable to create a hash.');
-                    // @codeCoverageIgnoreEnd
                 }
                 // The legacy script reads $_POST['login_uname'] without an empty() check,
                 // so '0' is a valid login username here. Narrow with is_string only — no
@@ -306,17 +306,18 @@ class PatientPortalLoginController
             return hash_equals($auth['portal_pwd'], $pass);
         }
 
+        // Keep a typed copy: AuthHash::passwordVerify takes its first argument by reference,
+        // which widens $pass to mixed for PHPStan after the call.
+        $plain = $pass;
         if (!AuthHash::passwordVerify($pass, $auth['portal_pwd'])) {
             return false;
         }
 
         $authHashPortal = new AuthHash();
         if ($authHashPortal->passwordNeedsRehash($auth['portal_pwd'])) {
-            $reHash = $authHashPortal->passwordHash($pass);
-            if (!is_string($reHash) || $reHash === '') {
-                // @codeCoverageIgnoreStart — see the matching defensive branch in login().
+            $reHash = $this->passwordHasher->hash($plain);
+            if ($reHash === false || $reHash === '') {
                 throw new \RuntimeException('OpenEMR is not working because unable to create a hash.');
-                // @codeCoverageIgnoreEnd
             }
             $this->repository->updatePasswordHash($auth['id'], $reHash);
         }

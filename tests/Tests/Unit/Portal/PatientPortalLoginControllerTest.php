@@ -338,6 +338,45 @@ class PatientPortalLoginControllerTest extends TestCase
         $this->assertSame('login', $result->portalLogArgs[0]);
     }
 
+    public function testPasswordChangeThrowsWhenHasherReturnsFalse(): void
+    {
+        // Inject a hasher that fails so the defensive throw in the password-change branch fires.
+        $controller = new PatientPortalLoginController(
+            $this->repo,
+            $this->log,
+            new class implements \OpenEMR\Controllers\Portal\PortalPasswordHasher {
+                public function hash(string $plain): string|false
+                {
+                    return false;
+                }
+            },
+        );
+
+        $this->session->set('itsme', 1);
+        $this->session->set('password_update', 1);
+        $auth = $this->seededAuth();
+        $auth['portal_pwd_status'] = 0;
+        $this->repo->stubByUsername['alice'] = $auth;
+        $this->repo->stubPatientData[self::PID] = $this->seededPatientData();
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('OpenEMR is not working because unable to create a hash.');
+
+        $controller->login(
+            self::SITE,
+            [
+                'uname' => 'alice',
+                'pass' => 'goodpass',
+                'pass_new' => 'NewPass123!',
+                'pass_new_confirm' => 'NewPass123!',
+                'login_uname' => 'alice_login',
+            ],
+            [],
+            $this->session,
+            $this->globalsBag
+        );
+    }
+
     // ---------------------------------------------------------------------
     // Successful login
     // ---------------------------------------------------------------------

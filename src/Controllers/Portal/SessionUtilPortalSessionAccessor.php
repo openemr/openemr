@@ -1,8 +1,6 @@
 <?php
 
 /**
- * @codeCoverageIgnore — production session adapter; exercised by the e2e suite, not unit tests.
- *
  * SessionUtilPortalSessionAccessor — production PortalSessionAccessor that delegates
  * reads to the supplied SessionInterface and routes writes through SessionUtil, so the
  * portal's read-and-close session lock is reopened correctly on each write.

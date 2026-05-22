@@ -35,6 +35,7 @@ use OpenEMR\Controllers\Portal\SqlPortalLoginCredentialsRepository;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\UserSettingsService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
 
@@ -83,10 +84,16 @@ $controller = new PatientPortalLoginController(
     $auditLogger
 );
 
+$symfonyRequest = Request::createFromGlobals();
 /** @var array<string, mixed> $post */
-$post = $_POST;
+$post = $symfonyRequest->request->all();
+// Controller only reads $request['redirect']; the legacy script sourced it from
+// $_REQUEST, which (with default request_order GP) is POST shadowing GET.
 /** @var array<string, mixed> $request */
-$request = $_REQUEST;
+$request = [
+    'redirect' => $symfonyRequest->request->get('redirect')
+        ?? $symfonyRequest->query->get('redirect'),
+];
 
 // Resolve the site id from the session, then $_GET, then the literal 'default'.
 // Inline narrowing (rather than `(string) (... ?? ... ?? 'default')`) so unexpected
