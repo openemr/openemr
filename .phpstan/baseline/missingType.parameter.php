@@ -5247,11 +5247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Holidays_Controller\\:\\:upload_csv\\(\\) has parameter \\$files with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function AddIfPresent\\(\\) has parameter \\$tag with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/ippf_export.php',
@@ -16503,11 +16498,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getUserFacilities\\(\\) has parameter \\$uID with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/calendar.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function is_holiday\\(\\) has parameter \\$date with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/calendar.inc.php',
 ];
