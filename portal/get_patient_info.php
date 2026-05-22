@@ -3,314 +3,150 @@
 /**
  * portal/get_patient_info.php
  *
+ * Patient portal login form POST target. Thin entry point: bootstraps the portal
+ * session/autoloader, wires the production dependencies, invokes
+ * PatientPortalLoginController, and applies the returned directive
+ * (portalLog + maybe destroy session + maybe emit no-cache headers + redirect).
+ *
+ * All login logic lives in OpenEMR\Controllers\Portal\PatientPortalLoginController so
+ * it can be unit-tested with an injected in-memory credentials repository. See
+ * tests/Tests/Unit/Portal/PatientPortalLoginControllerTest.php.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Cassian LUP <cassi.lup@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
  * @copyright Copyright (c) 2016-2017 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Controllers\Portal\PatientPortalLoginController;
+use OpenEMR\Controllers\Portal\PortalAuditLogger;
+use OpenEMR\Controllers\Portal\SessionUtilPortalSessionAccessor;
+use OpenEMR\Controllers\Portal\SqlPortalLoginCredentialsRepository;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Globals\UserSettingsService;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 
-// Will start the (patient) portal OpenEMR session/cookie.
-// Need access to classes, so run autoloader now instead of in globals.php.
-require_once(__DIR__ . "/../vendor/autoload.php");
+require_once(__DIR__ . '/../vendor/autoload.php');
+
 $globalsBag = OEGlobalsBag::getInstance();
-if (empty(SessionUtil::getAppCookie())) {
-    // Prevent error 500 in case of cleaning cookies and site data once when the login page is already loaded
+
+// Prevent error 500 in case of cleaning cookies and site data once when the login page is already loaded.
+if (SessionUtil::getAppCookie() === '') {
     $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
 }
-// Auth flow writes heavily to session and uses migrate()
+
+// Auth flow writes heavily to session and uses migrate(); explicitly opt out of the
+// portal's default read-only session mode before obtaining the active session.
 $sessionAllowWrite = true;
 SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-
-// regenerating the session id to avoid session fixation attacks
+// Regenerate the session id to avoid session fixation attacks.
 $session->migrate(true);
-//
 
-// landing page definition -- where to go if something goes wrong
-$landingpage = "index.php?site=" . urlencode((string) ($session->get('site_id', false) ?? $_GET['site'] ?? 'default'));
-//
-
-if (!empty($_REQUEST['redirect'])) {
-    // let's add the redirect back in case there are any errors or other problems.
-    $landingpage .= "&redirect=" . urlencode((string) $_REQUEST['redirect']);
-}
-
-// checking whether the request comes from index.php
-if (!$session->get('itsme', false)) {
-    SessionWrapperFactory::getInstance()->destroyPortalSession();
-    header('Location: ' . $landingpage . '&w');
-    exit();
-}
-
-// some validation
-if (!isset($_POST['uname']) || empty($_POST['uname'])) {
-    SessionWrapperFactory::getInstance()->destroyPortalSession();
-    header('Location: ' . $landingpage . '&w&c');
-    exit();
-}
-
-if (!isset($_POST['pass']) || empty($_POST['pass'])) {
-    SessionWrapperFactory::getInstance()->destroyPortalSession();
-    header('Location: ' . $landingpage . '&w&c');
-    exit();
-}
-
-// set the language
-if (!empty($_POST['languageChoice'])) {
-    SessionUtil::setSession('language_choice', (int)$_POST['languageChoice']);
-} elseif (empty($session->get('language_choice', null))) {
-    // just in case both are empty, then use english
-    SessionUtil::setSession('language_choice', 1);
-} else {
-    // keep the current session language token
-}
-
-// Settings that will override globals.php
+// OpenEMR globals + the legacy ApplicationTable class needed by the audit logger.
+// (QueryUtils, AuthHash, CsrfUtils, and UserSettingsService are all PSR-4 and load
+// via the composer autoloader.)
+// `$landingpage` must be defined before including interface/globals.php — its
+// multisite site-mismatch handler treats a non-empty $landingpage as "this is a
+// portal request" and redirects there; without it the user is bounced to
+// interface/login/login.php instead of the portal login. The real landing page
+// is rebuilt inside the controller from the resolved site id.
+$landingpage = 'index.php?site=default';
 $ignoreAuth_onsite_portal = true;
-//
-
-// Authentication
 require_once('../interface/globals.php');
-
-if (
-    $globalsBag->getBoolean('enforce_signin_email')
-    && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
-) {
-    SessionWrapperFactory::getInstance()->destroyPortalSession();
-    header('Location: ' . $landingpage . '&w&c');
-    exit();
-}
-
-require_once(__DIR__ . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc.php");
-
+require_once(__DIR__ . '/lib/appsql.class.php');
 
 $logit = new ApplicationTable();
-$password_update = $session->get('password_update', 0);
-SessionUtil::unsetSession('password_update');
 
-$authorizedPortal = false; // flag
-DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
-DEFINE("COL_ID", "id");
-DEFINE("COL_PID", "pid");
-DEFINE("COL_POR_PWD", "portal_pwd");
-DEFINE("COL_POR_USER", "portal_username");
-DEFINE("COL_POR_LOGINUSER", "portal_login_username");
-DEFINE("COL_POR_PWD_STAT", "portal_pwd_status");
-DEFINE("COL_POR_ONETIME", "portal_onetime");
-
-// 2 is flag for one time credential reset else 1 = normal reset.
-// one time reset requires a PIN where normal uses a new temp pass sent to user.
-if ($password_update === 2 && !empty($session->get('pin', null))) {
-    $sql = "SELECT " . implode(",", [
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT, COL_POR_ONETIME]) . " FROM " . TBL_PAT_ACC_ON .
-        " WHERE BINARY " . COL_POR_ONETIME . "= ?";
-    $auth = privQuery($sql, [$session->get('forward')]);
-    if ($auth !== false) {
-        // remove the token from database
-        privStatement("UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_ONETIME . "=NULL WHERE BINARY " . COL_POR_ONETIME . " = ?", [$auth['portal_onetime']]);
-        // validation
-        $validate = substr((string) $auth[COL_POR_ONETIME], 32, 6);
-        if (!empty($validate) && !empty($_POST['token_pin'])) {
-            if ($session->get('pin') !== $_POST['token_pin']) {
-                $auth = false;
-            } elseif ($validate !== $_POST['token_pin']) {
-                $auth = false;
-            }
-        } else {
-            $auth = false;
-        }
-        SessionUtil::unsetSession(['forward', 'pin']);
-        unset($_POST['token_pin']);
+// PortalAuditLogger adapter that delegates to ApplicationTable::portalLog. Defined as an
+// anonymous class here (rather than as a typed class in src/) so the legacy non-PSR-4
+// reference to ApplicationTable stays out of the autoloaded surface.
+$auditLogger = new class ($logit) implements PortalAuditLogger {
+    public function __construct(private readonly ApplicationTable $delegate)
+    {
     }
+
+    public function portalLog(string $event, $patientId, string $comments, string $binds = '', string $success = '1'): void
+    {
+        $this->delegate->portalLog($event, $patientId, $comments, $binds, $success);
+    }
+};
+
+// Wire the provider info lookup as a static-method callable so the repository itself
+// does not have to reference the legacy global function.
+$controller = new PatientPortalLoginController(
+    new SqlPortalLoginCredentialsRepository(UserSettingsService::getUserIDInfo(...)),
+    $auditLogger
+);
+
+$symfonyRequest = Request::createFromGlobals();
+/** @var array<string, mixed> $post */
+$post = $symfonyRequest->request->all();
+// Controller only reads $request['redirect']; the legacy script sourced it from
+// $_REQUEST, which (with default request_order GP) is POST shadowing GET.
+/** @var array<string, mixed> $request */
+$request = [
+    'redirect' => $symfonyRequest->request->get('redirect')
+        ?? $symfonyRequest->query->get('redirect'),
+];
+
+// Site id resolution preserves the legacy expression:
+//   (string) ($session->get('site_id', false) ?? $_GET['site'] ?? 'default')
+// SessionInterface::get returns the provided default (`false`) when the key is missing,
+// and `??` only short-circuits on null — so a missing session key produces literal `''`
+// rather than falling through to the query string. The query-string fallback only runs
+// when site_id is present and explicitly null. This is a quirk of the legacy code, kept
+// for bit-for-bit behavior preservation.
+$fromSession = $session->get('site_id', false);
+if ($fromSession === false) {
+    $siteId = '';
+} elseif ($fromSession === null) {
+    $fromGet = $symfonyRequest->query->get('site');
+    $siteId = is_string($fromGet) ? $fromGet : 'default';
+} elseif (is_string($fromSession)) {
+    $siteId = $fromSession;
 } else {
-    // normal login
-    $sql = "SELECT " . implode(",", [
-            COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) . " FROM " . TBL_PAT_ACC_ON .
-        " WHERE " . COL_POR_LOGINUSER . "= ?";
-    if ($password_update === 1) {
-        $sql = "SELECT " . implode(",", [
-                COL_ID, COL_PID, COL_POR_PWD, COL_POR_USER, COL_POR_LOGINUSER, COL_POR_PWD_STAT]) . " FROM " . TBL_PAT_ACC_ON .
-            " WHERE " . COL_POR_USER . "= ?";
-    }
-
-    $auth = privQuery($sql, [$_POST['uname']]);
+    $siteId = '';
 }
-if ($auth === false) {
-    $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
+
+$result = $controller->login(
+    $siteId,
+    $post,
+    $request,
+    new SessionUtilPortalSessionAccessor($session),
+    $globalsBag
+);
+
+if ($result->establishCsrf) {
+    // Set up the CSRF private key (for the patient portal). Note: this key always
+    // remains private and never leaves server session; it is used to create the
+    // CSRF tokens.
+    CsrfUtils::setupCsrfKey($session);
+}
+
+if ($result->portalLogArgs !== null) {
+    $logit->portalLog(...$result->portalLogArgs);
+}
+
+if ($result->destroySessionCookie) {
     SessionWrapperFactory::getInstance()->destroyPortalSession();
-    header('Location: ' . $landingpage . '&w&u');
-    exit();
 }
 
-if ($password_update === 2) {
-    if ($_POST['pass'] != $auth[COL_POR_PWD]) {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w&p');
-        exit();
-    }
-} else {
-    if (AuthHash::passwordVerify($_POST['pass'], $auth[COL_POR_PWD])) {
-        $authHashPortal = new AuthHash();
-        if ($authHashPortal->passwordNeedsRehash($auth[COL_POR_PWD])) {
-            // If so, create a new hash, and replace the old one (this will ensure always using most modern hashing)
-            $reHash = $authHashPortal->passwordHash($_POST['pass']);
-            if (empty($reHash)) {
-                // Something is seriously wrong
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
-            }
-            privStatement(
-                "UPDATE " . TBL_PAT_ACC_ON . " SET " . COL_POR_PWD . " = ? WHERE " . COL_ID . " = ?",
-                [
-                    $reHash,
-                    $auth[COL_ID]
-                ]
-            );
-        }
-    } else {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w&p');
-        exit();
-    }
+$response = new RedirectResponse($result->redirectUrl);
+if ($result->sendNoCacheHeaders) {
+    $response->headers->set('Expires', 'Mon, 26 Jul 1997 05:00:00 GMT');
+    $response->headers->set('Cache-Control', 'no-cache');
+    $response->headers->set('Pragma', 'no-cache');
 }
-
-
-
-SessionUtil::setSession('portal_username', $auth[COL_POR_USER]);
-SessionUtil::setSession('portal_login_username', $auth[COL_POR_LOGINUSER]);
-
-$sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
-
-if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
-    if (empty($userData)) {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w');
-        exit();
-    }
-
-    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->getBoolean('enforce_signin_email')) {
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w');
-        exit();
-    }
-
-    if ($userData['allow_patient_portal'] != "YES") {
-        // Patient has not authorized portal, so escape
-        $logit->portalLog('login attempt', '', ($_POST['uname'] . ':allow portal turned off'), '', '0');
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w');
-        exit();
-    }
-
-    if ($auth['pid'] != $userData['pid']) {
-        // Not sure if this is even possible, but should escape if this happens
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w');
-        exit();
-    }
-
-    if ($password_update) {
-        $code_new = $_POST['pass_new'];
-        $code_new_confirm = $_POST['pass_new_confirm'];
-        if (!(empty($_POST['pass_new'])) && !(empty($_POST['pass_new_confirm'])) && ($code_new == $code_new_confirm)) {
-            $new_hash = (new AuthHash())->passwordHash($code_new);
-            if (empty($new_hash)) {
-                // Something is seriously wrong
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
-                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
-            }
-            // Update the password and continue (patient is authorized)
-            privStatement(
-                "UPDATE " . TBL_PAT_ACC_ON . "  SET " . COL_POR_LOGINUSER . "=?," . COL_POR_PWD . "=?," . COL_POR_PWD_STAT . "=1 WHERE id=?",
-                [
-                    $_POST['login_uname'],
-                    $new_hash,
-                    $auth['id']
-                ]
-            );
-            $authorizedPortal = true;
-            $logit->portalLog('password update', $auth['pid'], ($_POST['login_uname'] . ': ' . $session->get('ptName') . ':success'));
-        }
-    }
-
-    if ($auth['portal_pwd_status'] == 0) {
-        if (!$authorizedPortal) {
-            // Need to enter a new password in the index.php script
-            SessionUtil::setSession('password_update', 1);
-            header('Location: ' . $landingpage);
-            exit();
-        }
-    }
-
-    if ($auth['portal_pwd_status'] == 1) {
-        // continue (patient is authorized)
-        $authorizedPortal = true;
-    }
-
-    if ($authorizedPortal) {
-        // patient is authorized (prepare the session variables)
-        $tmp = getUserIDInfo($userData['providerID']);
-        SessionUtil::setUnsetSession(
-            [
-                'pid' => $auth['pid'],
-                'patient_portal_onsite_two' => 1,
-                'providerName' => ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''),
-                'providerUName' => $tmp['username'] ?? null,
-                'sessionUser' => '-patient-', // $_POST['uname'];
-                'providerId' => $userData['providerID'] ?: 'undefined',
-                'ptName' => $userData['fname'] . ' ' . $userData['lname'],
-                // never set authUserID though authUser is used for ACL!
-                'authUser' => 'portal-user',
-            ],
-            ['password_update', 'itsme'] // just being safe
-        );
-        // Set up the csrf private_key (for the paient portal)
-        //  Note this key always remains private and never leaves server session. It is used to create
-        //  the csrf tokens.
-        CsrfUtils::setupCsrfKey($session);
-
-        $logit->portalLog('login', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
-    } else {
-        $logit->portalLog('login', '', ($_POST['uname'] . ':not authorized'), '', '0');
-        SessionWrapperFactory::getInstance()->destroyPortalSession();
-        header('Location: ' . $landingpage . '&w');
-        exit();
-    }
-} else { // problem with query
-    SessionWrapperFactory::getInstance()->destroyPortalSession();
-    header('Location: ' . $landingpage . '&w');
-    exit();
-}
-
-// now that we are authorized, we need to check for the redirect, sanitize it (or eliminate it if we can't), and then redirect
-
-if (!empty($_REQUEST['redirect'])) {
-    // for now we are only going to allow redirects to locations in the module directories, we can open this up more
-    // in future requests once we consider the threat vectors
-    $safeRedirect = \OpenEMR\Core\ModulesApplication::filterSafeLocalModuleFiles([$_REQUEST['redirect']]);
-    if (!empty($safeRedirect)) {
-        header('Location: ' . $safeRedirect[0]);
-        exit();
-    }
-}
-header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-header("Cache-Control: no-cache");
-header("Pragma: no-cache");
-header('Location: ./home.php');
-exit();
+$response->send();
