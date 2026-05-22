@@ -308,7 +308,7 @@ final class InfernoSinglePatientAPITest extends TestCase
             $this->markTestSkipped('data_absent_reason test group is only available in G10 certification suite');
         }
         $response = $this->getTestGroupResponse($this->getTestSuitePrefix() . 'data_absent_reason', 'smart_auth_info');
-        $this->assertResultsPassed($response['results'], 'Us Core Data Absent Reason test failed');
+        $this->assertResultsPassed($response['results'], 'Data Absent Reason test failed (' . self::currentSuite() . ')');
     }
 
     // Provenance runs last because it is the most complex test and can take a while.
