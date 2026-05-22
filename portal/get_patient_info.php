@@ -57,6 +57,12 @@ $session->migrate(true);
 // OpenEMR globals + the legacy ApplicationTable class needed by the audit logger.
 // (QueryUtils, AuthHash, CsrfUtils, and UserSettingsService are all PSR-4 and load
 // via the composer autoloader.)
+// `$landingpage` must be defined before including interface/globals.php — its
+// multisite site-mismatch handler treats a non-empty $landingpage as "this is a
+// portal request" and redirects there; without it the user is bounced to
+// interface/login/login.php instead of the portal login. The real landing page
+// is rebuilt inside the controller from the resolved site id.
+$landingpage = 'index.php?site=default';
 $ignoreAuth_onsite_portal = true;
 require_once('../interface/globals.php');
 require_once(__DIR__ . '/lib/appsql.class.php');
