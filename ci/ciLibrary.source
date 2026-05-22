@@ -193,6 +193,46 @@ install_configure() {
 }
 
 ##
+# Reseed the database from the flex image's 5.0.0 demo dump and run the
+# upgrade chain to current — the same flow developers hit locally via
+# `openemr-cmd drid` (dev-reset-install-demodata). install_configure must
+# have completed first so sqlconf.php exists for sql_upgrade.php to find
+# the database.
+post_install_upgrade() {
+    # Run only the demoData portion of openemr-cmd drid: drop the fresh
+    # install's tables, reseed from /root/demo_5_0_0_5.sql, run
+    # sql_upgrade.php --from=5.0.0 through every sql/*upgrade.sql file
+    # to current, and re-encode to utf8mb4. The full drid sequence
+    # (dev-reset-install-demodata) also runs resetOpenemr + installOpenemr
+    # first, but resetOpenemr rsyncs from /openemr/sites which only exists
+    # in the dev compose (read-only second bind mount) — the CI compose
+    # has no such mount, so the rsync silently fails and leaves
+    # sites/default/config.php missing, which then crashes sql_upgrade.php
+    # before any migration runs. install_configure has already established
+    # the install for us, so we just need the schema-migration half.
+    #
+    # devtoolsLibrary.source uses bash-style [[ ]]; the container's
+    # /bin/sh is busybox ash which supports it. prepareVariables() reads
+    # MYSQL_HOST and MYSQL_ROOT_PASS from the env (the dev compose sets
+    # these on the openemr service; the CI compose does not). Export
+    # rather than the `VAR=val cmd` form — demoData also references
+    # $MYSQL_HOST / $MYSQL_ROOT_PASS directly, and the inline form would
+    # scope them only to the prepareVariables call.
+    _exec sh -c 'export MYSQL_HOST=mysql MYSQL_ROOT_PASS=root && . /root/devtoolsLibrary.source && prepareVariables && demoData'
+
+    # demoData drops all tables and reseeds from the 5.0.0 dump (which
+    # has its own globals values), so the CI-specific globals that
+    # install_configure set originally are gone. Re-apply.
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "ccda_alt_service_enable"' openemr
+}
+
+##
 # Add a php auto prepend file we can use for telemetry
 # and measuring code coverage for both E2E and API tests.
 # Arguments:

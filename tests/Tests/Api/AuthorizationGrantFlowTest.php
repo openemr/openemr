@@ -221,10 +221,11 @@ class AuthorizationGrantFlowTest extends TestCase
         $this->assertEquals(0, $session->get("persist_login"), "Session should not have persist_login set");
         $userService = new UserService();
         $user = $userService->getUserByUsername("admin");
+        $this->assertIsArray($user, "Admin user should exist");
         $this->assertEquals([
             "name" => $user['fname'] . ' ' . $user['lname'],
             "family_name" => $user['lname'],
-            "given_name" => "",
+            "given_name" => $user['fname'],
             "preferred_username" => $user['username'],
             "middle_name" => null,
             "profile" => "",
