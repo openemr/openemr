@@ -22,8 +22,12 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RawPostParser;
+use OpenEMR\Common\Http\RawPostParserException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -50,10 +54,14 @@ $screen = 'edit_payment';
 
 $recorder = new Recorder();
 
+/** @var string|null $saveError User-visible error when the body could not be re-parsed. */
+$saveError = null;
+
 // Deletion of payment distribution code
 
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
         $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim((string) $_POST['DeletePaymentDistributionId']) : '');
         $DeletePaymentDistributionIdArray = explode('_', $DeletePaymentDistributionId);
         $payment_id = $DeletePaymentDistributionIdArray[0];
@@ -84,7 +92,34 @@ if (isset($_POST["mode"])) {
 //Modify Payment Code.
 //===============================================================================
 
-if (isset($_POST["mode"])) {
+// CSRF + raw-body re-parse for the two mutating modes. Done in a top
+// guard block so a parser failure can fail closed: $saveError is set, the
+// existing write block below short-circuits on it, and the page renders
+// the banner instead of silently committing a partial post.
+$paymentMode = filter_input(INPUT_POST, 'mode');
+if (in_array($paymentMode, ['ModifyPayments', 'FinishPayments'], true)) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    try {
+        // ModifyPayments posts one Payment$CountRow, AdjAmount$CountRow,
+        // etc. set per encounter row. For patients with many encounters
+        // this exceeds PHP's max_input_vars and silently truncates $_POST.
+        // applyToGlobals re-parses the raw body and also rebuilds $_REQUEST
+        // so loop-bound reads (CountIndexAbove/Below) see the full payload.
+        RawPostParser::fromGlobals()->applyToGlobals();
+    } catch (RawPostParserException $e) {
+        $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. No payments were modified.');
+        ServiceContainer::getLogger()->error('raw POST parse failed', [
+            'component' => 'edit_payment',
+            'mode' => $paymentMode,
+            'payment_id' => filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT),
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
+    }
+}
+
+if ($saveError === null && isset($_POST["mode"])) {
     if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "FinishPayments") {
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
@@ -584,6 +619,11 @@ $ResultSearchSub = sqlStatement(
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="container-fluid">
+        <?php if ($saveError !== null) { ?>
+            <div class="alert alert-danger m-2" role="alert" id="payment-save-error">
+                <?php echo text($saveError); ?>
+            </div>
+        <?php } ?>
         <?php
         if (($_REQUEST['ParentPage'] ?? '') == 'new_payment') {
             ?>
@@ -619,6 +659,7 @@ $ResultSearchSub = sqlStatement(
         $onclick = empty($payment_id) ? "top.restoreSession();return SavePayment();" : "return false;";
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <?php
             if (!empty($payment_id)) { ?>
             <fieldset>

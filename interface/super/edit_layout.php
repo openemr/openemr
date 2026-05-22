@@ -21,9 +21,12 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/layout.i
 /** @var list<int> $typesUsingList */
 /** @var array<string,string> $sources */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RawPostParser;
+use OpenEMR\Common\Http\RawPostParserException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -435,11 +438,39 @@ $lbfonly = str_starts_with(attr($layout_id), 'LBF') ? "" : "style='display:none;
 
 // Handle the Form actions
 
+$saveError = null;
 if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // The save form serialises one fld[N][...] subarray per layout row. For
+    // large layouts this exceeds PHP's max_input_vars, silently truncating
+    // $_POST['fld'] and dropping the tail rows from the save. Re-parse the
+    // raw body so every row survives. On parser failure we keep the
+    // truncated $_POST (current pre-fix behaviour) and surface an error
+    // banner in the editor instead of die()ing on the user.
+    $parsedPost = [];
+    try {
+        $parsedPost = RawPostParser::fromGlobals()->applyToGlobals();
+    } catch (RawPostParserException $e) {
+        $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. Your edits in the browser have not been discarded.');
+        ServiceContainer::getLogger()->warning('raw POST parse failed', [
+            'component' => 'edit_layout',
+            'layout_id' => $layout_id,
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
+    }
+    $fldPayload = $parsedPost['fld'] ?? null;
+    if ($saveError === null && (!is_array($fldPayload) || $fldPayload === [])) {
+        $saveError = xl('Save did not complete: no field rows were submitted. Please contact your administrator.');
+        ServiceContainer::getLogger()->warning('save received no fld[] payload', [
+            'component' => 'edit_layout',
+            'layout_id' => $layout_id,
+        ]);
+    }
     // If we are saving, then save.
-    $fld = $_POST['fld'];
-    for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
+    $fld = is_array($fldPayload) ? $fldPayload : [];
+    for ($lino = 1; $saveError === null && isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
         $field_id = trim((string) $iter['id']);
         $field_id_original = trim((string) $iter['originalid']);
@@ -1480,6 +1511,11 @@ function myChangeCheck() {
 </head>
 
 <body class="body_top admin-layout">
+<?php if ($saveError !== null) { ?>
+<div class="alert alert-danger m-2" role="alert" id="layout-save-error">
+    <?php echo text($saveError); ?>
+</div>
+<?php } ?>
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="" />
