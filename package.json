@@ -62,7 +62,7 @@
     "jest-environment-jsdom": "30.4.1",
     "minimist": "1.2.8",
     "napa": "3.0.0",
-    "postcss": "8.5.14",
+    "postcss": "8.5.15",
     "replace-in-file": "7.2.0",
     "stylelint": "16.26.1",
     "stylelint-config-sass-guidelines": "12.1.0",
