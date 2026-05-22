@@ -38,9 +38,15 @@ final class FieldRenderingSnapshotTest extends TestCase
 
     // Stable test sentinels used by the session/OEGlobalsBag wiring so any
     // value that leaks into rendered HTML is recognizable and deterministic.
+    // The pid is intentionally a high integer that no seed data will collide
+    // with — patient-allergies (24) reads OEGlobalsBag::pid and queries lists;
+    // with no rows for this pid, every environment renders the same empty
+    // fragment. Cases 54/55/56 still need blank_form=true in their $frow
+    // because their templates read $GLOBALS['pid'] (not the session) and
+    // emit form-row markup that includes the queried contact's autoinc id.
     private const SITE_ID = 'default';
     private const AUTH_USER_ID = '1';
-    private const TEST_PID = 1;
+    private const TEST_PID = 999999;
 
     private static ?LayoutFieldFixtureManager $fixtures = null;
 
@@ -384,17 +390,17 @@ final class FieldRenderingSnapshotTest extends TestCase
         ];
         yield 'address-list' => [
             'data_type' => 54,
-            'frow'      => self::baseFrow(54, 'test_address_list'),
+            'frow'      => self::baseFrow(54, 'test_address_list', ['blank_form' => true]),
             'currvalue' => '',
         ];
         yield 'telecom-list' => [
             'data_type' => 55,
-            'frow'      => self::baseFrow(55, 'test_telecom_list'),
+            'frow'      => self::baseFrow(55, 'test_telecom_list', ['blank_form' => true]),
             'currvalue' => '',
         ];
         yield 'related-person-list' => [
             'data_type' => 56,
-            'frow'      => self::baseFrow(56, 'test_related_person_list'),
+            'frow'      => self::baseFrow(56, 'test_related_person_list', ['blank_form' => true]),
             'currvalue' => '',
         ];
     }
@@ -455,6 +461,16 @@ final class FieldRenderingSnapshotTest extends TestCase
         // runs in unrelated content (the prior \b-anchored version missed
         // these matches because _ is a word character).
         $deflaked = (string) preg_replace('/_[0-9a-f]{13}\b/', '___UNIQ__', $stripped);
+        // ContactService::getOrCreateForEntity('patient_data', 0) creates a
+        // contact row on first call and reuses it after; its autoinc id
+        // varies across CI shards and across local dev databases. Replace
+        // the value attribute when it follows a contact_id-style hidden
+        // field name so the address/telecom/relation fixtures stay stable.
+        $deflaked = (string) preg_replace(
+            '/(\[contact(?:_address)?_id\]" value=)"\d+"/',
+            '$1"__ID__"',
+            $deflaked
+        );
         // Pre-commit end-of-file-fixer leaves empty files empty and otherwise
         // enforces a single trailing newline. Match that exactly so fixtures
         // round-trip without drift.
