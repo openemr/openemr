@@ -8,9 +8,10 @@
  * libreehr_groups, insurance_companies, openemr_postcalendar_categories, etc.
  * This manager seeds the minimum world each branch needs so that
  * generate_form_field / generate_display_field / generate_print_field can be
- * exercised against deterministic data. Every fixture row uses the sentinel
- * string defined by {@see self::SENTINEL} so cleanup is a single LIKE sweep
- * per table.
+ * exercised against deterministic data. Every seeded row carries the
+ * {@see self::SENTINEL} string in its title so cleanup can scope its DELETE
+ * statements to rows this manager created — never to rows a developer or
+ * another test may have left in the same list_id.
  *
  * Seeders are added incrementally per data-type as cases come online in
  * FieldRenderingSnapshotTest. Tables whose columns differ across OpenEMR
@@ -45,10 +46,18 @@ final class LayoutFieldFixtureManager
 
     public function cleanup(): void
     {
-        QueryUtils::sqlStatementThrowException('DELETE FROM list_options WHERE list_id = ?', [self::LIST_ID]);
+        // Match on the sentinel-prefixed title so we only delete rows this
+        // manager seeded. A developer or another test may legitimately have
+        // rows under the same list_id; widening the DELETE to all list_id
+        // matches would silently destroy unrelated data.
+        $titlePrefix = self::SENTINEL . '%';
         QueryUtils::sqlStatementThrowException(
-            "DELETE FROM list_options WHERE list_id = 'lists' AND option_id = ?",
-            [self::LIST_ID]
+            'DELETE FROM list_options WHERE list_id = ? AND title LIKE ?',
+            [self::LIST_ID, $titlePrefix]
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM list_options WHERE list_id = 'lists' AND option_id = ? AND title LIKE ?",
+            [self::LIST_ID, $titlePrefix]
         );
     }
 

@@ -29,7 +29,9 @@ use OpenEMR\Tests\Fixtures\LayoutFieldFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 final class FieldRenderingSnapshotTest extends TestCase
@@ -50,9 +52,47 @@ final class FieldRenderingSnapshotTest extends TestCase
 
     private static ?LayoutFieldFixtureManager $fixtures = null;
 
+    /** @var array<string, mixed> previous values of $GLOBALS keys touched by setUp, including absent (null) ones */
+    private static array $previousGlobals = [];
+
+    /** @var array{hadSession: bool, session: ?SessionInterface} */
+    private static array $previousSession = ['hadSession' => false, 'session' => null];
+
+    /** @var array{hadPid: bool, pid: mixed} */
+    private static array $previousOEGlobalsBagPid = ['hadPid' => false, 'pid' => null];
+
+    /** $GLOBALS keys this test class mutates and is responsible for restoring */
+    private const TOUCHED_GLOBALS = [
+        'disable_translation',
+        'fileroot',
+        'webroot',
+        'rootdir',
+        'date_display_format',
+        'time_display_format',
+        'gbl_time_zone',
+    ];
+
     public static function setUpBeforeClass(): void
     {
         require_once __DIR__ . '/../../../../../library/options.inc.php';
+
+        // Snapshot pre-existing state so tearDownAfterClass can restore it.
+        // phpunit.xml runs with processIsolation="false", so any global state
+        // we mutate here can leak into unrelated tests and cause order-
+        // dependent failures.
+        foreach (self::TOUCHED_GLOBALS as $key) {
+            self::$previousGlobals[$key] = $GLOBALS[$key] ?? null;
+        }
+        $factory = SessionWrapperFactory::getInstance();
+        self::$previousSession = [
+            'hadSession' => $factory->isSessionActive(),
+            'session'    => $factory->isSessionActive() ? $factory->getActiveSession() : null,
+        ];
+        $bag = OEGlobalsBag::getInstance();
+        self::$previousOEGlobalsBagPid = [
+            'hadPid' => $bag->has('pid'),
+            'pid'    => $bag->has('pid') ? $bag->get('pid') : null,
+        ];
 
         $GLOBALS['disable_translation'] = true;
         $GLOBALS['fileroot'] ??= dirname(__DIR__, 5);
@@ -74,11 +114,11 @@ final class FieldRenderingSnapshotTest extends TestCase
         // value just has to be present and stable — the test sentinel makes
         // the derived token reproducible across runs.
         $session->set('csrf_private_key', '__test_layout_field_csrf__');
-        SessionWrapperFactory::getInstance()->setActiveSession($session);
+        $factory->setActiveSession($session);
 
         // OEGlobalsBag is the modern accessor the canvas/signature branches use
         // for pid; mirror the session value so both code paths agree.
-        OEGlobalsBag::getInstance()->set('pid', self::TEST_PID);
+        $bag->set('pid', self::TEST_PID);
 
         self::$fixtures = new LayoutFieldFixtureManager();
         self::$fixtures->seed();
@@ -88,6 +128,35 @@ final class FieldRenderingSnapshotTest extends TestCase
     {
         self::$fixtures?->cleanup();
         self::$fixtures = null;
+
+        // Restore $GLOBALS to its pre-setUp state. A null snapshot means the
+        // key was absent before, so unset it rather than leaving null.
+        foreach (self::TOUCHED_GLOBALS as $key) {
+            if (self::$previousGlobals[$key] === null) {
+                unset($GLOBALS[$key]);
+            } else {
+                $GLOBALS[$key] = self::$previousGlobals[$key];
+            }
+        }
+
+        // Restore the active session. SessionWrapperFactory has no public API
+        // for clearing $activeSession back to null, so when no session was
+        // active before, reset it via reflection.
+        $factory = SessionWrapperFactory::getInstance();
+        if (self::$previousSession['hadSession'] && self::$previousSession['session'] !== null) {
+            $factory->setActiveSession(self::$previousSession['session']);
+        } else {
+            (new ReflectionProperty(SessionWrapperFactory::class, 'activeSession'))
+                ->setValue($factory, null);
+        }
+
+        // Restore OEGlobalsBag::pid.
+        $bag = OEGlobalsBag::getInstance();
+        if (self::$previousOEGlobalsBagPid['hadPid']) {
+            $bag->set('pid', self::$previousOEGlobalsBagPid['pid']);
+        } else {
+            $bag->remove('pid');
+        }
     }
 
     /**
@@ -405,9 +474,6 @@ final class FieldRenderingSnapshotTest extends TestCase
         ];
     }
 
-    /**
-     * @param array<string, mixed> $frow
-     */
     /**
      * @param array<string, mixed> $frow
      */
