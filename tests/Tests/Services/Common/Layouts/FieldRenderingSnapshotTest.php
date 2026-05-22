@@ -122,30 +122,33 @@ final class FieldRenderingSnapshotTest extends TestCase
     /**
      * Base $frow used by every case. Per-case overrides are merged on top.
      *
+     * @param array<string, mixed> $overrides
      * @return array<string, mixed>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    private static function baseFrow(int $dataType, string $fieldId): array
+    private static function baseFrow(int $dataType, string $fieldId, array $overrides = []): array
     {
-        return [
-            'data_type'    => $dataType,
-            'field_id'     => $fieldId,
-            'title'        => 'Test Field',
-            'description'  => 'Test description',
-            'list_id'      => null,
+        $defaults = [
+            'data_type'      => $dataType,
+            'field_id'       => $fieldId,
+            'title'          => 'Test Field',
+            'description'    => 'Test description',
+            'list_id'        => null,
             'list_backup_id' => null,
-            'edit_options' => '',
-            'form_id'      => 'DEM',
-            'fld_length'   => 20,
-            'fld_rows'     => 3,
-            'max_length'   => 255,
-            'seq'          => 1,
-            'uor'          => 1,
-            'source'       => 'F',
-            'group_id'     => '1',
-            'validation'   => '',
+            'edit_options'   => '',
+            'form_id'        => 'DEM',
+            'fld_length'     => 20,
+            'fld_rows'       => 3,
+            'max_length'     => 255,
+            'seq'            => 1,
+            'uor'            => 1,
+            'source'         => 'F',
+            'group_id'       => '1',
+            'validation'     => '',
         ];
+        // Overrides win over defaults; PHP's array_merge keeps right-hand keys.
+        return array_merge($defaults, $overrides);
     }
 
     /**
@@ -158,20 +161,91 @@ final class FieldRenderingSnapshotTest extends TestCase
      */
     private static function layoutCases(): iterable
     {
+        $listId = LayoutFieldFixtureManager::LIST_ID;
+        $optionId = LayoutFieldFixtureManager::LIST_OPTION_IDS[0];
+
+        yield 'list-box' => [
+            'data_type' => 1,
+            'frow'      => self::baseFrow(1, 'test_list_box', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
         yield 'textbox' => [
             'data_type' => 2,
             'frow'      => self::baseFrow(2, 'test_textbox'),
             'currvalue' => 'sample text',
+        ];
+        yield 'textarea' => [
+            'data_type' => 3,
+            'frow'      => self::baseFrow(3, 'test_textarea'),
+            'currvalue' => "line one\nline two",
+        ];
+        yield 'text-date' => [
+            'data_type' => 4,
+            'frow'      => self::baseFrow(4, 'test_text_date'),
+            'currvalue' => '2026-01-15',
+        ];
+        yield 'checkboxes' => [
+            'data_type' => 21,
+            'frow'      => self::baseFrow(21, 'test_checkboxes', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
+        yield 'textbox-list' => [
+            'data_type' => 22,
+            'frow'      => self::baseFrow(22, 'test_textbox_list', ['list_id' => $listId]),
+            'currvalue' => $optionId . ':typed',
+        ];
+        yield 'checkboxes-with-text' => [
+            'data_type' => 25,
+            'frow'      => self::baseFrow(25, 'test_checkboxes_with_text', ['list_id' => $listId]),
+            'currvalue' => $optionId . ':typed',
+        ];
+        yield 'list-box-with-add' => [
+            'data_type' => 26,
+            'frow'      => self::baseFrow(26, 'test_list_box_with_add', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
+        yield 'radio-buttons' => [
+            'data_type' => 27,
+            'frow'      => self::baseFrow(27, 'test_radio_buttons', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
+        yield 'static-text' => [
+            'data_type' => 31,
+            'frow'      => self::baseFrow(31, 'test_static_text', ['description' => 'Static label']),
+            'currvalue' => '',
+        ];
+        yield 'multiple-select-list' => [
+            'data_type' => 36,
+            'frow'      => self::baseFrow(36, 'test_multiple_select_list', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
+        yield 'list-box-with-search' => [
+            'data_type' => 43,
+            'frow'      => self::baseFrow(43, 'test_list_box_with_search', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
+        yield 'list-box-with-comment' => [
+            'data_type' => 46,
+            'frow'      => self::baseFrow(46, 'test_list_box_with_comment', ['list_id' => $listId]),
+            'currvalue' => $optionId,
         ];
     }
 
     /**
      * @param array<string, mixed> $frow
      */
+    /**
+     * @param array<string, mixed> $frow
+     */
     private static function captureRendererOutput(string $mode, array $frow, string $currvalue): string
     {
-        // generate_form_field and generate_print_field echo; generate_display_field
-        // returns a string. Wrap each call so both shapes capture cleanly.
+        // The legacy renderer triggers E_DEPRECATED in several branches (null
+        // arguments to substr(), htmlspecialchars(), etc.). Those are real
+        // issues, but fixing them is out of scope for this snapshot harness,
+        // which exists to capture the bytes the renderer emits today.
+        // Suppress E_DEPRECATED for the duration of the call so PHPUnit's
+        // failOnDeprecation does not fight the snapshot.
+        set_error_handler(static fn (int $errno): bool => ($errno & (E_DEPRECATED | E_USER_DEPRECATED)) !== 0, E_DEPRECATED | E_USER_DEPRECATED);
         ob_start();
         try {
             $returned = '';
@@ -190,8 +264,10 @@ final class FieldRenderingSnapshotTest extends TestCase
             $echoed = ob_get_clean();
         } catch (\Throwable $e) {
             ob_end_clean();
+            restore_error_handler();
             throw $e;
         }
+        restore_error_handler();
         $echoedStr = $echoed === false ? '' : $echoed;
         return $echoedStr . $returned;
     }
