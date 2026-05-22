@@ -63,7 +63,17 @@ final class FieldRenderingSnapshotTest extends TestCase
 
     private static ?string $previousTimezone = null;
 
-    /** $GLOBALS keys this test class mutates and is responsible for restoring */
+    /**
+     * $GLOBALS keys this test class mutates (directly in setUp, or indirectly
+     * by exercising the renderer) and is responsible for restoring. The
+     * second group covers global state the renderer itself touches:
+     *   - 'pid' is written by generate_form_field() for data_types 52–56
+     *     (set to 0 / null when blank_form=true) via `global $pid`.
+     *   - 'date_init' is appended to by data_type 40 (canvas) via
+     *     `global $date_init`.
+     *   - 'membership_group_number' is incremented by data_type 27 (radio
+     *     buttons) via `global $membership_group_number`.
+     */
     private const TOUCHED_GLOBALS = [
         'disable_translation',
         'fileroot',
@@ -72,6 +82,9 @@ final class FieldRenderingSnapshotTest extends TestCase
         'date_display_format',
         'time_display_format',
         'gbl_time_zone',
+        'pid',
+        'date_init',
+        'membership_group_number',
     ];
 
     /**
@@ -203,10 +216,13 @@ final class FieldRenderingSnapshotTest extends TestCase
 
         // @codeCoverageIgnoreStart
         if (getenv('UPDATE_FIXTURES') === '1') {
-            if (!is_dir(dirname($fixturePath))) {
-                mkdir(dirname($fixturePath), 0o755, true);
+            $dir = dirname($fixturePath);
+            if (!is_dir($dir) && !mkdir($dir, 0o755, true) && !is_dir($dir)) {
+                self::fail("UPDATE_FIXTURES could not create directory: $dir");
             }
-            file_put_contents($fixturePath, $rendered);
+            if (file_put_contents($fixturePath, $rendered) === false) {
+                self::fail("UPDATE_FIXTURES could not write fixture: $fixturePath");
+            }
             self::markTestSkipped("Fixture updated: $fixturePath");
         }
         // @codeCoverageIgnoreEnd
