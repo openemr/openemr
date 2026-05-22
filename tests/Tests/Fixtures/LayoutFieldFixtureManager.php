@@ -22,10 +22,6 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
- * @codeCoverageIgnore Seed/cleanup execute from setUpBeforeClass/
- * tearDownAfterClass, which run before/after PHPUnit coverage instrumentation
- * starts. The bytes the snapshot suite produces are the test's coverage signal.
  */
 
 declare(strict_types=1);
@@ -34,6 +30,13 @@ namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Database\QueryUtils;
 
+// @codeCoverageIgnoreStart
+// Seed and cleanup execute from FieldRenderingSnapshotTest's setUpBeforeClass
+// and tearDownAfterClass hooks, which PHPUnit runs outside the coverage
+// instrumentation window. The class-level `@codeCoverageIgnore` annotation in
+// a docblock alone is not honored by the php-code-coverage parser when the
+// file is autoloaded from a context that never executes its body under
+// instrumentation; the inline Start/End markers are unambiguous.
 final class LayoutFieldFixtureManager
 {
     public const SENTINEL = '__test_layout_field__';
@@ -114,3 +117,4 @@ final class LayoutFieldFixtureManager
         );
     }
 }
+// @codeCoverageIgnoreEnd

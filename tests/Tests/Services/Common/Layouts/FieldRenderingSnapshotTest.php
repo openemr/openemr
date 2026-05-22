@@ -500,10 +500,10 @@ final class FieldRenderingSnapshotTest extends TestCase
         // which exists to capture the bytes the renderer emits today.
         // Suppress E_DEPRECATED for the duration of the call so PHPUnit's
         // failOnDeprecation does not fight the snapshot.
+        $returned = '';
         set_error_handler(static fn (int $errno): bool => ($errno & (E_DEPRECATED | E_USER_DEPRECATED)) !== 0, E_DEPRECATED | E_USER_DEPRECATED);
         ob_start();
         try {
-            $returned = '';
             switch ($mode) {
                 case 'edit':
                     generate_form_field($frow, $currvalue);
@@ -515,16 +515,23 @@ final class FieldRenderingSnapshotTest extends TestCase
                 case 'print':
                     generate_print_field($frow, $currvalue);
                     break;
+                // @codeCoverageIgnoreStart
+                // Defensive: every $mode value comes from the static modes
+                // list in renderCases(), so this arm only fires if that list
+                // gains a value the switch hasn't been updated for. Excluded
+                // from coverage because no normal test execution reaches it.
                 default:
                     throw new \InvalidArgumentException("Unknown render mode: $mode");
+                // @codeCoverageIgnoreEnd
             }
+        } finally {
+            // ob_get_clean() both retrieves and closes the buffer, so the
+            // success and exception paths share one cleanup. restore_error_handler()
+            // also runs unconditionally so the suppressed-deprecation handler
+            // never leaks past this call.
             $echoed = ob_get_clean();
-        } catch (\Throwable $e) {
-            ob_end_clean();
             restore_error_handler();
-            throw $e;
         }
-        restore_error_handler();
         $echoedStr = $echoed === false ? '' : $echoed;
         return $echoedStr . $returned;
     }
@@ -561,18 +568,19 @@ final class FieldRenderingSnapshotTest extends TestCase
             '$1__ID__;',
             $deflaked
         );
-        // Address/telecom/relation Twig templates default period_start /
-        // start_date inputs to {{ 'now'|date('Y-m-d') }}, so today's date
-        // leaks into the rendered output. Replace it with __TODAY__ wherever
-        // the value attribute sits on the same line as a `class='datepicker`
-        // input — that scopes the substitution to renderer-emitted defaults
-        // and skips fixed test-input dates like data_type 4's `2026-01-15`.
-        $deflaked = implode("\n", array_map(
-            static fn (string $line): string => str_contains($line, "class='datepicker")
-                ? (string) preg_replace("/value='\d{4}-\d{2}-\d{2}'/", "value='__TODAY__'", $line)
-                : $line,
-            explode("\n", $deflaked)
-        ));
+        // Address/telecom/relation Twig templates default period_start and
+        // start_date inputs to {{ 'now'|date('Y-m-d') }}; without
+        // normalization today's date leaks into the rendered output and the
+        // snapshot starts failing on the next calendar day. Replace exactly
+        // today's date — not any YYYY-MM-DD — so fixed test-input dates the
+        // data provider supplies (e.g. data_type 4's `2026-01-15`) are
+        // preserved verbatim.
+        $today = date('Y-m-d');
+        $deflaked = (string) preg_replace(
+            "/value='" . preg_quote($today, '/') . "'/",
+            "value='__TODAY__'",
+            $deflaked
+        );
         // Pre-commit end-of-file-fixer leaves empty files empty and otherwise
         // enforces a single trailing newline. Match that exactly so fixtures
         // round-trip without drift.
