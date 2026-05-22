@@ -101,6 +101,10 @@ final class InfernoSinglePatientAPITest extends TestCase
         // TODO: @adunsulag implement this using a test practitioner user so we can
         // test the inferno single patient API from a regular provider.
         self::$testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
+        $accessToken = self::$testClient->getAccessToken();
+        if (!is_string($accessToken) || $accessToken === '') {
+            throw new \RuntimeException('Failed to obtain access token for Inferno Single Patient API tests');
+        }
         $infernoUrl = getenv('INFERNO_BASE_URL', true) ?: self::DEFAULT_INFERNO_BASE_URL;
         self::$infernoClient = new Client(['timeout' => self::TIMEOUT, 'base_uri' => $infernoUrl . '/api/']);
         $response = self::$infernoClient->post('test_sessions?test_suite_id=' . self::currentSuite());
@@ -441,6 +445,8 @@ final class InfernoSinglePatientAPITest extends TestCase
         $this->assertSame(200, $finalTestRunResponse->getStatusCode(), 'Failed to get final test run results for ' . $testGroupId);
         $finalTestRunJson = json_decode((string) $finalTestRunResponse->getBody(), true, flags: JSON_THROW_ON_ERROR);
         $this->assertIsArray($finalTestRunJson, 'Final test run response must be a JSON object');
+        $this->assertArrayHasKey('results', $finalTestRunJson, 'Final test run response missing results for ' . $testGroupId);
+        $this->assertIsArray($finalTestRunJson['results'], 'Final test run results must be an array for ' . $testGroupId);
         $this->assertNotEmpty($finalTestRunJson['results'], 'Test run results are empty for ' . $testGroupId);
         /** @var array{results: TestResult[]} $finalTestRunJson */
         return $finalTestRunJson;
