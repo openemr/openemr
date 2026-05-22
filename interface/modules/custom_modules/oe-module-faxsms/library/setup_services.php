@@ -201,7 +201,6 @@ $vendors = $boot->getVendorGlobals();
     }
     $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
     $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
-    $isVoiceEnable = $vendors['oe_enable_voice'] > 0 ? 'voice' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
 
     $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
@@ -314,7 +313,7 @@ $vendors = $boot->getVendorGlobals();
                     sizeHeight: 'full',
                     allowDrag: false,
                     type: 'iframe',
-                    url: './../setup_voice.php?type=email&module_config=-1'
+                    url: './../setup_voice.php?type=voice&module_config=-1'
                 }
                 return dlgopen('', '', 'modal-lg', '', '', title, params);
             }

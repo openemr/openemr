@@ -33,7 +33,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
 <!DOCTYPE html>
 <html>
 <head>
-    <title>><?php echo xlt("Setup") ?></title>
+    <title><?php echo xlt("Setup") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
     echo "<script>let Service=" . js_escape($serviceType) . "</script>";

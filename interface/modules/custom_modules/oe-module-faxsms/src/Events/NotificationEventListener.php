@@ -105,7 +105,6 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         $serviceType = 'voice';
         $loginCred = $this->getRCCredentials($serviceType);
-        $moduleBaseUrl = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
             'clientId' => $loginCred['appKey'],
             'clientSecret' => $loginCred['appSecret'],

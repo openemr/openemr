@@ -51,7 +51,6 @@ class VoiceClient extends AppDispatch
     protected $platform;
     protected $rcsdk;
     protected CryptoInterface $crypto;
-    private VoiceClient $client;
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null)) {
