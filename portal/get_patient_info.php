@@ -101,18 +101,23 @@ $request = [
         ?? $symfonyRequest->query->get('redirect'),
 ];
 
-// Resolve the site id from the session, then the query string, then the literal 'default'.
-// Inline narrowing (rather than `(string) (... ?? ... ?? 'default')`) so unexpected
-// types from the session or query string fall through to the default.
-$siteId = 'default';
-$fromSession = $session->get('site_id');
-if (is_string($fromSession) && $fromSession !== '') {
+// Site id resolution preserves the legacy expression:
+//   (string) ($session->get('site_id', false) ?? $_GET['site'] ?? 'default')
+// SessionInterface::get returns the provided default (`false`) when the key is missing,
+// and `??` only short-circuits on null — so a missing session key produces literal `''`
+// rather than falling through to the query string. The query-string fallback only runs
+// when site_id is present and explicitly null. This is a quirk of the legacy code, kept
+// for bit-for-bit behavior preservation.
+$fromSession = $session->get('site_id', false);
+if ($fromSession === false) {
+    $siteId = '';
+} elseif ($fromSession === null) {
+    $fromGet = $symfonyRequest->query->get('site');
+    $siteId = is_string($fromGet) ? $fromGet : 'default';
+} elseif (is_string($fromSession)) {
     $siteId = $fromSession;
 } else {
-    $fromGet = $symfonyRequest->query->get('site');
-    if (is_string($fromGet) && $fromGet !== '') {
-        $siteId = $fromGet;
-    }
+    $siteId = '';
 }
 
 $result = $controller->login(

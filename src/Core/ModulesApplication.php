@@ -258,6 +258,13 @@ class ModulesApplication
                 }
                 $realPath = realpath($projectDir . $scriptSrcPathWithoutWebroot);
 
+                // realpath returns false for non-existent paths (e.g. an attacker-controlled
+                // redirect like /etc/passwd that doesn't resolve under the modules tree);
+                // bail before str_starts_with raises TypeError on the false argument.
+                if ($realPath === false) {
+                    return null;
+                }
+
                 // make sure we haven't left our root path ie interface folder
                 if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {
                     return $scriptSrc;

@@ -241,13 +241,9 @@ class PatientPortalLoginController
         if ($redirectParam !== null) {
             $safeRedirect = ModulesApplication::filterSafeLocalModuleFiles([$redirectParam]);
             $safeUrl = $safeRedirect[0] ?? null;
-            // @codeCoverageIgnoreStart — filterSafeLocalModuleFiles uses realpath() against
-            // the live modules directory, so an accepted redirect requires a real on-disk
-            // file under interface/modules/. Exercised by the E2E suite, not unit tests.
             if (is_string($safeUrl) && $safeUrl !== '') {
                 return new PatientPortalLoginResult($safeUrl, false, $successLogArgs, false, true);
             }
-            // @codeCoverageIgnoreEnd
         }
 
         return new PatientPortalLoginResult('./home.php', false, $successLogArgs, true, true);
