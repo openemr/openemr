@@ -598,6 +598,29 @@ final class FieldRenderingSnapshotTest extends TestCase
             '$1__ID__;',
             $deflaked
         );
+        // DB-driven dropdowns (data_types 10, 11, 14, 16, 35, 44, 45) render
+        // <option> rows pulled from users / facility / insurance_companies /
+        // etc. Their contents vary between a fresh install and the
+        // 5.0.0→current SQL-upgrade chain shard, so capturing them verbatim
+        // would couple the snapshot to a specific database seed. Elide the
+        // option block but keep the surrounding <select> attributes — those
+        // are what the renderer is responsible for.
+        $dbDrivenIds = [
+            'providers',
+            'providers_npi',
+            'address_book',
+            'insurances',
+            'facilities',
+            'multi_select_facilities',
+            'multi_select_provider',
+        ];
+        foreach ($dbDrivenIds as $id) {
+            $deflaked = (string) preg_replace(
+                "/(<select\\b[^>]*\\bid=['\"]form_test_" . preg_quote($id, '/') . "['\"][^>]*>).*?(<\\/select>)/s",
+                "$1<!-- options elided -->$2",
+                $deflaked
+            );
+        }
         // Address/telecom/relation Twig templates default period_start and
         // start_date inputs to {{ 'now'|date('Y-m-d') }}; without
         // normalization today's date leaks into the rendered output and the
