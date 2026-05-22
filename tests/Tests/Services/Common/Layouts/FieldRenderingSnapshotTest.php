@@ -52,7 +52,7 @@ final class FieldRenderingSnapshotTest extends TestCase
 
     private static ?LayoutFieldFixtureManager $fixtures = null;
 
-    /** @var array<string, mixed> previous values of $GLOBALS keys touched by setUp, including absent (null) ones */
+    /** @var array<string, array{present: bool, value: mixed}> previous state of touched $GLOBALS keys */
     private static array $previousGlobals = [];
 
     /** @var array{hadSession: bool, session: ?SessionInterface} */
@@ -80,8 +80,13 @@ final class FieldRenderingSnapshotTest extends TestCase
         // phpunit.xml runs with processIsolation="false", so any global state
         // we mutate here can leak into unrelated tests and cause order-
         // dependent failures.
+        // Track presence separately from value: a key may legitimately hold
+        // null, which is not the same as being absent.
         foreach (self::TOUCHED_GLOBALS as $key) {
-            self::$previousGlobals[$key] = $GLOBALS[$key] ?? null;
+            self::$previousGlobals[$key] = [
+                'present' => array_key_exists($key, $GLOBALS),
+                'value'   => $GLOBALS[$key] ?? null,
+            ];
         }
         $factory = SessionWrapperFactory::getInstance();
         self::$previousSession = [
@@ -129,13 +134,13 @@ final class FieldRenderingSnapshotTest extends TestCase
         self::$fixtures?->cleanup();
         self::$fixtures = null;
 
-        // Restore $GLOBALS to its pre-setUp state. A null snapshot means the
-        // key was absent before, so unset it rather than leaving null.
+        // Restore $GLOBALS to its pre-setUp state. Only unset keys that were
+        // genuinely absent before — a key that held null is restored to null.
         foreach (self::TOUCHED_GLOBALS as $key) {
-            if (self::$previousGlobals[$key] === null) {
+            if (!self::$previousGlobals[$key]['present']) {
                 unset($GLOBALS[$key]);
             } else {
-                $GLOBALS[$key] = self::$previousGlobals[$key];
+                $GLOBALS[$key] = self::$previousGlobals[$key]['value'];
             }
         }
 
@@ -500,6 +505,8 @@ final class FieldRenderingSnapshotTest extends TestCase
                 case 'print':
                     generate_print_field($frow, $currvalue);
                     break;
+                default:
+                    throw new \InvalidArgumentException("Unknown render mode: $mode");
             }
             $echoed = ob_get_clean();
         } catch (\Throwable $e) {
@@ -535,6 +542,13 @@ final class FieldRenderingSnapshotTest extends TestCase
         $deflaked = (string) preg_replace(
             '/(\[contact(?:_address)?_id\]" value=)"\d+"/',
             '$1"__ID__"',
+            $deflaked
+        );
+        // The relation_form template also embeds the contact id in an inline
+        // JS literal: `const ownerContactId = N;`. Same volatility, same fix.
+        $deflaked = (string) preg_replace(
+            '/(const ownerContactId = )\d+;/',
+            '$1__ID__;',
             $deflaked
         );
         // Pre-commit end-of-file-fixer leaves empty files empty and otherwise
