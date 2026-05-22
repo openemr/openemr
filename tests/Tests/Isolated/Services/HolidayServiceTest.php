@@ -32,6 +32,7 @@ use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use RuntimeException;
+use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -100,13 +101,15 @@ class HolidayServiceTest extends TestCase
         }
     }
 
-    private function newService(?Connection $connection = null): HolidayService
-    {
+    private function newService(
+        ?Connection $connection = null,
+        ?Filesystem $filesystem = null,
+    ): HolidayService {
         return new HolidayService(
             connection: $connection ?? $this->connection,
             csvParser: new HolidayCsvParser(),
             siteDir: $this->siteDir,
-            filesystem: $this->filesystem,
+            filesystem: $filesystem ?? $this->filesystem,
             clock: $this->clock,
         );
     }
@@ -162,6 +165,32 @@ class HolidayServiceTest extends TestCase
         $this->expectException(InvalidHolidayCsvException::class);
         $this->expectExceptionMessageMatches('/^Upload failed: /');
         $this->newService()->uploadCsv($upload);
+    }
+
+    public function testUploadCsvWrapsMkdirFailure(): void
+    {
+        $fs = $this->createMock(Filesystem::class);
+        $fs->method('mkdir')->willThrowException(new IOException('disk full'));
+        $service = $this->newService(filesystem: $fs);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unable to create upload directory');
+        $service->uploadCsv($this->uploadedCsv("2026-12-25,X\n"));
+    }
+
+    public function testUploadCsvWrapsMoveFailure(): void
+    {
+        // Plant a regular file where the upload directory needs to be, AND
+        // mock Filesystem so its own mkdir doesn't trip first. Symfony's
+        // UploadedFile::move() then throws FileException out of
+        // getTargetFile() ("similarly-named file exists").
+        $uploadDir = $this->siteDir . '/documents/holidays_storage';
+        $this->filesystem->mkdir(dirname($uploadDir));
+        file_put_contents($uploadDir, 'block');
+        $fs = $this->createMock(Filesystem::class);
+        $fs->method('mkdir'); // no-op so the IOException branch doesn't fire
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Unable to save uploaded file');
+        $this->newService(filesystem: $fs)->uploadCsv($this->uploadedCsv("2026-12-25,X\n"));
     }
 
     public function testUploadCsvWritesFileToTargetPath(): void
@@ -226,6 +255,50 @@ class HolidayServiceTest extends TestCase
         self::assertSame('2026-12-25', $events[0]['pc_eventDate']);
         self::assertEquals(0, $events[0]['pc_facility']);
         self::assertEquals(1, $events[0]['pc_sharing']);
+    }
+
+    public function testPublishHolidayEventsSkipsStagedRowsWithNullColumns(): void
+    {
+        // Seed the staging table directly with a NULL description — the
+        // foreach in doPublishStagedRows continues past it without inserting.
+        $this->connection->insert('calendar_external', [
+            'date' => '2026-12-25',
+            'description' => null,
+            'source' => 'csv',
+        ]);
+        $this->connection->insert('calendar_external', [
+            'date' => '2026-12-26',
+            'description' => 'Boxing Day',
+            'source' => 'csv',
+        ]);
+        $this->newService()->publishHolidayEvents();
+        $titles = $this->connection->fetchFirstColumn(
+            'SELECT pc_title FROM openemr_postcalendar_events WHERE pc_catid = ? ORDER BY pc_eventDate',
+            [HolidayService::CATEGORY_HOLIDAY],
+        );
+        // Only the row with a non-null description gets published.
+        self::assertSame(['Boxing Day'], $titles);
+    }
+
+    public function testDefaultClockProducesCurrentTimestamp(): void
+    {
+        // No clock injected; the default SystemClock should still produce
+        // a valid Y-m-d H:i:s value at insert time.
+        $service = new HolidayService(
+            connection: $this->connection,
+            csvParser: new HolidayCsvParser(),
+            siteDir: $this->siteDir,
+            filesystem: $this->filesystem,
+            // clock omitted — exercise the default branch
+        );
+        $service->uploadAndSync($this->uploadedCsv("2026-12-25,Christmas\n"));
+        $pcTime = $this->connection->fetchOne('SELECT pc_time FROM openemr_postcalendar_events');
+        self::assertIsString($pcTime);
+        self::assertSame(
+            $pcTime,
+            (new DateTimeImmutable($pcTime))->format('Y-m-d H:i:s'),
+            'pc_time should be a parseable Y-m-d H:i:s value',
+        );
     }
 
     public function testPublishHolidayEventsClearsPreviousHolidaysEvenWhenEmpty(): void

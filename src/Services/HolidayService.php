@@ -21,8 +21,10 @@ declare(strict_types=1);
 namespace OpenEMR\Services;
 
 use DateTimeImmutable;
+use DateTimeZone;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
+use Lcobucci\Clock\SystemClock;
 use OpenEMR\BC\Database;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
@@ -32,6 +34,8 @@ use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+use function date_default_timezone_get;
 
 final class HolidayService implements HolidayServiceInterface
 {
@@ -78,12 +82,12 @@ final class HolidayService implements HolidayServiceInterface
     ) {
         $this->targetFile = $siteDir . '/' . self::UPLOAD_DIR . '/' . self::FILE_NAME;
         $this->filesystem = $filesystem ?? new Filesystem();
-        $this->clock = $clock ?? new class implements ClockInterface {
-            public function now(): DateTimeImmutable
-            {
-                return new DateTimeImmutable();
-            }
-        };
+        // Construct the SystemClock directly with the system timezone — the
+        // factory method `SystemClock::fromSystemTimezone()` is flagged
+        // deprecated by ForbiddenStaticMethodsRule in favor of the
+        // ServiceContainer service locator (which we deliberately avoid
+        // inside service classes).
+        $this->clock = $clock ?? new SystemClock(new DateTimeZone(date_default_timezone_get()));
     }
 
     /**
