@@ -385,7 +385,7 @@ class PatientPortalLoginControllerTest extends TestCase
         $this->assertStringContainsString(':success', $result->portalLogArgs[2]);
     }
 
-    public function testSuccessfulLoginHonorsSafeRedirectAndSkipsCacheHeaders(): void
+    public function testUnsafeRedirectFallsBackToHomeWithCacheHeaders(): void
     {
         $this->session->set('itsme', 1);
         $this->repo->stubByLoginUsername['alice_login'] = $this->seededAuth();
@@ -393,9 +393,10 @@ class PatientPortalLoginControllerTest extends TestCase
         $this->repo->stubProviderInfo[11] = ['fname' => 'Dr', 'lname' => 'Who', 'username' => 'drwho'];
 
         // ModulesApplication::filterSafeLocalModuleFiles will reject this unknown path and
-        // strip it; the success path then falls back to ./home.php. That's the safe behavior:
-        // a malicious redirect param can't escape the modules safelist, and the test asserts
-        // the safelist is consulted.
+        // strip it; the success path then falls back to ./home.php (which DOES set the
+        // legacy no-cache headers, matching the original script's behaviour). The test
+        // asserts the safelist is consulted: a malicious redirect param can't escape
+        // through to the user.
         $result = $this->controller->login(
             self::SITE,
             ['uname' => 'alice_login', 'pass' => 'goodpass'],

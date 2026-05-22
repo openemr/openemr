@@ -168,7 +168,12 @@ class PatientPortalLoginController
                 if (!is_string($newHash) || $newHash === '') {
                     throw new \RuntimeException('OpenEMR is not working because unable to create a hash.');
                 }
-                $newLoginUname = $this->stringOrNull($post['login_uname'] ?? null) ?? '';
+                // The legacy script reads $_POST['login_uname'] without an empty() check,
+                // so '0' is a valid login username here. Narrow with is_string only — no
+                // empty()-style filter — and fall back to '' only when truly absent or
+                // non-string, matching the original `[$_POST['login_uname'], ...]` bind.
+                $loginUnameRaw = $post['login_uname'] ?? null;
+                $newLoginUname = is_string($loginUnameRaw) ? $loginUnameRaw : '';
                 $this->repository->updateLoginAndPassword($auth['id'], $newLoginUname, $newHash);
                 $authorizedPortal = true;
                 $ptName = $this->stringOrNull($session->get('ptName')) ?? '';
