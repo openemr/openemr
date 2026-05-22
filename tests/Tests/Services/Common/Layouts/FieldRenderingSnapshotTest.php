@@ -561,6 +561,18 @@ final class FieldRenderingSnapshotTest extends TestCase
             '$1__ID__;',
             $deflaked
         );
+        // Address/telecom/relation Twig templates default period_start /
+        // start_date inputs to {{ 'now'|date('Y-m-d') }}, so today's date
+        // leaks into the rendered output. Replace it with __TODAY__ wherever
+        // the value attribute sits on the same line as a `class='datepicker`
+        // input — that scopes the substitution to renderer-emitted defaults
+        // and skips fixed test-input dates like data_type 4's `2026-01-15`.
+        $deflaked = implode("\n", array_map(
+            static fn (string $line): string => str_contains($line, "class='datepicker")
+                ? (string) preg_replace("/value='\d{4}-\d{2}-\d{2}'/", "value='__TODAY__'", $line)
+                : $line,
+            explode("\n", $deflaked)
+        ));
         // Pre-commit end-of-file-fixer leaves empty files empty and otherwise
         // enforces a single trailing newline. Match that exactly so fixtures
         // round-trip without drift.
