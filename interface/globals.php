@@ -237,12 +237,10 @@ $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 if (empty($restRequest)) {
     $restRequest = HttpRestRequest::createFromGlobals();
 }
-if (isset($globalsBag)) {
-    assert($globalsBag instanceof OEGlobalsBag);
-} else {
-    // Initially this was too early. We now reinit at bottom to ensure all values are collected.
-    $globalsBag = OEGlobalsBag::getInstance();
-}
+// OEGlobalsBag is a singleton; reassigning here is safe even if an earlier
+// include already populated it. Selected values are re-set onto the bag
+// throughout the rest of this file.
+$globalsBag = OEGlobalsBag::getInstance();
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
 // Absolute path to the location of documentroot directory for use with include statements:

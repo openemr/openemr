@@ -44,7 +44,9 @@ use OpenEMR\Core\OEGlobalsBag;
 
 set_time_limit(0);
 $globalsBag = require_once("../globals.php");
-assert($globalsBag instanceof OEGlobalsBag);
+if (!$globalsBag instanceof OEGlobalsBag) {
+    throw new \LogicException('globals.php must return an instance of ' . OEGlobalsBag::class);
+}
 
 require_once($globalsBag->getSrcDir() . "/layout.inc.php");
 require_once($globalsBag->getSrcDir() . "/patient.inc.php");

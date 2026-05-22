@@ -22,7 +22,6 @@ use Psr\Log\{LoggerInterface, LogLevel};
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 use Throwable;
 
-use function assert;
 use function defined;
 use function error_reporting;
 use function header;
@@ -123,8 +122,7 @@ readonly class ErrorHandler
         if ($e instanceof HttpExceptionInterface) {
             $response = $this->rf->createResponse($e->getStatusCode());
             foreach ($e->getHeaders() as $header => $value) {
-                assert(is_string($value) || is_int($value));
-                $response = $response->withAddedHeader($header, (string)$value);
+                $response = $response->withAddedHeader($header, $this->normalizeHeaderValue($header, $value));
             }
             return $response;
         }
@@ -137,6 +135,35 @@ readonly class ErrorHandler
 
         return $this->rf->createResponse(500)
             ->withBody($this->sf->createStream($message));
+    }
+
+    /**
+     * @return string|list<string>
+     */
+    private function normalizeHeaderValue(string $header, mixed $value): string|array
+    {
+        if (is_array($value)) {
+            $normalized = [];
+            foreach ($value as $entry) {
+                if (!is_string($entry) && !is_int($entry)) {
+                    throw new \UnexpectedValueException(sprintf(
+                        'HttpExceptionInterface header "%s" array entry must be string or int; got %s',
+                        $header,
+                        get_debug_type($entry),
+                    ));
+                }
+                $normalized[] = (string)$entry;
+            }
+            return $normalized;
+        }
+        if (is_string($value) || is_int($value)) {
+            return (string)$value;
+        }
+        throw new \UnexpectedValueException(sprintf(
+            'HttpExceptionInterface header "%s" must be string, int, or array; got %s',
+            $header,
+            get_debug_type($value),
+        ));
     }
 
     private function logUncaughtException(Throwable $e): void

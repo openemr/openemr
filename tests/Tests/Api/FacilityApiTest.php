@@ -108,7 +108,7 @@ class FacilityApiTest extends TestCase
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
 
         $facilityUuid = $responseBody["data"]["uuid"];
-        assert(is_string($facilityUuid));
+        self::assertIsString($facilityUuid);
 
         $this->facilityRecord["email"] = "help@pennfirm.com";
         $actualResponse = $this->testClient->put(self::FACILITY_API_ENDPOINT, $facilityUuid, $this->facilityRecord);
@@ -120,7 +120,7 @@ class FacilityApiTest extends TestCase
         $this->assertEquals(0, count($responseBody["internalErrors"]));
 
         $updatedResource = $responseBody["data"];
-        assert(is_array($updatedResource));
+        self::assertIsArray($updatedResource);
         $this->assertEquals($this->facilityRecord["email"], $updatedResource["email"]);
     }
 
@@ -146,7 +146,7 @@ class FacilityApiTest extends TestCase
         /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $facilityUuid = $responseBody["data"]["uuid"];
-        assert(is_string($facilityUuid));
+        self::assertIsString($facilityUuid);
         $facilityId = $responseBody["data"]["id"];
 
         $actualResponse = $this->testClient->getOne(self::FACILITY_API_ENDPOINT, $facilityUuid);
