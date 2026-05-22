@@ -117,11 +117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/account/index_reset.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function define\\(\\) with incorrect case\\: DEFINE$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function header\\(\\) with incorrect case\\: Header$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/index.php',

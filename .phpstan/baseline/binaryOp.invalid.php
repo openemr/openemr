@@ -12654,56 +12654,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Location\\: \' and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\: \' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:allow portal…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:invalid email\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:invalid password\' results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:invalid username\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:not active patient\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:not authorized\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Location\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/home.php',
 ];
 $ignoreErrors[] = [
