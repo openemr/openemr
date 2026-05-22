@@ -33,6 +33,7 @@ use OpenEMR\Controllers\Portal\PortalAuditLogger;
 use OpenEMR\Controllers\Portal\SessionUtilPortalSessionAccessor;
 use OpenEMR\Controllers\Portal\SqlPortalLoginCredentialsRepository;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Globals\UserSettingsService;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 require_once(__DIR__ . '/../vendor/autoload.php');
@@ -52,13 +53,12 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Regenerate the session id to avoid session fixation attacks.
 $session->migrate(true);
 
-// OpenEMR globals + legacy procedural helpers needed by the SQL repository and the
-// controller (privQuery/privStatement/QueryUtils::querySingleRow/getUserIDInfo,
-// AuthHash, CsrfUtils, ApplicationTable).
+// OpenEMR globals + the legacy ApplicationTable class needed by the audit logger.
+// (QueryUtils, AuthHash, CsrfUtils, and UserSettingsService are all PSR-4 and load
+// via the composer autoloader.)
 $ignoreAuth_onsite_portal = true;
 require_once('../interface/globals.php');
 require_once(__DIR__ . '/lib/appsql.class.php');
-require_once("$srcdir/user.inc.php");
 
 $logit = new ApplicationTable();
 
@@ -76,10 +76,10 @@ $auditLogger = new class ($logit) implements PortalAuditLogger {
     }
 };
 
-// Wire the legacy getUserIDInfo() lookup into the SQL repository so the repo itself does
-// not depend on a non-autoloaded global function.
+// Wire the provider info lookup as a static-method callable so the repository itself
+// does not have to reference the legacy global function.
 $controller = new PatientPortalLoginController(
-    new SqlPortalLoginCredentialsRepository('getUserIDInfo'),
+    new SqlPortalLoginCredentialsRepository(UserSettingsService::getUserIDInfo(...)),
     $auditLogger
 );
 

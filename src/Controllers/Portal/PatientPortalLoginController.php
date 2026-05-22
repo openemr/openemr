@@ -92,12 +92,23 @@ class PatientPortalLoginController
             return new PatientPortalLoginResult($landingpage . '&w&c', true);
         }
 
-        // Language selection (mutates session whatever the auth outcome).
-        $languageChoice = $post['languageChoice'] ?? null;
-        if (is_numeric($languageChoice)) {
+        // Language selection (mutates session whatever the auth outcome). Matches the
+        // legacy three-way logic exactly:
+        //   if (!empty($_POST['languageChoice'])) { set as int }
+        //   elseif (empty($session->get('language_choice'))) { default to 1 }
+        //   else { leave session value alone }
+        // `empty('0')` is true in PHP, so '0' here counts as unset for both branches.
+        $languageChoice = $this->stringOrNull($post['languageChoice'] ?? null);
+        if ($languageChoice !== null) {
             $session->set('language_choice', (int) $languageChoice);
-        } elseif (!is_numeric($session->get('language_choice'))) {
-            $session->set('language_choice', 1);
+        } else {
+            $existing = $session->get('language_choice');
+            // Mirror `empty()` truthiness across the types this slot can hold.
+            $isLegacyEmpty = in_array($existing, [null, false, 0, '', '0'], true);
+            if ($isLegacyEmpty) {
+                // just in case both are empty, then use english (preserved from original)
+                $session->set('language_choice', 1);
+            }
         }
 
         // Mode discriminator: 2 = one-time PIN reset, 1 = normal-reset (must-change), 0 = normal.
@@ -299,12 +310,19 @@ class PatientPortalLoginController
     }
 
     /**
-     * Narrow `mixed` to a non-empty string or null. Used at the input boundary so the
-     * rest of the controller deals only with honest strings.
+     * Narrow `mixed` to a non-empty string or null, matching PHP's `empty()` semantics
+     * so this refactor preserves the legacy script's behavior bit-for-bit. `empty('0')`
+     * is true in PHP — the legacy script's `if (empty($_POST['x']))` checks therefore
+     * treated the literal "0" the same as "" and null, and so does this helper.
+     *
+     * Symfony's typed Request accessors (e.g. `InputBag::getString`) would replace
+     * this if the controller were restructured to take a `ServerRequestInterface`
+     * instead of raw `$_POST`/`$_REQUEST` arrays. That restructure is out of scope
+     * for this behavior-preserving extraction.
      */
     private function stringOrNull(mixed $value): ?string
     {
-        if (is_string($value) && $value !== '') {
+        if (is_string($value) && $value !== '' && $value !== '0') {
             return $value;
         }
         return null;
