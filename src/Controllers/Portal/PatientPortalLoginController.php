@@ -264,7 +264,12 @@ class PatientPortalLoginController
         $pin = $this->stringOrNull($session->get('pin'));
         if ($passwordUpdate === self::PASSWORD_UPDATE_ONE_TIME_RESET && $pin !== null) {
             // One-time PIN reset: the row is keyed by the one-time token, not by username.
-            $token = $this->stringOrNull($session->get('forward')) ?? '';
+            // Bail without touching the DB when forward is missing; an empty-string lookup
+            // could match a stale `portal_onetime=''` row and then clear it as a side effect.
+            $token = $this->stringOrNull($session->get('forward'));
+            if ($token === null) {
+                return null;
+            }
             $auth = $this->repository->fetchByOneTimeToken($token);
 
             if ($auth === null) {
