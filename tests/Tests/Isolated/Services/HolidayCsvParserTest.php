@@ -79,7 +79,7 @@ class HolidayCsvParserTest extends TestCase
     {
         try {
             $this->parseString("2026-12-25,Christmas\nnot-a-date,Other\n");
-            self::fail('Expected InvalidHolidayCsvException');
+            self::fail('Expected InvalidHolidayCsvException'); // @codeCoverageIgnore
         } catch (InvalidHolidayCsvException $e) {
             self::assertSame(2, $e->rowNumber);
             self::assertStringContainsString('Invalid date format', $e->getMessage());
@@ -90,7 +90,7 @@ class HolidayCsvParserTest extends TestCase
     {
         try {
             $this->parseString("2026-12-25\n");
-            self::fail('Expected InvalidHolidayCsvException');
+            self::fail('Expected InvalidHolidayCsvException'); // @codeCoverageIgnore
         } catch (InvalidHolidayCsvException $e) {
             self::assertSame(1, $e->rowNumber);
             self::assertStringContainsString('date and description', $e->getMessage());
@@ -132,12 +132,26 @@ class HolidayCsvParserTest extends TestCase
         ));
     }
 
+    public function testUnreadableFileThrows(): void
+    {
+        try {
+            iterator_to_array(
+                (new HolidayCsvParser())->parse('/nonexistent/path/holidays.csv'),
+                false,
+            );
+            self::fail('Expected InvalidHolidayCsvException'); // @codeCoverageIgnore
+        } catch (InvalidHolidayCsvException $e) {
+            self::assertSame('Unable to read uploaded file', $e->getMessage());
+            self::assertNotNull($e->getPrevious());
+        }
+    }
+
     public function testInvalidLeapDayRejected(): void
     {
         // 2025 is not a leap year — 2025-02-29 must fail.
         try {
             $this->parseString("2025-02-29,Bogus\n");
-            self::fail('Expected InvalidHolidayCsvException');
+            self::fail('Expected InvalidHolidayCsvException'); // @codeCoverageIgnore
         } catch (InvalidHolidayCsvException $e) {
             self::assertStringContainsString('Invalid date format', $e->getMessage());
         }
@@ -150,7 +164,7 @@ class HolidayCsvParserTest extends TestCase
     {
         $path = tempnam(sys_get_temp_dir(), 'holiday-csv-test-');
         if ($path === false) {
-            self::fail('tempnam failed');
+            self::fail('tempnam failed'); // @codeCoverageIgnore
         }
         file_put_contents($path, $csv);
         $this->tempFiles[] = $path;

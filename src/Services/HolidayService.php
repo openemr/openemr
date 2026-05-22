@@ -25,6 +25,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DbalException;
 use OpenEMR\BC\Database;
 use OpenEMR\Core\OEGlobalsBag;
+use Psr\Clock\ClockInterface;
 use RuntimeException;
 use SplFileInfo;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -64,6 +65,7 @@ final class HolidayService implements HolidayServiceInterface
 
     private readonly string $targetFile;
     private readonly Filesystem $filesystem;
+    private readonly ClockInterface $clock;
     /** @var array<string, true>|null */
     private ?array $holidayDateSet = null;
 
@@ -72,9 +74,16 @@ final class HolidayService implements HolidayServiceInterface
         private readonly HolidayCsvParserInterface $csvParser,
         string $siteDir,
         ?Filesystem $filesystem = null,
+        ?ClockInterface $clock = null,
     ) {
         $this->targetFile = $siteDir . '/' . self::UPLOAD_DIR . '/' . self::FILE_NAME;
         $this->filesystem = $filesystem ?? new Filesystem();
+        $this->clock = $clock ?? new class implements ClockInterface {
+            public function now(): DateTimeImmutable
+            {
+                return new DateTimeImmutable();
+            }
+        };
     }
 
     /**
@@ -216,6 +225,7 @@ final class HolidayService implements HolidayServiceInterface
         );
 
         $recurrSpec = serialize(self::NO_RECURRENCE_SPEC);
+        $now = $this->clock->now()->format('Y-m-d H:i:s');
 
         $this->connection->executeStatement(
             <<<'SQL'
@@ -236,11 +246,12 @@ final class HolidayService implements HolidayServiceInterface
                     pc_catid, pc_aid, pc_pid, pc_title, pc_time,
                     pc_eventDate, pc_duration, pc_recurrspec, pc_alldayevent,
                     pc_eventstatus, pc_facility, pc_sharing
-                ) VALUES (?, 0, 0, ?, NOW(), ?, 86400, ?, 1, 1, ?, ?)
+                ) VALUES (?, 0, 0, ?, ?, ?, 86400, ?, 1, 1, ?, ?)
                 SQL,
                 [
                     self::CATEGORY_HOLIDAY,
                     $description,
+                    $now,
                     $date,
                     $recurrSpec,
                     0, // pc_facility: "all facilities" — holidays are org-wide
