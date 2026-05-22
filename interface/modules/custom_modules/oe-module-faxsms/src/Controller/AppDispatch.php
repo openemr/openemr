@@ -42,7 +42,7 @@ abstract class AppDispatch
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies;
-    private readonly SessionInterface $_session;
+    private ?SessionInterface $_session = null;
     protected $authUser;
 
     /**
@@ -55,11 +55,11 @@ abstract class AppDispatch
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->_session ??= SessionWrapperFactory::getInstance()->getActiveSession();
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = ServiceContainer::getCrypto();
         // Background-service workers (bin/console background:services run,
@@ -90,7 +90,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $serviceType = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
+            $serviceType = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -155,11 +155,24 @@ abstract class AppDispatch
      */
     public function getSession(?string $param = null, mixed $default = null): mixed
     {
+        $session = $this->session();
         if ($param) {
-            return $this->_session->get($param) ?? $default;
+            return $session->get($param) ?? $default;
         }
 
-        return $this->_session;
+        return $session;
+    }
+
+    /**
+     * Lazily resolve the active session wrapper.
+     *
+     * Service clients reach this method via the static factory path
+     * (AppDispatch::getApiService → new RCFaxClient → getCredentials → getSession)
+     * *before* parent::__construct() has run, so the property is not yet set.
+     */
+    private function session(): SessionInterface
+    {
+        return $this->_session ??= SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
     /**
