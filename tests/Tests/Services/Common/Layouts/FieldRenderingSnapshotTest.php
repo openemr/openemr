@@ -229,6 +229,36 @@ final class FieldRenderingSnapshotTest extends TestCase
             'frow'      => self::baseFrow(46, 'test_list_box_with_comment', ['list_id' => $listId]),
             'currvalue' => $optionId,
         ];
+        yield 'issue-types' => [
+            'data_type' => 17,
+            'frow'      => self::baseFrow(17, 'test_issue_types'),
+            'currvalue' => 'medical_problem',
+        ];
+        yield 'lifestyle-status' => [
+            'data_type' => 28,
+            'frow'      => self::baseFrow(28, 'test_lifestyle_status', ['list_id' => $listId]),
+            'currvalue' => $optionId . '|current|2026-01-15',
+        ];
+        yield 'smoking-status' => [
+            'data_type' => 32,
+            'frow'      => self::baseFrow(32, 'test_smoking_status', ['list_id' => 'smoking_status']),
+            'currvalue' => '449868002|current|2026-01-15',
+        ];
+        yield 'race-ethnicity' => [
+            'data_type' => 33,
+            'frow'      => self::baseFrow(33, 'test_race_ethnicity', ['list_id' => $listId]),
+            'currvalue' => $optionId,
+        ];
+        yield 'nation-notes' => [
+            'data_type' => 34,
+            'frow'      => self::baseFrow(34, 'test_nation_notes', ['list_id' => $listId]),
+            'currvalue' => 'note body|*|*|*|',
+        ];
+        yield 'lab-results' => [
+            'data_type' => 37,
+            'frow'      => self::baseFrow(37, 'test_lab_results', ['list_id' => $listId]),
+            'currvalue' => $optionId . '|positive|note',
+        ];
     }
 
     /**
