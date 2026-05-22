@@ -23,14 +23,24 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Services\Common\Layouts;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Tests\Fixtures\LayoutFieldFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 
 final class FieldRenderingSnapshotTest extends TestCase
 {
     private const FIXTURE_DIR = __DIR__ . '/fixtures';
+
+    // Stable test sentinels used by the session/OEGlobalsBag wiring so any
+    // value that leaks into rendered HTML is recognizable and deterministic.
+    private const SITE_ID = 'default';
+    private const AUTH_USER_ID = '1';
+    private const TEST_PID = 1;
 
     private static ?LayoutFieldFixtureManager $fixtures = null;
 
@@ -45,6 +55,24 @@ final class FieldRenderingSnapshotTest extends TestCase
         $GLOBALS['date_display_format'] ??= 0;
         $GLOBALS['time_display_format'] ??= 0;
         $GLOBALS['gbl_time_zone'] ??= 'UTC';
+
+        // Inject a deterministic in-memory session with the keys the renderer
+        // reads (site_id for canvas image lookup, authUserID + pid for the
+        // patient/admin signature branches, pid for patient-scoped lists).
+        $session = new Session(new MockArraySessionStorage());
+        $session->set('site_id', self::SITE_ID);
+        $session->set('authUserID', self::AUTH_USER_ID);
+        $session->set('pid', self::TEST_PID);
+        // CsrfUtils::collectCsrfToken throws when this key is missing; the
+        // relation_form template calls it during data_type 56 rendering. The
+        // value just has to be present and stable — the test sentinel makes
+        // the derived token reproducible across runs.
+        $session->set('csrf_private_key', '__test_layout_field_csrf__');
+        SessionWrapperFactory::getInstance()->setActiveSession($session);
+
+        // OEGlobalsBag is the modern accessor the canvas/signature branches use
+        // for pid; mirror the session value so both code paths agree.
+        OEGlobalsBag::getInstance()->set('pid', self::TEST_PID);
 
         self::$fixtures = new LayoutFieldFixtureManager();
         self::$fixtures->seed();
@@ -259,6 +287,116 @@ final class FieldRenderingSnapshotTest extends TestCase
             'frow'      => self::baseFrow(37, 'test_lab_results', ['list_id' => $listId]),
             'currvalue' => $optionId . '|positive|note',
         ];
+        yield 'image-canvas' => [
+            'data_type' => 40,
+            'frow'      => self::baseFrow(40, 'test_image_canvas'),
+            'currvalue' => '/images/test.png',
+        ];
+        yield 'patient-signature' => [
+            'data_type' => 41,
+            'frow'      => self::baseFrow(41, 'test_patient_signature'),
+            'currvalue' => '/sig/patient.png',
+        ];
+        yield 'user-signature' => [
+            'data_type' => 42,
+            'frow'      => self::baseFrow(42, 'test_user_signature'),
+            'currvalue' => '/sig/user.png',
+        ];
+        yield 'providers' => [
+            'data_type' => 10,
+            'frow'      => self::baseFrow(10, 'test_providers'),
+            'currvalue' => '',
+        ];
+        yield 'providers-npi' => [
+            'data_type' => 11,
+            'frow'      => self::baseFrow(11, 'test_providers_npi'),
+            'currvalue' => '',
+        ];
+        yield 'pharmacies' => [
+            'data_type' => 12,
+            'frow'      => self::baseFrow(12, 'test_pharmacies'),
+            'currvalue' => '',
+        ];
+        yield 'squads' => [
+            'data_type' => 13,
+            'frow'      => self::baseFrow(13, 'test_squads'),
+            'currvalue' => '',
+        ];
+        yield 'address-book' => [
+            'data_type' => 14,
+            'frow'      => self::baseFrow(14, 'test_address_book'),
+            'currvalue' => '',
+        ];
+        yield 'billing-codes' => [
+            'data_type' => 15,
+            'frow'      => self::baseFrow(15, 'test_billing_codes'),
+            'currvalue' => '',
+        ];
+        yield 'insurances' => [
+            'data_type' => 16,
+            'frow'      => self::baseFrow(16, 'test_insurances'),
+            'currvalue' => '',
+        ];
+        yield 'visit-categories' => [
+            'data_type' => 18,
+            'frow'      => self::baseFrow(18, 'test_visit_categories'),
+            'currvalue' => '',
+        ];
+        yield 'exam-results' => [
+            'data_type' => 23,
+            'frow'      => self::baseFrow(23, 'test_exam_results', ['list_id' => $listId]),
+            'currvalue' => $optionId . '|positive|note',
+        ];
+        yield 'facilities' => [
+            'data_type' => 35,
+            'frow'      => self::baseFrow(35, 'test_facilities'),
+            'currvalue' => '',
+        ];
+        yield 'multi-select-facilities' => [
+            'data_type' => 44,
+            'frow'      => self::baseFrow(44, 'test_multi_select_facilities'),
+            'currvalue' => '',
+        ];
+        yield 'multi-select-provider' => [
+            'data_type' => 45,
+            'frow'      => self::baseFrow(45, 'test_multi_select_provider'),
+            'currvalue' => '',
+        ];
+        yield 'patient-allergies' => [
+            'data_type' => 24,
+            'frow'      => self::baseFrow(24, 'test_patient_allergies'),
+            'currvalue' => '',
+        ];
+        yield 'patient-name' => [
+            'data_type' => 51,
+            'frow'      => self::baseFrow(51, 'test_patient_name'),
+            'currvalue' => '',
+        ];
+        yield 'previous-names' => [
+            'data_type' => 52,
+            'frow'      => self::baseFrow(52, 'test_previous_names'),
+            'currvalue' => '',
+        ];
+        yield 'patient-encounters-list' => [
+            'data_type' => 53,
+            'frow'      => self::baseFrow(53, 'test_patient_encounters_list'),
+            'currvalue' => '',
+        ];
+        yield 'address-list' => [
+            'data_type' => 54,
+            'frow'      => self::baseFrow(54, 'test_address_list'),
+            'currvalue' => '',
+        ];
+        yield 'telecom-list' => [
+            'data_type' => 55,
+            'frow'      => self::baseFrow(55, 'test_telecom_list'),
+            'currvalue' => '',
+        ];
+        yield 'related-person-list' => [
+            'data_type' => 56,
+            'frow'      => self::baseFrow(56, 'test_related_person_list'),
+            'currvalue' => '',
+        ];
     }
 
     /**
@@ -311,8 +449,12 @@ final class FieldRenderingSnapshotTest extends TestCase
     private static function normalize(string $html): string
     {
         $stripped = implode("\n", array_map(rtrim(...), explode("\n", $html)));
-        // uniqid() returns 13 hex chars; widgets often embed it in DOM ids.
-        $deflaked = (string) preg_replace('/\b[0-9a-f]{13}\b/', '__UNIQ__', $stripped);
+        // uniqid() returns 13 hex chars. Address/telecom/relation templates
+        // build DOM ids like "table_edit_addresses_<uniqid>" — match the
+        // underscore prefix so the regex doesn't lock onto coincidental hex
+        // runs in unrelated content (the prior \b-anchored version missed
+        // these matches because _ is a word character).
+        $deflaked = (string) preg_replace('/_[0-9a-f]{13}\b/', '___UNIQ__', $stripped);
         // Pre-commit end-of-file-fixer leaves empty files empty and otherwise
         // enforces a single trailing newline. Match that exactly so fixtures
         // round-trip without drift.

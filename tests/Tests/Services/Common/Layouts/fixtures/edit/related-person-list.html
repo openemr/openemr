@@ -1,0 +1,3642 @@
+
+<style>
+    div.table_edit_relations div.label_custom, div.form_relations div.label_custom {
+        text-align: left !important;
+    }
+    .relation-inactive {
+        opacity: 0.6;
+        background-color: var(--light);
+    }
+    .relation-card {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        margin: 0.5rem 0rem;
+        background-color: var(--white);
+
+    }
+    .relation-card-header {
+        background-color:  var(--light);
+        padding: 0.3rem 0.3rem;
+        border-bottom: 1px solid #dee2e6;
+        cursor: pointer;
+    }
+    .relation-card-body {
+        padding: 0.8rem 2rem;
+    }
+</style>
+
+
+<div id="table_edit_relations___UNIQ__" class="row mt-3">
+    <div class="table_edit_relations col-12">
+        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">Related Persons</div>
+                <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_table_edit_relations___UNIQ__"
+                    style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_relations_table_edit_relations___UNIQ__">
+                <label class="form-check-label" for="show_inactive_relations_table_edit_relations___UNIQ__" style="font-size: 0.9em;">
+                    Show Inactive
+                </label>
+            </div>
+        </div>
+
+
+<style>
+    /* Inline add person section styles */
+    #addPersonSection {
+        border: 2px solid #007bff;
+        border-radius: 0.5rem;
+        background-color: var(—light);
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
+        animation: slideDown 0.3s ease-out;
+        margin-top: 0.5rem !important;
+        padding: 0;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    #addPersonSection .card {
+        padding: 0rem;
+        border: 0rem;
+    }
+
+    #addPersonSection .card-header {
+        border-bottom: 1px solid #0056b3;
+        padding: 0rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    #addPersonSection .card-header button {
+        padding: 0rem 0.5rem;
+        font-size: 0.7rem;
+        font-weight: 600;
+        margin: 0.2rem 0rem;
+    }
+
+    #addPersonSection .card-body {
+        padding: 1rem;
+    }
+
+    #addPersonSection .card-body .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin-right: -15px;
+        margin-left: -15px;
+    }
+
+    #addPersonSection .card-body .row > div[class*="col-"] {
+        /* Override Bootstrap's behavior - use flexible sizing instead of fixed percentages */
+        flex: 1 1 0%;
+
+        /* Set minimum width to accommodate label + input
+           Adjust this value (200-280px) based on your longest label and input field width */
+        min-width: 250px;
+
+        /* Maximum width ensures columns don't get too wide */
+        max-width: 100%;
+
+        /* Keep Bootstrap's padding */
+        padding-right: 7px;
+        padding-left: 7px;
+    }
+
+    /*
+     * Fine-tuning: Adjust min-width for different screen sizes
+     * This ensures better wrapping behavior across devices
+     */
+
+    /* Large screens: Keep 3 columns when there's plenty of space */
+    @media (min-width: 900px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 250px; /* Slightly larger minimum for comfort */
+        }
+    }
+
+    /* Medium screens: Allow tighter packing, will naturally wrap to 2 columns if needed */
+    @media (min-width: 600px) and (max-width: 899px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 220px; /* Comfortable minimum for 2 columns */
+        }
+    }
+
+    /* Small screens: Tighter minimum, will stack earlier if needed */
+    @media (max-width: 599px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 200px; /* Can still fit 2 columns on some devices */
+        }
+    }
+
+    /* Extra small screens: Force single column for very narrow screens */
+    @media (max-width: 480px) {
+        #addPersonSection .card-body .row > div[class*="col-"] {
+            min-width: 100%;
+            flex-basis: 100%;
+        }
+    }
+
+
+    .person-form-section {
+        background-color: var(--white);
+        padding: 0rem;
+        margin: 0rem;
+    }
+
+    .section-header {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: #495057;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 0.5rem;
+    }
+
+    #personSearchResults {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 2px solid #e9ecef;
+    }
+
+    #personSearchResults:empty {
+        display: none;
+    }
+
+    .person-search-result {
+        padding: 0.75rem;
+        border: 1px solid #dee2e6;
+        margin-bottom: 0.5rem;
+        cursor: pointer;
+        border-radius: 0.25rem;
+        transition: all 0.2s;
+        background-color: var(--white);
+    }
+
+    .person-search-result:hover {
+        background-color: var(--info);
+        border-color: #007bff;
+        transform: translateX(2px);
+    }
+
+    .live-search-indicator {
+        display: none;
+        color: #007bff;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background-color: var(--info);
+        border-radius: 0.25rem;
+    }
+
+    .live-search-indicator.searching {
+        display: block;
+    }
+
+    .person-form-section .form-group {
+        margin-bottom: 0.1rem;
+    }
+
+    .person-form-section label {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: #dc3545;
+    }
+
+    .action-buttons {
+        border-top: 2px solid #e9ecef;
+        padding-top: 1rem;
+        margin-top: 1rem;
+    }
+
+    .search-results-header {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+<div id="addPersonSection" class="d-none mt-3" data-csrf-token="8d5569f939ad5f8c32c88e98970dad38144c5a04">
+    <div class="card">
+        <div class="card-header text-white bg-primary">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="mb-0">
+                    <i class="fas fa-user-plus mr-2"></i>Add Related Person
+                </div>
+                <button type="button" class="btn btn-sm btn-light" onclick="closeAddPersonSection()" aria-label="Close">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="person-form-section ">
+                <form id="personForm">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="required-field pr-1">First Name:</label>
+                                <input type="text" id="person_first_name" class="form-control form-control-sm mb-1" size=11 required autocomplete="given-name" placeholder="Enter first name">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">Middle Name:</label>
+                                <input type="text" id="person_middle_name" class="form-control form-control-sm mb-1" size=11 autocomplete="additional-name">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="required-field pr-1">Last Name:</label>
+                                <input type="text" id="person_last_name" class="form-control form-control-sm mb-1" size=12 required autocomplete="family-name" placeholder="Enter last name">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">Phone:</label>
+                                <input type="tel" id="person_phone" class="form-control form-control-sm mb-1" size=12 placeholder="(xxx) xxx-xxxx" autocomplete="tel">
+                        	</div>
+                        </div>
+                         <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">Date of Birth:</label>
+                                <input type="text" id="person_dob" class="form-control form-control-sm mb-1 datepicker" size=10 autocomplete="bday">
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label class="pr-1">Gender:</label>
+                                <select name="form_person_gender"
+id="form_person_gender"
+class="form-control form-control form-control-sm mb-1"
+title="Select Gender"><option value="" selected>Unassigned</option>
+<option value="Male" >Male</option>
+<option value="Female" >Female</option>
+<option value="nonbinary" >Identifies as nonbinary gender (finding)</option>
+<option value="asked-declined" >Asked But Declined</option>
+<option value="UNK" >unknown</option></select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label>Notes:</label>
+                                <textarea id="person_notes" class="form-control form-control-sm mb-1 mw-100" rows="1" placeholder="Optional notes about this person"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="live-search-indicator" id="liveSearchIndicator">
+                        <i class="fas fa-spinner fa-spin mr-1"></i>Searching...
+                    </div>
+
+                    <div id="personSearchResults"></div>
+
+                    <div class="action-buttons">
+                        <button type="button" class="btn btn-success btn-sm" onclick="createNewPerson()">
+                            <i class="fas fa-plus-circle mr-2"></i>Create New Person and Add Relationship
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    // ============= UNIFIED PERSON SEARCH AND CREATE =============
+
+    const tableId = "table_edit_relations___UNIQ__";
+    const webroot = "";
+    let searchTimeout = null;
+    let lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
+
+    let csrfToken = document.getElementById('addPersonSection')?.dataset.csrfToken;
+    console.log('csrfToken '+csrfToken);
+    if (!csrfToken) {
+        console.error('CSRF token not found!');
+    }
+
+
+function DateToYYYYMMDD_js(value){
+    var value = value.replace(/\//g,'-');
+    var parts = value.split('-');
+    var date_display_format = 0;
+
+    if (date_display_format == 1)      // mm/dd/yyyy, note year is added below
+        value = parts[2] + '-' + parts[0]  + '-' + parts[1];
+    else if (date_display_format == 2) // dd/mm/yyyy, note year is added below
+        value = parts[2] + '-' + parts[1]  + '-' + parts[0];
+
+    return value;
+}
+
+function TimeToHHMMSS_js(value){
+    if (value.trim() == '') {
+        return '';
+    }
+
+    var is_pm = value.trim().toUpperCase().indexOf('PM');
+    if (is_pm > 0) {
+        let d = new Date("1970-01-01 " + value);
+        let value = d.setHours(d.getHours() + 12).toTimeString();
+    }
+    return value.trim();
+}
+
+function DateToYYYYMMDDHHMMSS_js(value){
+    if (typeof value === 'undefined' || value.trim() == '') {
+        return undefined;
+    }
+    var parts = value.split(' ');
+
+    var datePart = DateToYYYYMMDD_js(parts[0]);
+    var timePart = TimeToHHMMSS_js(parts[1]);
+
+    var value = datePart + ' ' + timePart;
+
+    return value.trim();
+}
+
+
+    // Setup add button
+    var addButton = document.getElementById("btn_add_relation_" + tableId);
+    if (addButton) {
+        console.log('Setting up add button:', addButton.id);
+        addButton.addEventListener('click', function(event) {
+            console.log('Add telecom button clicked:', tableId);
+            event.preventDefault();
+            event.stopPropagation();
+            openPersonSearch(event);
+        });
+    } else {
+        console.warn('Add telecom button not found for table:', tableId);
+    }
+
+
+
+    function openPersonSearch() {
+        const section = document.getElementById('addPersonSection');
+        section.classList.remove('d-none');
+        section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Focus on first input after animation
+        setTimeout(() => {
+            document.getElementById('person_first_name').focus();
+        }, 300);
+
+        // Setup live search listeners
+        setupLiveSearch();
+    }
+
+    function closeAddPersonSection() {
+        const section = document.getElementById('addPersonSection');
+        section.classList.add('d-none');
+        clearAllFields();
+        document.getElementById('personSearchResults').innerHTML = '';
+        lastSearchParams = { first_name: '', last_name: '', dob: '', phone: '', email: '' };
+    }
+
+    function clearAllFields() {
+        document.getElementById('person_first_name').value = '';
+        document.getElementById('person_last_name').value = '';
+        document.getElementById('person_middle_name').value = '';
+        document.getElementById('person_dob').value = '';
+        document.getElementById('form_person_gender').value = '';
+        document.getElementById('person_phone').value = '';
+         document.getElementById('person_notes').value = '';
+    }
+
+    function setupLiveSearch() {
+        const inputs = [
+            document.getElementById('person_first_name'),
+            document.getElementById('person_last_name'),
+            document.getElementById('person_dob'),
+            document.getElementById('person_phone'),
+        ];
+
+        // Remove existing listeners by cloning
+        inputs.forEach((input, index) => {
+            if (input) {
+                const newInput = input.cloneNode(true);
+                input.parentNode.replaceChild(newInput, input);
+                inputs[index] = newInput;
+
+                newInput.addEventListener('input', function() {
+                    triggerLiveSearch();
+                });
+            }
+        });
+
+        let datepicker = document.getElementById('person_dob');
+        datetimepickerTranslated(datepicker, {
+            timepicker: false
+            , showSeconds: false
+            , formatInput: true
+        });
+    }
+
+    function triggerLiveSearch() {
+        // Clear existing timeout
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        // Get current values
+        const first_name = document.getElementById('person_first_name').value.trim();
+        const last_name = document.getElementById('person_last_name').value.trim();
+        const dob = document.getElementById('person_dob')?.value || '';
+        const phone = document.getElementById('person_phone').value.trim();
+
+        // Check if anything has changed
+        if (first_name === lastSearchParams.first_name &&
+            last_name === lastSearchParams.last_name &&
+            dob === lastSearchParams.dob &&
+            phone === lastSearchParams.phone) {
+            return;
+        }
+
+        // If all fields are empty, clear results
+        if (!first_name && !last_name && !dob && !phone ) {
+            document.getElementById('personSearchResults').innerHTML = '';
+            hideLiveSearchIndicator();
+            return;
+        }
+
+        // Show searching indicator
+        showLiveSearchIndicator();
+
+        // Debounce search - wait 500ms after user stops typing
+        searchTimeout = setTimeout(() => {
+            performSearch(first_name, last_name, dob, phone);
+        }, 500);
+    }
+
+    function performSearch(first_name, last_name, dob, phone) {
+        lastSearchParams = { first_name, last_name, dob, phone };
+
+        const resultsContainer = document.getElementById('personSearchResults');
+
+        fetch(webroot + '/library/ajax/person_search_ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                action: 'search_persons',
+                csrf_token: csrfToken,
+                first_name: first_name,
+                last_name: last_name,
+                birth_date: dob,
+                phone: phone,
+                foreign_table: null,
+                foreign_id: null
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(text => {
+            hideLiveSearchIndicator();
+
+            // Log the raw response for debugging
+            console.log('Raw response:', text);
+
+            // Try to parse as JSON
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                console.error('JSON parse error:', e);
+                console.error('Response text:', text);
+                resultsContainer.innerHTML = '<div class="alert alert-danger">' +
+                    '<i class="fas fa-times-circle mr-2"></i>' +
+                    '<strong>Server Error:</strong><br>' +
+                    '<pre style="max-height: 300px; overflow: auto; font-size: 11px;">' +
+                    escapeHtml(text) +
+                    '</pre>' +
+                    '</div>';
+                return;
+            }
+
+            if (data.success) {
+                displaySearchResults(data.persons);
+            } else {
+                resultsContainer.innerHTML = '<div class="alert alert-warning">' +
+                    '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                    escapeHtml(data.message || window.xl('Search failed')) +
+                    '</div>';
+            }
+        })
+        .catch(error => {
+            console.error('Search error:', error);
+            hideLiveSearchIndicator();
+            resultsContainer.innerHTML = '<div class="alert alert-danger">' +
+                '<i class="fas fa-times-circle mr-2"></i>' +
+                window.xl('Error performing search. Please try again.') +
+                '<br><small>' + escapeHtml(error.message) + '</small>' +
+                '</div>';
+        });
+    }
+
+    function showLiveSearchIndicator() {
+        document.getElementById('liveSearchIndicator').classList.add('searching');
+    }
+
+    function hideLiveSearchIndicator() {
+        document.getElementById('liveSearchIndicator').classList.remove('searching');
+    }
+
+    function displaySearchResults(persons) {
+        const container = document.getElementById('personSearchResults');
+        container.innerHTML = '';
+
+        if (!persons || persons.length === 0) {
+            return; // Just hide results if nothing found
+        }
+
+        const header = document.createElement('div');
+        header.className = 'search-results-header';
+        header.innerHTML = '<i class="fas fa-users mr-2"></i>' +
+            window.xl('Found') + ' ' + persons.length + ' ' +
+            (persons.length === 1 ? window.xl('existing person') : window.xl('existing persons')) + ':';
+        container.appendChild(header);
+
+        persons.forEach(person => {
+            const div = document.createElement('div');
+            div.className = 'person-search-result';
+
+            // Determine badges to show
+            let badges = '';
+
+            if (person.is_patient && !person.is_linked) {
+                badges += '<span class="badge badge-info ml-2">' +
+                         (person.patient_label || window.xl('Patient')) + '</span>';
+            }
+
+            if (person.is_also_patient) {
+                badges += '<span class="badge badge-success ml-2">' +
+                         '<i class="fas fa-link"></i> ' + window.xl('Also Patient') +
+                         ' ' + escapeHtml(person.linked_patient_pid) + '</span>';
+            }
+
+            if (person.is_linked && person.target_table === 'patient_data') {
+                badges += '<span class="badge badge-secondary text-white ml-2">' +
+                         '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
+            }
+
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <strong>${escapeHtml(person.first_name)} ${person.middle_name ? escapeHtml(person.middle_name) + ' ' : ''}${escapeHtml(person.last_name)}</strong>
+                        ${badges}
+                        <br>
+                        <small class="text-muted">
+                            ${person.birth_date ? window.xl('DOB') + ': ' + escapeHtml(person.birth_date) : ''}
+                            ${person.gender ? ' | ' + escapeHtml(person.gender) : ''}
+                            ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}
+                        </small>
+                    </div>
+                    <button class="btn btn-primary btn-sm ml-2">
+                        <i class="fas fa-check mr-1"></i>${window.xl('Select')}
+                    </button>
+                </div>
+            `;
+
+            div.onclick = function() {
+                selectPerson(person);
+            };
+
+            container.appendChild(div);
+        });
+    }
+
+    function selectPerson(person) {
+        closeAddPersonSection();
+        // Dispatch custom event to parent IIFE in relation_form.html.twig
+        document.dispatchEvent(new CustomEvent('addRelationForPerson', {
+            detail: {
+                tableId: tableId,
+                person: person
+            }
+        }));
+    }
+
+    function createNewPerson() {
+        const first_name = document.getElementById('person_first_name').value.trim();
+        const last_name = document.getElementById('person_last_name').value.trim();
+        const middle_name = document.getElementById('person_middle_name').value.trim();
+        const dob = document.getElementById('person_dob').value;
+        const gender = document.getElementById('form_person_gender').value;
+        const phone = document.getElementById('person_phone').value.trim();
+        const notes = document.getElementById('person_notes').value.trim();
+
+        // Validation
+        if (!first_name || !last_name) {
+            alert(window.xl('First name and last name are required'));
+            document.getElementById('person_first_name').focus();
+            return;
+        }
+
+        // Email validation if provided
+        /*if (email && !isValidEmail(email)) {
+            alert(window.xl('Please enter a valid email address'));
+            document.getElementById('person_email').focus();
+            return;
+        }*/
+
+        // Show loading state
+        const createBtn = event.target;
+        const originalBtnText = createBtn.innerHTML;
+        createBtn.disabled = true;
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
+
+        // Create person via AJAX
+        fetch(webroot + '/library/ajax/person_search_ajax.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                action: 'create_person',
+                csrf_token: csrfToken,
+                first_name: first_name,
+                last_name: last_name,
+                middle_name: middle_name,
+                birth_date: dob,
+                gender: gender,
+                phone: phone,
+                notes: notes
+            })
+        })
+        .then(response => {
+            // Get raw text first to handle errors better
+            return response.text().then(text => {
+                console.log('Create person raw response:', text);
+
+                // Try to parse as JSON
+                try {
+                    const data = JSON.parse(text);
+                    return { ok: response.ok, status: response.status, data: data };
+                } catch (e) {
+                    console.error('JSON parse error:', e);
+                    console.error('Response text:', text);
+                    throw new Error('Server returned invalid JSON. Response: ' + text.substring(0, 200));
+                }
+            });
+        })
+        .then(result => {
+            createBtn.disabled = false;
+            createBtn.innerHTML = originalBtnText;
+
+            console.log('Create person result:', result);
+
+            if (result.data.success && result.data.person) {
+                showSuccessMessage(window.xl('Person created successfully'));
+                closeAddPersonSection();
+                // Dispatch custom event to parent IIFE in relation_form.html.twig
+                document.dispatchEvent(new CustomEvent('addRelationForPerson', {
+                    detail: {
+                        tableId: tableId,
+                        person: result.data.person
+                    }
+                }));
+            } else {
+                alert(window.xl('Error creating person') + ': ' + (result.data.message || window.xl('Unknown error')));
+            }
+        })
+        .catch(error => {
+            console.error('Error creating person:', error);
+            createBtn.disabled = false;
+            createBtn.innerHTML = originalBtnText;
+            alert(window.xl('Error creating person') + ': ' + error.message);
+        });
+    }
+
+    // Utility Functions
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    function showSuccessMessage(message) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.style.position = 'fixed';
+        alertDiv.style.top = '20px';
+        alertDiv.style.right = '20px';
+        alertDiv.style.zIndex = '9999';
+        alertDiv.style.minWidth = '300px';
+        alertDiv.innerHTML = `
+            <i class="fas fa-check-circle mr-2"></i>${escapeHtml(message)}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        document.body.appendChild(alertDiv);
+
+        setTimeout(() => {
+            alertDiv.classList.remove('show');
+            setTimeout(() => alertDiv.remove(), 150);
+        }, 3000);
+    }
+
+</script>
+
+                <div class="no_relations">
+            <span class="label_custom pl-1" style="line-height: 2.0;">NO RELATED PERSONS</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+
+                    </div>
+</div>
+
+<template class="template_add_relation">
+    <div class="relations_group col-12 pl-0" data-active="1" data-index="__RP-INDEX__">
+
+
+        <input type="hidden" class="form_relations_data_action"
+                name="form_test_related_person_list[__RP-INDEX__][data_action]" value="ADD" />
+
+        <input type="hidden" class="form_relations_owner_contact_relation_id"
+                name="form_test_related_person_list[__RP-INDEX__][owner_contact_relation_id]" value="" />
+
+        <input type="hidden" class="form_relations_owner_contact_id"
+                name="form_test_related_person_list[__RP-INDEX__][owner_contact_id]" value="" />
+
+        <input type="hidden" class="form_relations_target_table"
+                name="form_test_related_person_list[__RP-INDEX__][target_table]" value="" />
+
+        <input type="hidden" class="form_relations_target_id"
+                name="form_test_related_person_list[__RP-INDEX__][target_id]" value="" />
+
+        <input type="hidden" class="form_relations_active"
+                name="form_test_related_person_list[__RP-INDEX__][active]" value="1" />
+
+        <div class="relation-card">
+            <div class="relation-card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="display_related_person form-row">
+
+                            <div class="col-2;">
+                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;"></span>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
+                            </div>
+
+                            <div class="col-2;">
+                                <small class="text-muted ml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                            </div>
+                        </div>
+
+                    <div>
+                        <span class="display_relations_badges"></span>
+                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
+                            <i class="fas fa-times"></i> Inactivate
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class='form_relations relation-card-body'>
+
+<style>
+    /* Custom styling for form fields */
+    .form_relations .form-check-label {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .form_relations .form-check-input {
+        cursor: pointer;
+    }
+
+    .form_relations .form-check-input:checked ~ .form-check-label {
+        color: #007bff;
+    }
+
+    .form_relations .form-group {
+        margin-bottom: 0.3rem;
+    }
+
+    .form_relations .label_custom {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+
+    .form_relations textarea.form_relations_notes {
+        resize: vertical;
+        min-height: 60px;
+    }
+
+    .form_relations .alert {
+        border-radius: 0.25rem;
+    }
+
+    .form_relations .text-danger.font-weight-bold {
+        animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    /* Priority field styling */
+    .form_relations_priority {
+        max-width: 80px;
+    }
+</style>
+
+
+<div class="col-12">
+        <div class="form-row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    First Name:
+                </label>
+                <input type='text'
+            class='form-control form_relations_first_name'
+            name='form_test_related_person_list[__RP-INDEX__][first_name]'
+            id='form_test_related_person_list[__RP-INDEX__][first_name]'
+            size='12'
+            maxlength='12'
+
+            title='First Name'
+            value='' />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    Middle Name:
+                </label>
+                <input type='text'
+            class='form-control form_relations_middle_name'
+            name='form_test_related_person_list[__RP-INDEX__][middle_name]'
+            id='form_test_related_person_list[__RP-INDEX__][middle_name]'
+            size='9'
+            maxlength='9'
+
+            title='Middle Name'
+            value='' />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    Last Name:
+                </label>
+                <input type='text'
+            class='form-control form_relations_last_name'
+            name='form_test_related_person_list[__RP-INDEX__][last_name]'
+            id='form_test_related_person_list[__RP-INDEX__][last_name]'
+            size='14'
+            maxlength='14'
+
+            title='Middle Name'
+            value='' />
+            </div>
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    Gender:
+                </label>
+                <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][gender]"
+id="form_test_related_person_list[__RP-INDEX__][gender]"
+class="form-control addtolistclass_administrative_sex form_relations_gender"
+title="Select Gender"><option value="" selected>Unassigned</option>
+<option value="Male" >Male</option>
+<option value="Female" >Female</option>
+<option value="nonbinary" >Identifies as nonbinary gender (finding)</option>
+<option value="asked-declined" >Asked But Declined</option>
+<option value="UNK" >unknown</option></select></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    Birth Date:
+                </label>
+                <input type='text' size='10' class='datepicker form-control form_relations_birth_date datepicker' name='form_test_related_person_list[__RP-INDEX__][birth_date]' id='form_test_related_person_list[__RP-INDEX__][birth_date]' value='' title='Birth Date'    />
+            </div>
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="label_custom">Relationship:  <span class="text-danger">*</span></label>
+                <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][relationship]"
+id="form_test_related_person_list[__RP-INDEX__][relationship]"
+class="form-control addtolistclass_related_person_relationship form_relations_relationship"
+title="How this person is related (e.g., spouse, parent, sibling)"><option value="" selected>Unassigned</option>
+<option value="SPS" >Spouse</option>
+<option value="HUSB" >Husband</option>
+<option value="WIFE" >Wife</option>
+<option value="DOMPART" >Domestic Partner</option>
+<option value="SIGOTHR" >Significant Other</option>
+<option value="FMRSPS" >Former Spouse</option>
+<option value="PRN" >Parent</option>
+<option value="NPRN" >Parent Natural</option>
+<option value="FTH" >Father</option>
+<option value="NFTH" >Father Natural</option>
+<option value="MTH" >Mother</option>
+<option value="NMTH" >Mother Natural</option>
+<option value="ADOPTF" >Father Adoptive</option>
+<option value="ADOPTM" >Mother Adoptive</option>
+<option value="ADOPTP" >Parent Adoptive</option>
+<option value="FTHFOST" >Father Foster</option>
+<option value="MTHFOST" >Mother Foster</option>
+<option value="PRNFOST" >Parent Foster</option>
+<option value="STPFTH" >Stepfather</option>
+<option value="STPMTH" >Stepmother</option>
+<option value="STPPRN" >Step Parent</option>
+<option value="GESTM" >Mother Gestational</option>
+<option value="CHILD" >Child</option>
+<option value="NCHILD" >Child Natural</option>
+<option value="DAUC" >Daughter</option>
+<option value="DAU" >Daughter Natural</option>
+<option value="SONC" >Son</option>
+<option value="SON" >Son Natural</option>
+<option value="CHLDADOPT" >Child Adopted</option>
+<option value="DAUADOPT" >Daughter Adopted</option>
+<option value="SONADOPT" >Son Adopted</option>
+<option value="CHLDFOST" >Child Foster</option>
+<option value="DAUFOST" >Daughter Foster</option>
+<option value="SONFOST" >Son Foster</option>
+<option value="STPCHLD" >Step Child</option>
+<option value="STPDAU" >Stepdaughter</option>
+<option value="STPSON" >Stepson</option>
+<option value="SIB" >Sibling</option>
+<option value="NSIB" >Sibling Natural</option>
+<option value="BRO" >Brother</option>
+<option value="NBRO" >Brother Natural</option>
+<option value="SIS" >Sister</option>
+<option value="NSIS" >Sister Natural</option>
+<option value="HBRO" >Half-Brother</option>
+<option value="HSIS" >Half-Sister</option>
+<option value="HSIB" >Half-Sibling</option>
+<option value="STPBRO" >Stepbrother</option>
+<option value="STPSIS" >Stepsister</option>
+<option value="STPSIB" >Step Sibling</option>
+<option value="TWIN" >Twin</option>
+<option value="TWINBRO" >Brother Twin</option>
+<option value="TWINSIS" >Sister Twin</option>
+<option value="FTWIN" >Twin Fraternal</option>
+<option value="FTWINBRO" >Brother Twin Fraternal</option>
+<option value="FTWINSIS" >Sister Twin Fraternal</option>
+<option value="ITWIN" >Twin Identical</option>
+<option value="ITWINBRO" >Brother Identical Twin</option>
+<option value="ITWINSIS" >Sister Identical Twin</option>
+<option value="GRPRN" >Grandparent</option>
+<option value="GRFTH" >Grandfather</option>
+<option value="GRMTH" >Grandmother</option>
+<option value="MGRPRN" >Grandparent Maternal</option>
+<option value="MGRFTH" >Grandfather Maternal</option>
+<option value="MGRMTH" >Grandmother Maternal</option>
+<option value="PGRPRN" >Grandparent Paternal</option>
+<option value="PGRFTH" >Grandfather Paternal</option>
+<option value="PGRMTH" >Grandmother Paternal</option>
+<option value="GGRPRN" >Great-Grandparent</option>
+<option value="GGRFTH" >Great-Grandfather</option>
+<option value="GGRMTH" >Great-Grandmother</option>
+<option value="MGGRPRN" >Great-Grandparent Maternal</option>
+<option value="MGGRFTH" >Great-Grandfather Maternal</option>
+<option value="MGGRMTH" >Great-Grandmother Maternal</option>
+<option value="PGGRPRN" >Great-Grandparent Paternal</option>
+<option value="PGGRFTH" >Great-Grandfather Paternal</option>
+<option value="PGGRMTH" >Great-Grandmother Paternal</option>
+<option value="GRNDCHILD" >Grandchild</option>
+<option value="GRNDDAU" >Granddaughter</option>
+<option value="GRNDSON" >Grandson</option>
+<option value="FAMMEMB" >Family Member</option>
+<option value="EXT" >Family Member Extended</option>
+<option value="AUNT" >Aunt</option>
+<option value="MAUNT" >Aunt Maternal</option>
+<option value="PAUNT" >Aunt Paternal</option>
+<option value="UNCLE" >Uncle</option>
+<option value="MUNCLE" >Uncle Maternal</option>
+<option value="PUNCLE" >Uncle Paternal</option>
+<option value="COUSN" >Cousin Maternal</option>
+<option value="MCOUSN" >Cousin Maternal</option>
+<option value="PCOUSN" >Cousin Paternal</option>
+<option value="NEPHEW" >Nephew</option>
+<option value="NIECE" >Niece</option>
+<option value="INLAW" >Inlaw</option>
+<option value="PRNINLAW" >Parent-In-Law</option>
+<option value="FTHINLAW" >Father-In-Law</option>
+<option value="MTHINLAW" >Mother-In-Law</option>
+<option value="SIBINLAW" >Sibling-In-Law</option>
+<option value="BROINLAW" >Brother-In-Law</option>
+<option value="SISINLAW" >Sister-In-Law</option>
+<option value="DAUINLAW" >Daughter-In-Law</option>
+<option value="SONINLAW" >Son-In-Law</option>
+<option value="FRND" >Friend Unrelated</option>
+<option value="NBOR" >Neighbor</option>
+<option value="ROOM" >Roommate</option>
+<option value="ONESELF" >Self</option></select></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="label_custom">Role: </label>
+                <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][role]"
+id="form_test_related_person_list[__RP-INDEX__][role]"
+class="form-control addtolistclass_related_person_role form_relations_role"
+title="Their role in care (e.g., emergency contact, guarantor)"><option value="" selected>Unassigned</option>
+<option value="ECON" >Emergency Contact</option>
+<option value="NOK" >Next of Kin</option>
+<option value="GUARD" >Guardian</option>
+<option value="DEPEN" >Dependent</option>
+<option value="CON" >contact</option>
+<option value="EMP" >Employee</option>
+<option value="GUAR" >Guarantor</option>
+<option value="CAREGIVER" >Caregiver</option>
+<option value="POWATT" >Power of Attorney</option>
+<option value="DPOWATT" >Durable Power of Attorney</option>
+<option value="HPOWATT" >Healthcare Power of Attorney</option>
+<option value="BILL" >Billing Contact</option>
+<option value="E" >Employer</option>
+<option value="POLHOLD" >Policy Holder</option>
+<option value="PAYEE" >Payee</option>
+<option value="NOT" >Notary Public</option>
+<option value="PROV" >Healthcare Provider</option>
+<option value="WIT" >Witness</option>
+<option value="O" >Other</option>
+<option value="U" >Unknown</option></select></div>
+            </div>
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">
+                    Contact Priority:
+                </label>
+                <input type='text'
+            class='form-control form_relations_priority'
+            name='form_test_related_person_list[__RP-INDEX__][contact_priority]'
+            id='form_test_related_person_list[__RP-INDEX__][contact_priority]'
+            size='2'
+            maxlength='2'
+
+            title='Lower numbers indicate higher priority. Use this to order contacts by importance.'
+            value='1' />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">Relationship Start Date:</label>
+                <input type='text' size='10' class='datepicker form-control form_relations_start_date datepicker' name='form_test_related_person_list[__RP-INDEX__][start_date]' id='form_test_related_person_list[__RP-INDEX__][start_date]' value='2026-05-22' title='When this relationship began'    />
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label class="label_custom mr-1">Relationship End Date:</label>
+                <input type='text' size='10' class='datepicker form-control form_relations_end_date datepicker' name='form_test_related_person_list[__RP-INDEX__][end_date]' id='form_test_related_person_list[__RP-INDEX__][end_date]' value='' title='Leave blank if relationship is ongoing'    />
+            </div>
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-md-2">
+            <div class="mb-2">
+                <label class="label_custom mr-1">Contact Permissions: </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-1">
+                <input type="checkbox" class="form-check-input form_relations_is_primary_contact"
+                       name="form_test_related_person_list[__RP-INDEX__][is_primary_contact]"
+                       value="1"
+
+                       id="test_related_person_list_primary_new"
+                       title="Main contact person">
+                <label class="form-check-label label_custom" for="test_related_person_list_primary_new">
+                    Primary Contact
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input form_relations_is_emergency_contact"
+                       name="form_test_related_person_list[__RP-INDEX__][is_emergency_contact]"
+                       value="1"
+
+                       id="test_related_person_list_emergency_new"
+                       title="Contact in emergencies">
+                <label class="form-check-label label_custom" for="test_related_person_list_emergency_new">
+                    Emergency Contact
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input form_relations_can_make_medical_decisions"
+                       name="form_test_related_person_list[__RP-INDEX__][can_make_medical_decisions]"
+                       value="1"
+
+                       id="test_related_person_list_medical_new"
+                       title="Authorized to make medical decisions">
+                <label class="form-check-label label_custom" for="test_related_person_list_medical_new">
+                    Medical Decisions
+                </label>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="form-check mb-2">
+                <input type="checkbox" class="form-check-input form_relations_can_receive_medical_info"
+                       name="form_test_related_person_list[__RP-INDEX__][can_receive_medical_info]"
+                       value="1"
+
+                       id="test_related_person_list_info_new"
+                       title="Receive Medical Info">
+                <label class="form-check-label label_custom" for="test_related_person_list_info_new">
+                    Receive Medical Info
+                </label>
+            </div>
+        </div>
+    </div>
+        <div class="form-row">
+        <div class="col-12">
+
+<style>
+    div.table_edit_telecoms div.label_custom, div.form_telecoms div.label_custom {
+        text-align: left !important;
+    }
+    .telecom-inactive {
+        opacity: 0.6;
+        background-color: var(--light);
+    }
+</style>
+
+<div id="table_edit_telecoms___UNIQ__" class="form-row mt-3">
+    <div class="table_edit_telecoms col-12">
+        <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">
+                                            Telecom Contacts
+                                    </div>
+                <div id="btn_add_telecom_table_edit_telecoms___UNIQ__" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_table_edit_telecoms___UNIQ__">
+                <label class="form-check-label" for="show_inactive_telecoms_table_edit_telecoms___UNIQ__" style="font-size: 0.9em;">
+                    Show Inactive
+                </label>
+            </div>
+        </div>
+
+                <div class="no_telecoms">
+            <span class="label_custom pl-1" style="line-height: 2.0;">NONE</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+
+                    </div>
+</div>
+
+<template class="template_add_telecom">
+    <div class="telecoms_group col-12 pl-0" data-status="A" data-index="__T-INDEX__">
+
+                <input type="hidden" class="form_telecoms_data_action"
+            name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][data_action]" value="ADD" />
+        <input type="hidden" class="form_telecoms_id"
+            name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][id]" value="" />
+        <input type="hidden" class="form_telecoms_contact_id"
+            name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][contact_id]" value="" />
+        <input type="hidden" class="form_telecoms_status"
+            name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][status]" value="A" />
+
+        <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
+            <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
+                <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-telecom" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
+                <i class="fas fa-phone mr-1"></i>
+                <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-6 px-0">
+                <span class="display_telecoms_value label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-2 display_telecoms_use_column px-0">
+                <span class="display_telecoms_use label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+        </div>
+
+        <div class='form_telecoms form-row mx-3 my-2'>
+
+<div class="col-12">
+        <div class="form-row">
+        <div class="col-3 label_custom">
+            Type
+        </div>
+        <div class="col-3 label_custom">
+            Use
+        </div>
+        <div class="col-3 label_custom">
+            Rank
+        </div>
+        <div class="col-3 label_custom">
+            Primary
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-3">
+            <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][system]"
+id="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][system]"
+class="form-control addtolistclass_telecom_systemsform-control form-control-sm form_telecoms_system"
+title=""><option value="" >Unassigned</option>
+<option value="phone" selected>Phone</option>
+<option value="fax" >Fax</option>
+<option value="email" >Email</option>
+<option value="pager" >Pager</option>
+<option value="url" >URL</option>
+<option value="sms" >SMS</option>
+<option value="other" >Other</option></select></div>
+        </div>
+        <div class="col-3">
+            <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][use]"
+id="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][use]"
+class="form-control addtolistclass_telecom_usesform-control form-control-sm form_telecoms_use"
+title=""><option value="" >Unassigned</option>
+<option value="mobile" >Mobile</option>
+<option value="home" selected>Home</option>
+<option value="work" >Work</option>
+<option value="temp" >Temp</option>
+<option value="old" >Old</option></select></div>
+        </div>
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_telecoms_rank'
+            name='form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][rank]'
+            id='form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][rank]'
+            size=''
+
+
+            title=''
+            value='1' />
+        </div>
+        <div class="col-3">
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input form_telecoms_is_primary"
+                       name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][is_primary]"
+                       value="Y"
+                       >
+                <label class="form-check-label">Primary</label>
+            </div>
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-9 label_custom">
+            Value
+        </div>
+        <div class="col-3 label_custom">
+            Active From
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-9">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_telecoms_value'
+            name='form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][value]'
+            id='form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][value]'
+            size=''
+
+
+            title=''
+            value='' />
+        </div>
+        <div class="col-3">
+            <input type='text' size='10' class='datepicker form-controlform-control form-control-sm form_telecoms_period_start' name='form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][period_start]' id='form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][period_start]' value='2026-05-22' title=''    />
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-12 label_custom">
+            Notes
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            <textarea class="form-control form_telecoms_notes"
+                      name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][notes]"
+                      rows="1"></textarea>
+        </div>
+    </div>
+</div>
+        </div>
+        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+    </div>
+</template>
+
+<script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
+    (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+
+    // IIFE Wrapper For Telecom Form Functions
+    (function() {
+
+        const tableId = "table_edit_telecoms___UNIQ__"
+        console.log("Running telecom script for table id:", tableId);
+
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {telecomFormHandler()});
+        } else {
+            telecomFormHandler();
+        }
+
+        // Listen for custom event (for dynamically cloned tables)
+        document.addEventListener('telecomFormHandler', function(e) {
+            console.log('Received dispatch, tableid:', tableId, 'Event:', e);
+            if (e.detail && e.detail.tableId === tableId) {
+                console.log('Received init event for telecom table:', tableId);
+                telecomFormHandler();
+            }
+        });
+
+
+        function telecomFormHandler() {
+            console.debug("Running telecomFormHandler for table id:", tableId);
+            const table = document.getElementById(tableId);
+            if (!table) {
+                console.error('Table not found:', tableId);
+                return;
+            }
+            const container = table.querySelector('.table_edit_telecoms')
+
+            let TELECOM_ACTION_VALUES = {
+                'INACTIVATE': 'INACTIVATE',
+                'ADD': 'ADD',
+                'UPDATE': 'UPDATE'
+            };
+
+
+function DateToYYYYMMDD_js(value){
+    var value = value.replace(/\//g,'-');
+    var parts = value.split('-');
+    var date_display_format = 0;
+
+    if (date_display_format == 1)      // mm/dd/yyyy, note year is added below
+        value = parts[2] + '-' + parts[0]  + '-' + parts[1];
+    else if (date_display_format == 2) // dd/mm/yyyy, note year is added below
+        value = parts[2] + '-' + parts[1]  + '-' + parts[0];
+
+    return value;
+}
+
+function TimeToHHMMSS_js(value){
+    if (value.trim() == '') {
+        return '';
+    }
+
+    var is_pm = value.trim().toUpperCase().indexOf('PM');
+    if (is_pm > 0) {
+        let d = new Date("1970-01-01 " + value);
+        let value = d.setHours(d.getHours() + 12).toTimeString();
+    }
+    return value.trim();
+}
+
+function DateToYYYYMMDDHHMMSS_js(value){
+    if (typeof value === 'undefined' || value.trim() == '') {
+        return undefined;
+    }
+    var parts = value.split(' ');
+
+    var datePart = DateToYYYYMMDD_js(parts[0]);
+    var timePart = TimeToHHMMSS_js(parts[1]);
+
+    var value = datePart + ' ' + timePart;
+
+    return value.trim();
+}
+
+
+            init(tableId);
+
+            function init(tableId) {
+                console.log('Initializing telecom table:', tableId);
+
+                // Event listeners for form changes
+                table.addEventListener('keyup', changeTelecomEdit);
+                table.addEventListener('mouseup', changeTelecomEdit);
+                table.addEventListener('touchend', changeTelecomEdit);
+
+                table.addEventListener('input', telecomUpdated);
+                table.addEventListener('change', telecomUpdated);
+
+                // Setup existing telecom buttons
+                table.querySelectorAll('.telecoms_group .display_telecoms').forEach(function (row) {
+                    setupTelecomsRowButtonEventListeners(row);
+                });
+
+                table.querySelectorAll('.form_telecoms').forEach(function (row) {
+                    setupContainerDatePickers(row);
+                    setupContainerListAddButtons(row);
+                });
+
+                // Setup show inactive checkbox
+                var showInactiveCheckbox = document.getElementById("show_inactive_telecoms_" + tableId);
+                if (showInactiveCheckbox) {
+                    showInactiveCheckbox.addEventListener('change', function() {
+                        toggleInactiveTelecoms(tableId);
+                    });
+                }
+
+                // Setup add button
+                var addButton = document.getElementById("btn_add_telecom_" + tableId);
+                if (addButton) {
+                    console.log('Setting up add button:', addButton.id);
+                    addButton.addEventListener('click', function(event) {
+                        console.log('Add telecom button clicked:', tableId);
+                        event.preventDefault();
+                        event.stopPropagation();
+                        addTelecom(event);
+                    });
+                } else {
+                    console.warn('Add telecom button not found for table:', tableId);
+                }
+            }
+
+            function toggleInactiveTelecoms(tableId) {
+                const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
+                const inactiveTelecoms = table.querySelectorAll('.telecom-inactive');
+
+                inactiveTelecoms.forEach(function (telecom) {
+                    if (checkbox.checked) {
+                        telecom.classList.remove('d-none');
+                    } else {
+                        telecom.classList.add('d-none');
+                    }
+                });
+            }
+
+            function addTelecom(event) {
+                console.log('addTelecom called', event, 'Table:', tableId);
+
+                // Get the button element
+                const target = event.currentTarget || event.target;
+                if (!target) {
+                    console.error('No target element in event:', event);
+                    alert('Error: Could not determine which button was clicked.');
+                    return;
+                }
+
+                const addTelecomButton = document.getElementById(target.id);
+
+                let row_telecom_template = null;
+
+                if (table) {
+                    let nextSibling = table.nextElementSibling;
+                    while (nextSibling) {
+                        if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_telecom')) {
+                            row_telecom_template = nextSibling;
+                            break;
+                        }
+                        nextSibling = nextSibling.nextElementSibling;
+                    }
+                }
+
+                if (!row_telecom_template) {
+                    console.error('✗ Could not find template for this telecom table');
+                    console.error('  Table:', table);
+                    console.error('  Table ID:', table ? table.id : 'no ID');
+                    console.error('  Container:', container);
+                    alert('Error: Could not find telecom template. Check console for details.');
+                    return;
+                }
+
+                // Find no_telecoms element
+                let noTelecomsElement = table.querySelector(".no_telecoms");
+
+                if (noTelecomsElement && !noTelecomsElement.classList.contains('d-none')) {
+                    hideElement(noTelecomsElement);
+                }
+
+                // Find the highest existing index
+                var allGroups = table.querySelectorAll('.telecoms_group[data-index]');
+                var maxIndex = -1;
+                allGroups.forEach(function(group) {
+                    var idx = parseInt(group.getAttribute('data-index'));
+                    if (!isNaN(idx) && idx > maxIndex) {
+                        maxIndex = idx;
+                    }
+                });
+                var newIndex = maxIndex + 1;
+
+                // Clone template content
+                var newRow = row_telecom_template.content.cloneNode(true);
+                var newRowDiv = newRow.querySelector('.telecoms_group');
+
+                // Replace __T-INDEX__ placeholder
+                newRowDiv.setAttribute('data-index', newIndex);
+
+                var allElements = newRowDiv.querySelectorAll('*');
+                allElements.forEach(function(el) {
+                    // Replace in attributes
+                    ['name', 'id', 'for'].forEach(function(attr) {
+                        if (el.hasAttribute(attr)) {
+                            var val = el.getAttribute(attr);
+                            el.setAttribute(attr, val.replace(/__T-INDEX__/g, newIndex));
+                        }
+                    });
+
+                    // Replace in text content for specific elements
+                    if (el.tagName === 'LABEL') {
+                        el.textContent = el.textContent.replace(/__T-INDEX__/g, newIndex);
+                    }
+                });
+
+                // Append to container
+                container.appendChild(newRow);
+
+                // Setup event listeners for the new row
+                var actualNewRow = table.querySelector('.telecoms_group[data-index="' + newIndex + '"]');
+                if (actualNewRow) {
+                    setupTelecomsRowButtonEventListeners(actualNewRow.querySelector('.display_telecoms'));
+
+                    var formTelecoms = actualNewRow.querySelector('.form_telecoms');
+                    if (formTelecoms) {
+                        setupContainerDatePickers(formTelecoms);
+                        setupContainerListAddButtons(formTelecoms);
+
+                        // Automatically open the edit form
+                        showElement(formTelecoms);
+                        var firstInput = formTelecoms.querySelector('input.form_telecoms_value, select.form_telecoms_system');
+                        if (firstInput) {
+                            firstInput.focus();
+                        }
+                        // Update the caret icon
+                        var editButton = actualNewRow.querySelector('.btn-edit-telecom');
+                        if (editButton) {
+                            editButton.classList.remove('fa-caret-right');
+                            editButton.classList.add('fa-caret-down');
+                        }
+                    }
+                }
+
+                console.log('Added new telecom row with index:', newIndex);
+            }
+
+            function changeTelecomEdit(event) {
+                if (event.type === 'touchend') {
+                    event.preventDefault();
+                }
+
+                var target = event.target;
+
+                var formTelecoms = target.closest('.form_telecoms');
+                if (!formTelecoms) {
+                    return;
+                }
+
+                // Find the parent telecoms_group, then find display_telecoms within it
+                var telecoms_group = formTelecoms.closest('.telecoms_group');
+                if (!telecoms_group) {
+                    return;
+                }
+
+                var displayTelecoms = formTelecoms.previousElementSibling;
+                if (!displayTelecoms || !displayTelecoms.classList.contains('display_telecoms')) {
+                    return;
+                }
+
+                var record = createTelecomRecordFromInput(formTelecoms);
+
+                var displayValue = displayTelecoms.querySelector('.display_telecoms_value');
+                if (displayValue) {
+                    displayValue.textContent = record.value;
+                }
+
+                var displaySystem = displayTelecoms.querySelector('.display_telecoms_system');
+                if (displaySystem) {
+                    displaySystem.textContent = record.system;
+                }
+
+                var displayUse = displayTelecoms.querySelector('.display_telecoms_use');
+                if (displayUse) {
+                    displayUse.textContent = record.use;
+                }
+
+
+            }
+
+            function editTelecom(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const editButton = event.currentTarget;
+                const row_display_telecoms = editButton.closest('.display_telecoms');
+                if (!row_display_telecoms) {
+                    return;
+                }
+
+                const telecoms_group = row_display_telecoms.closest('.telecoms_group');
+                if (!telecoms_group) {
+                    return;
+                }
+
+                const row_form_telecoms = row_display_telecoms.nextElementSibling;
+                if (!row_form_telecoms || !row_form_telecoms.classList.contains('form_telecoms')) {
+                    return;
+                }
+
+                var isCurrentlyHidden = row_form_telecoms.classList.contains('d-none');
+
+                if (isCurrentlyHidden) {
+                    showElement(row_form_telecoms);
+                    editButton.classList.remove('fa-caret-right');
+                    editButton.classList.add('fa-caret-down');
+                } else {
+                    hideElement(row_form_telecoms);
+                    editButton.classList.remove('fa-caret-down');
+                    editButton.classList.add('fa-caret-right');
+
+                    // Update display when closing
+                    var record = createTelecomRecordFromInput(row_form_telecoms);
+
+                    var systemSelect = row_form_telecoms.querySelector('select.form_telecoms_system');
+                    var useSelect = row_form_telecoms.querySelector('select.form_telecoms_use');
+
+                    var systemText = systemSelect && systemSelect.selectedOptions.length > 0
+                        ? systemSelect.selectedOptions[0].textContent
+                        : '';
+                    var useText = useSelect && useSelect.selectedOptions.length > 0
+                        ? useSelect.selectedOptions[0].textContent
+                        : '';
+
+                    var displaySystem = row_display_telecoms.querySelector('.display_telecoms_system');
+                    var displayValue = row_display_telecoms.querySelector('.display_telecoms_value');
+                    var displayUse = row_display_telecoms.querySelector('.display_telecoms_use');
+
+                    if (displaySystem) {
+                        var badge = displaySystem.querySelector('.badge');
+                        displaySystem.textContent = systemText;
+                        if (badge) {
+                            displaySystem.appendChild(badge);
+                        }
+                    }
+                    if (displayValue) displayValue.textContent = record.value;
+                    if (displayUse) displayUse.textContent = useText;
+
+                    // Update icon
+                    var iconElement = row_display_telecoms.querySelector('.display_telecoms_system_column i:nth-of-type(2)');
+                    if (iconElement) {
+                        iconElement.className = 'fas fa-' +
+                            (record.system === 'phone' || record.system === 'mobile' ? 'phone' :
+                                record.system === 'email' ? 'envelope' :
+                                record.system === 'fax' ? 'fax' : 'link') + ' mr-1';
+                    }
+                }
+            }
+
+            function changeTelecomStatus(event) {
+                let badge;
+                let systemSpan;
+                event.preventDefault();
+                event.stopPropagation();
+
+                const inactivateButton = event.currentTarget || event.target;
+
+                const row_display_telecoms = inactivateButton.closest('.display_telecoms');
+                if (!row_display_telecoms) {
+                    return;
+                }
+
+                const telecoms_group = row_display_telecoms.closest('.telecoms_group');
+                if (!telecoms_group) {
+                    return;
+                }
+
+                let currentStatus = telecoms_group.getAttribute('data-status');
+
+                const statusInput = telecoms_group.querySelector('input.form_telecoms_status');
+                const actionInput = telecoms_group.querySelector('input.form_telecoms_data_action');
+
+                if (currentStatus === 'I') {
+                    // REACTIVATE
+                    let prompt = window.xl("Reactivate this contact information?");
+                    if (confirm(prompt)) {
+                        telecoms_group.classList.remove('telecom-inactive');
+                        telecoms_group.setAttribute('data-status', 'A');
+
+                        systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                        badge = systemSpan.querySelector('.badge');
+                        if (badge) {
+                            badge.remove();
+                        }
+
+                        inactivateButton.classList.remove('fa-phone', 'text-success', 'btn-activate-telecom');
+                        inactivateButton.classList.add('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
+                        inactivateButton.setAttribute('title', window.xl('Inactivate Contact'));
+
+                        if (actionInput) {
+                            actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
+                        }
+                        if (statusInput) {
+                            statusInput.value = 'A';
+                        }
+
+                        console.log('Reactivated telecom:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                    }
+                } else {
+                    // INACTIVATE
+                    let prompt = window.xl("Are you sure you wish to inactivate this contact information?");
+                    if (confirm(prompt)) {
+                        telecoms_group.classList.add('telecom-inactive');
+                        telecoms_group.setAttribute('data-status', 'I');
+
+                    systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
+                    if (!systemSpan.querySelector('.badge')) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        systemSpan.appendChild(badge);
+                    }
+
+                        inactivateButton.classList.remove('fa-phone-slash', 'text-danger', 'btn-inactivate-telecom');
+                        inactivateButton.classList.add('fa-phone', 'text-success', 'btn-activate-telecom');
+                        inactivateButton.setAttribute('title', window.xl('Reactivate Contact'));
+
+                        if (actionInput) {
+                            actionInput.value = TELECOM_ACTION_VALUES.INACTIVATE;
+                        }
+                        if (statusInput) {
+                            statusInput.value = 'I';
+                        }
+
+                        // Hide if "Show Inactive" is not checked
+                        const tableId = telecoms_group.closest('[id^="table_edit_telecoms_"]').id;
+                        const checkbox = document.getElementById('show_inactive_telecoms_' + tableId);
+                        if (!checkbox || !checkbox.checked) {
+                            telecoms_group.classList.add('d-none');
+                        }
+
+                        console.log('Marked telecom as inactive:', telecoms_group.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                    }
+                }
+            }
+
+            function setupTelecomsRowButtonEventListeners(row) {
+                let buttonEdit = row.querySelector(".btn-edit-telecom");
+                if (buttonEdit) {
+                    buttonEdit.addEventListener('click', editTelecom);
+                }
+
+                let buttonInactivate = row.querySelector(".btn-inactivate-telecom");
+                if (buttonInactivate) {
+                    buttonInactivate.addEventListener('click', changeTelecomStatus);
+                }
+
+                let buttonActivate = row.querySelector(".btn-activate-telecom");
+                if (buttonActivate) {
+                    buttonActivate.addEventListener('click', changeTelecomStatus);
+                }
+            }
+
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        $(this).datetimepicker({    i18n:{
+        en: {
+            months: [
+                "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"            ],
+            dayOfWeekShort: [
+                "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"            ],
+            dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"            ]
+        },
+    },
+        yearStart: '1900',
+    scrollInput: false,
+    scrollMonth: false,
+    rtl: false,
+                                format: 'Y-m-d',
+                timepicker:false
+    });
+                    }
+                });
+            }
+
+            function setupContainerListAddButtons(table) {
+                if (window.oeUI && window.oeUI.optionWidgets) {
+                    $(table).find(".addtolist").on("click", function (event) {
+                        window.oeUI.optionWidgets.AddToList(this, event);
+                    });
+                }
+            }
+
+            function createTelecomRecordFromInput(row_form_telecoms) {
+                var record = {};
+                record.system = getSelectValue(row_form_telecoms, "select.form_telecoms_system");
+                record.use = getSelectValue(row_form_telecoms, "select.form_telecoms_use");
+                record.value = getInputValue(row_form_telecoms, "input.form_telecoms_value");
+                record.rank = getInputValue(row_form_telecoms, "input.form_telecoms_rank");
+                record.notes = getInputValue(row_form_telecoms, "textarea.form_telecoms_notes");
+                return record;
+            }
+
+            function telecomUpdated(event) {
+                const formTelecoms = event.target.closest('.form_telecoms');
+                if (!formTelecoms) return;
+
+                const telecomsGroup = formTelecoms.closest('.telecoms_group');
+                if (!telecomsGroup) return;
+
+                const actionInput = telecomsGroup.querySelector('input.form_telecoms_data_action');
+                if (!actionInput) return;
+
+                const currentAction = actionInput.value;
+                if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+                    return;
+                }
+
+                if (currentAction === 'NO CHANGE') {
+                    actionInput.value = TELECOM_ACTION_VALUES.UPDATE;
+                    console.log('Changed action to UPDATE for telecom:', telecomsGroup.querySelector('input.form_telecoms_contact_telecom_id')?.value);
+                }
+            }
+
+            // Utility functions
+            function setInputValue(root, selector, value) {
+                let node = root.querySelector(selector);
+                if (node) node.value = value;
+            }
+
+            function getInputValue(root, selector) {
+                let node = root.querySelector(selector);
+                return node ? node.value : "";
+            }
+
+            function getSelectDisplay(root, selector) {
+                let node = root.querySelector(selector);
+                if (!node) return "";
+                let options = node.selectedOptions;
+                return options && options.length ? options[0].textContent : "";
+            }
+
+            function getSelectValue(root, selector) {
+                let node = root.querySelector(selector);
+                if (!node) return "";
+                let options = node.selectedOptions;
+                return options && options.length ? options[0].value : "";
+            }
+
+            function hideElement(element) {
+                element.classList.add('d-none');
+            }
+
+            function showElement(element) {
+                element.classList.remove('d-none');
+            }
+        }
+    })();
+</script>
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-12">
+
+<style>
+    div.table_edit_addresses div.label_custom, div.form_addresses div.label_custom {
+        text-align: left !important;
+    }
+    .address-inactive {
+        opacity: 0.6;
+        background-color: var(--light);
+    }
+    .address-inactive .display_addresses {
+        font-style: italic;
+    }
+</style>
+
+<div id="table_edit_addresses___UNIQ__" class="form-row mt-3">
+    <div class="table_edit_addresses col-12">
+        <div class="display_addresses_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+            <div style="display: flex; align-items: center;">
+                <div class="label_custom mb-0">
+                                            Addresses
+                                    </div>
+                <div id="btn_add_addresses_table_edit_addresses___UNIQ__" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+            </div>
+            <div class="form-check mr-3" style="margin-bottom: 0;">
+                <input type="checkbox" class="form-check-input" id="show_inactive_addresses_table_edit_addresses___UNIQ__">
+                <label class="form-check-label" for="show_inactive_addresses_table_edit_addresses___UNIQ__" style="font-size: 0.9em;">
+                    Show Inactive
+                </label>
+            </div>
+        </div>
+
+                <div class="no_addresses">
+            <span class="label_custom pl-1" style="line-height: 2.0;">NONE</span>
+            <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+        </div>
+
+                    </div>
+</div>
+
+<template class="template_add_address">
+    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__A-INDEX__">
+
+                <input type="hidden" class="form_addresses_data_action"
+            name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][data_action]" value="ADD" />
+        <input type="hidden" class="form_addresses_contact_address_id"
+            name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][contact_address_id]" value="" />
+        <input type="hidden" class="form_addresses_contact_id"
+            name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][contact_id]" value="" />
+        <input type="hidden" class="form_addresses_addresses_id"
+            name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][addresses_id]" value="" />
+        <input type="hidden" class="form_addresses_status"
+            name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][status]" value="A" />
+
+        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+            <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
+                <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
+                <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-6 px-0">
+                <span class="display_addresses_full_address label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="col-3 display_addresses_period_column px-0">
+                <span class="display_addresses_period label_custom" style="vertical-align: 0.1rem;"></span>
+            </div>
+
+            <div class="fas fa-fw fa-solid fa-house-circle-xmark text-danger btn-inactivate-address text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
+
+        </div>
+
+        <div class='form_addresses form-row mx-3 my-2'>
+
+
+<div class="col-12">
+        <div class="form-row">
+        <div class="col-3 label_custom">
+            Address Use
+        </div>
+        <div class="col-3 label_custom">
+            Address Type
+        </div>
+        <div class="col-3 label_custom">
+            Start Date
+        </div>
+        <div class="col-3 label_custom">
+            End Date
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-3">
+            <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][use]"
+id="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][use]"
+class="form-control addtolistclass_address-usesform-control form-control-sm form_addresses_uses"
+title=""><option value="" >Unassigned</option>
+<option value="home" selected>Home</option>
+<option value="work" >Work</option>
+<option value="temp" >Temporary</option>
+<option value="old" >Old/Incorrect</option>
+<option value="billing" >Billing</option></select></div>
+        </div>
+        <div class="col-3">
+            <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][type]"
+id="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][type]"
+class="form-control addtolistclass_address-typesform-control form-control-sm form_addresses_types"
+title=""><option value="" >Unassigned</option>
+<option value="postal" >Postal</option>
+<option value="physical" >Physical</option>
+<option value="both" selected>Postal &amp; Physical</option></select></div>
+        </div>
+        <div class="col-3">
+            <input type='text' size='10' class='datepicker form-controlform-control form-control-sm form_addresses_period_start' name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][period_start]' id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][period_start]' value='2026-05-22' title=''    />
+        </div>
+        <div class="col-3">
+            <input type='text' size='10' class='datepicker form-controlform-control form-control-sm form_addresses_period_end' name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][period_end]' id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][period_end]' value='' title=''    />
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-3 label_custom">
+            Address
+        </div>
+        <div class="col-3 label_custom">
+            Address Line 2
+        </div>
+        <div class="col-3 label_custom">
+            City
+        </div>
+        <div class="col-3 label_custom">
+            County/District
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_addresses_line1'
+            name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][line_1]'
+            id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][line_1]'
+            size=''
+
+
+            title=''
+            value='' />
+        </div>
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_addresses_line2'
+            name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][line_2]'
+            id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][line_2]'
+            size=''
+
+
+            title=''
+            value='' />
+        </div>
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_addresses_city'
+            name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][city]'
+            id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][city]'
+            size=''
+
+
+            title=''
+            value='' />
+        </div>
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_addresses_district'
+            name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][district]'
+            id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][district]'
+            size=''
+
+
+            title=''
+            value='' />
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-3 label_custom">
+            State
+        </div>
+        <div class="col-3 label_custom">
+            Postal Code
+        </div>
+        <div class="col-3 label_custom">
+            Country
+        </div>
+        <div class="col-3 label_custom">
+            Priority
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-3">
+            <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][state]"
+id="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][state]"
+class="form-control addtolistclass_stateform-control form-control-sm form_addresses_state"
+title=""><option value="" selected>Unassigned</option>
+<option value="AL" >Alabama</option>
+<option value="AK" >Alaska</option>
+<option value="AZ" >Arizona</option>
+<option value="AR" >Arkansas</option>
+<option value="CA" >California</option>
+<option value="CO" >Colorado</option>
+<option value="CT" >Connecticut</option>
+<option value="DE" >Delaware</option>
+<option value="DC" >District of Columbia</option>
+<option value="FL" >Florida</option>
+<option value="GA" >Georgia</option>
+<option value="HI" >Hawaii</option>
+<option value="ID" >Idaho</option>
+<option value="IL" >Illinois</option>
+<option value="IN" >Indiana</option>
+<option value="IA" >Iowa</option>
+<option value="KS" >Kansas</option>
+<option value="KY" >Kentucky</option>
+<option value="LA" >Louisiana</option>
+<option value="ME" >Maine</option>
+<option value="MD" >Maryland</option>
+<option value="MA" >Massachusetts</option>
+<option value="MI" >Michigan</option>
+<option value="MN" >Minnesota</option>
+<option value="MS" >Mississippi</option>
+<option value="MO" >Missouri</option>
+<option value="MT" >Montana</option>
+<option value="NE" >Nebraska</option>
+<option value="NV" >Nevada</option>
+<option value="NH" >New Hampshire</option>
+<option value="NJ" >New Jersey</option>
+<option value="NM" >New Mexico</option>
+<option value="NY" >New York</option>
+<option value="NC" >North Carolina</option>
+<option value="ND" >North Dakota</option>
+<option value="OH" >Ohio</option>
+<option value="OK" >Oklahoma</option>
+<option value="OR" >Oregon</option>
+<option value="PA" >Pennsylvania</option>
+<option value="PR" >Puerto Rico</option>
+<option value="RI" >Rhode Island</option>
+<option value="SC" >South Carolina</option>
+<option value="SD" >South Dakota</option>
+<option value="TN" >Tennessee</option>
+<option value="TX" >Texas</option>
+<option value="UT" >Utah</option>
+<option value="VT" >Vermont</option>
+<option value="VA" >Virginia</option>
+<option value="WA" >Washington</option>
+<option value="WV" >West Virginia</option>
+<option value="WI" >Wisconsin</option>
+<option value="WY" >Wyoming</option></select></div>
+        </div>
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_addresses_postalcode'
+            name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][zip]'
+            id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][zip]'
+            size=''
+
+
+            title=''
+            value='' />
+        </div>
+        <div class="col-3">
+            <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][country]"
+id="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][country]"
+class="form-control addtolistclass_countryform-control form-control-sm form_addresses_country"
+title=""><option value="" >Unassigned</option>
+<option value="USA" selected>USA</option></select></div>
+        </div>
+        <div class="col-3">
+            <input type='text'
+            class='form-controlform-control form-control-sm form_addresses_priority'
+            name='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][priority]'
+            id='form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][priority]'
+            size=''
+
+
+            title=''
+            value='0' />
+        </div>
+    </div>
+
+        <div class="form-row">
+        <div class="col-12 label_custom">
+            Notes
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="col-12">
+            <textarea class="form-control form_addresses_notes"
+                      name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][notes]"
+                      rows="2"></textarea>
+        </div>
+    </div>
+</div>
+        </div>
+        <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
+    </div>
+</template>
+
+<script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
+    (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+
+    // IIFE Wrapper For Telecom Form Functions
+    (function() {
+        const tableId = "table_edit_addresses___UNIQ__"
+
+         // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {addressFormHandler()});
+        } else {
+            addressFormHandler();
+        }
+
+        // Listen for custom event (for dynamically cloned tables)
+        document.addEventListener('addressFormHandler', function(e) {
+            console.log('Received dispatch, tableid:', tableId, 'Event:', e);
+            if (e.detail && e.detail.tableId === tableId) {
+                console.log('Received init event for telecom table:', tableId);
+                addressFormHandler();
+            }
+        });
+
+
+        function addressFormHandler() {
+
+            const table = document.getElementById(tableId);
+            if (!table) {
+                console.error('Table not found:', tableId);
+                return;
+            }
+            const container = table.querySelector('.table_edit_addresses')
+
+            let ADDRESS_ACTION_VALUES = {
+                'INACTIVATE': 'INACTIVATE',
+                'ADD': 'ADD',
+                'UPDATE': 'UPDATE'
+            };
+
+
+function DateToYYYYMMDD_js(value){
+    var value = value.replace(/\//g,'-');
+    var parts = value.split('-');
+    var date_display_format = 0;
+
+    if (date_display_format == 1)      // mm/dd/yyyy, note year is added below
+        value = parts[2] + '-' + parts[0]  + '-' + parts[1];
+    else if (date_display_format == 2) // dd/mm/yyyy, note year is added below
+        value = parts[2] + '-' + parts[1]  + '-' + parts[0];
+
+    return value;
+}
+
+function TimeToHHMMSS_js(value){
+    if (value.trim() == '') {
+        return '';
+    }
+
+    var is_pm = value.trim().toUpperCase().indexOf('PM');
+    if (is_pm > 0) {
+        let d = new Date("1970-01-01 " + value);
+        let value = d.setHours(d.getHours() + 12).toTimeString();
+    }
+    return value.trim();
+}
+
+function DateToYYYYMMDDHHMMSS_js(value){
+    if (typeof value === 'undefined' || value.trim() == '') {
+        return undefined;
+    }
+    var parts = value.split(' ');
+
+    var datePart = DateToYYYYMMDD_js(parts[0]);
+    var timePart = TimeToHHMMSS_js(parts[1]);
+
+    var value = datePart + ' ' + timePart;
+
+    return value.trim();
+}
+
+
+            init(tableId);
+
+
+            function init(tableId) {
+                console.log('Initializing address table:', tableId);
+
+                // Event listeners for form changes
+                table.addEventListener('keyup', changeEdit);
+                table.addEventListener('mouseup', changeEdit);
+                table.addEventListener('touchend', changeEdit);
+
+                table.addEventListener('input', addressUpdated);
+                table.addEventListener('change', addressUpdated);
+
+                // Setup existing address buttons and datepickers
+                table.querySelectorAll('.addresses_group .display_addresses').forEach(function(row) {
+                    setupAddressesRowButtonEventListeners(row);
+                });
+
+                /*
+                table.querySelectorAll('.form_addresses').forEach(function(row) {
+                    setupContainerDatePickers(row);
+                    setupContainerListAddButtons(row);
+                });
+                */
+
+                // Setup show inactive checkbox
+                var showInactiveCheckbox = document.getElementById('show_inactive_addresses_' + tableId);
+                if (showInactiveCheckbox) {
+                    showInactiveCheckbox.addEventListener('change', function() {
+                        toggleInactiveAddresses(tableId);
+                    });
+                }
+
+                // Setup add button with event delegation
+                var addButton = document.getElementById('btn_add_addresses_' + tableId);
+                if (addButton) {
+                    console.log('Setting up add button:', addButton.id);
+                    addButton.addEventListener('click', function(event) {
+                        console.log('Add address button clicked:', tableId);
+                        event.preventDefault();
+                        event.stopPropagation();
+                        addAddress(event);
+                    });
+                } else {
+                    console.warn('Add address button not found for table:', tableId);
+                }
+            }
+
+            function toggleInactiveAddresses(tableId) {
+                const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
+                const inactiveAddresses = table.querySelectorAll('.address-inactive');
+
+                inactiveAddresses.forEach(function(address) {
+                    if (checkbox.checked) {
+                        address.classList.remove('d-none');
+                    } else {
+                        address.classList.add('d-none');
+                    }
+                });
+            }
+
+            function addAddress(event) {
+                console.log('addAddress called', event);
+
+                // Get the button element
+                const target = event.currentTarget || event.target;
+                if (!target) {
+                    console.error('No target element in event:', event);
+                    alert('Error: Could not determine which button was clicked.');
+                    return;
+                }
+
+                const addAddressButton = document.getElementById(target.id);
+
+                let row_address_template = null;
+
+                if (table) {
+                    let nextSibling = table.nextElementSibling;
+                    while (nextSibling) {
+                        if (nextSibling.tagName === 'TEMPLATE' && nextSibling.classList.contains('template_add_address')) {
+                            row_address_template = nextSibling;
+                            console.log('  âœ“ Found template as immediate sibling');
+                            break;
+                        }
+                        nextSibling = nextSibling.nextElementSibling;
+                    }
+                }
+
+                if (!row_address_template) {
+                    console.error('âœ— Could not find template for this address table');
+                    console.error('  TableRoot:', tableRoot);
+                    console.error('  TableRoot ID:', tableRoot ? tableRoot.id : 'no ID');
+                    console.error('  Container:', container);
+                    alert('Error: Could not find address template. Check console for details.');
+                    return;
+                }
+
+
+
+                // Find no_addresses element within this specific container
+                let noAddressesElement = table.querySelector(".no_addresses");
+
+                if (noAddressesElement && !noAddressesElement.classList.contains('d-none')) {
+                    hideElement(noAddressesElement);
+                }
+
+                // Find the highest existing index
+                var allGroups = container.querySelectorAll('.addresses_group[data-index]');
+                var maxIndex = -1;
+                allGroups.forEach(function(group) {
+                    var idx = parseInt(group.getAttribute('data-index'));
+                    if (!isNaN(idx) && idx > maxIndex) {
+                        maxIndex = idx;
+                    }
+                });
+                var newIndex = maxIndex + 1;
+
+                // Clone and replace __A-INDEX__ with actual index
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = row_address_template.innerHTML;
+                var html = tempDiv.innerHTML;
+
+                // Check if we're inside a relation form (nested scenario)
+                var relationGroup = container.closest('.relations_group');
+                var relationIndex = null;
+
+                if (relationGroup) {
+                    relationIndex = relationGroup.getAttribute('data-index');
+                    console.log('Found parent relation with index:', relationIndex);
+                }
+
+                // Replace __A-INDEX__ with actual index
+                html = html.replace(/__A-INDEX__/g, newIndex);
+
+                // If we're in a nested relation form, fix the field naming
+                if (relationIndex !== null) {
+                    console.log('Fixing nested field names for relation index:', relationIndex);
+
+                    // Fix the pattern: [addresses][NUMBER] should become [RELATION_INDEX][addresses][NUMBER]
+                    var namePattern = /name="([^"]*)\[addresses\]\[(\d+)\]/g;
+                    html = html.replace(namePattern, function(match, prefix, addressIdx) {
+                        // Check if it already has the relation index
+                        if (prefix.match(/\[\d+\]$/)) {
+                            return match;
+                        }
+                        // Add the relation index
+                        return 'name="' + prefix + '[' + relationIndex + '][addresses][' + addressIdx + ']';
+                    });
+                }
+
+                tempDiv.innerHTML = html;
+                var row_address_clone = tempDiv.firstElementChild;
+
+                let row_form_addresses = row_address_clone.querySelector(".form_addresses");
+                let row_display_addresses = row_address_clone.querySelector(".display_addresses");
+
+                // Append to container
+                container.appendChild(row_address_clone);
+
+                // Setup event listeners for the new row
+                setupAddressesRowButtonEventListeners(row_display_addresses);
+                setupContainerDatePickers(row_form_addresses);
+                setupContainerListAddButtons(row_form_addresses);
+
+                showElement(row_form_addresses);
+                let firstInput = row_form_addresses.querySelector('input.form_addresses_line1');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+
+                console.log('Added new address with index:', newIndex);
+            }
+
+            function changeEdit(event) {
+                var row_form_addresses = event.target.closest('.form_addresses');
+                if (!row_form_addresses) {
+                    return;
+                }
+
+                // Find the parent addresses_group, then find display_addresses within it
+                var addresses_group = row_form_addresses.closest('.addresses_group');
+                if (!addresses_group) {
+                    return;
+                }
+                var row_display_addresses = addresses_group.querySelector('.display_addresses');
+                if (!row_display_addresses) {
+                    return;
+                }
+
+                let record = createRecordFromInput(row_form_addresses);
+                let useDisplay = getSelectDisplay(row_form_addresses, "select.form_addresses_uses");
+                let fullAddress = fullAddressFromRecord(record, 1);
+                let period = PeriodFromRecord(record);
+
+                row_display_addresses.querySelector(".display_addresses_full_address").innerText = fullAddress[0];
+                row_display_addresses.querySelector(".display_addresses_use").innerText = useDisplay;
+                row_display_addresses.querySelector(".display_addresses_period").innerText = period;
+            }
+
+            function editAddress(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const editButton = event.currentTarget;
+                const row_display_addresses = editButton.closest('.display_addresses');
+                const row_form_addresses = row_display_addresses.nextElementSibling;
+
+                if (editButton.className.includes("fa-caret-right")) {
+                    row_form_addresses.classList.remove('d-none');
+                    editButton.className = "fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address";
+                } else {
+                    row_form_addresses.classList.add('d-none');
+                    editButton.className = "fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address";
+                }
+            }
+
+            function changeAddressStatus(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const inactivateButton = event.currentTarget || event.target;
+
+                const row_display_addresses = inactivateButton.closest('.display_addresses');
+                if (!row_display_addresses) {
+                    return;
+                }
+
+                const addresses_group = row_display_addresses.closest('.addresses_group');
+                const currentStatus = addresses_group.getAttribute('data-status');
+
+                // Get the hidden status input from addresses_group
+                const statusInput = addresses_group.querySelector('input.form_addresses_status');
+                const actionInput = addresses_group.querySelector('input.form_addresses_data_action');
+
+                // Check if this is currently inactive (reactivate) or active (inactivate)
+                if (currentStatus === 'I') {
+                    // REACTIVATE
+                    let prompt = window.xl("Reactivate this address?");
+                    if (confirm(prompt)) {
+                        // Remove inactive styling
+                        addresses_group.classList.remove('address-inactive');
+                        addresses_group.setAttribute('data-status', 'A');
+
+                        // Remove inactive badge from display
+                        var useSpan = row_display_addresses.querySelector('.display_addresses_use');
+                        var badge = useSpan.querySelector('.badge');
+                        if (badge) {
+                            badge.remove();
+                        }
+
+                        // Change icon back to trash
+                        inactivateButton.classList.remove('fa-house-circle-check', 'text-success');
+                        inactivateButton.classList.add('fa-house-circle-xmark', 'text-danger');
+                        inactivateButton.setAttribute('title', window.xl('Inactivate Address'));
+
+                        // Set action to UPDATE and status to A
+                        if (actionInput) {
+                            actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+                        }
+                        if (statusInput) {
+                            statusInput.value = 'A';
+                        }
+
+                        console.log('Reactivated address:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+                    }
+                } else {
+                    // INACTIVATE
+                    let prompt = window.xl("Are you sure you wish to inactivate this address?");
+                    if (confirm(prompt)) {
+                        // Mark as inactive
+                        addresses_group.classList.add('address-inactive');
+                        addresses_group.setAttribute('data-status', 'I');
+
+                    // Add inactive badge to display
+                    var useSpan = row_display_addresses.querySelector('.display_addresses_use');
+                    if (!useSpan.querySelector('.badge')) {
+                        var badge = document.createElement('span');
+                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.style.fontSize = '0.7em';
+                        badge.textContent = window.xl('Inactive');
+                        useSpan.appendChild(badge);
+                    }
+
+                        // Change icon to restore icon
+                        inactivateButton.classList.remove('fa-house-circle-xmark', 'text-danger');
+                        inactivateButton.classList.add('fa-house-circle-check', 'text-success');
+                        inactivateButton.setAttribute('title', window.xl('Reactivate Address'));
+
+                        // Set action to INACTIVATE
+                        if (actionInput) {
+                            actionInput.value = ADDRESS_ACTION_VALUES.INACTIVATE;
+                        }
+                        if (statusInput) {
+                            statusInput.value = 'I';
+                        }
+
+                        // Hide if "Show Inactive" is not checked
+                        const tableId = addresses_group.closest('[id^="table_edit_addresses_"]').id;
+                        const checkbox = document.getElementById('show_inactive_addresses_' + tableId);
+                        if (!checkbox || !checkbox.checked) {
+                            addresses_group.classList.add('d-none');
+                        }
+
+                        console.log('Marked address as inactive:', addresses_group.querySelector('input.form_addresses_contact_address_id')?.value);
+                    }
+                }
+            }
+
+            function setupAddressesRowButtonEventListeners(row) {
+                const buttonEdit = row.querySelector(".btn-edit-address");
+                if (buttonEdit) {
+                    buttonEdit.addEventListener('click', editAddress);
+                }
+
+                const buttonInactivate = row.querySelector(".btn-inactivate-address");
+                if (buttonInactivate) {
+                    buttonInactivate.addEventListener('click', changeAddressStatus);
+                }
+
+                const buttonActivate = row.querySelector(".btn-activate-address");
+                if (buttonActivate) {
+                    buttonActivate.addEventListener('click', changeAddressStatus);
+                }
+            }
+
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        $(this).datetimepicker({    i18n:{
+        en: {
+            months: [
+                "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"            ],
+            dayOfWeekShort: [
+                "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"            ],
+            dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"            ]
+        },
+    },
+        yearStart: '1900',
+    scrollInput: false,
+    scrollMonth: false,
+    rtl: false,
+                                format: 'Y-m-d',
+                timepicker:false
+    });
+                    }
+                });
+            }
+
+            function setupContainerListAddButtons(container) {
+                if (window.oeUI && window.oeUI.optionWidgets) {
+                    $(container).find(".addtolist").on("click", function (event) {
+                        window.oeUI.optionWidgets.AddToList(this, event);
+                    });
+                }
+            }
+
+            function createRecordFromInput(row_form_addresses) {
+                var record = {};
+                record.line1 = getInputValue(row_form_addresses, "input.form_addresses_line1");
+                record.line2 = getInputValue(row_form_addresses, "input.form_addresses_line2");
+                record.city = getInputValue(row_form_addresses, "input.form_addresses_city");
+                record.postalcode = getInputValue(row_form_addresses, "input.form_addresses_postalcode");
+                record.zip = record.postalcode;
+                record.state = getSelectValue(row_form_addresses, "select.form_addresses_state");
+                record.country = getSelectValue(row_form_addresses, "select.form_addresses_country");
+                record.district = getInputValue(row_form_addresses, "input.form_addresses_district");
+                record.use = getSelectValue(row_form_addresses, "select.form_addresses_uses");
+                record.type = getSelectValue(row_form_addresses, "select.form_addresses_types");
+                record.period_start = getInputValue(row_form_addresses, "input.form_addresses_period_start");
+                record.period_end = getInputValue(row_form_addresses, "input.form_addresses_period_end");
+                return record;
+            }
+
+            function fullAddressFromRecord(record, lines) {
+                var fullAddress = ["", ""];
+
+                fullAddress[0] = [record.line1, record.line2].filter(x => x).join(", ");
+
+                if (lines > 1) {
+                    fullAddress[1] = [record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+                } else {
+                    fullAddress[0] = [fullAddress[0], record.city, record.state, record.zip, record.country].filter(x => x).join(", ");
+                }
+
+                return fullAddress[0] || fullAddress[1] ? fullAddress : ["None"];
+            }
+
+            function PeriodFromRecord(record) {
+                let periodStart = record.period_start;
+                let periodEnd = record.period_end;
+
+                if (!periodStart && !periodEnd) return "";
+
+                if (periodStart && !periodEnd) {
+                    return periodStart + " " + window.xl('to') + " " + window.xl('Current');
+                } else if (!periodStart && periodEnd) {
+                    return window.xl('Expired') + ": " + periodEnd;
+                } else {
+                    return periodStart + " " + window.xl('to') + " " + periodEnd;
+                }
+            }
+
+            function setInputValue(root, selector, value) {
+                let node = root.querySelector(selector);
+                if (node) node.value = value;
+            }
+
+            function getInputValue(root, selector) {
+                let node = root.querySelector(selector);
+                return node ? node.value : "";
+            }
+
+            function getSelectDisplay(root, selector) {
+                let node = root.querySelector(selector);
+                if (!node) return "";
+                let options = node.selectedOptions;
+                return options && options.length ? options[0].textContent : "";
+            }
+
+            function getSelectValue(root, selector) {
+                let node = root.querySelector(selector);
+                if (!node) return "";
+                let options = node.selectedOptions;
+                return options && options.length ? options[0].value : "";
+            }
+
+            function hideElement(element) {
+                element.classList.add('d-none');
+            }
+
+            function showElement(element) {
+                element.classList.remove('d-none');
+            }
+
+            function addressUpdated(event) {
+                // Check if the changed element is within a form_addresses div
+                const formAddresses = event.target.closest('.form_addresses');
+                if (!formAddresses) {
+                    return;
+                }
+
+                // Get the parent addresses_group
+                const addressesGroup = formAddresses.closest('.addresses_group');
+                if (!addressesGroup) {
+                    return;
+                }
+
+                // Get the data_action input
+                const actionInput = addressesGroup.querySelector('input.form_addresses_data_action');
+                if (!actionInput) {
+                    return;
+                }
+
+                // Only change to UPDATE if it's not already ADD or INACTIVATE
+                const currentAction = actionInput.value;
+                if (currentAction === 'ADD' || currentAction === 'INACTIVATE') {
+                    // Don't change these states
+                    return;
+                }
+
+                // Change NO CHANGE to UPDATE
+                if (currentAction === 'NO CHANGE') {
+                    actionInput.value = ADDRESS_ACTION_VALUES.UPDATE;
+                    console.log('Changed action to UPDATE for address:', addressesGroup.querySelector('input.form_addresses_contact_address_id')?.value);
+                }
+            }
+        }
+    })();
+</script>
+        </div>
+    </div>
+
+
+        <div class="form-row">
+        <div class="col-12">
+            <div class="form-group mb-2 mt-3">
+                <label class="label_custom">Notes: </label>
+                <textarea class="form-control form_relations_notes"
+                          name="form_test_related_person_list[__RP-INDEX__][notes]"
+                          rows="1"
+                          cols="50"
+                          placeholder=""
+                          maxlength="1000"></textarea>
+                <small class="form-text text-muted">
+                    <span id="notes_char_count_new">0</span>/1000 characters
+                </small>
+            </div>
+        </div>
+    </div>
+
+
+
+        </div>
+
+<script type="text/javascript">
+    // Character counter for notes field
+    (function() {
+        const notesFields = document.querySelectorAll('.form_relations_notes');
+        notesFields.forEach(function(field, index) {
+            const countSpan = document.getElementById('notes_char_count_' + (index === 0 && notesFields.length === 1 ? 'new' : index));
+
+            if (field && countSpan) {
+                // Initialize count
+                countSpan.textContent = field.value.length;
+
+                // Update count on input
+                field.addEventListener('input', function() {
+                    countSpan.textContent = this.value.length;
+
+                    // Visual warning at 950 characters
+                    if (this.value.length > 950) {
+                        countSpan.classList.add('text-danger', 'font-weight-bold');
+                    } else if (this.value.length > 900) {
+                        countSpan.classList.add('text-warning', 'font-weight-bold');
+                        countSpan.classList.remove('text-danger');
+                    } else {
+                        countSpan.classList.remove('text-danger', 'text-warning', 'font-weight-bold');
+                    }
+                });
+            }
+        });
+    })();
+
+    // Add change listeners to permission checkboxes for HIPAA warning
+    (function() {
+        const medicalInfoCheckboxes = document.querySelectorAll('.form_relations_can_receive_medical_info, .form_relations_can_make_medical_decisions');
+
+        medicalInfoCheckboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                const relationsGroup = this.closest('.relations_group');
+                if (!relationsGroup) return;
+
+                const formRelations = relationsGroup.querySelector('.form_relations');
+                if (!formRelations) return;
+
+                // Check if any medical permission is checked
+                const hasPermission = formRelations.querySelector('.form_relations_can_receive_medical_info:checked') ||
+                                     formRelations.querySelector('.form_relations_can_make_medical_decisions:checked');
+
+                // Find or create HIPAA warning
+                let hipaaWarning = formRelations.querySelector('.alert-warning');
+
+                if (hasPermission && !hipaaWarning) {
+                    // Create warning if it doesn't exist
+                    const warningDiv = document.createElement('div');
+                    warningDiv.className = 'alert alert-warning mb-2';
+                    warningDiv.setAttribute('role', 'alert');
+                    warningDiv.innerHTML = `
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+                            <div>
+                                <strong>${window.xl('HIPAA Notice')}</strong><br>
+                                <small>
+                                    ${window.xl('You have granted medical information permissions. Ensure proper HIPAA authorization forms are completed and on file.')}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                    formRelations.appendChild(warningDiv);
+                } else if (!hasPermission && hipaaWarning) {
+                    // Remove warning if no permissions are checked
+                    hipaaWarning.remove();
+                }
+            });
+        });
+    })();
+
+    // Validate priority field (numbers only)
+    (function() {
+        const priorityFields = document.querySelectorAll('.form_relations_priority');
+
+        priorityFields.forEach(function(field) {
+            field.addEventListener('input', function() {
+                // Remove non-numeric characters
+                this.value = this.value.replace(/[^0-9]/g, '');
+
+                // Ensure value is between 1 and 99
+                if (this.value && parseInt(this.value) < 1) {
+                    this.value = '1';
+                } else if (this.value && parseInt(this.value) > 99) {
+                    this.value = '99';
+                }
+            });
+
+            // Set default if empty on blur
+            field.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.value = '1';
+                }
+            });
+        });
+    })();
+
+    // Date validation - ensure start date is before end date
+    (function() {
+        const startDateFields = document.querySelectorAll('.form_relations_start_date');
+        const endDateFields = document.querySelectorAll('.form_relations_end_date');
+
+        function validateDateRange(startField, endField) {
+            if (!startField.value || !endField.value) return;
+
+            const startDate = new Date(startField.value);
+            const endDate = new Date(endField.value);
+
+            if (startDate > endDate) {
+                endField.setCustomValidity(window.xl('End date must be after start date'));
+                endField.reportValidity();
+            } else {
+                endField.setCustomValidity('');
+            }
+        }
+
+        startDateFields.forEach(function(field, index) {
+            const correspondingEndField = endDateFields[index];
+            if (!correspondingEndField) return;
+
+            field.addEventListener('change', function() {
+                validateDateRange(field, correspondingEndField);
+            });
+
+            correspondingEndField.addEventListener('change', function() {
+                validateDateRange(field, correspondingEndField);
+            });
+        });
+    })();
+
+    // Initialize tooltips for info icons
+    (function() {
+        if (typeof $ !== 'undefined' && $.fn.tooltip) {
+            $('[title]').tooltip({
+                placement: 'top',
+                trigger: 'hover'
+            });
+        }
+    })();
+</script>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script type="text/javascript">
+
+    // IE Compatibility Polyfills - Run immediately
+    (function() {
+        if (!Element.prototype.matches) {
+            Element.prototype.matches = Element.prototype.msMatchesSelector || Element.prototype.webkitMatchesSelector;
+        }
+        if (!Element.prototype.closest) {
+            Element.prototype.closest = function(s) {
+                var el = this;
+                do {
+                    if (el.matches(s)) return el;
+                    el = el.parentElement || el.parentNode;
+                } while (el !== null && el.nodeType === 1);
+                return null;
+            };
+        }
+    })();
+
+    // IIFE Wrapper For Relation Form Functions
+    (function() {
+
+        const tableId = "table_edit_relations___UNIQ__"
+        const ownerContactId = 2;
+        console.log("Running relation script for table id:", tableId);
+
+        // Initialize on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {relationFormHandler()});
+        } else {
+            relationFormHandler();
+        }
+
+        // Listen for custom event (for dynamically cloned tables)
+        document.addEventListener('relationFormHandler', function(e) {
+            console.log('Received dispatch, tableid:', tableId, 'Event:', e);
+            if (e.detail && e.detail.tableId === tableId) {
+                console.log('Received init event for relation table:', tableId);
+                relationFormHandler();
+            }
+        });
+
+
+
+        function relationFormHandler() {
+            console.debug("Running relationFormHandler for table id:", tableId);
+            const table = document.getElementById(tableId);
+            if (!table) {
+                console.error('Table not found:', tableId);
+                return;
+            }
+            const container = table.querySelector('.table_edit_relations')
+
+            let RELATION_ACTION_VALUES = {
+                'INACTIVATE': 'INACTIVATE',
+                'ADD': 'ADD',
+                'UPDATE': 'UPDATE'
+            };
+
+            let relationDatePickerSettings = {};
+
+
+function DateToYYYYMMDD_js(value){
+    var value = value.replace(/\//g,'-');
+    var parts = value.split('-');
+    var date_display_format = 0;
+
+    if (date_display_format == 1)      // mm/dd/yyyy, note year is added below
+        value = parts[2] + '-' + parts[0]  + '-' + parts[1];
+    else if (date_display_format == 2) // dd/mm/yyyy, note year is added below
+        value = parts[2] + '-' + parts[1]  + '-' + parts[0];
+
+    return value;
+}
+
+function TimeToHHMMSS_js(value){
+    if (value.trim() == '') {
+        return '';
+    }
+
+    var is_pm = value.trim().toUpperCase().indexOf('PM');
+    if (is_pm > 0) {
+        let d = new Date("1970-01-01 " + value);
+        let value = d.setHours(d.getHours() + 12).toTimeString();
+    }
+    return value.trim();
+}
+
+function DateToYYYYMMDDHHMMSS_js(value){
+    if (typeof value === 'undefined' || value.trim() == '') {
+        return undefined;
+    }
+    var parts = value.split(' ');
+
+    var datePart = DateToYYYYMMDD_js(parts[0]);
+    var timePart = TimeToHHMMSS_js(parts[1]);
+
+    var value = datePart + ' ' + timePart;
+
+    return value.trim();
+}
+
+
+            disableHTML5Validation();
+            initEventListeners(tableId);
+
+            function initEventListeners(tableId) {
+                console.log('Initializing relations table:', tableId);
+
+                // Event listeners for form changes
+                table.addEventListener('input', relationUpdated);
+                table.addEventListener('change', relationUpdated);
+
+                // Listen for "add relation" requests from search component
+                document.addEventListener('addRelationForPerson', function(e) {
+                    if (e.detail && e.detail.tableId === tableId && e.detail.person) {
+                        console.log('Received addRelationForPerson event for table:', tableId);
+                        addRelationForPerson(e.detail.person);
+                    }
+                });
+
+                // ===== DATEPICKER-AGNOSTIC LISTENER =====
+                // Catches any datepicker change, regardless of library
+                if (typeof $ !== 'undefined') {
+                    // Listen for ANY event that contains 'change' or 'date' in its name
+                    // This works with: changedatetime.xdsoft, changeDate, dp.change, etc.
+                    $(table).on('change.datetimepicker changedatetime.xdsoft changeDate dp.change',
+                        'input[class*="date"], input.datepicker',
+                        function(e) {
+                            console.log('Datepicker changed (generic listener)');
+                            // Ensure standard change event fires
+                            if (e.type !== 'change') {
+                                $(this).trigger('change');
+                            }
+                        }
+                    );
+                }
+
+                // ===== FALLBACK: Blur detection for manual typing in DatePicker =====
+                table.addEventListener('blur', function(event) {
+                    if (event.target.matches('input[class*="date"], input.datepicker')) {
+                        if (!event.target.dataset.lastValue) {
+                            event.target.dataset.lastValue = '';
+                        }
+                        if (event.target.dataset.lastValue !== event.target.value) {
+                            event.target.dataset.lastValue = event.target.value;
+                            console.log('Date changed via blur/typing');
+                            relationUpdated(event);
+                        }
+                    }
+                }, true);
+
+
+                // Setup show inactive checkbox
+                var showInactiveCheckbox = document.getElementById("show_inactive_relations_" + tableId);
+                if (showInactiveCheckbox) {
+                    showInactiveCheckbox.addEventListener('change', function() {
+                        toggleInactiveRelations(tableId);
+                    });
+                }
+
+                 // Setup existing related persons buttons
+                table.querySelectorAll('.relation-card-header').forEach(function (row) {
+                    setupRelatedPersonsRowButtonEventListeners(row);
+                });
+
+                /*
+                table.querySelectorAll('.form_relations').forEach(function (row) {
+                    setupContainerDatePickers(row);
+                    setupContainerListAddButtons(row);
+                });
+                */
+            }
+
+            function setupRelatedPersonsRowButtonEventListeners(row) {
+                let buttonEdit = row.querySelector(".display_related_person");
+                if (buttonEdit) {
+                    buttonEdit.addEventListener('click', toggleRelationEdit);
+                }
+
+                let buttonInactivate = row.querySelector(".btn-inactivate-relation");
+                if (buttonInactivate) {
+                    buttonInactivate.addEventListener('click', changeRelationStatus);
+                }
+
+                let buttonActivate = row.querySelector(".btn-activate-relation");
+                if (buttonActivate) {
+                    buttonActivate.addEventListener('click', changeRelationStatus);
+                }
+            }
+
+            function toggleInactiveRelations(tableId) {
+                const checkbox = document.getElementById('show_inactive_relations_' + tableId);
+                const inactiveRelations = document.querySelectorAll('#' + tableId + ' .relation-inactive');
+
+                inactiveRelations.forEach(function(relation) {
+                    if (checkbox.checked) {
+                        relation.classList.remove('d-none');
+                    } else {
+                        relation.classList.add('d-none');
+                    }
+                });
+            }
+
+            function toggleRelationEdit(event) {
+                const card = event.target.closest('.relation-card');
+                const formDiv = card.querySelector('.form_relations');
+                const icon = card.querySelector('.btn-edit-relation');
+
+                if (formDiv.classList.contains('d-none')) {
+                    formDiv.classList.remove('d-none');
+                    icon.classList.remove('fa-caret-right');
+                    icon.classList.add('fa-caret-down');
+                } else {
+                    formDiv.classList.add('d-none');
+                    icon.classList.remove('fa-caret-down');
+                    icon.classList.add('fa-caret-right');
+                }
+            }
+
+            function changeRelationStatus(event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const relationsGroup = event.target.closest('.relations_group');
+                const currentActive = relationsGroup.getAttribute('data-active') === '1';
+                const activeInput = relationsGroup.querySelector('input.form_relations_active');
+                const actionInput = relationsGroup.querySelector('input.form_relations_data_action');
+
+                if (currentActive) {
+                    const confirmMsg = window.xl("Are you sure you wish to inactivate this relationship?");
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+                    relationsGroup.setAttribute('data-active', '0');
+                    activeInput.value = '0';
+                    relationsGroup.classList.add('relation-inactive');
+
+                    if (actionInput.value === 'ADD') {
+                        actionInput.value = 'ADD';
+                    } else {
+                        actionInput.value = 'INACTIVATE';
+                    }
+                } else {
+                    relationsGroup.setAttribute('data-active', '1');
+                    activeInput.value = '1';
+                    relationsGroup.classList.remove('relation-inactive');
+                    actionInput.value = 'UPDATE';
+                }
+
+                relationUpdated(event);
+            }
+
+            function relationUpdated(event) {
+                console.log('Relation updated event');
+                const formTelecoms = event.target.closest('.form_telecoms');
+                if (formTelecoms !== null) return;
+
+                const formAddresses = event.target.closest('.form_adresses');
+                if (formAddresses !== null) return;
+
+                const formRelations = event.target.closest('.form_relations');
+                if (!formRelations) return;
+
+                const relationsGroup = event.target.closest('.relations_group');
+                if (!relationsGroup) return;
+
+                const actionInput = relationsGroup.querySelector('input.form_relations_data_action');
+                if (!actionInput) return;
+
+                const currentAction = actionInput.value;
+                if (currentAction === 'ADD' || currentAction === 'INACTIVATE') return;
+
+                if (currentAction === 'NO CHANGE') {
+                    actionInput.value = RELATION_ACTION_VALUES.UPDATE;
+                    console.log('Changed action to UPDATE for relation:');
+                }
+
+                updateRelationDisplayOnChange(relationsGroup);
+                console.log('Relation form updated');
+            }
+
+            function updateRelationDisplayOnChange(relationsGroup) {
+                const displayName = relationsGroup.querySelector('.display_relations_name');
+                const displayRelationship = relationsGroup.querySelector('.display_relations_relationship');
+                const displayDob = relationsGroup.querySelector('.display_relations_dob');
+                const displayBadges = relationsGroup.querySelector('.display_relations_badges');
+
+                const firstNameInput = relationsGroup.querySelector('.form_relations_first_name');
+                const middleNameInput = relationsGroup.querySelector('.form_relations_middle_name');
+                const lastNameInput = relationsGroup.querySelector('.form_relations_last_name');
+                const birthDateInput = relationsGroup.querySelector('.form_relations_birth_date');
+
+                const relationshipSelect = relationsGroup.querySelector('.form_relations_relationship');
+                const roleSelect = relationsGroup.querySelector('.form_relations_role');
+                const emergencyCheckbox = relationsGroup.querySelector('.form_relations_emergency');
+                const primaryCheckbox = relationsGroup.querySelector('.form_relations_primary');
+
+                // Update display name from first, middle, last name inputs
+                if (displayName && (firstNameInput || lastNameInput)) {
+                    let nameParts = [];
+                    if (firstNameInput && firstNameInput.value.trim()) {
+                        nameParts.push(firstNameInput.value.trim());
+                    }
+                    if (middleNameInput && middleNameInput.value.trim()) {
+                        nameParts.push(middleNameInput.value.trim());
+                    }
+                    if (lastNameInput && lastNameInput.value.trim()) {
+                        nameParts.push(lastNameInput.value.trim());
+                    }
+
+                    // Check if this relation is inactive
+                    const isInactive = relationsGroup.getAttribute('data-active') === '0';
+                    let nameHtml = nameParts.join(' ');
+                    if (isInactive) {
+                        nameHtml += ' <span class="badge text-white ml-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
+                    }
+                    displayName.innerHTML = nameHtml;
+                }
+
+                // Update DOB display
+                if (displayDob && birthDateInput) {
+                    if (birthDateInput.value.trim()) {
+                        displayDob.textContent = window.xl('DOB') + ': ' + birthDateInput.value.trim();
+                    } else {
+                        displayDob.textContent = '';
+                    }
+                }
+
+                if (relationshipSelect && displayRelationship) {
+                    let displayText = relationshipSelect.options[relationshipSelect.selectedIndex]?.text || '';
+                    if (roleSelect && roleSelect.value) {
+                        displayText += ' - ' + roleSelect.options[roleSelect.selectedIndex]?.text;
+                    }
+                    displayRelationship.textContent = displayText;
+                }
+
+                if (displayBadges) {
+                    let badgesHtml = '';
+                    if (emergencyCheckbox && emergencyCheckbox.checked) {
+                        badgesHtml += '<span class="badge badge-danger mr-1">' + window.xl('Emergency') + '</span>';
+                    }
+                    if (primaryCheckbox && primaryCheckbox.checked) {
+                        badgesHtml += '<span class="badge badge-primary mr-1">' + window.xl('Primary') + '</span>';
+                    }
+                    displayBadges.innerHTML = badgesHtml;
+                }
+            }
+
+            function setupContainerDatePickers(container) {
+                let datepickers = container.querySelectorAll(".datepicker");
+                $(datepickers).each(function() {
+                    if (!$(this).data('xdsoft_datetimepicker')) {
+                        $(this).datetimepicker({    i18n:{
+        en: {
+            months: [
+                "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"            ],
+            dayOfWeekShort: [
+                "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"            ],
+            dayOfWeek: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"            ]
+        },
+    },
+        yearStart: '1900',
+    scrollInput: false,
+    scrollMonth: false,
+    rtl: false,
+                                format: 'Y-m-d',
+                timepicker:false
+    });
+                    }
+                });
+            }
+
+            // ===== ADD RELATION FOR PERSON, AFTER PERSON CREATED BY relation_form_search.html.twig =====
+            function addRelationForPerson(person) {
+                console.log('addRelationForPerson called with:', person);
+
+                // Hide "no relations" message
+                let noRelationsElement = container.querySelector(".no_relations");
+                if (noRelationsElement && !noRelationsElement.classList.contains('d-none')) {
+                    noRelationsElement.classList.add('d-none');
+                }
+
+                const relation_template = document.querySelector(".template_add_relation");
+
+                // Find the highest existing index
+                var allGroups = container.querySelectorAll('.relations_group[data-index]');
+                var maxIndex = -1;
+                allGroups.forEach(function(group) {
+                    var idx = parseInt(group.getAttribute('data-index'));
+                    if (!isNaN(idx) && idx > maxIndex) {
+                        maxIndex = idx;
+                    }
+                });
+                var newIndex = maxIndex + 1;
+
+                // Clone the template
+                var tempDiv = document.createElement('div');
+                tempDiv.innerHTML = relation_template.innerHTML;
+                var html = tempDiv.innerHTML;
+
+                // Replace __RP-INDEX__ with actual index
+                html = html.replace(/__RP-INDEX__/g, newIndex);
+
+                // ===== TELECOM TABLE ID REPLACEMENTS =====
+                // Create unique ID for related person telecom tables
+                var newTelecomTableIdSuffix = js_uniqid();
+
+                // Find the old telecom table ID
+                var telecomMatch = html.match(/table_edit_telecoms_([a-f0-9]+)/);
+
+                if (telecomMatch && telecomMatch[1]) {
+                    var oldTelecomTableIdSuffix = telecomMatch[1];
+                    console.log('Replacing telecom suffix:', oldTelecomTableIdSuffix, '→', newTelecomTableIdSuffix);
+
+                    // Replace ALL occurrences of the old suffix with new suffix
+                    var telecomRegex = new RegExp(oldTelecomTableIdSuffix, 'g');
+                    html = html.replace(telecomRegex, newTelecomTableIdSuffix);
+                }
+
+                // ===== ADDRESS TABLE ID REPLACEMENTS =====
+                // Create unique ID for related person address table
+                var newAddressTableIdSuffix = js_uniqid();
+
+                // Find the old address table ID
+                var addressMatch = html.match(/table_edit_addresses_([a-f0-9]+)/);
+
+                if (addressMatch && addressMatch[1]) {
+                    var oldAddressTableIdSuffix = addressMatch[1];
+                    console.log('Address: Replacing', oldAddressTableIdSuffix, '→', newAddressTableIdSuffix);
+
+                    // Replace table ID everywhere it appears
+                    var addressRegex = new RegExp(oldAddressTableIdSuffix, 'g');
+                    html = html.replace(addressRegex, newAddressTableIdSuffix);
+                }
+
+                // Update the HTML in the temp div
+                tempDiv.innerHTML = html;
+                var relation_clone = tempDiv.firstElementChild;
+
+                // Set person data in hidden fields
+                const ownerContactIdInput = relation_clone.querySelector('.form_relations_owner_contact_id');
+                const targetTableInput = relation_clone.querySelector('.form_relations_target_table');
+                const targetIdInput = relation_clone.querySelector('.form_relations_target_id');
+                const nameDisplay = relation_clone.querySelector('.display_relations_name');
+
+                if (ownerContactIdInput) ownerContactIdInput.value = ownerContactId || '';
+                if (targetIdInput) targetIdInput.value = person.id;
+                if (targetTableInput) targetTableInput.value = person.target_table || 'person';
+
+                if (nameDisplay) {
+                    let displayName = person.first_name;
+                    if (person.middle_name) displayName += ' ' + person.middle_name;
+                    displayName += ' ' + person.last_name;
+                    nameDisplay.textContent = displayName;
+
+                    if (person.birth_date) {
+                        const dobSpan = document.createElement('small');
+                        dobSpan.className = 'text-muted';
+                        dobSpan.textContent = ' (' + window.xl('DOB') + ': ' + person.birth_date + ')';
+                        nameDisplay.appendChild(dobSpan);
+                    }
+                }
+
+                // Populate the form fields with person data
+                const firstNameInput = relation_clone.querySelector('.form_relations_first_name');
+                const middleNameInput = relation_clone.querySelector('.form_relations_middle_name');
+                const lastNameInput = relation_clone.querySelector('.form_relations_last_name');
+                const genderInput = relation_clone.querySelector('.form_relations_gender');
+                const birthDateInput = relation_clone.querySelector('.form_relations_birth_date');
+                const notesDisplay = relation_clone.querySelector(".form_relations_notes");
+
+                if (firstNameInput) firstNameInput.value = person.first_name || '';
+                if (middleNameInput) middleNameInput.value = person.middle_name || '';
+                if (lastNameInput) lastNameInput.value = person.last_name || '';
+                if (genderInput) genderInput.value = person.gender || '';
+                if (birthDateInput) birthDateInput.value = person.birth_date || '';
+                // we will use the initial person notes and add it as the relationship notes to start with.
+                // it does seem confusing to have both a person note and relationship note and this may need to be
+                // looked at later.
+                if (notesDisplay) notesDisplay.textContent = person.notes || '';
+
+                // TODO: @adunsulag review this heavily as recreating scripts can be very risky
+                // ===== MAKE SCRIPTS EXECUTE IN CLONE =====
+                // Scripts inserted via innerHTML don't execute, so we need to replace them
+                var oldScripts = relation_clone.querySelectorAll('script');
+                oldScripts.forEach(function(oldScript) {
+                    var newScript = document.createElement('script');
+                    newScript.type = 'text/javascript';
+
+                    // Copy the script content
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+
+                    // Copy any other attributes
+                    Array.from(oldScript.attributes).forEach(function(attr) {
+                        if (attr.name !== 'type') {
+                            newScript.setAttribute(attr.name, attr.value);
+                        }
+                    });
+
+                    // Replace the old script with the new one
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+
+                // Add Clone to container
+                container.appendChild(relation_clone);
+                const newRelation = container.querySelector('.relations_group:last-child');
+                setupContainerDatePickers(newRelation);
+
+                // Setup event listeners for the new relation row buttons
+                const row = newRelation.querySelector('.relation-card-header');
+                if (row) {
+                    setupRelatedPersonsRowButtonEventListeners(row);
+                }
+
+                // Expand the new relation for editing
+                if (newRelation) {
+                    const formDiv = newRelation.querySelector('.form_relations');
+                    if (formDiv) {
+                        formDiv.classList.remove('d-none');
+
+                        const icon = newRelation.querySelector('.btn-edit-relation');
+                        if (icon) {
+                            icon.classList.remove('fa-caret-right');
+                            icon.classList.add('fa-caret-down');
+                        }
+
+                        newRelation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                        setTimeout(() => {
+                            const firstSelect = formDiv.querySelector('select');
+                            if (firstSelect) {
+                                firstSelect.focus();
+                            }
+                        }, 300);
+                    }
+                }
+
+                updateRelationDisplayOnChange(newRelation);
+                console.log('=== Relation #' + newIndex + ' created successfully ===\n');
+            }
+
+            function disableHTML5Validation() {
+                // Find the form and disable HTML5 validation
+                const form = document.querySelector('form[name="DEM"]') || document.querySelector('form');
+
+                if (form) {
+                    // DISABLE HTML5 validation entirely
+                    form.setAttribute('novalidate', 'novalidate');
+                    console.log('HTML5 validation disabled for form');
+
+                    // Add our own validation
+                    form.addEventListener('submit', function(e) {
+                        console.log('Form submitting - custom validation');
+
+                        let isValid = true;
+                        let firstInvalidField = null;
+                        const errors = [];
+
+                        // Only validate VISIBLE relation sections
+                        const visibleSections = document.querySelectorAll('.relation-card-body:not(.d-none)');
+
+                        visibleSections.forEach(section => {
+                            const relationsGroup = section.closest('.relations_group');
+                            const isActive = relationsGroup && relationsGroup.getAttribute('data-active') === '1';
+
+                            if (!isActive) {
+                                return; // Skip inactive relations
+                            }
+
+                            // Check for required relationship field
+                            const relationshipField = section.querySelector('.form_relations_relationship select, .form_relations_relationship input');
+
+                            if (relationshipField) {
+                                if (!relationshipField.value || relationshipField.value.trim() === '') {
+                                    isValid = false;
+                                    errors.push('Relationship is required');
+                                    relationshipField.classList.add('is-invalid');
+
+                                    if (!firstInvalidField) {
+                                        firstInvalidField = relationshipField;
+                                    }
+                                } else {
+                                    relationshipField.classList.remove('is-invalid');
+                                }
+                            }
+                        });
+
+                        if (!isValid) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            if (firstInvalidField) {
+                                // Expand the collapsed section if needed
+                                const parentCard = firstInvalidField.closest('.relation-card');
+                                if (parentCard) {
+                                    const formDiv = parentCard.querySelector('.relation-card-body');
+                                    if (formDiv && formDiv.classList.contains('d-none')) {
+                                        formDiv.classList.remove('d-none');
+                                        const icon = parentCard.querySelector('.btn-edit-relation');
+                                        if (icon) {
+                                            icon.classList.remove('fa-caret-right');
+                                            icon.classList.add('fa-caret-down');
+                                        }
+                                    }
+                                }
+
+                                setTimeout(() => {
+                                    firstInvalidField.focus();
+                                    firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }, 100);
+                            }
+
+                            alert(window.xl('Please fill in all required fields:\n') + errors.join('\n'));
+                            return false;
+                        }
+
+                        console.log('Validation passed, allowing submit');
+                        return true;
+                    });
+                } else {
+                    console.error('Could not find form for validation override');
+                }
+            }
+        }
+    })();
+
+</script>
