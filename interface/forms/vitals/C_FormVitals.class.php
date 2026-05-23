@@ -22,6 +22,7 @@ use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Forms\VitalsFieldRanges;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -31,10 +32,7 @@ use OpenEMR\Services\VitalsService;
 
 class C_FormVitals
 {
-    /**
-     * @var FormVitals
-     */
-    public $vitals;
+    public FormVitals $vitals;
 
     public $template_dir;
     public $form_id;
@@ -354,7 +352,7 @@ class C_FormVitals
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $validationErrors = $session->get('vitals_validation_errors', []);
-        $session->remove('vitals_validation_errors');
+        SessionUtil::unsetSession(['vitals_validation_errors']);
 
         $data = [
             'vitals' => $vitals
@@ -463,8 +461,7 @@ class C_FormVitals
 
         $validationResult = $this->vitals->validate();
         if ($validationResult['errors'] !== []) {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $session->set('vitals_validation_errors', $validationResult['errors']);
+            SessionUtil::setSession('vitals_validation_errors', $validationResult['errors']);
             return;
         }
 

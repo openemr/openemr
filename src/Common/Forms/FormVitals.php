@@ -477,49 +477,13 @@ class FormVitals extends ORDataObject
         $errors = [];
         $warnings = [];
 
-        $fieldPropertyMap = [
-            'weight' => 'weight',
-            'height' => 'height',
-            'bps' => 'bps',
-            'bpd' => 'bpd',
-            'pulse' => 'pulse',
-            'respiration' => 'respiration',
-            'temperature' => 'temperature',
-            'oxygen_saturation' => 'oxygen_saturation',
-            'oxygen_flow_rate' => 'oxygen_flow_rate',
-            'inhaled_oxygen_concentration' => 'inhaled_oxygen_concentration',
-            'head_circ' => 'head_circ',
-            'waist_circ' => 'waist_circ',
-            'ped_weight_height' => 'ped_weight_height',
-            'ped_bmi' => 'ped_bmi',
-            'ped_head_circ' => 'ped_head_circ',
-        ];
-
-        $fieldLabels = [
-            'weight' => xl('Weight'),
-            'height' => xl('Height/Length'),
-            'bps' => xl('BP Systolic'),
-            'bpd' => xl('BP Diastolic'),
-            'pulse' => xl('Pulse'),
-            'respiration' => xl('Respiration'),
-            'temperature' => xl('Temperature'),
-            'oxygen_saturation' => xl('Oxygen Saturation'),
-            'oxygen_flow_rate' => xl('Oxygen Flow Rate'),
-            'inhaled_oxygen_concentration' => xl('Inhaled Oxygen Concentration'),
-            'head_circ' => xl('Head Circumference'),
-            'waist_circ' => xl('Waist Circumference'),
-            'ped_weight_height' => xl('Pediatric Weight Height Percentile'),
-            'ped_bmi' => xl('Pediatric BMI Percentile'),
-            'ped_head_circ' => xl('Pediatric Head Circumference Percentile'),
-        ];
-
-        foreach ($fieldPropertyMap as $fieldName => $property) {
-            $value = $this->$property;
+        foreach (VitalsFieldRanges::getRanges() as $fieldName => $field) {
+            $value = $this->$fieldName;
             if ($value === null || $value === '') {
                 continue;
             }
 
-            $label = $fieldLabels[$fieldName] ?? $fieldName;
+            $label = $field['label'];
 
             if (!is_numeric($value)) {
                 $errors[] = sprintf(xl('Field "%1$s" has a non-numeric value.'), $label);
@@ -527,23 +491,19 @@ class FormVitals extends ORDataObject
             }
 
             $numericValue = (float) $value;
-            $range = VitalsFieldRanges::getRangeForField($fieldName);
-            if ($range === null) {
-                continue;
-            }
 
             if ($numericValue < 0) {
                 $errors[] = sprintf(xl('Field "%1$s" cannot be negative.'), $label);
                 continue;
             }
 
-            if ($numericValue < $range['min'] || $numericValue > $range['max']) {
-                $errors[] = sprintf(xl('Field "%1$s" is outside acceptable range (%2$s–%3$s).'), $label, $range['min'], $range['max']);
+            if ($numericValue < $field['min'] || $numericValue > $field['max']) {
+                $errors[] = sprintf(xl('Field "%1$s" is outside acceptable range (%2$s–%3$s).'), $label, $field['min'], $field['max']);
                 continue;
             }
 
-            if ($numericValue < $range['warningMin'] || $numericValue > $range['warningMax']) {
-                $warnings[] = sprintf(xl('Field "%1$s" is outside typical clinical range (%2$s–%3$s).'), $label, $range['warningMin'], $range['warningMax']);
+            if ($numericValue < $field['warningMin'] || $numericValue > $field['warningMax']) {
+                $warnings[] = sprintf(xl('Field "%1$s" is outside typical clinical range (%2$s–%3$s).'), $label, $field['warningMin'], $field['warningMax']);
             }
         }
 
