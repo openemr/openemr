@@ -158,6 +158,20 @@ Review the diff before committing. See the
 [fixtures README](tests/Tests/Isolated/Common/Twig/fixtures/render/README.md)
 for details on adding new test cases.
 
+### Layout field rendering tests
+
+`tests/Tests/Services/Common/Layouts/FieldRenderingSnapshotTest.php` is a
+**DB-backed** snapshot test (default suite, not isolated) that renders
+every layout field and compares the HTML to recorded fixtures. When
+intentionally changing the renderer, regenerate the fixtures:
+
+```bash
+openemr-cmd update-layout-field-fixtures    # in container (alias: ulff)
+composer update-layout-field-fixtures       # on host
+```
+
+Review the diff before committing.
+
 ## Code Quality
 
 The same composer scripts back every PHP code-quality check, whether
@@ -171,6 +185,7 @@ In container (only requires Docker on host):
 openemr-cmd code-quality                # alias: cq -- full code-quality suite
 openemr-cmd phpstan                     # alias: pst
 openemr-cmd phpstan-generate            # alias: psg -- regenerate baseline
+openemr-cmd phpstan-generate-reset      # alias: pgr -- wipe + regenerate baseline from scratch
 openemr-cmd psr12-report                # alias: pr  (composer phpcs)
 openemr-cmd psr12-fix                   # alias: pf  (composer phpcbf)
 openemr-cmd rector-dry-run              # alias: rd
@@ -193,6 +208,7 @@ On the host (requires local PHP / Composer with `vendor/` populated / Node):
 composer code-quality                # Run all PHP quality checks
 composer phpstan                     # Static analysis (level 10)
 composer phpstan-baseline            # Regenerate PHPStan baseline
+composer phpstan-baseline-reset      # Wipe + regenerate PHPStan baseline from scratch
 composer phpcs                       # PHP code style check
 composer phpcbf                      # PHP code style auto-fix
 composer rector-check                # Code modernization (dry-run)
