@@ -161,9 +161,10 @@ for details on adding new test cases.
 ### Layout field rendering tests
 
 `tests/Tests/Services/Common/Layouts/FieldRenderingSnapshotTest.php` is a
-**DB-backed** snapshot test (default suite, not isolated) that renders
-every layout field and compares the HTML to recorded fixtures. When
-intentionally changing the renderer, regenerate the fixtures:
+**DB-backed** snapshot test (default suite, not isolated) that exercises
+each layout-field renderer branch (one per `data_type`/mode in
+`library/options.inc.php`) and compares the HTML to recorded fixtures.
+When intentionally changing the renderer, regenerate the fixtures:
 
 ```bash
 openemr-cmd update-layout-field-fixtures    # in container (alias: ulff)
