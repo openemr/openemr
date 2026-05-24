@@ -465,6 +465,10 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd update-twig-fixtures
       ```
+    - **Mutating maintenance command** — not a test: regenerates the snapshot fixtures used by the layout field rendering tests (`FieldRenderingSnapshotTest`, DB-backed). Run when you've intentionally changed the layout field renderer; review the diff before committing:
+      ```sh
+      openemr-cmd update-layout-field-fixtures
+      ```
 7. <a name="dev_tools_suite"></a>Run the entire dev tool suite (PSR12 fix, lint themes fix, PHP parse error, unit/API/e2e/services/fixtures/validators/controllers/common tests) in one command, run
     ```sh
     openemr-cmd clean-sweep
