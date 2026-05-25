@@ -259,16 +259,14 @@ function toggle_password() {
     $acl_name = AclExtended::aclGetGroupTitles($iter["username"]);
     $bg_name = '';
     $selected_user_is_superuser = false;
-    if (is_countable($acl_name)) {
-        $bg_count = count($acl_name);
-        for ($i = 0; $i < $bg_count; $i++) {
-            if ($acl_name[$i] == "Emergency Login") {
-                $bg_name = $acl_name[$i];
-            }
-            //check if user member on group with superuser rule
-            if (AclExtended::isGroupIncludeSuperuser($acl_name[$i])) {
-                $selected_user_is_superuser = true;
-            }
+    $bg_count = count($acl_name);
+    for ($i = 0; $i < $bg_count; $i++) {
+        if ($acl_name[$i] == "Emergency Login") {
+            $bg_name = $acl_name[$i];
+        }
+        //check if user member on group with superuser rule
+        if (AclExtended::isGroupIncludeSuperuser($acl_name[$i])) {
+            $selected_user_is_superuser = true;
         }
     }
     $disabled_save = !$is_super_user && $selected_user_is_superuser ? 'disabled' : '';

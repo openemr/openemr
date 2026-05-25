@@ -38,6 +38,16 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     <?php Header::setupHeader(); ?>
 
     <script>
+        // Escape a string for safe insertion into HTML attributes and text content.
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         $(function () {
             //Bootstrap tooltip
             var groupTitle = <?php echo xlj('This section allows you to create and remove groups and modify or grant access privileges to existing groups. Check the check box to display section'); ?>;
@@ -226,11 +236,27 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     success: function(xml){
                         $("#membership_error").empty();
                         $("#membership").empty();
+                        var userIdx = 0;
                         $(xml).find("user").each(function(){
                             username = $(this).find("username").text();
-                            $("#membership").append("<div id='link_" + username + "'><span class='text'>" + username + "</span><a class='link_submit' href='no_javascript' id='" + username + "_membership_list' title='" + <?php echo xlj('Edit'); ?> + " " + username + "'>&nbsp;<i class='fa fa-pencil-alt' aria-hidden='true'></i></a></span><a class='link_submit' href='no_javascript' id='" + username +  "_membership_hide' style='display: none' title='" + <?php echo xlj('Hide'); ?> + " " + username + "'>&nbsp;<i class='fa fa-eye-slash' aria-hidden='true'></i></a><span class='alert' style='display: none;'>&nbsp;&nbsp;" + <?php echo xlj('This user is not a member of any group'); ?> + "!!!</span><span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + <?php echo xlj('LOADING'); ?> + "...</span></div><div id='error_" + username + "'></div><div id='" + username +  "' style='display: none'><div class='table-responsive'><table class='head'><thead><tr><th class='text-center'><span class='bold'>" + <?php echo xlj('Active'); ?> + "</span></th><th class='text-center'><span class='bold'>" + <?php echo xlj('Inactive'); ?> + "</span></th></tr><tbody><tr><td align='center'><select class='form-control' name='active[]' multiple></select><br /><p align='center'><input class='button_submit btn btn-primary btn-sm' type='button' title='" + <?php echo xlj('Remove'); ?> + "' id='" + username  + "_membership_remove' value=' >> '></p></td><td align='center'><select class='form-control' name='inactive[]' multiple></select><br /><p align='center'><input class='button_submit btn btn-primary btn-sm' type='button' title='" + <?php echo xlj('Add'); ?> + "' id='" + username + "_membership_add' value=' << ' ></p></td></tr></tbody></table></div></div>");
+                            var uid = 'u_' + userIdx++;
+                            var $row = $(
+                                "<div id='link_" + uid + "'>" +
+                                "<span class='text'></span>" +
+                                "<a class='link_submit' href='no_javascript' id='" + uid + "_membership_list' data-username=''>&nbsp;<i class='fa fa-pencil-alt' aria-hidden='true'></i></a>" +
+                                "<a class='link_submit' href='no_javascript' id='" + uid + "_membership_hide' data-username='' style='display: none'>&nbsp;<i class='fa fa-eye-slash' aria-hidden='true'></i></a>" +
+                                "<span class='alert' style='display: none;'>&nbsp;&nbsp;" + <?php echo xlj('This user is not a member of any group'); ?> + "!!!</span>" +
+                                "<span class='loading' style='display: none;'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + <?php echo xlj('LOADING'); ?> + "...</span>" +
+                                "</div>" +
+                                "<div id='error_" + uid + "'></div>" +
+                                "<div id='" + uid + "_content' style='display: none'><div class='table-responsive'><table class='head'><thead><tr><th class='text-center'><span class='bold'>" + <?php echo xlj('Active'); ?> + "</span></th><th class='text-center'><span class='bold'>" + <?php echo xlj('Inactive'); ?> + "</span></th></tr><tbody><tr><td align='center'><select class='form-control' name='active[]' multiple></select><br /><p align='center'><input class='button_submit btn btn-primary btn-sm' type='button' id='" + uid + "_membership_remove' data-username='' value=' >> '></p></td><td align='center'><select class='form-control' name='inactive[]' multiple></select><br /><p align='center'><input class='button_submit btn btn-primary btn-sm' type='button' id='" + uid + "_membership_add' data-username='' value=' << '></p></td></tr></tbody></table></div></div>"
+                            );
+                            // Set text content and data-username safely (no HTML interpolation)
+                            $row.find('span.text').text(username);
+                            $row.find('[data-username]').attr('data-username', username);
+                            $("#membership").append($row);
                             if ($(this).find("alert").text() == "no membership") {
-                                $("#link_" + username + " span.alert").show();
+                                $("#link_" + uid + " span.alert").show();
                             }
                         });
                         //Show the username list and remove loading indicator
@@ -314,18 +340,19 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 action = temparray[2];
                 return_value = temparray[3];
                 // Membership stuff needs special treatment because username may have underscores.
+                // Read username from data-username attribute to avoid parsing HTML-escaped IDs.
                 temparray = cthis.id.match(/^(.*)_membership_([a-z]+)$/);
                 if (temparray) {
-                    identity = temparray[1];
+                    var uid = temparray[1];
+                    identity = $(cthis).data('username') !== undefined ? $(cthis).data('username') : uid;
                     identityFormatted = identity;
                     control = 'membership';
                     action = temparray[2];
                     return_value = null;
-                    tempid = identity.replace(/([ .])/g,"\\$1");
-                    contentPointer = "#" + tempid;
-                    linkPointer = "#link_" + tempid;
+                    contentPointer = "#" + uid + "_content";
+                    linkPointer = "#link_" + uid;
                     linkPointerPost = "";
-                    errorPointer = "#error_" + tempid;
+                    errorPointer = "#error_" + uid;
                 }
                 if (control == "acl" || control == "aco") {
                     contentPointer = "#acl_" + identity + "_" + return_value;
@@ -484,7 +511,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                         //Remove old errors, then display any new errors to user
                         $(errorPointer).empty();
                         $(xml).find("error").each(function(){
-                            $(errorPointer).append("<span class='alert'>" + $(this).text() + "<br /></span>");
+                            $(errorPointer).append("<span class='alert'>" + escHtml($(this).text()) + "<br /></span>");
                             $(errorPointer).show();
                         });
                     },

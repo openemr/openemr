@@ -104,8 +104,12 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", [$_POST["id"]]));
 
         if (isset($_POST["username"])) {
-            sqlStatement("update users set username=? where id= ? ", [trim((string) $_POST["username"]), $_POST["id"]]);
-            sqlStatement("update `groups` set user=? where user= ?", [trim((string) $_POST["username"]), $user_data["username"]]);
+            $usernameUpdate = trim((string) $_POST["username"]);
+            if (preg_match('/[&<>"\'\x00-\x1F]/', $usernameUpdate)) {
+                die(xlt("Invalid username: HTML-special and control characters are not allowed."));
+            }
+            sqlStatement("update users set username=? where id= ? ", [$usernameUpdate, $_POST["id"]]);
+            sqlStatement("update `groups` set user=? where user= ?", [$usernameUpdate, $user_data["username"]]);
         }
 
         if ($_POST["taxid"]) {
@@ -340,7 +344,11 @@ if (isset($_POST["mode"])) {
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
-        $res = sqlQuery("select username from users where username = ?", [trim((string) $_POST['rumple'])]);
+        $usernameNew = trim((string) $_POST['rumple']);
+        if (preg_match('/[&<>"\'\x00-\x1F]/', $usernameNew)) {
+            die(xlt("Invalid username: HTML-special and control characters are not allowed."));
+        }
+        $res = sqlQuery("select username from users where username = ?", [$usernameNew]);
         $doit = true;
         if (!empty($res['username'])) {
             $doit = false;
