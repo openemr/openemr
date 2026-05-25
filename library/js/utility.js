@@ -527,7 +527,7 @@ async function persistUserOption(option, value) {
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  */
 
-if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDebug === '3')) {
+if (typeof top.userDebug !== 'undefined' && top.userDebug) {
     window.onerror = function (msg, url, lineNo, columnNo, error) {
         const is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
         const is_firefox = navigator.userAgent.indexOf('Firefox') > -1;

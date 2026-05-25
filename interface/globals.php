@@ -779,13 +779,63 @@ $globalsBag->set('groupname', $groupname);
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
-// Report all errors so nothing is silently suppressed.
-error_reporting(E_ALL);
-// user debug mode — controls display_errors
-if ($globalsBag->getInt('user_debug', 0) > 1) {
-    ini_set('display_errors', 1);
-}
+// User PHP debug reporting mode.
+//
+// 0 = None.
+//     Preserve the current php.ini/startup runtime reporting mask, except for the
+//     global suppression of E_USER_DEPRECATED and E_USER_WARNING above.
+//
+// 2 = Display PHP application errors only.
+//     Show fatal/recoverable/parse/core/compile errors.
+//
+// 3 = Display PHP application errors and warnings only.
+//     Show errors plus PHP warnings. Still suppress notices, deprecated, strict,
+//     and user-level warnings/deprecations.
+//
+// 4 = Display PHP runtime reporting levels only.
+//     Do not change the current runtime error_reporting mask beyond the global
+//     suppression above. Only enable display_errors so the active level is visible.
+$userPhpDebug = $globalsBag->getInt('user_php_debug', 0);
 
+switch ($userPhpDebug) {
+    case 2:
+        // Display PHP application errors only.
+        error_reporting(
+            E_ERROR
+            | E_PARSE
+            | E_CORE_ERROR
+            | E_CORE_WARNING
+            | E_COMPILE_ERROR
+            | E_COMPILE_WARNING
+            | E_RECOVERABLE_ERROR
+        );
+        ini_set('display_errors', '1');
+        break;
+    case 3:
+        // Display PHP application errors and warnings only.
+        error_reporting(
+            E_ERROR
+            | E_WARNING
+            | E_PARSE
+            | E_CORE_ERROR
+            | E_CORE_WARNING
+            | E_COMPILE_ERROR
+            | E_COMPILE_WARNING
+            | E_RECOVERABLE_ERROR
+        );
+        ini_set('display_errors', '1');
+        break;
+    case 4:
+        // Display whatever php.ini/runtime is currently configured to report.
+        // Do not change the reporting mask.
+        ini_set('display_errors', '1');
+        break;
+    case 0:
+    default:
+        // Respect php.ini / server runtime settings.
+        // Do not alter error_reporting or display_errors.
+        break;
+}
 // Re-set the local variables that aren't in $GLOBALS
 $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
