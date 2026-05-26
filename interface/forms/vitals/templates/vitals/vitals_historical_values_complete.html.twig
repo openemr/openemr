@@ -43,12 +43,10 @@
                             precision:field.precision, codes:field.codes, results: results, is_edit: false }
                         %}
                     {% endif %}
-                    {# Skip the growth-chart action buttons here. They are
-                       rendered once in the editable section above; rendering
-                       them again would produce duplicate id="pdfchart" /
-                       id="htmlchart" in the DOM, which breaks the jQuery
-                       click handlers on the second pair. #}
-                    {% if field.type == 'template' and field.templateName != 'vitals_growthchart_actions.html.twig' %}
+                    {# Fields can opt out of the read-only history table by
+                       setting renderInHistory: false in C_FormVitals. Default
+                       is to render. #}
+                    {% if field.type == 'template' and (field.renderInHistory ?? true) %}
                         {% include field.templateName with {vitals: vitals, field: field, results: results, is_edit: false } %}
                     {% endif %}
                 {% endfor %}

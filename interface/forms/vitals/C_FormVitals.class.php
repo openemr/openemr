@@ -322,6 +322,11 @@ class C_FormVitals
                 'type' => 'template'
                 ,'templateName' => 'vitals_growthchart_actions.html.twig'
                 ,'hide' => !$show_pediatric_fields
+                // Action buttons render once in the editable section and emit
+                // fixed ids (pdfchart/htmlchart). Rendering them again in the
+                // history table would duplicate those ids and break the jQuery
+                // click handlers bound to the first pair.
+                ,'renderInHistory' => false
             ]
         ];
 
