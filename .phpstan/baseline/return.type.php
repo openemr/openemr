@@ -822,6 +822,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:getCachedAuth\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:getCredentials\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/VoiceClient.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\FaxResult\\:\\:getFaxResult\\(\\) should return int\\|string\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/FaxResult.php',
@@ -830,6 +840,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\FaxState\\:\\:getFaxState\\(\\) should return int\\|string\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/FaxState.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Events\\\\NotificationEventListener\\:\\:getRCCredentials\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ModuleManagerListener\\:\\:moduleManagerAction\\(\\) should return string but returns mixed\\.$#',
