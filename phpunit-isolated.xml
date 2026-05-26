@@ -42,8 +42,22 @@ This file configures the kind that does not require initialization.
       <directory>.</directory>
     </include>
     <exclude>
+      <directory>bin</directory>
+      <directory>ccdaservice</directory>
+      <directory>ccr</directory>
+      <directory>ci</directory>
       <directory>config</directory>
+      <directory>contrib</directory>
+      <directory>db</directory>
+      <directory>meta/health</directory>
+      <directory>public</directory>
+      <directory>sphere</directory>
+      <directory>templates/super/rules</directory>
+      <directory>tools/release</directory>
       <directory>vendor</directory>
+      <file>rector-bootstrap.php</file>
+      <file>rector-globals.php</file>
+      <file>rector.php</file>
     </exclude>
   </source>
 
