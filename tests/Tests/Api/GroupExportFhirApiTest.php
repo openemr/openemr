@@ -31,9 +31,14 @@ class GroupExportFhirApiTest extends TestCase
         // compose sets site_addr_oath to an external host:port URL
         // (e.g. https://localhost:9302) for browser access, but tests run
         // inside the container where the OAuth server resolves to
-        // https://localhost. Without this, the JWT aud check fails and
-        // setAuthToken returns 401. CI's site_addr_oath happens to match
-        // the container's view already so this is a no-op there.
+        // https://localhost. Without this, the token endpoint rejects
+        // the assertion as invalid_client (HTTP 400 from
+        // JWTClientAuthenticationService::validateJWTClientAssertion);
+        // setAuthToken's response is not 200 so $this->access_token stays
+        // null; the subsequent FHIR request goes out with an empty bearer
+        // and the resource server returns 401. CI's site_addr_oath
+        // happens to match the container's view already so this is a
+        // no-op there.
         $row = QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'site_addr_oath'");
         $value = is_array($row) ? ($row['gl_value'] ?? null) : null;
         $this->savedSiteAddrOath = is_string($value) ? $value : null;
@@ -42,11 +47,18 @@ class GroupExportFhirApiTest extends TestCase
 
     public function tearDown(): void
     {
-        $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
-        if ($this->savedSiteAddrOath !== null) {
-            QueryUtils::sqlStatementThrowException("UPDATE globals SET gl_value = ? WHERE gl_name = 'site_addr_oath'", [$this->savedSiteAddrOath]);
-            $this->savedSiteAddrOath = null;
+        // try/finally so the site_addr_oath restore always runs even if a
+        // cleanup HTTP call throws (Guzzle can raise on connection errors).
+        // Otherwise the override would leak into later tests in the same
+        // PHPUnit process.
+        try {
+            $this->testClient->cleanupRevokeAuth();
+            $this->testClient->cleanupClient();
+        } finally {
+            if ($this->savedSiteAddrOath !== null) {
+                QueryUtils::sqlStatementThrowException("UPDATE globals SET gl_value = ? WHERE gl_name = 'site_addr_oath'", [$this->savedSiteAddrOath]);
+                $this->savedSiteAddrOath = null;
+            }
         }
     }
 
