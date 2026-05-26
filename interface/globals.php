@@ -29,6 +29,11 @@ use OpenEMR\Core\OEGlobalsBag;
 // Set up autoloader as early as possible
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+// Refuse to run as root from the CLI. No OpenEMR CLI script needs root,
+// and a root-owned write here would brick the web server later. See
+// RootCliGuard for details.
+OpenEMR\Common\Command\RootCliGuard::assertNotRoot();
+
 // Checks if the server's PHP version is compatible with OpenEMR:
 $response = OpenEMR\Common\Compatibility\Checker::checkPhpVersion();
 if ($response !== true) {
