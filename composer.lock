@@ -2773,16 +2773,16 @@
         },
         {
             "name": "knplabs/knp-snappy",
-            "version": "v1.6.0",
+            "version": "v1.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/KnpLabs/snappy.git",
-                "reference": "af73003db677563fa982b50c1aec4d1e2b2f30b2"
+                "reference": "1461239a8b265fcc5457b7bdeb842c75b0f066eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/af73003db677563fa982b50c1aec4d1e2b2f30b2",
-                "reference": "af73003db677563fa982b50c1aec4d1e2b2f30b2",
+                "url": "https://api.github.com/repos/KnpLabs/snappy/zipball/1461239a8b265fcc5457b7bdeb842c75b0f066eb",
+                "reference": "1461239a8b265fcc5457b7bdeb842c75b0f066eb",
                 "shasum": ""
             },
             "require": {
@@ -2793,8 +2793,8 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
                 "pedrotroller/php-cs-custom-fixer": "^2.19",
-                "phpstan/phpstan": "^1.0.0",
-                "phpstan/phpstan-phpunit": "^1.0.0",
+                "phpstan/phpstan": "^2.1.39",
+                "phpstan/phpstan-phpunit": "^2.0.15",
                 "phpunit/phpunit": "^9.6.29"
             },
             "type": "library",
@@ -2834,9 +2834,9 @@
             ],
             "support": {
                 "issues": "https://github.com/KnpLabs/snappy/issues",
-                "source": "https://github.com/KnpLabs/snappy/tree/v1.6.0"
+                "source": "https://github.com/KnpLabs/snappy/tree/v1.7.2"
             },
-            "time": "2026-02-13T12:50:40+00:00"
+            "time": "2026-05-15T15:04:49+00:00"
         },
         {
             "name": "laminas/laminas-code",
@@ -11872,16 +11872,16 @@
         },
         {
             "name": "symfony/process",
-            "version": "v7.4.8",
+            "version": "v7.4.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "60f19cd3badc8de688421e21e4305eba50f8089a"
+                "reference": "d9593c9efa40499eb078b81144de42cbc28a31f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/60f19cd3badc8de688421e21e4305eba50f8089a",
-                "reference": "60f19cd3badc8de688421e21e4305eba50f8089a",
+                "url": "https://api.github.com/repos/symfony/process/zipball/d9593c9efa40499eb078b81144de42cbc28a31f0",
+                "reference": "d9593c9efa40499eb078b81144de42cbc28a31f0",
                 "shasum": ""
             },
             "require": {
@@ -11913,7 +11913,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v7.4.8"
+                "source": "https://github.com/symfony/process/tree/v7.4.11"
             },
             "funding": [
                 {
@@ -11933,7 +11933,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-03-24T13:12:05+00:00"
+            "time": "2026-05-11T16:55:21+00:00"
         },
         {
             "name": "symfony/property-access",
