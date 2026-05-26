@@ -87,6 +87,7 @@
         "moneyphp/money": "^4.8",
         "monolog/monolog": "^3.9.0",
         "mpdf/mpdf": "^8.2.7",
+        "nikic/php-parser": "^5.7",
         "nyholm/psr7": "^1.8.2",
         "nyholm/psr7-server": "^1.1.0",
         "omnipay/stripe": "^3.2.0",
@@ -136,6 +137,7 @@
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
         "iamcal/sql-parser": "^0.7.0",
+        "justinrainbow/json-schema": "^6.8",
         "league/flysystem-memory": "^3.31",
         "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
@@ -188,7 +190,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\": "tests"
+            "OpenEMR\\": "tests",
+            "OpenEMR\\Release\\": "tools/release/src"
         }
     },
     "config": {
@@ -198,6 +201,31 @@
             "openemr/oe-module-installer-plugin": true,
             "php-http/discovery": false,
             "phpstan/extension-installer": true
+        },
+        "audit": {
+            "ignore": {
+                "PKSA-13wp-m816-mvdd": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-21g2-dzjv-sky5": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-37cw-b473-k9np": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-3mcc-k66d-pydb": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-5k7f-wvjj-jrgw": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-5r1g-c7b7-y1zg": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-b14r-zh1d-vdrc": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-dpx1-78wg-1kqs": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-dw7n-x7f5-zf63": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-ft77-7h5f-p3r6": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-gw7n-z4yx-7xjt": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-h8hf-ytnd-5t9q": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-hgmw-wn4d-hpcy": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-kvv6-36cr-fkzb": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-n14z-jjjg-g8vd": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-p1pz-jv1j-6msg": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-sjvz-tbbr-vwth": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-smrh-yx37-92ws": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-v5yj-8nmz-sk2q": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-wwb1-81rc-pd65": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0",
+                "PKSA-z7t6-zt6p-wtng": "rel-810 deferral: every available version in pinned root ranges is flagged; clean up before/after 8.1.0"
+            }
         },
         "platform": {
             "ext-bcmath": "8.2",
