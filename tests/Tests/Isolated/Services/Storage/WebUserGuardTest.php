@@ -1,8 +1,12 @@
 <?php
 
 /**
+ * Tests for WebUserGuard.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,23 +43,23 @@ final class WebUserGuardTest extends TestCase
         }
     }
 
-    public function testAssertSafeWithReferenceDoesNotThrowWhenOwnerMatchesCurrentUid(): void
+    public function testAssertSafeDoesNotThrowWhenOwnerMatchesCurrentUid(): void
     {
         $this->expectNotToPerformAssertions();
         // tempDir was just created by the test process; owner is the
         // current EUID; no mismatch.
-        WebUserGuard::assertSafeWithReference('test write', $this->tempDir);
+        WebUserGuard::assertSafe('test write', $this->tempDir);
     }
 
-    public function testAssertSafeWithReferenceNoOpsOnMissingReferencePath(): void
+    public function testAssertSafeNoOpsOnMissingReferencePath(): void
     {
         $this->expectNotToPerformAssertions();
         $missing = $this->tempDir . '/does-not-exist';
 
-        WebUserGuard::assertSafeWithReference('test write', $missing);
+        WebUserGuard::assertSafe('test write', $missing);
     }
 
-    public function testAssertSafeWithReferenceThrowsOnUidMismatch(): void
+    public function testAssertSafeThrowsOnUidMismatch(): void
     {
         // Need to chown the reference dir to a UID different from the
         // current process's. Requires root + an available second UID.
@@ -77,8 +81,12 @@ final class WebUserGuardTest extends TestCase
         $this->expectExceptionMessageMatches('/Web-user mismatch/');
         $this->expectExceptionMessageMatches('/UID ' . preg_quote((string)$currentUid, '/') . '/');
         $this->expectExceptionMessageMatches('/UID ' . preg_quote((string)$apacheUid, '/') . '/');
+        // Sanity-check that the message uses bracket placeholder (not
+        // HTML-special angle brackets) so it survives accidental
+        // browser rendering.
+        $this->expectExceptionMessageMatches('/\\[your command\\]/');
 
-        WebUserGuard::assertSafeWithReference('test write', $this->tempDir);
+        WebUserGuard::assertSafe('test write', $this->tempDir);
     }
 
     /** Mirror of WebUserGuard::currentEffectiveUid for posix-optional environments. */
@@ -86,6 +94,9 @@ final class WebUserGuardTest extends TestCase
     {
         if (function_exists('posix_geteuid')) {
             return posix_geteuid();
+        }
+        if (PHP_OS_FAMILY === 'Windows') {
+            return null;
         }
         return self::idUViaProcess([]);
     }
@@ -95,6 +106,9 @@ final class WebUserGuardTest extends TestCase
         if (function_exists('posix_getpwnam')) {
             $pw = @posix_getpwnam($username);
             return ($pw !== false) ? $pw['uid'] : null;
+        }
+        if (PHP_OS_FAMILY === 'Windows') {
+            return null;
         }
         return self::idUViaProcess([$username]);
     }

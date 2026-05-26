@@ -197,9 +197,18 @@ class OAuth2KeyConfig
         // Fail fast if this process is not running as the web user.
         // Root-owned key files would brick OAuth at runtime: the web
         // server would log "Key path ... does not exist or is not
-        // readable" and return 500. See WebUserGuard for the full
-        // reasoning.
-        WebUserGuard::assertSafe('OAuth2 key generation at ' . $this->privateKey);
+        // readable" and return 500. The reference path is derived from
+        // the explicit private-key location (which already encodes the
+        // configured site dir) rather than $GLOBALS['OE_SITE_DIR'], so
+        // multisite callers that instantiate OAuth2KeyConfig with a
+        // non-default $siteDir validate against the correct site's
+        // documents directory. See WebUserGuard for the full reasoning.
+        WebUserGuard::assertSafe(
+            'OAuth2 key generation at ' . $this->privateKey,
+            // {siteDir}/documents/certificates/oaprivate.key
+            //   -> dirname x2 -> {siteDir}/documents
+            dirname($this->privateKey, 2),
+        );
 
         // Collect info from $this->oauth2KeyMissing to determine what is missing for logging purposes and then reset it
         $createNew = $this->oauth2KeyMissing->isMissingAll();

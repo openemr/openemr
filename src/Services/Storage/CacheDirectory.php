@@ -46,7 +46,7 @@ use RuntimeException;
 final readonly class CacheDirectory
 {
     private string $baseDir;
-    private ?string $referencePath;
+    private string $referencePath;
 
     /**
      * @param string|null $baseDir       For testing only. This parameter is
@@ -61,13 +61,28 @@ final readonly class CacheDirectory
      *                                   guard validates against a
      *                                   test-process-owned dir and doesn't
      *                                   throw). In production both parameters
-     *                                   are null and the guard auto-discovers
+     *                                   are null and the reference is derived
      *                                   from `$GLOBALS['OE_SITE_DIR']`.
      */
     public function __construct(?string $baseDir = null, ?string $referencePath = null)
     {
         if ($baseDir === null) {
             $baseDir = sys_get_temp_dir();
+            // Production path: derive the reference from the bootstrapped
+            // site dir. `$GLOBALS['OE_SITE_DIR']` is set by
+            // interface/globals.php; every production caller of
+            // CacheDirectory runs after that.
+            // @phpstan-ignore openemr.forbiddenGlobalsAccess
+            $siteDir = $GLOBALS['OE_SITE_DIR'] ?? null;
+            if (!is_string($siteDir) || $siteDir === '') {
+                throw new \LogicException(
+                    'CacheDirectory requires $GLOBALS[\'OE_SITE_DIR\'] to be '
+                    . 'set (loaded via interface/globals.php). Pass a '
+                    . '$referencePath explicitly if instantiating outside a '
+                    . 'bootstrapped site context.'
+                );
+            }
+            $referencePath = $siteDir . '/documents';
         } else {
             if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
                 // @codeCoverageIgnoreStart
@@ -107,11 +122,7 @@ final readonly class CacheDirectory
         // root-owned cache dir created here would brick the web server
         // later (PHP Fatal: unable to write to compile_dir). See
         // WebUserGuard for the full reasoning.
-        if ($this->referencePath !== null) {
-            WebUserGuard::assertSafeWithReference('cache directory at ' . $path, $this->referencePath);
-        } else {
-            WebUserGuard::assertSafe('cache directory at ' . $path);
-        }
+        WebUserGuard::assertSafe('cache directory at ' . $path, $this->referencePath);
 
         if (is_link($path)) {
             throw new RuntimeException(sprintf(

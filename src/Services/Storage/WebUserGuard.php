@@ -5,6 +5,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -33,59 +35,35 @@ use Symfony\Component\Process\Process;
  * failure into an immediate, actionable error pointing at the actual
  * fix: "re-run PHP as the web user."
  *
- * The "web user" is detected from the owner of a directory OpenEMR
- * guarantees is writable by the web server at runtime — specifically
- * `{site_dir}/documents` (where patient documents are written). Whoever
- * owns that directory IS the runtime web user, by definition; if it
- * weren't, document uploads would already be broken.
+ * Callers supply a reference directory that the web server is known to
+ * write to at runtime (e.g. `{site_dir}/documents`, where patient
+ * documents are written). Whoever owns that directory IS the runtime
+ * web user, by definition; if it weren't, document uploads would
+ * already be broken.
  *
  * Non-POSIX systems (Windows): the check is skipped entirely. Windows
- * uses ACLs, not UID-based permissions, and the failure mode this guards
- * against doesn't naturally exist there.
+ * uses ACLs, not UID-based permissions, and the failure mode this
+ * guards against doesn't naturally exist there.
  */
 final class WebUserGuard
 {
     /**
      * Assert that this process can safely create files the web server
-     * will read later, using the default reference directory
-     * ({site_dir}/documents).
-     *
-     * No-ops on non-POSIX systems and when the reference directory
-     * cannot be located (e.g. early in bootstrap before
-     * `$GLOBALS['OE_SITE_DIR']` is set).
-     *
-     * @param string $writeContext Short description of what's about to be
-     *                             written, included in the error message
-     *                             to help the admin locate the mistake.
-     */
-    public static function assertSafe(string $writeContext): void
-    {
-        $referencePath = self::defaultReferencePath();
-        if ($referencePath === null) {
-            return;
-        }
-        self::assertSafeWithReference($writeContext, $referencePath);
-    }
-
-    /**
-     * Assert that this process can safely create files the web server
-     * will read later, using a caller-supplied reference directory.
-     *
-     * Use this overload when the caller already has a known-writable
-     * directory in hand (e.g. OAuth2KeyConfig already knows
-     * `{siteDir}/documents`), or in tests.
+     * will read later.
      *
      * No-ops on non-POSIX systems and when the reference path cannot be
-     * stat'd.
+     * stat'd (a missing reference is a bigger install problem; this
+     * helper is a safety check, not a load-bearing precondition).
      *
-     * @param string $writeContext   Short description of what's about to
-     *                               be written, included in the error
-     *                               message.
-     * @param string $referencePath  Path to a directory the web server
-     *                               writes to at runtime; its owner IS
-     *                               the web user.
+     * @param string $writeContext  Short description of what's about to
+     *                              be written, included in the error
+     *                              message to help the admin locate the
+     *                              mistake.
+     * @param string $referencePath Path to a directory the web server
+     *                              writes to at runtime; its owner IS
+     *                              the web user.
      */
-    public static function assertSafeWithReference(string $writeContext, string $referencePath): void
+    public static function assertSafe(string $writeContext, string $referencePath): void
     {
         $current = self::currentEffectiveUid();
         if ($current === null) {
@@ -95,10 +73,6 @@ final class WebUserGuard
 
         $owner = @fileowner($referencePath);
         if ($owner === false) {
-            // Reference path missing/unreadable. Fail open: this is a
-            // safety check, not a load-bearing precondition; if the
-            // install is broken enough that the documents dir isn't
-            // there, the user has bigger problems.
             return;
         }
 
@@ -113,7 +87,7 @@ final class WebUserGuard
             . "server, which would cause opaque fatal errors later "
             . "(unable to write to compile_dir, key path not readable, "
             . "etc). Re-run PHP as UID %d — e.g. via "
-            . "`su -s /bin/sh \$(id -un %d) -c '<your command>'`.",
+            . "`su -s /bin/sh \$(id -un %d) -c '[your command]'`.",
             $writeContext,
             $current,
             $referencePath,
@@ -128,14 +102,23 @@ final class WebUserGuard
      * `posix` PHP extension to be loaded.
      *
      * Prefers `posix_geteuid()`. Falls back to running `id -u` via
-     * Symfony Process when posix is unavailable (common in stripped-down
-     * PHP CLI builds). Returns null on Windows / when neither path
-     * works.
+     * Symfony Process when posix is unavailable on a non-Windows host
+     * (common in stripped-down PHP CLI builds). Returns null on Windows
+     * (where the comparison doesn't apply — Windows uses ACLs) and when
+     * neither resolution path works.
      */
     private static function currentEffectiveUid(): ?int
     {
         if (function_exists('posix_geteuid')) {
             return posix_geteuid();
+        }
+        // Don't fall back to `id -u` on Windows: Git/MSYS in PATH would
+        // provide an `id` binary that returns a Unix-style UID, but
+        // fileowner() on Windows returns ACL-derived integers that
+        // don't share the same numbering space — comparing the two
+        // would produce nonsense mismatches.
+        if (PHP_OS_FAMILY === 'Windows') {
+            return null;
         }
         try {
             $process = new Process(['id', '-u']);
@@ -152,25 +135,5 @@ final class WebUserGuard
             return null;
         }
         return null;
-    }
-
-    /**
-     * Find the default reference directory for the current OpenEMR site.
-     *
-     * Returns null if the site directory isn't set in $GLOBALS (e.g.
-     * pre-bootstrap call) or the documents subdirectory doesn't exist.
-     */
-    private static function defaultReferencePath(): ?string
-    {
-        // Direct $GLOBALS read intentional: this runs in low-level filesystem
-        // code paths where the OEGlobalsBag kernel may not have been
-        // initialized yet.
-        // @phpstan-ignore openemr.forbiddenGlobalsAccess
-        $siteDir = $GLOBALS['OE_SITE_DIR'] ?? null;
-        if (!is_string($siteDir) || $siteDir === '') {
-            return null;
-        }
-        $docs = $siteDir . '/documents';
-        return is_dir($docs) ? $docs : null;
     }
 }

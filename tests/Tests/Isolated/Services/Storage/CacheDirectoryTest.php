@@ -138,11 +138,23 @@ final class CacheDirectoryTest extends TestCase
 
     public function testForUsesSystemTempDirWhenNoBaseDirProvided(): void
     {
+        // The no-arg constructor reads $GLOBALS['OE_SITE_DIR'] to seed
+        // its WebUserGuard reference; the isolated suite doesn't load
+        // interface/globals.php, so set it manually here. Point it at
+        // testBaseDir so the guard validates against a path the test
+        // process owns (no mismatch).
         $scope = 'openemr-cache-test-' . bin2hex(random_bytes(8));
-        $cache = new CacheDirectory();
         $tempDir = sys_get_temp_dir();
+        $hadSiteDir = array_key_exists('OE_SITE_DIR', $GLOBALS);
+        $priorSiteDir = $GLOBALS['OE_SITE_DIR'] ?? null;
+        // The WebUserGuard reference is {OE_SITE_DIR}/documents — point
+        // at testBaseDir's parent so {parent}/documents matches a real
+        // dir the test process owns.
+        @mkdir($this->testBaseDir . '-fake-site/documents', 0700, true);
+        $GLOBALS['OE_SITE_DIR'] = $this->testBaseDir . '-fake-site';
 
         try {
+            $cache = new CacheDirectory();
             $path = $cache->for($scope);
 
             self::assertSame($tempDir . '/' . $scope, $path);
@@ -150,6 +162,12 @@ final class CacheDirectoryTest extends TestCase
         } finally {
             if (is_dir($tempDir . '/' . $scope)) {
                 rmdir($tempDir . '/' . $scope);
+            }
+            $this->recursiveDelete($this->testBaseDir . '-fake-site');
+            if ($hadSiteDir) {
+                $GLOBALS['OE_SITE_DIR'] = $priorSiteDir;
+            } else {
+                unset($GLOBALS['OE_SITE_DIR']);
             }
         }
     }
