@@ -218,7 +218,22 @@ post_install_upgrade() {
     # rather than the `VAR=val cmd` form — demoData also references
     # $MYSQL_HOST / $MYSQL_ROOT_PASS directly, and the inline form would
     # scope them only to the prepareVariables call.
-    _exec sh -c 'export MYSQL_HOST=mysql MYSQL_ROOT_PASS=root && . /root/devtoolsLibrary.source && prepareVariables && demoData'
+    #
+    # upgradeOpenEMR() is overridden locally so sql_upgrade.php runs as
+    # apache rather than root. RootCliGuard refuses root for OpenEMR CLI
+    # scripts (the failure it catches: a root-owned write here would
+    # brick apache later). The full fix lives in openemr-devops/devtools
+    # — once devtoolsLibrary.source itself drops privileges, this
+    # override can be removed.
+    _exec sh -c '
+        export MYSQL_HOST=mysql MYSQL_ROOT_PASS=root
+        . /root/devtoolsLibrary.source
+        prepareVariables
+        upgradeOpenEMR() {
+            su -p -s /bin/sh apache -c "php -f /var/www/localhost/htdocs/openemr/sql_upgrade.php -- --from=\"$1\""
+        }
+        demoData
+    '
 
     # demoData drops all tables and reseeds from the 5.0.0 dump (which
     # has its own globals values), so the CI-specific globals that

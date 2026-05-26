@@ -32,6 +32,7 @@ use OpenEMR\Services\Background\BackgroundServiceDefinition;
 use OpenEMR\Services\Background\BackgroundServiceRegistry;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
 
 use function OpenEMR\Tests\Services\Background\Probe\cliProbeSentinelPath;
@@ -157,8 +158,24 @@ class BackgroundServicesCliIntegrationTest extends TestCase
      */
     private function runConsole(array $args): array
     {
+        $command = [PHP_BINARY, $this->projectDir . '/bin/console', 'background:services', ...$args];
+
+        // bin/console refuses to run as root (see RootCliGuard). When the
+        // test process is root (typical of CI containers and the docker
+        // dev stack), drop privileges to apache for the subprocess. This
+        // mirrors the production invocation pattern (web user shelling
+        // out from cron) and keeps the guard honest; bypassing it would
+        // hide the same root-CLI failure mode the guard exists to catch.
+        // `-p` preserves the env the bootstrap needs (HOME, PATH, MYSQL_*).
+        if (self::currentEffectiveUid() === 0) {
+            $command = [
+                'su', '-p', '-s', '/bin/sh', 'apache', '-c',
+                implode(' ', array_map(escapeshellarg(...), $command)),
+            ];
+        }
+
         $process = new Process(
-            [PHP_BINARY, $this->projectDir . '/bin/console', 'background:services', ...$args],
+            $command,
             $this->projectDir,
             // Inherit the parent env rather than scrubbing it: the
             // console bootstrap needs HOME, PATH, and (in the services
@@ -180,6 +197,37 @@ class BackgroundServicesCliIntegrationTest extends TestCase
         if (is_file($this->sentinelPath)) {
             unlink($this->sentinelPath);
         }
+    }
+
+    /**
+     * Resolve the current process's effective UID without requiring the
+     * `posix` PHP extension. Mirrors RootCliGuard's own resolver so this
+     * test correctly identifies a root parent even on PHP CLI builds
+     * without posix loaded (a common configuration the guard itself is
+     * designed to handle).
+     */
+    private static function currentEffectiveUid(): ?int
+    {
+        if (function_exists('posix_geteuid')) {
+            return posix_geteuid();
+        }
+        if (PHP_OS_FAMILY === 'Windows') {
+            return null;
+        }
+        try {
+            $process = new Process(['id', '-u']);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $trimmed = trim($process->getOutput());
+            if ($trimmed !== '' && ctype_digit($trimmed)) {
+                return (int) $trimmed;
+            }
+        } catch (ProcessExceptionInterface) {
+            return null;
+        }
+        return null;
     }
 
     private function sentinelLineCount(): int
