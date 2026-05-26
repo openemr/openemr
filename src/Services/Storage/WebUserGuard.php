@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\Storage;
 
+use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
 use Symfony\Component\Process\Exception\ExceptionInterface as ProcessExceptionInterface;
 use Symfony\Component\Process\Process;
@@ -35,11 +36,12 @@ use Symfony\Component\Process\Process;
  * failure into an immediate, actionable error pointing at the actual
  * fix: "re-run PHP as the web user."
  *
- * Callers supply a reference directory that the web server is known to
- * write to at runtime (e.g. `{site_dir}/documents`, where patient
- * documents are written). Whoever owns that directory IS the runtime
- * web user, by definition; if it weren't, document uploads would
- * already be broken.
+ * The reference directory used for the comparison must be one the web
+ * server is known to write to at runtime. By default the guard uses
+ * `{OE_SITE_DIR}/documents` (where patient documents land); whoever
+ * owns that directory IS the runtime web user, by definition (if it
+ * weren't, document uploads would already be broken). Callers with a
+ * different or multisite-specific path can pass it explicitly.
  *
  * Non-POSIX systems (Windows): the check is skipped entirely. Windows
  * uses ACLs, not UID-based permissions, and the failure mode this
@@ -55,16 +57,23 @@ final class WebUserGuard
      * stat'd (a missing reference is a bigger install problem; this
      * helper is a safety check, not a load-bearing precondition).
      *
-     * @param string $writeContext  Short description of what's about to
-     *                              be written, included in the error
-     *                              message to help the admin locate the
-     *                              mistake.
-     * @param string $referencePath Path to a directory the web server
-     *                              writes to at runtime; its owner IS
-     *                              the web user.
+     * @param string      $writeContext  Short description of what's
+     *                                   about to be written, included
+     *                                   in the error message to help
+     *                                   the admin locate the mistake.
+     * @param string|null $referencePath Path to a directory the web
+     *                                   server writes to at runtime;
+     *                                   its owner IS the web user.
+     *                                   When null, resolved from
+     *                                   `OEGlobalsBag` as
+     *                                   `{OE_SITE_DIR}/documents`.
+     *                                   Pass explicitly when the
+     *                                   caller knows the site context
+     *                                   (e.g. multisite).
      */
-    public static function assertSafe(string $writeContext, string $referencePath): void
+    public static function assertSafe(string $writeContext, ?string $referencePath = null): void
     {
+        $referencePath ??= self::defaultReferencePath();
         $current = self::currentEffectiveUid();
         if ($current === null) {
             // Non-POSIX (Windows), or couldn't determine — skip.
@@ -95,6 +104,31 @@ final class WebUserGuard
             $owner,
             $owner,
         ));
+    }
+
+    /**
+     * Resolve the default reference directory from the bootstrapped
+     * site context.
+     *
+     * @throws \LogicException when OE_SITE_DIR is not available via
+     *                         OEGlobalsBag. Callers reaching this path
+     *                         have presumably bootstrapped OpenEMR;
+     *                         not having OE_SITE_DIR is a programmer
+     *                         error worth surfacing loudly rather
+     *                         than silently no-opping.
+     */
+    private static function defaultReferencePath(): string
+    {
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
+        if (!is_string($siteDir) || $siteDir === '') {
+            throw new \LogicException(
+                'WebUserGuard could not resolve a default reference path: '
+                . 'OE_SITE_DIR is not set via OEGlobalsBag (call site is '
+                . 'likely pre-bootstrap). Pass a $referencePath explicitly '
+                . 'or load interface/globals.php first.'
+            );
+        }
+        return $siteDir . '/documents';
     }
 
     /**
