@@ -225,6 +225,7 @@ post_install_upgrade() {
     # brick apache later). The full fix lives in openemr-devops/devtools
     # — once devtoolsLibrary.source itself drops privileges, this
     # override can be removed.
+    # shellcheck disable=SC2016  # $1 is intentionally unexpanded by the outer shell — it refers to the overridden upgradeOpenEMR()'s positional arg, evaluated inside the inner shell that sources devtoolsLibrary.
     _exec sh -c '
         export MYSQL_HOST=mysql MYSQL_ROOT_PASS=root
         . /root/devtoolsLibrary.source
