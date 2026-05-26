@@ -46,13 +46,25 @@ use RuntimeException;
 final readonly class CacheDirectory
 {
     private string $baseDir;
+    private ?string $referencePath;
 
     /**
-     * @param string $baseDir For testing only. This parameter is guarded and
-     *                        will throw LogicException outside of PHPUnit.
-     *                        Production code must use the default.
+     * @param string|null $baseDir       For testing only. This parameter is
+     *                                   guarded and will throw LogicException
+     *                                   outside of PHPUnit. Production code
+     *                                   must use the default.
+     * @param string|null $referencePath For testing only. Overrides the
+     *                                   directory WebUserGuard uses to detect
+     *                                   the runtime web user. When `$baseDir`
+     *                                   is supplied without `$referencePath`,
+     *                                   the test base dir is used (so the
+     *                                   guard validates against a
+     *                                   test-process-owned dir and doesn't
+     *                                   throw). In production both parameters
+     *                                   are null and the guard auto-discovers
+     *                                   from `$GLOBALS['OE_SITE_DIR']`.
      */
-    public function __construct(?string $baseDir = null)
+    public function __construct(?string $baseDir = null, ?string $referencePath = null)
     {
         if ($baseDir === null) {
             $baseDir = sys_get_temp_dir();
@@ -64,8 +76,12 @@ final readonly class CacheDirectory
                 );
                 // @codeCoverageIgnoreEnd
             }
+            // In test mode default the WebUserGuard reference to the test
+            // base dir, which the test process owns — match, no throw.
+            $referencePath ??= $baseDir;
         }
         $this->baseDir = $baseDir;
+        $this->referencePath = $referencePath;
     }
 
     /**
@@ -86,6 +102,16 @@ final readonly class CacheDirectory
         }
 
         $path = $this->baseDir . '/' . $scope;
+
+        // Fail fast if this process is not running as the web user. A
+        // root-owned cache dir created here would brick the web server
+        // later (PHP Fatal: unable to write to compile_dir). See
+        // WebUserGuard for the full reasoning.
+        if ($this->referencePath !== null) {
+            WebUserGuard::assertSafeWithReference('cache directory at ' . $path, $this->referencePath);
+        } else {
+            WebUserGuard::assertSafe('cache directory at ' . $path);
+        }
 
         if (is_link($path)) {
             throw new RuntimeException(sprintf(

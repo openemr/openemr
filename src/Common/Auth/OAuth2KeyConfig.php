@@ -23,6 +23,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\WebUserGuard;
 
 class OAuth2KeyConfig
 {
@@ -193,6 +194,13 @@ class OAuth2KeyConfig
 
     private function createOrRecreateKeys(): void
     {
+        // Fail fast if this process is not running as the web user.
+        // Root-owned key files would brick OAuth at runtime: the web
+        // server would log "Key path ... does not exist or is not
+        // readable" and return 500. See WebUserGuard for the full
+        // reasoning.
+        WebUserGuard::assertSafe('OAuth2 key generation at ' . $this->privateKey);
+
         // Collect info from $this->oauth2KeyMissing to determine what is missing for logging purposes and then reset it
         $createNew = $this->oauth2KeyMissing->isMissingAll();
         if ($createNew) {
