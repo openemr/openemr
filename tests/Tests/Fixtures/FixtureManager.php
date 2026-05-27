@@ -225,6 +225,45 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR Medication fixtures.
+     */
+    public function getFhirMedicationFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/medication.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Medication fixture
+     */
+    public function getSingleFhirMedicationFixture()
+    {
+        return $this->getSingleEntry($this->getFhirMedicationFixtures());
+    }
+
+    /**
+     * Removes any `drugs` row whose name matches the test-fixture prefix. Drug uuid
+     * rows in uuid_registry are removed first.
+     */
+    public function removeMedicationFixtures(): void
+    {
+        $bytesList = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM drugs WHERE name LIKE ?",
+            'uuid',
+            ['test-fixture-%']
+        );
+        foreach ($bytesList as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'drugs' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM drugs WHERE name LIKE ?",
+            ['test-fixture-%']
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR Person fixtures.
      */
     public function getFhirPersonFixtures(): array
