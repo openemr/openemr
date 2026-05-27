@@ -120,7 +120,12 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
             "Update should succeed: " . json_encode($actualResult->getValidationMessages())
         );
         $this->assertNotEmpty($actualResult->getData());
-        $this->assertSame('test-fixture updated note', $actualResult->getData()[0]['note']);
+        // FhirServiceBase::update re-parses the updated row through parseOpenEMRRecord,
+        // so getData()[0] is the FHIRMedicationRequest object (not the column array).
+        $updatedResource = $actualResult->getData()[0];
+        $notes = $updatedResource->getNote();
+        $this->assertCount(1, $notes);
+        $this->assertSame('test-fixture updated note', $notes[0]->getText()->getValue());
     }
 
     #[Test]

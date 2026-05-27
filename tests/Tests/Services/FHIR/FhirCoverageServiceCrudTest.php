@@ -117,7 +117,10 @@ class FhirCoverageServiceCrudTest extends TestCase
             "Update should succeed: " . json_encode($actualResult->getValidationMessages())
         );
         $this->assertNotEmpty($actualResult->getData());
-        $this->assertSame('test-fixture-policy-002-updated', $actualResult->getData()[0]['policy_number']);
+        // FhirServiceBase::update re-parses the updated row through parseOpenEMRRecord,
+        // so getData()[0] is the FHIRCoverage object. subscriberId carries policy_number.
+        $updatedResource = $actualResult->getData()[0];
+        $this->assertSame('test-fixture-policy-002-updated', $updatedResource->getSubscriberId()->getValue());
     }
 
     #[Test]

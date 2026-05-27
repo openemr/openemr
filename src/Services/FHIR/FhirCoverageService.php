@@ -655,7 +655,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         $patient = QueryUtils::fetchRecords(
-            "SELECT fname, mname, lname, DOB, sex, street, city, state, postal_code, country, phone_home, ss "
+            "SELECT fname, mname, lname, DOB, sex, street, city, state, postal_code, country_code, phone_home, ss "
             . "FROM patient_data WHERE pid = ?",
             [$record['pid']]
         );
@@ -673,7 +673,7 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $record['subscriber_city'] ??= $p['city'] ?? '';
         $record['subscriber_state'] ??= $p['state'] ?? '';
         $record['subscriber_postal_code'] ??= $p['postal_code'] ?? '';
-        $record['subscriber_country'] ??= $p['country'] ?? '';
+        $record['subscriber_country'] ??= $p['country_code'] ?? '';
         $record['subscriber_phone'] ??= $p['phone_home'] ?? '';
         $record['subscriber_ss'] ??= $p['ss'] ?? '';
     }
