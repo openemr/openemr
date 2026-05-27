@@ -412,11 +412,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirPatientDocumentReferenceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirCareTeamService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCareTeamService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirDiagnosticReportService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
