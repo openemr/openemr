@@ -225,6 +225,22 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR Person fixtures.
+     */
+    public function getFhirPersonFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/persons.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Person fixture
+     */
+    public function getSingleFhirPersonFixture()
+    {
+        return $this->getSingleEntry($this->getFhirPersonFixtures());
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR CarePlan fixtures.
      */
     public function getFhirCarePlanFixtures(): array
