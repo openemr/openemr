@@ -64,6 +64,7 @@ use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Services\FHIR\FhirCarePlanService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirCoverageService;
+use OpenEMR\Services\FHIR\FhirDeviceService;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Services\FHIR\FhirImmunizationService;
 use OpenEMR\Services\FHIR\FhirMedicationRequestService;
@@ -771,6 +772,68 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Device",
+     *      description="Creates a new Device resource (medical device association with a patient).",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(response="201", description="Device resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Device" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirDeviceService(), $globalsBag);
+        $controller->setExpectedResourceType("Device");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Device/{uuid}",
+     *      description="Modifies a Device resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(response="200", description="Device resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Device/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirDeviceService(), $globalsBag);
+        $controller->setExpectedResourceType("Device");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         $controller = new FhirDiagnosticReportRestController($request);

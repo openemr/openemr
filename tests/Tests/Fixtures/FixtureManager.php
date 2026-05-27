@@ -225,6 +225,56 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR Device fixtures.
+     */
+    public function getFhirDeviceFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/device.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Device fixture
+     */
+    public function getSingleFhirDeviceFixture()
+    {
+        return $this->getSingleEntry($this->getFhirDeviceFixtures());
+    }
+
+    /**
+     * Removes medical_device rows in `lists` for test-fixture patients. Scoped to
+     * type='medical_device' so this doesn't affect other list types (allergies,
+     * problems, medications) that share the table.
+     */
+    public function removeDeviceFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $uuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM lists WHERE type = 'medical_device' AND pid IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($uuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'lists' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM lists WHERE type = 'medical_device' AND pid IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR Medication fixtures.
      */
     public function getFhirMedicationFixtures(): array
