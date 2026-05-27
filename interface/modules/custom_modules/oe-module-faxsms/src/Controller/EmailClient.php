@@ -53,9 +53,6 @@ class EmailClient extends AppDispatch
     {
         $credentials = AppDispatch::getSetup();
 
-        $this->sid = $credentials['username'];
-        $this->appKey = $credentials['appKey'];
-        $this->appSecret = $credentials['appSecret'];
         $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
