@@ -225,6 +225,51 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR MedicationRequest fixtures.
+     */
+    public function getFhirMedicationRequestFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/medication-request.json");
+    }
+
+    /**
+     * @return mixed single/random fhir medication request fixture
+     */
+    public function getSingleFhirMedicationRequestFixture()
+    {
+        return $this->getSingleEntry($this->getFhirMedicationRequestFixtures());
+    }
+
+    public function removeMedicationRequestFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if (empty($pids)) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $uuids = QueryUtils::fetchTableColumn(
+            "SELECT `uuid` FROM `prescriptions` WHERE `patient_id` IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($uuids as $bytes) {
+            sqlQuery(
+                "DELETE FROM uuid_registry WHERE table_name = 'prescriptions' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        sqlStatement(
+            "DELETE FROM prescriptions WHERE patient_id IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR Coverage fixtures.
      */
     public function getFhirCoverageFixtures(): array
