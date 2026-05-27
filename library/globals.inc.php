@@ -2787,7 +2787,7 @@ $GLOBALS_METADATA = [
         'user_php_debug' => [
             xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('Use Server Defaults (Disply off)'),
+                '0' => xl('Use Server Defaults (Display off)'),
                 '2' => xl('Display Errors Only'),
                 '3' => xl('Display Errors and Warnings Only'),
                 '4' => xl('Display Current Runtime Reporting'),

@@ -137,7 +137,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         $sessionSiteIdString = is_string($sessionSiteId) ? $sessionSiteId : '';
         ?>
         var site_id_js = <?php echo js_escape($sessionSiteIdString); ?>;
-        var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
+        var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->getBoolean('user_debug')); ?>;
         var webroot_url = <?php echo js_escape(OEGlobalsBag::getInstance()->getWebRoot()); ?>;
         var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
         'ltr';
