@@ -622,6 +622,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#1 \\$openEmrRecord \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:insertOpenEMRRecord\\(\\) should be contravariant with parameter \\$openEmrRecord \\(mixed\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:insertOpenEMRRecord\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#2 \\$updatedOpenEMRRecord \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceRequestService\\:\\:updateOpenEMRRecord\\(\\) should be contravariant with parameter \\$updatedOpenEMRRecord \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:updateOpenEMRRecord\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirSpecimenService\\:\\:searchForOpenEMRRecords\\(\\) should be contravariant with parameter \\$openEMRSearchParameters \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:searchForOpenEMRRecords\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirSpecimenService.php',
