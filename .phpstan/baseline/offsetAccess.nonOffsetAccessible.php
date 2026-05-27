@@ -14212,6 +14212,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'appKey\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'appSecret\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'fax_number\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup.php',
@@ -14318,12 +14328,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'appKey\' on mixed\\.$#',
-    'count' => 1,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_rc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'appSecret\' on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup_rc.php',
 ];
 $ignoreErrors[] = [
@@ -14508,6 +14518,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'username\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php',
 ];
@@ -19594,6 +19609,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'username\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',
     'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/Module.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'username\' on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/Module.php',
 ];
 $ignoreErrors[] = [
