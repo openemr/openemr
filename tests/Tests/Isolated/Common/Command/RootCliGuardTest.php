@@ -95,24 +95,11 @@ final class RootCliGuardTest extends TestCase
 
     private static function currentUid(): ?int
     {
-        if (function_exists('posix_geteuid')) {
-            return posix_geteuid();
-        }
-        if (PHP_OS_FAMILY === 'Windows') {
-            return null;
-        }
         return self::idUViaProcess([]);
     }
 
     private static function userUid(string $username): ?int
     {
-        if (function_exists('posix_getpwnam')) {
-            $pw = @posix_getpwnam($username);
-            return ($pw !== false) ? $pw['uid'] : null;
-        }
-        if (PHP_OS_FAMILY === 'Windows') {
-            return null;
-        }
         return self::idUViaProcess([$username]);
     }
 

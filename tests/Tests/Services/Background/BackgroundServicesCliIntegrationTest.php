@@ -212,9 +212,10 @@ class BackgroundServicesCliIntegrationTest extends TestCase
 
     /**
      * Return the first username in `$candidates` that exists on this
-     * system, or null if none do. Uses `posix_getpwnam()` when
-     * available, falls back to `id <name>` via Symfony Process for
-     * posix-less PHP CLI builds.
+     * system, or null if none do. Existence is probed via `id <name>`
+     * (Symfony Process) — the same single-path approach RootCliGuard
+     * uses, since the openemr docker images don't ship the posix
+     * extension.
      *
      * @param list<string> $candidates
      */
@@ -230,12 +231,6 @@ class BackgroundServicesCliIntegrationTest extends TestCase
 
     private static function userExists(string $name): bool
     {
-        if (function_exists('posix_getpwnam')) {
-            return @posix_getpwnam($name) !== false;
-        }
-        if (PHP_OS_FAMILY === 'Windows') {
-            return false;
-        }
         try {
             $process = new Process(['id', $name]);
             $process->run();
@@ -246,20 +241,13 @@ class BackgroundServicesCliIntegrationTest extends TestCase
     }
 
     /**
-     * Resolve the current process's effective UID without requiring the
-     * `posix` PHP extension. Mirrors RootCliGuard's own resolver so this
-     * test correctly identifies a root parent even on PHP CLI builds
-     * without posix loaded (a common configuration the guard itself is
-     * designed to handle).
+     * Resolve the current process's effective UID via `id -u` (Symfony
+     * Process). Mirrors RootCliGuard's resolver, which uses the same
+     * single-path approach since posix isn't loaded in the openemr
+     * docker images.
      */
     private static function currentEffectiveUid(): ?int
     {
-        if (function_exists('posix_geteuid')) {
-            return posix_geteuid();
-        }
-        if (PHP_OS_FAMILY === 'Windows') {
-            return null;
-        }
         try {
             $process = new Process(['id', '-u']);
             $process->run();

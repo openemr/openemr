@@ -74,19 +74,20 @@ final class RootCliGuard
     }
 
     /**
-     * Resolve the current process's effective UID without requiring the
-     * `posix` PHP extension.
+     * Resolve the current process's effective UID by running `id -u`
+     * via Symfony Process. The `posix` PHP extension would give the
+     * same result via a direct syscall, but the openemr docker images
+     * don't ship it, so the entire production path goes through
+     * Symfony Process — keeping a single tested path here is simpler
+     * than carrying a posix branch that real environments never run.
      *
-     * Prefers `posix_geteuid()`. Falls back to running `id -u` via
-     * Symfony Process when posix is unavailable on a non-Windows host
-     * (common in stripped-down PHP CLI builds). Returns null when
-     * neither resolution path works.
+     * Returns null when the resolution fails (e.g. `id` is unavailable
+     * — essentially impossible on any POSIX-y host coreutils ships
+     * on, but the null path keeps the guard a safety check rather
+     * than a load-bearing precondition).
      */
     private static function currentEffectiveUid(): ?int
     {
-        if (function_exists('posix_geteuid')) {
-            return posix_geteuid();
-        }
         try {
             $process = new Process(['id', '-u']);
             $process->run();
