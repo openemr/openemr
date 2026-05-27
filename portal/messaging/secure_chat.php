@@ -95,9 +95,9 @@ $msgApp = new ChatController();
     <meta charset="utf-8" />
     <?php
     if (IS_PORTAL) {
-        Header::setupHeader(['no_main-theme', 'portal-theme', 'ckeditor']);
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'ckeditor', 'dompurify']);
     } else {
-        Header::setupHeader(['ckeditor']);
+        Header::setupHeader(['ckeditor', 'dompurify']);
     }
     ?>
 
@@ -259,26 +259,7 @@ $msgApp = new ChatController();
         }
 
         function sanitizeHtml(html) {
-            const div = document.createElement('div');
-            div.innerHTML = html;
-            // Remove script tags, event handlers, and dangerous URL schemes
-            div.querySelectorAll('script').forEach(el => el.remove());
-            div.querySelectorAll('*').forEach(el => {
-                [...el.attributes].forEach(attr => {
-                    // Remove event handlers
-                    if (attr.name.startsWith('on')) {
-                        el.removeAttribute(attr.name);
-                    }
-                    // Sanitize href/src attributes to block javascript: URLs
-                    if (['href', 'src', 'action', 'formaction', 'xlink:href'].includes(attr.name.toLowerCase())) {
-                        const val = attr.value.trim().toLowerCase();
-                        if (val.startsWith('javascript:') || val.startsWith('data:') || val.startsWith('vbscript:')) {
-                            el.removeAttribute(attr.name);
-                        }
-                    }
-                });
-            });
-            return div.innerHTML;
+            return DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
         }
 
         function renderMessages() {

@@ -330,19 +330,32 @@ function getAuthPortalUsers()
                     await postForm('handle_note.php', $.param({ task: 'delete', noteid: id, csrf_token_form: state.csrf }));
                 } catch (e) {
                     alert(e.message);
+                    throw e;
                 }
             }
 
-            function deleteItem(idx) {
+            function deleteItem(item) {
+                if (!item) return;
                 if (!confirm(state.xLate.confirm.one)) return;
-                const itemToDelete = state.allItems[idx];
-                const idxInItems = state.items.indexOf(itemToDelete);
-                deleteMessage(itemToDelete.mail_chain);
-                if (idxInItems !== -1) {
-                    state.items.splice(idxInItems, 1);
-                }
-                search();
-                initData();
+                const removeFromList = (list) => {
+                    if (!Array.isArray(list)) return;
+                    for (let i = list.length - 1; i >= 0; i--) {
+                        if (list[i] && list[i].mail_chain === item.mail_chain) {
+                            list.splice(i, 1);
+                        }
+                    }
+                };
+                deleteMessage(item.mail_chain).then(() => {
+                    removeFromList(state.items);
+                    removeFromList(state.inboxItems);
+                    removeFromList(state.sentItems);
+                    removeFromList(state.allItems);
+                    if (state.selected && state.selected.mail_chain === item.mail_chain) {
+                        state.selected = null;
+                    }
+                    search();
+                    getDeletedMessages();
+                });
             }
 
             function batchDelete() {
@@ -364,23 +377,30 @@ function getAuthPortalUsers()
                 });
             }
 
-            function readMessage(idx) {
-                const item = state.pagedItems[state.currentPage][idx];
+            function readMessage(item) {
+                if (!item) return;
                 if (item.message_status === 'New') {
                     postForm('handle_note.php', $.param({
                         task: 'setread',
                         noteid: item.id,
                         csrf_token_form: state.csrf
                     })).then(() => {
-                        item.message_status = 'Read';
+                        const markReadById = (list, id) => {
+                            if (!Array.isArray(list)) return;
+                            list.forEach(entry => {
+                                if (entry && entry.id === id) {
+                                    entry.message_status = 'Read';
+                                }
+                            });
+                        };
+                        markReadById(state.items, item.id);
+                        markReadById(state.inboxItems, item.id);
+                        markReadById(state.sentItems, item.id);
+                        markReadById(state.allItems, item.id);
+                        renderAll();
                     });
                 }
-                // Find in allItems by id
-                const allIdx = state.allItems.findIndex(a => +a.id === +item.id);
-                state.isAll = true;
-                state.isTrash = state.isSent = state.isInbox = false;
-                state.items = state.allItems;
-                state.selected = allIdx !== -1 ? state.allItems[allIdx] : item;
+                state.selected = item;
                 renderAll();
             }
 
@@ -484,7 +504,11 @@ function getAuthPortalUsers()
 
                 // Bind click handlers
                 tbody.querySelectorAll('.msg-click').forEach(el => {
-                    el.addEventListener('click', () => readMessage(parseInt(el.dataset.idx)));
+                    el.addEventListener('click', () => {
+                        const idx = parseInt(el.dataset.idx, 10);
+                        const item = (state.pagedItems[state.currentPage] || [])[idx];
+                        readMessage(item);
+                    });
                 });
                 tbody.querySelectorAll('.item-checkbox').forEach(cb => {
                     cb.addEventListener('change', function () {
@@ -565,12 +589,7 @@ function getAuthPortalUsers()
                 });
                 // Bind delete
                 chainTbody.querySelectorAll('.btn-delete-item').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const itemIdx = state.items.indexOf(state.selected);
-                        if (itemIdx !== -1) {
-                            deleteItem(itemIdx);
-                        }
-                    });
+                    btn.addEventListener('click', () => deleteItem(state.selected));
                 });
             }
 
