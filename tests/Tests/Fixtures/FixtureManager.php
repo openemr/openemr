@@ -225,6 +225,49 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR CarePlan fixtures.
+     */
+    public function getFhirCarePlanFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/care-plan.json");
+    }
+
+    /**
+     * @return mixed single/random fhir care plan fixture
+     */
+    public function getSingleFhirCarePlanFixture()
+    {
+        return $this->getSingleEntry($this->getFhirCarePlanFixtures());
+    }
+
+    /**
+     * Removes care_plan forms and their form_care_plan rows for test-fixture patients.
+     * Encounter rows are cleaned up by FhirEncounterServiceCrudTest's tearDown convention
+     * (DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%').
+     */
+    public function removeCarePlanFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if (empty($pids)) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM form_care_plan WHERE pid IN ($placeholders)",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'care_plan'",
+            $pids
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR MedicationRequest fixtures.
      */
     public function getFhirMedicationRequestFixtures(): array
