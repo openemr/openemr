@@ -358,7 +358,7 @@ return [
     /**
      *  @OA\Post(
      *      path="/fhir/CarePlan",
-     *      description="Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row.",
+     *      description="Creates a new CarePlan resource. The CarePlan must reference an existing encounter; one CarePlan corresponds to one care_plan form on that encounter, with each FHIR activity.detail becoming a form_care_plan row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR's form_care_plan schema has no column for it; the read side hardcodes intent='plan', so any other intent value supplied on write is silently treated as 'plan' on round-trip.",
      *      tags={"fhir"},
      *      @OA\RequestBody(
      *          required=true,
@@ -727,7 +727,7 @@ return [
     /**
      *  @OA\Post(
      *      path="/fhir/Coverage",
-     *      description="Creates a new Coverage resource.",
+     *      description="Creates a new Coverage resource. Note: FHIR R4 allows the `payor` reference to target Organization, Patient, or RelatedPerson; OpenEMR only resolves Organization (the `insurance_companies` table). Patient/RelatedPerson payor references in the payload will fail with a 422 since they cannot be persisted to `insurance_data.provider`.",
      *      tags={"fhir"},
      *      @OA\RequestBody(
      *          required=true,
@@ -1619,7 +1619,7 @@ return [
     /**
      *  @OA\Post(
      *      path="/fhir/MedicationRequest",
-     *      description="Creates a new MedicationRequest resource.",
+     *      description="Creates a new MedicationRequest resource. Note: FHIR R4 allows medication via either `medicationCodeableConcept` (inline coding) or `medicationReference` (link to a Medication resource). OpenEMR only handles the `medicationCodeableConcept` path; `medicationReference` is silently dropped on write. Use medicationCodeableConcept with an RxNorm coding for round-trip compatibility.",
      *      tags={"fhir"},
      *      @OA\RequestBody(
      *          required=true,
@@ -2178,7 +2178,7 @@ return [
     /**
      *  @OA\Post(
      *      path="/fhir/ServiceRequest",
-     *      description="Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row.",
+     *      description="Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR's procedure_order schema has no column for it; the read side derives intent from order context, so any intent value supplied on write is silently treated by storage as the default ('order' for most cases) on round-trip.",
      *      tags={"fhir"},
      *      @OA\RequestBody(
      *          required=true,
