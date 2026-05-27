@@ -52,8 +52,8 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         // `@sha256:<digest>` suffix. The tag may be `latest`, the target
         // version, or another version (idempotence + handles re-runs after
         // a digest update). The digest is optional because rel-* branches
-        // cut before the digest-pinning automation existed start with a
-        // bare tag (e.g. `openemr/openemr:8.1.0`).
+        // that were cut before the digest-pinning automation existed start
+        // with a bare tag (e.g. `openemr/openemr:8.1.0`).
         $pattern = '/(image:\s*openemr\/openemr:)([^@\s]+)(?:(@sha256:)([0-9a-f]{64}))?/';
         $updated = preg_replace_callback(
             $pattern,
