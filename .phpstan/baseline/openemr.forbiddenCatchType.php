@@ -737,11 +737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Background/BackgroundServiceRunner.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^catch \\(Exception\\) would suppress ErrorException, which is forbidden\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
