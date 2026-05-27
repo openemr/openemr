@@ -162,16 +162,23 @@ class BackgroundServicesCliIntegrationTest extends TestCase
 
         // bin/console refuses to run as root (see RootCliGuard). When the
         // test process is root (typical of CI containers and the docker
-        // dev stack), drop privileges to apache for the subprocess. This
-        // mirrors the production invocation pattern (web user shelling
-        // out from cron) and keeps the guard honest; bypassing it would
-        // hide the same root-CLI failure mode the guard exists to catch.
-        // `-p` preserves the env the bootstrap needs (HOME, PATH, MYSQL_*).
+        // dev stack), drop privileges to the web-server user for the
+        // subprocess. This mirrors the production invocation pattern
+        // (web user shelling out from cron) and keeps the guard honest;
+        // bypassing it would hide the same root-CLI failure mode the
+        // guard exists to catch. `-p` preserves the env the bootstrap
+        // needs (HOME, PATH, MYSQL_*). The username is derived from the
+        // owner of `projectDir` rather than hardcoded so the same test
+        // works against any web stack — apache on the apache image,
+        // www-data on the nginx/php-fpm image, etc.
         if (self::currentEffectiveUid() === 0) {
-            $command = [
-                'su', '-p', '-s', '/bin/sh', 'apache', '-c',
-                implode(' ', array_map(escapeshellarg(...), $command)),
-            ];
+            $webUser = self::resolveOwnerUsername($this->projectDir);
+            if ($webUser !== null && $webUser !== 'root') {
+                $command = [
+                    'su', '-p', '-s', '/bin/sh', $webUser, '-c',
+                    implode(' ', array_map(escapeshellarg(...), $command)),
+                ];
+            }
         }
 
         $process = new Process(
@@ -196,6 +203,43 @@ class BackgroundServicesCliIntegrationTest extends TestCase
     {
         if (is_file($this->sentinelPath)) {
             unlink($this->sentinelPath);
+        }
+    }
+
+    /**
+     * Resolve the username that owns `$path`. Uses `posix_getpwuid()`
+     * when available, falling back to `stat -c %U` via Symfony Process
+     * for posix-less PHP CLI builds. Returns null if neither path works
+     * or if the underlying owner UID cannot be read.
+     *
+     * The web-stack docker images ensure the project directory is owned
+     * by the web server user (apache on the apache image, www-data on
+     * php-fpm). Reading that owner is more portable than hardcoding a
+     * username that varies across base images.
+     */
+    private static function resolveOwnerUsername(string $path): ?string
+    {
+        $uid = @fileowner($path);
+        if ($uid === false) {
+            return null;
+        }
+        if (function_exists('posix_getpwuid')) {
+            $pw = @posix_getpwuid($uid);
+            return ($pw !== false) ? $pw['name'] : null;
+        }
+        if (PHP_OS_FAMILY === 'Windows') {
+            return null;
+        }
+        try {
+            $process = new Process(['stat', '-c', '%U', $path]);
+            $process->run();
+            if (!$process->isSuccessful()) {
+                return null;
+            }
+            $trimmed = trim($process->getOutput());
+            return ($trimmed !== '' && $trimmed !== 'UNKNOWN') ? $trimmed : null;
+        } catch (ProcessExceptionInterface) {
+            return null;
         }
     }
 
