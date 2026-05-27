@@ -71,6 +71,7 @@ use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\FhirMedicationService;
 use OpenEMR\Services\FHIR\FhirObservationService;
 use OpenEMR\Services\FHIR\FhirPersonService;
+use OpenEMR\Services\FHIR\FhirPractitionerRoleService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
@@ -1845,6 +1846,62 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/PractitionerRole",
+     *      description="Creates a new PractitionerRole. Practitioner and Organization references are required.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="PractitionerRole resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/PractitionerRole" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirPractitionerRoleService(), $globalsBag);
+        $controller->setExpectedResourceType("PractitionerRole");
+        $controller->addAclRestrictions("admin", "users");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/PractitionerRole/{uuid}",
+     *      description="Modifies a PractitionerRole. Practitioner and Organization references cannot be rebound; only role and specialty are mutable.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="PractitionerRole resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirPractitionerRoleService(), $globalsBag);
+        $controller->setExpectedResourceType("PractitionerRole");
+        $controller->addAclRestrictions("admin", "users");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient

@@ -225,6 +225,55 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR PractitionerRole fixtures.
+     */
+    public function getFhirPractitionerRoleFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/practitioner-role.json");
+    }
+
+    /**
+     * @return mixed single/random fhir PractitionerRole fixture
+     */
+    public function getSingleFhirPractitionerRoleFixture()
+    {
+        return $this->getSingleEntry($this->getFhirPractitionerRoleFixtures());
+    }
+
+    /**
+     * Removes facility_user_ids rows referencing test-fixture users. The Practitioner
+     * fixture cleanup (PractitionerFixtureManager::removePractitionerFixtures) DELETEs
+     * the users rows; we delete the role rows here before that to avoid orphans.
+     */
+    public function removePractitionerRoleFixtures(): void
+    {
+        $userIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM users WHERE fname LIKE 'test-fixture-%'",
+            'id',
+            []
+        );
+        if ($userIds === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+        $roleUuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM facility_user_ids WHERE uid IN ($placeholders)",
+            'uuid',
+            $userIds
+        );
+        foreach ($roleUuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'facility_user_ids' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM facility_user_ids WHERE uid IN ($placeholders)",
+            $userIds
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR RelatedPerson fixtures.
      */
     public function getFhirRelatedPersonFixtures(): array
