@@ -225,6 +225,83 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR Coverage fixtures.
+     */
+    public function getFhirCoverageFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/coverage.json");
+    }
+
+    /**
+     * @return mixed single/random fhir coverage fixture
+     */
+    public function getSingleFhirCoverageFixture()
+    {
+        return $this->getSingleEntry($this->getFhirCoverageFixtures());
+    }
+
+    /**
+     * Insert a synthetic insurance company row so that Coverage write tests have a
+     * payor reference to dereference. Returns the uuid string.
+     */
+    public function installInsuranceCompanyFixture(): string
+    {
+        $uuid = (new UuidRegistry(['table_name' => 'insurance_companies']))->createUuid();
+        sqlInsert(
+            "INSERT INTO insurance_companies (uuid, name, attn, cms_id, ins_type_code) "
+            . "VALUES (?, ?, ?, ?, ?)",
+            [$uuid, 'test-fixture-insurer', null, null, 3]
+        );
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    public function removeInsuranceCompanyFixtures(): void
+    {
+        $bytesList = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM insurance_companies WHERE name LIKE ?",
+            'uuid',
+            ['test-fixture-%']
+        );
+        foreach ($bytesList as $bytes) {
+            sqlQuery(
+                "DELETE FROM uuid_registry WHERE table_name = 'insurance_companies' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        sqlStatement("DELETE FROM insurance_companies WHERE name LIKE ?", ['test-fixture-%']);
+    }
+
+    public function removeCoverageFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if (empty($pids)) {
+            return;
+        }
+        // delete uuid_registry rows for insurance_data referenced by these pids
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $uuids = QueryUtils::fetchTableColumn(
+            "SELECT `uuid` FROM `insurance_data` WHERE `pid` IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($uuids as $bytes) {
+            sqlQuery(
+                "DELETE FROM uuid_registry WHERE table_name = 'insurance_data' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        sqlStatement(
+            "DELETE FROM insurance_data WHERE pid IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
      * @template T
      * @param T[] $array
      * @return T

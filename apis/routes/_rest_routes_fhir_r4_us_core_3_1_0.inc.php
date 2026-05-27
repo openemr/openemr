@@ -62,6 +62,7 @@ use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Services\FHIR\FhirConditionService;
+use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use OpenEMR\Services\FHIR\FhirImmunizationService;
 use OpenEMR\Services\FHIR\FhirObservationService;
@@ -568,6 +569,94 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/Coverage",
+     *      description="Creates a new Coverage resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="201",
+     *          description="Coverage resource created"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/Coverage" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCoverageService(), $globalsBag);
+        $controller->setExpectedResourceType("Coverage");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/Coverage/{uuid}",
+     *      description="Modifies a Coverage resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Coverage resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(type="object")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Coverage resource updated"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCoverageService(), $globalsBag);
+        $controller->setExpectedResourceType("Coverage");
+        $controller->addAclRestrictions("admin", "super");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Device" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient

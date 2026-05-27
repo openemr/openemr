@@ -2,7 +2,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
@@ -18,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageClass;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCoverage\FHIRCoverageCostToBeneficiary;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -425,6 +428,264 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         }
 
         return null;
+    }
+
+    /**
+     * Parses a FHIR Coverage resource, returning the equivalent OpenEMR insurance_data row.
+     *
+     * The reverse of parseOpenEMRRecord. Unresolved references (Patient/uuid, Organization/uuid)
+     * stay as opaque uuid strings here; insertOpenEMRRecord/updateOpenEMRRecord resolve them to
+     * internal numeric ids against patient_data / insurance_companies.
+     *
+     * Note: FHIR Coverage carries less information than OpenEMR's insurance_data schema requires
+     * (no subscriber DOB, sex, address, etc.). When the FHIR resource declares
+     * relationship == 'self' we backfill those required fields from the beneficiary's patient_data
+     * row inside insertOpenEMRRecord. Non-self relationships require the missing fields to be
+     * supplied via FHIR extensions; without them the CoverageValidator will surface a 422.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed> OpenEMR-shaped record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRCoverage)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCoverage resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // beneficiary -> puuid (Patient uuid, resolved to pid downstream)
+        $beneficiaryRef = $json['beneficiary']['reference'] ?? null;
+        if (is_string($beneficiaryRef) && $beneficiaryRef !== '') {
+            $parsed = UtilsService::parseReferenceString($beneficiaryRef, 'Patient');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // payor[0] -> insureruuid (Organization uuid, resolved to insurance_companies.id downstream)
+        $payorRef = $json['payor'][0]['reference'] ?? null;
+        if (is_string($payorRef) && $payorRef !== '') {
+            $parsed = UtilsService::parseReferenceString($payorRef, 'Organization');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['insureruuid'] = $parsed['uuid'];
+            }
+        }
+
+        // subscriberId -> policy_number
+        if (!empty($json['subscriberId']) && is_string($json['subscriberId'])) {
+            $data['policy_number'] = $json['subscriberId'];
+        }
+
+        // relationship -> subscriber_relationship (uses our own reverse of mapRelationship)
+        $relationshipCode = $json['relationship']['coding'][0]['code'] ?? null;
+        if (is_string($relationshipCode) && $relationshipCode !== '') {
+            $data['subscriber_relationship'] = $relationshipCode;
+        }
+
+        // order (positiveInt: 1=primary, 2=secondary, 3=tertiary) -> type
+        if (isset($json['order']) && is_numeric($json['order'])) {
+            $data['type'] = match ((int) $json['order']) {
+                1 => 'primary',
+                2 => 'secondary',
+                3 => 'tertiary',
+                default => 'primary',
+            };
+        }
+
+        // period -> date / date_end
+        if (!empty($json['period']['start']) && is_string($json['period']['start'])) {
+            $normalized = $this->normalizeDate($json['period']['start']);
+            if ($normalized !== null) {
+                $data['date'] = $normalized;
+            }
+        }
+        if (!empty($json['period']['end']) && is_string($json['period']['end'])) {
+            $normalized = $this->normalizeDate($json['period']['end']);
+            if ($normalized !== null) {
+                $data['date_end'] = $normalized;
+            }
+        }
+
+        // class[] -> group_number / plan_name
+        foreach (($json['class'] ?? []) as $coverageClass) {
+            $classCode = $coverageClass['type']['coding'][0]['code'] ?? null;
+            $classValue = $coverageClass['value'] ?? null;
+            if (!is_string($classCode) || !is_string($classValue) || $classValue === '') {
+                continue;
+            }
+            if ($classCode === 'group') {
+                $data['group_number'] = $classValue;
+            } elseif ($classCode === 'plan') {
+                $data['plan_name'] = $classValue;
+            }
+        }
+
+        // costToBeneficiary[copay].valueMoney.value -> copay (string column)
+        foreach (($json['costToBeneficiary'] ?? []) as $cost) {
+            $costCode = $cost['type']['coding'][0]['code'] ?? null;
+            if ($costCode !== 'copay') {
+                continue;
+            }
+            $value = $cost['valueMoney']['value'] ?? null;
+            if (is_numeric($value)) {
+                $data['copay'] = (string) $value;
+                break;
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR insurance_data record from a parsed FHIR Coverage.
+     *
+     * Resolves Patient/uuid -> pid and Organization/uuid -> insurance_companies.id. Backfills
+     * subscriber_* fields from patient_data when relationship == 'self'. Applies safe defaults
+     * for accept_assignment and policy_type. Validation is enforced downstream by CoverageValidator.
+     *
+     * @param array<string, mixed> $openEmrRecord
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        $resolveResult = $this->resolveReferences($openEmrRecord);
+        if ($resolveResult !== null) {
+            return $resolveResult;
+        }
+
+        $this->applyDefaults($openEmrRecord);
+
+        return $this->coverageService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR insurance_data record from a parsed FHIR Coverage.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        $updatedOpenEMRRecord['uuid'] = $fhirResourceId;
+
+        $resolveResult = $this->resolveReferences($updatedOpenEMRRecord);
+        if ($resolveResult !== null) {
+            return $resolveResult;
+        }
+
+        // For updates, the existing row already has the subscriber_* fields; only backfill
+        // when the caller explicitly changed relationship to self AND fields are missing.
+        $this->applyDefaults($updatedOpenEMRRecord);
+
+        return $this->coverageService->update($updatedOpenEMRRecord);
+    }
+
+    /**
+     * Resolves opaque FHIR uuids (puuid, insureruuid) into the numeric ids that InsuranceService
+     * requires (pid, provider). Returns a ProcessingResult with a 422-style error if a reference
+     * cannot be resolved; null on success.
+     *
+     * @param array<string, mixed> $record (mutated in place)
+     * @return ProcessingResult|null
+     */
+    private function resolveReferences(array &$record): ?ProcessingResult
+    {
+        if (!empty($record['puuid'])) {
+            $puuidBytes = UuidRegistry::uuidToBytes($record['puuid']);
+            $pid = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM patient_data WHERE uuid = ?",
+                'pid',
+                [$puuidBytes]
+            );
+            if ($pid === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'beneficiary' => ['Patient reference could not be resolved' => $record['puuid']],
+                ]);
+                return $result;
+            }
+            $record['pid'] = (int) $pid;
+            unset($record['puuid']);
+        }
+
+        if (!empty($record['insureruuid'])) {
+            $insurerUuidBytes = UuidRegistry::uuidToBytes($record['insureruuid']);
+            $providerId = QueryUtils::fetchSingleValue(
+                "SELECT id FROM insurance_companies WHERE uuid = ?",
+                'id',
+                [$insurerUuidBytes]
+            );
+            if ($providerId === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'payor' => ['Organization reference could not be resolved to an insurance company' => $record['insureruuid']],
+                ]);
+                return $result;
+            }
+            $record['provider'] = (int) $providerId;
+            unset($record['insureruuid']);
+        }
+
+        return null;
+    }
+
+    /**
+     * Applies safe defaults for fields FHIR Coverage doesn't carry but CoverageValidator requires.
+     * When relationship == 'self', subscriber demographic fields are sourced from patient_data.
+     *
+     * @param array<string, mixed> $record (mutated in place)
+     */
+    private function applyDefaults(array &$record): void
+    {
+        $record['accept_assignment'] ??= 'TRUE';
+        $record['policy_type'] ??= '';
+
+        $relationship = $record['subscriber_relationship'] ?? null;
+        if ($relationship !== 'self' || empty($record['pid'])) {
+            return;
+        }
+
+        $patient = QueryUtils::fetchRecords(
+            "SELECT fname, mname, lname, DOB, sex, street, city, state, postal_code, country, phone_home, ss "
+            . "FROM patient_data WHERE pid = ?",
+            [$record['pid']]
+        );
+        if (empty($patient[0])) {
+            return;
+        }
+        $p = $patient[0];
+
+        $record['subscriber_fname'] ??= $p['fname'] ?? '';
+        $record['subscriber_mname'] ??= $p['mname'] ?? '';
+        $record['subscriber_lname'] ??= $p['lname'] ?? '';
+        $record['subscriber_DOB'] ??= $p['DOB'] ?? '';
+        $record['subscriber_sex'] ??= $p['sex'] ?? '';
+        $record['subscriber_street'] ??= $p['street'] ?? '';
+        $record['subscriber_city'] ??= $p['city'] ?? '';
+        $record['subscriber_state'] ??= $p['state'] ?? '';
+        $record['subscriber_postal_code'] ??= $p['postal_code'] ?? '';
+        $record['subscriber_country'] ??= $p['country'] ?? '';
+        $record['subscriber_phone'] ??= $p['phone_home'] ?? '';
+        $record['subscriber_ss'] ??= $p['ss'] ?? '';
+    }
+
+    /**
+     * Normalizes a FHIR date/dateTime/instant string to OpenEMR's Y-m-d storage format.
+     * Returns null if the input cannot be parsed.
+     */
+    private function normalizeDate(string $value): ?string
+    {
+        $dt = date_create_immutable($value);
+        return $dt === false ? null : $dt->format('Y-m-d');
     }
 
     /**

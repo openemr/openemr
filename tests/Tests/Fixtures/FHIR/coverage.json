@@ -1,0 +1,55 @@
+[
+    {
+        "resourceType": "Coverage",
+        "status": "active",
+        "type": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                    "code": "HIP",
+                    "display": "health insurance plan number"
+                }
+            ]
+        },
+        "subscriberId": "test-fixture-policy-001",
+        "relationship": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+                    "code": "self",
+                    "display": "Self"
+                }
+            ]
+        },
+        "period": {
+            "start": "2024-01-01"
+        },
+        "order": 1,
+        "class": [
+            {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                            "code": "group",
+                            "display": "Group"
+                        }
+                    ]
+                },
+                "value": "test-fixture-group-001"
+            },
+            {
+                "type": {
+                    "coding": [
+                        {
+                            "system": "http://terminology.hl7.org/CodeSystem/coverage-class",
+                            "code": "plan",
+                            "display": "Plan"
+                        }
+                    ]
+                },
+                "value": "Test Plan"
+            }
+        ]
+    }
+]
