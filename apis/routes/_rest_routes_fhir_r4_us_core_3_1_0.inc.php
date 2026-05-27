@@ -62,6 +62,7 @@ use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
 use OpenEMR\Services\FHIR\FhirAppointmentService;
 use OpenEMR\Services\FHIR\FhirCarePlanService;
+use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Services\FHIR\FhirDeviceService;
@@ -466,6 +467,62 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/CareTeam",
+     *      description="Creates a new CareTeam (patient-scoped). Practitioner participants are resolved to users; non-Practitioner participants (Organization, RelatedPerson) are currently not persisted on write.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="CareTeam resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/CareTeam" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCareTeamService(), $globalsBag);
+        $controller->setExpectedResourceType("CareTeam");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/CareTeam/{uuid}",
+     *      description="Modifies a CareTeam. Practitioner participants are diffed against existing members (saveCareTeam handles updates/inserts/inactivations).",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="CareTeam resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/CareTeam/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirCareTeamService(), $globalsBag);
+        $controller->setExpectedResourceType("CareTeam");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Condition" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
         $controller = new FhirGenericRestController($request, new FhirConditionService(), $globalsBag);
         $controller->addAclRestrictions("patients", "med");

@@ -528,6 +528,67 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR CareTeam fixtures.
+     */
+    public function getFhirCareTeamFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/care-team.json");
+    }
+
+    /**
+     * @return mixed single/random fhir CareTeam fixture
+     */
+    public function getSingleFhirCareTeamFixture()
+    {
+        return $this->getSingleEntry($this->getFhirCareTeamFixtures());
+    }
+
+    /**
+     * Removes care_teams + care_team_member rows for test-fixture patients,
+     * plus uuid_registry entries on care_teams.
+     */
+    public function removeCareTeamFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $teamIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM care_teams WHERE pid IN ($placeholders)",
+            'id',
+            $pids
+        );
+        if ($teamIds !== []) {
+            $tplaceholders = implode(',', array_fill(0, count($teamIds), '?'));
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM care_team_member WHERE care_team_id IN ($tplaceholders)",
+                $teamIds
+            );
+        }
+        $teamUuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM care_teams WHERE pid IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($teamUuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'care_teams' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM care_teams WHERE pid IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR Goal fixtures.
      */
     public function getFhirGoalFixtures(): array
