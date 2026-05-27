@@ -2785,15 +2785,15 @@ $GLOBALS_METADATA = [
     'Logging' => [
 
         'user_php_debug' => [
-            xl('User PHP Debug Reporting Display Options'),
+            xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('Use Server Defaults (Display off)'),
-                '2' => xl('Display PHP Errors Only'),
-                '3' => xl('Display PHP Errors and Warnings Only'),
-                '4' => xl('Display Current PHP Runtime Reporting Level'),
+                '0' => xl('Use Server Defaults (Disply off)'),
+                '2' => xl('Display Errors Only'),
+                '3' => xl('Display Errors and Warnings Only'),
+                '4' => xl('Display Current Runtime Reporting'),
             ],
             '0',
-            xl('Controls Reporting PHP error display behavior for the current OpenEMR session.')
+            xl('Controls PHP error display/debug behavior without overriding server defaults unless explicitly selected.')
         ],
 
         'user_debug' => [
