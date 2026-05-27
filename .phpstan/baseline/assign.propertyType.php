@@ -1787,6 +1787,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirCarePlanServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirGoalServiceCrudTest\\:\\:\\$encounterUuid \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirGoalServiceCrudTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationEmployerServiceTest\\:\\:\\$testEmployerData \\(array\\) does not accept array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationEmployerServiceTest.php',
