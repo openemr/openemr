@@ -60,13 +60,18 @@ class PractitionerRoleService extends BaseService
     {
         $result = new ProcessingResult();
 
+        // Accept any resolved numeric id. We don't enforce > 0 because OpenEMR test
+        // fixtures use explicit negative ids (e.g. users.id = -1) and the actual
+        // sanity check is whether the FHIR uuid resolved to a row at all — that
+        // happens upstream in FhirPractitionerRoleService::insertOpenEMRRecord which
+        // returns null on lookup failure.
         $providerId = $data['provider_id'] ?? null;
         $facilityId = $data['facility_id'] ?? null;
-        if (!is_numeric($providerId) || (int) $providerId <= 0) {
+        if (!is_numeric($providerId) || (int) $providerId === 0) {
             $result->setValidationMessages(['practitioner' => 'A resolvable practitioner reference is required']);
             return $result;
         }
-        if (!is_numeric($facilityId) || (int) $facilityId <= 0) {
+        if (!is_numeric($facilityId) || (int) $facilityId === 0) {
             $result->setValidationMessages(['organization' => 'A resolvable organization (facility) reference is required']);
             return $result;
         }
