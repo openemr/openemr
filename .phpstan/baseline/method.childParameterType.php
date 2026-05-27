@@ -457,17 +457,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPersonService\\:\\:parseFhirResource\\(\\) should be compatible with parameter \\$fhirResource \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:parseFhirResource\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$openEMRSearchParameters \\(array\\<string, OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPersonService\\:\\:searchForOpenEMRRecords\\(\\) should be contravariant with parameter \\$openEMRSearchParameters \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:searchForOpenEMRRecords\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$openEmrRecord \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPersonService\\:\\:insertOpenEMRRecord\\(\\) should be contravariant with parameter \\$openEmrRecord \\(mixed\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:insertOpenEMRRecord\\(\\)$#',
+    'message' => '#^Parameter \\#1 \\$openEmrRecord \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPersonService\\:\\:insertOpenEMRRecord\\(\\) should be contravariant with parameter \\$openEmrRecord \\(mixed\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:insertOpenEMRRecord\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\#2 \\$updatedOpenEMRRecord \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPersonService\\:\\:updateOpenEMRRecord\\(\\) should be contravariant with parameter \\$updatedOpenEMRRecord \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:\\:updateOpenEMRRecord\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
