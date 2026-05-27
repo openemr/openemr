@@ -75,6 +75,7 @@ use OpenEMR\Services\FHIR\FhirPractitionerRoleService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
+use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use Symfony\Component\HttpFoundation\Response;
@@ -2001,6 +2002,62 @@ return [
 
         return $return;
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/ServiceRequest",
+     *      description="Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="ServiceRequest resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/ServiceRequest" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirServiceRequestService(), $globalsBag);
+        $controller->setExpectedResourceType("ServiceRequest");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/ServiceRequest/{uuid}",
+     *      description="Modifies a ServiceRequest. PUT replaces the procedure_order_code rows (FHIR PUT replace semantics). Patient reference cannot be rebound.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="ServiceRequest resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/ServiceRequest/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirServiceRequestService(), $globalsBag);
+        $controller->setExpectedResourceType("ServiceRequest");
+        $controller->addAclRestrictions("patients", "med");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient

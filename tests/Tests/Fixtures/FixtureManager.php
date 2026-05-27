@@ -225,6 +225,66 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR ServiceRequest fixtures.
+     */
+    public function getFhirServiceRequestFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/service-request.json");
+    }
+
+    /**
+     * @return mixed single/random fhir ServiceRequest fixture
+     */
+    public function getSingleFhirServiceRequestFixture()
+    {
+        return $this->getSingleEntry($this->getFhirServiceRequestFixtures());
+    }
+
+    /**
+     * Removes procedure_order + procedure_order_code rows for test-fixture patients.
+     */
+    public function removeServiceRequestFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $orderIds = QueryUtils::fetchTableColumn(
+            "SELECT procedure_order_id FROM procedure_order WHERE patient_id IN ($placeholders)",
+            'procedure_order_id',
+            $pids
+        );
+        if ($orderIds !== []) {
+            $oplaceholders = implode(',', array_fill(0, count($orderIds), '?'));
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM procedure_order_code WHERE procedure_order_id IN ($oplaceholders)",
+                $orderIds
+            );
+        }
+        $orderUuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM procedure_order WHERE patient_id IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($orderUuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'procedure_order' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM procedure_order WHERE patient_id IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR PractitionerRole fixtures.
      */
     public function getFhirPractitionerRoleFixtures(): array
