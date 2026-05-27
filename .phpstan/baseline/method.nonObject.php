@@ -8822,6 +8822,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirCareTeamServiceUSCore8Test.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getSubscriberId\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirCoverageServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getValue\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirCoverageServiceCrudTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method createDrugSaleDispense\\(\\) on mixed\\.$#',
     'count' => 12,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationDispenseUSCore8ComplianceTest.php',
@@ -8925,6 +8935,16 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method removeFixtures\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationDispenseUSCore8ComplianceTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getNote\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationRequestServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getText\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationRequestServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAuthoredOn\\(\\) on OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRMedicationRequest\\|string\\.$#',
