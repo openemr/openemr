@@ -78,6 +78,7 @@ use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
+use OpenEMR\Services\FHIR\UtilsService;
 use Symfony\Component\HttpFoundation\Response;
 
 // Note that the fhir route includes both user role and patient role
@@ -1154,6 +1155,33 @@ return [
 
         return $return;
     },
+
+    // Group writes are not implemented. OpenEMR's FHIR Group is a virtual/computed
+    // aggregation of patients by provider; there is no persistent group table to
+    // write to. POST/PUT return 405 with a FHIR OperationOutcome.
+    "POST /fhir/Group" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
+            ),
+            null,
+            405
+        );
+    },
+
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -1275,6 +1303,36 @@ return [
 
         return $return;
     },
+
+    // Location writes are deliberately not implemented. In OpenEMR, Location is a virtual
+    // projection over patient_data, users, and facility — there is no single underlying
+    // entity to write to. A POST or PUT here would either need to discriminate the target
+    // table based on identifier conventions (fragile and unspecified by FHIR) or duplicate
+    // patient/user/facility write paths. Both options are out of scope for this PR.
+    // See PR #11507 follow-up tracking.
+    "POST /fhir/Location" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Create the underlying Patient, Practitioner, or Organization instead.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Update the underlying Patient, Practitioner, or Organization instead.'
+            ),
+            null,
+            405
+        );
+    },
+
     "GET /fhir/Media" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         $controller = new FhirMediaRestController($request);
@@ -2079,6 +2137,32 @@ return [
         }
 
         return $return;
+    },
+
+    // Provenance is FHIR-spec read-only. It represents audit trail metadata
+    // synthesized from other resources at read time; OpenEMR has no underlying
+    // provenance table to write to. POST/PUT return 405 with a FHIR OperationOutcome.
+    "POST /fhir/Provenance" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
+            ),
+            null,
+            405
+        );
     },
 
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
