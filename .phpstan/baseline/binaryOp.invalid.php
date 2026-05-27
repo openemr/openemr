@@ -2582,7 +2582,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\^" between string and non\\-empty\\-string\\|false results in an error\\.$#',
+    'message' => '#^Binary operation "\\^" between non\\-empty\\-string and non\\-empty\\-string\\|false results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/globals.php',
 ];
@@ -15522,7 +15522,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\^" between string and non\\-empty\\-string\\|false results in an error\\.$#',
+    'message' => '#^Binary operation "\\^" between non\\-empty\\-string and non\\-empty\\-string\\|false results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/SiteSetupListener.php',
 ];

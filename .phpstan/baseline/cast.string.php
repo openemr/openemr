@@ -218,7 +218,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 9,
+    'count' => 10,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_invoice.php',
 ];
 $ignoreErrors[] = [
@@ -228,7 +228,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
@@ -2813,7 +2813,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 24,
+    'count' => 27,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
