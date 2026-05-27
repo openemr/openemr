@@ -2,9 +2,12 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -146,6 +149,177 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
     {
         $contactRelationService = new ContactRelationService();
         return $contactRelationService->searchPatientRelationships($openEMRSearchParameters);
+    }
+
+    /**
+     * Parses a FHIR RelatedPerson into the OpenEMR shape consumed by
+     * ContactRelationService::insertRelatedPerson / updateRelatedPerson.
+     *
+     * The FHIR.patient reference is REQUIRED for inserts (the relationship cannot exist
+     * without a patient owner). Relationship code uses the HL7 v3 RoleCode values
+     * (system http://terminology.hl7.org/CodeSystem/v3-RoleCode or the read-side
+     * FhirCodeSystemConstants::HL7_ROLE_CODE alias), which map 1:1 to OpenEMR's
+     * `related_person_relationship` list_options.option_id values (MTH, FTH, SPS, etc.).
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRRelatedPerson)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRRelatedPerson resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id']) && is_string($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // patient.reference -> puuid (resolved to pid in insertOpenEMRRecord)
+        $patientRef = $json['patient']['reference'] ?? null;
+        if (is_string($patientRef) && $patientRef !== '') {
+            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // relationship[].coding (HL7 v3 RoleCode) -> first matching code
+        foreach (($json['relationship'] ?? []) as $rel) {
+            if (!is_array($rel)) {
+                continue;
+            }
+            foreach (($rel['coding'] ?? []) as $coding) {
+                if (!is_array($coding)) {
+                    continue;
+                }
+                $system = $coding['system'] ?? null;
+                $code = $coding['code'] ?? null;
+                $isV3 = $system === 'http://terminology.hl7.org/CodeSystem/v3-RoleCode'
+                    || $system === FhirCodeSystemConstants::HL7_ROLE_CODE;
+                if ($isV3 && is_string($code) && $code !== '') {
+                    $data['relationship'] = $code;
+                    break 2;
+                }
+            }
+        }
+
+        // name[] -> first_name / last_name / middle_name (prefer use=official, else first)
+        $names = is_array($json['name'] ?? null) ? $json['name'] : [];
+        $name = null;
+        foreach ($names as $candidate) {
+            if (is_array($candidate) && ($candidate['use'] ?? null) === 'official') {
+                $name = $candidate;
+                break;
+            }
+        }
+        if ($name === null && !empty($names) && is_array($names[0])) {
+            $name = $names[0];
+        }
+        if (is_array($name)) {
+            if (!empty($name['family']) && is_string($name['family'])) {
+                $data['last_name'] = $name['family'];
+            }
+            $given = is_array($name['given'] ?? null) ? $name['given'] : [];
+            if (!empty($given[0]) && is_string($given[0])) {
+                $data['first_name'] = $given[0];
+            }
+            if (!empty($given[1]) && is_string($given[1])) {
+                $data['middle_name'] = $given[1];
+            }
+        }
+
+        if (!empty($json['gender']) && is_string($json['gender'])) {
+            $data['gender'] = $json['gender'];
+        }
+        if (!empty($json['birthDate']) && is_string($json['birthDate'])) {
+            $dt = date_create_immutable($json['birthDate']);
+            if ($dt !== false) {
+                $data['birth_date'] = $dt->format('Y-m-d');
+            }
+        }
+        if (isset($json['active'])) {
+            $data['active'] = (bool) $json['active'];
+        }
+
+        $telecoms = [];
+        foreach (($json['telecom'] ?? []) as $t) {
+            if (!is_array($t) || empty($t['value'])) {
+                continue;
+            }
+            $telecoms[] = [
+                'system' => is_string($t['system'] ?? null) ? $t['system'] : 'phone',
+                'use' => is_string($t['use'] ?? null) ? $t['use'] : 'home',
+                'value' => $t['value'],
+            ];
+        }
+        $data['telecoms'] = $telecoms;
+
+        $addresses = [];
+        foreach (($json['address'] ?? []) as $a) {
+            if (!is_array($a)) {
+                continue;
+            }
+            $line1 = $a['line'][0] ?? '';
+            $addresses[] = [
+                'line1' => is_string($line1) ? $line1 : '',
+                'line2' => is_string($a['line'][1] ?? null) ? $a['line'][1] : '',
+                'city' => is_string($a['city'] ?? null) ? $a['city'] : '',
+                'state' => is_string($a['state'] ?? null) ? $a['state'] : '',
+                'postal_code' => is_string($a['postalCode'] ?? null) ? $a['postalCode'] : '',
+                'country' => is_string($a['country'] ?? null) ? $a['country'] : '',
+                'use' => is_string($a['use'] ?? null) ? $a['use'] : 'home',
+            ];
+        }
+        $data['addresses'] = $addresses;
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        $puuid = $openEmrRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'FHIR RelatedPerson requires a resolvable Patient reference',
+            ]);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if ($pid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'Patient reference could not be resolved: ' . $puuid,
+            ]);
+            return $result;
+        }
+        $openEmrRecord['pid'] = (int) $pid;
+        unset($openEmrRecord['puuid']);
+
+        return (new ContactRelationService())->insertRelatedPerson($openEmrRecord);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        // FHIR PUT cannot rebind a RelatedPerson to a different patient; drop the puuid path.
+        unset($updatedOpenEMRRecord['puuid']);
+        return (new ContactRelationService())->updateRelatedPerson($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

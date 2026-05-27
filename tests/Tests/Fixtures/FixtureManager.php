@@ -225,6 +225,95 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR RelatedPerson fixtures.
+     */
+    public function getFhirRelatedPersonFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/related-person.json");
+    }
+
+    /**
+     * @return mixed single/random fhir RelatedPerson fixture
+     */
+    public function getSingleFhirRelatedPersonFixture()
+    {
+        return $this->getSingleEntry($this->getFhirRelatedPersonFixtures());
+    }
+
+    /**
+     * Removes the multi-table footprint of RelatedPerson test fixtures: contact_relation
+     * rows pointing at the test-fixture persons, those persons' contact rows + telecoms +
+     * addresses, the addresses themselves, and finally the person rows.
+     */
+    public function removeRelatedPersonFixtures(): void
+    {
+        $personIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM person WHERE first_name LIKE 'test-fixture-%' OR last_name LIKE 'test-fixture-%'",
+            'id',
+            []
+        );
+        if ($personIds === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($personIds), '?'));
+
+        $contactIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM contact WHERE foreign_table_name = 'person' AND foreign_id IN ($placeholders)",
+            'id',
+            $personIds
+        );
+
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM contact_relation WHERE target_table = 'person' AND target_id IN ($placeholders)",
+            $personIds
+        );
+
+        if ($contactIds !== []) {
+            $cplaceholders = implode(',', array_fill(0, count($contactIds), '?'));
+            $addressIds = QueryUtils::fetchTableColumn(
+                "SELECT address_id FROM contact_address WHERE contact_id IN ($cplaceholders)",
+                'address_id',
+                $contactIds
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact_telecom WHERE contact_id IN ($cplaceholders)",
+                $contactIds
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact_address WHERE contact_id IN ($cplaceholders)",
+                $contactIds
+            );
+            if ($addressIds !== []) {
+                $aplaceholders = implode(',', array_fill(0, count($addressIds), '?'));
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM addresses WHERE id IN ($aplaceholders)",
+                    $addressIds
+                );
+            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact WHERE id IN ($cplaceholders)",
+                $contactIds
+            );
+        }
+
+        $personUuidBytes = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM person WHERE id IN ($placeholders)",
+            'uuid',
+            $personIds
+        );
+        foreach ($personUuidBytes as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'person' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM person WHERE id IN ($placeholders)",
+            $personIds
+        );
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR Device fixtures.
      */
     public function getFhirDeviceFixtures(): array

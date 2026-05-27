@@ -1866,6 +1866,62 @@ return [
         $controller->addAclRestrictions("patients", "demo");
         return $controller->getOne($uuid);
     },
+
+    /**
+     *  @OA\Post(
+     *      path="/fhir/RelatedPerson",
+     *      description="Creates a new RelatedPerson (patient's family/caregiver). The patient reference is required.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="201", description="RelatedPerson resource created"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /fhir/RelatedPerson" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirRelatedPersonService(), $globalsBag);
+        $controller->setExpectedResourceType("RelatedPerson");
+        $controller->addAclRestrictions("patients", "demo");
+        return $controller->post($data);
+    },
+
+    /**
+     *  @OA\Put(
+     *      path="/fhir/RelatedPerson/{uuid}",
+     *      description="Modifies a RelatedPerson resource. Telecoms and addresses are replaced per FHIR PUT semantics.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(name="uuid", in="path", required=true, @OA\Schema(type="string")),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(mediaType="application/json", @OA\Schema(type="object"))
+     *      ),
+     *      @OA\Response(response="200", description="RelatedPerson resource updated"),
+     *      @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *      @OA\Response(response="401", ref="#/components/responses/unauthorized"),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /fhir/RelatedPerson/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
+        RestConfig::request_authorization_check($request, "patients", "demo");
+        $data = RestControllerHelper::parseJsonRequestBody(true);
+        if ($data instanceof Response) {
+            return $data;
+        }
+        $controller = new FhirGenericRestController($request, new FhirRelatedPersonService(), $globalsBag);
+        $controller->setExpectedResourceType("RelatedPerson");
+        $controller->addAclRestrictions("patients", "demo");
+        return $controller->put($uuid, $data);
+    },
+
     "GET /fhir/ServiceRequest" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
