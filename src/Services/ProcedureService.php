@@ -838,9 +838,9 @@ class ProcedureService extends BaseService
             return $result;
         }
 
-        $orderData['date_ordered'] = $orderData['date_ordered'] ?? date('Y-m-d H:i:s');
-        $orderData['order_status'] = $orderData['order_status'] ?? 'pending';
-        $orderData['procedure_order_type'] = $orderData['procedure_order_type'] ?? 'laboratory_test';
+        $orderData['date_ordered'] ??= date('Y-m-d H:i:s');
+        $orderData['order_status'] ??= 'pending';
+        $orderData['procedure_order_type'] ??= 'laboratory_test';
         $orderData['activity'] = 1;
         $orderData['uuid'] = (new UuidRegistry(['table_name' => self::PROCEDURE_TABLE]))->createUuid();
 

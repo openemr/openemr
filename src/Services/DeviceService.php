@@ -103,7 +103,7 @@ class DeviceService extends BaseService
         }
 
         $data['type'] = 'medical_device';
-        $data['activity'] = $data['activity'] ?? 1;
+        $data['activity'] ??= 1;
         if (isset($data['udi_data']) && is_array($data['udi_data'])) {
             $data['udi_data'] = json_encode($data['udi_data']);
         }

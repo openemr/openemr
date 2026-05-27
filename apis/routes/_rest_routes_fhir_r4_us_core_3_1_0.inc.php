@@ -1273,28 +1273,24 @@ return [
     // Group writes are not implemented. OpenEMR's FHIR Group is a virtual/computed
     // aggregation of patients by provider; there is no persistent group table to
     // write to. POST/PUT return 405 with a FHIR OperationOutcome.
-    "POST /fhir/Group" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/Group" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/Group/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Group is a computed aggregation in OpenEMR (e.g. patients-by-provider); it has no persistent storage and cannot be written directly.'
+        ),
+        null,
+        405
+    ),
 
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
@@ -1424,28 +1420,24 @@ return [
     // table based on identifier conventions (fragile and unspecified by FHIR) or duplicate
     // patient/user/facility write paths. Both options are out of scope for this PR.
     // See PR #11507 follow-up tracking.
-    "POST /fhir/Location" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Create the underlying Patient, Practitioner, or Organization instead.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/Location/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Update the underlying Patient, Practitioner, or Organization instead.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/Location" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Create the underlying Patient, Practitioner, or Organization instead.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/Location/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Location is a virtual projection over patient_data/users/facility in OpenEMR; writes are not supported. Update the underlying Patient, Practitioner, or Organization instead.'
+        ),
+        null,
+        405
+    ),
 
     "GET /fhir/Media" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
@@ -2260,123 +2252,103 @@ return [
     // for this PR; deferred to follow-up work. POST/PUT return 405 with a FHIR
     // OperationOutcome explaining the unsupported state.
 
-    "POST /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR DiagnosticReport writes are not yet supported. The OpenEMR read path federates Laboratory and ClinicalNotes sub-services; writing requires choosing a target sub-service per request (typically via category code) which is being designed in a follow-up PR.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR DiagnosticReport writes are not yet supported. See POST /fhir/DiagnosticReport for the rationale.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/DiagnosticReport" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR DiagnosticReport writes are not yet supported. The OpenEMR read path federates Laboratory and ClinicalNotes sub-services; writing requires choosing a target sub-service per request (typically via category code) which is being designed in a follow-up PR.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/DiagnosticReport/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR DiagnosticReport writes are not yet supported. See POST /fhir/DiagnosticReport for the rationale.'
+        ),
+        null,
+        405
+    ),
 
-    "POST /fhir/DocumentReference" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR DocumentReference writes are not yet supported. The OpenEMR read path federates three sub-services (clinical notes, patient documents, advance care directives); writing requires routing per sub-service which is being designed in a follow-up PR. The existing $docref operation remains available.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/DocumentReference/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR DocumentReference writes are not yet supported. See POST /fhir/DocumentReference for the rationale.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/DocumentReference" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR DocumentReference writes are not yet supported. The OpenEMR read path federates three sub-services (clinical notes, patient documents, advance care directives); writing requires routing per sub-service which is being designed in a follow-up PR. The existing $docref operation remains available.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/DocumentReference/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR DocumentReference writes are not yet supported. See POST /fhir/DocumentReference for the rationale.'
+        ),
+        null,
+        405
+    ),
 
-    "POST /fhir/MedicationDispense" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR MedicationDispense writes are not yet supported. Pharmacy dispensary persistence in OpenEMR varies by deployment (drug_inventory, pharmacy module, external dispensary integrations); writing needs a per-deployment design that is being scoped in a follow-up PR.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/MedicationDispense/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR MedicationDispense writes are not yet supported. See POST /fhir/MedicationDispense for the rationale.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/MedicationDispense" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR MedicationDispense writes are not yet supported. Pharmacy dispensary persistence in OpenEMR varies by deployment (drug_inventory, pharmacy module, external dispensary integrations); writing needs a per-deployment design that is being scoped in a follow-up PR.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/MedicationDispense/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR MedicationDispense writes are not yet supported. See POST /fhir/MedicationDispense for the rationale.'
+        ),
+        null,
+        405
+    ),
 
-    "POST /fhir/Procedure" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Procedure writes are not yet supported. The OpenEMR read path federates clinical procedures (procedure_order/procedure_order_code) with surgery procedures; writing overlaps with ServiceRequest writes already provided. Use POST /fhir/ServiceRequest with intent=order for procedure orders; standalone Procedure writes are being designed in a follow-up PR.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Procedure writes are not yet supported. See POST /fhir/Procedure for the rationale.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/Procedure" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Procedure writes are not yet supported. The OpenEMR read path federates clinical procedures (procedure_order/procedure_order_code) with surgery procedures; writing overlaps with ServiceRequest writes already provided. Use POST /fhir/ServiceRequest with intent=order for procedure orders; standalone Procedure writes are being designed in a follow-up PR.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/Procedure/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Procedure writes are not yet supported. See POST /fhir/Procedure for the rationale.'
+        ),
+        null,
+        405
+    ),
 
     // Provenance is FHIR-spec read-only. It represents audit trail metadata
     // synthesized from other resources at read time; OpenEMR has no underlying
     // provenance table to write to. POST/PUT return 405 with a FHIR OperationOutcome.
-    "POST /fhir/Provenance" => function (HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
-            ),
-            null,
-            405
-        );
-    },
-    "PUT /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
-        return RestControllerHelper::responseHandler(
-            UtilsService::createOperationOutcomeResource(
-                'error',
-                'not-supported',
-                'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
-            ),
-            null,
-            405
-        );
-    },
+    "POST /fhir/Provenance" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
+        ),
+        null,
+        405
+    ),
+    "PUT /fhir/Provenance/:uuid" => fn($uuid, HttpRestRequest $request) => RestControllerHelper::responseHandler(
+        UtilsService::createOperationOutcomeResource(
+            'error',
+            'not-supported',
+            'FHIR Provenance is a derived audit-trail resource; it is synthesized from other domain resources and cannot be written directly.'
+        ),
+        null,
+        405
+    ),
 
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
     // property to support which is why this endpoint exists.

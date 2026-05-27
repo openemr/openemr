@@ -459,7 +459,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
                 ? "SELECT uuid FROM care_teams WHERE pid = ? ORDER BY id DESC LIMIT 1"
                 : "SELECT uuid FROM care_teams WHERE id = ?",
             'uuid',
-            [$teamId === null ? $pid : $teamId]
+            [$teamId ?? $pid]
         );
         $result->addData([
             'uuid' => is_string($uuid) ? UuidRegistry::uuidToString($uuid) : null,

@@ -15,6 +15,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -446,7 +447,7 @@ class CarePlanService extends BaseService
                 'form_id' => $newFormId,
                 'uuid' => $surrogateUuid,
             ]);
-        } catch (\Exception $e) {
+        } catch (\RuntimeException | SqlQueryException $e) {
             $result->addInternalError($e->getMessage());
         }
 
@@ -521,7 +522,7 @@ class CarePlanService extends BaseService
                 'form_id' => $formId,
                 'uuid' => $surrogateUuid,
             ]);
-        } catch (\Exception $e) {
+        } catch (\RuntimeException | SqlQueryException $e) {
             $result->addInternalError($e->getMessage());
         }
 
