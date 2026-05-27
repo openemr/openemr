@@ -2253,6 +2253,105 @@ return [
         return $return;
     },
 
+    // Federated multi-service resources: DiagnosticReport, DocumentReference,
+    // MedicationDispense, Procedure. Each is read as a union over multiple sub-services
+    // (e.g. DiagnosticReport reads from both Laboratory and ClinicalNotes domains).
+    // Writes need an explicit routing strategy per sub-service which is out of scope
+    // for this PR; deferred to follow-up work. POST/PUT return 405 with a FHIR
+    // OperationOutcome explaining the unsupported state.
+
+    "POST /fhir/DiagnosticReport" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR DiagnosticReport writes are not yet supported. The OpenEMR read path federates Laboratory and ClinicalNotes sub-services; writing requires choosing a target sub-service per request (typically via category code) which is being designed in a follow-up PR.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/DiagnosticReport/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR DiagnosticReport writes are not yet supported. See POST /fhir/DiagnosticReport for the rationale.'
+            ),
+            null,
+            405
+        );
+    },
+
+    "POST /fhir/DocumentReference" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR DocumentReference writes are not yet supported. The OpenEMR read path federates three sub-services (clinical notes, patient documents, advance care directives); writing requires routing per sub-service which is being designed in a follow-up PR. The existing $docref operation remains available.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/DocumentReference/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR DocumentReference writes are not yet supported. See POST /fhir/DocumentReference for the rationale.'
+            ),
+            null,
+            405
+        );
+    },
+
+    "POST /fhir/MedicationDispense" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR MedicationDispense writes are not yet supported. Pharmacy dispensary persistence in OpenEMR varies by deployment (drug_inventory, pharmacy module, external dispensary integrations); writing needs a per-deployment design that is being scoped in a follow-up PR.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/MedicationDispense/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR MedicationDispense writes are not yet supported. See POST /fhir/MedicationDispense for the rationale.'
+            ),
+            null,
+            405
+        );
+    },
+
+    "POST /fhir/Procedure" => function (HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Procedure writes are not yet supported. The OpenEMR read path federates clinical procedures (procedure_order/procedure_order_code) with surgery procedures; writing overlaps with ServiceRequest writes already provided. Use POST /fhir/ServiceRequest with intent=order for procedure orders; standalone Procedure writes are being designed in a follow-up PR.'
+            ),
+            null,
+            405
+        );
+    },
+    "PUT /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                'not-supported',
+                'FHIR Procedure writes are not yet supported. See POST /fhir/Procedure for the rationale.'
+            ),
+            null,
+            405
+        );
+    },
+
     // Provenance is FHIR-spec read-only. It represents audit trail metadata
     // synthesized from other resources at read time; OpenEMR has no underlying
     // provenance table to write to. POST/PUT return 405 with a FHIR OperationOutcome.
