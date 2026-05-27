@@ -29,7 +29,7 @@ flowchart TB
 
     subgraph oe["openemr/openemr (conductor)"]
         prepPR(["release-prep/&lt;rel&gt; PR<br/>reviewable"])
-        tag[["annotated tag<br/>vX_Y_0"]]
+        tag[["annotated tag<br/>vX_Y_Z"]]
     end
 
     subgraph wo["openemr/website-openemr"]
@@ -85,7 +85,7 @@ Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data 
 
 **Schema location.** The canonical JSON Schema lives in `openemr-devops` at [`tools/release/contracts/dispatch.schema.json`](https://github.com/openemr/openemr-devops/blob/master/tools/release/contracts/dispatch.schema.json) and is vendored into each consumer (drift-checked in CI). The vendored copy in this repo is at [`tools/release/contracts/dispatch.schema.json`](../tools/release/contracts/dispatch.schema.json).
 
-**Tag verifier.** The shared `TagVerifier` that confirms a tag is annotated (not a lightweight ref) lives at [`tools/release/src/TagVerifier.php`](../tools/release/src/TagVerifier.php), vendored from `openemr-devops`'s [`tools/release/src/TagVerifier.php`](https://github.com/openemr/openemr-devops/blob/master/tools/release/src/TagVerifier.php).
+**Tag verifier.** The shared `TagVerifier` lives at [`tools/release/src/TagVerifier.php`](../tools/release/src/TagVerifier.php), vendored from `openemr-devops`'s [`tools/release/src/TagVerifier.php`](https://github.com/openemr/openemr-devops/blob/master/tools/release/src/TagVerifier.php). It confirms the tag is annotated (not a lightweight ref) and that the tag message contains a `MAJOR.MINOR.PATCH` version, an ISO date (`YYYY-MM-DD`), and the 40-hex merge-commit SHA — the fields the openemr-devops#664 spec requires CI to enforce.
 
 ## What each PR contains
 
