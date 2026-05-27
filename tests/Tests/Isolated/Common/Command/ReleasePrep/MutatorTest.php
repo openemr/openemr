@@ -115,6 +115,31 @@ final class MutatorTest extends TestCase
         );
     }
 
+    public function testDockerComposePinsBareTagWithoutDigest(): void
+    {
+        $this->copyFixture('docker_compose/bare_tag_input.yml', 'docker/production/docker-compose.yml');
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0');
+        $this->assertMutationProducesAndIdempotent(
+            new DockerComposeProductionMutator(),
+            $context,
+            'docker/production/docker-compose.yml',
+            self::FIXTURE_DIR . '/docker_compose/bare_tag_pinned_expected.yml',
+        );
+    }
+
+    public function testDockerComposeAddsDigestToBareTag(): void
+    {
+        $this->copyFixture('docker_compose/bare_tag_input.yml', 'docker/production/docker-compose.yml');
+        $digest = 'sha256:' . str_repeat('a', 64);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', $digest);
+        $this->assertMutationProducesAndIdempotent(
+            new DockerComposeProductionMutator(),
+            $context,
+            'docker/production/docker-compose.yml',
+            self::FIXTURE_DIR . '/docker_compose/bare_tag_pinned_with_digest_expected.yml',
+        );
+    }
+
     public function testOpenApiVersionBumpsAttribute(): void
     {
         $this->copyFixture('openapi/input.php', 'src/RestControllers/OpenApi/OpenApiDefinitions.php');
