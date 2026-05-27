@@ -71,6 +71,7 @@ _exec() {
 # pattern works across the full CI matrix without needing per-stack
 # branching at every su call site.
 web_user_in_openemr() {
+    # shellcheck disable=SC2016  # $u is the inner for-loop variable, intentionally evaluated inside the container's shell.
     _exec sh -c 'for u in apache www-data; do if id "$u" >/dev/null 2>&1; then echo "$u"; exit 0; fi; done; exit 1'
 }
 
