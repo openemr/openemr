@@ -38,6 +38,7 @@ return ['includes' => [
     __DIR__ . '/clone.nonObject.php',
     __DIR__ . '/constant.deprecated.php',
     __DIR__ . '/deadCode.unreachable.php',
+    __DIR__ . '/doWhile.alwaysTrue.php',
     __DIR__ . '/echo.nonString.php',
     __DIR__ . '/empty.expr.php',
     __DIR__ . '/empty.notAllowed.php',

@@ -217,16 +217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:insertOpenEMRRecord\\(\\) should return OpenEMR\\\\Validators\\\\ProcessingResult but empty return statement found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirCoverageService\\:\\:parseFhirResource\\(\\) should return array but empty return statement found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:insertOpenEMRRecord\\(\\) should return OpenEMR\\\\Validators\\\\ProcessingResult but empty return statement found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
