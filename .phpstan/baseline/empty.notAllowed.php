@@ -4418,7 +4418,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/DeviceService.php',
 ];
 $ignoreErrors[] = [
@@ -4533,7 +4533,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 12,
+    'count' => 17,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
 $ignoreErrors[] = [

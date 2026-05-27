@@ -11362,17 +11362,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:parseFhirResource\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:parseOpenEMRRecord\\(\\) has parameter \\$dataRecord with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:updateOpenEMRRecord\\(\\) has parameter \\$updatedOpenEMRRecord with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];

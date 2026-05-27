@@ -10637,6 +10637,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getFhirDeviceFixtures\\(\\) should return array\\<int, array\\<string, mixed\\>\\> but returns array\\<array\\<string, mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getFhirMedicationFixtures\\(\\) should return array\\<int, array\\<string, mixed\\>\\> but returns array\\<array\\<string, mixed\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',

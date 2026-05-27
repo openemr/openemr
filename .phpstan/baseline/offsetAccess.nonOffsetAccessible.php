@@ -45552,6 +45552,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirCoverageService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'coding\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'reference\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'text\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'_count\'\\|\'_offset\'\\|\'_sort\' on array\\<\'_count\'\\|\'_offset\'\\|\'_sort\', mixed\\>\\|OpenEMR\\\\Services\\\\Search\\\\ISearchField\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
@@ -51060,6 +51080,26 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirCoverageServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pubpid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirDeviceServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on array\\<mixed\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirDeviceServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirDeviceServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirDeviceServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pubpid\' on mixed\\.$#',

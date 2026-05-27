@@ -37532,11 +37532,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDeviceService\\:\\:insertOpenEMRRecord\\(\\) has parameter \\$openEmrRecord with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDeviceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\FhirDiagnosticReportService\\:\\:__construct\\(\\) has parameter \\$fhirApiURL with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
