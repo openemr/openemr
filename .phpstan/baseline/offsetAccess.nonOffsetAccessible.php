@@ -45957,6 +45957,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPersonService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'coding\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'reference\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'active\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirRelatedPersonService.php',
@@ -51400,6 +51420,31 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPersonServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPractitionerRoleServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'coding\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPractitionerRoleServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on array\\<mixed\\>\\|false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPractitionerRoleServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPractitionerRoleServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPractitionerRoleServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',

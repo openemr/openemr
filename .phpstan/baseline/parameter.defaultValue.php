@@ -457,11 +457,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirPractitionerRoleService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPractitionerRoleService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\FhirProcedureService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirProcedureService.php',
