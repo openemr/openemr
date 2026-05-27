@@ -167,13 +167,17 @@ class BackgroundServicesCliIntegrationTest extends TestCase
         // (web user shelling out from cron) and keeps the guard honest;
         // bypassing it would hide the same root-CLI failure mode the
         // guard exists to catch. `-p` preserves the env the bootstrap
-        // needs (HOME, PATH, MYSQL_*). The username is derived from the
-        // owner of `projectDir` rather than hardcoded so the same test
-        // works against any web stack — apache on the apache image,
-        // www-data on the nginx/php-fpm image, etc.
+        // needs (HOME, PATH, MYSQL_*). Probe a small list of known
+        // web-user names so the same test works against any web stack
+        // — apache on the apache image, www-data on the nginx +
+        // php-fpm image. Owning-uid detection from the project
+        // directory is not reliable in CI: the source is bind-mounted
+        // from the host, so the in-container owner is whoever runs the
+        // GH Actions job (typically uid 1001 `runner`), which may or
+        // may not map to a named user inside the container.
         if (self::currentEffectiveUid() === 0) {
-            $webUser = self::resolveOwnerUsername($this->projectDir);
-            if ($webUser !== null && $webUser !== 'root') {
+            $webUser = self::firstExistingUser(['apache', 'www-data']);
+            if ($webUser !== null) {
                 $command = [
                     'su', '-p', '-s', '/bin/sh', $webUser, '-c',
                     implode(' ', array_map(escapeshellarg(...), $command)),
@@ -207,39 +211,37 @@ class BackgroundServicesCliIntegrationTest extends TestCase
     }
 
     /**
-     * Resolve the username that owns `$path`. Uses `posix_getpwuid()`
-     * when available, falling back to `stat -c %U` via Symfony Process
-     * for posix-less PHP CLI builds. Returns null if neither path works
-     * or if the underlying owner UID cannot be read.
+     * Return the first username in `$candidates` that exists on this
+     * system, or null if none do. Uses `posix_getpwnam()` when
+     * available, falls back to `id <name>` via Symfony Process for
+     * posix-less PHP CLI builds.
      *
-     * The web-stack docker images ensure the project directory is owned
-     * by the web server user (apache on the apache image, www-data on
-     * php-fpm). Reading that owner is more portable than hardcoding a
-     * username that varies across base images.
+     * @param list<string> $candidates
      */
-    private static function resolveOwnerUsername(string $path): ?string
+    private static function firstExistingUser(array $candidates): ?string
     {
-        $uid = @fileowner($path);
-        if ($uid === false) {
-            return null;
+        foreach ($candidates as $name) {
+            if (self::userExists($name)) {
+                return $name;
+            }
         }
-        if (function_exists('posix_getpwuid')) {
-            $pw = @posix_getpwuid($uid);
-            return ($pw !== false) ? $pw['name'] : null;
+        return null;
+    }
+
+    private static function userExists(string $name): bool
+    {
+        if (function_exists('posix_getpwnam')) {
+            return @posix_getpwnam($name) !== false;
         }
         if (PHP_OS_FAMILY === 'Windows') {
-            return null;
+            return false;
         }
         try {
-            $process = new Process(['stat', '-c', '%U', $path]);
+            $process = new Process(['id', $name]);
             $process->run();
-            if (!$process->isSuccessful()) {
-                return null;
-            }
-            $trimmed = trim($process->getOutput());
-            return ($trimmed !== '' && $trimmed !== 'UNKNOWN') ? $trimmed : null;
+            return $process->isSuccessful();
         } catch (ProcessExceptionInterface) {
-            return null;
+            return false;
         }
     }
 
