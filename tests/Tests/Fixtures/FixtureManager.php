@@ -528,6 +528,32 @@ class FixtureManager
     }
 
     /**
+     * @return array<int, array<string, mixed>> FHIR Goal fixtures.
+     */
+    public function getFhirGoalFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/goal.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Goal fixture
+     */
+    public function getSingleFhirGoalFixture()
+    {
+        return $this->getSingleEntry($this->getFhirGoalFixtures());
+    }
+
+    /**
+     * Goal cleanup piggybacks on removeCarePlanFixtures since both are stored in
+     * form_care_plan keyed by patient. Provided as a named alias for symmetry with
+     * other resource-specific helpers.
+     */
+    public function removeGoalFixtures(): void
+    {
+        $this->removeCarePlanFixtures();
+    }
+
+    /**
      * @return array<int, array<string, mixed>> FHIR CarePlan fixtures.
      */
     public function getFhirCarePlanFixtures(): array
