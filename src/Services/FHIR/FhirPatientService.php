@@ -492,14 +492,14 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $ombCategoryExtension->setUrl("ombCategory");
             $coding = new FHIRCoding();
             $coding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_NULL_FLAVOR));
-            $coding->setCode('UNK');
-            $coding->setDisplay('Unknown');
+            $coding->setCode(new FHIRCode('UNK'));
+            $coding->setDisplay(new FHIRString('Unknown'));
             $ombCategoryExtension->setValueCoding($coding);
             $ethnicityExtension->addExtension($ombCategoryExtension);
 
             $textExtension = new FHIRExtension();
             $textExtension->setUrl("text");
-            $textExtension->setValueString('Unknown');
+            $textExtension->setValueString(new FHIRString('Unknown'));
             $ethnicityExtension->addExtension($textExtension);
         }
 
