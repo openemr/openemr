@@ -164,10 +164,21 @@ class DrugService extends BaseService
         }
 
         $sql = "UPDATE " . self::DRUG_TABLE . " SET " . $setClause . " WHERE uuid = ?";
-        $binds[] = UuidRegistry::uuidToBytes($uuid);
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $binds[] = $uuidBytes;
         QueryUtils::sqlStatementThrowException($sql, $binds);
 
-        return $this->getOne($uuid);
+        $result = new ProcessingResult();
+        $row = QueryUtils::querySingleRow(
+            "SELECT drug_id, uuid, name, drug_code, form, active, last_updated AS drug_last_updated "
+            . "FROM drugs WHERE uuid = ?",
+            [$uuidBytes]
+        );
+        if (is_array($row)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $result->addData($row);
+        }
+        return $result;
     }
 
     public function search(array $search, $isAndCondition = true)

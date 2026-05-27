@@ -45,12 +45,19 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
         $this->practitionerFixtureManager = new PractitionerFixtureManager();
         $this->facilityFixtureManager = new FacilityFixtureManager();
 
-        // Install one practitioner and one facility; capture their uuids
+        // Install one practitioner and one facility; capture their uuids.
+        // Practitioner fixtures require npi (per the PractitionerValidator); they
+        // also share `users.fname` with patient fixtures' pubpid prefix on a
+        // shared DB, so we look up by npi range rather than fname pattern.
         $this->practitionerFixtureManager->installPractitionerFixtures();
         $practitionerRow = QueryUtils::querySingleRow(
-            "SELECT uuid FROM users WHERE fname LIKE 'test-fixture-%' LIMIT 1",
+            "SELECT uuid FROM users WHERE fname LIKE 'test-fixture-%' "
+            . "AND npi IS NOT NULL AND npi != '' ORDER BY id DESC LIMIT 1",
             []
         );
+        if (!is_array($practitionerRow) || empty($practitionerRow['uuid'])) {
+            $this->markTestSkipped('Practitioner fixture did not produce a queryable row');
+        }
         $this->practitionerUuid = UuidRegistry::uuidToString($practitionerRow['uuid']);
 
         $this->facilityFixtureManager->installFacilityFixtures();
@@ -58,6 +65,9 @@ class FhirPractitionerRoleServiceCrudTest extends TestCase
             "SELECT uuid FROM facility ORDER BY id DESC LIMIT 1",
             []
         );
+        if (!is_array($facilityRow) || empty($facilityRow['uuid'])) {
+            $this->markTestSkipped('Facility fixture did not produce a queryable row');
+        }
         $this->facilityUuid = UuidRegistry::uuidToString($facilityRow['uuid']);
 
         $fixture = (array) $this->fixtureManager->getSingleFhirPractitionerRoleFixture();

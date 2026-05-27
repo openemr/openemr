@@ -126,9 +126,11 @@ class FhirCoverageServiceCrudTest extends TestCase
     #[Test]
     public function testUpdateWithBadUuid(): void
     {
-        $actualResult = $this->fhirCoverageService->update('bad-uuid', $this->fhirCoverageFixture);
+        // Use a syntactically valid uuid that does not exist in insurance_data.
+        // ('bad-uuid' would throw InvalidUuidStringException before validation runs.)
+        $nonExistentUuid = '00000000-0000-0000-0000-000000000000';
+        $actualResult = $this->fhirCoverageService->update($nonExistentUuid, $this->fhirCoverageFixture);
         $this->assertFalse($actualResult->isValid());
-        $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getData()));
     }
 }

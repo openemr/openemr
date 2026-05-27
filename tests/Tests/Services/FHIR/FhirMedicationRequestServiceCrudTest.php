@@ -122,10 +122,12 @@ class FhirMedicationRequestServiceCrudTest extends TestCase
         $this->assertNotEmpty($actualResult->getData());
         // FhirServiceBase::update re-parses the updated row through parseOpenEMRRecord,
         // so getData()[0] is the FHIRMedicationRequest object (not the column array).
+        // populateNote stores the note as a raw string on FHIRAnnotation.text (it doesn't
+        // wrap in FHIRMarkdown), so we compare the string directly.
         $updatedResource = $actualResult->getData()[0];
         $notes = $updatedResource->getNote();
         $this->assertCount(1, $notes);
-        $this->assertSame('test-fixture updated note', $notes[0]->getText()->getValue());
+        $this->assertSame('test-fixture updated note', $notes[0]->getText());
     }
 
     #[Test]

@@ -176,12 +176,24 @@ class DeviceService extends BaseService
 
         $sql = "UPDATE " . self::DEVICE_TABLE . " SET " . $setClause
             . " WHERE uuid = ? AND type = 'medical_device'";
-        $binds[] = UuidRegistry::uuidToBytes($uuid);
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $binds[] = $uuidBytes;
         QueryUtils::sqlStatementThrowException($sql, $binds);
 
-        return $this->search([
-            'uuid' => new TokenSearchField('uuid', [new TokenSearchValue($uuid, null, false)]),
-        ]);
+        // Build a minimal record from the post-update row so callers see the result.
+        // (The full read-side search query joins patient_data + users; we don't need
+        // all of that just to confirm success.)
+        $result = new ProcessingResult();
+        $row = QueryUtils::querySingleRow(
+            "SELECT uuid, pid, title, udi, udi_data, date, modifydate "
+            . "FROM lists WHERE uuid = ? AND type = 'medical_device'",
+            [$uuidBytes]
+        );
+        if (is_array($row)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
+            $result->addData($row);
+        }
+        return $result;
     }
 
     protected function createResultRecordFromDatabaseResult($row)

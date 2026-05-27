@@ -136,7 +136,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
 
     public function populateAddress(FHIRRelatedPerson $fhirRelatedPerson, $dataRecord): void
     {
-        foreach ($dataRecord['addresses'] as $address) {
+        foreach (($dataRecord['addresses'] ?? []) as $address) {
             $fhirRelatedPerson->addAddress(UtilsService::createAddressFromRecord($address));
         }
     }
