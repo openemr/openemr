@@ -718,6 +718,12 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:
 use setLogger\\(\\)$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirMedicationServiceCrudTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:
+use setLogger\\(\\)$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
