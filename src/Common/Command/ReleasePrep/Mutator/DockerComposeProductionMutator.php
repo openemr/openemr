@@ -48,15 +48,22 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
             ? null
             : preg_replace('/^sha256:/', '', $context->imageDigest);
 
-        // Pattern matches `image: openemr/openemr:<tag>@sha256:<digest>`
-        // where <tag> may be `latest`, the target version, or another
-        // version (idempotence + handles re-runs after a digest update).
-        $pattern = '/(image:\s*openemr\/openemr:)([^@\s]+)(@sha256:)([0-9a-f]{64})/';
+        // Pattern matches `image: openemr/openemr:<tag>` with an optional
+        // `@sha256:<digest>` suffix. The tag may be `latest`, the target
+        // version, or another version (idempotence + handles re-runs after
+        // a digest update). The digest is optional because rel-* branches
+        // that were cut before the digest-pinning automation existed start
+        // with a bare tag (e.g. `openemr/openemr:8.1.0`).
+        $pattern = '/(image:\s*openemr\/openemr:)([^@\s]+)(?:(@sha256:)([0-9a-f]{64}))?/';
         $updated = preg_replace_callback(
             $pattern,
             static function (array $match) use ($version, $newDigestHex): string {
-                $digest = $newDigestHex ?? $match[4];
-                return $match[1] . $version . $match[3] . $digest;
+                $existingDigest = $match[4] ?? '';
+                $digest = $newDigestHex ?? ($existingDigest !== '' ? $existingDigest : null);
+                if ($digest === null) {
+                    return $match[1] . $version;
+                }
+                return $match[1] . $version . '@sha256:' . $digest;
             },
             $contents,
             1,
@@ -67,7 +74,7 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         }
         if ($count === 0) {
             throw new \RuntimeException(
-                'Expected an `image: openemr/openemr:<tag>@sha256:<digest>` line in docker-compose.yml',
+                'Expected an `image: openemr/openemr:<tag>` line in docker-compose.yml',
             );
         }
         if ($updated === $contents) {
@@ -89,7 +96,9 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
             );
         }
         $expectedDigest = $newDigestHex ?? $this->extractDigest($contents);
-        $expectedImage = sprintf('openemr/openemr:%s@sha256:%s', $version, $expectedDigest);
+        $expectedImage = $expectedDigest === null
+            ? sprintf('openemr/openemr:%s', $version)
+            : sprintf('openemr/openemr:%s@sha256:%s', $version, $expectedDigest);
         $actualImage = is_array($parsed)
             && is_array($parsed['services'] ?? null)
             && is_array($parsed['services']['openemr'] ?? null)
@@ -105,18 +114,20 @@ final readonly class DockerComposeProductionMutator implements MutatorInterface
         if (file_put_contents($path, $updated) === false) {
             throw new \RuntimeException('Cannot write ' . $path);
         }
-        $messages = $newDigestHex === null
-            ? ['docker-compose.yml: tag pinned to ' . $version . '; digest preserved (no --image-digest provided)']
-            : [];
+        if ($newDigestHex !== null) {
+            $messages = [];
+        } elseif ($expectedDigest === null) {
+            $messages = ['docker-compose.yml: tag pinned to ' . $version . '; no digest (source had none, no --image-digest provided)'];
+        } else {
+            $messages = ['docker-compose.yml: tag pinned to ' . $version . '; digest preserved (no --image-digest provided)'];
+        }
         return new MutatorResult([self::RELATIVE_PATH], $messages);
     }
 
-    private function extractDigest(string $original): string
+    private function extractDigest(string $original): ?string
     {
-        if (
-            preg_match('/image:\s*openemr\/openemr:[^@\s]+@sha256:([0-9a-f]{64})/', $original, $m) !== 1
-        ) {
-            throw new \RuntimeException('Cannot extract original digest from docker-compose.yml');
+        if (preg_match('/image:\s*openemr\/openemr:[^@\s]+@sha256:([0-9a-f]{64})/', $original, $m) !== 1) {
+            return null;
         }
         return $m[1];
     }

@@ -38,6 +38,11 @@ on:
         required: false
         default: false
         type: boolean
+      force-dispatch:
+        description: 'Force the rel-update dispatch to consumers even when peter-evans reports pull-request-operation=none. Use to recover after a downstream workflow failed to consume the initial dispatch and the release-prep PR is already in its target state.'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -186,7 +191,7 @@ jobs:
         delete-branch: false
 
     - name: Dispatch rel-cut / rel-update to consumers
-      if: steps.prep-pr.outputs.pull-request-operation != 'none'
+      if: steps.prep-pr.outputs.pull-request-operation != 'none' || inputs.force-dispatch
       env:
         RELEASE_APP_TOKEN: ${{ steps.app-token.outputs.token }}
         OPERATION: ${{ steps.prep-pr.outputs.pull-request-operation }}
@@ -201,6 +206,10 @@ jobs:
         # peter-evans action has already created the branch upstream, so a
         # post-hoc `gh api` existence check would always say "exists" and
         # dispatch the very first push as rel-update.
+        #
+        # When OPERATION is empty (force-dispatch on an unchanged PR),
+        # treat it as rel-update — rel-cut is only correct on the very
+        # first PR creation.
         case "${OPERATION}" in
           created) event='openemr-rel-cut' ;;
           *)       event='openemr-rel-update' ;;
