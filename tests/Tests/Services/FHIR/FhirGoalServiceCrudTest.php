@@ -161,4 +161,17 @@ class FhirGoalServiceCrudTest extends TestCase
         $this->assertFalse($result->isValid());
         $this->assertEquals(0, count($result->getData()));
     }
+
+    #[Test]
+    public function testInsertWithoutLifecycleStatusReturnsValidationError(): void
+    {
+        $this->fhirGoalFixture->setId(null);
+        $payload = $this->fhirGoalFixture->jsonSerialize();
+        unset($payload['lifecycleStatus']);
+        $fixture = new FHIRGoal($payload);
+
+        $result = $this->fhirGoalService->insert($fixture);
+        $this->assertFalse($result->isValid());
+        $this->assertEquals(0, count($result->getData()));
+    }
 }

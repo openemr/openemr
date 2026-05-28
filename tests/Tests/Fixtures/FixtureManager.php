@@ -673,6 +673,11 @@ class FixtureManager
         return $this->getSingleEntry($this->getFhirMedicationRequestFixtures());
     }
 
+    /**
+     * Removes prescription rows (and their uuid_registry entries) for any patient_data
+     * row whose pubpid carries the test-fixture prefix. Scoped via the pubpid filter so
+     * unrelated prescriptions are left untouched.
+     */
     public function removeMedicationRequestFixtures(): void
     {
         $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
@@ -691,12 +696,12 @@ class FixtureManager
             $pids
         );
         foreach ($uuids as $bytes) {
-            sqlQuery(
+            QueryUtils::sqlStatementThrowException(
                 "DELETE FROM uuid_registry WHERE table_name = 'prescriptions' AND uuid = ?",
                 [$bytes]
             );
         }
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "DELETE FROM prescriptions WHERE patient_id IN ($placeholders)",
             $pids
         );
@@ -741,12 +746,15 @@ class FixtureManager
             ['test-fixture-%']
         );
         foreach ($bytesList as $bytes) {
-            sqlQuery(
+            QueryUtils::sqlStatementThrowException(
                 "DELETE FROM uuid_registry WHERE table_name = 'insurance_companies' AND uuid = ?",
                 [$bytes]
             );
         }
-        sqlStatement("DELETE FROM insurance_companies WHERE name LIKE ?", ['test-fixture-%']);
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM insurance_companies WHERE name LIKE ?",
+            ['test-fixture-%']
+        );
     }
 
     public function removeCoverageFixtures(): void
@@ -768,12 +776,12 @@ class FixtureManager
             $pids
         );
         foreach ($uuids as $bytes) {
-            sqlQuery(
+            QueryUtils::sqlStatementThrowException(
                 "DELETE FROM uuid_registry WHERE table_name = 'insurance_data' AND uuid = ?",
                 [$bytes]
             );
         }
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "DELETE FROM insurance_data WHERE pid IN ($placeholders)",
             $pids
         );

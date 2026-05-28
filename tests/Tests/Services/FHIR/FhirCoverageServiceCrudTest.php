@@ -133,4 +133,35 @@ class FhirCoverageServiceCrudTest extends TestCase
         $this->assertFalse($actualResult->isValid());
         $this->assertEquals(0, count($actualResult->getData()));
     }
+
+    #[Test]
+    public function testInsertWithStatusInconsistentWithDatesReturnsValidationError(): void
+    {
+        // Fixture period is 2024-01-01 -> 2099-12-31 (active by derivation). Claiming
+        // status=cancelled should produce a 422-style validation error rather than
+        // silently dropping the modifier element.
+        $this->fhirCoverageFixture->setId(null);
+        $payload = $this->fhirCoverageFixture->jsonSerialize();
+        $payload['status'] = 'cancelled';
+        $fixture = new \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage($payload);
+
+        $result = $this->fhirCoverageService->insert($fixture);
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertArrayHasKey('status', $messages);
+    }
+
+    #[Test]
+    public function testInsertWithStatusEnteredInErrorReturnsValidationError(): void
+    {
+        $this->fhirCoverageFixture->setId(null);
+        $payload = $this->fhirCoverageFixture->jsonSerialize();
+        $payload['status'] = 'entered-in-error';
+        $fixture = new \OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage($payload);
+
+        $result = $this->fhirCoverageService->insert($fixture);
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertArrayHasKey('status', $messages);
+    }
 }

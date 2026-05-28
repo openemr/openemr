@@ -147,4 +147,27 @@ class FhirServiceRequestServiceCrudTest extends TestCase
         $this->assertFalse($result->isValid());
         $this->assertEquals(0, count($result->getData()));
     }
+
+    #[Test]
+    public function testInsertPersistsIntent(): void
+    {
+        $this->fhirServiceRequestFixture->setId(null);
+        $payload = $this->fhirServiceRequestFixture->jsonSerialize();
+        $payload['intent'] = 'plan';
+        $fixture = new FHIRServiceRequest($payload);
+
+        $result = $this->fhirServiceRequestService->insert($fixture);
+        $this->assertTrue(
+            $result->isValid(),
+            'Insert should succeed: ' . json_encode($result->getValidationMessages())
+        );
+        $procedureOrderId = $result->getData()[0]['procedure_order_id'];
+
+        $intent = QueryUtils::fetchSingleValue(
+            "SELECT order_intent FROM procedure_order WHERE procedure_order_id = ?",
+            'order_intent',
+            [$procedureOrderId]
+        );
+        $this->assertSame('plan', $intent);
+    }
 }
