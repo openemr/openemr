@@ -1053,7 +1053,28 @@ class AuthorizationController
         $claims = $session->get('claims', []);
 
         $clientRepository = $this->getClientRepository();
-        $client = $clientRepository->getClientEntity($session->get('client_id', []));
+        $clientId = $session->get('client_id', '');
+        $this->logger ??= ServiceContainer::getLogger();
+        if (!is_string($clientId) || $clientId === '') {
+            $this->logger->error("AuthorizationController->scopeAuthorizeConfirm() application client_id was missing when it shouldn't have been");
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                "error/general_http_error.html.twig",
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
+        $client = $clientRepository->getClientEntity($clientId);
+        if ($client === false) {
+            $this->logger->error(
+                "AuthorizationController->scopeAuthorizeConfirm() application client_id was not found in oauth_clients",
+                ['client_id' => $clientId]
+            );
+            return $this->renderTwigPage(
+                'oauth2/authorize/scopes-authorize',
+                "error/general_http_error.html.twig",
+                ['statusCode' => Response::HTTP_BAD_REQUEST]
+            );
+        }
 
         $uuidToUser = $this->getUuidUserAccount($session->get('user_id', ''));
         $userRole = $uuidToUser->getUserRole();
