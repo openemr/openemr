@@ -129,6 +129,7 @@
                 html += `<label><input type="checkbox" data-recip-id="${escapeHtml(recipId)}" data-section="current" checked> ${escapeHtml(user.username)}</label>`;
             }
         });
+        // nosemgrep: openemr-js-innerhtml-dynamic -- every ${} interpolation goes through escapeHtml().
         container.innerHTML = html;
         bindRecipientCheckboxes(container);
     }
@@ -144,6 +145,7 @@
                 html += `<label><input type="checkbox" data-recip-id="${escapeHtml(recipId)}" data-section="available" ${checked}> ${escapeHtml(user.username)}</label>`;
             }
         });
+        // nosemgrep: openemr-js-innerhtml-dynamic -- every ${} interpolation goes through escapeHtml(); `checked` is the literal 'checked' or ''.
         container.innerHTML = html;
         bindRecipientCheckboxes(container);
     }
@@ -198,6 +200,7 @@
                 </div>
             </div>`;
         });
+        // nosemgrep: openemr-js-innerhtml-dynamic -- ${} interpolations use escapeHtml(); sanitizedBody = DOMPurify.sanitize(message.message).
         container.innerHTML = html;
 
         // Bind click-to-select-recipient on icons and message bodies
@@ -220,6 +223,7 @@
         users.forEach(ol => {
             html += `<label><input type="checkbox" disabled> ${escapeHtml(ol.username)}</label>`;
         });
+        // nosemgrep: openemr-js-innerhtml-dynamic -- the only ${} interpolation goes through escapeHtml().
         container.innerHTML = html;
     }
 
