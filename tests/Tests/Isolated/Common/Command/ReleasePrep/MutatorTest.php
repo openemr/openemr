@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Command\ReleasePrep;
 
 use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerComposeProductionMutator;
-use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerVersionFileMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\GlobalsIncMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\OpenApiVersionMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\SqlUpgradeSkeletonMutator;
@@ -150,27 +149,6 @@ final class MutatorTest extends TestCase
             'src/RestControllers/OpenApi/OpenApiDefinitions.php',
             self::FIXTURE_DIR . '/openapi/expected.php',
         );
-    }
-
-    public function testDockerVersionSweepIncrementsAllFiles(): void
-    {
-        $this->writeFile('docker-version', "10\n");
-        $this->writeFile('sites/default/docker-version', "10\n");
-        // A nested location to prove the sweep, not a hardcoded list.
-        $this->writeFile('sites/other/docker-version', "5\n");
-        // Excluded dirs that shouldn't be picked up.
-        $this->writeFile('vendor/some/pkg/docker-version', "999\n");
-        $this->writeFile('node_modules/some/pkg/docker-version', "999\n");
-
-        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0');
-        $result = (new DockerVersionFileMutator())->apply($context);
-
-        self::assertCount(3, $result->changedFiles);
-        self::assertSame("11\n", file_get_contents($this->tmpDir . '/docker-version'));
-        self::assertSame("11\n", file_get_contents($this->tmpDir . '/sites/default/docker-version'));
-        self::assertSame("6\n", file_get_contents($this->tmpDir . '/sites/other/docker-version'));
-        self::assertSame("999\n", file_get_contents($this->tmpDir . '/vendor/some/pkg/docker-version'));
-        self::assertSame("999\n", file_get_contents($this->tmpDir . '/node_modules/some/pkg/docker-version'));
     }
 
     public function testSqlUpgradeSkeletonScaffoldsHeaderOnly(): void
