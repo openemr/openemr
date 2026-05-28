@@ -51693,7 +51693,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'procedure_order_id\' on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirServiceRequestServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
@@ -51713,7 +51713,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirServiceRequestServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
