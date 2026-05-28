@@ -394,63 +394,85 @@ class CarePlanService extends BaseService
             return $result;
         }
 
-        // form_care_plan has no auto-increment; the canonical pattern in interface/forms/care_plan/
-        // is MAX(id)+1. Race-prone in theory but matches existing UI behavior.
-        $maxId = QueryUtils::fetchSingleValue(
-            "SELECT MAX(id) AS largestId FROM form_care_plan",
-            'largestId',
-            []
-        );
-        $newFormId = ((int) ($maxId ?? 0)) + 1;
-
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $context['user'] ?? $session->get('authUser') ?? '';
         $group = $context['groupname'] ?? $session->get('authProvider') ?? '';
         $authorized = (string) ($context['authorized'] ?? 0);
 
-        try {
-            $surrogateUuid = QueryUtils::inTransaction(function () use (
-                $encounterId,
-                $newFormId,
-                $pid,
-                $authorized,
-                $user,
-                $group,
-                $items
-            ): string {
-                $formService = new FormService();
-                $formService->addForm(
+        // form_care_plan has no AUTO_INCREMENT (legacy schema). Compute the next id
+        // inside the transaction and retry on duplicate-key under concurrent writers.
+        // The proper fix is the AUTO_INCREMENT schema migration tracked separately —
+        // this loop closes the silent-overwrite race window in the meantime.
+        $maxAttempts = 5;
+        $lastError = null;
+        for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+            try {
+                $result_data = QueryUtils::inTransaction(function () use (
                     $encounterId,
-                    'Care Plan Form',
-                    $newFormId,
-                    'care_plan',
                     $pid,
                     $authorized,
-                    'NOW()',
-                    is_string($user) ? $user : '',
-                    is_string($group) ? $group : ''
-                );
+                    $user,
+                    $group,
+                    $items
+                ): array {
+                    $maxId = QueryUtils::fetchSingleValue(
+                        "SELECT MAX(id) AS largestId FROM form_care_plan",
+                        'largestId',
+                        []
+                    );
+                    $newFormId = ((int) ($maxId ?? 0)) + 1;
 
-                foreach ($items as $item) {
-                    $this->insertFormCarePlanRow($newFormId, $pid, $encounterId, $authorized, $user, $group, $item);
+                    $formService = new FormService();
+                    $formService->addForm(
+                        $encounterId,
+                        'Care Plan Form',
+                        $newFormId,
+                        'care_plan',
+                        $pid,
+                        $authorized,
+                        'NOW()',
+                        is_string($user) ? $user : '',
+                        is_string($group) ? $group : ''
+                    );
+
+                    foreach ($items as $item) {
+                        $this->insertFormCarePlanRow($newFormId, $pid, $encounterId, $authorized, $user, $group, $item);
+                    }
+
+                    return [
+                        'form_id' => $newFormId,
+                        'uuid' => $this->buildV2SurrogateKey(
+                            $this->fetchEncounterUuid($encounterId),
+                            $newFormId
+                        ),
+                    ];
+                });
+
+                $result->addData([
+                    'pid' => $pid,
+                    'encounter' => $encounterId,
+                    'form_id' => $result_data['form_id'],
+                    'uuid' => $result_data['uuid'],
+                ]);
+                return $result;
+            } catch (SqlQueryException $e) {
+                $lastError = $e;
+                // Duplicate-key under concurrent allocation — retry with a fresh MAX.
+                if (str_contains((string) $e->getMessage(), 'Duplicate entry')) {
+                    continue;
                 }
-
-                return $this->buildV2SurrogateKey(
-                    $this->fetchEncounterUuid($encounterId),
-                    $newFormId
-                );
-            });
-
-            $result->addData([
-                'pid' => $pid,
-                'encounter' => $encounterId,
-                'form_id' => $newFormId,
-                'uuid' => $surrogateUuid,
-            ]);
-        } catch (\RuntimeException | SqlQueryException $e) {
-            $result->addInternalError($e->getMessage());
+                $result->addInternalError($e->getMessage());
+                return $result;
+            } catch (\RuntimeException $e) {
+                $result->addInternalError($e->getMessage());
+                return $result;
+            }
         }
 
+        $result->addInternalError(
+            'form_care_plan id allocation failed after ' . $maxAttempts . ' attempts'
+            . ($lastError !== null ? ': ' . $lastError->getMessage() : '')
+        );
         return $result;
     }
 
