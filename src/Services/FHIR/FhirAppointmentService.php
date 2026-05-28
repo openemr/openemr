@@ -462,14 +462,15 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         unset($openEmrRecord['pid']);
         unset($openEmrRecord['puuid']);
 
-        // Fall back to the first active facility if none was provided via FHIR.
-        // Appointments require pc_facility and pc_billing_location, but FHIR
-        // Appointment resources don't always include a Location participant.
+        // Require an explicit facility from the FHIR caller — silently
+        // picking the first row would attribute the appointment to an arbitrary
+        // facility (potentially the wrong tenant in a multi-site deployment).
+        // Callers must supply a serviceProvider Reference to a Location.
         if (empty($openEmrRecord['pc_facility'])) {
-            $defaultFacilityId = $this->getDefaultFacilityId();
-            if ($defaultFacilityId !== null) {
-                $openEmrRecord['pc_facility'] = $defaultFacilityId;
-            }
+            $processingResult->setValidationMessages([
+                'serviceProvider' => 'Appointment.serviceProvider (a Location reference) is required',
+            ]);
+            return $processingResult;
         }
         if (empty($openEmrRecord['pc_billing_location']) && !empty($openEmrRecord['pc_facility'])) {
             $openEmrRecord['pc_billing_location'] = $openEmrRecord['pc_facility'];
@@ -506,33 +507,6 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         }
 
         return $processingResult;
-    }
-
-    /**
-     * Returns the first active facility id, or null if none exist.
-     * Used as a fallback when a FHIR Appointment doesn't include a Location
-     * participant but the underlying service requires pc_facility.
-     *
-     * @return int|null
-     */
-    private function getDefaultFacilityId(): ?int
-    {
-        $facility = QueryUtils::querySingleRow(
-            "SELECT id FROM facility WHERE inactive = 0 ORDER BY id ASC LIMIT 1",
-            []
-        );
-        if (!empty($facility['id'])) {
-            return (int) $facility['id'];
-        }
-        // Fall back to any facility
-        $facility = QueryUtils::querySingleRow(
-            "SELECT id FROM facility ORDER BY id ASC LIMIT 1",
-            []
-        );
-        if (!empty($facility['id'])) {
-            return (int) $facility['id'];
-        }
-        return null;
     }
 
     /**

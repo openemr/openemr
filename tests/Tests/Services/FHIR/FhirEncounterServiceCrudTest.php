@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Services\FHIR;
 
 use Monolog\Level;
@@ -17,8 +19,8 @@ use PHPUnit\Framework\TestCase;
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    OpenEMR Contributors
- * @copyright Copyright (c) 2026 OpenEMR Contributors
+ * @author    Chris Dickman <chrisd@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FhirEncounterServiceCrudTest extends TestCase
@@ -27,6 +29,9 @@ class FhirEncounterServiceCrudTest extends TestCase
     private FHIREncounter $fhirEncounterFixture;
     private FhirEncounterService $fhirEncounterService;
     private string $patientUuid;
+
+    /** @var list<string> uuid strings of encounters created by individual tests, cleaned in tearDown */
+    private array $createdEncounterUuids = [];
 
     protected function setUp(): void
     {
@@ -59,9 +64,22 @@ class FhirEncounterServiceCrudTest extends TestCase
 
     protected function tearDown(): void
     {
+        // Delete by exact uuid captured during each test. Falling back to a
+        // LIKE 'test-fixture%' sweep silently no-ops if a fixture's text drifts
+        // and leaves orphan rows accumulating across runs.
+        foreach ($this->createdEncounterUuids as $uuidString) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM form_encounter WHERE uuid = ?",
+                [UuidRegistry::uuidToBytes($uuidString)]
+            );
+        }
+        $this->createdEncounterUuids = [];
+        // Belt-and-braces sweep for any LIKE-pattern rows still present from
+        // previous failed runs (this keeps the test suite self-healing).
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'"
+        );
         $this->fixtureManager->removePatientFixtures();
-        // Clean up test encounters
-        QueryUtils::sqlStatementThrowException("DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%'");
     }
 
     #[Test]
@@ -74,6 +92,7 @@ class FhirEncounterServiceCrudTest extends TestCase
         $dataResult = $processingResult->getData()[0];
         $this->assertArrayHasKey('euuid', $dataResult);
         $this->assertIsString($dataResult['euuid']);
+        $this->createdEncounterUuids[] = $dataResult['euuid'];
     }
 
     #[Test]

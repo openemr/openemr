@@ -12,6 +12,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -194,7 +195,7 @@ class FhirGenericRestController implements IGlobalsAware {
 
         $fhirValidationService = new FhirValidationService();
         $validationResult = $fhirValidationService->validate($fhirJson);
-        if (!empty($validationResult)) {
+        if ($validationResult !== []) {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
@@ -211,10 +212,12 @@ class FhirGenericRestController implements IGlobalsAware {
         try {
             $processingResult = $this->getFhirService()->insert($fhirResource);
         } catch (\InvalidArgumentException $e) {
-            return RestControllerHelper::responseHandler(
-                UtilsService::createOperationOutcomeResource('error', 'invalid', $e->getMessage()),
-                null,
-                400
+            return $this->respondWithSafeError(
+                'invalid',
+                'Invalid FHIR resource: see server logs for details',
+                400,
+                $e,
+                'post'
             );
         }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
@@ -241,9 +244,26 @@ class FhirGenericRestController implements IGlobalsAware {
             );
         }
 
+        // FHIR R4 §3.1.0.5.1: if a resource body carries an id, it must match
+        // the URL id. Without this check a caller authorized for resource A
+        // could PUT /fhir/X/A with body {"id":"B"} and (depending on which key
+        // the downstream service treats as operative) mutate B instead.
+        $bodyId = $fhirJson['id'] ?? null;
+        if ($bodyId !== null && (string) $bodyId !== $fhirId) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'invalid',
+                    'id in URL must match id in resource body'
+                ),
+                null,
+                400
+            );
+        }
+
         $fhirValidationService = new FhirValidationService();
         $validationResult = $fhirValidationService->validate($fhirJson);
-        if (!empty($validationResult)) {
+        if ($validationResult !== []) {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
@@ -260,13 +280,55 @@ class FhirGenericRestController implements IGlobalsAware {
         try {
             $processingResult = $this->getFhirService()->update($fhirId, $fhirResource);
         } catch (\InvalidArgumentException $e) {
-            return RestControllerHelper::responseHandler(
-                UtilsService::createOperationOutcomeResource('error', 'invalid', $e->getMessage()),
-                null,
-                400
+            return $this->respondWithSafeError(
+                'invalid',
+                'Invalid FHIR resource: see server logs for details',
+                400,
+                $e,
+                'put'
             );
         }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+    }
+
+    /**
+     * Build an OperationOutcome response without leaking the underlying
+     * exception message to the client. Service-layer exceptions can carry SQL
+     * fragments, file paths, or other internal detail that must not land in
+     * OperationOutcome.diagnostics. The full exception is logged with a short
+     * correlation id; the client gets a generic message + the same id so
+     * operators can trace incidents.
+     *
+     * Audit-event emission for write paths is intentionally out of scope here
+     * — that's a project-wide concern that needs an EventAuditLogger contract
+     * for FHIR mutations and will land in a separate change.
+     */
+    private function respondWithSafeError(
+        string $issueCode,
+        string $publicDiagnostic,
+        int $httpStatus,
+        \Throwable $e,
+        string $operation
+    ): Response {
+        $correlationId = bin2hex(random_bytes(6));
+        (new SystemLogger())->error(
+            'FHIR write operation failed',
+            [
+                'operation' => $operation,
+                'resourceType' => $this->expectedResourceType,
+                'correlationId' => $correlationId,
+                'exception' => $e,
+            ]
+        );
+        return RestControllerHelper::responseHandler(
+            UtilsService::createOperationOutcomeResource(
+                'error',
+                $issueCode,
+                $publicDiagnostic . ' (incident ' . $correlationId . ')'
+            ),
+            null,
+            $httpStatus
+        );
     }
 
     /**

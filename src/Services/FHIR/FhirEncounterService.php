@@ -336,16 +336,26 @@ class FhirEncounterService extends FhirServiceBase implements
                 : $json['period']['start'];
         }
 
-        // Participant -> provider_uuid and referrer_uuid
+        // Participant -> provider_uuid and referrer_uuid. FHIR R4 requires that
+        // unresolvable references be rejected — silently skipping creates a
+        // partial Encounter and tells the caller the write succeeded. We throw
+        // InvalidArgumentException so the controller emits a 400 with a clear
+        // OperationOutcome.
         if (!empty($json['participant'])) {
-            foreach ($json['participant'] as $participant) {
+            foreach ($json['participant'] as $idx => $participant) {
                 $reference = $participant['individual']['reference'] ?? null;
                 if (!is_string($reference) || $reference === '') {
-                    continue;
+                    // No reference at all on a participant entry is a malformed
+                    // resource — reject rather than silently dropping the entry.
+                    throw new \InvalidArgumentException(
+                        'Encounter.participant[' . (int) $idx . '].individual.reference is required'
+                    );
                 }
                 $parsed = UtilsService::parseReferenceString($reference, 'Practitioner');
                 if (empty($parsed['uuid']) || !\OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
-                    continue;
+                    throw new \InvalidArgumentException(
+                        'Encounter.participant[' . (int) $idx . '].individual.reference is not a valid Practitioner reference'
+                    );
                 }
                 $practitionerUuid = $parsed['uuid'];
 
@@ -411,7 +421,13 @@ class FhirEncounterService extends FhirServiceBase implements
      */
     private function getDefaultEncounterCategoryId(): int
     {
-        // Try the standard 'office_visit' constant first
+        // The 'office_visit' constant is the well-known well-defined default
+        // installed by every schema (sql/database.sql). Look it up by constant
+        // id only — never fall back to "pick any active row" because that
+        // returns an arbitrary category and would silently misattribute the
+        // encounter type (also a fresh cross-tenant write path in any future
+        // multi-site scoping). If the row is genuinely missing the schema
+        // default of 5 is correct.
         $category = QueryUtils::querySingleRow(
             "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_constant_id = ? LIMIT 1",
             ['office_visit']
@@ -419,17 +435,6 @@ class FhirEncounterService extends FhirServiceBase implements
         if (!empty($category['pc_catid'])) {
             return (int) $category['pc_catid'];
         }
-
-        // Fall back to first active category
-        $category = QueryUtils::querySingleRow(
-            "SELECT pc_catid FROM openemr_postcalendar_categories WHERE pc_active = 1 ORDER BY pc_catid ASC LIMIT 1",
-            []
-        );
-        if (!empty($category['pc_catid'])) {
-            return (int) $category['pc_catid'];
-        }
-
-        // Last resort: schema default is 5
         return 5;
     }
 
@@ -488,11 +493,11 @@ class FhirEncounterService extends FhirServiceBase implements
      * Resolves provider and referrer UUIDs to their numeric IDs.
      *
      * Authorization: a caller may only attribute an encounter to a provider
-     * other than themselves if they hold the admin/users ACL. Without it, a
-     * client-supplied provider/referrer UUID is dropped (silently — the
-     * encounter is still created, but attribution falls through to whatever
-     * EncounterService picks). This prevents a user with encounter-write
-     * permission from spoofing attribution to arbitrary practitioners.
+     * other than themselves if they hold the admin/users ACL. Without it the
+     * write is rejected (InvalidArgumentException → 400) rather than silently
+     * dropping the attribution. Silent demotion would tell the client the
+     * write succeeded while billing/audit attributes the visit to a default
+     * provider — worse than failing outright.
      *
      * @param array &$record The OpenEMR record to modify in place
      */
@@ -506,39 +511,61 @@ class FhirEncounterService extends FhirServiceBase implements
         $canAssignAnyProvider = $authUser !== ''
             && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
 
-        if (
-            !empty($record['provider_uuid'])
-            && empty($record['provider_id'])
-            && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($record['provider_uuid'])
-        ) {
-            $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($record['provider_uuid']);
-            $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
-            // Only honour the assignment if the caller is admin/users, or the
-            // requested provider IS the caller. Otherwise drop it.
-            if (
-                $providerId !== false
-                && ($canAssignAnyProvider || ($authUserId !== '' && (string) $providerId === $authUserId))
-            ) {
-                $record['provider_id'] = $providerId;
-            }
-        }
-        unset($record['provider_uuid']);
+        $this->resolveSingleProviderField(
+            $record,
+            'provider_uuid',
+            'provider_id',
+            'Encounter.participant performer',
+            $canAssignAnyProvider,
+            $authUserId
+        );
+        $this->resolveSingleProviderField(
+            $record,
+            'referrer_uuid',
+            'referring_provider_id',
+            'Encounter.participant referrer',
+            $canAssignAnyProvider,
+            $authUserId
+        );
+    }
 
-        if (
-            !empty($record['referrer_uuid'])
-            && empty($record['referring_provider_id'])
-            && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($record['referrer_uuid'])
-        ) {
-            $referrerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($record['referrer_uuid']);
-            $referrerId = $this->encounterService->getIdByUuid($referrerUuidBytes, 'users', 'id');
-            if (
-                $referrerId !== false
-                && ($canAssignAnyProvider || ($authUserId !== '' && (string) $referrerId === $authUserId))
-            ) {
-                $record['referring_provider_id'] = $referrerId;
-            }
+    /**
+     * Shared helper for the two provider-attribution paths (performer and
+     * referrer). Verifies the requested user exists, then enforces the
+     * admin/users-or-self policy. Throws on policy violation rather than
+     * silently dropping.
+     *
+     * @param array<string, mixed> &$record
+     */
+    private function resolveSingleProviderField(
+        array &$record,
+        string $uuidKey,
+        string $idKey,
+        string $fhirLabel,
+        bool $canAssignAnyProvider,
+        string $authUserId
+    ): void {
+        $uuid = $record[$uuidKey] ?? null;
+        if (!is_string($uuid) || $uuid === '' || !empty($record[$idKey])) {
+            unset($record[$uuidKey]);
+            return;
         }
-        unset($record['referrer_uuid']);
+        if (!\OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($uuid)) {
+            unset($record[$uuidKey]);
+            throw new \InvalidArgumentException($fhirLabel . ' reference is not a valid uuid');
+        }
+        $providerUuidBytes = \OpenEMR\Common\Uuid\UuidRegistry::uuidToBytes($uuid);
+        $providerId = $this->encounterService->getIdByUuid($providerUuidBytes, 'users', 'id');
+        unset($record[$uuidKey]);
+        if ($providerId === false) {
+            throw new \InvalidArgumentException($fhirLabel . ' reference could not be resolved');
+        }
+        if (!$canAssignAnyProvider && (string) $providerId !== $authUserId) {
+            throw new \InvalidArgumentException(
+                $fhirLabel . ' attribution to another practitioner requires admin/users'
+            );
+        }
+        $record[$idKey] = $providerId;
     }
 
     public function createProvenanceResource($dataRecord = [], $encode = false)
