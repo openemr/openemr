@@ -1,5 +1,86 @@
 # CHANGELOG.md
 
+## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-05-28
+
+### Fixed
+
+#### Security
+
+- parameterize all SQL in deleter.php via root-cause refactor ([#11220](https://github.com/openemr/openemr/pull/11220))
+- add CSRF protection and parameterize SQL in new_payment.php ([#11219](https://github.com/openemr/openemr/pull/11219))
+- parameterize SQL, add CSRF, and fix serialization injection in portal appointment ([#11218](https://github.com/openemr/openemr/pull/11218))
+- prevent open redirect in portal messaging ([#11217](https://github.com/openemr/openemr/pull/11217))
+- parameterize SQL, remove dead code, and migrate to QueryUtils in pnotes.inc.php ([#11216](https://github.com/openemr/openemr/pull/11216))
+
+#### Bug Fixes
+
+- add missing release-prep PR template (rel-810) ([#12272](https://github.com/openemr/openemr/pull/12272))
+- lazy-init AppDispatch session to survive static factory path (rel-810 backport) ([#12228](https://github.com/openemr/openemr/pull/12228))
+- move use statement out of docblock ([#12223](https://github.com/openemr/openemr/pull/12223))
+- Fix ethnicity decline setting ([#12188](https://github.com/openemr/openemr/pull/12188))
+- Restore windows webserver_root normalization. (#12140) ([#12186](https://github.com/openemr/openemr/pull/12186))
+- Restore windows webserver_root normalization. ([#12140](https://github.com/openemr/openemr/pull/12140))
+- handle table-qualified columns in escape_sql_column_name() ([#12019](https://github.com/openemr/openemr/pull/12019))
+- drop redundant categories_seq UPDATE in eye form laser migration ([#12011](https://github.com/openemr/openemr/pull/12011))
+- Fix crash from uncaught class in birthday popup ([#11999](https://github.com/openemr/openemr/pull/11999))
+- remove unused redirect_token from OneTimeAuth ([#11972](https://github.com/openemr/openemr/pull/11972))
+- default login_page_layout when globals row is missing (backport #11949 to rel-810) ([#11971](https://github.com/openemr/openemr/pull/11971))
+- add CSRF protection to payment handler ([#11958](https://github.com/openemr/openemr/pull/11958))
+- default login_page_layout when globals row is missing ([#11949](https://github.com/openemr/openemr/pull/11949))
+- notification cron fixes (backport #11846 + #11922 to rel-810) ([#11941](https://github.com/openemr/openemr/pull/11941))
+- clean up callers that re-open read_and_close session ([#11940](https://github.com/openemr/openemr/pull/11940))
+- guard undefined keys and legacy PHP warnings flagged in production logs ([#11939](https://github.com/openemr/openemr/pull/11939))
+- correct i18formatting asset name typo ([#11937](https://github.com/openemr/openemr/pull/11937))
+- catch up missed appointment-reminder ticks (backport #11907 to rel-810) ([#11913](https://github.com/openemr/openemr/pull/11913))
+- catch up missed appointment-reminder ticks ([#11907](https://github.com/openemr/openemr/pull/11907))
+- Allow sql_upgrade to work on the cli ([#11906](https://github.com/openemr/openemr/pull/11906))
+- convert declne_to_specfy in patient_data language and ethnicity (rel-810 backport) ([#11893](https://github.com/openemr/openemr/pull/11893))
+- stop rotating CSRF private key on every main_screen.php load (backport #11888 to rel-810) ([#11891](https://github.com/openemr/openemr/pull/11891))
+- stop rotating CSRF private key on every main_screen.php load ([#11888](https://github.com/openemr/openemr/pull/11888))
+- set linkMethod for Ensora eRx prescription button ([#11882](https://github.com/openemr/openemr/pull/11882))
+- convert declne_to_specfy in patient_data language and ethnicity ([#11876](https://github.com/openemr/openemr/pull/11876))
+- cast 835 monetary fields to float for type-strict comparisons ([#11868](https://github.com/openemr/openemr/pull/11868))
+- Fix SQL upgrade syntax ([#11866](https://github.com/openemr/openemr/pull/11866))
+- Log all "helpfuldie" sql errors ([#11864](https://github.com/openemr/openemr/pull/11864))
+- surface notification background-task failures ([#11846](https://github.com/openemr/openemr/pull/11846))
+- save admin practice practice settings ([#11807](https://github.com/openemr/openemr/pull/11807))
+- session crashes on posting page ([#11691](https://github.com/openemr/openemr/pull/11691))
+- fix saving in collection on auto create encounter ([#11625](https://github.com/openemr/openemr/pull/11625))
+- replace die() with exception for missing session site_id ([#11618](https://github.com/openemr/openemr/pull/11618))
+- route freq_type 5 to REPEAT_ON branch to prevent infin… ([#11407](https://github.com/openemr/openemr/pull/11407))
+- sync Custom.json with standard.json for email send test entry ([#11383](https://github.com/openemr/openemr/pull/11383))
+- remove SMTP_SECURE from isConfigured required keys ([#11381](https://github.com/openemr/openemr/pull/11381))
+- other payer claim control number for secondary claims ([#11150](https://github.com/openemr/openemr/pull/11150))
+- include custom LBF layout forms in patient report ([#11146](https://github.com/openemr/openemr/pull/11146))
+- hide dispensed medications section when inhouse_pharmacy is disabled ([#11144](https://github.com/openemr/openemr/pull/11144))
+- preserve patient context in EHR launch skip-auth flow ([#11115](https://github.com/openemr/openemr/pull/11115))
+- correct assignment typo in AuthHash SHA512 fallback ([#11019](https://github.com/openemr/openemr/pull/11019))
+- align allergy begdate validation with YYYY-MM-DD docs ([#10993](https://github.com/openemr/openemr/pull/10993))
+- enforce newest-first sort in encounters report ([#10991](https://github.com/openemr/openemr/pull/10991))
+- correct "Dislay" typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
+- avoid HTML-encoded status text in demographics widgets ([#10985](https://github.com/openemr/openemr/pull/10985))
+- accept #RRGGBB in status color field ([#10984](https://github.com/openemr/openemr/pull/10984))
+- add missing site parameter to SDOH assessment URLs ([#10949](https://github.com/openemr/openemr/pull/10949))
+- qualify column reference in CareTeamService::getCareTeamData() ([#10899](https://github.com/openemr/openemr/pull/10899))
+- add state license number to prescription popup ([#10894](https://github.com/openemr/openemr/pull/10894))
+- create certificates directory before writing key files ([#10888](https://github.com/openemr/openemr/pull/10888))
+- Dispense glasses Rx: manifest/dispensed refraction ([#10882](https://github.com/openemr/openemr/pull/10882))
+- use theme-stable colors for receipt background contrast ([#10851](https://github.com/openemr/openemr/pull/10851))
+- clinicians can edit medications ([#8087](https://github.com/openemr/openemr/pull/8087))
+
+### Added
+
+- backport release-prep conductor onto rel-810 ([#12269](https://github.com/openemr/openemr/pull/12269))
+- add email send test to admin interface ([#11378](https://github.com/openemr/openemr/pull/11378))
+
+### Changed
+
+- rel-810: fix(encounter): use getBoolean for inhouse_pharmacy check in visit summary (#11987) ([#12220](https://github.com/openemr/openemr/pull/12220))
+- release 8.1.0 misc ([#12190](https://github.com/openemr/openemr/pull/12190))
+- 8.1.0 ([#12187](https://github.com/openemr/openemr/pull/12187))
+- Fix typo ([#11867](https://github.com/openemr/openemr/pull/11867))
+- Doctrine/DBAL initial integration ([#9980](https://github.com/openemr/openemr/pull/9980))
+
 ## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25
 
 ### Fixed
