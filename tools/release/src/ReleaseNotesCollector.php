@@ -3,9 +3,9 @@
 /**
  * Build the release-notes JSON manifest the conductor passes to the
  * openemr:release-prep ChangelogMutator. Combines a milestone lookup
- * with a `gh pr list --milestone:<version> is:merged` enumeration,
- * categorises each PR, and emits the JSON shape Manifest::fromJsonFile
- * expects.
+ * with a `gh pr list --state merged --search milestone:<version>`
+ * enumeration, categorises each PR, and emits the JSON shape
+ * Manifest::fromJsonFile expects.
  *
  * Categorisation is deliberately conservative:
  *   - PRs labelled `Security` → Security
