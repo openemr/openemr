@@ -460,6 +460,17 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $this->resolveProviderUuids($openEmrRecord);
 
+        // EncounterService::insertEncounter unconditionally reads
+        // $data['provider_id'] / $data['user']. resolveProviderUuids only sets
+        // provider_id when a participant performer was supplied; when the FHIR
+        // payload has no participant we fall back to the authenticated user.
+        if (!isset($openEmrRecord['provider_id'])) {
+            $authUserIdRaw = $session?->get('authUserID');
+            $openEmrRecord['provider_id'] = is_scalar($authUserIdRaw)
+                ? (int) $authUserIdRaw
+                : 0;
+        }
+
         return $this->encounterService->insertEncounter($puuid, $openEmrRecord);
     }
 

@@ -321,8 +321,6 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         $authUserId = is_scalar($authUserIdRaw) ? (string) $authUserIdRaw : '';
         $canAssignAnyProvider = $authUser !== ''
             && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
-        $canAssignAnyFacility = $authUser !== ''
-            && AclMain::aclCheckCore('admin', 'super', $authUser) !== false;
 
         // Parse participants - Patient, Practitioner, Location
         if (!empty($json['participant']) && is_array($json['participant'])) {
@@ -366,10 +364,12 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 } elseif ($parsed['type'] === 'Location') {
                     $facilityUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                     $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
-                    // Only honour an arbitrary facility assignment if admin/super.
-                    // Otherwise drop it — the upstream appointment service applies
-                    // its own default (typically the caller's facility).
-                    if ($facilityId !== false && $canAssignAnyFacility) {
+                    // Honour any resolvable facility — the patients/appt ACL
+                    // already gates *who* can schedule, and FHIR R4 lets the
+                    // serviceProvider be any Location. Admin-only restrictions
+                    // here would prevent clinical staff from scheduling their
+                    // own appointments at the facilities they operate in.
+                    if ($facilityId !== false) {
                         $data['pc_facility'] = $facilityId;
                     }
                 }
