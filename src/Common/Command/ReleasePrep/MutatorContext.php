@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command\ReleasePrep;
 
+use OpenEMR\Common\Command\ReleasePrep\ReleaseNotes\Manifest;
+
 final readonly class MutatorContext
 {
     public function __construct(
@@ -24,6 +26,7 @@ final readonly class MutatorContext
         public int $minor,
         public int $patch,
         public ?string $imageDigest = null,
+        public ?Manifest $releaseNotes = null,
     ) {
         if ($imageDigest !== null && preg_match('/^sha256:[0-9a-f]{64}$/', $imageDigest) !== 1) {
             throw new \InvalidArgumentException(
@@ -32,14 +35,18 @@ final readonly class MutatorContext
         }
     }
 
-    public static function fromVersionString(string $projectDir, string $version, ?string $imageDigest = null): self
-    {
+    public static function fromVersionString(
+        string $projectDir,
+        string $version,
+        ?string $imageDigest = null,
+        ?Manifest $releaseNotes = null,
+    ): self {
         if (preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $version, $m) !== 1) {
             throw new \InvalidArgumentException(
                 'Target version must be MAJOR.MINOR.PATCH; got: ' . $version,
             );
         }
-        return new self($projectDir, (int) $m[1], (int) $m[2], (int) $m[3], $imageDigest);
+        return new self($projectDir, (int) $m[1], (int) $m[2], (int) $m[3], $imageDigest, $releaseNotes);
     }
 
     public function versionString(): string

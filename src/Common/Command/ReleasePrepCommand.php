@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Command;
 
+use OpenEMR\Common\Command\ReleasePrep\Mutator\ChangelogMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerComposeProductionMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\GlobalsIncMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\OpenApiVersionMutator;
@@ -37,6 +38,7 @@ use OpenEMR\Common\Command\ReleasePrep\Mutator\VersionPhpMasterMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\VersionPhpMutator;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
+use OpenEMR\Common\Command\ReleasePrep\ReleaseNotes\Manifest;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -84,6 +86,12 @@ final class ReleasePrepCommand extends Command
                 'Optional sha256: digest for the docker image pin',
             )
             ->addOption(
+                'release-notes-json',
+                null,
+                InputOption::VALUE_REQUIRED,
+                'Path to the JSON manifest emitted by tools/release/bin/collect-release-notes.php',
+            )
+            ->addOption(
                 'project-dir',
                 null,
                 InputOption::VALUE_REQUIRED,
@@ -108,8 +116,19 @@ final class ReleasePrepCommand extends Command
             ? $rawProjectDir
             : $this->defaultProjectDir();
 
+        $rawNotesPath = $input->getOption('release-notes-json');
+        $releaseNotes = null;
+        if (is_string($rawNotesPath) && $rawNotesPath !== '') {
+            try {
+                $releaseNotes = Manifest::fromJsonFile($rawNotesPath);
+            } catch (\InvalidArgumentException | \RuntimeException $e) {
+                $output->writeln('<error>' . $e->getMessage() . '</error>');
+                return Command::INVALID;
+            }
+        }
+
         try {
-            $context = MutatorContext::fromVersionString($projectDir, $target, $imageDigest);
+            $context = MutatorContext::fromVersionString($projectDir, $target, $imageDigest, $releaseNotes);
         } catch (\InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return Command::INVALID;
@@ -156,6 +175,7 @@ final class ReleasePrepCommand extends Command
             new DockerComposeProductionMutator(),
             new OpenApiVersionMutator(),
             new SwaggerRegenMutator(),
+            new ChangelogMutator(),
         ];
     }
 

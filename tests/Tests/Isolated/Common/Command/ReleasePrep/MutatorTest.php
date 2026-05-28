@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Command\ReleasePrep;
 
+use OpenEMR\Common\Command\ReleasePrep\Mutator\ChangelogMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerComposeProductionMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\GlobalsIncMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\OpenApiVersionMutator;
@@ -28,6 +29,9 @@ use OpenEMR\Common\Command\ReleasePrep\Mutator\VersionPhpMasterMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\VersionPhpMutator;
 use OpenEMR\Common\Command\ReleasePrep\MutatorContext;
 use OpenEMR\Common\Command\ReleasePrep\MutatorInterface;
+use OpenEMR\Common\Command\ReleasePrep\ReleaseNotes\Entry;
+use OpenEMR\Common\Command\ReleasePrep\ReleaseNotes\Manifest;
+use OpenEMR\Common\Command\ReleasePrep\ReleaseNotes\Section;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Process\Process;
@@ -208,6 +212,102 @@ final class MutatorTest extends TestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessageMatches('/exited 7/');
         $mutator->apply(MutatorContext::fromVersionString($this->tmpDir, '8.1.0'));
+    }
+
+    public function testChangelogPrependsNewSection(): void
+    {
+        $initial = "# CHANGELOG.md\n\n## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25\n\n### Fixed\n\n- old entry\n";
+        $this->writeFile('CHANGELOG.md', $initial);
+
+        $manifest = new Manifest(
+            version: '8.1.0',
+            milestoneNumber: 25,
+            milestoneUrl: 'https://github.com/openemr/openemr/milestone/25?closed=1',
+            date: '2026-05-28',
+            sections: [
+                Section::BugFixes->value => [new Entry('something broken', 11111, 'https://github.com/openemr/openemr/pull/11111')],
+                Section::Added->value => [new Entry('a new thing', 22222, 'https://github.com/openemr/openemr/pull/22222')],
+            ],
+        );
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', null, $manifest);
+
+        $first = (new ChangelogMutator())->apply($context);
+        self::assertTrue($first->changed());
+        self::assertSame(['CHANGELOG.md'], $first->changedFiles);
+
+        $expected = "# CHANGELOG.md\n\n"
+            . "## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-05-28\n\n"
+            . "### Fixed\n\n"
+            . "#### Bug Fixes\n\n"
+            . "- something broken ([#11111](https://github.com/openemr/openemr/pull/11111))\n\n"
+            . "### Added\n\n"
+            . "- a new thing ([#22222](https://github.com/openemr/openemr/pull/22222))\n\n"
+            . "## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25\n\n"
+            . "### Fixed\n\n"
+            . "- old entry\n";
+        self::assertSame($expected, $this->readFile($this->tmpDir . '/CHANGELOG.md'));
+
+        $second = (new ChangelogMutator())->apply($context);
+        self::assertFalse($second->changed(), 'ChangelogMutator is not idempotent');
+    }
+
+    public function testChangelogReplacesExistingTopSectionForSameVersion(): void
+    {
+        $initial = "# CHANGELOG.md\n\n"
+            . "## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-05-20\n\n"
+            . "### Changed\n\n"
+            . "- stale entry from a previous conductor run\n\n"
+            . "## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25\n\n"
+            . "### Fixed\n\n- previous release entry\n";
+        $this->writeFile('CHANGELOG.md', $initial);
+
+        $manifest = new Manifest(
+            version: '8.1.0',
+            milestoneNumber: 25,
+            milestoneUrl: 'https://github.com/openemr/openemr/milestone/25?closed=1',
+            date: '2026-05-28',
+            sections: [
+                Section::Changed->value => [new Entry('fresh entry from latest PR', 33333, 'https://github.com/openemr/openemr/pull/33333')],
+            ],
+        );
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', null, $manifest);
+
+        $result = (new ChangelogMutator())->apply($context);
+        self::assertTrue($result->changed());
+
+        $expected = "# CHANGELOG.md\n\n"
+            . "## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-05-28\n\n"
+            . "### Changed\n\n"
+            . "- fresh entry from latest PR ([#33333](https://github.com/openemr/openemr/pull/33333))\n\n"
+            . "## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25\n\n"
+            . "### Fixed\n\n- previous release entry\n";
+        self::assertSame($expected, $this->readFile($this->tmpDir . '/CHANGELOG.md'));
+    }
+
+    public function testChangelogIsNoOpWhenManifestAbsent(): void
+    {
+        $this->writeFile('CHANGELOG.md', "# CHANGELOG.md\n\n## [8.0.0.3] - 2026-03-25\n");
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0');
+
+        $result = (new ChangelogMutator())->apply($context);
+        self::assertFalse($result->changed());
+    }
+
+    public function testChangelogRejectsManifestVersionMismatch(): void
+    {
+        $this->writeFile('CHANGELOG.md', "# CHANGELOG.md\n");
+        $manifest = new Manifest(
+            version: '8.1.1',
+            milestoneNumber: 1,
+            milestoneUrl: 'https://example/1',
+            date: '2026-05-28',
+            sections: [],
+        );
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.0', null, $manifest);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessageMatches('/manifest version 8\.1\.1 does not match target version 8\.1\.0/');
+        (new ChangelogMutator())->apply($context);
     }
 
     private function assertMutationProducesAndIdempotent(
