@@ -41797,6 +41797,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'reference\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'section\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGenericRestController.php',
@@ -48302,7 +48307,27 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'diagnoses\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'procedure_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'procedure_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'procedure_order_seq\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'procedure_order_title\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
@@ -51678,12 +51703,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirRelatedPersonServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirRelatedPersonServiceCrudTest.php',
 ];
 $ignoreErrors[] = [
