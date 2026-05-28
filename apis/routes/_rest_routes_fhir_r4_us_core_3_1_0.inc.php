@@ -1502,14 +1502,17 @@ return [
      *  )
      */
     "POST /fhir/Medication" => function (HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        // Medication writes touch the global `drugs` master table — the UI gates
+        // add/edit on `admin/drugs`, so the FHIR write surface must require the
+        // same privilege, not the broader `patients/med` clinical-staff ACL.
+        RestConfig::request_authorization_check($request, "admin", "drugs");
         $data = RestControllerHelper::parseJsonRequestBody(true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirMedicationService(), $globalsBag);
         $controller->setExpectedResourceType("Medication");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("admin", "drugs");
         return $controller->post($data);
     },
 
@@ -1550,14 +1553,15 @@ return [
      *  )
      */
     "PUT /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request, OEGlobalsBag $globalsBag) {
-        RestConfig::request_authorization_check($request, "patients", "med");
+        // See POST /fhir/Medication — master drug edits require admin/drugs.
+        RestConfig::request_authorization_check($request, "admin", "drugs");
         $data = RestControllerHelper::parseJsonRequestBody(true);
         if ($data instanceof Response) {
             return $data;
         }
         $controller = new FhirGenericRestController($request, new FhirMedicationService(), $globalsBag);
         $controller->setExpectedResourceType("Medication");
-        $controller->addAclRestrictions("patients", "med");
+        $controller->addAclRestrictions("admin", "drugs");
         return $controller->put($uuid, $data);
     },
 

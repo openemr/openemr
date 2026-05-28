@@ -58,9 +58,11 @@ class ImmunizationValidator extends BaseValidator
                         }
                     }
                 );
-                // additional uuid validation
+                // additional uuid validation. validateId() returns ProcessingResult
+                // on failure, which is truthy and would let invalid UUIDs through —
+                // coerce to a strict boolean so the callback rule rejects properly.
                 $context->required("uuid", "Immunization UUID")->callback(
-                    fn($value) => $this->validateId("uuid", "immunizations", $value, true)
+                    fn($value): bool => $this->validateId("uuid", "immunizations", $value, true) === true
                 )->uuid();
             }
         );
