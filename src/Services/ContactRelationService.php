@@ -347,7 +347,7 @@ class ContactRelationService extends BaseService
                 } catch (SqlQueryException $e) {
                     if (
                         $attempt < $maxAttempts
-                        && str_contains((string) $e->getMessage(), 'Duplicate entry')
+                        && str_contains($e->getMessage(), 'Duplicate entry')
                     ) {
                         continue;
                     }

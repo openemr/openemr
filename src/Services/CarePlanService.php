@@ -458,7 +458,7 @@ class CarePlanService extends BaseService
             } catch (SqlQueryException $e) {
                 $lastError = $e;
                 // Duplicate-key under concurrent allocation — retry with a fresh MAX.
-                if (str_contains((string) $e->getMessage(), 'Duplicate entry')) {
+                if (str_contains($e->getMessage(), 'Duplicate entry')) {
                     continue;
                 }
                 $result->addInternalError($e->getMessage());
