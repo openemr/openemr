@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Services\FHIR;
 
 use Monolog\Level;
@@ -16,8 +18,8 @@ use PHPUnit\Framework\TestCase;
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    OpenEMR Contributors
- * @copyright Copyright (c) 2026 OpenEMR Contributors
+ * @author    Chris Dickman <chrisd@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 class FhirConditionServiceCrudTest extends TestCase
