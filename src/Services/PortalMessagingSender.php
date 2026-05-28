@@ -19,24 +19,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 final class PortalMessagingSender
 {
-    /**
-     * Look up the display name for a staff username from the users table.
-     * Falls back to the username if no display name is recorded.
-     */
-    public static function lookupStaffDisplayName(string $username): string
-    {
-        $name = QueryUtils::fetchSingleValue(
-            "SELECT CONCAT(fname, ' ', lname) FROM users WHERE username = ?",
-            'string',
-            [$username]
-        );
-        return is_string($name) && trim($name) !== '' ? $name : $username;
-    }
-
     /**
      * Resolve sender identity. If staff identity is available (i.e. the request
      * came from an authenticated staff session) it takes priority over any

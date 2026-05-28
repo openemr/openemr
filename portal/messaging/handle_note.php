@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PortalMessagingSender;
@@ -80,7 +81,14 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     // For staff/dashboard sessions, derive sender identity from authenticated
     // session to prevent impersonation via client-supplied values.
     $staffSenderId = (string) $session->get('authUser');
-    $staffSenderName = PortalMessagingSender::lookupStaffDisplayName($staffSenderId);
+    $staffDisplayName = QueryUtils::fetchSingleValue(
+        "SELECT CONCAT(fname, ' ', lname) FROM users WHERE username = ?",
+        'string',
+        [$staffSenderId]
+    );
+    $staffSenderName = is_string($staffDisplayName) && trim($staffDisplayName) !== ''
+        ? $staffDisplayName
+        : $staffSenderId;
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
