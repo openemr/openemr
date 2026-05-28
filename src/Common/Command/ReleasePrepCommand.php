@@ -29,7 +29,6 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Command;
 
 use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerComposeProductionMutator;
-use OpenEMR\Common\Command\ReleasePrep\Mutator\DockerVersionFileMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\GlobalsIncMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\OpenApiVersionMutator;
 use OpenEMR\Common\Command\ReleasePrep\Mutator\SqlUpgradeSkeletonMutator;
@@ -156,7 +155,6 @@ final class ReleasePrepCommand extends Command
             new GlobalsIncMutator(),
             new DockerComposeProductionMutator(),
             new OpenApiVersionMutator(),
-            new DockerVersionFileMutator(),
             new SwaggerRegenMutator(),
         ];
     }
