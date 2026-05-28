@@ -422,14 +422,14 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
             break;
         }
 
-        // lifecycleStatus -> plan_status (passed through; OpenEMR plan_status values
-        // are a free string at storage; the read side maps via mapPlanStatusToLifecycleStatus
-        // for FHIR output)
-        if (!empty($json['lifecycleStatus']) && is_string($json['lifecycleStatus'])) {
-            $planStatus = $json['lifecycleStatus'];
-        } else {
-            $planStatus = 'active';
+        // lifecycleStatus -> plan_status. R4 marks lifecycleStatus as 1..1; we require it
+        // on write rather than silently defaulting. OpenEMR plan_status values are a free
+        // string at storage; the read side maps via mapPlanStatusToLifecycleStatus.
+        if (empty($json['lifecycleStatus']) || !is_string($json['lifecycleStatus'])) {
+            $data['__validation_error__'] = 'Goal.lifecycleStatus is required (FHIR R4 1..1)';
+            return $data;
         }
+        $planStatus = $json['lifecycleStatus'];
 
         // Build the single item row
         $item = ['plan_status' => $planStatus];
@@ -477,6 +477,11 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        if (isset($openEmrRecord['__validation_error__'])) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['lifecycleStatus' => $openEmrRecord['__validation_error__']]);
+            return $result;
+        }
         $puuid = $openEmrRecord['puuid'] ?? null;
         if (!is_string($puuid) || $puuid === '') {
             $result = new ProcessingResult();
@@ -531,6 +536,11 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
+        if (isset($updatedOpenEMRRecord['__validation_error__'])) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['lifecycleStatus' => $updatedOpenEMRRecord['__validation_error__']]);
+            return $result;
+        }
         $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
         $encounterUuid = $parts['euuid'] ?? '';
         $formId = (int) ($parts['form_id'] ?? 0);

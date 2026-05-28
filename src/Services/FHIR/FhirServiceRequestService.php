@@ -867,6 +867,17 @@ class FhirServiceRequestService extends FhirServiceBase implements
             }
         }
 
+        // intent -> order_intent (FHIR R4 1..1). The list_options 'order_intent' set
+        // holds order/plan/directive/proposal/option; other R4 intents (e.g.
+        // original-order, reflex-order, filler-order, instance-order) fall back to
+        // 'order' since OpenEMR's order workflow has no distinction for those.
+        if (!empty($json['intent']) && is_string($json['intent'])) {
+            $supportedIntents = ['order', 'plan', 'directive', 'proposal', 'option'];
+            $header['order_intent'] = in_array($json['intent'], $supportedIntents, true)
+                ? $json['intent']
+                : 'order';
+        }
+
         // priority passthrough (matches OpenEMR vocab for routine/urgent/asap/stat)
         if (!empty($json['priority']) && is_string($json['priority'])) {
             $header['order_priority'] = $json['priority'];

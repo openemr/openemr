@@ -2092,7 +2092,7 @@ return [
     /**
      *  @OA\Post(
      *      path="/fhir/RelatedPerson",
-     *      description="Creates a new RelatedPerson (patient's family/caregiver). The patient reference is required.",
+     *      description="Creates a new RelatedPerson (patient's family/caregiver). The patient reference is required. OpenEMR also requires a relationship.coding entry under HL7 v3 RoleCode (or its FhirCodeSystemConstants::HL7_ROLE_CODE alias) — this is an OpenEMR deviation from R4 (which makes relationship 0..*) because the read JOIN binds into list_options on a non-null relationship.",
      *      tags={"fhir"},
      *      @OA\RequestBody(
      *          required=true,
@@ -2170,7 +2170,7 @@ return [
     /**
      *  @OA\Post(
      *      path="/fhir/ServiceRequest",
-     *      description="Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. Note: FHIR R4 marks `intent` as required (1..1) but OpenEMR's procedure_order schema has no column for it; the read side derives intent from order context, so any intent value supplied on write is silently treated by storage as the default ('order' for most cases) on round-trip.",
+     *      description="Creates a new ServiceRequest (procedure / lab / imaging order). Each FHIR code.coding entry becomes one procedure_order_code row. The FHIR R4 1..1 `intent` field is persisted to procedure_order.order_intent; OpenEMR supports the values order/plan/directive/proposal/option directly, and other R4 intents (original-order, reflex-order, filler-order, instance-order) fall back to 'order' since OpenEMR's order workflow has no distinction for those.",
      *      tags={"fhir"},
      *      @OA\RequestBody(
      *          required=true,
@@ -2328,9 +2328,11 @@ return [
         405
     ),
 
-    // Provenance is FHIR-spec read-only. It represents audit trail metadata
-    // synthesized from other resources at read time; OpenEMR has no underlying
-    // provenance table to write to. POST/PUT return 405 with a FHIR OperationOutcome.
+    // FHIR Provenance in OpenEMR is synthesized at read time from other domain
+    // resources; there is no underlying provenance table to write to. The FHIR
+    // spec itself permits Provenance writes — this is an OpenEMR implementation
+    // limitation, not a spec restriction. POST/PUT return 405 with a FHIR
+    // OperationOutcome.
     "POST /fhir/Provenance" => fn(HttpRestRequest $request) => RestControllerHelper::responseHandler(
         UtilsService::createOperationOutcomeResource(
             'error',

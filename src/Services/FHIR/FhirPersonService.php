@@ -292,9 +292,8 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      * PractitionerValidator gates writes on it. The 422-style response calls that out.
      *
      * @param array<string, mixed> $openEmrRecord
-     * @return ProcessingResult
      */
-    public function insertOpenEMRRecord($openEmrRecord)
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
         if (empty($openEmrRecord['npi'])) {
             $result = new ProcessingResult();
@@ -313,9 +312,8 @@ class FhirPersonService extends FhirServiceBase implements IFhirExportableResour
      *
      * @param string $fhirResourceId The users.uuid string
      * @param array<string, mixed> $updatedOpenEMRRecord
-     * @return ProcessingResult
      */
-    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
         return $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
     }

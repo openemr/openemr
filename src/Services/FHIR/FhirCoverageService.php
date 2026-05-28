@@ -528,6 +528,14 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
             }
         }
 
+        // status (R4 1..1 modifier). OpenEMR has no status column; the read side derives
+        // status from date/date_end. Rather than silently dropping caller-supplied status,
+        // we stash it for the insert/update path to validate against the derived status.
+        // If the values disagree the caller gets a 422.
+        if (!empty($json['status']) && is_string($json['status'])) {
+            $data['__fhir_status__'] = $json['status'];
+        }
+
         // costToBeneficiary[copay].valueMoney.value -> copay (string column)
         foreach (($json['costToBeneficiary'] ?? []) as $cost) {
             $costCode = $cost['type']['coding'][0]['code'] ?? null;
@@ -556,6 +564,12 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
      */
     protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
     {
+        $statusError = $this->validateStatusAgainstDates($openEmrRecord);
+        if ($statusError !== null) {
+            return $statusError;
+        }
+        unset($openEmrRecord['__fhir_status__']);
+
         $resolveResult = $this->resolveReferences($openEmrRecord);
         if ($resolveResult !== null) {
             return $resolveResult;
@@ -577,6 +591,12 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
     {
         $updatedOpenEMRRecord['uuid'] = $fhirResourceId;
 
+        $statusError = $this->validateStatusAgainstDates($updatedOpenEMRRecord);
+        if ($statusError !== null) {
+            return $statusError;
+        }
+        unset($updatedOpenEMRRecord['__fhir_status__']);
+
         $resolveResult = $this->resolveReferences($updatedOpenEMRRecord);
         if ($resolveResult !== null) {
             return $resolveResult;
@@ -587,6 +607,43 @@ class FhirCoverageService extends FhirServiceBase implements IPatientCompartment
         $this->applyDefaults($updatedOpenEMRRecord);
 
         return $this->coverageService->update($updatedOpenEMRRecord);
+    }
+
+    /**
+     * Validate caller-supplied FHIR Coverage.status (R4 1..1 modifier) against what
+     * determineStatus() would derive from the supplied dates. OpenEMR has no status
+     * column, so the read side is authoritative — but rather than silently dropping
+     * a disagreeing input we surface a 422 so callers get an explicit signal.
+     * Accepts 'active', 'cancelled', 'draft', and 'entered-in-error'.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function validateStatusAgainstDates(array $record): ?ProcessingResult
+    {
+        $supplied = $record['__fhir_status__'] ?? null;
+        if (!is_string($supplied) || $supplied === '') {
+            return null;
+        }
+        if ($supplied === 'entered-in-error') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'status' => 'FHIR Coverage.status="entered-in-error" is not writable; '
+                    . 'OpenEMR has no equivalent state.',
+            ]);
+            return $result;
+        }
+        $derived = $this->determineStatus($record);
+        if ($supplied !== $derived) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'status' => "FHIR Coverage.status='" . $supplied . "' disagrees with "
+                    . "the status derived from period dates ('" . $derived . "'). "
+                    . "OpenEMR derives status from period.start / period.end at read time; "
+                    . "adjust the dates or omit status.",
+            ]);
+            return $result;
+        }
+        return null;
     }
 
     /**

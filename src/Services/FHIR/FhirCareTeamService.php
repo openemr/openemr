@@ -15,6 +15,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCareTeam;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -446,9 +447,9 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
         $teamName = is_string($record['team_name'] ?? null) ? $record['team_name'] : '';
 
         try {
-            $careTeamService = new \OpenEMR\Services\CareTeamService();
+            $careTeamService = new CareTeamService();
             $careTeamService->saveCareTeam($pid, $teamId, $teamName, $resolvedMembers, $status);
-        } catch (\RuntimeException | \OpenEMR\Common\Database\SqlQueryException $e) {
+        } catch (\RuntimeException | SqlQueryException $e) {
             $result->addInternalError($e->getMessage());
             return $result;
         }
