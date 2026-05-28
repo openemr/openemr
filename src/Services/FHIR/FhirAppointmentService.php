@@ -12,6 +12,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -307,6 +308,22 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $data['pc_title'] = 'Office Visit';
         }
 
+        // Authorization context for provider/facility attribution. Only callers
+        // holding admin/users may attribute an appointment to a different
+        // provider; only admin/super may set an arbitrary facility. Otherwise
+        // the client-supplied references are dropped (and the upstream service
+        // falls back to its own defaults), matching the policy used by
+        // FhirEncounterService::resolveProviderUuids.
+        $session = $this->getSession();
+        $authUserRaw = $session?->get('authUser');
+        $authUser = is_string($authUserRaw) ? $authUserRaw : '';
+        $authUserIdRaw = $session?->get('authUserID');
+        $authUserId = is_scalar($authUserIdRaw) ? (string) $authUserIdRaw : '';
+        $canAssignAnyProvider = $authUser !== ''
+            && AclMain::aclCheckCore('admin', 'users', $authUser) !== false;
+        $canAssignAnyFacility = $authUser !== ''
+            && AclMain::aclCheckCore('admin', 'super', $authUser) !== false;
+
         // Parse participants - Patient, Practitioner, Location
         if (!empty($json['participant']) && is_array($json['participant'])) {
             foreach ($json['participant'] as $participant) {
@@ -337,13 +354,22 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 } elseif ($parsed['type'] === 'Practitioner' || $parsed['type'] === 'Person') {
                     $providerUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                     $providerId = BaseService::getIdByUuid($providerUuidBytes, 'users', 'id');
-                    if ($providerId !== false) {
+                    // Only honour the assignment if the caller has admin/users
+                    // OR is assigning the appointment to themselves.
+                    if (
+                        $providerId !== false
+                        && ($canAssignAnyProvider
+                            || ($authUserId !== '' && (string) $providerId === $authUserId))
+                    ) {
                         $data['pc_aid'] = $providerId;
                     }
                 } elseif ($parsed['type'] === 'Location') {
                     $facilityUuidBytes = UuidRegistry::uuidToBytes($parsed['uuid']);
                     $facilityId = BaseService::getIdByUuid($facilityUuidBytes, 'facility', 'id');
-                    if ($facilityId !== false) {
+                    // Only honour an arbitrary facility assignment if admin/super.
+                    // Otherwise drop it — the upstream appointment service applies
+                    // its own default (typically the caller's facility).
+                    if ($facilityId !== false && $canAssignAnyFacility) {
                         $data['pc_facility'] = $facilityId;
                     }
                 }

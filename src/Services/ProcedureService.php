@@ -903,8 +903,18 @@ class ProcedureService extends BaseService
      * @param array<string, mixed> $orderData Partial header fields to update (may be empty)
      * @param array<int, array<string, mixed>> $codes Full replacement code list (one or more)
      */
-    public function updateOrder(string $uuid, array $orderData, array $codes): ProcessingResult
-    {
+    /**
+     * @param int|null $expectedPatientId If provided, the existing order's
+     *     patient_id must match — defense-in-depth ownership check so a UUID
+     *     leak cannot be used to mutate orders that belong to a different
+     *     patient than the FHIR caller's resolved subject reference.
+     */
+    public function updateOrder(
+        string $uuid,
+        array $orderData,
+        array $codes,
+        ?int $expectedPatientId = null
+    ): ProcessingResult {
         $result = new ProcessingResult();
 
         $isValid = BaseValidator::validateId('uuid', self::PROCEDURE_TABLE, $uuid, true);
@@ -914,7 +924,7 @@ class ProcedureService extends BaseService
 
         $uuidBytes = UuidRegistry::uuidToBytes($uuid);
         $orderRow = QueryUtils::querySingleRow(
-            "SELECT procedure_order_id FROM procedure_order WHERE uuid = ?",
+            "SELECT procedure_order_id, patient_id FROM procedure_order WHERE uuid = ?",
             [$uuidBytes]
         );
         if (!is_array($orderRow)) {
@@ -922,6 +932,14 @@ class ProcedureService extends BaseService
             return $result;
         }
         $orderId = (int) ($orderRow['procedure_order_id'] ?? 0);
+        $rowPatientId = (int) ($orderRow['patient_id'] ?? 0);
+
+        if ($expectedPatientId !== null && $rowPatientId !== $expectedPatientId) {
+            // Caller's resolved subject doesn't match the order's actual owner —
+            // treat as not-found to avoid leaking existence of other-patient orders.
+            $result->setValidationMessages(['uuid' => 'ServiceRequest not found']);
+            return $result;
+        }
 
         if ($codes === []) {
             $result->setValidationMessages(['code' => 'At least one ServiceRequest code is required']);
@@ -932,7 +950,7 @@ class ProcedureService extends BaseService
         unset($orderData['patient_id'], $orderData['uuid']);
 
         try {
-            QueryUtils::inTransaction(function () use ($orderId, $uuidBytes, $orderData, $codes): void {
+            QueryUtils::inTransaction(function () use ($orderId, $rowPatientId, $orderData, $codes): void {
                 if ($orderData !== []) {
                     $query = $this->buildUpdateColumns($orderData);
                     /** @var string $setClause */
@@ -940,9 +958,14 @@ class ProcedureService extends BaseService
                     /** @var array<int, mixed> $binds */
                     $binds = $query['bind'];
                     if ($setClause !== '') {
-                        $binds[] = $uuidBytes;
+                        // Use procedure_order_id + patient_id as the scope.
+                        // patient_id is part of the WHERE for belt-and-braces
+                        // protection if expectedPatientId was not supplied.
+                        $binds[] = $orderId;
+                        $binds[] = $rowPatientId;
                         QueryUtils::sqlStatementThrowException(
-                            "UPDATE " . self::PROCEDURE_TABLE . " SET " . $setClause . " WHERE uuid = ?",
+                            "UPDATE " . self::PROCEDURE_TABLE . " SET " . $setClause
+                            . " WHERE procedure_order_id = ? AND patient_id = ?",
                             $binds
                         );
                     }

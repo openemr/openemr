@@ -124,4 +124,25 @@ class FhirRelatedPersonServiceCrudTest extends TestCase
         $this->assertFalse($result->isValid());
         $this->assertEquals(0, count($result->getData()));
     }
+
+    #[Test]
+    public function testUpdateWithoutPatientReturnsValidationError(): void
+    {
+        $this->fhirRelatedPersonFixture->setId(null);
+        $insertResult = $this->fhirRelatedPersonService->insert($this->fhirRelatedPersonFixture);
+        $this->assertTrue($insertResult->isValid());
+        $fhirId = $insertResult->getData()[0]['uuid'];
+
+        // Strip the patient reference — the new scoping enforcement requires it
+        // so we know which patient's relationship row to update.
+        $payload = $this->fhirRelatedPersonFixture->jsonSerialize();
+        $payload['id'] = $fhirId;
+        unset($payload['patient']);
+        $updated = new FHIRRelatedPerson($payload);
+
+        $result = $this->fhirRelatedPersonService->update($fhirId, $updated);
+        $this->assertFalse($result->isValid());
+        $messages = $result->getValidationMessages();
+        $this->assertArrayHasKey('patient', $messages);
+    }
 }

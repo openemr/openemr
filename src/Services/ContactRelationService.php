@@ -155,14 +155,24 @@ class ContactRelationService extends BaseService
      * PUT replace semantics) replaces all telecoms and addresses for the related person's
      * contact. Transactional.
      *
+     * The owning patient pid MUST be supplied — a single `person` row can be linked to
+     * multiple patients via separate `contact_relation` rows, so unscoped updates would
+     * leak across patients. The relationship/active update is restricted to the row
+     * owned by $ownerPid; demographics on the `person` row itself update once (intentional,
+     * since the shared person is the same human regardless of which patient they're related to).
+     *
      * @param array<string, mixed> $data
      */
-    public function updateRelatedPerson(string $uuid, array $data): ProcessingResult
+    public function updateRelatedPerson(string $uuid, array $data, int $ownerPid): ProcessingResult
     {
         $result = new ProcessingResult();
 
         if (!UuidRegistry::isValidStringUUID($uuid)) {
             $result->setValidationMessages(['uuid' => 'invalid uuid format']);
+            return $result;
+        }
+        if ($ownerPid <= 0) {
+            $result->setValidationMessages(['patient' => 'A resolvable patient reference is required']);
             return $result;
         }
 
@@ -177,8 +187,24 @@ class ContactRelationService extends BaseService
         }
         $personId = (int) $personIdValue;
 
+        // Resolve the owner's contact id and verify the relationship row exists for
+        // *this* patient — if not, treat as not-found (avoids leaking existence of
+        // other-patient relationships).
+        $ownerContact = $this->contactService->getOrCreateForEntity('patient_data', $ownerPid);
+        $ownerContactId = (int) $ownerContact->get_id();
+        $relationExists = QueryUtils::fetchSingleValue(
+            "SELECT 1 AS x FROM contact_relation "
+            . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+            'x',
+            [$personId, $ownerContactId]
+        );
+        if ($relationExists === null) {
+            $result->setValidationMessages(['uuid' => 'RelatedPerson not found']);
+            return $result;
+        }
+
         try {
-            $out = QueryUtils::inTransaction(function () use ($personId, $uuid, $data): array {
+            $out = QueryUtils::inTransaction(function () use ($personId, $ownerContactId, $uuid, $data): array {
                 $personService = new PersonService();
                 $personUpdate = array_filter([
                     'first_name' => $data['first_name'] ?? null,
@@ -196,15 +222,15 @@ class ContactRelationService extends BaseService
                 if (!empty($data['relationship']) && is_string($data['relationship'])) {
                     QueryUtils::sqlStatementThrowException(
                         "UPDATE contact_relation SET relationship = ? "
-                        . "WHERE target_table = 'person' AND target_id = ?",
-                        [$data['relationship'], $personId]
+                        . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+                        [$data['relationship'], $personId, $ownerContactId]
                     );
                 }
                 if (isset($data['active'])) {
                     QueryUtils::sqlStatementThrowException(
                         "UPDATE contact_relation SET active = ? "
-                        . "WHERE target_table = 'person' AND target_id = ?",
-                        [(int) (bool) $data['active'], $personId]
+                        . "WHERE target_table = 'person' AND target_id = ? AND contact_id = ?",
+                        [(int) (bool) $data['active'], $personId, $ownerContactId]
                     );
                 }
 
@@ -290,26 +316,50 @@ class ContactRelationService extends BaseService
                 continue;
             }
 
-            $maxAddressId = QueryUtils::fetchSingleValue(
-                "SELECT MAX(id) AS m FROM addresses",
-                'm',
-                []
-            );
-            $newAddressId = ((int) ($maxAddressId ?? 0)) + 1;
+            // addresses has no AUTO_INCREMENT (legacy schema); allocate id with
+            // duplicate-key retry to close the concurrent-writer race. Proper fix
+            // is the AUTO_INCREMENT schema migration tracked separately.
+            $newAddressId = null;
+            $maxAttempts = 5;
+            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
+                $maxAddressId = QueryUtils::fetchSingleValue(
+                    "SELECT MAX(id) AS m FROM addresses",
+                    'm',
+                    []
+                );
+                $candidate = ((int) ($maxAddressId ?? 0)) + 1;
+                try {
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO addresses (id, line1, line2, city, state, zip, country) "
+                        . "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        [
+                            $candidate,
+                            $line1,
+                            $address['line2'] ?? '',
+                            $city,
+                            $address['state'] ?? '',
+                            $address['postal_code'] ?? '',
+                            $address['country'] ?? '',
+                        ]
+                    );
+                    $newAddressId = $candidate;
+                    break;
+                } catch (SqlQueryException $e) {
+                    if (
+                        $attempt < $maxAttempts
+                        && str_contains((string) $e->getMessage(), 'Duplicate entry')
+                    ) {
+                        continue;
+                    }
+                    throw $e;
+                }
+            }
+            if ($newAddressId === null) {
+                throw new \RuntimeException(
+                    'addresses id allocation failed after ' . $maxAttempts . ' attempts'
+                );
+            }
 
-            QueryUtils::sqlStatementThrowException(
-                "INSERT INTO addresses (id, line1, line2, city, state, zip, country) "
-                . "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [
-                    $newAddressId,
-                    $line1,
-                    $address['line2'] ?? '',
-                    $city,
-                    $address['state'] ?? '',
-                    $address['postal_code'] ?? '',
-                    $address['country'] ?? '',
-                ]
-            );
             QueryUtils::sqlStatementThrowException(
                 "INSERT INTO contact_address (contact_id, address_id, `use`, `type`, `status`) "
                 . "VALUES (?, ?, ?, ?, 'A')",

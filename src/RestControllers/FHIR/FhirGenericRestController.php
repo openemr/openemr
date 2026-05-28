@@ -198,6 +198,11 @@ class FhirGenericRestController implements IGlobalsAware {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
+        $compartmentCheck = $this->enforcePatientCompartment($fhirJson);
+        if ($compartmentCheck instanceof Response) {
+            return $compartmentCheck;
+        }
+
         $fhirResource = $this->deserializeFhirResource($fhirJson);
         if ($fhirResource instanceof Response) {
             return $fhirResource;
@@ -242,6 +247,11 @@ class FhirGenericRestController implements IGlobalsAware {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
+        $compartmentCheck = $this->enforcePatientCompartment($fhirJson);
+        if ($compartmentCheck instanceof Response) {
+            return $compartmentCheck;
+        }
+
         $fhirResource = $this->deserializeFhirResource($fhirJson);
         if ($fhirResource instanceof Response) {
             return $fhirResource;
@@ -257,6 +267,74 @@ class FhirGenericRestController implements IGlobalsAware {
             );
         }
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
+    }
+
+    /**
+     * Enforce that, when the request carries a token-bound patient UUID (SMART
+     * patient context — e.g. patient/*.write or launch/patient), the resource
+     * body's Patient reference matches that bound patient. Prevents an
+     * IDOR-style write that targets another patient than the token authorized.
+     *
+     * For practitioner/admin tokens (no bound patient) this is a no-op — the
+     * upstream ACL check already gates the resource type, and OpenEMR's
+     * broader provider/facility access model governs which patients a
+     * practitioner can act on.
+     *
+     * For resources outside the patient compartment (Medication, Practitioner,
+     * Organization, Location, etc.) this is a no-op — they have no patient
+     * binding.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    private function enforcePatientCompartment(array $fhirJson): ?Response
+    {
+        $boundPatientUuid = $this->getHttpRestRequest()->getPatientUUIDString();
+        if (empty($boundPatientUuid)) {
+            return null;
+        }
+        if (!($this->getFhirService() instanceof \OpenEMR\Services\FHIR\IPatientCompartmentResourceService)) {
+            return null;
+        }
+        $bodyPatientUuid = self::extractPatientUuidFromFhirJson($fhirJson);
+        if ($bodyPatientUuid === null) {
+            // Compartment resource that didn't supply a patient reference — let
+            // the service-level validator surface the missing-reference error.
+            return null;
+        }
+        if (strcasecmp($bodyPatientUuid, $boundPatientUuid) !== 0) {
+            return RestControllerHelper::responseHandler(
+                UtilsService::createOperationOutcomeResource(
+                    'error',
+                    'forbidden',
+                    'Patient reference in request body does not match the token-bound patient'
+                ),
+                null,
+                403
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Extracts the patient UUID from common FHIR compartment fields
+     * (`subject.reference`, `patient.reference`, `beneficiary.reference`).
+     * Returns null if no patient reference is present or the value isn't a
+     * `Patient/{uuid}` reference.
+     *
+     * @param array<string, mixed> $fhirJson
+     */
+    private static function extractPatientUuidFromFhirJson(array $fhirJson): ?string
+    {
+        foreach (['subject', 'patient', 'beneficiary'] as $field) {
+            $reference = $fhirJson[$field]['reference'] ?? null;
+            if (!is_string($reference) || $reference === '') {
+                continue;
+            }
+            if (preg_match('#(?:^|/)Patient/([A-Za-z0-9\-]+)$#', $reference, $matches) === 1) {
+                return $matches[1];
+            }
+        }
+        return null;
     }
 
     /**

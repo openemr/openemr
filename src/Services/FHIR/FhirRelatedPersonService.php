@@ -317,9 +317,36 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
      */
     protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
     {
-        // FHIR PUT cannot rebind a RelatedPerson to a different patient; drop the puuid path.
+        // The owning patient must be supplied — without it, the underlying UPDATE
+        // would target every contact_relation row pointing at this person, leaking
+        // mutations across patients. We resolve puuid -> pid here and pass through.
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '' || !UuidRegistry::isValidStringUUID($puuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'FHIR RelatedPerson PUT requires a patient reference identifying '
+                    . 'which patient owns this relationship',
+            ]);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if ($pid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'patient' => 'Patient reference could not be resolved: ' . $puuid,
+            ]);
+            return $result;
+        }
         unset($updatedOpenEMRRecord['puuid']);
-        return (new ContactRelationService())->updateRelatedPerson($fhirResourceId, $updatedOpenEMRRecord);
+        return (new ContactRelationService())->updateRelatedPerson(
+            $fhirResourceId,
+            $updatedOpenEMRRecord,
+            (int) $pid
+        );
     }
 
     public function getPatientContextSearchField(): FhirSearchParameterDefinition

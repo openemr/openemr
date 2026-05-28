@@ -1036,7 +1036,23 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $codesRaw = $updatedOpenEMRRecord['codes'] ?? [];
         $codes = is_array($codesRaw) ? $codesRaw : [];
 
-        return $this->procedureService->updateOrder($fhirResourceId, $header, $codes);
+        // Defense-in-depth: resolve the body's subject to a pid and require it
+        // to match the stored procedure_order.patient_id. Prevents an attacker
+        // from mutating another patient's order via a leaked uuid.
+        $expectedPatientId = null;
+        $puuid = $updatedOpenEMRRecord['puuid'] ?? null;
+        if (is_string($puuid) && $puuid !== '') {
+            $pid = QueryUtils::fetchSingleValue(
+                'SELECT pid FROM patient_data WHERE uuid = ?',
+                'pid',
+                [UuidRegistry::uuidToBytes($puuid)]
+            );
+            if ($pid !== null) {
+                $expectedPatientId = (int) $pid;
+            }
+        }
+
+        return $this->procedureService->updateOrder($fhirResourceId, $header, $codes, $expectedPatientId);
     }
 
     /**
