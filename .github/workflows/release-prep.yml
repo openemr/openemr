@@ -163,14 +163,29 @@ jobs:
           echo 'EOF'
         } >> "$GITHUB_OUTPUT"
 
+    - name: Collect release notes from milestone
+      id: release-notes
+      env:
+        GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        VERSION: ${{ steps.resolve.outputs.version }}
+      run: |
+        notes_path="${RUNNER_TEMP}/release-notes.json"
+        php tools/release/bin/collect-release-notes.php \
+          --target-version="${VERSION}" \
+          --repo="${GITHUB_REPOSITORY}" \
+          > "${notes_path}"
+        echo "path=${notes_path}" >> "$GITHUB_OUTPUT"
+
     - name: Run release-prep mutators
       env:
+        NOTES_PATH: ${{ steps.release-notes.outputs.path }}
         VERSION: ${{ steps.resolve.outputs.version }}
       run: |
         php bin/console openemr:release-prep \
           --skip-globals \
           --target-version="${VERSION}" \
-          --scope=rel
+          --scope=rel \
+          --release-notes-json="${NOTES_PATH}"
 
     # Open/update the long-lived release-prep PR via peter-evans/create-pull-request,
     # which handles the diff detection, branch force-push, and PR open-or-update
