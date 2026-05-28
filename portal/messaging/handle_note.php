@@ -13,9 +13,9 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PortalMessagingSender;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -77,16 +77,10 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     //owner is the user authUser
     $owner = $session->get('authUser');
 
-    // For staff/dashboard sessions, derive sender identity from authenticated session
-    // to prevent impersonation via client-supplied values
-    $authUser = (string) $session->get('authUser');
-    $staffUser = QueryUtils::fetchSingleValue(
-        "SELECT CONCAT(fname, ' ', lname) FROM users WHERE username = ?",
-        'string',
-        [$authUser]
-    );
-    $staffSenderId = $authUser;
-    $staffSenderName = is_string($staffUser) ? $staffUser : $authUser;
+    // For staff/dashboard sessions, derive sender identity from authenticated
+    // session to prevent impersonation via client-supplied values.
+    $staffSenderId = (string) $session->get('authUser');
+    $staffSenderName = PortalMessagingSender::lookupStaffDisplayName($staffSenderId);
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
@@ -118,15 +112,16 @@ $rid = $_POST['recipient_id'] ?? null;
 $rn = $_POST['recipient_name'] ?? null;
 $header = '';
 
-// For staff sessions, use server-derived sender identity to prevent impersonation
-// For portal sessions, the sender_id/sender_name have already been validated above
-if (isset($staffSenderId, $staffSenderName)) {
-    $sid = $staffSenderId;
-    $sn = $staffSenderName;
-} else {
-    $sid = $_POST['sender_id'] ?? null;
-    $sn = $_POST['sender_name'] ?? null;
-}
+$postedSenderId = $_POST['sender_id'] ?? null;
+$postedSenderName = $_POST['sender_name'] ?? null;
+$resolvedStaffSenderId = $staffSenderId ?? null;
+$resolvedStaffSenderName = $staffSenderName ?? null;
+[$sid, $sn] = PortalMessagingSender::resolve(
+    is_string($resolvedStaffSenderId) ? $resolvedStaffSenderId : null,
+    is_string($resolvedStaffSenderName) ? $resolvedStaffSenderName : null,
+    is_string($postedSenderId) ? $postedSenderId : null,
+    is_string($postedSenderName) ? $postedSenderName : null,
+);
 
 switch ($task) {
     case "forward":
