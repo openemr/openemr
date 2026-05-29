@@ -413,8 +413,22 @@ class RestControllerHelper
             ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
             return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
-            ServiceContainer::getLogger()->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
-            $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
+            // Internal errors carry raw exception text from domain services
+            // (often SQL fragments, table/column names, file paths). Do not
+            // echo them to clients — log with a correlation id and return a
+            // generic OperationOutcome so operators can trace incidents
+            // without leaking implementation detail.
+            $correlationId = bin2hex(random_bytes(6));
+            ServiceContainer::getLogger()->error(
+                'RestControllerHelper::handleFhirProcessingResult() 500 error',
+                [
+                    'correlationId' => $correlationId,
+                    'internalErrors' => $processingResult->getInternalErrors(),
+                ]
+            );
+            $httpResponseBody["internalErrors"] = [
+                'An internal error occurred (incident ' . $correlationId . ')',
+            ];
             return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
         } else {
             $dataResult = $processingResult->getData();

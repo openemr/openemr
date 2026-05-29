@@ -397,8 +397,15 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             }
         }
 
-        // comment -> pc_hometext
-        $data['pc_hometext'] = !empty($json['comment']) ? $json['comment'] : '';
+        // comment -> pc_hometext. FHIR R4 Appointment.comment is a plain
+        // string ("additional comments about the appointment") — strip any
+        // markup at the write boundary so HTML never reaches storage. The
+        // render sinks (printed_fee_sheet etc.) also escape, but defense in
+        // depth: other render paths in the legacy UI may render raw.
+        $commentRaw = !empty($json['comment']) && is_string($json['comment'])
+            ? $json['comment']
+            : '';
+        $data['pc_hometext'] = $commentRaw === '' ? '' : strip_tags($commentRaw);
 
         // Default pc_billing_location to pc_facility if not set
         if (!isset($data['pc_billing_location']) && isset($data['pc_facility'])) {
