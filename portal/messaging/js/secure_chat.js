@@ -102,9 +102,21 @@
         return msg;
     }
 
+    async function parseJsonOrText(response) {
+        // secure_chat action endpoints return JSON for reads and plain text
+        // for writes. Try JSON first, fall back to the raw text so write
+        // callers don't crash on a non-JSON success body.
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return text;
+        }
+    }
+
     async function postData(url) {
         const response = await fetch(url, { method: 'POST', credentials: 'same-origin' });
-        return response.json();
+        return parseJsonOrText(response);
     }
 
     async function postForm(url, data) {
@@ -114,7 +126,7 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: data
         });
-        return response.json();
+        return parseJsonOrText(response);
     }
 
     // --- Rendering ---

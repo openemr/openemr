@@ -101,7 +101,15 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: params
         });
-        return response.json();
+        // handle_note.php returns JSON for read endpoints and plain "ok"/"error"
+        // strings for write endpoints. Parse JSON when possible, fall back to
+        // the raw text so write callers don't crash on a non-JSON success body.
+        const text = await response.text();
+        try {
+            return JSON.parse(text);
+        } catch {
+            return text;
+        }
     }
 
     // --- Filtering & Paging ---
