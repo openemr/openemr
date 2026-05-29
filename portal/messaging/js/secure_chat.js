@@ -544,4 +544,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', init);
+
+    // Test seam: exposes pure helpers for unit tests. Not part of the public
+    // surface — production code never reads from here.
+    if (typeof window !== 'undefined') {
+        window.__OE_SECURE_CHAT_TEST__ = {
+            escapeHtml,
+            safeUrl,
+            replaceShortcodes,
+            sanitizeHtml,
+            unique
+        };
+    }
 })();

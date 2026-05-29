@@ -760,4 +760,15 @@
         // Initialize data
         initData();
     });
+
+    // Test seam: exposes pure helpers for unit tests. Not part of the public
+    // surface — production code never reads from here.
+    if (typeof window !== 'undefined') {
+        window.__OE_MESSAGES_TEST__ = {
+            escapeHtml,
+            htmlToText,
+            limitTo,
+            renderMessageBody
+        };
+    }
 })();
