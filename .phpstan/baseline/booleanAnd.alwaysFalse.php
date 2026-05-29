@@ -3,6 +3,11 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/ListAuthorizations.php',
 ];

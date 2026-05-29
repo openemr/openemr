@@ -2784,16 +2784,23 @@ $GLOBALS_METADATA = [
     //
     'Logging' => [
 
-        'user_debug' => [
-            xl('User Debugging Options'),
+        'user_php_debug' => [
+            xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('None'),
-                '1' => xl('Display Window Errors Only'),
-                '2' => xl('Display Application Errors Only'),
-                '3' => xl('All'),
+                '0' => xl('Use Server Defaults (Display off)'),
+                '2' => xl('Display Errors Only'),
+                '3' => xl('Display Errors and Warnings Only'),
+                '4' => xl('Display Current Runtime Reporting'),
             ],
-            '0',                               // default
-            xl('User Debugging Mode.')
+            '0',
+            xl('Controls PHP error display/debug behavior without overriding server defaults unless explicitly selected.')
+        ],
+
+        'user_debug' => [
+            xl('Display Window Console Errors'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Console errors')
         ],
 
         'enable_auditlog' => [

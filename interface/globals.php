@@ -168,7 +168,7 @@ if (!isset($ignoreAuth_onsite_portal)) {
 // Collect the apache server document root (and convert to windows slashes, if needed)
 $server_document_root = realpath($_SERVER['DOCUMENT_ROOT']);
 if (IS_WINDOWS) {
- //convert windows path separators
+    //convert windows path separators
     $server_document_root = str_replace("\\", "/", $server_document_root);
 }
 
@@ -284,7 +284,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
     // for both REST API and browser access we can't proceed unless we have a valid site id.
     // since this is user provided content we need to escape the value but we use htmlspecialchars instead
     // of text() as our helper functions are loaded in later on in this file.
-    if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', (string) $tmp)) {
+    if (empty($tmp) || preg_match('/[^A-Za-z0-9\\-.]/', (string)$tmp)) {
         http_response_code(400);
         echo "Invalid URL";
         $logger->warning("Request with site id '{site_id}' contains invalid characters.", ['site_id' => $tmp]);
@@ -292,14 +292,14 @@ if (empty($siteId) || !empty($_GET['site'])) {
     }
 
     if ($siteId !== null && $siteId != $tmp) {
-      // This is to prevent using session to penetrate other OpenEMR instances within same multisite module
+        // This is to prevent using session to penetrate other OpenEMR instances within same multisite module
         SessionUtil::clearSession();
         if (isset($landingpage) && !empty($landingpage)) {
-          // OpenEMR Patient Portal use
-            header('Location: index.php?site=' . urlencode((string) $tmp));
+            // OpenEMR Patient Portal use
+            header('Location: index.php?site=' . urlencode((string)$tmp));
         } else {
-          // Main OpenEMR use
-            header('Location: ../login/login.php?site=' . urlencode((string) $tmp)); // Assuming in the interface/main directory
+            // Main OpenEMR use
+            header('Location: ../login/login.php?site=' . urlencode((string)$tmp)); // Assuming in the interface/main directory
         }
 
         exit;
@@ -399,19 +399,19 @@ $globalsBag->set('sell_non_drug_products', 0);
 
 $glrow = sqlQueryNoLog("SHOW TABLES LIKE 'globals'");
 if (!empty($glrow)) {
-  // Collect user specific settings from user_settings table.
-  //
+    // Collect user specific settings from user_settings table.
+    //
     $gl_user = [];
-  // Collect the user id first
+    // Collect the user id first
     $temp_authuserid = '';
     if (!empty($session->get('authUserID'))) {
-      //Set the user id from the session variable
+        //Set the user id from the session variable
         $temp_authuserid = $session->get('authUserID');
     } else {
         if (!empty($_POST['authUser'])) {
             $temp_sql_ret = sqlQueryNoLog("SELECT `id` FROM `users` WHERE BINARY `username` = ?", [$_POST['authUser']]);
             if (!empty($temp_sql_ret['id'])) {
-              //Set the user id from the login variable
+                //Set the user id from the login variable
                 $temp_authuserid = $temp_sql_ret['id'];
             }
         }
@@ -426,24 +426,24 @@ if (!empty($glrow)) {
             [$temp_authuserid]
         );
         for ($iter = 0; $row = sqlFetchArray($glres_user); $iter++) {
-          //remove global_ prefix from label
-            $row['setting_label'] = substr((string) $row['setting_label'], 7);
+            //remove global_ prefix from label
+            $row['setting_label'] = substr((string)$row['setting_label'], 7);
             $gl_user[$iter] = $row;
         }
     }
 
-  // Set global parameters from the database globals table.
-  // Some parameters require custom handling.
-  //
+    // Set global parameters from the database globals table.
+    // Some parameters require custom handling.
+    //
     $GLOBALS['language_menu_show'] = [];
     $glres = sqlStatementNoLog(
         "SELECT gl_name, gl_index, gl_value FROM globals " .
         "ORDER BY gl_name, gl_index"
     );
     while ($glrow = sqlFetchArray($glres)) {
-        $gl_name  = $glrow['gl_name'];
+        $gl_name = $glrow['gl_name'];
         $gl_value = $glrow['gl_value'];
-      // Adjust for user specific settings
+        // Adjust for user specific settings
         if (!empty($gl_user)) {
             foreach ($gl_user as $setting) {
                 if ($gl_name == $setting['setting_label']) {
@@ -474,11 +474,11 @@ if (!empty($glrow)) {
                 [$session->get('pid') ?? 0, 'portal_theme']
             )['setting_value'] ?? null;
             $gl_value = $current_theme ?? null ?: $gl_value;
-            $GLOBALS[(string) $gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
-            $portal_css_header = $GLOBALS[(string) $gl_name];
+            $GLOBALS[(string)$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
+            $portal_css_header = $GLOBALS[(string)$gl_name];
             $portal_temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
-            $globalsBag->set($gl_name, explode(',', (string) $gl_value));
+            $globalsBag->set($gl_name, explode(',', (string)$gl_value));
         } elseif ($gl_name == 'specific_application') {
             if ($gl_value == '2') {
                 $globalsBag->set('ippf_specific', true);
@@ -496,14 +496,14 @@ if (!empty($glrow)) {
                 $globalsBag->set('sell_non_drug_products', 2);
             }
         } elseif ($gl_name == 'gbl_time_zone') {
-          // The default PHP time zone is set here if it was specified, and is used
-          // as source data for the MySQL time zone here and in some other places
-          // where MySQL connections are opened.
+            // The default PHP time zone is set here if it was specified, and is used
+            // as source data for the MySQL time zone here and in some other places
+            // where MySQL connections are opened.
             if ($gl_value) {
                 date_default_timezone_set($gl_value);
             }
 
-          // Synchronize MySQL time zone with PHP time zone.
+            // Synchronize MySQL time zone with PHP time zone.
             sqlStatementNoLog("SET time_zone = ?", [(new DateTime())->format("P")]);
         } else {
             $globalsBag->set($gl_name, $gl_value);
@@ -544,7 +544,7 @@ if (!empty($glrow)) {
         SessionUtil::setSession('language_direction', getLanguageDir($session->get('language_choice')));
         if (
             $session->get('language_direction') === 'rtl' &&
-            !strpos((string) $globalsBag->get('portal_css_header', ''), 'rtl')
+            !strpos((string)$globalsBag->get('portal_css_header', ''), 'rtl')
         ) {
             // the $css_header_value is set above
             $rtl_portal_override = true;
@@ -553,7 +553,7 @@ if (!empty($glrow)) {
         //session 'language_direction' is not set, so will use the default language
         $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', [$GLOBALS['language_default'] ?? '']);
         $globalsBag->set('default_lang_id', $default_lang_id);
-        if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos((string) $GLOBALS['css_header'], 'rtl')) {
+        if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos((string)$GLOBALS['css_header'], 'rtl')) {
             // @todo eliminate 1 SQL query
             $rtl_override = true;
         }
@@ -596,15 +596,15 @@ if (!empty($glrow)) {
     unset($temp_css_theme_name, $new_theme, $rtl_override, $rtl_portal_override, $portal_temp_css_theme_name);
     // end of RTL section
 
-  //
-  // End of globals table processing.
+    //
+    // End of globals table processing.
 } else {
-  // Temporary stuff to handle the case where the globals table does not
-  // exist yet.  This will happen in sql_upgrade.php on upgrading to the
-  // first release containing this table.
+    // Temporary stuff to handle the case where the globals table does not
+    // exist yet.  This will happen in sql_upgrade.php on upgrading to the
+    // first release containing this table.
     $globalsBag->set('language_menu_login', true);
     $globalsBag->set('language_menu_showall', true);
-    $globalsBag->set('language_menu_show', ['English (Standard)','Swedish']);
+    $globalsBag->set('language_menu_show', ['English (Standard)', 'Swedish']);
     $globalsBag->set('language_default', "English (Standard)");
     $globalsBag->set('translate_layout', true);
     $globalsBag->set('translate_lists', true);
@@ -779,11 +779,52 @@ $globalsBag->set('groupname', $groupname);
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
-// Report all errors so nothing is silently suppressed.
-error_reporting(E_ALL);
-// user debug mode — controls display_errors
-if ($globalsBag->getInt('user_debug', 0) > 1) {
-    ini_set('display_errors', 1);
+// User PHP debug reporting mode.
+// Default behavior intentionally respects php.ini / server runtime error_reporting.
+// Note: user_debug is reserved for setup/JS console behavior and is not used here.
+$userPhpDebug = $globalsBag->getInt('user_php_debug', 0);
+
+switch ($userPhpDebug) {
+    case 2:
+        // Display PHP application errors only.
+        // Start with the current server/runtime mask and remove warnings, notices,
+        // deprecated, strict, and user-level noise.
+        error_reporting(
+            error_reporting()
+            & ~E_WARNING
+            & ~E_NOTICE
+            & ~E_USER_WARNING
+            & ~E_USER_NOTICE
+            & ~E_DEPRECATED
+            & ~E_USER_DEPRECATED
+            & ~E_STRICT
+        );
+        ini_set('display_errors', '1');
+        break;
+    case 3:
+        // Display PHP application errors and warnings only.
+        // Start with the current server/runtime mask and remove notices,
+        // deprecated, strict, and user-level notice/deprecated noise.
+        error_reporting(
+            error_reporting()
+            & ~E_NOTICE
+            & ~E_USER_NOTICE
+            & ~E_DEPRECATED
+            & ~E_USER_DEPRECATED
+            & ~E_STRICT
+        );
+        ini_set('display_errors', '1');
+        break;
+    case 4:
+        // Display whatever the current server/runtime mask already reports.
+        // Do not alter error_reporting.
+        ini_set('display_errors', '1');
+        break;
+    case 0:
+    default:
+        // Respect php.ini/server defaults.
+        // Do not alter error_reporting or display_errors.
+        break;
 }
 
 // Re-set the local variables that aren't in $GLOBALS

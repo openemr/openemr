@@ -19,7 +19,7 @@
 
 services:
   redis-master:
-    image: redis:8.6.3@sha256:4d25e2fe601f7ffaeb4437cb6ced3518bc36edf34ebe98863c80836943d94529
+    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
     container_name: redis-master
     # Config passed via command-line args instead of bind-mounted redis.conf.
     # Docker Compose resolves bind-mount paths relative to the first file in
@@ -48,7 +48,7 @@ services:
       start_period: 10s
 
   redis-replica-1:
-    image: redis:8.6.3@sha256:4d25e2fe601f7ffaeb4437cb6ced3518bc36edf34ebe98863c80836943d94529
+    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
     command:
       - redis-server
       - --bind
@@ -71,7 +71,7 @@ services:
         condition: service_healthy
 
   redis-replica-2:
-    image: redis:8.6.3@sha256:4d25e2fe601f7ffaeb4437cb6ced3518bc36edf34ebe98863c80836943d94529
+    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
     command:
       - redis-server
       - --bind
@@ -94,7 +94,7 @@ services:
         condition: service_healthy
 
   sentinel-1:
-    image: redis:8.6.3@sha256:4d25e2fe601f7ffaeb4437cb6ced3518bc36edf34ebe98863c80836943d94529
+    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
     # Config is written inline to avoid bind-mount directory pollution — see file header.
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -122,7 +122,7 @@ services:
       start_period: 15s
 
   sentinel-2:
-    image: redis:8.6.3@sha256:4d25e2fe601f7ffaeb4437cb6ced3518bc36edf34ebe98863c80836943d94529
+    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
     # Config is written inline to avoid bind-mount directory pollution — see file header.
     entrypoint: ["/bin/sh", "-c"]
     command:

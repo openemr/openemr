@@ -1907,6 +1907,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_statistics.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Part \\$optionAcl\\[0\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$optionAcl\\[1\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Part \\$colstr \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/super/edit_layout.php',
@@ -3119,6 +3129,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$return_value \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 8,
+    'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Part \\$seckey \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
 ];
 $ignoreErrors[] = [
