@@ -93,11 +93,17 @@ describe('messages.js escapeHtml', () => {
         expect(escapeHtml('<script>alert(1)</script>')).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
     });
 
-    test('escapes attribute-breaking quotes', () => {
-        expect(escapeHtml('" onerror="alert(1)')).toBe('" onerror="alert(1)');
-        // textContent doesn't escape quotes by default, but they're harmless
-        // here because the only callers interpolate inside double-quoted
-        // attributes — verify the quote stays as a literal quote.
+    test('escapes double quotes so values can\'t break out of double-quoted attributes (CWE-79)', () => {
+        // Regression: an earlier textContent-based implementation left " untouched,
+        // letting a stored message title like `" autofocus onfocus="alert(1)` break
+        // out of data-mtitle="${escapeHtml(sel.title)}" and inject event handlers.
+        expect(escapeHtml('" autofocus onfocus="alert(1)'))
+            .toBe('&quot; autofocus onfocus=&quot;alert(1)');
+    });
+
+    test('escapes single quotes so values can\'t break out of single-quoted attributes', () => {
+        expect(escapeHtml("' onclick='alert(1)"))
+            .toBe('&#39; onclick=&#39;alert(1)');
     });
 
     test('escapes ampersands', () => {
@@ -111,6 +117,34 @@ describe('messages.js escapeHtml', () => {
 
     test('coerces non-strings via String()', () => {
         expect(escapeHtml(42)).toBe('42');
+    });
+});
+
+// ---------------------------------------------------------------------------
+// messages.js: escapeHtml in an actual attribute-context flow. Regression
+// guard for the Aisle finding (CWE-79, vuln_c9c47f38) — verifies that a
+// stored message title with attribute-breaking quotes cannot inject
+// attributes when interpolated into a double-quoted attribute.
+// ---------------------------------------------------------------------------
+describe('messages.js escapeHtml in attribute context', () => {
+    const { escapeHtml } = messagesHelpers;
+
+    test('payload that broke out before now stays inside the attribute', () => {
+        const malicious = '" autofocus onfocus="alert(1)';
+        const html = `<button data-title="${escapeHtml(malicious)}"></button>`;
+
+        // Parse the rendered HTML and inspect the actual DOM. No matter what
+        // the source text looks like, the parser must see a single button with
+        // exactly one attribute and no autofocus/onfocus injected.
+        const div = document.createElement('div');
+        div.innerHTML = html;
+        const btn = div.querySelector('button');
+
+        expect(btn).not.toBeNull();
+        expect(btn.hasAttribute('autofocus')).toBe(false);
+        expect(btn.hasAttribute('onfocus')).toBe(false);
+        // The malicious string must survive as the literal attribute value.
+        expect(btn.getAttribute('data-title')).toBe(malicious);
     });
 });
 
@@ -208,8 +242,23 @@ describe('secure_chat.js escapeHtml', () => {
         expect(escapeHtml('<script>alert(1)</script>')).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
     });
 
+    test('escapes double quotes so values can\'t break out of double-quoted attributes', () => {
+        expect(escapeHtml('" autofocus onfocus="alert(1)'))
+            .toBe('&quot; autofocus onfocus=&quot;alert(1)');
+    });
+
+    test('escapes single quotes so values can\'t break out of single-quoted attributes', () => {
+        expect(escapeHtml("' onclick='alert(1)"))
+            .toBe('&#39; onclick=&#39;alert(1)');
+    });
+
     test('escapes ampersands', () => {
         expect(escapeHtml('A & B')).toBe('A &amp; B');
+    });
+
+    test('null/undefined become empty string', () => {
+        expect(escapeHtml(null)).toBe('');
+        expect(escapeHtml(undefined)).toBe('');
     });
 });
 

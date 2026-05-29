@@ -69,10 +69,21 @@
         return output;
     }
 
+    // Escapes for both HTML text and HTML attribute contexts. textContent on
+    // its own only entity-escapes < > and &; we also escape " and ' so that
+    // values interpolated into double- or single-quoted attribute values
+    // can't break out and inject new attributes (CWE-79). The chat-message
+    // and recipient-list rendering interpolates user-supplied content into
+    // attributes like data-sender-id="${...}", so attribute-safe output is
+    // mandatory.
     function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        if (text === null || text === undefined) return '';
+        return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function safeUrl(url) {
