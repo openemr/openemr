@@ -35,6 +35,14 @@ return RectorConfig::configure()
         __DIR__ . '/src',
         __DIR__ . '/tests',
     ])
+    // oe-module-claimrev-connect is a Composer dependency
+    // (claimrevolution/oe-module-claimrev-connect), relocated into this path by
+    // the oe-module-installer-plugin during `composer install`. It is
+    // third-party code, not maintained in this repo, so skip it the same way
+    // vendor/ is skipped.
+    ->withSkip([
+        __DIR__ . '/interface/modules/custom_modules/oe-module-claimrev-connect',
+    ])
     ->withCache(
         // ensure file system caching is used instead of in-memory
         cacheClass: FileCacheStorage::class,

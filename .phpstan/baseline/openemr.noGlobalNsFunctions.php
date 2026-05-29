@@ -2207,26 +2207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/onotes/office_comments_full.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function start_X12_Claimrev_get_reports may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Billing_Claimrev_Service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_X12_Claimrev_send_files may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Billing_Claimrev_Service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_send_eligibility may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/Eligibility_ClaimRev_Service.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_X12_SFTP may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/SFTP_Mock_Service.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function doOnetimeDocumentRequest may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/api_onetime.php',
