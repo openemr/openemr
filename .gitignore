@@ -7,6 +7,12 @@
 # vendor and assets
 node_modules
 /vendor/*
+
+# oe-module-claimrev-connect is installed as a Composer dependency
+# (claimrevolution/oe-module-claimrev-connect) and relocated into this path by
+# the oe-module-installer-plugin during `composer install`. Never commit the
+# installed copy.
+/interface/modules/custom_modules/oe-module-claimrev-connect/*
 /public/assets/*
 /public/themes/*
 !/public/assets/modified
