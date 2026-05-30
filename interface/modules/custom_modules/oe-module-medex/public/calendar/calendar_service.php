@@ -636,7 +636,34 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                     cs_json_exit(['success' => false, 'error' => 'Missing category id.']);
                 }
                 sqlStatement("UPDATE openemr_postcalendar_categories SET pc_active = 0 WHERE pc_catid = ?", [$categoryId]);
-                cs_json_exit(['success' => true, 'types' => cs_load_appointment_types()]);
+
+                // Sweep template slots that still carry this now-deactivated category.
+                // Template slots are identified by having no patient (pc_pid empty/0).
+                // Clear pc_prefcatid and strip the old category name from the title
+                // so the slot falls back to generic "Open Slot".
+                $affectedSlots = 0;
+                $sweepRows = sqlStatement(
+                    "SELECT pc_eid, pc_title FROM openemr_postcalendar_events
+                     WHERE (COALESCE(pc_pid, '') = '' OR pc_pid = '0')
+                       AND pc_prefcatid = ?",
+                    [$categoryId]
+                );
+                while ($sweepRow = sqlFetchArray($sweepRows)) {
+                    $eid   = (int)$sweepRow['pc_eid'];
+                    $title = (string)($sweepRow['pc_title'] ?? '');
+                    // Strip " - CategoryName" suffix if present; normalize to "Open Slot"
+                    $newTitle = preg_replace('/\s*-\s*.+$/', '', $title);
+                    if ($newTitle === '') {
+                        $newTitle = 'Open Slot';
+                    }
+                    sqlStatement(
+                        "UPDATE openemr_postcalendar_events SET pc_prefcatid = 0, pc_title = ? WHERE pc_eid = ?",
+                        [$newTitle, $eid]
+                    );
+                    $affectedSlots++;
+                }
+
+                cs_json_exit(['success' => true, 'types' => cs_load_appointment_types(), 'affected_slots' => $affectedSlots]);
             }
 
             if ($action === 'reorder_categories') {
@@ -4281,7 +4308,11 @@ function bindManageTypesModal() {
                 appointmentTypes = Array.isArray(data.types) ? data.types : [];
                 refreshAppointmentTypeControls();
                 renderList();
-                setStatus('Type deactivated.', 'success');
+                const slotCount = Number(data.affected_slots || 0);
+                const slotNote = slotCount > 0
+                    ? ` ${slotCount} open slot${slotCount === 1 ? '' : 's'} converted to generic.`
+                    : '';
+                setStatus('Type deactivated.' + slotNote, 'success');
                 if (editCategoryId === id) {
                     resetForm();
                 }
