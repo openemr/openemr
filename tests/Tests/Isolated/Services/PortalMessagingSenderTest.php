@@ -19,10 +19,17 @@ use PHPUnit\Framework\TestCase;
 
 class PortalMessagingSenderTest extends TestCase
 {
+    private PortalMessagingSender $sender;
+
+    protected function setUp(): void
+    {
+        $this->sender = new PortalMessagingSender();
+    }
+
     #[Test]
     public function resolvePrefersStaffIdentityOverPostedValues(): void
     {
-        $result = PortalMessagingSender::resolve(
+        $result = $this->sender->resolve(
             'admin',
             'Admin Person',
             'attacker_user_id',
@@ -35,7 +42,7 @@ class PortalMessagingSenderTest extends TestCase
     #[Test]
     public function resolveFallsBackToPostedValuesWhenStaffIdentityMissing(): void
     {
-        $result = PortalMessagingSender::resolve(
+        $result = $this->sender->resolve(
             null,
             null,
             'portal_user_42',
@@ -51,7 +58,7 @@ class PortalMessagingSenderTest extends TestCase
         // Either staff field being null means the request did not come through
         // the staff branch in handle_note.php; the posted values are the
         // authoritative fallback.
-        $result = PortalMessagingSender::resolve(
+        $result = $this->sender->resolve(
             'admin',
             null,
             'posted_id',
@@ -66,7 +73,7 @@ class PortalMessagingSenderTest extends TestCase
     {
         // addPnote() / sendMail() declare string parameters, so the resolver
         // never hands a null downstream.
-        $result = PortalMessagingSender::resolve(null, null, null, null);
+        $result = $this->sender->resolve(null, null, null, null);
 
         $this->assertSame(['', ''], $result);
     }
@@ -102,7 +109,7 @@ class PortalMessagingSenderTest extends TestCase
     ): void {
         $this->assertSame(
             $expected,
-            PortalMessagingSender::resolve($staffSenderId, $staffSenderName, $postedSenderId, $postedSenderName),
+            $this->sender->resolve($staffSenderId, $staffSenderName, $postedSenderId, $postedSenderName),
         );
     }
 }

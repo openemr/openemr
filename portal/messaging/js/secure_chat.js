@@ -56,6 +56,14 @@
 
     // --- Helper functions ---
 
+    // Returns the id of the last message, or null for an empty list. Used to
+    // detect whether a poll brought in a new message (id changed) so the
+    // new-message alert only fires on genuinely new traffic.
+    function lastIdOf(messages) {
+        const last = messages[messages.length - 1];
+        return last ? last.id : null;
+    }
+
     function unique(collection, keyname) {
         const keys = [];
         const output = [];
@@ -117,6 +125,9 @@
         // secure_chat action endpoints return JSON for reads and plain text
         // for writes. Try JSON first, fall back to the raw text so write
         // callers don't crash on a non-JSON success body.
+        if (!response.ok) {
+            throw new Error(`Request failed (${response.status})`);
+        }
         const text = await response.text();
         try {
             return JSON.parse(text);
@@ -272,8 +283,7 @@
                     state.messages.push(message);
                 });
             }
-            const lastMessage = state.messages[state.messages.length - 1];
-            const lastMessageId = lastMessage && lastMessage.id;
+            const lastMessageId = lastIdOf(state.messages);
 
             if (state.lastMessageId !== lastMessageId) {
                 onNewMessage(wasMySubmission);
@@ -491,7 +501,9 @@
 
     function init() {
         listMessages();
-        state.pidMessages = setInterval(listMessages, 3000);
+        // Wrap in an arrow so the interval id isn't passed as listMessages'
+        // wasMySubmission argument (which would suppress new-message alerts).
+        state.pidMessages = setInterval(() => listMessages(), 3000);
         state.pidPingServer = setInterval(pingServer, 5000);
         getAuthUsers();
 
@@ -564,7 +576,8 @@
             safeUrl,
             replaceShortcodes,
             sanitizeHtml,
-            unique
+            unique,
+            lastIdOf
         };
     }
 })();

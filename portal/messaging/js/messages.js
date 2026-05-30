@@ -110,6 +110,9 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: params
         });
+        if (!response.ok) {
+            throw new Error(`Request failed (${response.status})`);
+        }
         // handle_note.php returns JSON for read endpoints and plain "ok"/"error"
         // strings for write endpoints. Parse JSON when possible, fall back to
         // the raw text so write callers don't crash on a non-JSON success body.
@@ -138,18 +141,34 @@
         groupToPages();
     }
 
-    function groupToPages() {
-        state.selected = null;
-        state.pagedItems = [];
-        for (let i = 0; i < state.filteredItems.length; i++) {
-            const pageIdx = Math.floor(i / state.itemsPerPage);
-            if (i % state.itemsPerPage === 0) {
-                state.pagedItems[pageIdx] = [state.filteredItems[i]];
+    function paginate(items, perPage) {
+        const pages = [];
+        for (let i = 0; i < items.length; i++) {
+            const pageIdx = Math.floor(i / perPage);
+            if (i % perPage === 0) {
+                pages[pageIdx] = [items[i]];
             } else {
-                state.pagedItems[pageIdx].push(state.filteredItems[i]);
+                pages[pageIdx].push(items[i]);
             }
         }
+        return pages;
+    }
+
+    function groupToPages() {
+        state.selected = null;
+        state.pagedItems = paginate(state.filteredItems, state.itemsPerPage);
         renderAll();
+    }
+
+    // Groups a conversation thread: all messages sharing the selected item's
+    // mail_chain. A non-numeric chain id (e.g. an unthreaded message) falls
+    // back to the full list. Loose equality matches numeric ids stored as
+    // either strings or numbers.
+    function groupChain(items, mailChain) {
+        if (isNaN(mailChain)) {
+            return items.slice();
+        }
+        return items.filter(item => item.mail_chain == mailChain);
     }
 
     function prevPage() {
@@ -281,6 +300,17 @@
         });
     }
 
+    function markReadById(id) {
+        [state.items, state.inboxItems, state.sentItems, state.allItems].forEach(list => {
+            if (!Array.isArray(list)) return;
+            list.forEach(entry => {
+                if (entry && entry.id === id) {
+                    entry.message_status = 'Read';
+                }
+            });
+        });
+    }
+
     function readMessage(item) {
         if (!item) return;
         if (item.message_status === 'New') {
@@ -289,18 +319,7 @@
                 noteid: item.id,
                 csrf_token_form: state.csrf
             })).then(() => {
-                const markReadById = (list, id) => {
-                    if (!Array.isArray(list)) return;
-                    list.forEach(entry => {
-                        if (entry && entry.id === id) {
-                            entry.message_status = 'Read';
-                        }
-                    });
-                };
-                markReadById(state.items, item.id);
-                markReadById(state.inboxItems, item.id);
-                markReadById(state.sentItems, item.id);
-                markReadById(state.allItems, item.id);
+                markReadById(item.id);
                 renderAll();
             });
         }
@@ -314,8 +333,23 @@
     }
 
     function readAll() {
-        state.items.forEach(item => { item.message_status = 'Read'; });
-        renderAll();
+        // "Mark all as read" must persist server-side, not just flip the
+        // in-memory status (which was lost on reload). Fire setread for each
+        // unread item, then mirror the status into every cached folder list.
+        const unread = state.items.filter(item => item && item.message_status === 'New');
+        if (unread.length === 0) {
+            return;
+        }
+        Promise.all(unread.map(item => postForm('handle_note.php', $.param({
+            task: 'setread',
+            noteid: item.id,
+            csrf_token_form: state.csrf
+        })))).then(() => {
+            unread.forEach(item => markReadById(item.id));
+            renderAll();
+        }).catch(e => {
+            console.error('Error marking all as read:', e);
+        });
     }
 
     // --- Rendering ---
@@ -446,8 +480,7 @@
         // Render chained messages
         const chainTbody = document.getElementById('chainTbody');
         if (!chainTbody) return;
-        const chainId = sel.mail_chain;
-        const chained = isNaN(chainId) ? state.allItems : state.allItems.filter(item => item.mail_chain == chainId);
+        const chained = groupChain(state.allItems, sel.mail_chain);
 
         let html = '';
         chained.forEach(item => {
@@ -777,7 +810,9 @@
             escapeHtml,
             htmlToText,
             limitTo,
-            renderMessageBody
+            renderMessageBody,
+            paginate,
+            groupChain
         };
     }
 })();

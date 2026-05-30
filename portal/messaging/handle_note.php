@@ -80,7 +80,8 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
 
     // For staff/dashboard sessions, derive sender identity from authenticated
     // session to prevent impersonation via client-supplied values.
-    $staffSenderId = (string) $session->get('authUser');
+    $authUser = $session->get('authUser');
+    $staffSenderId = is_string($authUser) ? $authUser : '';
     $staffDisplayName = QueryUtils::fetchSingleValue(
         "SELECT CONCAT(fname, ' ', lname) FROM users WHERE username = ?",
         'string',
@@ -124,7 +125,7 @@ $postedSenderId = $_POST['sender_id'] ?? null;
 $postedSenderName = $_POST['sender_name'] ?? null;
 $resolvedStaffSenderId = $staffSenderId ?? null;
 $resolvedStaffSenderName = $staffSenderName ?? null;
-[$sid, $sn] = PortalMessagingSender::resolve(
+[$sid, $sn] = (new PortalMessagingSender())->resolve(
     is_string($resolvedStaffSenderId) ? $resolvedStaffSenderId : null,
     is_string($resolvedStaffSenderName) ? $resolvedStaffSenderName : null,
     is_string($postedSenderId) ? $postedSenderId : null,

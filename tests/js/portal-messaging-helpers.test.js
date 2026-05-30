@@ -397,3 +397,88 @@ describe('secure_chat.js unique', () => {
         expect(unique([], 'username')).toEqual([]);
     });
 });
+
+// ---------------------------------------------------------------------------
+// messages.js: paginate — chunks the filtered list into fixed-size pages.
+// Off-by-one errors here would drop or duplicate inbox rows at page edges.
+// ---------------------------------------------------------------------------
+describe('messages.js paginate', () => {
+    const { paginate } = messagesHelpers;
+    const seq = n => Array.from({ length: n }, (_, i) => ({ id: i + 1 }));
+
+    test('returns no pages for an empty list', () => {
+        expect(paginate([], 20)).toEqual([]);
+    });
+
+    test('keeps a partial final page intact', () => {
+        const pages = paginate(seq(25), 20);
+        expect(pages).toHaveLength(2);
+        expect(pages[0]).toHaveLength(20);
+        expect(pages[1]).toHaveLength(5);
+    });
+
+    test('does not create an empty trailing page on an exact multiple', () => {
+        const pages = paginate(seq(40), 20);
+        expect(pages).toHaveLength(2);
+        expect(pages[1]).toHaveLength(20);
+    });
+
+    test('fits a list smaller than one page on a single page', () => {
+        const pages = paginate(seq(3), 20);
+        expect(pages).toHaveLength(1);
+        expect(pages[0].map(i => i.id)).toEqual([1, 2, 3]);
+    });
+
+    test('preserves item order across the page boundary', () => {
+        const pages = paginate(seq(21), 20);
+        expect(pages[0][19].id).toBe(20);
+        expect(pages[1][0].id).toBe(21);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// messages.js: groupChain — gathers a conversation thread by mail_chain.
+// Threading bugs would either merge unrelated conversations or hide replies.
+// ---------------------------------------------------------------------------
+describe('messages.js groupChain', () => {
+    const { groupChain } = messagesHelpers;
+    const items = [
+        { id: 1, mail_chain: 10 },
+        { id: 2, mail_chain: 11 },
+        { id: 3, mail_chain: 10 }
+    ];
+
+    test('returns only the messages sharing the chain id', () => {
+        expect(groupChain(items, 10).map(i => i.id)).toEqual([1, 3]);
+    });
+
+    test('matches a numeric chain id stored as a string (loose equality)', () => {
+        const stringChain = [{ id: 1, mail_chain: '10' }, { id: 2, mail_chain: '11' }];
+        expect(groupChain(stringChain, 10).map(i => i.id)).toEqual([1]);
+    });
+
+    test('falls back to the full list for a non-numeric chain id', () => {
+        const all = groupChain(items, NaN);
+        expect(all.map(i => i.id)).toEqual([1, 2, 3]);
+    });
+
+    test('does not return the source array reference on the fallback path', () => {
+        expect(groupChain(items, NaN)).not.toBe(items);
+    });
+});
+
+// ---------------------------------------------------------------------------
+// secure_chat.js: lastIdOf — used to decide whether a poll brought a new
+// message. A wrong result here re-triggers (or silences) the new-message beep.
+// ---------------------------------------------------------------------------
+describe('secure_chat.js lastIdOf', () => {
+    const { lastIdOf } = secureChatHelpers;
+
+    test('returns the id of the last message', () => {
+        expect(lastIdOf([{ id: 1 }, { id: 2 }, { id: 7 }])).toBe(7);
+    });
+
+    test('returns null for an empty list', () => {
+        expect(lastIdOf([])).toBeNull();
+    });
+});

@@ -30,7 +30,7 @@ final class PortalMessagingSender
      *
      * @return array{0: string, 1: string} tuple of [sender_id, sender_name]
      */
-    public static function resolve(
+    public function resolve(
         ?string $staffSenderId,
         ?string $staffSenderName,
         ?string $postedSenderId,
