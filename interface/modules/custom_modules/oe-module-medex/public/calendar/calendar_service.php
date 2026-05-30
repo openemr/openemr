@@ -2734,10 +2734,8 @@ $templateCount = count($detectedTemplates);
                 </div>
                 <div class="field" style="margin-top:10px;">
                     <label for="mtColor"><?php echo xlt('Color'); ?></label>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <input id="mtColor" type="text" value="#1d4ed8" data-coloris
-                               style="width:42px;height:36px;padding:0;border:1px solid rgba(0,0,0,0.18);border-radius:6px;cursor:pointer;background:#1d4ed8;color:transparent;font-size:1px;outline:none;box-shadow:none;">
-                    </div>
+                    <input id="mtColor" type="color" value="#1d4ed8"
+                           style="width:42px;height:36px;padding:2px;border:1px solid var(--cs-border);border-radius:6px;cursor:pointer;">
                 </div>
                 <div class="field" style="margin-top:10px;">
                     <label for="mtDuration"><?php echo xlt('Default Duration (minutes)'); ?></label>
@@ -2827,17 +2825,10 @@ function syncColorPreview(val) {
     const el = document.getElementById('mtColor');
     if (!el) { return; }
     el.value = String(val || '#1d4ed8').trim();
-    el.style.background = el.value;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const colorEl = document.getElementById('mtColor');
-    if (colorEl && typeof Coloris === 'function') {
-        Coloris({ el: '#mtColor', alpha: true, format: 'hex',
-            defaultColor: '#1d4ed8',
-            swatches: ['#1d4ed8','#1c4568','#dc2626','#d97706','#059669','#7c3aed','#be185d','#0891b2'] });
-        colorEl.addEventListener('input', function() { this.style.background = this.value; });
-    }
+    // Color input uses native type="color" — no library init needed.
 });
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
