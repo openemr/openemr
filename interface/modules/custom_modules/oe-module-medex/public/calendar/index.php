@@ -178,6 +178,45 @@ try {
 } catch (\Throwable $e) {
     error_log('[MedEx Calendar] Unable to load calendar_full service preferences: ' . $e->getMessage());
 }
+$showReschedulerPanels = $api->hasServiceEntitlement('calendar_ai');
+$hasReschedulerService = $showReschedulerPanels || $api->hasServiceEntitlement('appointment_reminders');
+$reschedulerPausedRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_rescheduler_paused' LIMIT 1");
+$reschedulerPaused = (($reschedulerPausedRow['gl_value'] ?? '0') === '1');
+// Runtime gate: treat rescheduler as inactive if no future open template slots exist.
+// Primary: slot registry available rows. Fallback: open template slots in the calendar (pc_pid=0).
+if (!$reschedulerPaused) {
+    $hasCapacity = false;
+    $slotRegistryExists = sqlQuery("SHOW TABLES LIKE 'medex_slot_registry'");
+    if ($slotRegistryExists) {
+        $hasReschedulableSlot = sqlQuery(
+            "SELECT 1 FROM medex_slot_registry WHERE reschedulable = 1 AND slot_state = 'available' AND event_date >= CURDATE() LIMIT 1"
+        );
+        if ($hasReschedulableSlot) {
+            $hasCapacity = true;
+        }
+    }
+    if (!$hasCapacity) {
+        $openTemplateSlot = sqlQuery(
+            "SELECT pc_eid FROM openemr_postcalendar_events
+             WHERE (pc_pid IS NULL OR pc_pid <= 0)
+               AND pc_recurrtype = 0
+               AND pc_eventDate >= CURDATE()
+             LIMIT 1"
+        );
+        if ($openTemplateSlot) {
+            $hasCapacity = true;
+        }
+    }
+    if (!$hasCapacity) {
+        $reschedulerPaused = true;
+    }
+}
+$reschedulerActiveForUI = $hasReschedulerService && !$reschedulerPaused;
+$openStaffTitle = 'Open and available to fill by staff. These open slots are NOT visible to the Patient Rescheduler.';
+if ($isAdminUser) {
+    $openStaffTitle .= ' To make this available in the Patient Rescheduler, proceed to Admin Dashboard::Calendar Services::Slot Builder.';
+}
+$openPatientTitle = 'Open and available to fill by staff and patients using the Patient Rescheduler service.';
 
 $displayScheduleStart = (int)($GLOBALS['schedule_start'] ?? 8);
 $displayScheduleEnd = (int)($GLOBALS['schedule_end'] ?? 17);
@@ -227,6 +266,15 @@ if (!in_array($prefTheme, $allowedThemes, true)) {
     $prefTheme = 'openemr';
 }
 $inheritOpenEmrTheme = ($prefTheme === 'openemr');
+
+// Detect the active OpenEMR theme slug (e.g. 'manila', 'solar', 'dark')
+// so the body can carry an oe-theme-* class for per-theme CSS overrides.
+$oeThemeSlug = '';
+$oeThemeCss = (string)($GLOBALS['css_header'] ?? '');
+if (preg_match('/style_([a-z0-9_]+)\.css/i', $oeThemeCss, $_tm)) {
+    $oeThemeSlug = strtolower($_tm[1]);
+}
+unset($_tm);
 $prefDefaultProviders = isset($medexPrefs['default_provider_usernames']) && is_array($medexPrefs['default_provider_usernames'])
     ? array_values(array_unique(array_map('strval', $medexPrefs['default_provider_usernames'])))
     : [];
@@ -243,6 +291,127 @@ $prefDefaultProviders = array_values(array_intersect($prefDefaultProviders, $vis
 $prefDefaultFacilities = array_values(array_intersect($prefDefaultFacilities, $visibleFacilityIds));
 $usePrefProviders = !empty($prefDefaultProviders);
 $usePrefFacilities = !empty($prefDefaultFacilities);
+
+$appointmentCategoryLegend = [];
+
+// Build category list from template/open-slot rows so sidebar filtering matches
+// actual slot types used by templates (source of truth: pc_prefcatid).
+$templateCategoryResult = sqlStatement(
+    "SELECT DISTINCT pref.pc_catid, pref.pc_catname, pref.pc_catcolor
+       FROM openemr_postcalendar_events pc
+ INNER JOIN openemr_postcalendar_categories pref ON pref.pc_catid = pc.pc_prefcatid
+      WHERE pref.pc_active = 1
+        AND pc.pc_pid = 0
+        AND pc.pc_prefcatid > 0
+        AND (
+             pc.pc_location LIKE 'MEDEX_%'
+             OR pc.pc_title LIKE 'Open Slot - %'
+             OR pc.pc_title LIKE 'In Office - %'
+             OR pc.pc_title = 'Open Slot'
+        )
+      ORDER BY pref.pc_seq, pref.pc_catname"
+);
+
+while ($categoryRow = sqlFetchArray($templateCategoryResult)) {
+    $catId = (int)($categoryRow['pc_catid'] ?? 0);
+    $catName = trim((string)($categoryRow['pc_catname'] ?? ''));
+    if ($catId <= 0 || $catName === '') {
+        continue;
+    }
+    $rawColor = trim((string)($categoryRow['pc_catcolor'] ?? ''));
+    if ($rawColor !== '' && $rawColor[0] !== '#') {
+        $rawColor = '#' . $rawColor;
+    }
+    if (!preg_match('/^#[0-9a-fA-F]{6}$/', $rawColor)) {
+        $rawColor = '#3788d8';
+    }
+
+    $appointmentCategoryLegend[] = [
+        'id' => $catId,
+        'name' => $catName,
+        'color' => $rawColor,
+    ];
+}
+
+// Also include common non-template appointment types that practices use directly
+// in scheduling workflows (for example Lunch/Reserved/Vacation).
+$specialTypeResult = sqlStatement(
+    "SELECT pc_catid, pc_catname, pc_catcolor
+       FROM openemr_postcalendar_categories
+      WHERE pc_active = 1
+        AND (
+             LOWER(pc_catname) LIKE '%lunch%'
+             OR LOWER(pc_catname) LIKE '%reserved%'
+             OR LOWER(pc_catname) LIKE '%vacation%'
+        )
+      ORDER BY pc_seq, pc_catname"
+);
+while ($categoryRow = sqlFetchArray($specialTypeResult)) {
+    $catId = (int)($categoryRow['pc_catid'] ?? 0);
+    $catName = trim((string)($categoryRow['pc_catname'] ?? ''));
+    if ($catId <= 0 || $catName === '') {
+        continue;
+    }
+
+    $alreadyPresent = false;
+    foreach ($appointmentCategoryLegend as $existingLegend) {
+        if ((int)($existingLegend['id'] ?? 0) === $catId) {
+            $alreadyPresent = true;
+            break;
+        }
+    }
+    if ($alreadyPresent) {
+        continue;
+    }
+
+    $rawColor = trim((string)($categoryRow['pc_catcolor'] ?? ''));
+    if ($rawColor !== '' && $rawColor[0] !== '#') {
+        $rawColor = '#' . $rawColor;
+    }
+    if (!preg_match('/^#[0-9a-fA-F]{6}$/', $rawColor)) {
+        $rawColor = '#3788d8';
+    }
+
+    $appointmentCategoryLegend[] = [
+        'id' => $catId,
+        'name' => $catName,
+        'color' => $rawColor,
+    ];
+}
+
+// Fallback: if no template/open-slot types are present yet, show active categories
+// (excluding availability markers) so filter UI remains usable.
+if (empty($appointmentCategoryLegend)) {
+    $categoryResult = sqlStatement(
+        "SELECT pc_catid, pc_catname, pc_catcolor
+           FROM openemr_postcalendar_categories
+          WHERE pc_active = 1
+          ORDER BY pc_seq, pc_catname"
+    );
+    while ($categoryRow = sqlFetchArray($categoryResult)) {
+        $catId = (int)($categoryRow['pc_catid'] ?? 0);
+        if (in_array($catId, [2, 3], true)) {
+            continue;
+        }
+        $catName = trim((string)($categoryRow['pc_catname'] ?? ''));
+        if ($catName === '') {
+            continue;
+        }
+        $rawColor = trim((string)($categoryRow['pc_catcolor'] ?? ''));
+        if ($rawColor !== '' && $rawColor[0] !== '#') {
+            $rawColor = '#' . $rawColor;
+        }
+        if (!preg_match('/^#[0-9a-fA-F]{6}$/', $rawColor)) {
+            $rawColor = '#3788d8';
+        }
+
+        $appointmentCategoryLegend[] = [
+            'id' => $catId,
+            'name' => $catName,
+            'color' => $rawColor,
+        ];
+    }
+}
 
 // Allow explicit hand-off back to native OpenEMR calendar.
 $openEmrCalendarCompatible = true;
@@ -290,6 +459,7 @@ $openEmrCalendarCompatible = true;
             'defaultFacilities' => $prefDefaultFacilities
         ]); ?>;
         window.medexOpenEmrCalendarCompatible = <?php echo $openEmrCalendarCompatible ? 'true' : 'false'; ?>;
+        window.medexReschedulerActive = <?php echo $reschedulerActiveForUI ? 'true' : 'false'; ?>;
         window.medexDragPolicy = <?php echo json_encode([
             'role' => $calendarActorRole,
             'isAdmin' => $isAdminUser,
@@ -323,7 +493,7 @@ $openEmrCalendarCompatible = true;
             --medex-quick-btn-bg: #e9edf2;
             --medex-quick-btn-text: #2f3a4a;
             --medex-quick-btn-border: #9aa4b1;
-            --medex-open-slot-chip-width: 205px;
+            --medex-open-slot-chip-width: 168px;
             margin: 0;
             padding: 0;
             font-family: Arial, sans-serif;
@@ -423,21 +593,38 @@ $openEmrCalendarCompatible = true;
             --medex-quick-btn-border: #aab5c1;
         }
         body.medex-theme-openemr {
-            --medex-bg: #f6f7f9;
-            --medex-text: #1f2933;
-            --medex-panel-bg: #ffffff;
-            --medex-panel-border: #d6dbe1;
-            --medex-accent: #2d75b6;
-            --medex-card-bg: #ffffff;
+            /* Generic OpenEMR-inherit base — uses Bootstrap CSS vars from Header::setupHeader(). */
+            --medex-bg: var(--light, #f6f7f9);
+            --medex-text: var(--body-color, #1f2933);
+            --medex-panel-bg: var(--white, #ffffff);
+            --medex-panel-border: var(--gray300, #d6dbe1);
+            --medex-accent: var(--primary, #2d75b6);
+            --medex-accent-contrast: #ffffff;
+            --medex-card-bg: var(--white, #ffffff);
             --medex-card-shadow: 0 1px 3px rgba(41,67,94,0.14);
-            --medex-event-text: #1f2933;
-            --medex-button-bg: #315b82;
-            --medex-button-hover: #264967;
-            --medex-button-border: #1f3c56;
+            --medex-event-text: var(--body-color, #1f2933);
+            --medex-button-bg: var(--primary, #315b82);
+            --medex-button-text: #ffffff;
+            --medex-button-hover: color-mix(in srgb, var(--primary, #315b82) 85%, black);
+            --medex-button-border: color-mix(in srgb, var(--primary, #315b82) 70%, black);
             --medex-quick-bg: rgba(246, 247, 249, 0.95);
-            --medex-quick-btn-bg: #e6ebf0;
-            --medex-quick-btn-text: #2c3e50;
-            --medex-quick-btn-border: #a7b3bf;
+            --medex-quick-btn-bg: var(--gray200, #e6ebf0);
+            --medex-quick-btn-text: var(--gray800, #2c3e50);
+            --medex-quick-btn-border: var(--gray400, #a7b3bf);
+        }
+
+        /* Manila theme: btn-primary is #c9dbf2 (aqua) with black text.
+           Override accent/button vars to match the native OpenEMR Manila appearance. */
+        body.medex-theme-openemr.oe-theme-manila {
+            --medex-accent: #c9dbf2;
+            --medex-accent-contrast: #000000;
+            --medex-button-bg: #c9dbf2;
+            --medex-button-text: #000000;
+            --medex-button-hover: #aec9e8;
+            --medex-button-border: rgba(0, 0, 0, 0.45);
+            --medex-quick-btn-bg: #c9dbf2;
+            --medex-quick-btn-text: #000000;
+            --medex-quick-btn-border: rgba(0, 0, 0, 0.3);
         }
 
         /* Sidebar styling */
@@ -446,7 +633,7 @@ $openEmrCalendarCompatible = true;
             min-width: 220px;
             background: var(--medex-panel-bg);
             border-right: 1px solid var(--medex-panel-border);
-            padding: 58px 10px 10px 10px;
+            padding: 73px 10px 10px 10px;
             overflow-y: auto;
             transition: width 0.3s ease, min-width 0.3s ease, padding 0.3s ease, border-right-width 0.3s ease;
             position: relative;
@@ -471,18 +658,38 @@ $openEmrCalendarCompatible = true;
             flex-wrap: nowrap;
             gap: 8px;
             background: transparent;
-            padding: 4px;
-            border-radius: 6px;
+            padding: 0;
+            border-radius: 0;
         }
         #left-controls {
             position: fixed;
             top: 16px;
             left: 16px;
             z-index: 250;
+            background: var(--medex-panel-bg);
+            border: 1px solid var(--medex-panel-border);
+            border-radius: 10px;
+            padding: 4px;
+            box-shadow: var(--medex-card-shadow);
+        }
+        #left-controls-shield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            box-sizing: border-box;
+            width: 240px;
+            height: 66px;
+            z-index: 240;
+            background: var(--medex-panel-bg);
+            border-right: 1px solid var(--medex-panel-border);
         }
         body.sidebar-collapsed #left-controls {
             top: 16px;
             left: 16px;
+        }
+        body.sidebar-collapsed #left-controls-shield {
+            width: 0;
+            border-right: 0;
         }
         #medex-status-toast {
             position: fixed;
@@ -508,6 +715,27 @@ $openEmrCalendarCompatible = true;
         }
         #medex-status-toast.error {
             background: rgba(146, 27, 49, 0.96);
+        }
+        #medex-modern-tooltip {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            background: #1c2d3a;
+            color: #f0f8ff;
+            border-radius: 9px;
+            padding: 8px 12px;
+            font-size: 12px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.28);
+            line-height: 1.55;
+            max-width: 240px;
+            width: max-content;
+            opacity: 0;
+            transition: opacity 0.12s ease;
+            white-space: normal;
+            word-break: break-word;
+        }
+        #medex-modern-tooltip.show {
+            opacity: 1;
         }
         .quick-btn {
             min-width: 32px;
@@ -545,6 +773,68 @@ $openEmrCalendarCompatible = true;
         #sidebar .filter-section {
             margin-bottom: 20px;
         }
+        #sidebar details.filter-section {
+            margin-bottom: 12px;
+            border: 1px solid #bcc8d6;
+            border-radius: 4px;
+            background: #f3f6fa;
+            box-shadow: 0 1px 2px rgba(27, 45, 67, 0.08);
+            overflow: hidden;
+        }
+        #sidebar details.filter-section > summary {
+            list-style: none;
+            cursor: pointer;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--medex-text);
+            border-bottom: 1px solid transparent;
+            background: #eef3f8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+        #sidebar details.filter-section > summary::-webkit-details-marker {
+            display: none;
+        }
+        #sidebar details.filter-section > summary::after {
+            content: '\25B8';
+            font-size: 11px;
+            color: #6b7280;
+            transition: transform 0.15s ease;
+            margin-left: 10px;
+        }
+        #sidebar details.filter-section[open] > summary {
+            border-bottom-color: #c7d2e0;
+            background: #e8eef5;
+        }
+        #sidebar details.filter-section[open] > summary::after {
+            transform: rotate(90deg);
+        }
+        #sidebar .section-content {
+            padding: 8px;
+            background: #ffffff;
+        }
+        #sidebar .filter-bulk-actions {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        #sidebar .filter-bulk-action {
+            flex: 1;
+            padding: 4px 6px;
+            border: 1px solid #c7d2e0;
+            border-radius: 3px;
+            background: #f3f6fa;
+            color: #334155;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        #sidebar .filter-bulk-action:hover {
+            background: #e8eef5;
+        }
         #sidebar .switch-section {
             margin-top: 20px;
             padding-top: 15px;
@@ -557,23 +847,25 @@ $openEmrCalendarCompatible = true;
             max-height: 200px;
             overflow-y: auto;
             padding: 5px;
-            border: 1px solid var(--medex-panel-border);
+            border: 1px solid #c7d2e0;
             border-radius: 3px;
-            background: #ffffff;
+            background: #f8fbff;
+            box-shadow: inset 0 1px 2px rgba(35, 57, 82, 0.08);
         }
         #sidebar .checkbox-group::-webkit-scrollbar {
             width: 8px;
         }
         #sidebar .checkbox-group::-webkit-scrollbar-track {
-            background: #f1f1f1;
+            background: #e6ebf1;
             border-radius: 3px;
         }
         #sidebar .checkbox-group::-webkit-scrollbar-thumb {
-            background: var(--medex-accent);
+            background: #9aa9bb;
             border-radius: 3px;
+            border: 1px solid #e6ebf1;
         }
         #sidebar .checkbox-group::-webkit-scrollbar-thumb:hover {
-            filter: brightness(0.9);
+            background: #8698ad;
         }
         #sidebar .checkbox-label {
             display: flex;
@@ -615,8 +907,9 @@ $openEmrCalendarCompatible = true;
             transform: rotate(45deg);
         }
         #sidebar .checkbox-label:has(input[type="checkbox"]:checked) {
-            background: var(--medex-accent);
-            color: var(--medex-accent-contrast);
+            background: #e9f2ff;
+            color: #1f2937;
+            box-shadow: none;
         }
         #sidebar .checkbox-label:has(input[type="checkbox"]:checked)::before {
             background: var(--medex-accent);
@@ -640,6 +933,19 @@ $openEmrCalendarCompatible = true;
         }
 
         /* View selector styling */
+        .sidebar-section-label {
+            font-size: 10px;
+            color: var(--medex-text, #444);
+            opacity: 0.65;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+        body.medex-theme-openemr.oe-theme-manila .sidebar-section-label {
+            opacity: 1;
+            color: #444;
+        }
         .view-selector {
             display: flex;
             flex-direction: column;
@@ -665,7 +971,7 @@ $openEmrCalendarCompatible = true;
         }
         .view-selector .view-option:not(.active) {
             background: var(--medex-card-bg);
-            color: var(--medex-accent);
+            color: var(--medex-text, #1c2d3a);
             cursor: pointer;
             border-top: 1px solid var(--medex-accent);
         }
@@ -790,26 +1096,34 @@ $openEmrCalendarCompatible = true;
             color: #1f2933;
             position: absolute;
             top: 2px;
-            right: 2px;
+            left: 2px;
             z-index: 4;
         }
-        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main {
+        /* Anchor for timegrid and daygrid chips so the badge positions correctly. */
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main,
+        .fc-event.open-slot-chip.fc-daygrid-event .fc-event-main {
             position: relative;
         }
+        /* Pad only the outermost frame so the badge doesn't overlap title text.
+           Applying to nested title-container/title would stack the indent 3×. */
         .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-main-frame,
-        .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-title-container,
-        .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-title {
-            padding-right: 40px;
+        .fc-event.open-slot-chip.fc-daygrid-event.has-slot-state-indicator .fc-event-main-frame {
+            padding-left: 40px;
             box-sizing: border-box;
         }
         .fc-event .slot-state-indicator--filled {
-            background: #1f6f43;
-            border-color: #174e30;
+            background: #ffffff;
+            border-color: #9ca3af;
+            color: #111827;
+        }
+        .fc-event .slot-state-indicator--open {
+            background: #15803d;
+            border-color: #166534;
             color: #ffffff;
         }
         .fc-event .slot-state-indicator--open_not_reschedulable {
-            background: #6b7280;
-            border-color: #4b5563;
+            background: #15803d;
+            border-color: #166534;
             color: #ffffff;
         }
         .fc-event .slot-state-indicator--open_reschedulable_full {
@@ -833,10 +1147,11 @@ $openEmrCalendarCompatible = true;
             color: #ffffff;
         }
         .slot-state-legend {
-            border: 1px solid var(--medex-panel-border);
+            border: 1px solid #c7d2e0;
             border-radius: 4px;
             padding: 8px;
-            background: var(--medex-card-bg);
+            background: #ffffff;
+            box-shadow: inset 0 1px 2px rgba(35, 57, 82, 0.06);
         }
         .slot-state-legend-item {
             display: flex;
@@ -854,23 +1169,58 @@ $openEmrCalendarCompatible = true;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 34px;
-            height: 16px;
+            min-width: 58px;
+            height: 20px;
             border-radius: 999px;
             border: 1px solid rgba(0,0,0,0.22);
-            font-size: 9px;
+            font-size: 11px;
             line-height: 1;
             font-weight: 700;
             letter-spacing: 0.2px;
             color: #ffffff;
             flex: 0 0 auto;
+            cursor: pointer;
         }
-        .slot-state-legend-badge.filled { background: #1f6f43; border-color: #174e30; }
-        .slot-state-legend-badge.open_not_reschedulable { background: #6b7280; border-color: #4b5563; }
+        .slot-state-legend-badge.filled { background: #ffffff; border-color: #9ca3af; color: #111827; }
+        .slot-state-legend-badge.open { background: #15803d; border-color: #166534; }
+        .slot-state-legend-badge.open_not_reschedulable { background: #15803d; border-color: #166534; }
         .slot-state-legend-badge.open_reschedulable_full { background: #b45309; border-color: #92400e; }
         .slot-state-legend-badge.held_staff { background: #2563eb; border-color: #1d4ed8; }
         .slot-state-legend-badge.held_patient { background: #7c3aed; border-color: #5b21b6; }
         .slot-state-legend-badge.open_reschedulable_available { background: #15803d; border-color: #166534; }
+        .appointment-category-legend {
+            border: 1px solid #c7d2e0;
+            border-radius: 4px;
+            padding: 8px;
+            background: #ffffff;
+            max-height: 180px;
+            overflow-y: auto;
+            box-shadow: inset 0 1px 2px rgba(35, 57, 82, 0.06);
+        }
+        .appointment-category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--medex-text);
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+        .appointment-category-item:last-child {
+            margin-bottom: 0;
+        }
+        .appointment-category-swatch {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.2);
+            flex: 0 0 auto;
+        }
+        .appointment-category-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
         .fc-event-time {
             color: inherit;
         }
@@ -920,6 +1270,19 @@ $openEmrCalendarCompatible = true;
             text-overflow: ellipsis;
         }
 
+        /* Month view: open-slot chips need explicit background/border since
+           fc-daygrid-event doesn't inherit the timegrid chip rules. */
+        .fc-event.open-slot-chip.fc-daygrid-event {
+            background: var(--medex-slot-type-color, #d9e8f9) !important;
+            border: 1px solid rgba(0,0,0,0.18) !important;
+            border-radius: 4px !important;
+            color: #0f2740 !important;
+        }
+        .fc-event.open-slot-chip.fc-daygrid-event .fc-event-main {
+            background: transparent !important;
+            color: inherit !important;
+        }
+
         /* Default/taller slot mode: stack time over category so labels are readable. */
         .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-main {
             flex-direction: column;
@@ -930,12 +1293,13 @@ $openEmrCalendarCompatible = true;
         }
         .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .slot-state-indicator {
             top: 2px;
-            right: 2px;
+            left: 2px;
         }
         .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-main-frame {
-            display: inline-flex;
+            display: flex;
             flex-direction: column;
             align-items: flex-start;
+            width: 100%;
         }
         .fc-event.open-slot-chip.open-slot-chip-tall.fc-timegrid-event .fc-event-time {
             margin-right: 0;
@@ -957,10 +1321,11 @@ $openEmrCalendarCompatible = true;
             white-space: nowrap;
         }
         .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-main-frame {
-            display: inline-flex;
+            display: flex;
             flex-direction: row;
             align-items: center;
             min-width: 0;
+            width: 100%;
         }
         .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-title-container,
         .fc-event.open-slot-chip.open-slot-chip-short.fc-timegrid-event .fc-event-title {
@@ -969,15 +1334,20 @@ $openEmrCalendarCompatible = true;
             text-overflow: ellipsis;
         }
         .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main-frame {
-            display: inline-flex;
+            display: flex;
             flex-direction: row;
             align-items: center;
+            width: 100%;
             max-width: 100%;
             min-width: 0;
         }
         .fc-event.open-slot-chip.fc-timegrid-event .fc-event-time {
             margin-right: 4px;
             flex: 0 0 auto;
+        }
+        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-time {
+            display: none !important;
+            margin-right: 0 !important;
         }
         .fc-event.open-slot-chip.fc-timegrid-event .fc-event-title-container,
         .fc-event.open-slot-chip.fc-timegrid-event .fc-event-title {
@@ -993,6 +1363,44 @@ $openEmrCalendarCompatible = true;
             border: 2px solid rgba(0,0,0,0.2);
         }
 
+        /* Two-chip lane: keep slot anchors on the left and render booked
+           appointments as the second chip on the right when they overlap. */
+        .fc-timegrid-event.slot-anchor-chip {
+            z-index: 2;
+        }
+        .fc-timegrid-event.appointment-second-chip.has-slot-anchor-overlap {
+            z-index: 3;
+            left: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .fc-timegrid-event.slot-anchor-chip {
+            left: 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        .fc-timegrid-event.appointment-second-chip.has-slot-anchor-overlap .fc-event-main {
+            width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+
+        /* FullCalendar positions the harness wrapper; enforce split there too. */
+        .fc-timegrid-event-harness.slot-anchor-chip-harness,
+        .fc-timegrid-event-harness.slot-anchor-overlap-harness {
+            left: 0 !important;
+            right: auto !important;
+            width: max(58px, min(var(--medex-open-slot-chip-width), 16%, calc(100% - 10px))) !important;
+            min-width: 58px !important;
+            max-width: min(var(--medex-open-slot-chip-width), 16%, calc(100% - 10px)) !important;
+        }
+        .fc-timegrid-event-harness.appointment-second-chip-harness {
+            left: calc(max(58px, min(var(--medex-open-slot-chip-width), 16%, calc(100% - 10px))) + 8px) !important;
+            right: auto !important;
+            width: calc(100% - max(58px, min(var(--medex-open-slot-chip-width), 16%, calc(100% - 10px))) - 10px) !important;
+            max-width: calc(100% - max(58px, min(var(--medex-open-slot-chip-width), 16%, calc(100% - 10px))) - 10px) !important;
+        }
+
         /* Override FullCalendar's default event styling for better contrast */
         .fc-event-main {
             color: inherit;
@@ -1000,6 +1408,26 @@ $openEmrCalendarCompatible = true;
 
         .fc-daygrid-event {
             white-space: normal !important;
+        }
+
+        .fc-daygrid-event .fc-event-main-frame {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fc-daygrid-event .fc-event-time {
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: flex-start;
+            width: 74px;
+            min-width: 74px;
+            max-width: 74px;
+            box-sizing: border-box;
+            white-space: nowrap !important;
+            overflow: hidden;
+            text-overflow: clip;
+            padding: 0 6px !important;
         }
 
         .fc-daygrid-event-dot {
@@ -1142,15 +1570,24 @@ $openEmrCalendarCompatible = true;
             border-radius: 0;
         }
         .fc-icon {
-            font-family: Arial, sans-serif;
-            font-size: 14px;
             display: inline-block;
+            line-height: 1;
         }
-        .fc-icon-chevron-left::before {
-            content: '‹';
-        }
+        .fc-icon-chevron-left::before,
         .fc-icon-chevron-right::before {
-            content: '›';
+            font-family: 'FontAwesome';
+            font-size: 15px;
+            font-weight: 900;
+            speak: none;
+            -webkit-font-smoothing: antialiased;
+        }
+        .fc-icon-chevron-left::before { content: '\f053'; }
+        .fc-icon-chevron-right::before { content: '\f054'; }
+        /* Prev/next buttons are slightly larger so the arrows are easy to hit */
+        .fc-button-group .fc-button:has(.fc-icon-chevron-left),
+        .fc-button-group .fc-button:has(.fc-icon-chevron-right) {
+            padding: 4px 13px;
+            font-size: 14px;
         }
 
         /* Better contrast for today */
@@ -1221,7 +1658,8 @@ $openEmrCalendarCompatible = true;
         }
     </style>
 </head>
-<body class="medex-theme-<?php echo attr($prefTheme); ?>">
+<body class="medex-theme-<?php echo attr($prefTheme); ?><?php echo $oeThemeSlug ? ' oe-theme-' . attr($oeThemeSlug) : ''; ?>">
+    <div id="left-controls-shield" aria-hidden="true"></div>
     <div id="left-controls">
         <div class="quick-actions">
             <button type="button" class="quick-btn" title="<?php echo xla('Toggle Sidebar'); ?>" onclick="toggleSidebar()">
@@ -1251,7 +1689,7 @@ $openEmrCalendarCompatible = true;
     <div id="sidebar">
         <!-- View switcher at top -->
         <div style="margin-bottom: 15px;">
-            <div style="font-size: 10px; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
+            <div class="sidebar-section-label">
                 <?php echo xlt('Calendar View'); ?>
             </div>
             <div class="view-selector">
@@ -1264,14 +1702,17 @@ $openEmrCalendarCompatible = true;
             </div>
         </div>
 
-        <div class="filter-section" style="margin-bottom: 20px;">
-            <h4><?php echo xlt('Date'); ?></h4>
-            <input type="date" id="calendar-date-picker" class="form-control" style="width: 100%; padding: 5px; border: 1px solid #dee2e6; border-radius: 3px; font-size: 11px;">
-        </div>
+        <details id="sidebar-section-date" class="filter-section" open>
+            <summary><?php echo xlt('Date'); ?></summary>
+            <div class="section-content">
+                <input type="date" id="calendar-date-picker" class="form-control" style="width: 100%; padding: 5px; border: 1px solid #dee2e6; border-radius: 3px; font-size: 11px;">
+            </div>
+        </details>
 
-        <div class="filter-section">
-            <h4><?php echo xlt('Providers'); ?></h4>
-            <div class="checkbox-group" id="provider-filter">
+        <details id="sidebar-section-providers" class="filter-section" open>
+            <summary><?php echo xlt('Providers'); ?></summary>
+            <div class="section-content">
+                <div class="checkbox-group" id="provider-filter">
                 <?php
                 // Show providers visible to this user (OpenEMR ACL)
                 foreach ($visibleProviders as $provider) {
@@ -1286,12 +1727,14 @@ $openEmrCalendarCompatible = true;
                     echo '</label>';
                 }
                 ?>
+                </div>
             </div>
-        </div>
+        </details>
 
-        <div class="filter-section">
-            <h4><?php echo xlt('Facilities'); ?></h4>
-            <div class="checkbox-group" id="facility-filter">
+        <details id="sidebar-section-facilities" class="filter-section" open>
+            <summary><?php echo xlt('Facilities'); ?></summary>
+            <div class="section-content">
+                <div class="checkbox-group" id="facility-filter">
                 <?php
                 // Show facilities accessible to this user (OpenEMR ACL)
                 foreach ($userFacilities as $facility) {
@@ -1304,20 +1747,57 @@ $openEmrCalendarCompatible = true;
                     echo '</label>';
                 }
                 ?>
+                </div>
             </div>
-        </div>
+        </details>
 
-        <div class="filter-section">
-            <h4><?php echo xlt('Slot States'); ?></h4>
-            <div class="slot-state-legend">
-                <div class="slot-state-legend-item"><span class="slot-state-legend-badge filled">FIL</span><span><?php echo xlt('Filled'); ?></span></div>
-                <div class="slot-state-legend-item"><span class="slot-state-legend-badge open_not_reschedulable">LOCK</span><span><?php echo xlt('Open, not reschedulable'); ?></span></div>
-                <div class="slot-state-legend-item"><span class="slot-state-legend-badge open_reschedulable_full">FULL</span><span><?php echo xlt('Open/reschedulable, but full'); ?></span></div>
-                <div class="slot-state-legend-item"><span class="slot-state-legend-badge held_staff">H-S</span><span><?php echo xlt('Open, held by staff'); ?></span></div>
-                <div class="slot-state-legend-item"><span class="slot-state-legend-badge held_patient">H-P</span><span><?php echo xlt('Open, held by patient'); ?></span></div>
-                <div class="slot-state-legend-item"><span class="slot-state-legend-badge open_reschedulable_available">OPEN</span><span><?php echo xlt('Open, reschedulable, available'); ?></span></div>
-            </div>
-        </div>
+        <?php if ($showReschedulerPanels): ?>
+            <details id="sidebar-section-slot-states" class="filter-section" open>
+                <summary><?php echo xlt('Availability'); ?></summary>
+                <div class="section-content">
+                    <div class="filter-bulk-actions">
+                        <button type="button" class="filter-bulk-action" data-target-filter="slot-state-filter" data-action="select-all"><?php echo xlt('Select All'); ?></button>
+                        <button type="button" class="filter-bulk-action" data-target-filter="slot-state-filter" data-action="clear-all"><?php echo xlt('Clear All'); ?></button>
+                    </div>
+                    <div class="checkbox-group" id="slot-state-filter">
+                    <label class="checkbox-label"><input type="checkbox" name="slot_states[]" value="filled" checked><span class="slot-state-legend-item"><span class="slot-state-legend-badge filled" title="<?php echo attr(xla('Filled')); ?>">FILLED</span></span></label>
+                    <?php if ($reschedulerActiveForUI): ?>
+                    <label class="checkbox-label"><input type="checkbox" name="slot_states[]" value="open_not_reschedulable" checked><span class="slot-state-legend-item"><span class="slot-state-legend-badge open_not_reschedulable" title="<?php echo attr(xla($openStaffTitle)); ?>">OPEN</span></span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="slot_states[]" value="open_reschedulable_available" checked><span class="slot-state-legend-item"><span class="slot-state-legend-badge open_reschedulable_available" title="<?php echo attr(xla($openPatientTitle)); ?>">Open-P</span></span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="slot_states[]" value="held_staff" checked><span class="slot-state-legend-item"><span class="slot-state-legend-badge held_staff" title="<?php echo attr(xla('Held by staff')); ?>">HELD-S</span></span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="slot_states[]" value="held_patient" checked><span class="slot-state-legend-item"><span class="slot-state-legend-badge held_patient" title="<?php echo attr(xla('Held by patient')); ?>">HELD-P</span></span></label>
+                    <?php else: ?>
+                    <label class="checkbox-label"><input type="checkbox" name="slot_states[]" value="open" checked><span class="slot-state-legend-item"><span class="slot-state-legend-badge open_not_reschedulable" title="<?php echo attr(xla('Open')); ?>">OPEN</span></span></label>
+                    <?php endif; ?>
+                    </div>
+                </div>
+            </details>
+
+            <details id="sidebar-section-appointment-categories" class="filter-section" open>
+                <summary><?php echo xlt('Appointment Types'); ?></summary>
+                <div class="section-content">
+                    <div class="filter-bulk-actions">
+                        <button type="button" class="filter-bulk-action" data-target-filter="appointment-category-filter" data-action="select-all"><?php echo xlt('Select All'); ?></button>
+                        <button type="button" class="filter-bulk-action" data-target-filter="appointment-category-filter" data-action="clear-all"><?php echo xlt('Clear All'); ?></button>
+                    </div>
+                    <div class="checkbox-group" id="appointment-category-filter">
+                    <?php if (!empty($appointmentCategoryLegend)) : ?>
+                        <?php foreach ($appointmentCategoryLegend as $legendItem) : ?>
+                            <label class="checkbox-label appointment-category-item" title="<?php echo attr($legendItem['name']); ?>">
+                                <input type="checkbox" name="appointment_categories[]" value="<?php echo attr((string)$legendItem['id']); ?>" checked>
+                                <span class="appointment-category-swatch" style="background: <?php echo attr($legendItem['color']); ?>;"></span>
+                                <span class="appointment-category-name"><?php echo text($legendItem['name']); ?></span>
+                            </label>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                        <div class="appointment-category-item">
+                            <span class="appointment-category-name"><?php echo xlt('No template slot types found'); ?></span>
+                        </div>
+                    <?php endif; ?>
+                    </div>
+                </div>
+            </details>
+        <?php endif; ?>
     </div>
 
     <!-- Main content area -->
@@ -1349,6 +1829,7 @@ $openEmrCalendarCompatible = true;
         <div id="calendars-container"></div>
     </div>
     <div id="medex-status-toast" aria-live="polite"></div>
+    <div id="medex-modern-tooltip" role="tooltip" aria-hidden="true"></div>
 
     <script type="text/javascript">
         function getContrastTextColor(colorValue) {
@@ -1455,7 +1936,12 @@ $openEmrCalendarCompatible = true;
 
             const bg = pickColor(['body', 'html', '.container-fluid', '.card', '.panel'], 'backgroundColor', '#f6f7f9');
             const text = pickColor(['body', 'html', '.container-fluid', '.card'], 'color', '#1f2933');
-            const accent = pickVar(['--primary', '--primary-color', '--bs-primary'], pickColor(['.btn-primary', '.navbar .active a', '.nav-tabs .active a', '.nav-link.active'], 'backgroundColor', '#c9dbf2'));
+            // Use the actual rendered .btn-primary background FIRST — themes like Manila
+            // override .btn-primary (to #c9dbf2) but leave --primary pointing to Bootstrap's
+            // default #007bff, so CSS vars give the wrong color for those themes.
+            const accentFromButton = pickColor(['.btn-primary', '.navbar .active a', '.nav-tabs .active a', '.nav-link.active'], 'backgroundColor', '');
+            const accentFromVar = pickVar(['--primary', '--primary-color', '--bs-primary'], '');
+            const accent = accentFromButton || accentFromVar || '#c9dbf2';
             const panelBg = pickColor(['.card', '.panel', '.container-fluid', 'body'], 'backgroundColor', '#ffffff');
             const panelBorder = pickColor(['.card', '.panel', '.form-control', '.table'], 'borderColor', '#d6dbe1');
 
@@ -1502,45 +1988,29 @@ $openEmrCalendarCompatible = true;
         }
 
         function openDedicatedCalendarWindow() {
-            saveFilterSelections();
-
-            const params = new URLSearchParams(window.location.search);
-            const selectedProviders = Array.from(document.querySelectorAll('#provider-filter input[type="checkbox"]:checked')).map(cb => cb.value);
-            const selectedFacilities = Array.from(document.querySelectorAll('#facility-filter input[type="checkbox"]:checked')).map(cb => cb.value);
-
-            const activeCalendar = (typeof calendarInstances !== 'undefined' && calendarInstances.length > 0) ? calendarInstances[0] : null;
-            const currentView = activeCalendar ? activeCalendar.view.type : (localStorage.getItem('medexCalendarView') || 'timeGridWeek');
-            const currentDateObj = activeCalendar ? activeCalendar.getDate() : null;
-            const currentDate = currentDateObj
-                ? currentDateObj.toISOString().split('T')[0]
-                : ((localStorage.getItem('medexCalendarDate') || '').split('T')[0] || '');
-
-            localStorage.setItem('medexCalendarView', currentView);
-            if (currentDate) {
-                localStorage.setItem('medexCalendarDate', currentDate);
+            const host = document.getElementById('main-content');
+            if (!host) {
+                return;
             }
 
-            params.set('view', currentView);
-            if (currentDate) {
-                params.set('date', currentDate);
-            }
-            if (selectedProviders.length > 0) {
-                params.set('providers', selectedProviders.join(','));
-            } else {
-                params.delete('providers');
-            }
-            if (selectedFacilities.length > 0) {
-                params.set('facilities', selectedFacilities.join(','));
-            } else {
-                params.delete('facilities');
-            }
+            const isFullscreen = document.fullscreenElement === host;
 
-            const targetUrl = window.location.pathname + '?' + params.toString();
+            if (isFullscreen) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+                return;
+            }
 
             if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
                 top.restoreSession();
             }
-            window.open(targetUrl, '_blank', 'noopener,noreferrer,width=1600,height=900');
+
+            if (host.requestFullscreen) {
+                host.requestFullscreen().catch(() => {
+                    // Ignore if browser blocks fullscreen request.
+                });
+            }
         }
 
         // Sidebar toggle functionality
@@ -1676,9 +2146,16 @@ $openEmrCalendarCompatible = true;
                 }
             }
 
+            let providerUserId = '';
+            if (providerId && window.providerData && window.providerData[providerId] && window.providerData[providerId].id) {
+                providerUserId = String(window.providerData[providerId].id);
+            } else if (/^\d+$/.test(String(providerId))) {
+                providerUserId = String(providerId);
+            }
+
             const duration = parseInt(window.calendarInterval || '15', 10) || 15;
             const url = webroot + '/interface/modules/custom_modules/oe-module-medex/public/calendar/edit_event_wrapper.php?date=' + encodeURIComponent(dateStr) +
-                '&starttimeh=9&starttimem=00&userid=' + encodeURIComponent(providerId) + '&duration=' + encodeURIComponent(duration);
+                '&starttimeh=9&starttimem=00&userid=' + encodeURIComponent(providerUserId) + '&duration=' + encodeURIComponent(duration);
 
             const callbackName = 'medexRefreshAllCalendars';
             if (!window[callbackName]) {
