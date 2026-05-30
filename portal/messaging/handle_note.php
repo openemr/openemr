@@ -83,8 +83,10 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     $authUser = $session->get('authUser');
     $staffSenderId = is_string($authUser) ? $authUser : '';
     $staffDisplayName = QueryUtils::fetchSingleValue(
-        "SELECT CONCAT(fname, ' ', lname) FROM users WHERE username = ?",
-        'string',
+        <<<'SQL'
+        SELECT CONCAT(fname, ' ', lname) AS display_name FROM users WHERE username = ?
+        SQL,
+        'display_name',
         [$staffSenderId]
     );
     $staffSenderName = is_string($staffDisplayName) && trim($staffDisplayName) !== ''
