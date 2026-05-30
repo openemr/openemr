@@ -1717,6 +1717,84 @@ $templateCount = count($detectedTemplates);
             display: flex;
         }
 
+        .rescheduler-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+            background: rgba(7, 20, 22, 0.48);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .rescheduler-modal.is-open {
+            display: flex;
+        }
+
+        .rescheduler-dialog {
+            width: min(860px, 96vw);
+            max-height: min(88vh, 900px);
+            background: #fff;
+            border: 1px solid var(--cs-border);
+            border-radius: 14px;
+            box-shadow: 0 22px 46px rgba(15, 35, 38, 0.28);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .rescheduler-dialog-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 22px 14px;
+            border-bottom: 1px solid var(--cs-border);
+            flex-shrink: 0;
+        }
+
+        .rescheduler-dialog-body {
+            padding: 22px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .rp-pvbtn-wrap {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .rp-pvbtn-wrap .rp-pvbtn-del {
+            display: none;
+            position: absolute;
+            right: -6px;
+            top: -6px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--cs-accent);
+            color: #fff;
+            font-size: 10px;
+            line-height: 16px;
+            text-align: center;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            z-index: 1;
+        }
+
+        .rp-pvbtn-wrap.has-override .rp-pvbtn-del {
+            display: block;
+        }
+
+        .rp-pvbtn-wrap.has-override .rp-pvbtn {
+            background: #dbeafe;
+            color: var(--cs-accent);
+            border-color: var(--cs-accent);
+            font-weight: normal;
+        }
+
         /* Coloris picker must float above everything */
         .clr-picker { z-index: 9999 !important; }
 
@@ -2252,11 +2330,9 @@ $templateCount = count($detectedTemplates);
 <div class="cs-shell">
     <div class="cs-topbar">
         <nav class="cs-title-breadcrumb">
-            <a href="#" id="bcStudioLink" onclick="closeEditor();closeReschedulerPanel();return false;"><?php echo xlt('Calendar Studio'); ?></a>
+            <a href="#" id="bcStudioLink" onclick="closeEditor();return false;"><?php echo xlt('Calendar Studio'); ?></a>
             <span class="bc-sep" id="bcProviderSlash" style="display:none;">/</span>
             <strong id="bcProviderName" style="display:none;"></strong>
-            <span class="bc-sep" id="bcReschedulerSlash" style="display:none;">/</span>
-            <strong id="bcReschedulerName" style="display:none;"><?php echo xlt('Rescheduler Rules'); ?></strong>
         </nav>
         <div class="cs-actions">
             <span id="editorActions" style="display:none;">
@@ -2353,126 +2429,6 @@ $templateCount = count($detectedTemplates);
     </div><!-- /.cs-config -->
     </div><!-- /#csConfigWrap -->
 
-    <!-- =========================================================
-         Rescheduler Panel — shown by openReschedulerPanel()
-         ========================================================= -->
-    <div id="reschedulerPanel" style="display:none;max-width:860px;">
-
-        <!-- Header row: title + kill switch -->
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
-            <div>
-                <h2 style="margin:0 0 4px 0;font-size:17px;color:var(--cs-ink);"><?php echo xlt('Patient Rescheduler Rules'); ?></h2>
-                <p style="margin:0;font-size:12px;color:var(--cs-subtle);"><?php echo xlt('Set practice-wide defaults. Select a provider below to override settings for that provider only.'); ?></p>
-            </div>
-            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:4px;">
-                <span id="reschedulerPanelStatusLabel" style="font-size:12px;font-weight:600;"></span>
-                <label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;" title="<?php echo attr(xl('Toggle patient rescheduler on/off')); ?>">
-                    <input type="checkbox" id="reschedulerPanelToggle" style="opacity:0;width:0;height:0;position:absolute;">
-                    <span id="reschedulerPanelSlider" style="position:absolute;inset:0;border-radius:24px;transition:.2s;background:#ccc;">
-                        <span id="reschedulerPanelThumb" style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;"></span>
-                    </span>
-                </label>
-            </div>
-        </div>
-
-        <!-- Practice-wide defaults -->
-        <div style="background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px;margin-bottom:16px;">
-            <h3 style="font-size:13px;font-weight:700;color:var(--cs-ink);margin:0 0 14px 0;"><?php echo xlt('Practice-wide Defaults'); ?></h3>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;">
-                <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Openings to offer'); ?></label>
-                    <input type="number" id="rp-max_offers" min="1" max="12" value="3" style="width:100%;box-sizing:border-box;">
-                </div>
-                <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Min hours before visit'); ?></label>
-                    <input type="number" id="rp-min_hours_before" min="0" max="168" value="1" style="width:100%;box-sizing:border-box;">
-                </div>
-                <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move earlier'); ?></label>
-                    <input type="number" id="rp-max_days_before" min="0" max="365" value="30" style="width:100%;box-sizing:border-box;">
-                </div>
-                <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move later'); ?></label>
-                    <input type="number" id="rp-max_days_after" min="0" max="365" value="60" style="width:100%;box-sizing:border-box;">
-                </div>
-                <div>
-                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;" title="<?php echo attr(xl('How long to hold an offered slot before releasing it back to the pool')); ?>"><?php echo xlt('Hold offered slots (min)'); ?></label>
-                    <input type="number" id="rp-slot_hold_minutes" min="5" max="60" value="15" style="width:100%;box-sizing:border-box;">
-                </div>
-                <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
-                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
-                        <input type="checkbox" id="rp-allow_same_day">
-                        <?php echo xlt('Allow same-day reschedules'); ?>
-                    </label>
-                </div>
-            </div>
-            <div style="margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                <button class="btn primary" type="button" onclick="saveReschedulerRulesPanel()"><?php echo xlt('Save Rules'); ?></button>
-                <button class="btn" type="button" onclick="resetReschedulerRulesPanel()"><?php echo xlt('Reset Defaults'); ?></button>
-                <span id="rpSaveStatus" style="font-size:12px;display:none;"></span>
-            </div>
-        </div>
-
-        <!-- Provider fine-tuning -->
-        <div style="background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px;">
-            <h3 style="font-size:13px;font-weight:700;color:var(--cs-ink);margin:0 0 4px 0;"><?php echo xlt('Provider Fine-tuning'); ?> <span style="font-size:11px;font-weight:400;color:var(--cs-subtle);"><?php echo xlt('(optional)'); ?></span></h3>
-            <p style="margin:0 0 14px 0;font-size:12px;color:var(--cs-subtle);"><?php echo xlt('Select a provider to override the practice defaults for that provider only. Bold name = has override.'); ?></p>
-            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="rpProviderBtns">
-                <?php foreach ($providers as $_p): ?>
-                <button type="button" class="btn rp-pvbtn" data-pid="<?php echo attr((string)$_p['id']); ?>"
-                        style="font-size:11px;padding:5px 12px;"
-                        onclick="openRpProviderOverride(<?php echo (int)$_p['id']; ?>)">
-                    <?php echo text($_p['name']); ?>
-                </button>
-                <?php endforeach; ?>
-            </div>
-            <div id="rpProviderForm" style="display:none;background:var(--cs-bg);border:1px solid var(--cs-border);border-radius:8px;padding:16px 18px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-                    <strong id="rpProviderFormName" style="font-size:13px;color:var(--cs-ink);"></strong>
-                    <button type="button" class="btn" style="font-size:11px;padding:4px 10px;" onclick="closeRpProviderOverride()"><?php echo xlt('Close'); ?></button>
-                </div>
-                <div style="margin-bottom:12px;">
-                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
-                        <input type="checkbox" id="rpv-enabled" checked>
-                        <?php echo xlt('Rescheduling enabled for this provider'); ?>
-                    </label>
-                </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;">
-                    <div>
-                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Openings to offer'); ?></label>
-                        <input type="number" id="rpv-max_offers" min="1" max="12" value="3" style="width:100%;box-sizing:border-box;">
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Min hours before visit'); ?></label>
-                        <input type="number" id="rpv-min_hours_before" min="0" max="168" value="1" style="width:100%;box-sizing:border-box;">
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move earlier'); ?></label>
-                        <input type="number" id="rpv-max_days_before" min="0" max="365" value="30" style="width:100%;box-sizing:border-box;">
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move later'); ?></label>
-                        <input type="number" id="rpv-max_days_after" min="0" max="365" value="60" style="width:100%;box-sizing:border-box;">
-                    </div>
-                    <div>
-                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Hold offered slots (min)'); ?></label>
-                        <input type="number" id="rpv-slot_hold_minutes" min="5" max="60" value="15" style="width:100%;box-sizing:border-box;">
-                    </div>
-                    <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
-                        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
-                            <input type="checkbox" id="rpv-allow_same_day">
-                            <?php echo xlt('Allow same-day'); ?>
-                        </label>
-                    </div>
-                </div>
-                <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                    <button class="btn primary" type="button" onclick="saveRpProviderOverride()"><?php echo xlt('Save Provider Rules'); ?></button>
-                    <button class="btn" type="button" onclick="clearRpProviderOverride()"><?php echo xlt('Clear Override'); ?></button>
-                    <span id="rpvSaveStatus" style="font-size:12px;display:none;"></span>
-                </div>
-            </div>
-        </div>
-    </div><!-- /#reschedulerPanel -->
 
     <?php
     // Build a provider → first-template map for the roster.
@@ -2573,7 +2529,7 @@ $templateCount = count($detectedTemplates);
                     <div style="margin-top:14px;">
                         <span id="reschedulerSaveSpinner" style="visibility:hidden;display:block;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;min-height:1em;"><?php echo xlt('Saving…'); ?></span>
                         <button class="btn" type="button" style="width:100%;text-align:center;"
-                            onclick="openReschedulerPanel();">
+                            onclick="openReschedulerModal();">
                             <?php echo xlt('Open Rescheduler Rules'); ?>
                         </button>
                     </div>
@@ -4791,58 +4747,20 @@ function saveSchedulingRules() {
 var _rpProviderRules = {};
 var _rpCurrentPid = null;
 
-function openReschedulerPanel() {
-    var roster    = document.getElementById('providerRoster');
-    var panel     = document.getElementById('reschedulerPanel');
-    var csMain    = document.getElementById('csMain');
-    var cfgWrap   = document.getElementById('csConfigWrap');
-    if (roster)   { roster.style.display = 'none'; }
-    if (csMain)   { csMain.style.display = 'none'; }
-    if (cfgWrap)  { cfgWrap.style.display = 'none'; }
-    if (panel)    { panel.style.display = ''; }
-    document.querySelectorAll('.provider-card').forEach(function(c) { c.classList.remove('active'); });
-    var editorActions = document.getElementById('editorActions');
-    if (editorActions) { editorActions.style.display = 'none'; }
-    var bcProvSlash = document.getElementById('bcProviderSlash');
-    var bcProvName  = document.getElementById('bcProviderName');
-    var bcResSlash  = document.getElementById('bcReschedulerSlash');
-    var bcResName   = document.getElementById('bcReschedulerName');
-    if (bcProvSlash) { bcProvSlash.style.display = 'none'; }
-    if (bcProvName)  { bcProvName.style.display  = 'none'; }
-    if (bcResSlash)  { bcResSlash.style.display  = ''; }
-    if (bcResName)   { bcResName.style.display   = ''; }
-    _syncRpPanelToggle();
+function openReschedulerModal() {
+    var modal = document.getElementById('reschedulerModal');
+    if (!modal) { return; }
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
     loadReschedulerRulesPanel();
 }
 
-function closeReschedulerPanel() {
-    var panel  = document.getElementById('reschedulerPanel');
-    if (!panel || panel.style.display === 'none') { return; }
-    panel.style.display = 'none';
-    var roster = document.getElementById('providerRoster');
-    if (roster) { roster.style.display = ''; }
-    var bcResSlash = document.getElementById('bcReschedulerSlash');
-    var bcResName  = document.getElementById('bcReschedulerName');
-    if (bcResSlash) { bcResSlash.style.display = 'none'; }
-    if (bcResName)  { bcResName.style.display  = 'none'; }
+function closeReschedulerModal() {
+    var modal = document.getElementById('reschedulerModal');
+    if (!modal) { return; }
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
     closeRpProviderOverride();
-}
-
-function _syncRpPanelToggle() {
-    var cardToggle = document.getElementById('reschedulerToggle');
-    var panelToggle = document.getElementById('reschedulerPanelToggle');
-    if (!cardToggle || !panelToggle) { return; }
-    panelToggle.checked = cardToggle.checked;
-    _updateRpPanelToggleUI(cardToggle.checked);
-}
-
-function _updateRpPanelToggleUI(isActive) {
-    var slider = document.getElementById('reschedulerPanelSlider');
-    var thumb  = document.getElementById('reschedulerPanelThumb');
-    var label  = document.getElementById('reschedulerPanelStatusLabel');
-    if (slider) { slider.style.background = isActive ? '#1c4568' : '#ef4444'; }
-    if (thumb)  { thumb.style.left = isActive ? '21px' : '3px'; }
-    if (label)  { label.textContent = isActive ? 'Active' : 'Paused'; label.style.color = isActive ? '#1c4568' : '#ef4444'; }
 }
 
 function loadReschedulerRulesPanel() {
@@ -4913,12 +4831,26 @@ function resetReschedulerRulesPanel() {
 }
 
 function _updateRpProviderBadges() {
-    document.querySelectorAll('.rp-pvbtn').forEach(function(btn) {
-        var pid = String(btn.getAttribute('data-pid'));
+    document.querySelectorAll('.rp-pvbtn-wrap').forEach(function(wrap) {
+        var pid = String(wrap.getAttribute('data-pid'));
         var has = !!_rpProviderRules[pid];
-        btn.style.borderColor = has ? 'var(--cs-accent)' : '';
-        btn.style.color       = has ? 'var(--cs-accent)' : '';
-        btn.style.fontWeight  = has ? '700' : '';
+        if (has) {
+            wrap.classList.add('has-override');
+        } else {
+            wrap.classList.remove('has-override');
+        }
+    });
+}
+
+function deleteRpProviderOverride(pid) {
+    _rpCurrentPid = String(pid);
+    delete _rpProviderRules[_rpCurrentPid];
+    _rpCurrentPid = null;
+    _updateRpProviderBadges();
+    closeRpProviderOverride();
+    saveReschedulerRulesPanel(true).then(function() {
+        var status = document.getElementById('rpSaveStatus');
+        if (status) { status.textContent = 'Override removed.'; status.style.display = ''; status.style.color = 'var(--cs-subtle)'; setTimeout(function() { if (status) { status.style.display = 'none'; } }, 2500); }
     });
 }
 
@@ -4972,27 +4904,14 @@ function saveRpProviderOverride() {
 function clearRpProviderOverride() {
     if (!_rpCurrentPid) { return; }
     delete _rpProviderRules[_rpCurrentPid];
+    _rpCurrentPid = null;
     _updateRpProviderBadges();
+    closeRpProviderOverride();
     saveReschedulerRulesPanel(true).then(function() {
-        var pvStatus = document.getElementById('rpvSaveStatus');
-        if (pvStatus) { pvStatus.textContent = 'Override cleared'; pvStatus.style.display = ''; pvStatus.style.color = 'var(--cs-subtle)'; setTimeout(function() { if (pvStatus) { pvStatus.style.display = 'none'; } }, 2000); }
-        // Reload provider form with defaults
-        var pid = _rpCurrentPid;
-        if (pid) { openRpProviderOverride(pid); }
+        var status = document.getElementById('rpSaveStatus');
+        if (status) { status.textContent = 'Override removed.'; status.style.display = ''; status.style.color = 'var(--cs-subtle)'; setTimeout(function() { if (status) { status.style.display = 'none'; } }, 2500); }
     });
 }
-
-// Panel toggle → delegates to card toggle so AJAX fires once
-(function() {
-    var panelToggle = document.getElementById('reschedulerPanelToggle');
-    if (!panelToggle) { return; }
-    panelToggle.addEventListener('change', function() {
-        var cardToggle = document.getElementById('reschedulerToggle');
-        if (!cardToggle) { return; }
-        cardToggle.checked = panelToggle.checked;
-        cardToggle.dispatchEvent(new Event('change'));
-    });
-}());
 
 // Patient Rescheduler kill switch toggle
 (function() {
@@ -5015,9 +4934,6 @@ function clearRpProviderOverride() {
             .then(function(d) {
                 if (!d.success) {
                     toggle.checked = !paused; // revert toggle
-                    // Keep panel toggle in sync on revert
-                    var pt = document.getElementById('reschedulerPanelToggle');
-                    if (pt) { pt.checked = toggle.checked; _updateRpPanelToggleUI(toggle.checked); }
                     if (d.blocked && d.message) {
                         // Show inline alert below the card
                         var alertEl = document.getElementById('reschedulerBlockedAlert');
@@ -5040,18 +4956,137 @@ function clearRpProviderOverride() {
                 const isNowPaused = !!d.paused;
                 if (slider) { slider.style.background = isNowPaused ? '#ef4444' : '#1c4568'; }
                 if (thumb) { thumb.style.left = isNowPaused ? '3px' : '21px'; }
-                // Keep panel toggle in sync
-                var pt = document.getElementById('reschedulerPanelToggle');
-                if (pt) { pt.checked = !isNowPaused; _updateRpPanelToggleUI(!isNowPaused); }
             })
             .catch(function() {
                 toggle.checked = !paused;
-                var pt = document.getElementById('reschedulerPanelToggle');
-                if (pt) { pt.checked = toggle.checked; _updateRpPanelToggleUI(toggle.checked); }
             })
             .finally(function() { if (spinner) { spinner.style.visibility = 'hidden'; } });
     });
 }());
 </script>
+
+<!-- =========================================================
+     Rescheduler Rules Modal
+     ========================================================= -->
+<div class="rescheduler-modal" id="reschedulerModal" aria-hidden="true"
+     onclick="if(event.target===this){closeReschedulerModal();}">
+    <div class="rescheduler-dialog" role="dialog" aria-modal="true" aria-label="<?php echo attr(xl('Patient Rescheduler Rules')); ?>">
+
+        <div class="rescheduler-dialog-head">
+            <div>
+                <strong style="font-size:16px;color:var(--cs-ink);"><?php echo xlt('Patient Rescheduler Rules'); ?></strong>
+                <p style="margin:4px 0 0;font-size:12px;color:var(--cs-subtle);"><?php echo xlt('Set practice-wide defaults. Select a provider below to fine-tune for that provider only.'); ?></p>
+            </div>
+            <button class="btn" type="button" onclick="closeReschedulerModal()" style="flex-shrink:0;"><?php echo xlt('Close'); ?></button>
+        </div>
+
+        <div class="rescheduler-dialog-body">
+
+            <!-- Practice-wide defaults -->
+            <div style="background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px;margin-bottom:16px;">
+                <h3 style="font-size:13px;font-weight:700;color:var(--cs-ink);margin:0 0 14px 0;"><?php echo xlt('Practice-wide Defaults'); ?></h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Openings to offer'); ?></label>
+                        <input type="number" id="rp-max_offers" min="1" max="12" value="3" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Min hours before visit'); ?></label>
+                        <input type="number" id="rp-min_hours_before" min="0" max="168" value="1" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move earlier'); ?></label>
+                        <input type="number" id="rp-max_days_before" min="0" max="365" value="30" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move later'); ?></label>
+                        <input type="number" id="rp-max_days_after" min="0" max="365" value="60" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;" title="<?php echo attr(xl('How long to hold an offered slot before releasing it back to the pool')); ?>"><?php echo xlt('Hold offered slots (min)'); ?></label>
+                        <input type="number" id="rp-slot_hold_minutes" min="5" max="60" value="15" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                            <input type="checkbox" id="rp-allow_same_day">
+                            <?php echo xlt('Allow same-day reschedules'); ?>
+                        </label>
+                    </div>
+                </div>
+                <div style="margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <button class="btn primary" type="button" onclick="saveReschedulerRulesPanel()"><?php echo xlt('Save Rules'); ?></button>
+                    <button class="btn" type="button" onclick="resetReschedulerRulesPanel()"><?php echo xlt('Reset Defaults'); ?></button>
+                    <span id="rpSaveStatus" style="font-size:12px;display:none;"></span>
+                </div>
+            </div>
+
+            <!-- Provider fine-tuning -->
+            <div style="background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px;">
+                <h3 style="font-size:13px;font-weight:700;color:var(--cs-ink);margin:0 0 4px 0;"><?php echo xlt('Provider Fine-tuning'); ?> <span style="font-size:11px;font-weight:400;color:var(--cs-subtle);"><?php echo xlt('(optional)'); ?></span></h3>
+                <p style="margin:0 0 14px 0;font-size:12px;color:var(--cs-subtle);"><?php echo xlt('Select a provider to override the practice defaults for that provider only.'); ?></p>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="rpProviderBtns">
+                    <?php foreach ($providers as $_p): ?>
+                    <div class="rp-pvbtn-wrap" data-pid="<?php echo attr((string)$_p['id']); ?>">
+                        <button type="button" class="btn rp-pvbtn" data-pid="<?php echo attr((string)$_p['id']); ?>"
+                                style="font-size:11px;padding:5px 12px;"
+                                onclick="openRpProviderOverride(<?php echo (int)$_p['id']; ?>)">
+                            <?php echo text($_p['name']); ?>
+                        </button>
+                        <button type="button" class="rp-pvbtn-del" title="<?php echo attr(xl('Delete provider override')); ?>"
+                                onclick="deleteRpProviderOverride(<?php echo (int)$_p['id']; ?>)">&#x2715;</button>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+                <div id="rpProviderForm" style="display:none;background:var(--cs-bg);border:1px solid var(--cs-border);border-radius:8px;padding:16px 18px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                        <strong id="rpProviderFormName" style="font-size:13px;color:var(--cs-ink);"></strong>
+                        <button type="button" class="btn" style="font-size:11px;padding:4px 10px;" onclick="closeRpProviderOverride()"><?php echo xlt('Close'); ?></button>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                            <input type="checkbox" id="rpv-enabled" checked>
+                            <?php echo xlt('Rescheduling enabled for this provider'); ?>
+                        </label>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;">
+                        <div>
+                            <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Openings to offer'); ?></label>
+                            <input type="number" id="rpv-max_offers" min="1" max="12" value="3" style="width:100%;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Min hours before visit'); ?></label>
+                            <input type="number" id="rpv-min_hours_before" min="0" max="168" value="1" style="width:100%;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move earlier'); ?></label>
+                            <input type="number" id="rpv-max_days_before" min="0" max="365" value="30" style="width:100%;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move later'); ?></label>
+                            <input type="number" id="rpv-max_days_after" min="0" max="365" value="60" style="width:100%;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Hold offered slots (min)'); ?></label>
+                            <input type="number" id="rpv-slot_hold_minutes" min="5" max="60" value="15" style="width:100%;box-sizing:border-box;">
+                        </div>
+                        <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+                            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                                <input type="checkbox" id="rpv-allow_same_day">
+                                <?php echo xlt('Allow same-day'); ?>
+                            </label>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                        <button class="btn primary" type="button" onclick="saveRpProviderOverride()"><?php echo xlt('Save Provider Rules'); ?></button>
+                        <button class="btn" type="button" onclick="clearRpProviderOverride()"><?php echo xlt('Remove Override'); ?></button>
+                        <span id="rpvSaveStatus" style="font-size:12px;display:none;"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.rescheduler-dialog-body -->
+    </div><!-- /.rescheduler-dialog -->
+</div><!-- /#reschedulerModal -->
+
 </body>
 </html>
