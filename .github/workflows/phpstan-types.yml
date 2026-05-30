@@ -44,6 +44,8 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
+      with:
+        persist-credentials: false
 
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer

@@ -45,6 +45,8 @@ updates:
       # submodules are causing problems, so ignore them
   - dependency-name: '*/onc-certification-g10-test-kit'
   - dependency-name: '*/inferno-files'
+  cooldown:
+    default-days: 7
 
   # JavaScript dependencies (not including ccdaservice)
 - package-ecosystem: npm
@@ -105,6 +107,8 @@ updates:
     versions: [5.x, 6.x]         # Stay on Bootstrap 4 for compatibility
   - dependency-name: angular
     versions: ['>1.8.x']     # Legacy AngularJS, don't update
+  cooldown:
+    default-days: 7
 
   # GitHub Actions
 - package-ecosystem: github-actions
@@ -119,6 +123,8 @@ updates:
     prefix: ci
     include: scope
   open-pull-requests-limit: 5
+  cooldown:
+    default-days: 7
 
   # Docker selenium updates for CI (shared compose file)
   # Docker dev directories are covered by their own entries below,
@@ -140,6 +146,8 @@ updates:
   - dependencies
   - selenium
   - docker
+  cooldown:
+    default-days: 7
 
   # Docker CI images (database + PHP + shared services)
   # Database and PHP image tags encode the version under test (e.g., mysql:8.4.8,
@@ -213,6 +221,8 @@ updates:
   labels:
   - dependencies
   - docker
+  cooldown:
+    default-days: 7
 
   # Docker dev environments (easy, easy-light, easy-redis, production)
   # These use a single database version for convenience, not to test a
@@ -255,6 +265,8 @@ updates:
   labels:
   - dependencies
   - docker
+  cooldown:
+    default-days: 7
 
   # Docker insane (version-testing matrix)
   # Like CI, insane intentionally runs specific database + PHP versions.
@@ -302,6 +314,8 @@ updates:
   labels:
   - dependencies
   - docker
+  cooldown:
+    default-days: 7
 
   # JavaScript dependencies (ccdaservice)
 - package-ecosystem: npm
@@ -322,3 +336,5 @@ updates:
       # Don't update major versions automatically
   - dependency-name: '*'
     update-types: [version-update:semver-major]
+  cooldown:
+    default-days: 7

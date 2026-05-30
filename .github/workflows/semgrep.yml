@@ -28,13 +28,14 @@ jobs:
     name: Semgrep Security Scan
     runs-on: ubuntu-latest
     container:
-      image: semgrep/semgrep:latest
+      image: semgrep/semgrep:1.156.0
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
+        persist-credentials: false
 
     - name: Run Semgrep (full scan)
       if: github.event_name != 'pull_request'

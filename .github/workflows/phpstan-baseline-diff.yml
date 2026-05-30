@@ -65,6 +65,7 @@ jobs:
         sparse-checkout: |
           .phpstan
         sparse-checkout-cone-mode: false
+        persist-credentials: false
 
     - name: Download PR baseline
       if: steps.pr.outputs.number

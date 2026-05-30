@@ -25,6 +25,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v6
+      with:
+        persist-credentials: false
     - name: Install Python
       uses: actions/setup-python@v6
       with:
@@ -38,9 +40,11 @@ jobs:
     - name: Run whitespace hooks (PR - changed files only)
       if: github.event_name == 'pull_request' && steps.changed-files.outputs.any_changed == 'true'
       run: |
-        pre-commit run trailing-whitespace --files ${{ steps.changed-files.outputs.all_changed_files }}
-        pre-commit run end-of-file-fixer --files ${{ steps.changed-files.outputs.all_changed_files }}
-        pre-commit run mixed-line-ending --files ${{ steps.changed-files.outputs.all_changed_files }}
+        pre-commit run trailing-whitespace --files "${STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES}"
+        pre-commit run end-of-file-fixer --files "${STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES}"
+        pre-commit run mixed-line-ending --files "${STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES}"
+      env:
+        STEPS_CHANGED_FILES_OUTPUTS_ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
     - name: Run whitespace hooks (push - all files)
       if: github.event_name == 'push'
       run: |

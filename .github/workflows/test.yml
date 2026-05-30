@@ -99,12 +99,14 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
+      with:
+        persist-credentials: false
 
     - name: Parse Configuration
       id: parse
       run: |
         # Run the parsing script and save JSON output
-        ci/parse_docker_dir.sh "${{ inputs.docker_dir }}" | tee parsed_config.json
+        ci/parse_docker_dir.sh "${INPUTS_DOCKER_DIR}" | tee parsed_config.json
 
         # Extract outputs and write to GITHUB_OUTPUT
         jq -r '.[0].output | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_OUTPUT"
@@ -116,6 +118,8 @@ jobs:
 
         # Add ENABLE_COVERAGE to GITHUB_ENV
         echo "ENABLE_COVERAGE=${{ inputs.enable_coverage }}" >> "$GITHUB_ENV"
+      env:
+        INPUTS_DOCKER_DIR: ${{ inputs.docker_dir }}
 
     - name: Extract COMPOSE_FILE for downstream jobs
       id: parse-env
@@ -127,13 +131,16 @@ jobs:
       # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
       run: |
         base='["api","services","email"'
-        if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
+        if [[ "${STEPS_PARSE_OUTPUTS_E2E_ENABLED}" = "true" ]]; then
           base="${base},"'"e2e"'
         fi
-        if [[ '${{ steps.parse.outputs.redis_sentinel_enabled }}' = 'true' ]]; then
+        if [[ "${STEPS_PARSE_OUTPUTS_REDIS_SENTINEL_ENABLED}" = "true" ]]; then
           base="${base},"'"redis-failover"'
         fi
         echo "suites=${base}]" >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_PARSE_OUTPUTS_E2E_ENABLED: ${{ steps.parse.outputs.e2e_enabled }}
+        STEPS_PARSE_OUTPUTS_REDIS_SENTINEL_ENABLED: ${{ steps.parse.outputs.redis_sentinel_enabled }}
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -170,12 +177,15 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
-          echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
-          echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
+          echo "vendor=${{ runner.os }}-vendor-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}"
+          echo "composer=${{ runner.os }}-composer-${STEPS_PARSE_OUTPUTS_PHP}-${{ hashFiles('**/composer.lock', 'composer.json') }}"
+          echo "npm-build=${{ runner.os }}-npm-build-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}"
+          echo "ccda-build=${{ runner.os }}-ccdaservice-modules-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/ccdaservice/package-lock.json') }}"
+          echo "npm=${{ runner.os }}-node-${STEPS_PARSE_OUTPUTS_NODE_VERSION}-${{ hashFiles('**/package-lock.json') }}"
         } >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_PARSE_OUTPUTS_PHP: ${{ steps.parse.outputs.php }}
+        STEPS_PARSE_OUTPUTS_NODE_VERSION: ${{ steps.parse.outputs.node_version }}
 
     ##
     # Restore everything that composer installed for the given key
@@ -197,13 +207,16 @@ jobs:
     - name: Check vendor artifacts cache
       id: vendor-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.vendor }}'
-        matched='${{ steps.vendor-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_VENDOR}"
+        matched="${STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_VENDOR: ${{ steps.cache-keys.outputs.vendor }}
+        STEPS_VENDOR_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.vendor-cache-restore.outputs.cache-matched-key }}
 
     ##
     # Restore composer's own cache
@@ -226,13 +239,16 @@ jobs:
     - name: Check composer cache
       id: composer-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.composer }}'
-        matched='${{ steps.composer-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_COMPOSER}"
+        matched="${STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_COMPOSER: ${{ steps.cache-keys.outputs.composer }}
+        STEPS_COMPOSER_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.composer-cache-restore.outputs.cache-matched-key }}
 
     - name: Composer Install
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
@@ -263,13 +279,16 @@ jobs:
     - name: Check npm build cache
       id: npm-build-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.npm-build }}'
-        matched='${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_NPM_BUILD}"
+        matched="${STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_NPM_BUILD: ${{ steps.cache-keys.outputs.npm-build }}
+        STEPS_NPM_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.npm-build-cache-restore.outputs.cache-matched-key }}
 
     ##
     # Restore everything that node built for CCDA for the given key.
@@ -292,13 +311,16 @@ jobs:
     - name: Check ccda build cache
       id: ccda-build-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.ccda-build }}'
-        matched='${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_CCDA_BUILD}"
+        matched="${STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_CCDA_BUILD: ${{ steps.cache-keys.outputs.ccda-build }}
+        STEPS_CCDA_BUILD_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.ccda-build-cache-restore.outputs.cache-matched-key }}
 
     ##
     # Restore npm's own cache
@@ -320,13 +342,16 @@ jobs:
     - name: Check npm cache
       id: npm-cache-check
       run: |
-        key='${{ steps.cache-keys.outputs.npm }}'
-        matched='${{ steps.npm-cache-restore.outputs.cache-matched-key }}'
+        key="${STEPS_CACHE_KEYS_OUTPUTS_NPM}"
+        matched="${STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY}"
         if [[ $key = "$matched" ]]; then
           echo hit=true
         else
           echo hit=false
         fi >> "$GITHUB_OUTPUT"
+      env:
+        STEPS_CACHE_KEYS_OUTPUTS_NPM: ${{ steps.cache-keys.outputs.npm }}
+        STEPS_NPM_CACHE_RESTORE_OUTPUTS_CACHE_MATCHED_KEY: ${{ steps.npm-cache-restore.outputs.cache-matched-key }}
 
     - name: NPM Build
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' }}
@@ -466,6 +491,8 @@ jobs:
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
+      with:
+        persist-credentials: false
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -557,12 +584,16 @@ jobs:
       if: ${{ env.ENABLE_COVERAGE == 'true' && (matrix.suite == 'api' || matrix.suite == 'e2e') }}
       run: |
         . ci/ciLibrary.source
-        setup_e2e_bookends ${{ needs.setup.outputs.webserver }}
+        setup_e2e_bookends "${NEEDS_SETUP_OUTPUTS_WEBSERVER}"
+      env:
+        NEEDS_SETUP_OUTPUTS_WEBSERVER: ${{ needs.setup.outputs.webserver }}
 
     - name: Run ${{ matrix.suite }} tests
       run: |
         . ci/ciLibrary.source
-        build_test ${{ matrix.suite }}
+        build_test "${MATRIX_SUITE}"
+      env:
+        MATRIX_SUITE: ${{ matrix.suite }}
 
     ##
     # Coverage conversion for suites that use auto_prepend.php
@@ -684,7 +715,9 @@ jobs:
       if: ${{ !cancelled() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
       run: |
         . ci/ciLibrary.source
-        dump_error_log ${{ needs.setup.outputs.webserver }}
+        dump_error_log "${NEEDS_SETUP_OUTPUTS_WEBSERVER}"
+      env:
+        NEEDS_SETUP_OUTPUTS_WEBSERVER: ${{ needs.setup.outputs.webserver }}
 
     - name: E2e selenium logs
       if: ${{ !cancelled() && matrix.suite == 'e2e' }}
@@ -709,7 +742,7 @@ jobs:
       if: ${{ always() }}
       run: |
         # Determine status emoji
-        case "${{ job.status }}" in
+        case "${JOB_STATUS}" in
           success)
             status_emoji="pass"
             ;;
@@ -727,5 +760,13 @@ jobs:
         {
           echo "| Status | Suite | PHP | Webserver | Database | Coverage | Docker Dir |"
           echo "| --- | --- | --- | --- | --- | --- | --- |"
-          echo "| ${status_emoji} | ${{ matrix.suite }} | ${{ needs.setup.outputs.php }} | ${{ needs.setup.outputs.webserver }} | ${{ needs.setup.outputs.database }} ${{ needs.setup.outputs.db }} | ${{ env.ENABLE_COVERAGE }} | ${{ needs.setup.outputs.docker_dir }} |"
+          echo "| ${status_emoji} | ${MATRIX_SUITE} | ${NEEDS_SETUP_OUTPUTS_PHP} | ${NEEDS_SETUP_OUTPUTS_WEBSERVER} | ${NEEDS_SETUP_OUTPUTS_DATABASE} ${NEEDS_SETUP_OUTPUTS_DB} | ${ENABLE_COVERAGE} | ${NEEDS_SETUP_OUTPUTS_DOCKER_DIR} |"
         } >> "$GITHUB_STEP_SUMMARY"
+      env:
+        JOB_STATUS: ${{ job.status }}
+        MATRIX_SUITE: ${{ matrix.suite }}
+        NEEDS_SETUP_OUTPUTS_PHP: ${{ needs.setup.outputs.php }}
+        NEEDS_SETUP_OUTPUTS_WEBSERVER: ${{ needs.setup.outputs.webserver }}
+        NEEDS_SETUP_OUTPUTS_DATABASE: ${{ needs.setup.outputs.database }}
+        NEEDS_SETUP_OUTPUTS_DB: ${{ needs.setup.outputs.db }}
+        NEEDS_SETUP_OUTPUTS_DOCKER_DIR: ${{ needs.setup.outputs.docker_dir }}
