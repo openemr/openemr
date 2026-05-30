@@ -76,8 +76,9 @@ lightweight ref). Lightweight tags lack author/date/message metadata and break
 `git describe`, downstream tooling, and consumers that introspect tag objects.
 
 The conductor stops at the tag — it does **not** create the GitHub Release
-object. That step (source archives + checksums + `changelog.md` attached to a
-Release on `openemr/openemr`) is what the website's `/downloads/` page links
+object. That step (full distribution packages + checksums + `changelog.md`
+attached to a Release on `openemr/openemr`) is what the website's
+`/downloads/` page links
 to, and is owned today by
 [`build-release.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release.yml)
 in `openemr-devops` (manual `workflow_dispatch`). The `openemr-tag` dispatch
@@ -86,7 +87,8 @@ the conductor's finalize job should call it (or absorb its release-creation
 steps), or `build-release.yml` should grow a `repository_dispatch: openemr-tag`
 trigger. Without one of those, every conductor merge produces a tag with no
 Release object — the bug that broke v8.1.0 on 2026-05-28. Tracked in
-[`RELEASE_PROCESS.md` § Automation gaps](RELEASE_PROCESS.md#automation-gaps).
+[openemr/openemr-devops#756](https://github.com/openemr/openemr-devops/issues/756)
+(see also [`RELEASE_PROCESS.md` § Automation gaps](RELEASE_PROCESS.md#automation-gaps)).
 
 ## Dispatch events emitted
 

@@ -180,7 +180,7 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 10 | Automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`. Today `openemr-devops`'s [`build-release.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release.yml) does this work but is `workflow_dispatch` only; the conductor's `openemr-tag` dispatch needs to either invoke it (or a tag-event-driven equivalent), or the conductor's finalize job needs to absorb the release-creation steps. The v8.1.0 release surfaced this gap — tag landed, no Release object did. | (not yet filed) |
+| 10 | Automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`. Today `openemr-devops`'s [`build-release.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release.yml) does this work but is `workflow_dispatch` only; the conductor's `openemr-tag` dispatch needs to either invoke it (or a tag-event-driven equivalent), or the conductor's finalize job needs to absorb the release-creation steps. The v8.1.0 release surfaced this gap — tag landed, no Release object did. | [openemr/openemr-devops#756](https://github.com/openemr/openemr-devops/issues/756) |
 | 16 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
