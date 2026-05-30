@@ -490,6 +490,57 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         cs_json_exit(['success' => true, 'paused' => ($val === '1')]);
     }
 
+    if ($action === 'get_rescheduler_rules') {
+        $raw = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_rescheduler_rules' LIMIT 1");
+        $rules = json_decode((string)($raw['gl_value'] ?? ''), true);
+        if (!is_array($rules)) {
+            $rules = ['defaults' => [], 'providers' => [], 'updated_at' => ''];
+        }
+        cs_json_exit(['success' => true, 'rules' => $rules]);
+    }
+
+    if ($action === 'save_rescheduler_rules') {
+        $defaults = [
+            'allow_same_day'   => !empty($_POST['pd_allow_same_day']),
+            'max_offers'       => max(1, min(12,  (int)($_POST['pd_max_offers'] ?? 3))),
+            'min_hours_before' => max(0, min(168, (int)($_POST['pd_min_hours_before'] ?? 1))),
+            'max_days_before'  => max(0, min(365, (int)($_POST['pd_max_days_before'] ?? 30))),
+            'max_days_after'   => max(0, min(365, (int)($_POST['pd_max_days_after'] ?? 60))),
+            'slot_hold_minutes'=> max(5, min(60,  (int)($_POST['pd_slot_hold_minutes'] ?? 15))),
+        ];
+        $rawProviders = json_decode((string)($_POST['provider_rules'] ?? '{}'), true);
+        $normalized = [];
+        if (is_array($rawProviders)) {
+            foreach ($rawProviders as $pid => $rule) {
+                $pk = trim((string)$pid);
+                if ($pk === '' || !ctype_digit($pk) || !is_array($rule)) {
+                    continue;
+                }
+                $normalized[$pk] = [
+                    'enabled'          => !empty($rule['enabled']),
+                    'allow_same_day'   => !empty($rule['allow_same_day']),
+                    'max_offers'       => max(1, min(12,  (int)($rule['max_offers'] ?? 3))),
+                    'min_hours_before' => max(0, min(168, (int)($rule['min_hours_before'] ?? 1))),
+                    'max_days_before'  => max(0, min(365, (int)($rule['max_days_before'] ?? 30))),
+                    'max_days_after'   => max(0, min(365, (int)($rule['max_days_after'] ?? 60))),
+                    'slot_hold_minutes'=> max(5, min(60,  (int)($rule['slot_hold_minutes'] ?? 15))),
+                ];
+            }
+        }
+        $payload = json_encode([
+            'updated_at' => date('c'),
+            'defaults'   => $defaults,
+            'providers'  => $normalized,
+        ]);
+        sqlStatement("DELETE FROM globals WHERE gl_name = 'medex_rescheduler_rules'");
+        sqlStatement("INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_rescheduler_rules', 0, ?)", [$payload]);
+        cs_json_exit([
+            'success'  => true,
+            'message'  => 'Rescheduler rules saved.',
+            'rules'    => ['defaults' => $defaults, 'providers' => $normalized, 'updated_at' => date('c')],
+        ]);
+    }
+
     if (in_array($action, ['list_categories', 'upsert_category', 'deactivate_category', 'ask_template', 'help_chat'], true)) {
         try {
             if ($action === 'list_categories') {
@@ -2169,9 +2220,11 @@ $templateCount = count($detectedTemplates);
 <div class="cs-shell">
     <div class="cs-topbar">
         <nav class="cs-title-breadcrumb">
-            <a href="#" id="bcStudioLink" onclick="closeEditor();return false;"><?php echo xlt('Calendar Studio'); ?></a>
+            <a href="#" id="bcStudioLink" onclick="closeEditor();closeReschedulerPanel();return false;"><?php echo xlt('Calendar Studio'); ?></a>
             <span class="bc-sep" id="bcProviderSlash" style="display:none;">/</span>
             <strong id="bcProviderName" style="display:none;"></strong>
+            <span class="bc-sep" id="bcReschedulerSlash" style="display:none;">/</span>
+            <strong id="bcReschedulerName" style="display:none;"><?php echo xlt('Rescheduler Rules'); ?></strong>
         </nav>
         <div class="cs-actions">
             <span id="editorActions" style="display:none;">
@@ -2267,6 +2320,127 @@ $templateCount = count($detectedTemplates);
         </div>
     </div><!-- /.cs-config -->
     </div><!-- /#csConfigWrap -->
+
+    <!-- =========================================================
+         Rescheduler Panel — shown by openReschedulerPanel()
+         ========================================================= -->
+    <div id="reschedulerPanel" style="display:none;max-width:860px;">
+
+        <!-- Header row: title + kill switch -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:20px;flex-wrap:wrap;">
+            <div>
+                <h2 style="margin:0 0 4px 0;font-size:17px;color:var(--cs-ink);"><?php echo xlt('Patient Rescheduler Rules'); ?></h2>
+                <p style="margin:0;font-size:12px;color:var(--cs-subtle);"><?php echo xlt('Set practice-wide defaults. Select a provider below to override settings for that provider only.'); ?></p>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;padding-top:4px;">
+                <span id="reschedulerPanelStatusLabel" style="font-size:12px;font-weight:600;"></span>
+                <label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer;" title="<?php echo attr(xl('Toggle patient rescheduler on/off')); ?>">
+                    <input type="checkbox" id="reschedulerPanelToggle" style="opacity:0;width:0;height:0;position:absolute;">
+                    <span id="reschedulerPanelSlider" style="position:absolute;inset:0;border-radius:24px;transition:.2s;background:#ccc;">
+                        <span id="reschedulerPanelThumb" style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;"></span>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Practice-wide defaults -->
+        <div style="background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px;margin-bottom:16px;">
+            <h3 style="font-size:13px;font-weight:700;color:var(--cs-ink);margin:0 0 14px 0;"><?php echo xlt('Practice-wide Defaults'); ?></h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;">
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Openings to offer'); ?></label>
+                    <input type="number" id="rp-max_offers" min="1" max="12" value="3" style="width:100%;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Min hours before visit'); ?></label>
+                    <input type="number" id="rp-min_hours_before" min="0" max="168" value="1" style="width:100%;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move earlier'); ?></label>
+                    <input type="number" id="rp-max_days_before" min="0" max="365" value="30" style="width:100%;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move later'); ?></label>
+                    <input type="number" id="rp-max_days_after" min="0" max="365" value="60" style="width:100%;box-sizing:border-box;">
+                </div>
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;" title="<?php echo attr(xl('How long to hold an offered slot before releasing it back to the pool')); ?>"><?php echo xlt('Hold offered slots (min)'); ?></label>
+                    <input type="number" id="rp-slot_hold_minutes" min="5" max="60" value="15" style="width:100%;box-sizing:border-box;">
+                </div>
+                <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                        <input type="checkbox" id="rp-allow_same_day">
+                        <?php echo xlt('Allow same-day reschedules'); ?>
+                    </label>
+                </div>
+            </div>
+            <div style="margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <button class="btn primary" type="button" onclick="saveReschedulerRulesPanel()"><?php echo xlt('Save Rules'); ?></button>
+                <button class="btn" type="button" onclick="resetReschedulerRulesPanel()"><?php echo xlt('Reset Defaults'); ?></button>
+                <span id="rpSaveStatus" style="font-size:12px;display:none;"></span>
+            </div>
+        </div>
+
+        <!-- Provider fine-tuning -->
+        <div style="background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:20px 22px;">
+            <h3 style="font-size:13px;font-weight:700;color:var(--cs-ink);margin:0 0 4px 0;"><?php echo xlt('Provider Fine-tuning'); ?> <span style="font-size:11px;font-weight:400;color:var(--cs-subtle);"><?php echo xlt('(optional)'); ?></span></h3>
+            <p style="margin:0 0 14px 0;font-size:12px;color:var(--cs-subtle);"><?php echo xlt('Select a provider to override the practice defaults for that provider only. Bold name = has override.'); ?></p>
+            <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;" id="rpProviderBtns">
+                <?php foreach ($providers as $_p): ?>
+                <button type="button" class="btn rp-pvbtn" data-pid="<?php echo attr((string)$_p['id']); ?>"
+                        style="font-size:11px;padding:5px 12px;"
+                        onclick="openRpProviderOverride(<?php echo (int)$_p['id']; ?>)">
+                    <?php echo text($_p['name']); ?>
+                </button>
+                <?php endforeach; ?>
+            </div>
+            <div id="rpProviderForm" style="display:none;background:var(--cs-bg);border:1px solid var(--cs-border);border-radius:8px;padding:16px 18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                    <strong id="rpProviderFormName" style="font-size:13px;color:var(--cs-ink);"></strong>
+                    <button type="button" class="btn" style="font-size:11px;padding:4px 10px;" onclick="closeRpProviderOverride()"><?php echo xlt('Close'); ?></button>
+                </div>
+                <div style="margin-bottom:12px;">
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                        <input type="checkbox" id="rpv-enabled" checked>
+                        <?php echo xlt('Rescheduling enabled for this provider'); ?>
+                    </label>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px 20px;">
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Openings to offer'); ?></label>
+                        <input type="number" id="rpv-max_offers" min="1" max="12" value="3" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Min hours before visit'); ?></label>
+                        <input type="number" id="rpv-min_hours_before" min="0" max="168" value="1" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move earlier'); ?></label>
+                        <input type="number" id="rpv-max_days_before" min="0" max="365" value="30" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Days may move later'); ?></label>
+                        <input type="number" id="rpv-max_days_after" min="0" max="365" value="60" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:4px;"><?php echo xlt('Hold offered slots (min)'); ?></label>
+                        <input type="number" id="rpv-slot_hold_minutes" min="5" max="60" value="15" style="width:100%;box-sizing:border-box;">
+                    </div>
+                    <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+                        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;">
+                            <input type="checkbox" id="rpv-allow_same_day">
+                            <?php echo xlt('Allow same-day'); ?>
+                        </label>
+                    </div>
+                </div>
+                <div style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <button class="btn primary" type="button" onclick="saveRpProviderOverride()"><?php echo xlt('Save Provider Rules'); ?></button>
+                    <button class="btn" type="button" onclick="clearRpProviderOverride()"><?php echo xlt('Clear Override'); ?></button>
+                    <span id="rpvSaveStatus" style="font-size:12px;display:none;"></span>
+                </div>
+            </div>
+        </div>
+    </div><!-- /#reschedulerPanel -->
 
     <?php
     // Build a provider → first-template map for the roster.
@@ -2368,7 +2542,7 @@ $templateCount = count($detectedTemplates);
                     <div style="margin-top:14px;">
                         <span id="reschedulerSaveSpinner" style="visibility:hidden;display:block;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;min-height:1em;"><?php echo xlt('Saving…'); ?></span>
                         <button class="btn" type="button" style="width:100%;text-align:center;"
-                            onclick="window.parent.postMessage({type:'medex-navigate',url:'index.php?route=calendar/dashboard&view=rescheduler_bot&embed=1',key:'calendar_ai',label:'Rescheduler Rules'},'*');">
+                            onclick="openReschedulerPanel();">
                             <?php echo xlt('Open Rescheduler Rules'); ?>
                         </button>
                     </div>
@@ -4505,6 +4679,215 @@ queueStableRender();
 window.addEventListener('load', queueStableRender);
 window.addEventListener('resize', queueStableRender);
 
+// =====================================================================
+// Rescheduler Panel — open inside Calendar Studio (no cross-origin nav)
+// =====================================================================
+var _rpProviderRules = {};
+var _rpCurrentPid = null;
+
+function openReschedulerPanel() {
+    var roster    = document.getElementById('providerRoster');
+    var panel     = document.getElementById('reschedulerPanel');
+    var csMain    = document.getElementById('csMain');
+    var cfgWrap   = document.getElementById('csConfigWrap');
+    if (roster)   { roster.style.display = 'none'; }
+    if (csMain)   { csMain.style.display = 'none'; }
+    if (cfgWrap)  { cfgWrap.style.display = 'none'; }
+    if (panel)    { panel.style.display = ''; }
+    document.querySelectorAll('.provider-card').forEach(function(c) { c.classList.remove('active'); });
+    var editorActions = document.getElementById('editorActions');
+    if (editorActions) { editorActions.style.display = 'none'; }
+    var bcProvSlash = document.getElementById('bcProviderSlash');
+    var bcProvName  = document.getElementById('bcProviderName');
+    var bcResSlash  = document.getElementById('bcReschedulerSlash');
+    var bcResName   = document.getElementById('bcReschedulerName');
+    if (bcProvSlash) { bcProvSlash.style.display = 'none'; }
+    if (bcProvName)  { bcProvName.style.display  = 'none'; }
+    if (bcResSlash)  { bcResSlash.style.display  = ''; }
+    if (bcResName)   { bcResName.style.display   = ''; }
+    _syncRpPanelToggle();
+    loadReschedulerRulesPanel();
+}
+
+function closeReschedulerPanel() {
+    var panel  = document.getElementById('reschedulerPanel');
+    if (!panel || panel.style.display === 'none') { return; }
+    panel.style.display = 'none';
+    var roster = document.getElementById('providerRoster');
+    if (roster) { roster.style.display = ''; }
+    var bcResSlash = document.getElementById('bcReschedulerSlash');
+    var bcResName  = document.getElementById('bcReschedulerName');
+    if (bcResSlash) { bcResSlash.style.display = 'none'; }
+    if (bcResName)  { bcResName.style.display  = 'none'; }
+    closeRpProviderOverride();
+}
+
+function _syncRpPanelToggle() {
+    var cardToggle = document.getElementById('reschedulerToggle');
+    var panelToggle = document.getElementById('reschedulerPanelToggle');
+    if (!cardToggle || !panelToggle) { return; }
+    panelToggle.checked = cardToggle.checked;
+    _updateRpPanelToggleUI(cardToggle.checked);
+}
+
+function _updateRpPanelToggleUI(isActive) {
+    var slider = document.getElementById('reschedulerPanelSlider');
+    var thumb  = document.getElementById('reschedulerPanelThumb');
+    var label  = document.getElementById('reschedulerPanelStatusLabel');
+    if (slider) { slider.style.background = isActive ? '#1c4568' : '#ef4444'; }
+    if (thumb)  { thumb.style.left = isActive ? '21px' : '3px'; }
+    if (label)  { label.textContent = isActive ? 'Active' : 'Paused'; label.style.color = isActive ? '#1c4568' : '#ef4444'; }
+}
+
+function loadReschedulerRulesPanel() {
+    var status = document.getElementById('rpSaveStatus');
+    if (status) { status.textContent = 'Loading…'; status.style.display = ''; status.style.color = 'var(--cs-subtle)'; }
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') { top.restoreSession(); }
+    var fd = new FormData();
+    fd.append('action', 'get_rescheduler_rules');
+    fetch(window.location.href, { method: 'POST', body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (!d.success) { throw new Error(d.error || 'Failed'); }
+            var rules    = d.rules || {};
+            var defaults = rules.defaults || {};
+            _rpProviderRules = rules.providers || {};
+            var defMap = { max_offers: 3, min_hours_before: 1, max_days_before: 30, max_days_after: 60, slot_hold_minutes: 15 };
+            Object.keys(defMap).forEach(function(f) {
+                var el = document.getElementById('rp-' + f);
+                if (el) { el.value = (defaults[f] !== undefined) ? defaults[f] : defMap[f]; }
+            });
+            var sameDayEl = document.getElementById('rp-allow_same_day');
+            if (sameDayEl) { sameDayEl.checked = !!defaults.allow_same_day; }
+            _updateRpProviderBadges();
+            if (status) { status.style.display = 'none'; }
+        })
+        .catch(function(e) {
+            if (status) { status.textContent = 'Could not load: ' + e.message; status.style.display = ''; status.style.color = '#b91c1c'; }
+        });
+}
+
+function saveReschedulerRulesPanel(silent) {
+    var status = document.getElementById('rpSaveStatus');
+    if (!silent && status) { status.textContent = 'Saving…'; status.style.display = ''; status.style.color = 'var(--cs-subtle)'; }
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') { top.restoreSession(); }
+    var fd = new FormData();
+    fd.append('action', 'save_rescheduler_rules');
+    fd.append('pd_max_offers',        document.getElementById('rp-max_offers').value);
+    fd.append('pd_min_hours_before',  document.getElementById('rp-min_hours_before').value);
+    fd.append('pd_max_days_before',   document.getElementById('rp-max_days_before').value);
+    fd.append('pd_max_days_after',    document.getElementById('rp-max_days_after').value);
+    fd.append('pd_slot_hold_minutes', document.getElementById('rp-slot_hold_minutes').value);
+    fd.append('pd_allow_same_day',    document.getElementById('rp-allow_same_day').checked ? '1' : '0');
+    fd.append('provider_rules',       JSON.stringify(_rpProviderRules));
+    return fetch(window.location.href, { method: 'POST', body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (!d.success) { throw new Error(d.error || 'Failed'); }
+            if (!silent && status) {
+                status.textContent = 'Saved.';
+                status.style.display = '';
+                status.style.color = '#1c4568';
+                setTimeout(function() { if (status) { status.style.display = 'none'; } }, 2500);
+            }
+            return d;
+        })
+        .catch(function(e) {
+            if (!silent && status) { status.textContent = 'Failed: ' + e.message; status.style.display = ''; status.style.color = '#b91c1c'; }
+        });
+}
+
+function resetReschedulerRulesPanel() {
+    document.getElementById('rp-max_offers').value        = 3;
+    document.getElementById('rp-min_hours_before').value  = 1;
+    document.getElementById('rp-max_days_before').value   = 30;
+    document.getElementById('rp-max_days_after').value    = 60;
+    document.getElementById('rp-slot_hold_minutes').value = 15;
+    document.getElementById('rp-allow_same_day').checked  = false;
+}
+
+function _updateRpProviderBadges() {
+    document.querySelectorAll('.rp-pvbtn').forEach(function(btn) {
+        var pid = String(btn.getAttribute('data-pid'));
+        var has = !!_rpProviderRules[pid];
+        btn.style.borderColor = has ? 'var(--cs-accent)' : '';
+        btn.style.color       = has ? 'var(--cs-accent)' : '';
+        btn.style.fontWeight  = has ? '700' : '';
+    });
+}
+
+function openRpProviderOverride(pid) {
+    _rpCurrentPid = String(pid);
+    var form   = document.getElementById('rpProviderForm');
+    var nameEl = document.getElementById('rpProviderFormName');
+    var btn    = document.querySelector('.rp-pvbtn[data-pid="' + pid + '"]');
+    if (nameEl) { nameEl.textContent = btn ? btn.textContent.trim() : ('Provider #' + pid); }
+    if (form)  { form.style.display = ''; }
+    document.querySelectorAll('.rp-pvbtn').forEach(function(b) {
+        b.style.outline = (b.getAttribute('data-pid') === String(pid)) ? '2px solid var(--cs-accent)' : '';
+    });
+    var rule   = _rpProviderRules[_rpCurrentPid] || {};
+    var defMap = { max_offers: 3, min_hours_before: 1, max_days_before: 30, max_days_after: 60, slot_hold_minutes: 15 };
+    Object.keys(defMap).forEach(function(f) {
+        var el = document.getElementById('rpv-' + f);
+        if (el) { el.value = (rule[f] !== undefined) ? rule[f] : defMap[f]; }
+    });
+    var sameDayEl = document.getElementById('rpv-allow_same_day');
+    if (sameDayEl) { sameDayEl.checked = !!rule.allow_same_day; }
+    var enabledEl = document.getElementById('rpv-enabled');
+    if (enabledEl) { enabledEl.checked = (rule.enabled !== false); }
+}
+
+function closeRpProviderOverride() {
+    _rpCurrentPid = null;
+    var form = document.getElementById('rpProviderForm');
+    if (form) { form.style.display = 'none'; }
+    document.querySelectorAll('.rp-pvbtn').forEach(function(b) { b.style.outline = ''; });
+}
+
+function saveRpProviderOverride() {
+    if (!_rpCurrentPid) { return; }
+    _rpProviderRules[_rpCurrentPid] = {
+        enabled:          document.getElementById('rpv-enabled').checked,
+        allow_same_day:   document.getElementById('rpv-allow_same_day').checked,
+        max_offers:       parseInt(document.getElementById('rpv-max_offers').value, 10)        || 3,
+        min_hours_before: parseInt(document.getElementById('rpv-min_hours_before').value, 10) || 1,
+        max_days_before:  parseInt(document.getElementById('rpv-max_days_before').value, 10)  || 30,
+        max_days_after:   parseInt(document.getElementById('rpv-max_days_after').value, 10)   || 60,
+        slot_hold_minutes:parseInt(document.getElementById('rpv-slot_hold_minutes').value, 10)|| 15,
+    };
+    _updateRpProviderBadges();
+    var pvStatus = document.getElementById('rpvSaveStatus');
+    saveReschedulerRulesPanel(true).then(function() {
+        if (pvStatus) { pvStatus.textContent = 'Saved'; pvStatus.style.display = ''; pvStatus.style.color = '#1c4568'; setTimeout(function() { if (pvStatus) { pvStatus.style.display = 'none'; } }, 2000); }
+    });
+}
+
+function clearRpProviderOverride() {
+    if (!_rpCurrentPid) { return; }
+    delete _rpProviderRules[_rpCurrentPid];
+    _updateRpProviderBadges();
+    saveReschedulerRulesPanel(true).then(function() {
+        var pvStatus = document.getElementById('rpvSaveStatus');
+        if (pvStatus) { pvStatus.textContent = 'Override cleared'; pvStatus.style.display = ''; pvStatus.style.color = 'var(--cs-subtle)'; setTimeout(function() { if (pvStatus) { pvStatus.style.display = 'none'; } }, 2000); }
+        // Reload provider form with defaults
+        var pid = _rpCurrentPid;
+        if (pid) { openRpProviderOverride(pid); }
+    });
+}
+
+// Panel toggle → delegates to card toggle so AJAX fires once
+(function() {
+    var panelToggle = document.getElementById('reschedulerPanelToggle');
+    if (!panelToggle) { return; }
+    panelToggle.addEventListener('change', function() {
+        var cardToggle = document.getElementById('reschedulerToggle');
+        if (!cardToggle) { return; }
+        cardToggle.checked = panelToggle.checked;
+        cardToggle.dispatchEvent(new Event('change'));
+    });
+}());
+
 // Patient Rescheduler kill switch toggle
 (function() {
     const toggle = document.getElementById('reschedulerToggle');
@@ -4526,6 +4909,9 @@ window.addEventListener('resize', queueStableRender);
             .then(function(d) {
                 if (!d.success) {
                     toggle.checked = !paused; // revert toggle
+                    // Keep panel toggle in sync on revert
+                    var pt = document.getElementById('reschedulerPanelToggle');
+                    if (pt) { pt.checked = toggle.checked; _updateRpPanelToggleUI(toggle.checked); }
                     if (d.blocked && d.message) {
                         // Show inline alert below the card
                         var alertEl = document.getElementById('reschedulerBlockedAlert');
@@ -4548,8 +4934,15 @@ window.addEventListener('resize', queueStableRender);
                 const isNowPaused = !!d.paused;
                 if (slider) { slider.style.background = isNowPaused ? '#ef4444' : '#1c4568'; }
                 if (thumb) { thumb.style.left = isNowPaused ? '3px' : '21px'; }
+                // Keep panel toggle in sync
+                var pt = document.getElementById('reschedulerPanelToggle');
+                if (pt) { pt.checked = !isNowPaused; _updateRpPanelToggleUI(!isNowPaused); }
             })
-            .catch(function() { toggle.checked = !paused; })
+            .catch(function() {
+                toggle.checked = !paused;
+                var pt = document.getElementById('reschedulerPanelToggle');
+                if (pt) { pt.checked = toggle.checked; _updateRpPanelToggleUI(toggle.checked); }
+            })
             .finally(function() { if (spinner) { spinner.style.visibility = 'hidden'; } });
     });
 }());
