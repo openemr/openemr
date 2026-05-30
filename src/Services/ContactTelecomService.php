@@ -213,7 +213,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC, is_primary DESC";
+        $sql .= " ORDER BY `rank` ASC, is_primary DESC";
 
         return QueryUtils::fetchRecords($sql, [$contactId]) ?? [];
     }
@@ -335,7 +335,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC";
+        $sql .= " ORDER BY `rank` ASC";
 
         return QueryUtils::fetchRecords($sql, [$contactId, $system]) ?? [];
     }
@@ -357,7 +357,7 @@ class ContactTelecomService extends BaseService
             $sql .= " AND status = 'A'";
         }
 
-        $sql .= " ORDER BY rank ASC";
+        $sql .= " ORDER BY `rank` ASC";
 
         return QueryUtils::fetchRecords($sql, [$contactId, $use]) ?? [];
     }
