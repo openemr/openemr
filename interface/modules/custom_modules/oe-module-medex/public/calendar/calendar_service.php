@@ -2449,7 +2449,7 @@ $templateCount = count($detectedTemplates);
             <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;">
 
                 <!-- Appointment Types card -->
-                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
+                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--cs-shadow);">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:20px;">🗂</span>
                         <strong style="font-size:13px;"><?php echo xlt('Appointment Types'); ?></strong>
@@ -2462,10 +2462,10 @@ $templateCount = count($detectedTemplates);
                 </div>
 
                 <!-- Scheduling Rules card — spans roughly 2 columns via flex-grow -->
-                <div style="flex:2;min-width:440px;max-width:620px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;" id="schedulingRulesCard">
+                <div style="flex:2;min-width:440px;max-width:620px;background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--cs-shadow);" id="schedulingRulesCard">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:20px;">⚙️</span>
-                        <strong style="font-size:13px;"><?php echo xlt('Scheduling Rules'); ?></strong>
+                        <strong style="font-size:13px;"><?php echo xlt('Staff Scheduling'); ?></strong>
                     </div>
 
                     <!-- Two-column grid for the two rule groups -->
@@ -2511,7 +2511,7 @@ $templateCount = count($detectedTemplates);
                 </div>
 
                 <!-- Patient Rescheduler card -->
-                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;display:flex;flex-direction:column;" id="reschedulerCard">
+                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;display:flex;flex-direction:column;box-shadow:var(--cs-shadow);" id="reschedulerCard">
                     <label style="position:absolute;top:14px;right:14px;display:inline-block;width:42px;height:24px;cursor:pointer;" title="<?php echo attr(xl('Toggle patient rescheduler')); ?>">
                         <input type="checkbox" id="reschedulerToggle" style="opacity:0;width:0;height:0;position:absolute;"
                             <?php echo $reschedulerPaused ? '' : 'checked'; ?>>
