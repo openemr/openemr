@@ -2282,19 +2282,7 @@ $templateCount = count($detectedTemplates);
     <div class="cs-provider-roster" id="providerRoster">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
             <strong style="font-size:14px;"><?php echo xlt('Providers'); ?></strong>
-            <div style="display:flex;align-items:center;gap:12px;">
-                <span style="font-size:11px;color:var(--cs-subtle);"><?php echo count($providers); ?> <?php echo xlt('provider(s)'); ?> &mdash; <?php echo count($providerTemplateMap); ?> <?php echo xlt('with saved templates'); ?></span>
-                <div style="position:relative;display:inline-block;" class="appt-types-hint-wrap">
-                    <button class="btn" type="button" id="btnManageTypesFromRoster"
-                            style="font-size:11px;padding:3px 10px;"
-                            onclick="document.getElementById('btnManageTypes').click();">
-                        <?php echo xlt('Appointment Types'); ?>
-                    </button>
-                    <div class="appt-types-hint" role="tooltip">
-                        <?php echo xlt('Accurate appointment types are required to make slots. Start here first before creating new templates.'); ?>
-                    </div>
-                </div>
-            </div>
+            <span style="font-size:11px;color:var(--cs-subtle);"><?php echo count($providers); ?> <?php echo xlt('provider(s)'); ?> &mdash; <?php echo count($providerTemplateMap); ?> <?php echo xlt('with saved templates'); ?></span>
         </div>
         <?php if (empty($providers)): ?>
             <div class="empty-note"><?php echo xlt('No calendar providers found. Ensure providers have calendar access in OpenEMR.'); ?></div>
@@ -2375,13 +2363,13 @@ $templateCount = count($detectedTemplates);
                                 <input type="checkbox" id="reschedulerToggle" style="opacity:0;width:0;height:0;position:absolute;"
                                     <?php echo $reschedulerPaused ? '' : 'checked'; ?>>
                                 <span id="reschedulerSlider" style="position:absolute;cursor:pointer;inset:0;border-radius:24px;transition:.2s;
-                                    background:<?php echo $reschedulerPaused ? '#ef4444' : '#15803d'; ?>;">
+                                    background:<?php echo $reschedulerPaused ? '#ef4444' : '#1c4568'; ?>;">
                                     <span id="reschedulerThumb" style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;
                                         top:3px;transition:.2s;
                                         left:<?php echo $reschedulerPaused ? '3px' : '21px'; ?>;"></span>
                                 </span>
                             </span>
-                            <span id="reschedulerToggleLabel" style="color:<?php echo $reschedulerPaused ? '#ef4444' : '#15803d'; ?>;">
+                            <span id="reschedulerToggleLabel" style="color:<?php echo $reschedulerPaused ? '#ef4444' : '#1c4568'; ?>;">
                                 <?php echo $reschedulerPaused ? xlt('PAUSED') : xlt('ACTIVE'); ?>
                             </span>
                         </label>
@@ -4565,9 +4553,9 @@ window.addEventListener('resize', queueStableRender);
                 const isNowPaused = !!d.paused;
                 if (label) {
                     label.textContent = isNowPaused ? '<?php echo xlt('PAUSED'); ?>' : '<?php echo xlt('ACTIVE'); ?>';
-                    label.style.color = isNowPaused ? '#ef4444' : '#15803d';
+                    label.style.color = isNowPaused ? '#ef4444' : '#1c4568';
                 }
-                if (slider) { slider.style.background = isNowPaused ? '#ef4444' : '#15803d'; }
+                if (slider) { slider.style.background = isNowPaused ? '#ef4444' : '#1c4568'; }
                 if (thumb) { thumb.style.left = isNowPaused ? '3px' : '21px'; }
                 if (desc) {
                     desc.textContent = isNowPaused
