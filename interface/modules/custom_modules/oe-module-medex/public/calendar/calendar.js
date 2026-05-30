@@ -1183,6 +1183,25 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     info.el.classList.remove('has-slot-state-indicator');
                 }
 
+                // Patient appointment events (chip-2, right lane) are not open-slot chips
+                // so they never enter the block above. When the event holds a real patient
+                // (patientId > 0 → slotVisualState 'filled'), attach a FILLED badge so
+                // the Filled filter is visually consistent: every visible event in Filled-
+                // only mode shows the badge, not just the slot anchor chip.
+                if (!isOpenSlotChip && patientId && slotVisualState === 'filled'
+                        && !info.el.querySelector('.slot-state-indicator')) {
+                    info.el.classList.add('has-slot-state-indicator');
+                    const apptBadge = document.createElement('span');
+                    apptBadge.className = 'slot-state-indicator slot-state-indicator--filled';
+                    apptBadge.textContent = 'FILLED';
+                    apptBadge.setAttribute('aria-label', 'Filled');
+                    apptBadge.setAttribute('title', 'Slot state: Filled');
+                    const apptBadgeHost = info.el.querySelector('.fc-event-main')
+                        || info.el.querySelector('.fc-event-title-container')
+                        || info.el;
+                    apptBadgeHost.appendChild(apptBadge);
+                }
+
                 if (isOpenSlotChip) {
                     const slotTitleEl = info.el.querySelector('.fc-event-title');
                     if (slotTitleEl) {
