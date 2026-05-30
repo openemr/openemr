@@ -140,6 +140,8 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 The three PRs merge in strict order **infra → conductor → docs.** Infra readies CI for the new branch; the conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and triggers the infra rotation's `next` → `current` promotion); merging the docs PR ships the now-FINAL pages.
 
+> **Today the `website-openemr` docs PR is merged by hand.** The ship automation does not yet merge it: after the conductor merge creates the tag, an operator manually merges the `release-docs/<version>` PR to ship its pages. Automating this merge on `openemr-tag` is a tracked gap — see [Automation gaps](#automation-gaps).
+
 9. **[Automated]** Run the **ship-release workflow** in `openemr-devops` (`workflow_dispatch` on `.github/workflows/ship-release.yml`, or `task release:ship` locally for a dry-run). One operator action: pick the version + rel-branch and trigger. The workflow locates the three sibling PRs by branch convention, posts a `release/ship-approved` commit status on each, and merges in order with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles partial-merge recovery — see [Partial merges and recovery](#partial-merges-and-recovery)).
 
    **Manual fallback** (only if the workflow is unavailable): merge in order — infra PR, then conductor PR (creates the annotated tag), then docs PR (flips DRAFT → FINAL). Direct merges should be blocked by branch protection requiring the `release/ship-approved` status the workflow posts; admin-override the protection only if the workflow itself is broken.
@@ -180,6 +182,7 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
+| 9 | Auto-merge the `website-openemr` docs PR on `openemr-tag`; today an operator merges it by hand after the tag is cut | Not yet filed |
 | 16 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Recently closed: step 10 (automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`) shipped via [openemr/openemr-devops#757](https://github.com/openemr/openemr-devops/pull/757), closing [#756](https://github.com/openemr/openemr-devops/issues/756). The v8.1.0 release surfaced the gap — tag landed, no Release object did; `build-release-on-tag.yml` now creates the Release object automatically when the conductor emits `openemr-tag`.
