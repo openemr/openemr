@@ -30,6 +30,7 @@ flowchart TB
     subgraph oe["openemr/openemr (conductor)"]
         prepPR(["release-prep/&lt;rel&gt; PR<br/>reviewable"])
         tag[["annotated tag<br/>vX_Y_Z"]]
+        rel[("GitHub Release object<br/>dist packages + checksums + changelog<br/>(gap: manual today)")]
     end
 
     subgraph wo["openemr/website-openemr"]
@@ -51,6 +52,7 @@ flowchart TB
     merge -->|merges| infraPR
 
     prepPR ==>|merge creates| tag
+    tag -.->|build-release.yml<br/>workflow_dispatch today| rel
 
     prepPR -. openemr-rel-cut .-> docsPR
     prepPR -. openemr-rel-update .-> docsPR
@@ -119,7 +121,7 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 ### Phase 1 — Pre-release QA
 
-1. **[Manual — judgment]** Confirm pre-release QA is complete. The QA process (test plan, regression coverage, sign-off) lives on the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process). QA runs in parallel with the release-prep PR being continuously regenerated; the sign-off is what authorizes the conductor PR merge in step 10 — not the branch cut or any prep-PR update. The maintainers authorized to merge the conductor PR are the QA team, so the merge button is itself the QA gate; no separate sign-off mechanism is required.
+1. **[Manual — judgment]** Confirm pre-release QA is complete. The QA process (test plan, regression coverage, sign-off) lives on the [QA and Release Process wiki page](https://www.open-emr.org/wiki/index.php/QA_and_Release_Process). QA runs in parallel with the release-prep PR being continuously regenerated; the sign-off is what authorizes the conductor PR merge in step 9 — not the branch cut or any prep-PR update. The maintainers authorized to merge the conductor PR are the QA team, so the merge button is itself the QA gate; no separate sign-off mechanism is required.
 
 ### Phase 2 — Branch cut and PR generation
 
@@ -144,17 +146,25 @@ The three PRs merge in strict order **infra → conductor → docs.** Infra read
 
 ### Phase 5 — Post-merge artifact and download verification
 
-10. **[Manual — judgment]** Verify the source archives on the [GitHub release page](https://github.com/openemr/openemr/releases) are present and downloadable. GitHub releases are the canonical (and only) distribution target — SourceForge is no longer supported. The website's download/release pages link to GitHub release assets rather than re-hosting them.
-11. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
-12. **[Automated]** The DockerHub readme (per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)) is updated by the workflow that consumes the `openemr-tag` event in `openemr-devops`.
-13. **[Automated]** The Downloads landing page and the historical release table on `website-openemr` (`/downloads/` and `/releases/`) re-render from `data/releases.json`, which the docs PR workflow updates on every dispatch. The legacy [OpenEMR Downloads wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads) is no longer the source of truth and should be edited by hand to a one-line pointer to https://www.open-emr.org/downloads/.
+10. **[Manual today — gap]** Create the **GitHub Release object** on `openemr/openemr` for the new tag and attach the build artifacts. This is the canonical (and only) distribution target — SourceForge is no longer supported, and the website's `/downloads/` and `/releases/` pages link directly to assets on the Release object (see step 14). A tag alone is not enough: without a Release object the website's "Download" button 404s.
+
+    The Release object must include:
+    - **Distribution packages** (`openemr-<version>.tar.gz`, `openemr-<version>.zip`) — full, ready-to-run installs with production Composer dependencies and compiled front-end assets baked in and dev/test cruft pruned (per openemr/openemr's `.gitattributes export-ignore` and `build.xml`). These are *not* GitHub's auto-generated "Source code" archives; they are built and uploaded by the workflow below.
+    - **Checksums** (`.md5`, `.sha256`, `.sha512`) for each distribution package.
+    - **`changelog.md`** — the generated release notes.
+
+    Today this is done by manually running [`build-release.yml`](https://github.com/openemr/openemr-devops/actions/workflows/build-release.yml) in `openemr-devops` (`workflow_dispatch` with `dry_run=false`, the conductor-created tag in `release_tag`). It builds the packages with `task release:package:assemble` (`git archive HEAD` → `composer install --no-dev` → `npm ci && npm run build` → prune via `build.xml` phing targets); then its "Create annotated tag and GitHub release" step is no-op-safe when the tag already exists and proceeds to `gh release create --verify-tag --notes-file changelog.md`, generates the checksum sidecars, and uploads the packages + checksums + changelog with `gh release upload --clobber`. **The conductor's `openemr-tag` dispatch does not currently invoke this workflow** — that is the [automation gap](#automation-gaps) and is why a freshly-merged conductor PR produces a tag with no Release object.
+11. **[Manual — judgment]** Verify the Release object on the [GitHub releases page](https://github.com/openemr/openemr/releases): distribution packages downloadable, all three checksum files present, changelog rendered.
+12. **[Automated]** Docker images for the new release build via the workflows in `openemr-devops` (triggered by the rotation PR's merge and the new tag).
+13. **[Automated]** The DockerHub readme (per-version description on [hub.docker.com/r/openemr/openemr](https://hub.docker.com/r/openemr/openemr)) is updated by the workflow that consumes the `openemr-tag` event in `openemr-devops`.
+14. **[Automated]** The Downloads landing page and the historical release table on `website-openemr` (`/downloads/` and `/releases/`) re-render from `data/releases.json`, which the docs PR workflow updates on every dispatch. The `/downloads/` page's "Download" buttons link to the Release-object assets from step 10 — if step 10 is skipped, those buttons 404. The legacy [OpenEMR Downloads wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads) is no longer the source of truth and should be edited by hand to a one-line pointer to https://www.open-emr.org/downloads/.
 
 Standalone patch releases (`v<MAJOR>_<MINOR>_<PATCH>_<N>` tags with a `<M>-<m>-<p>-Patch-<N>.zip` asset) are not part of the automated cadence: the [OpenEMR Patches wiki page](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) and its download list go away once automated tagged releases ship security and bug fixes on a regular interval. The wiki page should be edited by hand to point readers at the most recent regular release on the [Downloads](https://www.open-emr.org/downloads/) page.
 
 ### Phase 6 — Demo and promotion
 
-14. **[Automated]** Point the demo farm (live demo servers at open-emr.org) to the new tag. The `bump-tag.yml` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/bump-tag.yml) consumes the `openemr-tag` event, rewrites matching production-demo rows in `ip_map_branch.txt`, and pushes to master; the demo-farm host's nightly reset picks up the new tag automatically.
-15. **[Manual]** Announce the release:
+15. **[Automated]** Point the demo farm (live demo servers at open-emr.org) to the new tag. The `bump-tag.yml` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/bump-tag.yml) consumes the `openemr-tag` event, rewrites matching production-demo rows in `ip_map_branch.txt`, and pushes to master; the demo-farm host's nightly reset picks up the new tag automatically.
+16. **[Manual]** Announce the release:
     - Forums
     - Chat
     - Twitter / X
@@ -170,7 +180,8 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 15 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
+| 10 | Automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`. Today `openemr-devops`'s [`build-release.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release.yml) does this work but is `workflow_dispatch` only; the conductor's `openemr-tag` dispatch needs to either invoke it (or a tag-event-driven equivalent), or the conductor's finalize job needs to absorb the release-creation steps. The v8.1.0 release surfaced this gap — tag landed, no Release object did. | (not yet filed) |
+| 16 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706).
 
@@ -182,7 +193,7 @@ The three PRs are coupled only by `repository_dispatch`. Branch protection shoul
 
 | Merged | Effect |
 | --- | --- |
-| Conductor only | Annotated tag exists; CI matrices and Docker pins still target the prior `current`; website still advertises the prior version. Builds for the new release exist (the tag is real) but discoverability and CI rotation lag. |
+| Conductor only | Annotated tag exists, but no Release object (step 10 is still manual today — see [Automation gaps](#automation-gaps)). CI matrices and Docker pins still target the prior `current`; website still advertises the prior version. GitHub's auto-generated source archives exist once the tag does, but the full distribution packages (and the website's "Download" buttons that point at them) don't until step 10 runs. |
 | Infra only | CI matrices roll forward to a `current` slot whose tag does not exist; builds for `current` fail until the conductor merges. Recoverable but noisy. |
 | Docs only | Cannot reach FINAL — the DRAFT/FINAL banner is driven by the `openemr-tag` event, which the conductor never emitted. Merging publishes pages permanently stamped DRAFT for a version that was never tagged. **Worst case.** See "Docs-first recovery" below. |
 | Conductor + infra (no docs) | Tag exists, CI green, but website still serves prior-version install/upgrade pages and no release notes. |
