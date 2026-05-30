@@ -2368,7 +2368,7 @@ $templateCount = count($detectedTemplates);
                     <div style="margin-top:14px;">
                         <span id="reschedulerSaveSpinner" style="visibility:hidden;display:block;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;min-height:1em;"><?php echo xlt('Saving…'); ?></span>
                         <button class="btn" type="button" style="width:100%;text-align:center;"
-                            onclick="window.parent.location.href=<?php echo js_escape(MedExConfig::baseUrl() . '/index.php?route=calendar/dashboard&view=rescheduler_bot&embed=1'); ?>;">
+                            onclick="window.parent.postMessage({type:'medex-navigate',url:'index.php?route=calendar/dashboard&view=rescheduler_bot&embed=1',key:'calendar_ai',label:'Rescheduler Rules'},'*');">
                             <?php echo xlt('Open Rescheduler Rules'); ?>
                         </button>
                     </div>
