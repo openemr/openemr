@@ -125,7 +125,7 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 ### Phase 2 — Branch cut and PR generation
 
-2. **[Manual — judgment]** Cut the release branch: `rel-<MAJOR><MINOR>0` (e.g. `rel-810`) from `master`. This is the only step that creates new state from nothing.
+2. **[Manual — judgment]** Cut the release branch: `rel-<MAJOR><MINOR>0` (e.g. `rel-810`) from `master`. This is the only step that creates new state from nothing. When this is a **new minor line** (no prior `rel-<MAJOR><MINOR>0` released), seed the [`demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr) production-demo rows for that line (`branch_tag=tag` rows on the `<MAJOR>.<MINOR>` line) before the first tag — `bump-tag.yml` only advances rows whose existing tag shares the new tag's `MAJOR.MINOR`, so an unseeded minor would silently skip step 15.
 3. **[Automated]** Conductor workflow (`release-prep.yml` in `openemr/openemr`) opens or updates the `release-prep/<rel-branch>` draft PR with all mechanical version bumps. Re-fires on every relevant push.
 4. **[Automated]** Docs workflow (in `website-openemr`) opens or updates the `release-docs/<version>` draft PR with install/upgrade pages, OpenAPI YAML, release-notes draft, acknowledgements, Hugo aliases. Pages render with a `DRAFT — based on rel-* @ <sha>` banner.
 5. **[Automated]** Infra workflow (`release-rotation.yml` in `openemr-devops`) opens or updates the `release-rotation/auto` draft PR rotating CI/version slots.
@@ -165,7 +165,7 @@ Standalone patch releases (`v<MAJOR>_<MINOR>_<PATCH>_<N>` tags with a `<M>-<m>-<
 
 ### Phase 6 — Demo and promotion
 
-15. **[Automated]** Point the demo farm (live demo servers at open-emr.org) to the new tag. The `bump-tag.yml` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/bump-tag.yml) consumes the `openemr-tag` event, rewrites matching production-demo rows in `ip_map_branch.txt`, and pushes to master; the demo-farm host's nightly reset picks up the new tag automatically.
+15. **[Automated]** Point the demo farm (live demo servers at open-emr.org) to the new tag. The `bump-tag.yml` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/bump-tag.yml) consumes the `openemr-tag` event, rewrites matching production-demo rows in `ip_map_branch.txt`, and pushes to master; the demo-farm host's nightly reset picks up the new tag automatically. The match condition is `branch_tag=tag` **and** the existing tag's `MAJOR.MINOR` equals the new tag's `MAJOR.MINOR`, so the first release on a new minor line is a no-op against the demo farm until production-demo rows for that line have been seeded (see Phase 2 step 2).
 16. **[Manual]** Announce the release:
     - Forums
     - Chat
