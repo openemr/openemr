@@ -2461,52 +2461,57 @@ $templateCount = count($detectedTemplates);
                     </button>
                 </div>
 
-                <!-- Scheduling Rules card -->
-                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;" id="schedulingRulesCard">
+                <!-- Scheduling Rules card — spans roughly 2 columns via flex-grow -->
+                <div style="flex:2;min-width:440px;max-width:620px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;" id="schedulingRulesCard">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:20px;">⚙️</span>
                         <strong style="font-size:13px;"><?php echo xlt('Scheduling Rules'); ?></strong>
                     </div>
 
-                    <!-- Template enforcement -->
-                    <fieldset style="border:none;padding:0;margin:0;">
-                        <legend style="font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Template enforcement'); ?></legend>
-                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
-                            <input type="radio" name="sr_template_enforcement" id="srEnfGuideline" value="guideline"
-                                   <?php echo $srEnforcement === 'guideline' ? 'checked' : ''; ?>
-                                   onchange="saveSchedulingRules()">
-                            <span><?php echo xlt('Templates are guidelines. Staff can override slot types if needed.'); ?></span>
-                        </label>
-                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
-                            <input type="radio" name="sr_template_enforcement" id="srEnfStrict" value="strict"
-                                   <?php echo $srEnforcement === 'strict' ? 'checked' : ''; ?>
-                                   onchange="saveSchedulingRules()">
-                            <span><?php echo xlt('Templates are strictly enforced. Only appointments of the same type can be added or moved into a slot.'); ?></span>
-                        </label>
-                    </fieldset>
+                    <!-- Two-column grid for the two rule groups -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;flex:1;">
 
-                    <!-- Double-booking -->
-                    <fieldset style="border:none;padding:0;margin:0;">
-                        <legend style="font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Slot double-booking'); ?></legend>
-                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
-                            <input type="radio" name="sr_double_booking" id="srDblAllowed" value="1"
-                                   <?php echo $srAllowDblBook ? 'checked' : ''; ?>
-                                   onchange="saveSchedulingRules()">
-                            <span><?php echo xlt('Slot double-booking is allowed.'); ?></span>
-                        </label>
-                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
-                            <input type="radio" name="sr_double_booking" id="srDblForbidden" value="0"
-                                   <?php echo !$srAllowDblBook ? 'checked' : ''; ?>
-                                   onchange="saveSchedulingRules()">
-                            <span><?php echo xlt('Slot double-booking is not allowed.'); ?></span>
-                        </label>
-                    </fieldset>
+                        <!-- Template enforcement -->
+                        <fieldset style="border:none;padding:0;margin:0;border-right:1px solid var(--cs-border);padding-right:20px;">
+                            <legend style="font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Template enforcement'); ?></legend>
+                            <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                                <input type="radio" name="sr_template_enforcement" id="srEnfGuideline" value="guideline"
+                                       <?php echo $srEnforcement === 'guideline' ? 'checked' : ''; ?>
+                                       onchange="saveSchedulingRules()">
+                                <span><?php echo xlt('Templates are guidelines. Staff can override slot types if needed.'); ?></span>
+                            </label>
+                            <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
+                                <input type="radio" name="sr_template_enforcement" id="srEnfStrict" value="strict"
+                                       <?php echo $srEnforcement === 'strict' ? 'checked' : ''; ?>
+                                       onchange="saveSchedulingRules()">
+                                <span><?php echo xlt('Templates are strictly enforced. Only appointments of the same type can be added or moved into a slot.'); ?></span>
+                            </label>
+                        </fieldset>
+
+                        <!-- Double-booking -->
+                        <fieldset style="border:none;padding:0;margin:0;">
+                            <legend style="font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Slot double-booking'); ?></legend>
+                            <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                                <input type="radio" name="sr_double_booking" id="srDblAllowed" value="1"
+                                       <?php echo $srAllowDblBook ? 'checked' : ''; ?>
+                                       onchange="saveSchedulingRules()">
+                                <span><?php echo xlt('Slot double-booking is allowed.'); ?></span>
+                            </label>
+                            <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
+                                <input type="radio" name="sr_double_booking" id="srDblForbidden" value="0"
+                                       <?php echo !$srAllowDblBook ? 'checked' : ''; ?>
+                                       onchange="saveSchedulingRules()">
+                                <span><?php echo xlt('Slot double-booking is not allowed.'); ?></span>
+                            </label>
+                        </fieldset>
+
+                    </div><!-- /two-column grid -->
 
                     <span id="srSaveStatus" style="font-size:11px;display:none;margin-top:auto;"></span>
                 </div>
 
                 <!-- Patient Rescheduler card -->
-                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;" id="reschedulerCard">
+                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;display:flex;flex-direction:column;" id="reschedulerCard">
                     <label style="position:absolute;top:14px;right:14px;display:inline-block;width:42px;height:24px;cursor:pointer;" title="<?php echo attr(xl('Toggle patient rescheduler')); ?>">
                         <input type="checkbox" id="reschedulerToggle" style="opacity:0;width:0;height:0;position:absolute;"
                             <?php echo $reschedulerPaused ? '' : 'checked'; ?>>
@@ -2526,7 +2531,7 @@ $templateCount = count($detectedTemplates);
                             <?php echo xlt('With an active template and reschedulable slots, we can offer our patients auto-rescheduling.'); ?>
                         </div>
                     </div>
-                    <div style="margin-top:14px;">
+                    <div style="margin-top:auto;padding-top:14px;">
                         <span id="reschedulerSaveSpinner" style="visibility:hidden;display:block;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;min-height:1em;"><?php echo xlt('Saving…'); ?></span>
                         <button class="btn" type="button" style="width:100%;text-align:center;"
                             onclick="openReschedulerModal();">
