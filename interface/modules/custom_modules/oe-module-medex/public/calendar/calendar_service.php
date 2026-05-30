@@ -2366,7 +2366,7 @@ $templateCount = count($detectedTemplates);
                         </div>
                     </div>
                     <div style="margin-top:14px;">
-                        <span id="reschedulerSaveSpinner" style="display:none;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Saving…'); ?></span>
+                        <span id="reschedulerSaveSpinner" style="visibility:hidden;display:block;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;min-height:1em;"><?php echo xlt('Saving…'); ?></span>
                         <button class="btn" type="button" style="width:100%;text-align:center;"
                             onclick="window.parent.location.href=<?php echo js_escape(MedExConfig::baseUrl() . '/index.php?route=calendar/dashboard&view=rescheduler_bot&embed=1'); ?>;">
                             <?php echo xlt('Open Rescheduler Rules'); ?>
@@ -4514,7 +4514,7 @@ window.addEventListener('resize', queueStableRender);
         const spinner = document.getElementById('reschedulerSaveSpinner');
         const slider = document.getElementById('reschedulerSlider');
         const thumb = document.getElementById('reschedulerThumb');
-        if (spinner) { spinner.style.display = ''; }
+        if (spinner) { spinner.style.visibility = 'visible'; }
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
             top.restoreSession();
         }
@@ -4550,7 +4550,7 @@ window.addEventListener('resize', queueStableRender);
                 if (thumb) { thumb.style.left = isNowPaused ? '3px' : '21px'; }
             })
             .catch(function() { toggle.checked = !paused; })
-            .finally(function() { if (spinner) { spinner.style.display = 'none'; } });
+            .finally(function() { if (spinner) { spinner.style.visibility = 'hidden'; } });
     });
 }());
 </script>
