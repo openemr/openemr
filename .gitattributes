@@ -35,3 +35,16 @@ semgrep.yaml                   export-ignore
 CLAUDE.md                      export-ignore
 DOCKER_README.md               export-ignore
 README-Isolated-Testing.md     export-ignore
+
+# Exclude the very large generated EHI schema documentation (~140M of
+# SchemaSpy HTML, diagrams, jars) from release archives; it is published to
+# the website instead of shipped in the install package. The EHI exporter
+# only reads two descriptors at runtime, so keep just those via single-*
+# globs (which match immediate children only, leaving the parent dirs
+# walkable) plus -export-ignore carve-outs for the two files.
+Documentation/EHI_Export/docs/* export-ignore
+Documentation/EHI_Export/docs/openemr.openemr.xml -export-ignore
+Documentation/EHI_Export/schemaspy/* export-ignore
+Documentation/EHI_Export/schemaspy/schemas -export-ignore
+Documentation/EHI_Export/schemaspy/schemas/* export-ignore
+Documentation/EHI_Export/schemaspy/schemas/openemr.meta.xml -export-ignore
