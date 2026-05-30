@@ -2535,7 +2535,7 @@ $templateCount = count($detectedTemplates);
                         <span id="reschedulerSaveSpinner" style="visibility:hidden;display:block;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;min-height:1em;"><?php echo xlt('Saving…'); ?></span>
                         <button class="btn" type="button" style="width:100%;text-align:center;"
                             onclick="openReschedulerModal();">
-                            <?php echo xlt('Open Rescheduler Rules'); ?>
+                            <?php echo xlt('Rescheduler Rules'); ?>
                         </button>
                     </div>
                 </div>
