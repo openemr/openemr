@@ -182,7 +182,7 @@ The runbook above marks each currently-manual post-automation step **[Manual]**.
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 9 | Auto-merge the `website-openemr` docs PR on `openemr-tag`; today an operator merges it by hand after the tag is cut | Not yet filed |
+| 9 | Auto-merge the `website-openemr` docs PR on `openemr-tag`; the page banner already flips to FINAL via the manifest, but the PR stays a GitHub draft that an operator marks ready and merges by hand | [openemr/openemr-devops#761](https://github.com/openemr/openemr-devops/issues/761) |
 | 16 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 
 Recently closed: step 10 (automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`) shipped via [openemr/openemr-devops#757](https://github.com/openemr/openemr-devops/pull/757), closing [#756](https://github.com/openemr/openemr-devops/issues/756). The v8.1.0 release surfaced the gap — tag landed, no Release object did; `build-release-on-tag.yml` now creates the Release object automatically when the conductor emits `openemr-tag`.
