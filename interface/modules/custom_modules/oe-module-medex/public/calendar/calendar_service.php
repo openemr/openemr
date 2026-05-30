@@ -386,7 +386,7 @@ function cs_load_appointment_types(): array
            AND COALESCE(pc_cattype, 0) = 0
            AND TRIM(COALESCE(pc_catname, '')) <> ''
            AND LOWER(REPLACE(TRIM(COALESCE(pc_catname, '')), ' ', '')) <> 'noshow'
-         ORDER BY pc_catname"
+         ORDER BY COALESCE(pc_seq, 9999), pc_catname"
     );
     while ($row = sqlFetchArray($res)) {
         $types[] = [
@@ -565,7 +565,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         ]);
     }
 
-    if (in_array($action, ['list_categories', 'upsert_category', 'deactivate_category', 'ask_template', 'help_chat'], true)) {
+    if (in_array($action, ['list_categories', 'upsert_category', 'deactivate_category', 'reorder_categories', 'ask_template', 'help_chat'], true)) {
         try {
             if ($action === 'list_categories') {
                 cs_json_exit(['success' => true, 'types' => cs_load_appointment_types()]);
@@ -636,6 +636,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                     cs_json_exit(['success' => false, 'error' => 'Missing category id.']);
                 }
                 sqlStatement("UPDATE openemr_postcalendar_categories SET pc_active = 0 WHERE pc_catid = ?", [$categoryId]);
+                cs_json_exit(['success' => true, 'types' => cs_load_appointment_types()]);
+            }
+
+            if ($action === 'reorder_categories') {
+                $ids = json_decode((string)($_POST['ids'] ?? '[]'), true);
+                if (!is_array($ids)) {
+                    cs_json_exit(['success' => false, 'error' => 'Invalid ids.']);
+                }
+                foreach ($ids as $seq => $catId) {
+                    $catId = (int)$catId;
+                    if ($catId <= 0) { continue; }
+                    sqlStatement("UPDATE openemr_postcalendar_categories SET pc_seq = ? WHERE pc_catid = ?", [$seq + 1, $catId]);
+                }
                 cs_json_exit(['success' => true, 'types' => cs_load_appointment_types()]);
             }
 
@@ -1856,10 +1869,35 @@ $templateCount = count($detectedTemplates);
             padding: 8px 10px;
             margin-bottom: 8px;
             display: grid;
-            grid-template-columns: 16px 1fr auto;
+            grid-template-columns: 18px 16px 1fr auto;
             gap: 8px;
             align-items: center;
             background: #fff;
+            transition: box-shadow 0.12s, opacity 0.12s;
+        }
+
+        .type-row.dragging {
+            opacity: 0.4;
+        }
+
+        .type-row.drag-over {
+            box-shadow: 0 0 0 2px var(--cs-accent);
+            border-color: var(--cs-accent);
+        }
+
+        .type-row .drag-handle {
+            cursor: grab;
+            color: var(--cs-border);
+            font-size: 14px;
+            line-height: 1;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .type-row .drag-handle:active {
+            cursor: grabbing;
         }
 
         .type-row .swatch {
@@ -4030,6 +4068,79 @@ function refreshAppointmentTypeControls() {
     renderAppointmentTypeSelect(document.getElementById('slotEditType'));
 }
 
+function bindTypeListDragReorder(listEl) {
+    let dragSrcId = null;
+
+    listEl.querySelectorAll('.type-row').forEach((row) => {
+        row.addEventListener('dragstart', (e) => {
+            dragSrcId = String(row.getAttribute('data-id') || '');
+            row.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        row.addEventListener('dragend', () => {
+            row.classList.remove('dragging');
+            listEl.querySelectorAll('.type-row').forEach((r) => r.classList.remove('drag-over'));
+        });
+
+        row.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            listEl.querySelectorAll('.type-row').forEach((r) => r.classList.remove('drag-over'));
+            row.classList.add('drag-over');
+        });
+
+        row.addEventListener('dragleave', () => {
+            row.classList.remove('drag-over');
+        });
+
+        row.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            row.classList.remove('drag-over');
+            const targetId = String(row.getAttribute('data-id') || '');
+            if (!dragSrcId || dragSrcId === targetId) { return; }
+
+            const srcIdx = appointmentTypes.findIndex((t) => String(t.id) === dragSrcId);
+            const tgtIdx = appointmentTypes.findIndex((t) => String(t.id) === targetId);
+            if (srcIdx === -1 || tgtIdx === -1) { return; }
+
+            const moved = appointmentTypes.splice(srcIdx, 1)[0];
+            appointmentTypes.splice(tgtIdx, 0, moved);
+
+            // Re-render immediately so the user sees the change
+            listEl.innerHTML = appointmentTypes.map((type) => {
+                const id = Number(type.id || 0);
+                const name = String(type.name || 'Appointment')
+                    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                const color = String(type.color || '#1d4ed8');
+                const duration = Number(type.duration || 30);
+                return '<div class="type-row" data-id="' + id + '" draggable="true" style="cursor:pointer;">'
+                    + '<span class="drag-handle" title="Drag to reorder">&#x2630;</span>'
+                    + '<span class="swatch" style="background:' + color + ';"></span>'
+                    + '<div class="meta"><strong>' + name + '</strong><span>' + duration + ' min</span></div>'
+                    + '<div class="actions">'
+                    + '<button class="btn" type="button" data-action="edit" data-id="' + id + '">Edit</button>'
+                    + '<button class="btn" type="button" data-action="deactivate" data-id="' + id + '" style="border-color:#ef4444;color:#b91c1c;">Deactivate</button>'
+                    + '</div>'
+                    + '</div>';
+            }).join('');
+            bindTypeListDragReorder(listEl);
+            refreshAppointmentTypeControls();
+
+            // Persist new order
+            const ids = appointmentTypes.map((t) => t.id);
+            try {
+                restoreOpenEmrSessionIfAvailable();
+                const body = new URLSearchParams();
+                body.set('action', 'reorder_categories');
+                body.set('ids', JSON.stringify(ids));
+                await postToSelfWithSession(body);
+            } catch (_) { /* non-fatal */ }
+        });
+    });
+}
+
 function bindManageTypesModal() {
     const modal = document.getElementById('manageTypesModal');
     const openBtn = document.getElementById('btnManageTypes');
@@ -4090,15 +4201,17 @@ function bindManageTypesModal() {
                 .replace(/'/g, '&#39;');
             const color = String(type.color || '#1d4ed8');
             const duration = Number(type.duration || 30);
-            return '<div class="type-row" data-id="' + id + '" style="cursor:pointer;">'
+            return '<div class="type-row" data-id="' + id + '" draggable="true" style="cursor:pointer;">'
+                + '<span class="drag-handle" title="Drag to reorder">&#x2630;</span>'
                 + '<span class="swatch" style="background:' + color + ';"></span>'
-                + '<div class="meta"><strong>' + name + '</strong><span>ID ' + id + ' | ' + duration + ' min</span></div>'
+                + '<div class="meta"><strong>' + name + '</strong><span>' + duration + ' min</span></div>'
                 + '<div class="actions">'
                 + '<button class="btn" type="button" data-action="edit" data-id="' + id + '">Edit</button>'
                 + '<button class="btn" type="button" data-action="deactivate" data-id="' + id + '" style="border-color:#ef4444;color:#b91c1c;">Deactivate</button>'
                 + '</div>'
                 + '</div>';
         }).join('');
+        bindTypeListDragReorder(listEl);
     };
 
     const loadTypes = async () => {
