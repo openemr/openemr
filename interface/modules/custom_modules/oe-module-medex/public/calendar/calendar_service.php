@@ -2344,36 +2344,33 @@ $templateCount = count($detectedTemplates);
                     </button>
                 </div>
 
-                <!-- Patient Rescheduler kill switch card -->
-                <div style="flex:1;min-width:220px;max-width:320px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;" id="reschedulerCard">
-                    <div style="display:flex;align-items:center;gap:8px;">
-                        <span style="font-size:20px;">🔄</span>
-                        <strong style="font-size:13px;"><?php echo xlt('Patient Rescheduler'); ?></strong>
+                <!-- Patient Rescheduler card -->
+                <div style="flex:1;min-width:220px;max-width:320px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;" id="reschedulerCard">
+                    <label style="position:absolute;top:14px;right:14px;display:inline-block;width:42px;height:24px;cursor:pointer;" title="<?php echo attr(xl('Toggle patient rescheduler')); ?>">
+                        <input type="checkbox" id="reschedulerToggle" style="opacity:0;width:0;height:0;position:absolute;"
+                            <?php echo $reschedulerPaused ? '' : 'checked'; ?>>
+                        <span id="reschedulerSlider" style="position:absolute;cursor:pointer;inset:0;border-radius:24px;transition:.2s;
+                            background:<?php echo $reschedulerPaused ? '#ef4444' : '#1c4568'; ?>;">
+                            <span id="reschedulerThumb" style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;
+                                top:3px;transition:.2s;
+                                left:<?php echo $reschedulerPaused ? '3px' : '21px'; ?>;"></span>
+                        </span>
+                    </label>
+                    <div style="padding-right:52px;">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                            <span style="font-size:20px;">🔄</span>
+                            <strong style="font-size:13px;"><?php echo xlt('Patient Rescheduler'); ?></strong>
+                        </div>
+                        <div style="font-size:12px;color:var(--cs-subtle);" id="reschedulerCardDesc">
+                            <?php echo xlt('Control lead times, same-day rules, and how many openings patients can see.'); ?>
+                        </div>
                     </div>
-                    <div style="font-size:12px;color:var(--cs-subtle);" id="reschedulerCardDesc">
-                        <?php if ($reschedulerPaused): ?>
-                        <?php echo xlt('Rescheduler is paused. Reminders will not include the "R" reply option and inbound "R" replies receive an unavailability message.'); ?>
-                        <?php else: ?>
-                        <?php echo xlt('Rescheduler is active. Patients can reschedule via SMS "R" reply. Toggle off to pause in an emergency.'); ?>
-                        <?php endif; ?>
-                    </div>
-                    <div style="display:flex;align-items:center;gap:10px;margin-top:auto;">
-                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12px;font-weight:600;">
-                            <span style="position:relative;display:inline-block;width:42px;height:24px;">
-                                <input type="checkbox" id="reschedulerToggle" style="opacity:0;width:0;height:0;position:absolute;"
-                                    <?php echo $reschedulerPaused ? '' : 'checked'; ?>>
-                                <span id="reschedulerSlider" style="position:absolute;cursor:pointer;inset:0;border-radius:24px;transition:.2s;
-                                    background:<?php echo $reschedulerPaused ? '#ef4444' : '#1c4568'; ?>;">
-                                    <span id="reschedulerThumb" style="position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;
-                                        top:3px;transition:.2s;
-                                        left:<?php echo $reschedulerPaused ? '3px' : '21px'; ?>;"></span>
-                                </span>
-                            </span>
-                            <span id="reschedulerToggleLabel" style="color:<?php echo $reschedulerPaused ? '#ef4444' : '#1c4568'; ?>;">
-                                <?php echo $reschedulerPaused ? xlt('PAUSED') : xlt('ACTIVE'); ?>
-                            </span>
-                        </label>
-                        <span id="reschedulerSaveSpinner" style="display:none;font-size:11px;color:var(--cs-subtle);"><?php echo xlt('Saving…'); ?></span>
+                    <div style="margin-top:14px;">
+                        <span id="reschedulerSaveSpinner" style="display:none;font-size:11px;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Saving…'); ?></span>
+                        <button class="btn" type="button" style="width:100%;text-align:center;"
+                            onclick="window.parent.location.href=<?php echo js_escape(MedExConfig::baseUrl() . '/index.php?route=calendar/dashboard&view=rescheduler_bot&embed=1'); ?>;">
+                            <?php echo xlt('Open Rescheduler Rules'); ?>
+                        </button>
                     </div>
                 </div>
 
@@ -4515,10 +4512,8 @@ window.addEventListener('resize', queueStableRender);
     toggle.addEventListener('change', function() {
         const paused = !toggle.checked; // checked = active (not paused)
         const spinner = document.getElementById('reschedulerSaveSpinner');
-        const label = document.getElementById('reschedulerToggleLabel');
         const slider = document.getElementById('reschedulerSlider');
         const thumb = document.getElementById('reschedulerThumb');
-        const desc = document.getElementById('reschedulerCardDesc');
         if (spinner) { spinner.style.display = ''; }
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
             top.restoreSession();
@@ -4551,17 +4546,8 @@ window.addEventListener('resize', queueStableRender);
                 var alertEl = document.getElementById('reschedulerBlockedAlert');
                 if (alertEl) { alertEl.style.display = 'none'; }
                 const isNowPaused = !!d.paused;
-                if (label) {
-                    label.textContent = isNowPaused ? '<?php echo xlt('PAUSED'); ?>' : '<?php echo xlt('ACTIVE'); ?>';
-                    label.style.color = isNowPaused ? '#ef4444' : '#1c4568';
-                }
                 if (slider) { slider.style.background = isNowPaused ? '#ef4444' : '#1c4568'; }
                 if (thumb) { thumb.style.left = isNowPaused ? '3px' : '21px'; }
-                if (desc) {
-                    desc.textContent = isNowPaused
-                        ? '<?php echo xlt('Rescheduler is paused. Reminders will not include the "R" reply option and inbound "R" replies receive an unavailability message.'); ?>'
-                        : '<?php echo xlt('Rescheduler is active. Patients can reschedule via SMS "R" reply. Toggle off to pause in an emergency.'); ?>';
-                }
             })
             .catch(function() { toggle.checked = !paused; })
             .finally(function() { if (spinner) { spinner.style.display = 'none'; } });
