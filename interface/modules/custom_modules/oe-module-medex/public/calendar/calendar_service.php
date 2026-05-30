@@ -490,6 +490,30 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         cs_json_exit(['success' => true, 'paused' => ($val === '1')]);
     }
 
+    if ($action === 'get_scheduling_rules') {
+        $raw = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_scheduling_rules' LIMIT 1");
+        $rules = json_decode((string)($raw['gl_value'] ?? ''), true);
+        if (!is_array($rules)) {
+            $rules = ['template_enforcement' => 'guideline', 'allow_double_booking' => true];
+        }
+        cs_json_exit(['success' => true, 'rules' => $rules]);
+    }
+
+    if ($action === 'save_scheduling_rules') {
+        $enforcement = (string)($_POST['template_enforcement'] ?? 'guideline');
+        if (!in_array($enforcement, ['guideline', 'strict'], true)) {
+            $enforcement = 'guideline';
+        }
+        $allowDoubleBook = ((string)($_POST['allow_double_booking'] ?? '1') === '1');
+        $payload = json_encode([
+            'template_enforcement' => $enforcement,
+            'allow_double_booking' => $allowDoubleBook,
+        ]);
+        sqlStatement("DELETE FROM globals WHERE gl_name = 'medex_scheduling_rules'");
+        sqlStatement("INSERT INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_scheduling_rules', 0, ?)", [$payload]);
+        cs_json_exit(['success' => true, 'rules' => ['template_enforcement' => $enforcement, 'allow_double_booking' => $allowDoubleBook]]);
+    }
+
     if ($action === 'get_rescheduler_rules') {
         $raw = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_rescheduler_rules' LIMIT 1");
         $rules = json_decode((string)($raw['gl_value'] ?? ''), true);
@@ -991,6 +1015,14 @@ $appointmentTypes = cs_load_appointment_types();
 
 $reschedulerPausedRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_rescheduler_paused' LIMIT 1");
 $reschedulerPaused = (($reschedulerPausedRow['gl_value'] ?? '0') === '1');
+
+$schedulingRulesRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_scheduling_rules' LIMIT 1");
+$schedulingRules = json_decode((string)($schedulingRulesRow['gl_value'] ?? ''), true);
+if (!is_array($schedulingRules)) {
+    $schedulingRules = ['template_enforcement' => 'guideline', 'allow_double_booking' => true];
+}
+$srEnforcement    = (string)($schedulingRules['template_enforcement'] ?? 'guideline');
+$srAllowDblBook   = (bool)($schedulingRules['allow_double_booking'] ?? true);
 
 $foundPatterns = [];
 try {
@@ -2454,59 +2486,14 @@ $templateCount = count($detectedTemplates);
     $shortDayNamesRoster = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
     ?>
     <div class="cs-provider-roster" id="providerRoster">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-            <strong style="font-size:14px;"><?php echo xlt('Providers'); ?></strong>
-            <span style="font-size:11px;color:var(--cs-subtle);"><?php echo count($providers); ?> <?php echo xlt('provider(s)'); ?> &mdash; <?php echo count($providerTemplateMap); ?> <?php echo xlt('with saved templates'); ?></span>
-        </div>
-        <?php if (empty($providers)): ?>
-            <div class="empty-note"><?php echo xlt('No calendar providers found. Ensure providers have calendar access in OpenEMR.'); ?></div>
-        <?php else: ?>
-        <div class="provider-roster-grid">
-            <?php foreach ($providers as $_p): ?>
-            <?php
-            $_pid = (int)($_p['id']);
-            $_hasTemplate = isset($providerTemplateMap[$_pid]);
-            $_tpl = $_hasTemplate ? $providerTemplateMap[$_pid] : null;
-            $_blocks = $_hasTemplate ? ($_tpl['blocks'] ?? []) : [];
-            $_daySet = array_unique(array_column($_blocks, 'weekday'));
-            sort($_daySet);
-            $_daySummary = implode(', ', array_map(fn($_d) => $shortDayNamesRoster[$_d] ?? '?', $_daySet));
-            ?>
-            <div class="provider-card<?php echo $_hasTemplate ? ' has-template' : ''; ?>"
-                 id="pcard-<?php echo attr((string)$_pid); ?>"
-                 data-provider-id="<?php echo attr((string)$_pid); ?>">
-                <div class="provider-card-name">&#x1F464; <?php echo text($_p['name']); ?></div>
-                <?php if ($_hasTemplate): ?>
-                    <div class="provider-card-status">
-                        <?php echo text($_daySummary ?: xlt('No days')); ?> &bull; <?php echo count($_blocks); ?> <?php echo xlt('block(s)'); ?>
-                    </div>
-                    <div class="provider-card-actions">
-                        <button class="btn primary" type="button" style="font-size:11px;padding:6px 10px;"
-                                onclick="openProviderTemplate(<?php echo attr((string)$_pid); ?>)">
-                            <?php echo xlt('Edit Template'); ?>
-                        </button>
-                    </div>
-                <?php else: ?>
-                    <div class="provider-card-status"><?php echo xlt('No template yet'); ?></div>
-                    <div class="provider-card-actions">
-                        <button class="btn" type="button" style="font-size:11px;padding:6px 10px;"
-                                onclick="openProviderNewTemplate(<?php echo attr((string)$_pid); ?>)">
-                            <?php echo xlt('Create Template'); ?>
-                        </button>
-                    </div>
-                <?php endif; ?>
-            </div>
-            <?php endforeach; ?>
-        </div>
-        <?php endif; ?>
 
-        <!-- Studio Settings Cards -->
-        <div style="margin-top:24px;border-top:1px solid var(--cs-border);padding-top:18px;">
-            <strong style="font-size:13px;display:block;margin-bottom:12px;"><?php echo xlt('Studio Settings'); ?></strong>
-            <div style="display:flex;flex-wrap:wrap;gap:14px;">
+        <!-- ── Studio Settings (first row) ─────────────────────── -->
+        <div style="margin-bottom:28px;border-bottom:1px solid var(--cs-border);padding-bottom:22px;">
+            <strong style="font-size:13px;display:block;margin-bottom:14px;"><?php echo xlt('Studio Settings'); ?></strong>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;justify-content:center;">
 
                 <!-- Appointment Types card -->
-                <div style="flex:1;min-width:220px;max-width:320px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
+                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
                     <div style="display:flex;align-items:center;gap:8px;">
                         <span style="font-size:20px;">🗂</span>
                         <strong style="font-size:13px;"><?php echo xlt('Appointment Types'); ?></strong>
@@ -2518,8 +2505,52 @@ $templateCount = count($detectedTemplates);
                     </button>
                 </div>
 
+                <!-- Scheduling Rules card -->
+                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:12px;" id="schedulingRulesCard">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:20px;">⚙️</span>
+                        <strong style="font-size:13px;"><?php echo xlt('Scheduling Rules'); ?></strong>
+                    </div>
+
+                    <!-- Template enforcement -->
+                    <fieldset style="border:none;padding:0;margin:0;">
+                        <legend style="font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Template enforcement'); ?></legend>
+                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                            <input type="radio" name="sr_template_enforcement" id="srEnfGuideline" value="guideline"
+                                   <?php echo $srEnforcement === 'guideline' ? 'checked' : ''; ?>
+                                   onchange="saveSchedulingRules()">
+                            <span><?php echo xlt('Templates are guidelines. Staff can override slot types if needed.'); ?></span>
+                        </label>
+                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
+                            <input type="radio" name="sr_template_enforcement" id="srEnfStrict" value="strict"
+                                   <?php echo $srEnforcement === 'strict' ? 'checked' : ''; ?>
+                                   onchange="saveSchedulingRules()">
+                            <span><?php echo xlt('Templates are strictly enforced. Only appointments of the same type can be added or moved into a slot.'); ?></span>
+                        </label>
+                    </fieldset>
+
+                    <!-- Double-booking -->
+                    <fieldset style="border:none;padding:0;margin:0;">
+                        <legend style="font-size:11px;font-weight:600;color:var(--cs-subtle);margin-bottom:6px;"><?php echo xlt('Slot double-booking'); ?></legend>
+                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;margin-bottom:6px;">
+                            <input type="radio" name="sr_double_booking" id="srDblAllowed" value="1"
+                                   <?php echo $srAllowDblBook ? 'checked' : ''; ?>
+                                   onchange="saveSchedulingRules()">
+                            <span><?php echo xlt('Slot double-booking is allowed.'); ?></span>
+                        </label>
+                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;">
+                            <input type="radio" name="sr_double_booking" id="srDblForbidden" value="0"
+                                   <?php echo !$srAllowDblBook ? 'checked' : ''; ?>
+                                   onchange="saveSchedulingRules()">
+                            <span><?php echo xlt('Slot double-booking is not allowed.'); ?></span>
+                        </label>
+                    </fieldset>
+
+                    <span id="srSaveStatus" style="font-size:11px;display:none;margin-top:auto;"></span>
+                </div>
+
                 <!-- Patient Rescheduler card -->
-                <div style="flex:1;min-width:220px;max-width:320px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;" id="reschedulerCard">
+                <div style="flex:1;min-width:220px;max-width:300px;background:var(--cs-panel);border:1px solid var(--cs-border);border-radius:10px;padding:16px 18px;position:relative;" id="reschedulerCard">
                     <label style="position:absolute;top:14px;right:14px;display:inline-block;width:42px;height:24px;cursor:pointer;" title="<?php echo attr(xl('Toggle patient rescheduler')); ?>">
                         <input type="checkbox" id="reschedulerToggle" style="opacity:0;width:0;height:0;position:absolute;"
                             <?php echo $reschedulerPaused ? '' : 'checked'; ?>>
@@ -2536,7 +2567,7 @@ $templateCount = count($detectedTemplates);
                             <strong style="font-size:13px;"><?php echo xlt('Patient Rescheduler'); ?></strong>
                         </div>
                         <div style="font-size:12px;color:var(--cs-subtle);" id="reschedulerCardDesc">
-                            <?php echo xlt('Control lead times, same-day rules, and how many openings patients can see.'); ?>
+                            <?php echo xlt('With an active template and reschedulable slots, we can offer our patients auto-rescheduling.'); ?>
                         </div>
                     </div>
                     <div style="margin-top:14px;">
@@ -2550,6 +2581,56 @@ $templateCount = count($detectedTemplates);
 
             </div>
         </div>
+
+        <!-- ── Providers (second row) ────────────────────────────── -->
+        <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+                <strong style="font-size:14px;"><?php echo xlt('Providers'); ?></strong>
+                <span style="font-size:11px;color:var(--cs-subtle);"><?php echo count($providers); ?> <?php echo xlt('provider(s)'); ?> &mdash; <?php echo count($providerTemplateMap); ?> <?php echo xlt('with saved templates'); ?></span>
+            </div>
+            <?php if (empty($providers)): ?>
+                <div class="empty-note"><?php echo xlt('No calendar providers found. Ensure providers have calendar access in OpenEMR.'); ?></div>
+            <?php else: ?>
+            <div class="provider-roster-grid">
+                <?php foreach ($providers as $_p): ?>
+                <?php
+                $_pid = (int)($_p['id']);
+                $_hasTemplate = isset($providerTemplateMap[$_pid]);
+                $_tpl = $_hasTemplate ? $providerTemplateMap[$_pid] : null;
+                $_blocks = $_hasTemplate ? ($_tpl['blocks'] ?? []) : [];
+                $_daySet = array_unique(array_column($_blocks, 'weekday'));
+                sort($_daySet);
+                $_daySummary = implode(', ', array_map(fn($_d) => $shortDayNamesRoster[$_d] ?? '?', $_daySet));
+                ?>
+                <div class="provider-card<?php echo $_hasTemplate ? ' has-template' : ''; ?>"
+                     id="pcard-<?php echo attr((string)$_pid); ?>"
+                     data-provider-id="<?php echo attr((string)$_pid); ?>">
+                    <div class="provider-card-name">&#x1F464; <?php echo text($_p['name']); ?></div>
+                    <?php if ($_hasTemplate): ?>
+                        <div class="provider-card-status">
+                            <?php echo text($_daySummary ?: xlt('No days')); ?> &bull; <?php echo count($_blocks); ?> <?php echo xlt('block(s)'); ?>
+                        </div>
+                        <div class="provider-card-actions">
+                            <button class="btn primary" type="button" style="font-size:11px;padding:6px 10px;"
+                                    onclick="openProviderTemplate(<?php echo attr((string)$_pid); ?>)">
+                                <?php echo xlt('Edit Template'); ?>
+                            </button>
+                        </div>
+                    <?php else: ?>
+                        <div class="provider-card-status"><?php echo xlt('No template yet'); ?></div>
+                        <div class="provider-card-actions">
+                            <button class="btn" type="button" style="font-size:11px;padding:6px 10px;"
+                                    onclick="openProviderNewTemplate(<?php echo attr((string)$_pid); ?>)">
+                                <?php echo xlt('Create Template'); ?>
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
     </div>
 
     <div class="cs-main" id="csMain" style="display:none;">
@@ -4678,6 +4759,31 @@ initCollapsibleSections();
 queueStableRender();
 window.addEventListener('load', queueStableRender);
 window.addEventListener('resize', queueStableRender);
+
+// =====================================================================
+// Scheduling Rules card — save on change
+// =====================================================================
+function saveSchedulingRules() {
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') { top.restoreSession(); }
+    var enforcement = document.querySelector('input[name="sr_template_enforcement"]:checked');
+    var dblBook     = document.querySelector('input[name="sr_double_booking"]:checked');
+    if (!enforcement || !dblBook) { return; }
+    var status = document.getElementById('srSaveStatus');
+    if (status) { status.textContent = 'Saving…'; status.style.display = ''; status.style.color = 'var(--cs-subtle)'; }
+    var fd = new FormData();
+    fd.append('action', 'save_scheduling_rules');
+    fd.append('template_enforcement', enforcement.value);
+    fd.append('allow_double_booking', dblBook.value);
+    fetch(window.location.href, { method: 'POST', body: fd })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            if (!d.success) { throw new Error(d.error || 'Failed'); }
+            if (status) { status.textContent = 'Saved.'; status.style.display = ''; status.style.color = '#1c4568'; setTimeout(function() { if (status) { status.style.display = 'none'; } }, 2000); }
+        })
+        .catch(function(e) {
+            if (status) { status.textContent = 'Error: ' + e.message; status.style.display = ''; status.style.color = '#b91c1c'; }
+        });
+}
 
 // =====================================================================
 // Rescheduler Panel — open inside Calendar Studio (no cross-origin nav)

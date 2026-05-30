@@ -719,6 +719,10 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
         canDoubleBook: false,
         warnOnDoubleBook: false
     };
+    const schedulingRules = window.medexSchedulingRules || {
+        templateEnforcement: 'guideline',
+        allowDoubleBooking: true
+    };
     function normalizeTimeMs(value) {
         if (value === null || value === undefined) {
             return null;
@@ -825,7 +829,20 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
             nowIndicator: true,
             scrollTime: scrollTime,
             expandRows: true,
-            eventOverlap: true,
+            eventOverlap: function(stillEvent, movingEvent) {
+                // Template/open slots may always visually overlap patient appointments (two-lane display).
+                const stillPatient  = parseInt((stillEvent.extendedProps  && stillEvent.extendedProps.patientId)  || 0, 10) || 0;
+                const movingPatient = parseInt((movingEvent && movingEvent.extendedProps && movingEvent.extendedProps.patientId) || 0, 10) || 0;
+                if (stillPatient <= 0 || movingPatient <= 0) { return true; }
+                // Both are patient appointments — apply the double-booking rule.
+                if (!schedulingRules.allowDoubleBooking) {
+                    if (typeof window.showMedexStatusToast === 'function') {
+                        window.showMedexStatusToast('Double-booking is not allowed', 'error', 2000);
+                    }
+                    return false;
+                }
+                return true;
+            },
             eventsSet: function(events) {
                 // Auto-tighten the grid when events shorter than calendarInterval are present.
                 // Only applies to time-grid views; skip month/agenda views.
@@ -907,16 +924,16 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     return false;
                 }
 
-                // Client-side guardrail: if this move overlaps a template/open slot,
-                // the appointment category must match that slot category.
+                // Template enforcement: check category match on the destination slot.
+                // Guideline mode: block only when dragged appt has a category AND the slot has a different category.
+                // Strict mode:    block also when the slot has a category but the appt does not (or vice-versa).
                 const draggedCategoryId = parseInt(draggedEvent.extendedProps.preferredCategoryId || 0, 10) || 0;
                 const dropStartMs = dropInfo && dropInfo.start ? dropInfo.start.getTime() : 0;
                 const dropEndMs = dropInfo && dropInfo.end ? dropInfo.end.getTime() : 0;
-                if (draggedCategoryId > 0 && dropStartMs > 0 && dropEndMs > dropStartMs) {
+                const isStrictEnforcement = schedulingRules.templateEnforcement === 'strict';
+                if (dropStartMs > 0 && dropEndMs > dropStartMs) {
                     const overlappingSlot = calendar.getEvents().find(function(ev) {
-                        if (!ev || ev.id === draggedEvent.id) {
-                            return false;
-                        }
+                        if (!ev || ev.id === draggedEvent.id) { return false; }
                         const evProps = ev.extendedProps || {};
                         const evPatientId = parseInt(evProps.patientId || 0, 10) || 0;
                         const evIsTemplateLike = evPatientId <= 0 && (
@@ -924,22 +941,26 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                             !!evProps.isProviderAvailability ||
                             !!evProps.isOpenSlotLike
                         );
-                        if (!evIsTemplateLike || !ev.start || !ev.end) {
-                            return false;
-                        }
+                        if (!evIsTemplateLike || !ev.start || !ev.end) { return false; }
                         const evStartMs = ev.start.getTime();
-                        const evEndMs = ev.end.getTime();
-                        const overlaps = dropStartMs < evEndMs && dropEndMs > evStartMs;
-                        if (!overlaps) {
-                            return false;
-                        }
+                        const evEndMs   = ev.end.getTime();
+                        if (dropStartMs >= evEndMs || dropEndMs <= evStartMs) { return false; }
                         const slotCategoryId = parseInt(evProps.preferredCategoryId || 0, 10) || 0;
-                        return slotCategoryId > 0 && slotCategoryId !== draggedCategoryId;
+                        if (slotCategoryId <= 0) { return false; } // slot has no type → never block
+                        if (isStrictEnforcement) {
+                            // Strict: must match exactly; no category on appt is also a mismatch.
+                            return draggedCategoryId !== slotCategoryId;
+                        }
+                        // Guideline: block only when appt has a category and it differs.
+                        return draggedCategoryId > 0 && draggedCategoryId !== slotCategoryId;
                     });
 
                     if (overlappingSlot) {
                         if (typeof window.showMedexStatusToast === 'function') {
-                            window.showMedexStatusToast('Cannot drop: appointment type does not match slot type', 'error', 1800);
+                            const msg = isStrictEnforcement
+                                ? 'Cannot drop: templates are strictly enforced — appointment type must match slot type'
+                                : 'Cannot drop: appointment type does not match slot type';
+                            window.showMedexStatusToast(msg, 'error', 2200);
                         }
                         return false;
                     }

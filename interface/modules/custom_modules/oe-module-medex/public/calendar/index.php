@@ -182,6 +182,12 @@ $showReschedulerPanels = $api->hasServiceEntitlement('calendar_ai');
 $hasReschedulerService = $showReschedulerPanels || $api->hasServiceEntitlement('appointment_reminders');
 $reschedulerPausedRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_rescheduler_paused' LIMIT 1");
 $reschedulerPaused = (($reschedulerPausedRow['gl_value'] ?? '0') === '1');
+
+$schedulingRulesRow = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_scheduling_rules' LIMIT 1");
+$calSchedulingRules = json_decode((string)($schedulingRulesRow['gl_value'] ?? ''), true);
+if (!is_array($calSchedulingRules)) {
+    $calSchedulingRules = ['template_enforcement' => 'guideline', 'allow_double_booking' => true];
+}
 // Runtime gate: treat rescheduler as inactive if no future open template slots exist.
 // Primary: slot registry available rows. Fallback: open template slots in the calendar (pc_pid=0).
 if (!$reschedulerPaused) {
@@ -460,6 +466,10 @@ $openEmrCalendarCompatible = true;
         ]); ?>;
         window.medexOpenEmrCalendarCompatible = <?php echo $openEmrCalendarCompatible ? 'true' : 'false'; ?>;
         window.medexReschedulerActive = <?php echo $reschedulerActiveForUI ? 'true' : 'false'; ?>;
+        window.medexSchedulingRules = <?php echo json_encode([
+            'templateEnforcement' => (string)($calSchedulingRules['template_enforcement'] ?? 'guideline'),
+            'allowDoubleBooking'  => (bool)($calSchedulingRules['allow_double_booking'] ?? true),
+        ]); ?>;
         window.medexDragPolicy = <?php echo json_encode([
             'role' => $calendarActorRole,
             'isAdmin' => $isAdminUser,
