@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules\Sql;
 
+use PhpMyAdmin\SqlParser\Parser;
+use PhpMyAdmin\SqlParser\Statements\CreateStatement;
 use RuntimeException;
 
 /**
@@ -113,6 +115,13 @@ final readonly class SchemaColumnRegistry
     }
 
     /**
+     * Walks every CreateStatement in the schema file and collects table
+     * names, column names, and index names. Using the parser rather than a
+     * backtick-only regex catches identifiers regardless of whether the
+     * schema author chose to backtick them -- the schema has a couple of
+     * historical tables (ccda, recent_patients) whose columns sit bare,
+     * which a regex over `\`name\`` would miss.
+     *
      * @return array<string, true>
      */
     private function parse(string $schemaPath): array
@@ -122,15 +131,29 @@ final readonly class SchemaColumnRegistry
             throw new RuntimeException("Cannot read schema file: {$schemaPath}");
         }
 
-        // Backticks in OpenEMR's DDL only quote identifiers (table, column,
-        // and index names). Single-quote-delimited values in COMMENT clauses
-        // can't be confused with this pattern.
-        preg_match_all('/`([a-zA-Z_][a-zA-Z0-9_]*)`/', $contents, $matches);
-
         $set = [];
-        foreach ($matches[1] as $identifier) {
-            $set[strtolower($identifier)] = true;
+        $parser = new Parser($contents);
+        foreach ($parser->statements as $statement) {
+            if (!$statement instanceof CreateStatement) {
+                continue;
+            }
+            if ($statement->name?->table !== null && $statement->name->table !== '') {
+                $set[strtolower($statement->name->table)] = true;
+            }
+            // ->fields can be CreateDefinition[]|ArrayObj|null depending on
+            // the CREATE flavor (TABLE definitions vs. CREATE PROCEDURE
+            // parameter lists, etc.). Only TABLE definitions interest us.
+            $fields = $statement->fields;
+            if (!is_array($fields)) {
+                continue;
+            }
+            foreach ($fields as $field) {
+                if ($field->name !== null && $field->name !== '') {
+                    $set[strtolower((string) $field->name)] = true;
+                }
+            }
         }
+
         return $set;
     }
 }
