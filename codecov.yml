@@ -8,7 +8,6 @@ ignore:
 - tests/Rector/                        # Rector rules — run outside PHPUnit coverage
 - tests/eventdispatcher/               # Example modules for documentation
 - portal/messaging/messages.php        # Entry-point script (bootstrap + render) — exercised by manual QA, not unit tests
-- portal/messaging/secure_chat.php     # Entry-point script (bootstrap + render) — exercised by manual QA, not unit tests
 - portal/messaging/handle_note.php     # Entry-point script (CSRF, ACL, sendMail) — testable logic extracted to OpenEMR\Services\PortalMessagingSender
 
 # Strip environment-specific path prefixes from coverage reports so Codecov

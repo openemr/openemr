@@ -3,14 +3,13 @@
  */
 
 /**
- * Tests for the pure helper functions in portal/messaging/js/messages.js and
- * portal/messaging/js/secure_chat.js. These helpers are the security-sensitive
- * pieces of the messaging UI (escaping, sanitizing, URL allowlisting); a
- * regression here would re-introduce XSS or shortcode-based injection.
+ * Tests for the pure helper functions in portal/messaging/js/messages.js.
+ * These helpers are the security-sensitive pieces of the messaging UI
+ * (escaping, sanitizing); a regression here would re-introduce XSS.
  *
- * The two modules are IIFEs that don't export. They expose a small test seam
- * at window.__OE_MESSAGES_TEST__ and window.__OE_SECURE_CHAT_TEST__ specifically
- * for unit tests; production code never reads from those.
+ * The module is an IIFE that doesn't export. It exposes a small test seam
+ * at window.__OE_MESSAGES_TEST__ specifically for unit tests; production
+ * code never reads from it.
  *
  * Run with: npm run test:js -- tests/js/portal-messaging-helpers.test.js
  *
@@ -30,7 +29,7 @@ const DOMPurify = require('dompurify');
 global.window.DOMPurify = DOMPurify(global.window);
 global.DOMPurify = global.window.DOMPurify;
 
-// Load the two module sources. Both IIFE on load and attach to window.
+// Load the module source. It IIFEs on load and attaches to window.
 function loadModule(relativePath) {
     const src = fs.readFileSync(path.resolve(__dirname, '../../', relativePath), 'utf8');
     new Function('window', 'document', 'DOMPurify', src)(
@@ -62,25 +61,16 @@ global.window.OE_MESSAGES_CONFIG = {
         composeNewTitle: 'Compose'
     }
 };
-global.window.OE_SECURE_CHAT_CONFIG = {
-    user: 'admin',
-    userid: '1',
-    isPortal: false,
-    noRecipError: 'Pick a recipient',
-    clickTitle: 'Click'
-};
 
-// Stub jQuery and Audio constructor; the IIFEs don't actually use them at
+// Stub jQuery and Audio constructor; the IIFE doesn't actually use them at
 // load-time but the parser still needs them defined.
 global.window.$ = () => ({ on: () => {}, modal: () => {}, summernote: () => {} });
 global.$ = global.window.$;
 global.window.Audio = function () { return {}; };
 
 loadModule('portal/messaging/js/messages.js');
-loadModule('portal/messaging/js/secure_chat.js');
 
 const messagesHelpers = global.window.__OE_MESSAGES_TEST__;
-const secureChatHelpers = global.window.__OE_SECURE_CHAT_TEST__;
 
 // ---------------------------------------------------------------------------
 // messages.js: escapeHtml — the load-bearing XSS guard for every ${} in
@@ -232,173 +222,6 @@ describe('messages.js renderMessageBody', () => {
 });
 
 // ---------------------------------------------------------------------------
-// secure_chat.js: escapeHtml — same purpose as messages.js's version, but
-// they're independent copies in different IIFEs.
-// ---------------------------------------------------------------------------
-describe('secure_chat.js escapeHtml', () => {
-    const { escapeHtml } = secureChatHelpers;
-
-    test('escapes script tags', () => {
-        expect(escapeHtml('<script>alert(1)</script>')).toBe('&lt;script&gt;alert(1)&lt;/script&gt;');
-    });
-
-    test('escapes double quotes so values can\'t break out of double-quoted attributes', () => {
-        expect(escapeHtml('" autofocus onfocus="alert(1)'))
-            .toBe('&quot; autofocus onfocus=&quot;alert(1)');
-    });
-
-    test('escapes single quotes so values can\'t break out of single-quoted attributes', () => {
-        expect(escapeHtml("' onclick='alert(1)"))
-            .toBe('&#39; onclick=&#39;alert(1)');
-    });
-
-    test('escapes ampersands', () => {
-        expect(escapeHtml('A & B')).toBe('A &amp; B');
-    });
-
-    test('null/undefined become empty string', () => {
-        expect(escapeHtml(null)).toBe('');
-        expect(escapeHtml(undefined)).toBe('');
-    });
-});
-
-// ---------------------------------------------------------------------------
-// secure_chat.js: safeUrl — defense-in-depth before [img]/[url] shortcode
-// expansion. Must reject every non-http(s) scheme so `[url]javascript:...`
-// can never resolve to a working javascript: link.
-// ---------------------------------------------------------------------------
-describe('secure_chat.js safeUrl', () => {
-    const { safeUrl } = secureChatHelpers;
-
-    test('allows http: URLs', () => {
-        expect(safeUrl('http://example.com/x')).toMatch(/^http:/);
-    });
-
-    test('allows https: URLs', () => {
-        expect(safeUrl('https://example.com/x')).toMatch(/^https:/);
-    });
-
-    test('blocks javascript: URLs', () => {
-        expect(safeUrl('javascript:alert(1)')).toBe('#');
-    });
-
-    test('blocks data: URLs', () => {
-        expect(safeUrl('data:text/html,<script>alert(1)</script>')).toBe('#');
-    });
-
-    test('blocks file: URLs', () => {
-        expect(safeUrl('file:///etc/passwd')).toBe('#');
-    });
-
-    test('blocks vbscript: URLs', () => {
-        expect(safeUrl('vbscript:msgbox(1)')).toBe('#');
-    });
-
-    test('blocks malformed input', () => {
-        expect(safeUrl('not a url at all')).toMatch(/^(#|http)/);
-        // Whitespace / undefined / null all get handled without throwing.
-        expect(() => safeUrl(undefined)).not.toThrow();
-        expect(() => safeUrl(null)).not.toThrow();
-    });
-});
-
-// ---------------------------------------------------------------------------
-// secure_chat.js: replaceShortcodes — expands [img]/[url] shortcodes that
-// chat messages contain. The expansion writes the URL into a single-quoted
-// HTML attribute, so anything that survives safeUrl() is a candidate XSS.
-// ---------------------------------------------------------------------------
-describe('secure_chat.js replaceShortcodes', () => {
-    const { replaceShortcodes } = secureChatHelpers;
-
-    test('expands [url] with a safe http URL', () => {
-        const out = replaceShortcodes('See [url]https://example.com[/url]');
-        expect(out).toContain('<a href=');
-        expect(out).toContain('https://example.com');
-    });
-
-    test('expands [img] with a safe http URL', () => {
-        const out = replaceShortcodes('Pic [img]https://example.com/x.png[/img]');
-        expect(out).toContain('<img');
-        expect(out).toContain('https://example.com/x.png');
-    });
-
-    test('neutralises [url]javascript:...[/url]', () => {
-        const out = replaceShortcodes('Click [url]javascript:alert(1)[/url]');
-        // safeUrl turns the dangerous href into "#"; the visible link text
-        // still shows the original URL (entity-escaped) so users can see what
-        // was intended without it being executable.
-        expect(out).toContain("href='#'");
-        // The text appears, but in the visible-text position only — never as
-        // an actual href that would execute.
-        expect(out).not.toMatch(/href=['"]?javascript:/);
-    });
-
-    test('neutralises [img] with a javascript: src', () => {
-        const out = replaceShortcodes('[img]javascript:alert(1)[/img]');
-        expect(out).toContain("src='#'");
-        expect(out).not.toContain('javascript:alert');
-    });
-
-    test('expands multiple shortcodes in one message', () => {
-        const out = replaceShortcodes('[url]http://a/[/url] and [url]http://b/[/url]');
-        const matches = out.match(/<a /g);
-        expect(matches && matches.length).toBe(2);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// secure_chat.js: sanitizeHtml — DOMPurify wrapper used at the message-render
-// sink. Should strip every active-content vector even when given malicious
-// input that already slipped past replaceShortcodes.
-// ---------------------------------------------------------------------------
-describe('secure_chat.js sanitizeHtml', () => {
-    const { sanitizeHtml } = secureChatHelpers;
-
-    test('removes <script> elements', () => {
-        expect(sanitizeHtml('<p>ok</p><script>alert(1)</script>')).not.toContain('<script');
-    });
-
-    test('strips on* event handlers', () => {
-        expect(sanitizeHtml('<div onclick="hack()">x</div>')).not.toContain('onclick');
-    });
-
-    test('strips javascript: hrefs', () => {
-        const out = sanitizeHtml('<a href="javascript:alert(1)">x</a>');
-        expect(out).not.toContain('javascript:');
-    });
-
-    test('preserves safe formatting tags', () => {
-        const out = sanitizeHtml('<p><b>bold</b></p>');
-        expect(out).toContain('<b>');
-        expect(out).toContain('<p>');
-    });
-});
-
-// ---------------------------------------------------------------------------
-// secure_chat.js: unique — collection dedup used for the recipient and
-// onlines lists.
-// ---------------------------------------------------------------------------
-describe('secure_chat.js unique', () => {
-    const { unique } = secureChatHelpers;
-
-    test('dedups by the given key, preserving first-seen order', () => {
-        const input = [
-            { username: 'a', extra: 1 },
-            { username: 'b', extra: 2 },
-            { username: 'a', extra: 3 }
-        ];
-        expect(unique(input, 'username')).toEqual([
-            { username: 'a', extra: 1 },
-            { username: 'b', extra: 2 }
-        ]);
-    });
-
-    test('returns empty array for empty input', () => {
-        expect(unique([], 'username')).toEqual([]);
-    });
-});
-
-// ---------------------------------------------------------------------------
 // messages.js: paginate — chunks the filtered list into fixed-size pages.
 // Off-by-one errors here would drop or duplicate inbox rows at page edges.
 // ---------------------------------------------------------------------------
@@ -464,21 +287,5 @@ describe('messages.js groupChain', () => {
 
     test('does not return the source array reference on the fallback path', () => {
         expect(groupChain(items, NaN)).not.toBe(items);
-    });
-});
-
-// ---------------------------------------------------------------------------
-// secure_chat.js: lastIdOf — used to decide whether a poll brought a new
-// message. A wrong result here re-triggers (or silences) the new-message beep.
-// ---------------------------------------------------------------------------
-describe('secure_chat.js lastIdOf', () => {
-    const { lastIdOf } = secureChatHelpers;
-
-    test('returns the id of the last message', () => {
-        expect(lastIdOf([{ id: 1 }, { id: 2 }, { id: 7 }])).toBe(7);
-    });
-
-    test('returns null for an empty list', () => {
-        expect(lastIdOf([])).toBeNull();
     });
 });
