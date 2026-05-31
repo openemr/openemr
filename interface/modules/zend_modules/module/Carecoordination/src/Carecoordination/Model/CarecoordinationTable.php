@@ -1246,7 +1246,7 @@ class CarecoordinationTable
     {
         $query = "SELECT CONCAT_WS('',po.procedure_order_id,poc.`procedure_order_seq`) AS tcode,
                           prs.result AS result_value,
-                          prs.units, prs.`range`,
+                          prs.units, prs.range,
                           poc.procedure_name AS order_title,
                           prs.result_code as result_code,
                           prs.result_text as result_desc,

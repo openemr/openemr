@@ -539,7 +539,7 @@ class ContactAddressService extends BaseService
     {
         $sql = "SELECT ca.*, a.* FROM contact_address ca
                 JOIN addresses a ON ca.address_id = a.id
-                WHERE ca.contact_id = ? AND ca.`use` = ?";
+                WHERE ca.contact_id = ? AND ca.use = ?";
 
         if (!$includeInactive) {
             $sql .= " AND ca.status = 'A'";

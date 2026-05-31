@@ -63,7 +63,7 @@ $printable = $_POST['print'] ?? null;
 
 // main db-spell
 //----------------------------------------
-$main_spell  = "SELECT procedure_result.procedure_result_id, procedure_result.result, procedure_result.result_text,  procedure_result.result_code, procedure_result.units, procedure_result.abnormal, procedure_result.`range`, ";
+$main_spell  = "SELECT procedure_result.procedure_result_id, procedure_result.result, procedure_result.result_text,  procedure_result.result_code, procedure_result.units, procedure_result.abnormal, procedure_result.range, ";
 $main_spell .= "procedure_report.date_collected, procedure_report.review_status, ";
 $main_spell .= "procedure_order.encounter_id ";
 $main_spell .= "FROM procedure_result ";

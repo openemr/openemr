@@ -95,7 +95,18 @@ final readonly class SchemaColumnRegistry
                 @mkdir($dir, 0755, true);
             }
             $serialized = "<?php\n\nreturn " . var_export($identifiers, true) . ";\n";
-            @file_put_contents($cachePath, $serialized);
+            // PHPStan analyses in parallel workers. On a clean checkout
+            // every worker misses the cache and races to write the same
+            // file; a worker @include'ing a half-written file would hit
+            // a parse error (which @ cannot suppress) and abort the run.
+            // Write to a per-process temp file, then rename atomically
+            // on the same filesystem.
+            $tmp = $cachePath . '.' . getmypid() . '.tmp';
+            if (@file_put_contents($tmp, $serialized) !== false) {
+                if (!@rename($tmp, $cachePath)) {
+                    @unlink($tmp);
+                }
+            }
         }
 
         return $identifiers;

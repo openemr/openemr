@@ -69,11 +69,14 @@ final class SqlReservedWordRuleTest extends RuleTestCase
         );
     }
 
-    public function testFlagsRankInJoinOn(): void
+    public function testIgnoresQualifiedReferences(): void
     {
+        // MySQL accepts reserved words as identifiers after a `.` without
+        // quoting. Qualified references in every position (SELECT, WHERE,
+        // ORDER BY, UPDATE SET, JOIN ON) must be silent.
         $this->analyse(
-            [__DIR__ . '/data/join_on_position.php'],
-            [[$this->expectedMessage('rank'), 5]],
+            [__DIR__ . '/data/qualified_references.php'],
+            [],
         );
     }
 

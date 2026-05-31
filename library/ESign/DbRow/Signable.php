@@ -35,9 +35,9 @@ abstract class DbRow_Signable implements SignableIF
     {
         $this->_signatures = [];
 
-        $statement = "SELECT E.id, E.tid, E.`table`, E.uid, U.fname, U.lname, U.suffix, U.valedictory, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
+        $statement = "SELECT E.id, E.tid, E.table, E.uid, U.fname, U.lname, U.suffix, U.valedictory, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
         $statement .= "JOIN users U ON E.uid = U.id ";
-        $statement .= "WHERE E.tid = ? AND E.`table` = ? ";
+        $statement .= "WHERE E.tid = ? AND E.table = ? ";
         $statement .= "ORDER BY E.datetime ASC";
         $result = sqlStatement($statement, [ $this->_tableId, $this->_tableName ]);
 
@@ -73,8 +73,8 @@ abstract class DbRow_Signable implements SignableIF
      */
     protected function getLastLockHash()
     {
-        $statement = "SELECT E.tid, E.`table`, E.hash FROM esign_signatures E ";
-        $statement .= "WHERE E.tid = ? AND E.`table` = ? AND E.is_lock = ? ";
+        $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
+        $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1";
         $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ]);
         $hash = null;
@@ -93,7 +93,7 @@ abstract class DbRow_Signable implements SignableIF
     public function isLocked()
     {
         $statement = "SELECT E.is_lock FROM esign_signatures E ";
-        $statement .= "WHERE E.tid = ? AND E.`table` = ? AND is_lock = ? ";
+        $statement .= "WHERE E.tid = ? AND E.table = ? AND is_lock = ? ";
         $statement .= "ORDER BY E.datetime DESC LIMIT 1 ";
         $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName, SignatureIF::ESIGN_LOCK ]);
         if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {

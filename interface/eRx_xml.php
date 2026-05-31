@@ -734,13 +734,13 @@ function OutsidePrescription($doc, $r, $pid, $prescid): void
 {
     global $msg;
     if ($prescid) {
-        $prec = sqlQuery("SELECT p.note,p.dosage,p.substitute,p.per_refill,p.form,p.route,p.size,p.`interval`,p.drug,l1.title AS title1,l2.title AS title2,l3.title AS title3,l4.title AS title4,p.id AS prescid,
+        $prec = sqlQuery("SELECT p.note,p.dosage,p.substitute,p.per_refill,p.form,p.route,p.size,p.interval,p.drug,l1.title AS title1,l2.title AS title2,l3.title AS title3,l4.title AS title4,p.id AS prescid,
             DATE_FORMAT(date_added,'%Y%m%d') AS date_added,CONCAT_WS(fname,' ',mname,' ',lname) AS docname,p.quantity
             FROM prescriptions AS p
             LEFT JOIN users AS u ON p.provider_id=u.id
             LEFT JOIN list_options AS l1 ON l1.list_id = 'drug_form'     AND l1.option_id = p.form     AND l1.activity = 1
             LEFT JOIN list_options AS l2 ON l2.list_id = 'drug_route'    AND l2.option_id = p.route    AND l2.activity = 1
-            LEFT JOIN list_options AS l3 ON l3.list_id = 'drug_interval' AND l3.option_id = p.`interval` AND l3.activity = 1
+            LEFT JOIN list_options AS l3 ON l3.list_id = 'drug_interval' AND l3.option_id = p.interval AND l3.activity = 1
             LEFT JOIN list_options AS l4 ON l4.list_id = 'drug_units'    AND l4.option_id = p.unit     AND l4.activity = 1
             WHERE p.drug <> '' and p.id = ?", [$prescid]);
         $b = $doc->createElement("OutsidePrescription");

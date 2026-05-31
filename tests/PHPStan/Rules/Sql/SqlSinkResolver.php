@@ -52,14 +52,25 @@ final readonly class SqlSinkResolver
      * "Class::method" entries whose first argument is a SQL string. Matched
      * against the fully-qualified class name + method name.
      *
+     * QueryUtils::selectHelper takes a partial SQL fragment (only the
+     * SELECT-list-through-table portion); it's intentionally omitted
+     * because the parser can't reliably tokenize incomplete statements.
+     *
+     * DatabaseQueryTrait exposes the same methods as instance methods on
+     * any class that uses the trait. Those are MethodCall nodes, not
+     * StaticCall — covered separately if/when MethodCall support is added
+     * to this resolver.
+     *
      * @var array<string, true>
      */
     private const STATIC_METHODS = [
         'OpenEMR\Common\Database\QueryUtils::fetchRecords' => true,
+        'OpenEMR\Common\Database\QueryUtils::fetchRecordsNoLog' => true,
         'OpenEMR\Common\Database\QueryUtils::fetchSingleValue' => true,
-        'OpenEMR\Common\Database\QueryUtils::fetchSingleColumn' => true,
-        'OpenEMR\Common\Database\QueryUtils::fetchSingleRow' => true,
-        'OpenEMR\Common\Database\QueryUtils::execStatement' => true,
+        'OpenEMR\Common\Database\QueryUtils::fetchTableColumn' => true,
+        'OpenEMR\Common\Database\QueryUtils::fetchTableColumnAssoc' => true,
+        'OpenEMR\Common\Database\QueryUtils::querySingleRow' => true,
+        'OpenEMR\Common\Database\QueryUtils::sqlInsert' => true,
         'OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException' => true,
     ];
 

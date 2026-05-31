@@ -204,6 +204,12 @@ final readonly class SqlReservedWordRule implements Rule
      * ignored (CASE expressions hold their column references inside
      * sub-conditions that would need their own walker).
      *
+     * Qualified identifiers (e.g. `table.column` or `database.table`) are
+     * skipped: MySQL's grammar accepts reserved words after a `.` without
+     * quoting, so `p.interval` parses fine even though bare `interval`
+     * does not. Only bare references that sit directly in identifier
+     * position are flaggable.
+     *
      * @return iterable<string>
      */
     private function visitExpression(mixed $expression): iterable
@@ -211,10 +217,23 @@ final readonly class SqlReservedWordRule implements Rule
         if (!$expression instanceof Expression) {
             return;
         }
-        $name = $expression->column ?? $expression->table;
-        if ($name === null || $name === '') {
+
+        if ($expression->column !== null && $expression->column !== '') {
+            // Column reference. Flag only when bare (no table qualifier).
+            if ($expression->table !== null && $expression->table !== '') {
+                return;
+            }
+            $name = $expression->column;
+        } elseif ($expression->table !== null && $expression->table !== '') {
+            // Table reference. Flag only when bare (no database qualifier).
+            if ($expression->database !== null && $expression->database !== '') {
+                return;
+            }
+            $name = $expression->table;
+        } else {
             return;
         }
+
         if ($this->isBackticked($expression->expr ?? '', $name)) {
             return;
         }
@@ -259,7 +278,13 @@ final readonly class SqlReservedWordRule implements Rule
         if ($column === '') {
             return;
         }
-        // SetOperation preserves backticks in $column verbatim.
+        // SetOperation preserves the original token text verbatim, so a
+        // qualified column shows up with the dot in it
+        // (e.g. `p.rank` for `UPDATE t p SET p.rank = 5`). MySQL accepts
+        // reserved words after a `.`, so skip qualified forms.
+        if (str_contains($column, '.')) {
+            return;
+        }
         if (str_starts_with($column, '`')) {
             return;
         }
@@ -277,9 +302,9 @@ final readonly class SqlReservedWordRule implements Rule
 
     /**
      * Returns the bare identifier name from a condition operand string, or
-     * null if the operand is a literal, placeholder, function call, or
-     * backticked identifier (anything that can't be a flaggable bare
-     * column reference).
+     * null if the operand is a literal, placeholder, function call,
+     * backticked identifier, or table-qualified reference (MySQL accepts
+     * reserved words after a `.`, so qualified forms aren't flaggable).
      */
     private function extractBareIdentifier(string $operand): ?string
     {
@@ -298,15 +323,12 @@ final readonly class SqlReservedWordRule implements Rule
         if (str_contains($operand, '(')) {
             return null;
         }
-        // Table-qualified reference like a.col or `a`.col — take the
-        // rightmost segment and reject if that segment is already
-        // backticked.
+        // Qualified reference like a.col — MySQL's grammar accepts reserved
+        // words after a `.`, so these are not parse failures.
         if (str_contains($operand, '.')) {
-            $segments = explode('.', $operand);
-            $candidate = end($segments);
-        } else {
-            $candidate = $operand;
+            return null;
         }
+        $candidate = $operand;
         if (str_starts_with($candidate, '`')) {
             return null;
         }
