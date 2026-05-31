@@ -158,14 +158,16 @@ function dumpMariadbKeywords(mysqli $mysqli): array
         }
 
         // `SELECT <word>` triggers a parser path that distinguishes
-        // reserved-vs-identifier-position.
-        $result = @$mysqli->query(sprintf('SELECT %s', $word));
+        // reserved-vs-identifier-position. mysqli's default report mode
+        // throws on query failure; catch and read the error code.
         $reserved = false;
-        if ($result === false) {
-            $reserved = $mysqli->errno === 1064;
-        }
-        if ($result instanceof mysqli_result) {
-            $result->close();
+        try {
+            $result = $mysqli->query(sprintf('SELECT %s', $word));
+            if ($result instanceof mysqli_result) {
+                $result->close();
+            }
+        } catch (mysqli_sql_exception $e) {
+            $reserved = $e->getCode() === 1064;
         }
         $keywords[$word] = $reserved;
     }
