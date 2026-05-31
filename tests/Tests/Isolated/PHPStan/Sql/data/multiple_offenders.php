@@ -1,6 +1,6 @@
 <?php
 
-// `rank` appears in both SELECT and ORDER BY positions. v1 only inspects
-// ORDER BY, so we expect a single flag for the trailing occurrence (and
-// for the FROM-clause `groups` reference to remain silent).
+// `rank` appears in SELECT and ORDER BY; `groups` appears as the table
+// reference. Each unique offender must be reported exactly once per call,
+// not once per occurrence.
 sqlStatement('SELECT rank FROM groups ORDER BY rank');

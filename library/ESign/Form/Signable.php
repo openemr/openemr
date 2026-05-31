@@ -37,8 +37,8 @@ class Form_Signable extends DbRow_Signable implements SignableIF
             // If there was no explicit lock hash, then we must have been locked because
             // our encounter was locked, so get our last hash
             if ($hash === null) {
-                $statement = "SELECT E.tid, E.table, E.hash FROM esign_signatures E ";
-                $statement .= "WHERE E.tid = ? AND E.table = ? ";
+                $statement = "SELECT E.tid, E.`table`, E.hash FROM esign_signatures E ";
+                $statement .= "WHERE E.tid = ? AND E.`table` = ? ";
                 $statement .= "ORDER BY E.datetime DESC LIMIT 1";
                 $row = sqlQuery($statement, [ $this->_tableId, $this->_tableName ]);
                 $hash = null;
@@ -70,7 +70,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         // Check the "parent" encounter if signing is allowed at encounter level
         if (!$locked && OEGlobalsBag::getInstance()->getBoolean('lock_esign_all')) {
             $statement = "SELECT E.is_lock FROM esign_signatures E ";
-            $statement .= "WHERE E.tid = ? AND E.table = ? AND E.is_lock = ? ";
+            $statement .= "WHERE E.tid = ? AND E.`table` = ? AND E.is_lock = ? ";
             $statement .= "ORDER BY E.datetime DESC LIMIT 1";
             $row = sqlQuery($statement, [ $this->_encounterId, 'form_encounter', SignatureIF::ESIGN_LOCK ]);
             if ($row && $row['is_lock'] == SignatureIF::ESIGN_LOCK) {

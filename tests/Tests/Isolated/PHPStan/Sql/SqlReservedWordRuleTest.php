@@ -53,14 +53,27 @@ final class SqlReservedWordRuleTest extends RuleTestCase
         );
     }
 
-    public function testSetPositionNotYetCaught(): void
+    public function testFlagsRankInUpdateSet(): void
     {
-        // v1 of the rule only inspects ORDER BY / GROUP BY / PARTITION BY
-        // positions. UPDATE ... SET col = ... is a known gap, captured here
-        // to make the limit explicit.
         $this->analyse(
-            [__DIR__ . '/data/set_position_not_yet_caught.php'],
-            [],
+            [__DIR__ . '/data/update_set_position.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testFlagsRankInWhere(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/where_position.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testFlagsRankInJoinOn(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/join_on_position.php'],
+            [[$this->expectedMessage('rank'), 5]],
         );
     }
 
@@ -75,8 +88,8 @@ final class SqlReservedWordRuleTest extends RuleTestCase
     public function testIgnoresReservedWordsInKeywordPositions(): void
     {
         // INTERVAL inside DATE_ADD(...) and TABLE in CREATE TABLE are SQL
-        // keywords, not identifier references. The position-aware scope
-        // (only ORDER BY / GROUP BY / PARTITION BY) keeps these silent.
+        // keywords, not identifier references. Parser-driven detection
+        // distinguishes them positionally and keeps the rule silent.
         $this->analyse(
             [__DIR__ . '/data/non_identifier_keyword_positions.php'],
             [],
@@ -123,14 +136,16 @@ final class SqlReservedWordRuleTest extends RuleTestCase
         );
     }
 
-    public function testFlagsOnlyTheOrderByOccurrence(): void
+    public function testReportsEachUniqueOffenderOncePerCall(): void
     {
-        // `rank` appears twice (SELECT + ORDER BY) and `groups` once (FROM).
-        // v1 only inspects ORDER BY position, so we expect exactly one
-        // flag for the trailing rank.
+        // `rank` is referenced twice and `groups` once. Each unique name
+        // should be reported exactly once.
         $this->analyse(
             [__DIR__ . '/data/multiple_offenders.php'],
-            [[$this->expectedMessage('rank'), 6]],
+            [
+                [$this->expectedMessage('groups'), 6],
+                [$this->expectedMessage('rank'), 6],
+            ],
         );
     }
 
@@ -139,6 +154,18 @@ final class SqlReservedWordRuleTest extends RuleTestCase
         $this->analyse(
             [__DIR__ . '/data/queryutils_static_sink.php'],
             [[$this->expectedMessage('rank'), 22]],
+        );
+    }
+
+    public function testInsertColumnsNotYetCaught(): void
+    {
+        // phpmyadmin/sql-parser strips backticks from INSERT column lists
+        // before exposing them on IntoKeyword. Until the rule learns to
+        // re-derive backtick state from the token stream for that case,
+        // INSERT column lists are silently uncovered.
+        $this->analyse(
+            [__DIR__ . '/data/insert_columns_not_yet_caught.php'],
+            [],
         );
     }
 

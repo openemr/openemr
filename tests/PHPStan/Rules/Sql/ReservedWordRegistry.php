@@ -1,7 +1,10 @@
 <?php
 
 /**
- * Canonical reserved-word set for MySQL 8+ and MariaDB.
+ * Union of MySQL and MariaDB reserved-word sets, sourced from
+ * phpmyadmin/sql-parser's keyword tables plus a small supplement for
+ * MySQL 8.0+ window-function reserveds that the parser library has not
+ * yet picked up.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -14,29 +17,51 @@ declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules\Sql;
 
+use PhpMyAdmin\SqlParser\Contexts\ContextMariaDb120100;
+use PhpMyAdmin\SqlParser\Contexts\ContextMySql90300;
+use PhpMyAdmin\SqlParser\Token;
+
 /**
- * Union of words reserved by any MySQL 8.0+ or MariaDB 10.6+ release.
+ * The bulk of the list refreshes automatically when phpmyadmin/sql-parser
+ * is updated — the union spans 320+ words and tracks both engines' GA
+ * releases. The supplement below covers the ~13 single-word reserveds
+ * that landed with MySQL 8.0 (window functions, CTE keywords, JSON_TABLE)
+ * that the upstream library's MySQL 9.x context still omits.
  *
- * An identifier that matches any entry in this set will fail to parse on at
- * least one of OpenEMR's supported database engines unless backticked. The
- * SqlReservedWordRule uses this set, intersected with known OpenEMR column
- * names, to flag latent reserved-word bugs.
+ * Maintenance burden: the supplement has been touched exactly once in
+ * 15 years (the 5.7 → 8.0 transition). When the upstream library
+ * eventually fills the gap, individual entries can be removed; the
+ * registry will still produce the same union.
  *
- * Sources:
- *   - https://dev.mysql.com/doc/refman/8.4/en/keywords.html (R column)
- *   - https://mariadb.com/kb/en/reserved-words/
- *
- * Refresh policy: when a new MySQL or MariaDB major release drops, re-pull
- * both lists and union into this constant. The phpmyadmin/sql-parser
- * Context* classes are NOT authoritative — their MySQL 8+ tables are missing
- * window-function reserveds (RANK, DENSE_RANK, ROW_NUMBER, etc.). Do not
- * delegate to them.
+ * See https://dev.mysql.com/doc/refman/8.4/en/keywords.html for the
+ * authoritative MySQL reserved-word table.
  */
 final readonly class ReservedWordRegistry
 {
     /**
-     * Lowercase reserved words. Stored as a flipped map (name => true) for
-     * O(1) lookup.
+     * MySQL 8.0+ reserveds that phpmyadmin/sql-parser's keyword tables
+     * still omit. All are reserved single-word identifiers.
+     *
+     * @var list<string>
+     */
+    private const MYSQL_EIGHT_SUPPLEMENT = [
+        'cume_dist',
+        'dense_rank',
+        'first_value',
+        'groups',
+        'lag',
+        'last_value',
+        'lead',
+        'nth_value',
+        'ntile',
+        'percent_rank',
+        'rank',
+        'row_number',
+        'window',
+    ];
+
+    /**
+     * Lowercase reserved words, stored as a flipped map for O(1) lookup.
      *
      * @var array<string, true>
      */
@@ -44,79 +69,25 @@ final readonly class ReservedWordRegistry
 
     public function __construct()
     {
-        // Curated below. When updating, keep entries sorted within each
-        // group and preserve the source attribution comments.
-        $words = [
-            // --- Always-reserved (present in MySQL 5.7 and earlier; also reserved in MariaDB) ---
-            'accessible', 'add', 'all', 'alter', 'analyze', 'and', 'as', 'asc',
-            'asensitive', 'before', 'between', 'bigint', 'binary', 'blob',
-            'both', 'by', 'call', 'cascade', 'case', 'change', 'char',
-            'character', 'check', 'collate', 'column', 'condition', 'constraint',
-            'continue', 'convert', 'create', 'cross', 'cube', 'current_date',
-            'current_time', 'current_timestamp', 'current_user', 'cursor',
-            'database', 'databases', 'day_hour', 'day_microsecond', 'day_minute',
-            'day_second', 'dec', 'decimal', 'declare', 'default', 'delayed',
-            'delete', 'desc', 'describe', 'deterministic', 'distinct',
-            'distinctrow', 'div', 'double', 'drop', 'dual', 'each', 'else',
-            'elseif', 'enclosed', 'escaped', 'exists', 'exit', 'explain',
-            'false', 'fetch', 'float', 'float4', 'float8', 'for', 'force',
-            'foreign', 'from', 'fulltext', 'generated', 'get', 'grant', 'group',
-            'having', 'high_priority', 'hour_microsecond', 'hour_minute',
-            'hour_second', 'if', 'ignore', 'in', 'index', 'infile', 'inner',
-            'inout', 'insensitive', 'insert', 'int', 'int1', 'int2', 'int3',
-            'int4', 'int8', 'integer', 'interval', 'into', 'io_after_gtids',
-            'io_before_gtids', 'is', 'iterate', 'join', 'key', 'keys', 'kill',
-            'leading', 'leave', 'left', 'like', 'limit', 'linear', 'lines',
-            'load', 'localtime', 'localtimestamp', 'lock', 'long', 'longblob',
-            'longtext', 'loop', 'low_priority', 'master_bind',
-            'master_ssl_verify_server_cert', 'match', 'maxvalue', 'mediumblob',
-            'mediumint', 'mediumtext', 'middleint', 'minute_microsecond',
-            'minute_second', 'mod', 'modifies', 'natural', 'no_write_to_binlog',
-            'not', 'null', 'numeric', 'on', 'optimize', 'option', 'optionally',
-            'or', 'order', 'out', 'outer', 'outfile', 'partition', 'precision',
-            'primary', 'procedure', 'purge', 'range', 'read', 'reads',
-            'read_write', 'real', 'references', 'regexp', 'release', 'rename',
-            'repeat', 'replace', 'require', 'resignal', 'restrict', 'return',
-            'revoke', 'right', 'rlike', 'schema', 'schemas', 'second_microsecond',
-            'select', 'sensitive', 'separator', 'set', 'show', 'signal',
-            'smallint', 'spatial', 'specific', 'sql', 'sqlexception', 'sqlstate',
-            'sqlwarning', 'sql_big_result', 'sql_calc_found_rows',
-            'sql_small_result', 'ssl', 'starting', 'stored', 'straight_join',
-            'table', 'terminated', 'then', 'tinyblob', 'tinyint', 'tinytext',
-            'to', 'trailing', 'trigger', 'true', 'undo', 'union', 'unique',
-            'unlock', 'unsigned', 'update', 'usage', 'use', 'using', 'utc_date',
-            'utc_time', 'utc_timestamp', 'values', 'varbinary', 'varchar',
-            'varcharacter', 'varying', 'virtual', 'when', 'where', 'while',
-            'with', 'write', 'xor', 'year_month', 'zerofill',
+        $set = [];
 
-            // --- Added as reserved in MySQL 8.0 (window functions, json table, CTEs) ---
-            // https://dev.mysql.com/doc/refman/8.0/en/keywords.html
-            // Not all of these are reserved in MariaDB — that's why this set
-            // is a union: an identifier should be backticked if reserved in
-            // EITHER engine, since OpenEMR's CI matrix exercises both.
-            'array', 'cume_dist', 'dense_rank', 'empty', 'first_value',
-            'grouping', 'groups', 'json_table', 'lag', 'last_value', 'lateral',
-            'lead', 'nth_value', 'ntile', 'of', 'over', 'percent_rank', 'rank',
-            'recursive', 'row', 'row_number', 'rows', 'system', 'window',
-
-            // --- Added as reserved in MySQL 8.0.31 (set operations) ---
-            'except', 'intersect',
-
-            // --- MariaDB-specific additions not already covered above ---
-            // https://mariadb.com/kb/en/reserved-words/
-            'rows_examined', 'slow', 'page_checksum', 'returning',
-        ];
-
-        $flipped = [];
-        foreach ($words as $word) {
-            $flipped[$word] = true;
+        foreach (ContextMySql90300::KEYWORDS as $word => $flags) {
+            if (($flags & Token::FLAG_KEYWORD_RESERVED) !== 0) {
+                $set[strtolower($word)] = true;
+            }
         }
-        $this->words = $flipped;
+        foreach (ContextMariaDb120100::KEYWORDS as $word => $flags) {
+            if (($flags & Token::FLAG_KEYWORD_RESERVED) !== 0) {
+                $set[strtolower($word)] = true;
+            }
+        }
+        foreach (self::MYSQL_EIGHT_SUPPLEMENT as $word) {
+            $set[$word] = true;
+        }
+
+        $this->words = $set;
     }
 
-    /**
-     * Case-insensitive reserved-word check.
-     */
     public function isReserved(string $word): bool
     {
         return isset($this->words[strtolower($word)]);

@@ -239,7 +239,7 @@ if (!empty($_POST['form_refresh'])) {
         }
 
         $query = "SELECT r.id, r.patient_id, " .
-        "r.date_modified, r.dosage, r.route, r.interval, r.refills, r.drug, " .
+        "r.date_modified, r.dosage, r.route, r.`interval`, r.refills, r.drug, " .
         "d.name, d.ndc_number, d.form, d.size, d.unit, d.reactions, " .
         "s.sale_id, s.sale_date, s.quantity, " .
         "i.manufacturer, i.lot_number, i.expiration, " .

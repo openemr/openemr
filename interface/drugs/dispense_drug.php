@@ -158,7 +158,7 @@ $row = sqlQuery("SELECT " .
     "s.pid, s.quantity, s.prescription_id, " .
     "i.manufacturer, i.lot_number, i.expiration, " .
     "d.name, d.ndc_number, d.form, d.size, d.unit, " .
-    "r.date_modified, r.dosage, r.route, r.interval, r.substitute, r.refills, " .
+    "r.date_modified, r.dosage, r.route, r.`interval`, r.substitute, r.refills, " .
     "p.fname, p.lname, p.mname, " .
     "u.fname AS ufname, u.mname AS umname, u.lname AS ulname " .
     "FROM drug_sales AS s, drug_inventory AS i, drugs AS d, " .

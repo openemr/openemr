@@ -565,7 +565,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 $report_id = empty($row['procedure_report_id']) ? 0 : ($row['procedure_report_id'] + 0);
 
                 $query = "SELECT " .
-                    "ps.result_code, ps.result_text, ps.abnormal, ps.result, ps.range, " .
+                    "ps.result_code, ps.result_text, ps.abnormal, ps.result, ps.`range`, " .
                     "ps.result_status, ps.facility, ps.units, ps.comments, ps.document_id, ps.date " .
                     "FROM procedure_result AS ps " .
                     "WHERE ps.procedure_report_id = ? " .

@@ -262,7 +262,7 @@ class eRxStore
     public function getPrescriptionById($prescriptionId)
     {
         return sqlQuery(
-            'SELECT p.note, p.dosage, p.substitute, p.per_refill, p.form, p.route, p.size, p.interval, p.drug, p.quantity,
+            'SELECT p.note, p.dosage, p.substitute, p.per_refill, p.form, p.route, p.size, p.`interval`, p.drug, p.quantity,
 			p.id AS prescid, l1.title AS title1, l2.title AS title2, l3.title AS title3, l4.title AS title4,
 			DATE_FORMAT(date_added,\'%Y%m%d\') AS date_added, CONCAT_WS(fname, \' \', mname, \' \', lname) AS docname
 			FROM prescriptions AS p
@@ -272,7 +272,7 @@ class eRxStore
 			LEFT JOIN list_options AS l2 ON l2.list_id = \'drug_route\'
 				AND l2.option_id = p.route
 			LEFT JOIN list_options AS l3 ON l3.list_id = \'drug_interval\'
-				AND l3.option_id = p.interval
+				AND l3.option_id = p.`interval`
 			LEFT JOIN list_options AS l4 ON l4.list_id = \'drug_units\'
 				AND l4.option_id = p.unit
 			WHERE p.drug <> \'\'
