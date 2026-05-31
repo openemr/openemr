@@ -87,14 +87,6 @@
 --    desc: convert all text fields without default null to have default null.
 --    arguments: none
 
--- v_database: 539
--- Cosmetic-only change: the `ccda` and `recent_patients` table and column
--- identifiers in sql/database.sql were backticked for consistency with the
--- rest of the schema (every other table in the file follows the convention).
--- Runtime DDL is byte-identical, so no migration statements are needed --
--- this comment exists to document the v_database bump in the file the
--- database-version CI check expects to be modified.
-
 --  #IfTableEngine
 --    desc:      Execute SQL if the table has been created with given engine specified.
 --    arguments: table_name engine
