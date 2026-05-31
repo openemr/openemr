@@ -31,25 +31,30 @@ use RuntimeException;
  * construction time. Cost is one glob + one ReflectionClass per engine,
  * once per PHPStan worker boot.
  *
- * The supplement below covers the ~13 single-word reserveds that landed
- * with MySQL 8.0 (window functions, CTE keywords, JSON_TABLE) that the
- * upstream library's MySQL 9.x context still omits. Historically this
- * list has been touched exactly once -- the 5.7 → 8.0 transition. When
- * the upstream library eventually fills the gap, individual entries can
- * be removed; the registry will still produce the same union.
+ * The supplement below covers reserved words the upstream library does
+ * not yet ship -- historically MySQL 8.0 window-function additions
+ * (RANK, DENSE_RANK, ROW_NUMBER, etc.) plus a handful of MariaDB-specific
+ * entries (RETURNING, SLOW, PAGE_CHECKSUM, ROWS_EXAMINED). The list is
+ * auto-refreshed monthly by .github/workflows/refresh-reserved-word-supplement.yml
+ * which queries live MySQL + MariaDB engines and opens a PR when drift
+ * is detected; reserved-words/{mysql,mariadb}.tsv is the audit trail.
  *
- * See https://dev.mysql.com/doc/refman/8.4/en/keywords.html for the
- * authoritative MySQL reserved-word table.
+ * See https://dev.mysql.com/doc/refman/8.4/en/keywords.html for MySQL
+ * and https://mariadb.com/kb/en/reserved-words/ for MariaDB if hand
+ * verification is ever needed.
  */
 final readonly class ReservedWordRegistry
 {
     /**
-     * MySQL 8.0+ reserveds that phpmyadmin/sql-parser's keyword tables
-     * still omit. All are reserved single-word identifiers.
+     * Reserved words that phpmyadmin/sql-parser's keyword tables omit
+     * for the latest MySQL and MariaDB Context classes shipped by the
+     * library. All entries are single-word identifiers; composed tokens
+     * (e.g. "ORDER BY") can never be bare column names and are
+     * excluded by the refresh script.
      *
      * @var list<string>
      */
-    private const MYSQL_EIGHT_SUPPLEMENT = [
+    private const RESERVED_WORD_SUPPLEMENT = [
         'cume_dist',
         'dense_rank',
         'first_value',
@@ -82,7 +87,7 @@ final readonly class ReservedWordRegistry
         foreach (self::collectReserved('MariaDb') as $word) {
             $set[$word] = true;
         }
-        foreach (self::MYSQL_EIGHT_SUPPLEMENT as $word) {
+        foreach (self::RESERVED_WORD_SUPPLEMENT as $word) {
             $set[$word] = true;
         }
 
