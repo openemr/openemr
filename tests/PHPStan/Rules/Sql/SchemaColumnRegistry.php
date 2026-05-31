@@ -51,7 +51,7 @@ final readonly class SchemaColumnRegistry
     public function __construct(?string $schemaPath = null, ?string $cachePath = null)
     {
         $schemaPath ??= __DIR__ . '/../../../../sql/database.sql';
-        $cachePath ??= __DIR__ . '/../../../../tmp-phpstan/sql-schema-identifiers.php';
+        $cachePath ??= __DIR__ . '/../../../../tmp-phpstan/sql-schema-identifiers.json';
         if ($cachePath === '') {
             $cachePath = null;
         }
@@ -80,11 +80,13 @@ final readonly class SchemaColumnRegistry
         if ($cachePath !== null && is_file($cachePath)) {
             $cacheMtime = filemtime($cachePath);
             if ($cacheMtime !== false && $cacheMtime >= $schemaMtime) {
-                /** @var array<string, true>|mixed $cached */
-                $cached = @include $cachePath;
-                if (is_array($cached)) {
-                    /** @var array<string, true> $cached */
-                    return $cached;
+                $contents = @file_get_contents($cachePath);
+                if ($contents !== false) {
+                    $cached = json_decode($contents, true);
+                    if (is_array($cached)) {
+                        /** @var array<string, true> $cached */
+                        return $cached;
+                    }
                 }
             }
         }
@@ -92,26 +94,63 @@ final readonly class SchemaColumnRegistry
         $identifiers = $this->parse($schemaPath);
 
         if ($cachePath !== null) {
-            $dir = dirname($cachePath);
-            if (!is_dir($dir)) {
-                @mkdir($dir, 0755, true);
-            }
-            $serialized = "<?php\n\nreturn " . var_export($identifiers, true) . ";\n";
-            // PHPStan analyses in parallel workers. On a clean checkout
-            // every worker misses the cache and races to write the same
-            // file; a worker @include'ing a half-written file would hit
-            // a parse error (which @ cannot suppress) and abort the run.
-            // Write to a per-process temp file, then rename atomically
-            // on the same filesystem.
-            $tmp = $cachePath . '.' . getmypid() . '.tmp';
-            if (@file_put_contents($tmp, $serialized) !== false) {
-                if (!@rename($tmp, $cachePath)) {
-                    @unlink($tmp);
-                }
-            }
+            $this->writeCache($cachePath, $identifiers);
         }
 
         return $identifiers;
+    }
+
+    /**
+     * Writes the identifier set to disk using JSON rather than a
+     * PHP-return file so reads can never accidentally execute code, and
+     * uses an exclusive-create temp file with an unpredictable name to
+     * defeat symlink races on shared filesystems. PHPStan's parallel
+     * workers all race for the same cache on cold runs; rename() is
+     * atomic on the same filesystem, so readers see a complete file or
+     * the previous file -- never a half-written one.
+     *
+     * @param array<string, true> $identifiers
+     */
+    private function writeCache(string $cachePath, array $identifiers): void
+    {
+        $dir = dirname($cachePath);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0755, true);
+        }
+
+        $tmp = @tempnam($dir, 'sql-schema-identifiers.');
+        if ($tmp === false) {
+            return;
+        }
+
+        // tempnam() creates the file with default perms but we want an
+        // exclusive-create truncation in case anything raced us between
+        // tempnam() and now. 'xb' fails if the file disappeared and was
+        // replaced (e.g. by a symlink to elsewhere).
+        @unlink($tmp);
+        $handle = @fopen($tmp, 'xb');
+        if ($handle === false) {
+            return;
+        }
+
+        $serialized = json_encode($identifiers);
+        if ($serialized === false) {
+            fclose($handle);
+            @unlink($tmp);
+            return;
+        }
+
+        if (@fwrite($handle, $serialized) === false) {
+            fclose($handle);
+            @unlink($tmp);
+            return;
+        }
+        fclose($handle);
+        @chmod($tmp, 0644);
+
+        if (!@rename($tmp, $cachePath)) {
+            @unlink($tmp);
+        }
     }
 
     /**

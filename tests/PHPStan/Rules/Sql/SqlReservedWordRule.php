@@ -121,6 +121,16 @@ final readonly class SqlReservedWordRule implements Rule
     }
 
     /**
+     * Upper bound on the SQL string length we'll feed to the parser, to
+     * cap the rule's worst-case time on a hostile or accidentally-huge
+     * literal. Realistic OpenEMR SQL strings are well under 10 KB; the
+     * 100 KB cap is comfortable headroom and skips analysis entirely
+     * past that, since exceeding it is far more likely to indicate
+     * embedded data than a column reference worth flagging.
+     */
+    private const MAX_SQL_BYTES = 100_000;
+
+    /**
      * Walks the parsed SQL tree, yielding each lowercase identifier that is
      * both a reserved word and a known schema identifier and not already
      * backticked.
@@ -129,6 +139,10 @@ final readonly class SqlReservedWordRule implements Rule
      */
     private function findOffendingIdentifiers(string $sql): iterable
     {
+        if (strlen($sql) > self::MAX_SQL_BYTES) {
+            return;
+        }
+
         $parser = new Parser($sql);
         $tokens = $parser->list;
         if ($tokens === null) {

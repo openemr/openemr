@@ -31,7 +31,7 @@ final class SchemaColumnRegistryTest extends TestCase
         mkdir($tmpDir);
         $this->tmpDir = $tmpDir;
         $this->schemaPath = $tmpDir . '/schema.sql';
-        $this->cachePath = $tmpDir . '/cache.php';
+        $this->cachePath = $tmpDir . '/cache.json';
     }
 
     protected function tearDown(): void
@@ -49,7 +49,9 @@ final class SchemaColumnRegistryTest extends TestCase
 
         self::assertTrue($registry->isIdentifier('foo_col'));
         self::assertFileExists($this->cachePath);
-        $cached = include $this->cachePath;
+        $contents = file_get_contents($this->cachePath);
+        self::assertIsString($contents);
+        $cached = json_decode($contents, true);
         self::assertIsArray($cached);
         self::assertTrue($cached['foo_col'] ?? false);
     }
@@ -64,7 +66,7 @@ final class SchemaColumnRegistryTest extends TestCase
         // discard this value; a cache hit returns it verbatim.
         file_put_contents(
             $this->cachePath,
-            "<?php\n\nreturn ['sentinel_from_cache' => true];\n",
+            json_encode(['sentinel_from_cache' => true]),
         );
         // The cache mtime must be >= schema mtime for the hit path to fire;
         // touch() ensures that regardless of write-order timing.
@@ -80,7 +82,7 @@ final class SchemaColumnRegistryTest extends TestCase
     {
         file_put_contents(
             $this->cachePath,
-            "<?php\n\nreturn ['old_cached_col' => true];\n",
+            json_encode(['old_cached_col' => true]),
         );
         // Make the cache older than the schema so the staleness check fires.
         touch($this->cachePath, time() - 60);
