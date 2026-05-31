@@ -56,11 +56,6 @@ final readonly class SqlSinkResolver
      * SELECT-list-through-table portion); it's intentionally omitted
      * because the parser can't reliably tokenize incomplete statements.
      *
-     * DatabaseQueryTrait exposes the same methods as instance methods on
-     * any class that uses the trait. Those are MethodCall nodes, not
-     * StaticCall — covered separately if/when MethodCall support is added
-     * to this resolver.
-     *
      * @var array<string, true>
      */
     private const STATIC_METHODS = [
@@ -72,6 +67,26 @@ final readonly class SqlSinkResolver
         'OpenEMR\Common\Database\QueryUtils::querySingleRow' => true,
         'OpenEMR\Common\Database\QueryUtils::sqlInsert' => true,
         'OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException' => true,
+    ];
+
+    /**
+     * Instance-method names exposed by DatabaseQueryTrait. Classes that use
+     * the trait call these as `$this->fetchRecords(...)`. Matched by name
+     * only rather than by receiver type -- the (reserved ∩ schema-id) gate
+     * downstream filters any spurious hit on an unrelated class that happens
+     * to define a method with the same name and a string first argument.
+     *
+     * @var array<string, true>
+     */
+    private const TRAIT_METHODS = [
+        'fetchRecords' => true,
+        'fetchRecordsNoLog' => true,
+        'fetchSingleValue' => true,
+        'fetchTableColumn' => true,
+        'fetchTableColumnAssoc' => true,
+        'querySingleRow' => true,
+        'sqlInsert' => true,
+        'sqlStatementThrowException' => true,
     ];
 
     public function isSink(Node $node): bool
@@ -96,9 +111,10 @@ final readonly class SqlSinkResolver
         }
 
         if ($node instanceof MethodCall) {
-            // Instance-method sinks are rare in OpenEMR's SQL pathways
-            // (QueryUtils is static). Reserved for future expansion.
-            return false;
+            if (!($node->name instanceof Node\Identifier)) {
+                return false;
+            }
+            return isset(self::TRAIT_METHODS[$node->name->toString()]);
         }
 
         return false;

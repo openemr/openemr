@@ -160,6 +160,14 @@ final class SqlReservedWordRuleTest extends RuleTestCase
         );
     }
 
+    public function testFlagsDatabaseQueryTraitMethodSink(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/trait_method_sink.php'],
+            [[$this->expectedMessage('rank'), 29]],
+        );
+    }
+
     public function testFlagsBareReservedColumnInInsert(): void
     {
         $this->analyse(
