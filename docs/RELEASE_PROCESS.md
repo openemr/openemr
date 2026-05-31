@@ -24,7 +24,7 @@ flowchart TB
         cut["Cut rel-NNN0 branch<br/>(e.g. rel-810)"]
         edit["Edit release-notes draft"]
         sign["Sign off ONC cert page<br/>(major only)"]
-        merge["Merge 3 PRs"]
+        trigger["Trigger ship-release.yml<br/>(pick version + rel-branch)"]
     end
 
     subgraph oe["openemr/openemr (conductor)"]
@@ -40,6 +40,7 @@ flowchart TB
     wof[("openemr/website-openemr-files<br/>large binaries")]
 
     subgraph od["openemr/openemr-devops"]
+        ship{{"ship-release.yml<br/>merges 3 PRs in order"}}
         infraPR(["release-rotation/auto PR<br/>reviewable"])
     end
 
@@ -47,9 +48,10 @@ flowchart TB
     prepPR -->|every push| prepPR
     edit -.-> docsPR
     sign -.-> docsPR
-    merge -->|merges| prepPR
-    merge -->|merges| docsPR
-    merge -->|merges| infraPR
+    trigger -->|workflow_dispatch| ship
+    ship -->|1. merges| infraPR
+    ship -->|2. merges| prepPR
+    ship -->|3. merges| docsPR
 
     prepPR ==>|merge creates| tag
     tag -. "build-release-on-tag.yml" .-> rel
@@ -65,12 +67,14 @@ flowchart TB
     classDef manualStep fill:#fff4cc,stroke:#b58900
     classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
     classDef autoTag fill:#d4f1d4,stroke:#2a7f2a
-    class cut,edit,sign,merge manualStep
+    classDef autoWorkflow fill:#f0e8ff,stroke:#7a3bb8
+    class cut,edit,sign,trigger manualStep
     class prepPR,docsPR,infraPR autoArtifact
     class tag autoTag
+    class ship autoWorkflow
 ```
 
-**Legend.** Yellow nodes are maintainer actions. Blue nodes are reviewable PRs that workflows open and force-update on every dispatch. The green node is the annotated tag the conductor creates on merge. Solid arrows are git/PR actions; dotted arrows are `repository_dispatch` events labeled with the event name.
+**Legend.** Yellow nodes are maintainer actions. Blue nodes are reviewable PRs that workflows open and force-update on every dispatch. The green node is the annotated tag the conductor creates on merge. The purple hexagon is the `ship-release.yml` workflow (in `openemr-devops`) that an operator triggers via `workflow_dispatch`; it merges the three PRs in order (infra → conductor → docs) with mergeability gates. Solid arrows are git/PR actions and workflow triggers; dotted arrows are `repository_dispatch` events labeled with the event name.
 
 ## Cross-repo events
 
