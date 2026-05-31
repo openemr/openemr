@@ -115,6 +115,37 @@ Long-lived PR against `master`, force-updated on each dispatch. Rotates the thre
 
 Touches CI matrices, package version refs, raspberrypi / Docker pinned versions. Driven by `tools/release/versions.yml`.
 
+## Orientation: finding the current release state
+
+This document describes the *process*. The *current* state lives in Git and the GitHub API — discover it before acting; do not assume a release is or isn't in flight.
+
+- **Which release is in flight?** Active release branches and the open conductor PR:
+
+  ```
+  git ls-remote --heads https://github.com/openemr/openemr 'rel-*'
+  gh pr list --repo openemr/openemr --state open --json number,headRefName \
+    --jq '.[] | select(.headRefName | startswith("release-prep/"))'
+  ```
+
+- **The three sibling PRs** (given a version `X.Y.Z` and branch `rel-<MAJOR><MINOR>0`):
+
+  ```
+  gh pr list --repo openemr/openemr        --state open --json number,headRefName --jq '.[]|select(.headRefName|startswith("release-prep/"))'   # conductor
+  gh pr list --repo openemr/openemr-devops --head release-rotation/auto --state open                                                          # infra
+  gh pr list --repo openemr/website-openemr --head "release-docs/X.Y.Z" --state open                                                          # docs
+  ```
+
+- **Is the tag cut? Did the Release object land?**
+
+  ```
+  git ls-remote --tags https://github.com/openemr/openemr 'vX_Y_Z'
+  gh release view vX_Y_Z --repo openemr/openemr   # 404 here after a tag = the historical v8.1.0 failure (step 10/11)
+  ```
+
+- **Shipping.** `ship-release.yml` inputs are `version` (e.g. `8.1.0`), `rel_branch` (e.g. `rel-810`), `dry_run` (bool). Validate before merging: `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=X.Y.Z -f rel_branch=rel-XY0 -f dry_run=true`.
+
+- **When to escalate to a human / org owner.** An automated agent cannot: merge the conductor PR (cuts a public tag — a go/no-go decision), or set/rotate the release-App secrets (`RELEASE_APP_PRIVATE_KEY`) and their per-repo scoping. If a consumer's auth fails, run that repo's `release-permissions-check.yml`; if it reports a missing or unscoped secret, stop and escalate — only an org owner can fix it.
+
 ## Release runbook
 
 The complete ordered checklist for cutting a release. Each step is marked **[Automated]**, **[Manual]** (will be automated later — see [Automation gaps](#automation-gaps)), or **[Manual — judgment]** (irreducibly manual; requires human input).
