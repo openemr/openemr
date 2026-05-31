@@ -112,12 +112,11 @@ In dependency order:
 3. **App or PAT credential** with `contents:write`, `pull-requests:write`,
    and the cross-repo dispatch permission.
 
-4. **PR template / banner.** The release-prep PR description includes a
-   checklist of irreducibly-manual steps for the release manager:
-   - [ ] Edit the auto-generated release-notes draft (in `website-openemr` PR)
-   - [ ] Sign off on ONC certification page (in `website-openemr` PR)
-   - [ ] Confirm `openemr-devops` infra PR is green
-   - [ ] Merge this PR (triggers the tag and downstream finalization)
+4. **PR template / banner.** The release-prep PR description embeds the
+   maintainer checklist of irreducibly-manual steps. That checklist is defined
+   once in [`RELEASE_PROCESS.md` § Release runbook](RELEASE_PROCESS.md#release-runbook)
+   (rendered per release type from the `openemr-devops` checklist templates) —
+   do not duplicate it here.
 
 ## Permissions self-check
 
@@ -177,8 +176,9 @@ on this repo and the consumer repos; re-run if secrets are rotated.
 - An app or PAT with `contents:write`, `pull-requests:write`, and cross-repo
   dispatch will be provisioned.
 - `rel-*` is the only release-branch naming pattern.
-- The release manager's manual surface really is just "edit draft + ONC
-  sign-off + merge three PRs" — no hidden fourth step.
+- The release manager's manual surface really is just the irreducibly-manual
+  steps enumerated in [`RELEASE_PROCESS.md` § Release runbook](RELEASE_PROCESS.md#release-runbook)
+  — no hidden extra step beyond that list.
 - The existing `openemr-dev:create-release-change-log` CLI's grouping logic
   can be reused (or shared helpers extracted).
 

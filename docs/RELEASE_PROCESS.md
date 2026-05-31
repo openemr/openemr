@@ -23,7 +23,7 @@ flowchart TB
         direction LR
         cut["Cut rel-NNN0 branch<br/>(e.g. rel-810)"]
         edit["Edit release-notes draft"]
-        sign["Sign off ONC cert page"]
+        sign["Sign off ONC cert page<br/>(major only)"]
         merge["Merge 3 PRs"]
     end
 
@@ -133,7 +133,7 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 ### Phase 3 — Manual editorial work (in the open PRs)
 
 6. **[Manual — judgment]** In the `website-openemr` PR, edit the auto-generated release-notes draft for tone and what's noteworthy. The draft regenerates on every push; edits should be made on the PR branch (the workflow preserves manual edits in the rendered page).
-7. **[Manual — judgment]** In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
+7. **[Manual — judgment]** *(Major releases only)* In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
 8. **[Manual — judgment]** *(Major releases only)* Write the marketing piece for the website.
 
 ### Phase 4 — Ship: merge the three PRs
