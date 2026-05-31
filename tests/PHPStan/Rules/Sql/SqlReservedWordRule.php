@@ -20,8 +20,12 @@ use PhpMyAdmin\SqlParser\Components\SetOperation;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\Statement;
 use PhpMyAdmin\SqlParser\Statements\DeleteStatement;
+use PhpMyAdmin\SqlParser\Statements\InsertStatement;
 use PhpMyAdmin\SqlParser\Statements\SelectStatement;
 use PhpMyAdmin\SqlParser\Statements\UpdateStatement;
+use PhpMyAdmin\SqlParser\Token;
+use PhpMyAdmin\SqlParser\TokensList;
+use PhpMyAdmin\SqlParser\TokenType;
 use PhpParser\Node;
 use PhpParser\Node\Expr\CallLike;
 use PHPStan\Analyser\Scope;
@@ -42,10 +46,9 @@ use PHPStan\Rules\RuleErrorBuilder;
  * Coverage spans every grammatical position phpmyadmin/sql-parser's Parser
  * exposes as a column reference: SELECT expression list, WHERE/HAVING
  * conditions, ORDER BY / GROUP BY expressions, JOIN ON conditions, joined
- * table references, UPDATE SET column targets, and DELETE WHERE.
- * INSERT column lists are not yet covered (the parser strips backticks
- * from those before exposing them, so detection requires a separate token
- * scan that hasn't been written).
+ * table references, UPDATE SET column targets, DELETE WHERE, and INSERT
+ * column lists. (The INSERT case requires a token-stream walk -- the
+ * parser exposes IntoKeyword::$columns with backticks already stripped.)
  *
  * The intersection with `SchemaColumnRegistry` eliminates false positives:
  * a word like `over_field` shares no name with a real OpenEMR identifier,
@@ -127,9 +130,13 @@ final readonly class SqlReservedWordRule implements Rule
     private function findOffendingIdentifiers(string $sql): iterable
     {
         $parser = new Parser($sql);
+        $tokens = $parser->list;
+        if ($tokens === null) {
+            return;
+        }
 
         foreach ($parser->statements as $stmt) {
-            yield from $this->checkAll($this->collectIdentifiers($stmt));
+            yield from $this->checkAll($this->collectIdentifiers($stmt, $tokens));
         }
     }
 
@@ -154,7 +161,7 @@ final readonly class SqlReservedWordRule implements Rule
     /**
      * @return iterable<string>
      */
-    private function collectIdentifiers(Statement $stmt): iterable
+    private function collectIdentifiers(Statement $stmt, TokensList $tokens): iterable
     {
         if ($stmt instanceof SelectStatement) {
             yield from $this->visitExpressions($stmt->expr);
@@ -179,6 +186,10 @@ final readonly class SqlReservedWordRule implements Rule
                 yield from $this->visitSetOperation($op);
             }
             yield from $this->visitConditions($stmt->where ?? []);
+        }
+
+        if ($stmt instanceof InsertStatement) {
+            yield from $this->visitInsertColumnList($stmt, $tokens);
         }
 
         if ($stmt instanceof DeleteStatement) {
@@ -289,6 +300,118 @@ final readonly class SqlReservedWordRule implements Rule
             return;
         }
         yield $column;
+    }
+
+    /**
+     * Walks the column-list parentheses of an INSERT INTO statement and
+     * yields each unbacktick'd bare identifier.
+     *
+     * phpmyadmin/sql-parser exposes IntoKeyword::$columns as plain strings
+     * with backticks already stripped, so we can't recover backtick state
+     * from the parse tree alone. Instead, walk the raw token stream
+     * within the statement's bounds, find the column-list parens, and
+     * inspect each token's type/flags directly.
+     *
+     * Known gap: INSERT INTO foo PARTITION (...) (cols) — the PARTITION
+     * clause introduces parens before the column list. This walker
+     * currently treats the first parens after the table as the column
+     * list, so PARTITION'd inserts would have their partition names
+     * walked instead. The (reserved ∩ schema-identifier) gate filters
+     * most spurious flags. No known OpenEMR call sites use this.
+     *
+     * @return iterable<string>
+     */
+    private function visitInsertColumnList(InsertStatement $stmt, TokensList $tokens): iterable
+    {
+        if ($stmt->into === null || $stmt->into->columns === null || $stmt->into->columns === []) {
+            return; // INSERT INTO foo VALUES (...) -- no column list to walk
+        }
+
+        $sawInto = false;
+        $sawTable = false;
+        $depth = 0;
+        $prev = null;
+
+        for ($i = $stmt->first; $i <= $stmt->last; $i++) {
+            $token = $tokens->tokens[$i] ?? null;
+            if ($token === null) {
+                continue;
+            }
+            if ($token->type === TokenType::Whitespace || $token->type === TokenType::Comment) {
+                continue;
+            }
+
+            if (!$sawInto) {
+                if ($token->type === TokenType::Keyword && strtoupper($token->token) === 'INTO') {
+                    $sawInto = true;
+                }
+                continue;
+            }
+
+            if (!$sawTable && $depth === 0) {
+                if ($this->isIdentifierToken($token)) {
+                    $sawTable = true;
+                }
+                $prev = $token;
+                continue;
+            }
+
+            // Handle database-qualified table: "db.foo".
+            if ($depth === 0 && $token->type === TokenType::Operator && $token->token === '.') {
+                $sawTable = false;
+                $prev = $token;
+                continue;
+            }
+
+            if ($depth === 0) {
+                if ($token->type === TokenType::Operator && $token->token === '(') {
+                    $depth = 1;
+                    $prev = $token;
+                    continue;
+                }
+                // VALUES, SELECT, PARTITION, SET... no column list to inspect.
+                return;
+            }
+
+            // depth >= 1: inside the column-list parens.
+            if ($token->type === TokenType::Operator) {
+                if ($token->token === '(') {
+                    $depth++;
+                } elseif ($token->token === ')') {
+                    $depth--;
+                    if ($depth === 0) {
+                        return;
+                    }
+                }
+                $prev = $token;
+                continue;
+            }
+
+            if ($depth === 1 && $this->isIdentifierToken($token)) {
+                // Skip if backticked.
+                if ($token->type === TokenType::Symbol) {
+                    $prev = $token;
+                    continue;
+                }
+                // Skip if qualified (preceded by `.`).
+                $isQualified = $prev !== null
+                    && $prev->type === TokenType::Operator
+                    && $prev->token === '.';
+                if (!$isQualified) {
+                    yield $token->token;
+                }
+            }
+
+            $prev = $token;
+        }
+    }
+
+    private function isIdentifierToken(Token $token): bool
+    {
+        return match ($token->type) {
+            TokenType::None, TokenType::Symbol, TokenType::Keyword => true,
+            default => false,
+        };
     }
 
     /**

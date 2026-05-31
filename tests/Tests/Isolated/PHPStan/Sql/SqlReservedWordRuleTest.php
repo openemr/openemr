@@ -160,15 +160,35 @@ final class SqlReservedWordRuleTest extends RuleTestCase
         );
     }
 
-    public function testInsertColumnsNotYetCaught(): void
+    public function testFlagsBareReservedColumnInInsert(): void
     {
-        // phpmyadmin/sql-parser strips backticks from INSERT column lists
-        // before exposing them on IntoKeyword. Until the rule learns to
-        // re-derive backtick state from the token stream for that case,
-        // INSERT column lists are silently uncovered.
         $this->analyse(
-            [__DIR__ . '/data/insert_columns_not_yet_caught.php'],
+            [__DIR__ . '/data/insert_unbacktick_column.php'],
+            [[$this->expectedMessage('rank'), 4]],
+        );
+    }
+
+    public function testIgnoresBacktickedColumnInInsert(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_backtick_column.php'],
             [],
+        );
+    }
+
+    public function testIgnoresInsertWithoutColumnList(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_no_column_list.php'],
+            [],
+        );
+    }
+
+    public function testFlagsOnlyTheBareOffenderInMixedInsertColumns(): void
+    {
+        $this->analyse(
+            [__DIR__ . '/data/insert_multiple_columns_one_offender.php'],
+            [[$this->expectedMessage('rank'), 5]],
         );
     }
 
