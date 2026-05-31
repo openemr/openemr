@@ -12887,11 +12887,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/trend_form.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$cryptoGen might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$encounter might not be defined\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
