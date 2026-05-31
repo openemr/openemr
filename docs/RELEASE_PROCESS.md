@@ -52,7 +52,7 @@ flowchart TB
     merge -->|merges| infraPR
 
     prepPR ==>|merge creates| tag
-    tag -. openemr-tag .->|build-release-on-tag.yml| rel
+    tag -. "build-release-on-tag.yml" .-> rel
 
     prepPR -. openemr-rel-cut .-> docsPR
     prepPR -. openemr-rel-update .-> docsPR
