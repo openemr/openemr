@@ -44,8 +44,19 @@ main();
 
 function main(): void
 {
+    // Dry-run by default. Without --write the script reports what would
+    // change but doesn't touch any files. The CI workflow passes --write;
+    // a human running locally will see the proposed diff first and can
+    // re-run with --write only when they're confident the inputs are
+    // right (i.e. the local mysql/mariadb services are the right
+    // versions). Default keeps a stray local mysqld on the default port
+    // from silently overwriting the registry with bogus data.
+    $write = in_array('--write', $_SERVER['argv'] ?? [], true);
+
     if (!is_dir(SNAPSHOT_DIR)) {
-        @mkdir(SNAPSHOT_DIR, 0755, true);
+        if ($write) {
+            @mkdir(SNAPSHOT_DIR, 0755, true);
+        }
     }
 
     $mysql = connect(
@@ -54,7 +65,11 @@ function main(): void
         'MySQL',
     );
     [$mysqlVersion, $mysqlKeywords] = dumpMysqlKeywords($mysql);
-    writeSnapshot(SNAPSHOT_DIR . '/mysql.tsv', 'MySQL', $mysqlVersion, $mysqlKeywords);
+    if ($write) {
+        writeSnapshot(SNAPSHOT_DIR . '/mysql.tsv', 'MySQL', $mysqlVersion, $mysqlKeywords);
+    } else {
+        fprintf(STDERR, "Dry-run: would write %s/mysql.tsv (engine %s, %d entries).\n", SNAPSHOT_DIR, $mysqlVersion, count($mysqlKeywords));
+    }
 
     $mariadb = connect(
         getenv('MARIADB_HOST') ?: '127.0.0.1',
@@ -62,7 +77,11 @@ function main(): void
         'MariaDB',
     );
     [$mariadbVersion, $mariadbKeywords] = dumpMariadbKeywords($mariadb);
-    writeSnapshot(SNAPSHOT_DIR . '/mariadb.tsv', 'MariaDB', $mariadbVersion, $mariadbKeywords);
+    if ($write) {
+        writeSnapshot(SNAPSHOT_DIR . '/mariadb.tsv', 'MariaDB', $mariadbVersion, $mariadbKeywords);
+    } else {
+        fprintf(STDERR, "Dry-run: would write %s/mariadb.tsv (engine %s, %d entries).\n", SNAPSHOT_DIR, $mariadbVersion, count($mariadbKeywords));
+    }
 
     $authoritative = collectReserved($mysqlKeywords) + collectReserved($mariadbKeywords);
     fprintf(STDERR, "Authoritative reserved-word union: %d words.\n", count($authoritative));
@@ -90,10 +109,23 @@ function main(): void
         return;
     }
 
-    fprintf(STDERR, "Drift detected. Rewriting %s.\n", REGISTRY_FILE);
-    writeSupplement(REGISTRY_FILE, $supplement);
+    fprintf(STDERR, "Drift detected.\n");
+    fprintf(STDERR, "  Currently in registry: %d entries\n", count($current));
+    fprintf(STDERR, "  Server-derived:        %d entries\n", count($supplement));
+    foreach (array_diff($supplement, $current) as $added) {
+        fprintf(STDERR, "  + %s\n", $added);
+    }
+    foreach (array_diff($current, $supplement) as $removed) {
+        fprintf(STDERR, "  - %s\n", $removed);
+    }
 
-    fprintf(STDERR, "Done. Run `git diff` to review.\n");
+    if (!$write) {
+        fprintf(STDERR, "Dry-run: re-invoke with --write to apply.\n");
+        return;
+    }
+
+    writeSupplement(REGISTRY_FILE, $supplement);
+    fprintf(STDERR, "Wrote %s. Run `git diff` to review.\n", REGISTRY_FILE);
 }
 
 function connect(string $host, int $port, string $label): mysqli
