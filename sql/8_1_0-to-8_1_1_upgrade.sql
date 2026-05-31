@@ -112,3 +112,5 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+-- v_database 539: cosmetic schema edit; no migration. Marker only — remove on any future real upgrade.
