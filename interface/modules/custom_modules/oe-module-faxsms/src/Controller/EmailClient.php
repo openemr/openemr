@@ -210,4 +210,13 @@ class EmailClient extends AppDispatch
     {
         return "[]"; // Caller expects JSON result, not HTML;
     }
+
+    /**
+     * @return string
+     */
+    public function getCallLogs()
+    {
+        return xlt('Not Implemented');
+    }
+
 }

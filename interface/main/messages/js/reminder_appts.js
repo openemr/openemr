@@ -14,6 +14,14 @@ var labels = [];
 var postcards = [];
 var show_just;
 
+var translations = {
+    patient_required: jsXlt('Please select a patient'),
+    date_required: jsXlt('Please select a recall date'),
+    provider_required: jsXlt('Please select a provider'),
+    facility_required: jsXlt('Please select a facility'),
+    no_recalls_found: jsXlt('No Recalls Found')
+};
+
 /**
  * Function to find a patient in the DB
  * This pop-up is the standard openEMR file find_patient_popup.php

@@ -747,31 +747,6 @@ class RCFaxClient extends AppDispatch
     /**
      * @return string
      */
-    public function getNotificationLog(): string
-    {
-        $type = $this->getRequest('type');
-        $fromDate = $this->getRequest('datefrom');
-        $toDate = $this->getRequest('dateto');
-        try {
-            $query = "SELECT notification_log.* FROM notification_log WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ?";
-            $res = sqlStatement($query, [$fromDate, $toDate]);
-            $responseMsg = '';
-            while ($nrow = sqlFetchArray($res)) {
-                $adate = ($nrow['pc_eventDate'] . '::' . $nrow['pc_startTime']);
-                $pinfo = str_replace("|||", " ", $nrow['patient_info']);
-                $msg = text($nrow["message"]);
-                $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
-            }
-        } catch (\Throwable $e) {
-            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
-        }
-
-        return $responseMsg;
-    }
-
-    /**
-     * @return string
-     */
     public function getCallLogs(): string
     {
         $fromDate = $this->getRequest('datefrom');

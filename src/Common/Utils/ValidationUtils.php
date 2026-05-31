@@ -26,17 +26,7 @@ class ValidationUtils
 {
     public static function isValidEmail(string $email): bool
     {
-        // FILTER_FLAG_EMAIL_UNICODE allows for unicode characters in the local (part before the @) of the email
-        if (filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE)) {
-            // TODO: OpenEMR has used this validator regex for 11+ years... leaving this line in case we need to revert
-            // on January 30th 2023 added the ability to support SMTP label addresses such as myname+label@gmail.com
-            // Fixes #6159 (openemr/openemr/issues/6159)
-
-//        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
+        return filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) !== false;
     }
 
     /**

@@ -20,10 +20,11 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
-use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\PatientPortalService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -474,6 +475,19 @@ abstract class AppDispatch
     }
 
     /**
+     * REST Endpoint for contact form.
+     * @return string|false
+     */
+    public function apiFetchPatientDetails(): bool|string
+    {
+        $id = $this->getRequest('pid');
+        $service = new PatientPortalService();
+        $result = $service->getPatientDetails($id);
+
+        return json_encode($result);
+    }
+
+    /**
      * @param $param
      * @param $default
      * @return mixed|null
@@ -630,7 +644,11 @@ abstract class AppDispatch
      */
     public function validEmail($email): bool
     {
-        return ValidationUtils::isValidEmail($email);
+        $isValid = ValidationUtils::isValidEmail($email);
+        if (!$isValid) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -698,7 +716,8 @@ abstract class AppDispatch
      */
     public function formatPhone(string $number): string
     {
-        return PhoneNumberService::toE164($number) ?? '';
+        $parsed = PhoneNumber::tryParse($number);
+        return $parsed ? $parsed->toE164() : '';
     }
 
     /**

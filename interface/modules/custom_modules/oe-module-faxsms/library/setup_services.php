@@ -35,7 +35,6 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 
     $selectedService = $_POST['selected_service'] ?? null;
     $selectedAction = $_POST['action'] ?? null;
-    $status = $taskManager->getServiceStatus($selectedService);
 
     $period = $_POST['period'] ?? null;
     if (empty($period)) {

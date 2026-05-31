@@ -115,11 +115,11 @@ td {
     }
     else if (opener.set_insurance) {
       opener.set_insurance(ins_id, ins_name);
-      dlgclose('InsSaveClose', false);
+      dlgclose();
     } else {
         // if we don't have a set_insurance function then we will just close the window as the opener is
         // using post message to receive events.
-        dlgclose('InsSaveClose', false);
+        dlgclose();
     }
  }
 
@@ -250,7 +250,7 @@ if (
     echo "</script></body></html>\n";
     exit();
 } else {
-    $ins_id = $_GET['ins'] ?? null;
+    $ins_id = (int) $_GET['ins'] ?? null;
     $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
     $ins_co_address = (new AddressService())->getOneByForeignId($ins_id) ?? null;
     $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;

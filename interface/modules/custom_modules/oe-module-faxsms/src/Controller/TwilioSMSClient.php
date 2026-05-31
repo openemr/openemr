@@ -223,40 +223,6 @@ class TwilioSMSClient extends AppDispatch
     /**
      * @return string
      */
-    public function getNotificationLog(): string
-    {
-        $type = $this->getRequest('type');
-        $fromDate = $this->getRequest('datefrom');
-        $toDate = $this->getRequest('dateto');
-
-        try {
-            $query = "SELECT notification_log.* FROM notification_log WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ?";
-            $res = sqlStatement($query, [$fromDate, $toDate]);
-            $row = [];
-            $cnt = 0;
-            while ($nrow = sqlFetchArray($res)) {
-                $row[] = $nrow;
-                $cnt++;
-            }
-
-            $responseMsgs = '';
-            foreach ($row as $value) {
-                $adate = ($value['pc_eventDate'] . '::' . $value['pc_startTime']);
-                $pinfo = str_replace("|||", " ", $value['patient_info']);
-                $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
-                    "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
-            }
-        } catch (\Throwable $e) {
-            $message = $e->getMessage();
-            return 'Error: ' . text($message) . PHP_EOL;
-        }
-
-        return $responseMsgs;
-    }
-
-    /**
-     * @return string
-     */
     public function getCallLogs()
     {
         return xlt('Not Implemented');
