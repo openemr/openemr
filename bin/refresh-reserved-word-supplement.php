@@ -240,8 +240,51 @@ function writeSnapshot(string $path, string $engine, string $version, array $key
     foreach ($keywords as $word => $reserved) {
         $lines[] = $word . "\t" . ($reserved ? '1' : '0');
     }
-    file_put_contents($path, implode("\n", $lines) . "\n");
+    safeWrite($path, implode("\n", $lines) . "\n", SNAPSHOT_DIR);
     fprintf(STDERR, "Wrote %s (%d entries).\n", $path, count($keywords));
+}
+
+/**
+ * Writes content to $path with two guarantees against the script being
+ * pointed at unexpected files via planted symlinks in the working tree:
+ *
+ *   1. The destination's parent directory must canonicalize to (or
+ *      under) $expectedBase. A symlinked parent directory would fail
+ *      the realpath comparison.
+ *   2. The destination itself must not be a symlink. A symlinked
+ *      target would silently redirect the write elsewhere.
+ *
+ * Then writes via temp-file-and-rename so the on-disk state is either
+ * the old file or the new file, never a partial one.
+ */
+function safeWrite(string $path, string $contents, string $expectedBase): void
+{
+    $baseReal = realpath($expectedBase);
+    $dirReal = realpath(dirname($path));
+    if ($baseReal === false || $dirReal === false || !str_starts_with($dirReal, $baseReal)) {
+        fail(sprintf(
+            'Refusing to write outside expected base: %s (expected under %s)',
+            $path,
+            $expectedBase,
+        ));
+    }
+    if (is_link($path)) {
+        fail(sprintf('Refusing to write to symlink: %s', $path));
+    }
+
+    $tmp = @tempnam($dirReal, '.rw-');
+    if ($tmp === false) {
+        fail(sprintf('Cannot create temp file in %s', $dirReal));
+    }
+    if (@file_put_contents($tmp, $contents, LOCK_EX) === false) {
+        @unlink($tmp);
+        fail(sprintf('Cannot write temp file %s', $tmp));
+    }
+    @chmod($tmp, 0644);
+    if (!@rename($tmp, $path)) {
+        @unlink($tmp);
+        fail(sprintf('Atomic rename failed: %s -> %s', $tmp, $path));
+    }
 }
 
 /**
@@ -343,9 +386,7 @@ function writeSupplement(string $file, array $supplement): void
         fail('Failed to rewrite RESERVED_WORD_SUPPLEMENT block.');
     }
 
-    if (file_put_contents($file, $updated) === false) {
-        fail("Cannot write {$file}");
-    }
+    safeWrite($file, $updated, dirname($file));
 }
 
 function fail(string $message): never

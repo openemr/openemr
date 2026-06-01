@@ -30,9 +30,11 @@ final class SqlReservedWordRuleTest extends RuleTestCase
     {
         return new SqlReservedWordRule(
             new ReservedWordRegistry(),
-            // Empty string for cachePath disables caching so tests stay
-            // hermetic across runs.
-            new SchemaColumnRegistry(__DIR__ . '/fixtures/test-schema.sql', ''),
+            // cacheEnabled: false keeps tests hermetic across runs.
+            new SchemaColumnRegistry(
+                __DIR__ . '/fixtures/test-schema.sql',
+                cacheEnabled: false,
+            ),
             new SqlSinkResolver(),
         );
     }
@@ -188,6 +190,27 @@ final class SqlReservedWordRuleTest extends RuleTestCase
     {
         $this->analyse(
             [__DIR__ . '/data/insert_no_column_list.php'],
+            [],
+        );
+    }
+
+    public function testFlagsRankInOnDuplicateKeyInsertColumnList(): void
+    {
+        // The column list is walked normally; the ON DUPLICATE KEY UPDATE
+        // clause that follows is outside the walker's depth==0 exit, so
+        // it's intentionally untouched.
+        $this->analyse(
+            [__DIR__ . '/data/insert_on_duplicate_key_update.php'],
+            [[$this->expectedMessage('rank'), 8]],
+        );
+    }
+
+    public function testIgnoresInsertSelectForm(): void
+    {
+        // INSERT INTO ... SELECT has no column-list parens after the
+        // table. The walker bails at depth 0 and yields nothing.
+        $this->analyse(
+            [__DIR__ . '/data/insert_select_form.php'],
             [],
         );
     }

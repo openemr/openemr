@@ -43,16 +43,25 @@ final readonly class SchemaColumnRegistry
      * @param string|null $schemaPath Absolute path to sql/database.sql, or
      *                                null to use OpenEMR's canonical schema.
      *                                Tests pass a fixture path here.
-     * @param string|null $cachePath Optional path to a writable cache file.
-     *                               If null, defaults to project tmp-phpstan
-     *                               cache. Pass empty string to disable
-     *                               caching (useful in tests).
+     * @param string|null $cachePath Optional override for the cache file
+     *                               path. When null and $cacheEnabled is
+     *                               true, defaults to the project's
+     *                               tmp-phpstan cache. Ignored when
+     *                               $cacheEnabled is false.
+     * @param bool $cacheEnabled Set to false to skip cache reads and
+     *                           writes entirely. Used by tests that don't
+     *                           want a shared cache file persisting
+     *                           across runs.
      */
-    public function __construct(?string $schemaPath = null, ?string $cachePath = null)
-    {
+    public function __construct(
+        ?string $schemaPath = null,
+        ?string $cachePath = null,
+        bool $cacheEnabled = true,
+    ) {
         $schemaPath ??= __DIR__ . '/../../../../sql/database.sql';
-        $cachePath ??= __DIR__ . '/../../../../tmp-phpstan/sql-schema-identifiers.json';
-        if ($cachePath === '') {
+        if ($cacheEnabled) {
+            $cachePath ??= __DIR__ . '/../../../../tmp-phpstan/sql-schema-identifiers.json';
+        } else {
             $cachePath = null;
         }
         $this->identifiers = $this->load($schemaPath, $cachePath);
