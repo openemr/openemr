@@ -567,46 +567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/LBF/printable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$cleave_opt might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$code_types might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$encounter might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ndc_applies might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$rootdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$userauthorized might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$database might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_ajax.php',

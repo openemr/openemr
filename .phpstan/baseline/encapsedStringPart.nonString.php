@@ -537,11 +537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$usbillstyle \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 10,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',

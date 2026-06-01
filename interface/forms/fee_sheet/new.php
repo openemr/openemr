@@ -9,24 +9,37 @@
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/FeeSheetHtml.class.php");
-require_once("codes.php");
-require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
+require_once("$srcdir/FeeSheetHtml.class.php");
+require_once("codes.php");
+require_once("$srcdir/options.inc.php");
+/** @var array<string, array<string, mixed>> $code_types defined transitively by options.inc.php */
 
 //acl check
 if (!AclMain::aclCheckForm('fee_sheet')) { ?>
@@ -1050,6 +1063,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php
                                 $i = 0;
                                 $last_category = '';
+                                $cleave_opt = 1; // default; overwritten in the loop body for each new category
                                 // Create drop-lists based on the fee_sheet_options table.
                                 $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                                 "ORDER BY fs_category, fs_option");
@@ -1137,8 +1151,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
-
-                                $ndc_applies = true; // Assume all payers require NDC info.
 
                                 echo $i ? "  <td></td>\n </tr>\n" : "";
                             ?>
@@ -1620,8 +1632,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $modifier = '';
                                                 }
                                                 $ndc_info = '';
-                                                // If HCPCS, find last NDC string used for this code.
-                                                if ($newtype == 'HCPCS' && $ndc_applies) {
+                                                // NDC info currently applies to all HCPCS line items; if HCPCS, find last NDC string used for this code.
+                                                if ($newtype == 'HCPCS') {
                                                     $tmp = sqlQuery("SELECT ndc_info FROM billing WHERE " .
                                                     "code_type = ? AND code = ? AND ndc_info LIKE 'N4%' " .
                                                     "ORDER BY date DESC LIMIT 1", [$newtype, $code]);

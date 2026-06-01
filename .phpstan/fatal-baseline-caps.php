@@ -49,7 +49,7 @@ return [
         'return.missing.php' => 0,
         'staticMethod.notFound.php' => 0,
         'trait.notFound.php' => 0,
-        'variable.undefined.php' => 546,
+        'variable.undefined.php' => 538,
     ],
     'confidentNonObject' => [
         'classConstant.nonObject.php' => 0,
