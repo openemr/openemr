@@ -102,9 +102,25 @@ class ServerScopeListEntity
                 'OperationDefinition',
             ];
             $fhirWriteResources = [
-                'Patient'
-                , 'Practitioner'
-                , 'Organization'
+                'AllergyIntolerance',
+                'Appointment',
+                'CarePlan',
+                'CareTeam',
+                'Condition',
+                'Coverage',
+                'Device',
+                'Encounter',
+                'Goal',
+                'Immunization',
+                'Medication',
+                'MedicationRequest',
+                'Organization',
+                'Patient',
+                'Person',
+                'Practitioner',
+                'PractitionerRole',
+                'RelatedPerson',
+                'ServiceRequest',
             ];
             $fhirScopes = [];
             $systemEnabled = $this->systemScopesEnabled;

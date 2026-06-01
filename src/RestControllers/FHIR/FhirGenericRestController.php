@@ -195,7 +195,7 @@ class FhirGenericRestController implements IGlobalsAware {
 
         $fhirValidationService = new FhirValidationService();
         $validationResult = $fhirValidationService->validate($fhirJson);
-        if ($validationResult !== []) {
+        if ($validationResult !== null) {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 
@@ -263,7 +263,7 @@ class FhirGenericRestController implements IGlobalsAware {
 
         $fhirValidationService = new FhirValidationService();
         $validationResult = $fhirValidationService->validate($fhirJson);
-        if ($validationResult !== []) {
+        if ($validationResult !== null) {
             return RestControllerHelper::responseHandler($validationResult, null, 400);
         }
 

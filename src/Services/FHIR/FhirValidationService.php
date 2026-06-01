@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 
 class FhirValidationService
@@ -24,9 +25,13 @@ class FhirValidationService
      *     before instantiating — defense-in-depth against any future
      *     same-namespace gadget classes.
      *
+     * Returns an OperationOutcome describing the first validation failure, or
+     * null when the resource is valid. Callers treat a non-null result as a
+     * 400-worthy validation error.
+     *
      * @param array<string, mixed> $data
      */
-    public function validate($data)
+    public function validate($data): ?FHIROperationOutcome
     {
         if (!array_key_exists('resourceType', $data)) {
             return $this->operationOutcomeResourceService('error', 'invalid', 'resourceType Not Found');
@@ -72,13 +77,19 @@ class FhirValidationService
                 "Invalid content " . array_key_first($diff) . " Found",
             );
         }
+
+        return null;
     }
 
     public function operationOutcomeResourceService(
-        $severity_value,
-        $code_value,
-        $details_value
-    ) {
-        return UtilsService::createOperationOutcomeResource($severity_value, $code_value, $details_value);
+        string $severity_value,
+        string $code_value,
+        string $details_value
+    ): FHIROperationOutcome {
+        $outcome = UtilsService::createOperationOutcomeResource($severity_value, $code_value, $details_value);
+        if (!$outcome instanceof FHIROperationOutcome) {
+            throw new \RuntimeException('Expected FHIROperationOutcome from UtilsService');
+        }
+        return $outcome;
     }
 }
