@@ -167,7 +167,6 @@ if ($saveError === null && isset($_POST["mode"])) {
 
         // This becomes MUCH more straightforward with actual dbal, but this is
         // still safe from SQLI since the keys are all string literals.
-        $query = 'UPDATE ar_session SET ';
         $updates = array_map(fn ($col) => sprintf('`%s` = ?', $col), array_keys($updatedValues));
         $query = implode(' ', [
             'UPDATE ar_session SET',
