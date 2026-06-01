@@ -75,6 +75,8 @@ the merge commit (`git tag -a` or the GitHub API with a tag object — never a
 lightweight ref). Lightweight tags lack author/date/message metadata and break
 `git describe`, downstream tooling, and consumers that introspect tag objects.
 
+The conductor stops at the tag — it does **not** create the GitHub Release object directly. That step (full distribution packages + checksums + `changelog.md` attached to a Release on `openemr/openemr`) is what the website's `/downloads/` page links to, and is now driven automatically by [`build-release-on-tag.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release-on-tag.yml) in `openemr-devops`, which consumes the conductor's `openemr-tag` dispatch and calls the reusable [`build-release.yml`](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/build-release.yml) with `dry_run=false` to build the packages, create the Release object, and upload assets + checksums + changelog. This closed the gap that broke v8.1.0 on 2026-05-28 (tag landed, no Release object did); shipped via [openemr/openemr-devops#757](https://github.com/openemr/openemr-devops/pull/757), closing [#756](https://github.com/openemr/openemr-devops/issues/756). See also [`RELEASE_PROCESS.md` § Phase 5 step 10](RELEASE_PROCESS.md#phase-5--post-merge-artifact-and-download-verification) and [§ Automation gaps](RELEASE_PROCESS.md#automation-gaps).
+
 ## Dispatch events emitted
 
 The workflow emits `repository_dispatch` to consumer repos. The full
@@ -110,12 +112,11 @@ In dependency order:
 3. **App or PAT credential** with `contents:write`, `pull-requests:write`,
    and the cross-repo dispatch permission.
 
-4. **PR template / banner.** The release-prep PR description includes a
-   checklist of irreducibly-manual steps for the release manager:
-   - [ ] Edit the auto-generated release-notes draft (in `website-openemr` PR)
-   - [ ] Sign off on ONC certification page (in `website-openemr` PR)
-   - [ ] Confirm `openemr-devops` infra PR is green
-   - [ ] Merge this PR (triggers the tag and downstream finalization)
+4. **PR template / banner.** The release-prep PR description embeds the
+   maintainer checklist of irreducibly-manual steps. That checklist is defined
+   once in [`RELEASE_PROCESS.md` § Release runbook](RELEASE_PROCESS.md#release-runbook)
+   (rendered per release type from the `openemr-devops` checklist templates) —
+   do not duplicate it here.
 
 ## Permissions self-check
 
@@ -176,8 +177,9 @@ on this repo and the consumer repos; re-run if secrets are rotated.
 - An app or PAT with `contents:write`, `pull-requests:write`, and cross-repo
   dispatch will be provisioned.
 - `rel-*` is the only release-branch naming pattern.
-- The release manager's manual surface really is just "edit draft + ONC
-  sign-off + merge three PRs" — no hidden fourth step.
+- The release manager's manual surface really is just the irreducibly-manual
+  steps enumerated in [`RELEASE_PROCESS.md` § Release runbook](RELEASE_PROCESS.md#release-runbook)
+  — no hidden extra step beyond that list.
 - The existing `openemr-dev:create-release-change-log` CLI's grouping logic
   can be reused (or shared helpers extracted).
 
