@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-05-28
+## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-06-01
 
 ### Fixed
 
@@ -75,6 +75,7 @@
 
 ### Changed
 
+- exclude generated EHI schema docs from release archives ([#12321](https://github.com/openemr/openemr/pull/12321))
 - rel-810: fix(encounter): use getBoolean for inhouse_pharmacy check in visit summary (#11987) ([#12220](https://github.com/openemr/openemr/pull/12220))
 - release 8.1.0 misc ([#12190](https://github.com/openemr/openemr/pull/12190))
 - 8.1.0 ([#12187](https://github.com/openemr/openemr/pull/12187))
