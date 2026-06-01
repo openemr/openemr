@@ -250,7 +250,7 @@ if (
     echo "</script></body></html>\n";
     exit();
 } else {
-    $ins_id = (int) $_GET['ins'] ?? null;
+    $ins_id = $_GET['ins'] ?? null;
     $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
     $ins_co_address = (new AddressService())->getOneByForeignId($ins_id) ?? null;
     $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;
@@ -364,7 +364,7 @@ if (
 for ($i = 1; $i < count($ins_type_code_array); ++$i) {
     echo "   <option value='" . attr($i) . "'";
     if (!empty($ins_co)) {
-        if ($i == $ins_co['ins_type_code'] ?? '') {
+        if ($i == $ins_co['ins_type_code']) {
             echo " selected";
         }
     }

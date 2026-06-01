@@ -220,8 +220,8 @@ $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(
         global $event_date, $info_msg;
         // Save new DOB if it's there.
         $patient_dob = trim($_POST['form_dob'] ?? '');
-        $tmph = (int)$_POST['form_hour'] ?? 0;
-        $tmpm = (int)$_POST['form_minute'] ?? 0;
+        $tmph = (int)$_POST['form_hour'];
+        $tmpm = (int)$_POST['form_minute'];
         if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
             $tmph += 12;
         }
