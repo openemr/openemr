@@ -16,8 +16,8 @@
 #   "unknown column") means not reserved.
 #
 # Snapshots:
-# - reserved-words/mysql.tsv  (engine version + WORD\tRESERVED rows)
-# - reserved-words/mariadb.tsv
+# - tests/PHPStan/Rules/Sql/snapshots/mysql.tsv   (engine version + WORD\tRESERVED rows)
+# - tests/PHPStan/Rules/Sql/snapshots/mariadb.tsv
 # Both are committed alongside the supplement change so a diff in
 # those files is the audit record for what the engines reported.
 #
@@ -94,8 +94,8 @@ jobs:
           Automated update from refresh-reserved-word-supplement.yml.
           Drift was detected between the live MySQL + MariaDB reserved
           word sets and what phpmyadmin/sql-parser currently ships.
-          Review the diff (registry + reserved-words/ snapshots) before
-          merging.
+          Review the diff (registry + tests/PHPStan/Rules/Sql/snapshots/)
+          before merging.
         branch: bot/refresh-reserved-word-supplement
         delete-branch: true
         title: 'chore(phpstan): refresh RESERVED_WORD_SUPPLEMENT'
@@ -110,9 +110,9 @@ jobs:
           ships in its `Context*` classes. The gap is the new
           `RESERVED_WORD_SUPPLEMENT`.
 
-          - `reserved-words/mysql.tsv` and `reserved-words/mariadb.tsv`
-            are the raw snapshots from each engine. Engine versions are
-            captured in the header comments.
+          - `tests/PHPStan/Rules/Sql/snapshots/mysql.tsv` and the
+            sibling `mariadb.tsv` are the raw snapshots from each
+            engine. Engine versions are captured in the header comments.
           - `tests/PHPStan/Rules/Sql/ReservedWordRegistry.php` is the
             rewritten constant.
 

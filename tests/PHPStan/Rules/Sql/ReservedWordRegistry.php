@@ -37,7 +37,7 @@ use RuntimeException;
  * entries (RETURNING, SLOW, PAGE_CHECKSUM, ROWS_EXAMINED). The list is
  * auto-refreshed monthly by .github/workflows/refresh-reserved-word-supplement.yml
  * which queries live MySQL + MariaDB engines and opens a PR when drift
- * is detected; reserved-words/{mysql,mariadb}.tsv is the audit trail.
+ * is detected; tests/PHPStan/Rules/Sql/snapshots/{mysql,mariadb}.tsv is the audit trail.
  *
  * See https://dev.mysql.com/doc/refman/8.4/en/keywords.html for MySQL
  * and https://mariadb.com/kb/en/reserved-words/ for MariaDB if hand

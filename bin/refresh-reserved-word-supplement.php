@@ -8,8 +8,8 @@
  * Asks each engine which keywords it reserves, unions the answers,
  * diffs against the set phpmyadmin/sql-parser ships, and rewrites the
  * supplement constant in the registry. Snapshots both engines'
- * keyword tables to reserved-words/ so a diff in those files is the
- * audit record for what changed and when.
+ * keyword tables to tests/PHPStan/Rules/Sql/snapshots/ so a diff in
+ * those files is the audit record for what changed and when.
  *
  * Designed to be invoked from
  * .github/workflows/refresh-reserved-word-supplement.yml on a monthly
@@ -32,12 +32,21 @@
 
 declare(strict_types=1);
 
+// CLI-only. bin/.htaccess already denies web access for Apache, and
+// this guard adds belt-and-suspenders coverage for any server config
+// that might bypass it (e.g. a misconfigured nginx without an
+// equivalent rule).
+if (PHP_SAPI !== 'cli') {
+    http_response_code(403);
+    exit('CLI only.');
+}
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use PhpMyAdmin\SqlParser\Context;
 use PhpMyAdmin\SqlParser\Token;
 
-const SNAPSHOT_DIR = __DIR__ . '/../reserved-words';
+const SNAPSHOT_DIR = __DIR__ . '/../tests/PHPStan/Rules/Sql/snapshots';
 const REGISTRY_FILE = __DIR__ . '/../tests/PHPStan/Rules/Sql/ReservedWordRegistry.php';
 
 main();
