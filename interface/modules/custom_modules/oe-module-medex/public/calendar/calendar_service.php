@@ -883,7 +883,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
         }
 
         $facilityId = (int)($payload['facility_id'] ?? 0);
-        $horizonDays = max(30, min(730, (int)($payload['horizon_days'] ?? 730)));
+        $horizonDays = max(30, min(730, (int)($payload['horizon_days'] ?? 30)));
+        $rawStartDate = trim((string)($payload['start_date'] ?? ''));
         $sourceTag = 'MEDEX_STUDIO';
 
         $hasLocation = !empty(sqlQuery("SHOW COLUMNS FROM openemr_postcalendar_events LIKE 'pc_location'"));
@@ -932,8 +933,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
             cs_json_exit(['success' => false, 'error' => 'No valid slots to deploy.']);
         }
 
-        $today = new DateTimeImmutable('today');
+        $today = (preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawStartDate))
+            ? new DateTimeImmutable($rawStartDate)
+            : new DateTimeImmutable('today');
         $lastDay = $today->modify('+' . ($horizonDays - 1) . ' days');
+        $rangeStart = $today->format('Y-m-d');
+        $rangeEnd   = $lastDay->format('Y-m-d');
+
         $datesByWeekday = [];
         for ($d = $today; $d <= $lastDay; $d = $d->modify('+1 day')) {
             $weekday = (int)$d->format('N') - 1;
@@ -943,22 +949,18 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
             $datesByWeekday[$weekday][] = $d->format('Y-m-d');
         }
 
-        // Remove previously deployed studio slots in this horizon for selected providers.
+        // Broad wipe: remove ALL Open Slot events for these providers in the entire deploy range,
+        // regardless of which source tag (MEDEX_STUDIO, MEDEX_INTERVIEW_GENERATED, etc.) created them.
+        // This ensures the new template fully overrides the old one without stale slots persisting.
         foreach ($providerIds as $providerId) {
-            foreach ($datesByWeekday as $dateList) {
-                foreach ($dateList as $date) {
-                    if ($hasLocation) {
-                        sqlStatement(
-                            "DELETE FROM openemr_postcalendar_events
-                             WHERE pc_aid = ?
-                               AND pc_eventDate = ?
-                               AND COALESCE(pc_pid,'') = ''
-                               AND pc_location = ?",
-                            [$providerId, $date, $sourceTag]
-                        );
-                    }
-                }
-            }
+            sqlStatement(
+                "DELETE FROM openemr_postcalendar_events
+                 WHERE pc_aid = ?
+                   AND pc_eventDate BETWEEN ? AND ?
+                   AND COALESCE(pc_pid,'') = ''
+                   AND pc_title LIKE 'Open Slot%'",
+                [$providerId, $rangeStart, $rangeEnd]
+            );
         }
 
         $inserted = 0;
@@ -2464,12 +2466,19 @@ $templateCount = count($detectedTemplates);
             </select>
         </div>
         <div class="field">
+            <label><?php echo xlt('Deploy Start Date'); ?></label>
+            <input type="date" id="cfgStartDate" value="<?php echo attr(date('Y-m-d')); ?>"
+                   style="width:100%;padding:4px 6px;border:1px solid var(--cs-border);border-radius:4px;box-sizing:border-box;">
+        </div>
+        <div class="field">
             <label><?php echo xlt('Deploy Horizon'); ?></label>
             <select id="cfgHorizonDays">
-                <option value="30"><?php echo xlt('1 month (30 days)'); ?></option>
+                <option value="30" selected><?php echo xlt('1 month (30 days)'); ?></option>
+                <option value="60"><?php echo xlt('2 months (60 days)'); ?></option>
+                <option value="90"><?php echo xlt('3 months (90 days)'); ?></option>
                 <option value="180"><?php echo xlt('6 months (180 days)'); ?></option>
                 <option value="365"><?php echo xlt('1 year (365 days)'); ?></option>
-                <option value="730" selected><?php echo xlt('2 years (730 days)'); ?></option>
+                <option value="730"><?php echo xlt('2 years (730 days)'); ?></option>
             </select>
         </div>
         <div class="field">
@@ -3614,12 +3623,16 @@ function bindToolbar() {
             staffOnly: !!slot.staffOnly
         }));
 
+        const startDateEl = document.getElementById('cfgStartDate');
+        const startDateVal = (startDateEl && startDateEl.value) ? startDateEl.value : new Date().toISOString().slice(0, 10);
+
         const payload = {
             provider_ids: providerValues,
             facility_id: parseInt(facilityValue, 10) || 0,
             cadence: document.getElementById('cfgCadence').value,
             strictness: document.querySelector('input[name="cfgStrictness"]:checked')?.value || 'strict',
-            horizon_days: Math.max(30, Math.min(730, parseInt((document.getElementById('cfgHorizonDays') || {}).value || '730', 10) || 730)),
+            start_date: startDateVal,
+            horizon_days: Math.max(30, Math.min(730, parseInt((document.getElementById('cfgHorizonDays') || {}).value || '30', 10) || 30)),
             slots: slotPayload
         };
 
