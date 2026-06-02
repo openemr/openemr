@@ -1359,21 +1359,31 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         const rawStatus = (info.event.extendedProps.status || '').trim();
                         if (rawStatus && rawStatus !== '-') {
                             if (statusIcon) {
-                                // Modality icon (SMS confirmed green chat, EMAIL green envelope, etc.)
-                                const iconWrap = document.createElement('span');
-                                iconWrap.className = 'medex-reminder-icons';
-                                iconWrap.innerHTML = statusIcon;
-                                iconWrap.querySelectorAll('.btn').forEach(function(btn) {
-                                    btn.style.padding = '1px 4px';
-                                    btn.style.fontSize = '11px';
-                                    btn.style.lineHeight = '1.2';
-                                    btn.style.verticalAlign = 'middle';
-                                    btn.style.borderRadius = '3px';
-                                    btn.style.display = 'inline-flex';
-                                    btn.style.alignItems = 'center';
-                                });
+                                // Modality icon — extract the background color and <i> glyph from
+                                // the medex_icons HTML so we can render it inline without Bootstrap
+                                // .btn layout breaking the text flow.
+                                const tmp = document.createElement('div');
+                                tmp.innerHTML = statusIcon;
+                                const btnEl = tmp.querySelector('.btn') || tmp.firstElementChild;
+                                const iEl = tmp.querySelector('i');
+                                const bgColor = btnEl ? (btnEl.style.backgroundColor || 'green') : 'green';
+                                const iconTitle = btnEl ? (btnEl.getAttribute('title') || rawStatus) : rawStatus;
+
+                                const pill = document.createElement('span');
+                                pill.className = 'medex-status-pill';
+                                pill.title = iconTitle;
+                                pill.style.cssText = 'display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:3px;font-size:10px;line-height:1.4;vertical-align:middle;background:' + bgColor + ';color:#fff;';
+
+                                if (iEl) {
+                                    const icon = iEl.cloneNode(true);
+                                    icon.style.fontSize = '10px';
+                                    pill.appendChild(icon);
+                                } else {
+                                    pill.textContent = rawStatus;
+                                }
+
                                 titleEl.appendChild(document.createTextNode(' '));
-                                titleEl.appendChild(iconWrap);
+                                titleEl.appendChild(pill);
                             } else if (apptStatusLabel) {
                                 // Staff status: colored text pill
                                 const badge = document.createElement('span');

@@ -556,15 +556,10 @@ try {
 
         $rawTitle = trim((string)($row['title'] ?? ''));
         if ($patientName) {
-            $cleanPatientTitle = (string)preg_replace('/\bOpen\s+Slot\s*-\s*/i', '', $rawTitle);
-            $cleanPatientTitle = trim($cleanPatientTitle, " -\t\n\r\0\x0B");
-            if ($cleanPatientTitle === '' && !empty($row['preferred_category_name'])) {
-                $cleanPatientTitle = trim((string)$row['preferred_category_name']);
-            }
-            if ($cleanPatientTitle === '' && !empty($row['category_name'])) {
-                $cleanPatientTitle = trim((string)$row['category_name']);
-            }
-            $title = $patientName . ($cleanPatientTitle !== '' ? (' - ' . $cleanPatientTitle) : '');
+            // Patient appointments: use only the patient name as the FullCalendar event.title.
+            // The JS eventDidMount turns it into a clickable link and appends the status icon.
+            // The appointment type belongs on Chip 1 (template slot); putting it here duplicates it.
+            $title = $patientName;
         } else {
             $title = $rawTitle;
         }
