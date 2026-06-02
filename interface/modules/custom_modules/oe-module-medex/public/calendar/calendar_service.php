@@ -1249,11 +1249,8 @@ try {
              LEFT JOIN openemr_postcalendar_categories cat ON cat.pc_catid = COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid)
              WHERE (COALESCE(pc.pc_pid, '') = '' OR pc.pc_pid = '0')
                AND pc.pc_eventDate >= CURDATE()
-               AND (
-                    pc.pc_title LIKE 'Open Slot%'
-                    OR pc.pc_title LIKE 'In Office%'
-                    OR COALESCE(pc.pc_location, '') LIKE 'MEDEX_%'
-               )
+               AND pc.pc_title LIKE 'Open Slot%'
+               AND COALESCE(pc.pc_location,'') = 'MEDEX_STUDIO'
              GROUP BY pc.pc_aid, DAYOFWEEK(pc.pc_eventDate), TIME_FORMAT(pc.pc_startTime, '%H:%i'), TIME_FORMAT(pc.pc_endTime, '%H:%i'), COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid, 0)
              HAVING COUNT(*) >= 2
              ORDER BY slot_count DESC, pc.pc_aid, start_time"

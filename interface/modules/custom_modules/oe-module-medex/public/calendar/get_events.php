@@ -486,6 +486,88 @@ try {
         }
     }
 
+    // Synthesize Chip 1 from patient appointments that have no corresponding Open Slot.
+    // This covers the case where edit_event_wrapper.php deleted the template slot but
+    // AppointmentSlotListener didn't complete the registry link (so no registry entry exists).
+    // We use the patient appointment's own category to reconstruct the slot chip.
+    {
+        // Collect all slot keys already present (from DB or registry synthesis)
+        $existingSlotKeys = [];
+        foreach ($rows as $chkRow) {
+            if ((int)($chkRow['patient_id'] ?? 0) > 0) { continue; }
+            $slotKey = (int)($chkRow['provider_id'] ?? 0) . '|' . (string)($chkRow['date'] ?? '') . '|' . (string)($chkRow['startTime'] ?? '');
+            if (!empty($chkRow['_is_synth'])) {
+                $slotKey = (int)($chkRow['provider_id'] ?? 0) . '|' . (string)($chkRow['date'] ?? '') . '|' . substr((string)($chkRow['_synth_start_dt'] ?? ''), 11);
+            }
+            $existingSlotKeys[$slotKey] = true;
+        }
+
+        if (!isset($catLookup)) {
+            $catLookup = [];
+            $catStmt2 = sqlStatement("SELECT pc_catid, pc_catname, pc_catcolor FROM openemr_postcalendar_categories");
+            while ($catRow2 = sqlFetchArray($catStmt2)) {
+                $catLookup[(int)$catRow2['pc_catid']] = ['name' => (string)($catRow2['pc_catname'] ?? ''), 'color' => (string)($catRow2['pc_catcolor'] ?? '')];
+            }
+        }
+
+        foreach ($rows as $apptRow) {
+            if ((int)($apptRow['patient_id'] ?? 0) <= 0) { continue; }
+            if (!empty($apptRow['_is_synth'])) { continue; }
+
+            $apptProvider = (int)($apptRow['provider_id'] ?? 0);
+            $apptDate     = (string)($apptRow['date'] ?? '');
+            $apptStart    = (string)($apptRow['startTime'] ?? '');
+            if ($apptProvider <= 0 || $apptDate === '' || $apptStart === '') { continue; }
+
+            $checkKey = $apptProvider . '|' . $apptDate . '|' . $apptStart;
+            if (isset($existingSlotKeys[$checkKey])) { continue; } // slot already present
+
+            // No Chip 1 exists — synthesize one from the appointment's own category
+            $apptCatId  = (int)($apptRow['preferred_category_id'] ?? ($apptRow['category'] ?? 0));
+            if ($apptCatId <= 0) { $apptCatId = (int)($apptRow['category'] ?? 0); }
+            $catInfo2   = $catLookup[$apptCatId] ?? ['name' => '', 'color' => ''];
+            $catName2   = $catInfo2['name'] !== '' ? $catInfo2['name'] : 'Filled Slot';
+            $rawCol2    = $catInfo2['color'];
+            if ($rawCol2 !== '' && $rawCol2[0] !== '#') { $rawCol2 = '#' . $rawCol2; }
+            $sColor2    = preg_match('/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/', $rawCol2) ? $rawCol2 : '#3788d8';
+            $rr2 = hexdec(substr($sColor2, 1, 2)); $gg2 = hexdec(substr($sColor2, 3, 2)); $bb2 = hexdec(substr($sColor2, 5, 2));
+            $lum3 = (($rr2 * 299) + ($gg2 * 587) + ($bb2 * 114)) / 1000;
+
+            $startDt2 = $apptDate . ' ' . $apptStart;
+            $endDt2   = $apptDate . ' ' . (string)($apptRow['endTime'] ?? date('H:i:s', strtotime($apptStart) + 900));
+
+            $rows[] = [
+                'id'                    => 'appt_chip1_' . (string)($apptRow['id'] ?? ''),
+                'title'                 => $catName2,
+                'date'                  => $apptDate,
+                'startTime'             => $apptStart,
+                'endTime'               => (string)($apptRow['endTime'] ?? ''),
+                'duration'              => (int)($apptRow['duration'] ?? 900),
+                'category'              => $apptCatId,
+                'preferred_category_id' => $apptCatId,
+                'provider_id'           => $apptProvider,
+                'patient_id'            => null,
+                'status'                => '-',
+                'location_tag'          => 'MEDEX_APPT_CHIP1',
+                'facility_id'           => $apptRow['facility_id'] ?? 0,
+                'comments'              => '',
+                'category_name'         => $catName2,
+                'category_color'        => $rawCol2,
+                'preferred_category_name'  => $catName2,
+                'preferred_category_color' => $rawCol2,
+                'provider_fname'        => '', 'provider_lname'  => '',
+                'patient_fname'         => '', 'patient_lname'   => '',
+                '_synth_start_dt'  => $startDt2,
+                '_synth_end_dt'    => $endDt2,
+                '_synth_color'     => $sColor2,
+                '_synth_text_col'  => $lum3 >= 145 ? '#111111' : '#ffffff',
+                '_synth_state'     => 'consumed',
+                '_is_synth'        => true,
+            ];
+            $existingSlotKeys[$checkKey] = true;
+        }
+    }
+
     // Load appointment status labels + colors from list_options (apptstat list).
     // pc_apptstatus is the source of truth — staff and MedEx write directly to it.
     // Multi-char codes like SMS/EMAIL/AVM are set by MedEx when a patient confirms
