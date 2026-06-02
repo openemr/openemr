@@ -7,6 +7,6 @@ x-includes:
 
 services:
   mysql:
-    image: mariadb:11.8.7@sha256:78185355dd49b54dd6909072531ce8d7e06aa0eccd7aa5b23c93ebb7e34c5aaa
+    image: mariadb:11.8.8@sha256:7974b628cbb4a37c4108d82f1e1d1123d1857ae3d94ab6fb20b8ad8580c271c8
   openemr:
-    image: openemr/dev-php-fpm:8.5@sha256:140e16604ecde2ec1b242cc614925cfe8117c34261d822b83bef49b531e9f5f3
+    image: openemr/dev-php-fpm:8.5@sha256:a8ab1494dfb57fbf4170a6fe349b6f39838bf459e18e4ae9fca47dae054e59c0

@@ -5,7 +5,7 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8.7@sha256:78185355dd49b54dd6909072531ce8d7e06aa0eccd7aa5b23c93ebb7e34c5aaa
+    image: mariadb:11.8.8@sha256:7974b628cbb4a37c4108d82f1e1d1123d1857ae3d94ab6fb20b8ad8580c271c8
     command: ['mariadbd', '--character-set-server=utf8mb4']
     volumes:
     - databasevolume:/var/lib/mysql
@@ -25,7 +25,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:latest@sha256:e0abce055520059dc1f7784a080ae6430e0c13141aa63b7f65ab7cb84ae59aae
+    image: openemr/openemr:latest@sha256:db98c7352ada0861c86b7b1d73c7199d30c559da9a53879a20e33495c25b0c0a
     ports:
     - 80:80
     - 443:443
