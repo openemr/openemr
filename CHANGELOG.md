@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-06-01
+## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-06-02
 
 ### Fixed
 
