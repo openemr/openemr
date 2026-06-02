@@ -634,7 +634,7 @@ try {
         if ($slotTypeRaw !== '' && $slotTypeRaw[0] !== '#') {
             $slotTypeRaw = '#' . $slotTypeRaw;
         }
-        $slotTypeColor = preg_match('/^#[0-9a-fA-F]{6}$/', $slotTypeRaw) ? $slotTypeRaw : '';
+        $slotTypeColor = preg_match('/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/', $slotTypeRaw) ? $slotTypeRaw : '';
 
         // Use preferred category color for provider-availability rows (pc_catid=2)
         // so generated open slots visually match appointment category color.
@@ -648,7 +648,7 @@ try {
         if ($rawColor !== '' && $rawColor[0] !== '#') {
             $rawColor = '#' . $rawColor;
         }
-        $color = preg_match('/^#[0-9a-fA-F]{6}$/', $rawColor) ? $rawColor : '#3788d8';
+        $color = preg_match('/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/', $rawColor) ? $rawColor : '#3788d8';
 
         // Compute contrasting text color for readability against category color.
         $r = hexdec(substr($color, 1, 2));
@@ -723,10 +723,26 @@ try {
             $title .= ' (Reschedulable)';
         }
 
-        // Template-slot chip (Chip 1) is always shown regardless of whether a patient
-        // appointment occupies the same time window.  The two-lane chip layout in
-        // calendar.js renders the slot type chip on the left and the patient appointment
-        // on the right.  Suppressing Chip 1 here would remove the slot-type context.
+        // Template slots are a MedEx concept; the OpenEMR calendar only tracks real appointments.
+        // Suppress generated/open-slot events when a real patient appointment already occupies
+        // that time window — the patient appointment is the authoritative record.
+        if ($isGeneratedSlot) {
+            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
+            $hasOverlap = false;
+            if ($startTs > 0 && isset($occupiedByProviderDate[$bucketKey])) {
+                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
+                    $occStart = (int)($window[0] ?? 0);
+                    $occEnd = (int)($window[1] ?? 0);
+                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
+                        $hasOverlap = true;
+                        break;
+                    }
+                }
+            }
+            if ($hasOverlap) {
+                continue;
+            }
+        }
 
         $events[] = [
             'id' => $row['id'],
@@ -776,21 +792,7 @@ try {
             $events[$eventIndex]['extendedProps']['heldByRole'] = $slotStateByOpenEid[$openEid]['held_by_role'];
             $events[$eventIndex]['extendedProps']['heldByRef'] = $slotStateByOpenEid[$openEid]['held_by_ref'];
         } elseif ($isGeneratedSlot || $isProviderAvailability || $isOpenSlotLike) {
-            // Mark the template-slot chip as consumed when a patient appointment occupies
-            // the same time window — even if the slot registry hasn't been updated yet.
-            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
-            $isOccupied = false;
-            if ($startTs > 0 && isset($occupiedByProviderDate[$bucketKey])) {
-                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
-                    $occStart = (int)($window[0] ?? 0);
-                    $occEnd = (int)($window[1] ?? 0);
-                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
-                        $isOccupied = true;
-                        break;
-                    }
-                }
-            }
-            $events[$eventIndex]['extendedProps']['slotState'] = $isOccupied ? 'consumed' : 'available';
+            $events[$eventIndex]['extendedProps']['slotState'] = 'available';
         }
     }
 

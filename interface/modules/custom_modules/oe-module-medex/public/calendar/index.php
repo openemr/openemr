@@ -1160,15 +1160,17 @@ $openEmrCalendarCompatible = true;
         .fc-event:not(.open-slot-chip) .medex-appt-status-badge {
             display: inline-flex;
             align-items: center;
-            padding: 0 4px;
+            align-self: flex-start;       /* prevent flex-stretch from making it full width */
+            width: fit-content;
+            max-width: 80px;
+            padding: 0 5px;
             border-radius: 3px;
             font-size: 9px;
             font-weight: 700;
             line-height: 1.5;
             white-space: nowrap;
             flex-shrink: 0;
-            margin-right: 3px;
-            vertical-align: middle;
+            margin-bottom: 1px;
             background: #94a3b8;
             color: #fff;
         }
