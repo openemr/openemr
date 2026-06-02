@@ -234,7 +234,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
 
       ```
-      Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env> [options]
+      Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env|prune> [options]
 
         add <branch> [-b] [--env easy|easy-light|easy-redis] [--start]
                                   Create worktree (-b creates new branch, default env: easy)
@@ -247,6 +247,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
         exec <branch> <cmd> [args...]   Run an openemr-cmd command against the worktree's openemr container
         list                      List all worktrees and status
         regen <branch>            Regenerate override/env files
+        prune [--dry-run]         Remove state entries whose worktree dir is gone or invalid
         wt                        Alias for worktree
       ```
 
@@ -296,11 +297,20 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd worktree remove worktree-branch-label
       ```
+      `remove` is also tolerant if the worktree directory was already deleted out-of-band — it cleans up the state entry, skips the destructive steps, and prints a manual hint for any lingering docker resources for that stack.
 
     - Can view the list of worktrees via:
       ```sh
       openemr-cmd worktree list
       ```
+      Entries whose directory was deleted out-of-band print with status `missing` (or `invalid`) and a `(N stale entries detected — run "openemr-cmd worktree prune" to clean up)` footer.
+
+    - Can clean up stale state entries (e.g. after deleting a worktree directory manually) via:
+      ```sh
+      openemr-cmd worktree prune
+      openemr-cmd worktree prune --dry-run
+      ```
+      `--dry-run` previews which entries would be removed without changing anything. Never hand-edit `.worktrees.json`.
 
     - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
 

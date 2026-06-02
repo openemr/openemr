@@ -54,7 +54,17 @@ a per-worktree compose override with its assigned port offset, and a
 generated `.env`. Bypassing it leaves orphaned state files, port collisions
 between worktrees, and broken compose stacks that the script can no longer
 recover. Always use `openemr-cmd worktree` subcommands instead — `add`,
-`remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`.
+`remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`,
+`prune`.
+
+If `worktree list` shows entries with status `missing`/`invalid` and a
+`(N stale entries detected — run "openemr-cmd worktree prune" to clean up)`
+footer, a worktree's directory was deleted out-of-band. Run
+`openemr-cmd worktree prune` to remove those state entries — never
+hand-edit `.worktrees.json`. `openemr-cmd worktree remove <branch>` is also
+tolerant of an already-missing directory: it cleans the state entry, skips
+the destructive steps, and prints a manual hint for any leftover docker
+resources.
 
 When running commands against a worktree's containers, use
 `openemr-cmd worktree exec <branch> <cmd>` rather than
