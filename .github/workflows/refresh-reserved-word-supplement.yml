@@ -85,9 +85,27 @@ jobs:
         MARIADB_PORT: 3307
       run: php bin/refresh-reserved-word-supplement.php --write
 
-    - name: Open PR if anything changed
-      uses: peter-evans/create-pull-request@v7
+    - name: Verify bot identity secrets are configured
+      env:
+        APP_ID: ${{ secrets.RESERVED_WORD_BOT_APP_ID }}
+        PRIVATE_KEY: ${{ secrets.RESERVED_WORD_BOT_PRIVATE_KEY }}
+      run: |
+        if [ -z "$APP_ID" ] || [ -z "$PRIVATE_KEY" ]; then
+          echo "::error::Required repo secrets RESERVED_WORD_BOT_APP_ID and RESERVED_WORD_BOT_PRIVATE_KEY are not set. See the setup steps in PR #12368 for how to create the GitHub App and add its credentials."
+          exit 1
+        fi
+
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
       with:
+        app-id: ${{ secrets.RESERVED_WORD_BOT_APP_ID }}
+        private-key: ${{ secrets.RESERVED_WORD_BOT_PRIVATE_KEY }}
+
+    - name: Open PR if anything changed
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
         commit-message: |
           chore(phpstan): refresh RESERVED_WORD_SUPPLEMENT
 
