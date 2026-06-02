@@ -1227,9 +1227,13 @@ try {
         $hasSavedDetectedTemplates = !empty($detectedTemplates);
     }
 
-    // Fallback for practices where template table is not present yet:
-    // infer provider templates from recurring generated open-slot events.
+    // Pass 1: read MEDEX_STUDIO slots (forward-looking — the active deployed template).
+    // Pass 2: if a provider has NO studio slots, look back historically for a sample pattern
+    //         using any MEDEX_ source (MEDEX_INTERVIEW_GENERATED, etc.) to suggest what the
+    //         schedule looked like. Mark these as 'sample' so the UI can label them distinctly.
+    //         Providers with no pattern at all get a blank grid — no template is invented.
     if (empty($detectedTemplates)) {
+        // Pass 1: active Studio-deployed template (forward from today)
         $inferRes = sqlStatement(
             "SELECT
                 pc.pc_aid AS provider_id,
@@ -1243,7 +1247,8 @@ try {
                 COALESCE(u.lname, '') AS provider_lname,
                 COALESCE(u.username, '') AS provider_username,
                 GROUP_CONCAT(DISTINCT DATE_FORMAT(pc.pc_eventDate, '%Y-%m-%d') ORDER BY pc.pc_eventDate SEPARATOR ',') AS event_dates,
-                COUNT(*) AS slot_count
+                COUNT(*) AS slot_count,
+                'studio' AS template_source
              FROM openemr_postcalendar_events pc
              LEFT JOIN users u ON u.id = pc.pc_aid
              LEFT JOIN openemr_postcalendar_categories cat ON cat.pc_catid = COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid)
@@ -1310,16 +1315,19 @@ try {
                 $rawColor = '#1d4ed8';
             }
 
-            $templateKey = $providerId . '|inferred';
+            $templateSource = (string)($row['template_source'] ?? 'studio');
+            $templateKey = $providerId . '|' . $templateSource;
             if (!isset($inferred[$templateKey])) {
                 $inferred[$templateKey] = [
-                    'providerId' => $providerId,
-                    'providerName' => $providerName,
-                    'templateName' => 'Inferred Weekly Template',
-                    'blocks' => [],
-                    'slotCount' => 0,
+                    'providerId'    => $providerId,
+                    'providerName'  => $providerName,
+                    'templateName'  => $templateSource === 'sample' ? 'Sample Template (Historical)' : 'Deployed Template',
+                    'templateSource' => $templateSource,
+                    'isSample'      => $templateSource === 'sample',
+                    'blocks'        => [],
+                    'slotCount'     => 0,
                     'confidenceScore' => 0,
-                    '_eventDates' => [],
+                    '_eventDates'   => [],
                 ];
             }
 
@@ -1364,12 +1372,115 @@ try {
         }
         unset($template);
 
+        // Pass 2: for providers with NO studio-deployed template, look back historically
+        // using any MEDEX_ source as a "Sample Template" starting point.
+        // Only runs for providers that have no entry in $inferred from Pass 1.
+        $studioProviders = [];
+        foreach ($inferred as $tplKey => $tpl) {
+            if (($tpl['templateSource'] ?? '') === 'studio') {
+                $studioProviders[$tpl['providerId']] = true;
+            }
+        }
+
+        $sampleRes = sqlStatement(
+            "SELECT
+                pc.pc_aid AS provider_id,
+                DAYOFWEEK(pc.pc_eventDate) AS mysql_day_of_week,
+                TIME_FORMAT(pc.pc_startTime, '%H:%i') AS start_time,
+                TIME_FORMAT(pc.pc_endTime, '%H:%i') AS end_time,
+                COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid, 0) AS preferred_category_id,
+                COALESCE(cat.pc_catname, '') AS preferred_category_name,
+                COALESCE(cat.pc_catcolor, '') AS preferred_category_color,
+                COALESCE(u.fname, '') AS provider_fname,
+                COALESCE(u.lname, '') AS provider_lname,
+                COALESCE(u.username, '') AS provider_username,
+                GROUP_CONCAT(DISTINCT DATE_FORMAT(pc.pc_eventDate, '%Y-%m-%d') ORDER BY pc.pc_eventDate SEPARATOR ',') AS event_dates,
+                COUNT(*) AS slot_count,
+                'sample' AS template_source
+             FROM openemr_postcalendar_events pc
+             LEFT JOIN users u ON u.id = pc.pc_aid
+             LEFT JOIN openemr_postcalendar_categories cat ON cat.pc_catid = COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid)
+             WHERE (COALESCE(pc.pc_pid, '') = '' OR pc.pc_pid = '0')
+               AND pc.pc_eventDate BETWEEN DATE_SUB(CURDATE(), INTERVAL 90 DAY) AND CURDATE()
+               AND (pc.pc_title LIKE 'Open Slot%' OR COALESCE(pc.pc_location,'') LIKE 'MEDEX_%')
+             GROUP BY pc.pc_aid, DAYOFWEEK(pc.pc_eventDate), TIME_FORMAT(pc.pc_startTime, '%H:%i'), TIME_FORMAT(pc.pc_endTime, '%H:%i'), COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid, 0)
+             HAVING COUNT(*) >= 3
+             ORDER BY slot_count DESC, pc.pc_aid, start_time"
+        );
+
+        while ($row = sqlFetchArray($sampleRes)) {
+            $providerId = (int)($row['provider_id'] ?? 0);
+            // Skip providers that already have a Studio template
+            if (isset($studioProviders[$providerId])) { continue; }
+
+            $mysqlDow = (int)($row['mysql_day_of_week'] ?? 0);
+            if ($mysqlDow < 1 || $mysqlDow > 7) { continue; }
+            $dayIdx = ($mysqlDow + 5) % 7;
+
+            $start = (string)($row['start_time'] ?? '');
+            $end   = (string)($row['end_time'] ?? '');
+            if (!preg_match('/^\d{2}:\d{2}$/', $start) || !preg_match('/^\d{2}:\d{2}$/', $end)) { continue; }
+
+            $startParts = explode(':', $start);
+            $endParts   = explode(':', $end);
+            $startMinute = ((int)$startParts[0] * 60) + (int)$startParts[1];
+            $endMinute   = ((int)$endParts[0] * 60) + (int)$endParts[1];
+            if ($endMinute <= $startMinute) { continue; }
+            if ($providerId <= 0) { continue; }
+
+            $providerName = trim((string)($row['provider_lname'] ?? '') . ', ' . (string)($row['provider_fname'] ?? ''));
+            if ($providerName === ',' || $providerName === '') {
+                $providerName = trim((string)($row['provider_username'] ?? ''));
+            }
+            if ($providerName === '') { $providerName = 'Provider #' . $providerId; }
+
+            $rawColor = trim((string)($row['preferred_category_color'] ?? ''));
+            if ($rawColor !== '' && $rawColor[0] !== '#') { $rawColor = '#' . $rawColor; }
+            if (!preg_match('/^#[0-9a-fA-F]{6}$/', $rawColor)) { $rawColor = '#1d4ed8'; }
+
+            $templateKey = $providerId . '|sample';
+            if (!isset($inferred[$templateKey])) {
+                $inferred[$templateKey] = [
+                    'providerId'     => $providerId,
+                    'providerName'   => $providerName,
+                    'templateName'   => 'Sample Template (Historical)',
+                    'templateSource' => 'sample',
+                    'isSample'       => true,
+                    'blocks'         => [],
+                    'slotCount'      => 0,
+                    'confidenceScore' => 0,
+                    '_eventDates'    => [],
+                ];
+            }
+
+            $slotCount = (int)($row['slot_count'] ?? 0);
+            $durationGuess = max(5, min(240, $endMinute - $startMinute));
+            $eventDateCsv = trim((string)($row['event_dates'] ?? ''));
+            if ($eventDateCsv !== '') {
+                foreach (explode(',', $eventDateCsv) as $eventDate) {
+                    $eventDate = trim($eventDate);
+                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $eventDate)) {
+                        $inferred[$templateKey]['_eventDates'][$eventDate] = true;
+                    }
+                }
+            }
+            $inferred[$templateKey]['slotCount'] += max(1, $slotCount);
+            $inferred[$templateKey]['confidenceScore'] += max(1, $slotCount);
+            $inferred[$templateKey]['blocks'][] = [
+                'weekday'      => $dayIdx,
+                'startMinute'  => $startMinute,
+                'endMinute'    => $endMinute,
+                'slotDuration' => $durationGuess,
+                'typeId'       => (int)($row['preferred_category_id'] ?? 0),
+                'typeName'     => trim((string)($row['preferred_category_name'] ?? '')),
+                'color'        => $rawColor,
+            ];
+        }
+
         $detectedTemplates = array_values($inferred);
         usort($detectedTemplates, static function (array $left, array $right): int {
             $scoreCmp = ((int)($right['confidenceScore'] ?? 0)) <=> ((int)($left['confidenceScore'] ?? 0));
-            if ($scoreCmp !== 0) {
-                return $scoreCmp;
-            }
+            if ($scoreCmp !== 0) { return $scoreCmp; }
             return ((int)($right['slotCount'] ?? 0)) <=> ((int)($left['slotCount'] ?? 0));
         });
     }
@@ -4659,7 +4770,11 @@ function bindPatterns() {
                 return day.slice(0, 3) + ' ' + timeLabel(start) + '-' + timeLabel(end) + ' ' + resolveTypeName(block);
             });
             const moreCount = Math.max(0, (Array.isArray(template.blocks) ? template.blocks.length : 0) - blockSummaries.length);
-            card.innerHTML = '<strong>Template ' + (idx + 1) + ': ' + (template.templateName || 'Untitled') + '</strong>'
+            const isSample = !!template.isSample;
+            const sourceBadge = isSample
+                ? '<span style="background:#f59e0b;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:6px;">HISTORICAL SAMPLE</span>'
+                : '<span style="background:#16a34a;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:6px;">DEPLOYED</span>';
+            card.innerHTML = '<strong>Template ' + (idx + 1) + ': ' + (template.templateName || 'Untitled') + '</strong>' + sourceBadge
                 + '<p>Cadence: ' + cadenceLabel + ' | Window: ' + timeWindowLabel + '</p>'
                 + '<p>Blocks: ' + (Array.isArray(template.blocks) ? template.blocks.length : 0)
                 + ' | Slots: ' + slotCount + '</p>'
