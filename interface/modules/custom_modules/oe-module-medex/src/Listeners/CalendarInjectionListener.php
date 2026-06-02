@@ -18,80 +18,6 @@ class CalendarInjectionListener
     private static ?int $nativeReturnControlBufferLevel = null;
     private static ?string $nativeReturnControlPreferenceUrl = null;
 
-    private function normalizeServiceKey(string $serviceKey): string
-    {
-        $normalized = strtolower(str_replace([' ', '-'], '_', trim($serviceKey)));
-        if ($normalized === 'calendar_service' || $normalized === 'calendar_services') {
-            return 'calendar_ai';
-        }
-        if ($normalized === 'fullcalendar') {
-            return 'calendar_full';
-        }
-        return $normalized;
-    }
-
-    private function hasDemoCalendarEntitlement(array $status): bool
-    {
-        $pricingCache = is_array($status['pricing_cache'] ?? null) ? $status['pricing_cache'] : [];
-        $pricingTier = is_array($pricingCache['pricing_tier'] ?? null) ? $pricingCache['pricing_tier'] : [];
-        $customerGroupId = (int)($pricingTier['customer_group_id'] ?? ($pricingCache['customer_group_id'] ?? 0));
-        if (!in_array($customerGroupId, [3, 7], true)) {
-            return false;
-        }
-        foreach ((array)($pricingCache['services'] ?? []) as $serviceKey => $serviceMeta) {
-            if (!is_array($serviceMeta) || empty($serviceMeta['available'])) {
-                continue;
-            }
-            $normalized = $this->normalizeServiceKey((string)$serviceKey);
-            if (in_array($normalized, ['calendar_full', 'calendar_ai', 'calendar_services', 'calendar_export'], true)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param array<string,mixed> $status
-     * @return array<int,string>
-     */
-    private function extractEnabledServicesFromStatus(array $status): array
-    {
-        $candidates = [
-            $status['enabled_services'] ?? null,
-            $status['practice']['enabled_services'] ?? null,
-        ];
-
-        foreach ($candidates as $candidate) {
-            if (!is_array($candidate)) {
-                continue;
-            }
-
-            $services = [];
-            foreach ($candidate as $key => $value) {
-                if (is_int($key)) {
-                    $normalized = $this->normalizeServiceKey((string)$value);
-                    if ($normalized !== '') {
-                        $services[$normalized] = $normalized;
-                    }
-                    continue;
-                }
-
-                if ($value === true || $value === 1 || $value === '1') {
-                    $normalized = $this->normalizeServiceKey((string)$key);
-                    if ($normalized !== '') {
-                        $services[$normalized] = $normalized;
-                    }
-                }
-            }
-
-            if (!empty($services)) {
-                return array_values($services);
-            }
-        }
-
-        return [];
-    }
-
     private function isNativeCalendarEntryRequest(string $requestUri): bool
     {
         if ($requestUri === '') {
@@ -382,23 +308,12 @@ HTML;
             return;
         }
 
-        // Check for Calendar subscription
+        // Check for Calendar subscription via the API entitlement method.
+        // This goes through getEnabledServices() which respects the DB cache TTL and
+        // performs a network refresh when the cache is stale or invalid (e.g. future timestamp).
         $hasCalendarSubscription = false;
         try {
-            $statusRecord = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
-            if (!empty($statusRecord['status'])) {
-                $status = json_decode($statusRecord['status'], true);
-                $services = is_array($status) ? $this->extractEnabledServicesFromStatus($status) : [];
-                // enabled_services is an assoc array {"calendar_full": true} — use isset, not in_array
-                $svcOn = function($k) use ($services) {
-                    return (isset($services[$k]) && $services[$k]) || in_array($k, $services);
-                };
-                // Full calendar redirect requires explicit calendar_full entitlement.
-                $hasCalendarSubscription = $svcOn('calendar_full');
-                if (!$hasCalendarSubscription && is_array($status)) {
-                    $hasCalendarSubscription = $this->hasDemoCalendarEntitlement($status);
-                }
-            }
+            $hasCalendarSubscription = $api->hasServiceEntitlement('calendar_full');
         } catch (\Exception $e) {
             error_log('[MedEx Calendar] Error checking calendar subscription: ' . $e->getMessage());
             return;

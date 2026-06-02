@@ -862,7 +862,11 @@ class MedExAPI
         // Even an empty result is cached so practices with no subscriptions don't call login() on every session.
         $dbCache   = $this->readStatusCache();
         $cachedServices = $this->getCachedEnabledServices($dbCache);
-        $dbCheckTs = $dbCache['last_services_check_ts'] ?? 0;
+        $dbCheckTs = (int)($dbCache['last_services_check_ts'] ?? 0);
+        // A future timestamp means the clock skewed or the cache was poisoned — treat as stale.
+        if ($dbCheckTs > time() + 60) {
+            $dbCheckTs = 0;
+        }
         if (!$forceRefresh && (time() - $dbCheckTs) < self::SERVICES_DB_CACHE_TTL) {
             // Warm the inner session cache from the DB result
             $_SESSION[$cacheKey] = ['data' => $cachedServices, 'ts' => time()];
