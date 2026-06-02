@@ -1278,7 +1278,9 @@ switch ($action) {
         $hasLocation = !empty(sqlQuery("SHOW COLUMNS FROM openemr_postcalendar_events LIKE 'pc_location'"));
         $hasFacility = !empty(sqlQuery("SHOW COLUMNS FROM openemr_postcalendar_events LIKE 'pc_facility'"));
 
-        // Optional cleanup of previously generated slots for same provider/date/source.
+        // Wipe all existing template-generated slots for each provider+date in the incoming batch.
+        // Matches any Open Slot event with no patient — covers previous deploys regardless of
+        // which source tag or tool created them.
         if ($replaceExisting) {
             $seen = [];
             foreach ($slots as $slot) {
@@ -1292,24 +1294,14 @@ switch ($action) {
                     continue;
                 }
                 $seen[$key] = true;
-                if ($hasLocation) {
-                    sqlStatement(
-                        "DELETE FROM openemr_postcalendar_events
-                         WHERE pc_aid = ?
-                           AND pc_eventDate = ?
-                           AND COALESCE(pc_pid,'') = ''
-                           AND pc_location = ?",
-                        [$providerId, $date, $sourceTag]
-                    );
-                } else {
-                    sqlStatement(
-                        "DELETE FROM openemr_postcalendar_events
-                         WHERE pc_aid = ?
-                           AND pc_eventDate = ?
-                           AND COALESCE(pc_pid,'') = ''",
-                        [$providerId, $date]
-                    );
-                }
+                sqlStatement(
+                    "DELETE FROM openemr_postcalendar_events
+                     WHERE pc_aid = ?
+                       AND pc_eventDate = ?
+                       AND COALESCE(pc_pid,'') = ''
+                       AND pc_title LIKE 'Open Slot%'",
+                    [$providerId, $date]
+                );
             }
         }
 
