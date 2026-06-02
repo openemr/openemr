@@ -1156,18 +1156,21 @@ $openEmrCalendarCompatible = true;
             border-color: #166534;
             color: #ffffff;
         }
-        .medex-appt-status-badge {
-            display: inline-block;
+        /* Appointment status badge — prepended before .fc-event-time, top-left of chip */
+        .fc-event:not(.open-slot-chip) .medex-appt-status-badge {
+            display: inline-flex;
+            align-items: center;
             padding: 0 4px;
             border-radius: 3px;
-            font-size: 10px;
-            font-weight: 600;
-            line-height: 1.4;
-            vertical-align: middle;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1.5;
             white-space: nowrap;
-            max-width: 80px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            flex-shrink: 0;
+            margin-right: 3px;
+            vertical-align: middle;
+            background: #94a3b8;
+            color: #fff;
         }
         .slot-state-legend {
             border: 1px solid #c7d2e0;

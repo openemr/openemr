@@ -556,10 +556,10 @@ try {
 
         $rawTitle = trim((string)($row['title'] ?? ''));
         if ($patientName) {
-            // Patient appointments: use only the patient name as the FullCalendar event.title.
-            // The JS eventDidMount turns it into a clickable link and appends the status icon.
-            // The appointment type belongs on Chip 1 (template slot); putting it here duplicates it.
-            $title = $patientName;
+            // Patient appointments: leave event.title empty so FullCalendar renders nothing.
+            // eventDidMount builds the full chip content: name link + modality icon + category + comments.
+            // Any non-empty title renders in .fc-event-title AND our injected content, causing duplication.
+            $title = '';
         } else {
             $title = $rawTitle;
         }

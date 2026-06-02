@@ -1322,108 +1322,97 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     if (typeof medexDebug !== 'undefined' && medexDebug) {
                         console.log('[MedEx Calendar Debug]', medexDebug);
                     }
-                    // Find the title element and make patient name clickable
+
+                    const rawStatus = (info.event.extendedProps.status || '').trim();
+
+                    // ── STATUS BADGE: top-left, BEFORE the time element ─────────────────────
+                    // pc_apptstatus drives this — staff set it manually, MedEx sets SMS/EMAIL/AVM/CALL.
+                    // Build a compact pill and insert it as the first child of .fc-event-main-frame.
+                    if (rawStatus && rawStatus !== '-') {
+                        const frame = info.el.querySelector('.fc-event-main-frame') || info.el.querySelector('.fc-event-main') || info.el;
+                        if (frame && !frame.querySelector('.medex-appt-status-badge')) {
+                            const badge = document.createElement('span');
+                            badge.className = 'medex-appt-status-badge';
+
+                            // For modality codes show short label; for staff codes use apptStatusLabel.
+                            const modalityShort = { 'SMS': 'SMS', 'EMAIL': 'Email', 'AVM': 'AVM', 'CALL': 'Call' };
+                            const badgeText = modalityShort[rawStatus] || apptStatusLabel || rawStatus;
+                            badge.textContent = badgeText;
+                            badge.title = apptStatusLabel || rawStatus;
+
+                            if (apptStatusColor) {
+                                badge.style.backgroundColor = apptStatusColor;
+                                const hexVal = parseInt(apptStatusColor.replace('#', ''), 16);
+                                const r2 = (hexVal >> 16) & 0xff, g2 = (hexVal >> 8) & 0xff, b2 = hexVal & 0xff;
+                                badge.style.color = ((r2 * 299 + g2 * 587 + b2 * 114) / 1000) >= 145 ? '#111' : '#fff';
+                            }
+
+                            frame.insertBefore(badge, frame.firstChild);
+                        }
+                    }
+
+                    // ── TITLE CONTENT: name + modality icon + category + comments ────────────
+                    // event.title is '' for patient appointments so FC renders nothing; we own this.
                     const titleEl = info.el.querySelector('.fc-event-title');
                     if (titleEl) {
-                        // Clear existing content
                         titleEl.innerHTML = '';
 
-                        // For short appointments in timeGrid, force inline display and nowrap
-                        if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                            titleEl.style.whiteSpace = 'nowrap';
-                            titleEl.style.overflow = 'hidden';
-                            titleEl.style.textOverflow = 'ellipsis';
-                            titleEl.style.display = 'block'; // Block inside flex item works better usually
-                            titleEl.style.width = '100%';
-                        }
-
-                        // Create clickable patient name
+                        // 1. Clickable patient name
                         const patientLink = document.createElement('span');
                         patientLink.className = 'patient-name-link';
                         patientLink.textContent = patientName;
-                        patientLink.style.cursor = 'pointer';
-                        patientLink.style.textDecoration = 'underline';
-                        patientLink.style.fontWeight = 'bold';
+                        patientLink.style.cssText = 'cursor:pointer;text-decoration:underline;font-weight:bold;';
                         patientLink.title = 'Click to view patient dashboard';
-                        if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                            patientLink.style.display = 'inline';
-                        }
-
-                        // Add click handler for patient name
                         patientLink.addEventListener('click', function(e) {
-                            e.stopPropagation(); // Prevent event click from firing
-                            if (top.restoreSession) {
-                                top.restoreSession();
-                            }
+                            e.stopPropagation();
+                            if (top.restoreSession) { top.restoreSession(); }
                             if (top.RTop) {
-                                // Open in OpenEMR's right top frame (like OpenEMR calendar does)
                                 top.RTop.location = webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId);
                             } else {
-                                // Fallback to new tab if not in OpenEMR frame structure
                                 window.open(webroot + '/interface/patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(patientId), '_blank');
                             }
                         });
-
-                        // Chip 2 = patient name + status.
-                        // Chip 1 (template slot) owns the appointment type label — don't repeat it here.
                         titleEl.appendChild(patientLink);
 
-                        // Status indicator — driven by pc_apptstatus (source of truth).
-                        // Channel confirmations (SMS/EMAIL/AVM): show the modality icon from medex_icons.
-                        // Staff status codes (<, >, @, ?, etc.): show a colored text badge.
-                        // '-' (pending/none): show nothing.
-                        const rawStatus = (info.event.extendedProps.status || '').trim();
-                        if (rawStatus && rawStatus !== '-') {
-                            if (statusIcon) {
-                                // Modality icon — extract the background color and <i> glyph from
-                                // the medex_icons HTML so we can render it inline without Bootstrap
-                                // .btn layout breaking the text flow.
-                                const tmp = document.createElement('div');
-                                tmp.innerHTML = statusIcon;
-                                const btnEl = tmp.querySelector('.btn') || tmp.firstElementChild;
-                                const iEl = tmp.querySelector('i');
-                                const bgColor = btnEl ? (btnEl.style.backgroundColor || 'green') : 'green';
-                                const iconTitle = btnEl ? (btnEl.getAttribute('title') || rawStatus) : rawStatus;
+                        // 2. Modality icon inline (SMS/EMAIL/AVM/CALL only — from medex_icons HTML)
+                        if (statusIcon && ['SMS','EMAIL','AVM','CALL'].indexOf(rawStatus) !== -1) {
+                            const tmp = document.createElement('div');
+                            tmp.innerHTML = statusIcon;
+                            const btnEl = tmp.querySelector('.btn') || tmp.firstElementChild;
+                            const iEl   = tmp.querySelector('i');
+                            const bgColor = (btnEl && btnEl.style.backgroundColor) ? btnEl.style.backgroundColor : 'green';
+                            const iconTitle = (btnEl && btnEl.getAttribute('title')) ? btnEl.getAttribute('title') : rawStatus;
 
-                                const pill = document.createElement('span');
-                                pill.className = 'medex-status-pill';
-                                pill.title = iconTitle;
-                                pill.style.cssText = 'display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:3px;font-size:10px;line-height:1.4;vertical-align:middle;background:' + bgColor + ';color:#fff;';
-
-                                if (iEl) {
-                                    const icon = iEl.cloneNode(true);
-                                    icon.style.fontSize = '10px';
-                                    pill.appendChild(icon);
-                                } else {
-                                    pill.textContent = rawStatus;
-                                }
-
-                                titleEl.appendChild(document.createTextNode(' '));
-                                titleEl.appendChild(pill);
-                            } else if (apptStatusLabel) {
-                                // Staff status: colored text pill
-                                const badge = document.createElement('span');
-                                badge.className = 'medex-appt-status-badge';
-                                badge.textContent = apptStatusLabel;
-                                badge.title = apptStatusLabel;
-                                if (apptStatusColor) {
-                                    badge.style.backgroundColor = apptStatusColor;
-                                    const hexVal = parseInt(apptStatusColor.replace('#', ''), 16);
-                                    const r2 = (hexVal >> 16) & 0xff;
-                                    const g2 = (hexVal >> 8)  & 0xff;
-                                    const b2 =  hexVal        & 0xff;
-                                    badge.style.color = ((r2 * 299 + g2 * 587 + b2 * 114) / 1000) >= 145 ? '#111' : '#fff';
-                                }
-                                titleEl.appendChild(document.createTextNode(' '));
-                                titleEl.appendChild(badge);
+                            const pill = document.createElement('span');
+                            pill.className = 'medex-status-pill';
+                            pill.title = iconTitle;
+                            pill.style.cssText = 'display:inline-flex;align-items:center;gap:2px;padding:1px 4px;border-radius:3px;font-size:10px;line-height:1.4;vertical-align:middle;background:' + bgColor + ';color:#fff;margin-left:3px;';
+                            if (iEl) {
+                                const icon = iEl.cloneNode(true);
+                                icon.style.fontSize = '10px';
+                                pill.appendChild(icon);
+                            } else {
+                                pill.textContent = rawStatus;
                             }
+                            titleEl.appendChild(pill);
                         }
 
-                        // Show comments/reason if present (only extra info not already in Chip 1).
+                        // 3. Appointment category — always show so staff see what type was booked
+                        //    (admins may book any type into any slot; this makes mismatches visible)
+                        if (categoryLabel) {
+                            const catSpan = document.createElement('span');
+                            catSpan.className = 'appointment-category-inline';
+                            catSpan.textContent = ' – ' + categoryLabel;
+                            catSpan.style.cssText = 'opacity:0.85;font-size:0.9em;';
+                            titleEl.appendChild(catSpan);
+                        }
+
+                        // 4. Comments / reason (pc_hometext)
                         if (comments) {
                             const reasonSpan = document.createElement('span');
                             reasonSpan.className = 'appointment-reason-inline';
-                            reasonSpan.textContent = ' - ' + comments;
+                            reasonSpan.textContent = ' – ' + comments;
+                            reasonSpan.style.cssText = 'opacity:0.7;font-size:0.85em;font-style:italic;';
                             titleEl.appendChild(reasonSpan);
                         }
                     }
