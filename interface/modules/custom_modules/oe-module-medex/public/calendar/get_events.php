@@ -662,8 +662,22 @@ try {
         $luminance = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
         $eventTextColor = $luminance >= 145 ? '#111111' : '#ffffff';
 
-        $medexRowsForEvent = $medexByEid[$row['id']] ?? [];
-        $statusIconHtml = $buildMedexIcons($medexRowsForEvent, $icons);
+        // pc_apptstatus is the source of truth for reminder confirmation status.
+        // MedEx writes multi-char codes (SMS/EMAIL/AVM/CALL) when a patient confirms
+        // via that channel. Map them directly to the appropriate icon from medex_icons.
+        $apptStatus = (string)($row['status'] ?? '');
+        $statusIconHtml = '';
+        if (in_array($apptStatus, ['SMS', 'EMAIL', 'AVM', 'CALL'], true)) {
+            // For CALL use the SMS CALL icon; for channel confirmations use CONFIRMED icon.
+            $iconType   = ($apptStatus === 'CALL') ? 'SMS' : $apptStatus;
+            $iconStatus = ($apptStatus === 'CALL') ? 'CALL' : 'CONFIRMED';
+            $statusIconHtml = $icons[$iconType][$iconStatus] ?? '';
+        }
+        // Fallback: legacy medex_outgoing icon (covers older data paths).
+        if ($statusIconHtml === '') {
+            $medexRowsForEvent = $medexByEid[$row['id']] ?? [];
+            $statusIconHtml = $buildMedexIcons($medexRowsForEvent, $icons);
+        }
         $medexDebug = null;
         if ($patientName === 'Phil Beldfors' && $row['date'] === '2026-02-16' && str_starts_with((string)$row['startTime'], '08:30')) {
             $medexDebug = [

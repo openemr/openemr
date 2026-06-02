@@ -1348,65 +1348,56 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                             }
                         });
 
-                        // Append patient name link
+                        // Chip 2 = patient name + status.
+                        // Chip 1 (template slot) owns the appointment type label — don't repeat it here.
                         titleEl.appendChild(patientLink);
 
-                        // Appointment status badge — source of truth is pc_apptstatus,
-                        // which staff set manually and MedEx sets when a patient confirms
-                        // via SMS, Email, or AVM (values: 'SMS', 'EMAIL', 'AVM', '<', '>', etc.).
-                        // Skip '-' (none/pending) — nothing to show.
+                        // Status indicator — driven by pc_apptstatus (source of truth).
+                        // Channel confirmations (SMS/EMAIL/AVM): show the modality icon from medex_icons.
+                        // Staff status codes (<, >, @, ?, etc.): show a colored text badge.
+                        // '-' (pending/none): show nothing.
                         const rawStatus = (info.event.extendedProps.status || '').trim();
-                        if (apptStatusLabel && rawStatus && rawStatus !== '-') {
-                            const badge = document.createElement('span');
-                            badge.className = 'medex-appt-status-badge';
-                            badge.textContent = apptStatusLabel;
-                            badge.title = apptStatusLabel;
-                            if (apptStatusColor) {
-                                badge.style.backgroundColor = apptStatusColor;
-                                // Use dark text on light backgrounds, white on dark.
-                                const hexVal = parseInt(apptStatusColor.replace('#', ''), 16);
-                                const r2 = (hexVal >> 16) & 0xff;
-                                const g2 = (hexVal >> 8)  & 0xff;
-                                const b2 =  hexVal        & 0xff;
-                                const lum = (r2 * 299 + g2 * 587 + b2 * 114) / 1000;
-                                badge.style.color = lum >= 145 ? '#111' : '#fff';
+                        if (rawStatus && rawStatus !== '-') {
+                            if (statusIcon) {
+                                // Modality icon (SMS confirmed green chat, EMAIL green envelope, etc.)
+                                const iconWrap = document.createElement('span');
+                                iconWrap.className = 'medex-reminder-icons';
+                                iconWrap.innerHTML = statusIcon;
+                                iconWrap.querySelectorAll('.btn').forEach(function(btn) {
+                                    btn.style.padding = '1px 4px';
+                                    btn.style.fontSize = '11px';
+                                    btn.style.lineHeight = '1.2';
+                                    btn.style.verticalAlign = 'middle';
+                                    btn.style.borderRadius = '3px';
+                                    btn.style.display = 'inline-flex';
+                                    btn.style.alignItems = 'center';
+                                });
+                                titleEl.appendChild(document.createTextNode(' '));
+                                titleEl.appendChild(iconWrap);
+                            } else if (apptStatusLabel) {
+                                // Staff status: colored text pill
+                                const badge = document.createElement('span');
+                                badge.className = 'medex-appt-status-badge';
+                                badge.textContent = apptStatusLabel;
+                                badge.title = apptStatusLabel;
+                                if (apptStatusColor) {
+                                    badge.style.backgroundColor = apptStatusColor;
+                                    const hexVal = parseInt(apptStatusColor.replace('#', ''), 16);
+                                    const r2 = (hexVal >> 16) & 0xff;
+                                    const g2 = (hexVal >> 8)  & 0xff;
+                                    const b2 =  hexVal        & 0xff;
+                                    badge.style.color = ((r2 * 299 + g2 * 587 + b2 * 114) / 1000) >= 145 ? '#111' : '#fff';
+                                }
+                                titleEl.appendChild(document.createTextNode(' '));
+                                titleEl.appendChild(badge);
                             }
-                            titleEl.appendChild(document.createTextNode(' '));
-                            titleEl.appendChild(badge);
                         }
 
-                        // Derive appointment type robustly. Prefer explicit category, then title remainder.
-                        let appointmentType = categoryLabel;
-                        if (!appointmentType && eventTitle) {
-                            const prefix = patientName + ' - ';
-                            if (eventTitle.indexOf(prefix) === 0) {
-                                appointmentType = eventTitle.slice(prefix.length).trim();
-                            } else if (eventTitle !== patientName) {
-                                appointmentType = eventTitle.trim();
-                            }
-                        }
-
-                        if (appointmentType) {
-                            const separator = document.createTextNode(' - ');
-                            const typeSpan = document.createElement('span');
-                            typeSpan.textContent = appointmentType;
-                            if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                typeSpan.style.display = 'inline';
-                            }
-                            titleEl.appendChild(separator);
-                            titleEl.appendChild(typeSpan);
-                        }
-
-                        // Keep native-style ordering familiar to users: Name - Category - Reason.
+                        // Show comments/reason if present (only extra info not already in Chip 1).
                         if (comments) {
-                            const reasonSeparator = document.createTextNode(' - ');
                             const reasonSpan = document.createElement('span');
                             reasonSpan.className = 'appointment-reason-inline';
-                            reasonSpan.textContent = comments;
-                            if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                reasonSpan.style.display = 'inline';
-                            }
-                            titleEl.appendChild(reasonSeparator);
+                            reasonSpan.textContent = ' - ' + comments;
                             titleEl.appendChild(reasonSpan);
                         }
                     }
