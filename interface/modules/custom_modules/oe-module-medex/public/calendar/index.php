@@ -1156,6 +1156,19 @@ $openEmrCalendarCompatible = true;
             border-color: #166534;
             color: #ffffff;
         }
+        .medex-appt-status-badge {
+            display: inline-block;
+            padding: 0 4px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 600;
+            line-height: 1.4;
+            vertical-align: middle;
+            white-space: nowrap;
+            max-width: 80px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
         .slot-state-legend {
             border: 1px solid #c7d2e0;
             border-radius: 4px;

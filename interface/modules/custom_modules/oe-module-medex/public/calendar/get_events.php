@@ -349,7 +349,41 @@ try {
         $slotStateByOpenEid = [];
     }
 
-    // Load MedEx icons map once
+    // Load appointment status labels + colors from list_options (apptstat list).
+    // pc_apptstatus is the source of truth — staff and MedEx write directly to it.
+    // Multi-char codes like SMS/EMAIL/AVM are set by MedEx when a patient confirms
+    // via that channel. Single-char codes like '<' (In exam room) are set by staff.
+    $apptStatMap = [];
+    try {
+        $apptStatRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords(
+            "SELECT option_id, title, notes FROM list_options WHERE list_id = 'apptstat' AND activity = 1",
+            []
+        );
+        foreach ($apptStatRows as $statRow) {
+            $code  = (string)($statRow['option_id'] ?? '');
+            $title = trim((string)($statRow['title'] ?? ''));
+            $notes = trim((string)($statRow['notes'] ?? ''));
+            if ($code === '') {
+                continue;
+            }
+            // Strip leading "code " prefix from title (e.g. "< In exam room" → "In exam room")
+            $label = preg_replace('/^' . preg_quote($code, '/') . '\s+/u', '', $title);
+            if ($label === '' || $label === $code) {
+                $label = $title;
+            }
+            // notes format: "RRGGBB|weight"
+            $rawColor = strtok($notes, '|') ?: '';
+            $color = '';
+            if (preg_match('/^[0-9a-fA-F]{6}$/', $rawColor)) {
+                $color = '#' . strtoupper($rawColor);
+            }
+            $apptStatMap[$code] = ['label' => $label, 'color' => $color];
+        }
+    } catch (\Exception $e) {
+        $apptStatMap = [];
+    }
+
+    // Load MedEx icons map once (kept for backward compat; statusIcon still populated)
     $icons = [];
     try {
         $iconRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords("SELECT * FROM medex_icons");
@@ -357,9 +391,7 @@ try {
             $icons[$iconRow['msg_type']][$iconRow['msg_status']] = $iconRow['i_html'];
         }
     } catch (\Exception $e) {
-        // If medex_icons table is missing, just skip icons
         $icons = [];
-        error_log('[MedEx Calendar] medex_icons table not found: ' . $e->getMessage());
     }
 
     // Fetch MedEx outgoing rows for all events in this range
@@ -710,6 +742,8 @@ try {
                 'locationTag' => $locationTag,
                 'comments' => trim((string)($row['comments'] ?? '')),
                 'status' => $row['status'],
+                'apptStatusLabel' => $apptStatMap[(string)($row['status'] ?? '')] ['label'] ?? '',
+                'apptStatusColor' => $apptStatMap[(string)($row['status'] ?? '')]['color'] ?? '',
                 'statusIcon' => $statusIconHtml,
                 'medexDebug' => $medexDebug,
                 'facilityId' => $row['facility_id'],

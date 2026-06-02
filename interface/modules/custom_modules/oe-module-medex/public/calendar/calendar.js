@@ -1078,6 +1078,8 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                 const patientName = info.event.extendedProps.patientName;
                 const status = info.event.extendedProps.status;
                 const statusIcon = info.event.extendedProps.statusIcon;
+                const apptStatusLabel = (info.event.extendedProps.apptStatusLabel || '').trim();
+                const apptStatusColor = (info.event.extendedProps.apptStatusColor || '').trim();
                 const categoryLabel = (info.event.extendedProps.category || '').trim();
                 const comments = (info.event.extendedProps.comments || '').replace(/\s+/g, ' ').trim();
                 const slotTypeColor = info.event.extendedProps.slotTypeColor || '';
@@ -1349,25 +1351,28 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         // Append patient name link
                         titleEl.appendChild(patientLink);
 
-                        // Reminder channel status icons (SMS / Email / AVM).
-                        // statusIcon is HTML from medex_icons keyed by msg_type + msg_reply in medex_outgoing.
-                        // Only render when actual reminder records exist — never show raw pc_apptstatus codes.
-                        if (statusIcon) {
-                            const iconWrap = document.createElement('span');
-                            iconWrap.className = 'medex-reminder-icons';
-                            iconWrap.innerHTML = statusIcon;
-                            // Scale inner .btn spans down so they fit inside the event chip.
-                            iconWrap.querySelectorAll('.btn').forEach(function(btn) {
-                                btn.style.padding = '1px 3px';
-                                btn.style.fontSize = '10px';
-                                btn.style.lineHeight = '1';
-                                btn.style.verticalAlign = 'middle';
-                                btn.style.borderRadius = '3px';
-                                btn.style.display = 'inline-flex';
-                                btn.style.alignItems = 'center';
-                            });
+                        // Appointment status badge — source of truth is pc_apptstatus,
+                        // which staff set manually and MedEx sets when a patient confirms
+                        // via SMS, Email, or AVM (values: 'SMS', 'EMAIL', 'AVM', '<', '>', etc.).
+                        // Skip '-' (none/pending) — nothing to show.
+                        const rawStatus = (info.event.extendedProps.status || '').trim();
+                        if (apptStatusLabel && rawStatus && rawStatus !== '-') {
+                            const badge = document.createElement('span');
+                            badge.className = 'medex-appt-status-badge';
+                            badge.textContent = apptStatusLabel;
+                            badge.title = apptStatusLabel;
+                            if (apptStatusColor) {
+                                badge.style.backgroundColor = apptStatusColor;
+                                // Use dark text on light backgrounds, white on dark.
+                                const hexVal = parseInt(apptStatusColor.replace('#', ''), 16);
+                                const r2 = (hexVal >> 16) & 0xff;
+                                const g2 = (hexVal >> 8)  & 0xff;
+                                const b2 =  hexVal        & 0xff;
+                                const lum = (r2 * 299 + g2 * 587 + b2 * 114) / 1000;
+                                badge.style.color = lum >= 145 ? '#111' : '#fff';
+                            }
                             titleEl.appendChild(document.createTextNode(' '));
-                            titleEl.appendChild(iconWrap);
+                            titleEl.appendChild(badge);
                         }
 
                         // Derive appointment type robustly. Prefer explicit category, then title remainder.
