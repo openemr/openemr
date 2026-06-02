@@ -127,6 +127,52 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         return parsed.pathname + parsed.search + parsed.hash;
     }
 
+    function hideTemplateSlots(iframeDoc) {
+        if (!iframeDoc || iframeDoc.getElementById('medex-hide-template-slots')) {
+            return;
+        }
+
+        // Inject CSS that hides Open Slot / In Office / Out Of Office template events
+        // from the native OpenEMR calendar. These are MedEx scheduling artifacts and
+        // should not appear as appointments in the OpenEMR view.
+        var style = iframeDoc.createElement('style');
+        style.id = 'medex-hide-template-slots';
+        style.textContent = [
+            // Hide table cells / divs whose text starts with these template prefixes
+            'a[title^="Open Slot"], a[title^="In Office"], a[title^="Out Of Office"],',
+            'a[title^="Open Slot -"], [title^="LUNCH"],',
+            // PostCalendar renders event titles in anchor tags with the title as text content
+            // This targets the containing table cell for the event row
+            'td.event a[href*="pc_eid"] { }',  // placeholder to force rule separation
+            ''
+        ].join('\n');
+
+        // JS approach: walk event anchors after render and hide the ones that are template slots.
+        var script = iframeDoc.createElement('script');
+        script.textContent = '(function hideTemplateSlots() {' +
+            'var HIDE_PATTERNS = [/^open\\s+slot/i, /^in\\s+office/i, /^out\\s+of\\s+office/i, /^lunch$/i];' +
+            'function check() {' +
+            '  document.querySelectorAll("a,span,td").forEach(function(el) {' +
+            '    var t = (el.title || el.textContent || "").replace(/^\\d+:\\d+\\s*[-–]?\\s*/,"").trim();' +
+            '    if (HIDE_PATTERNS.some(function(p){ return p.test(t); })) {' +
+            '      var row = el.closest("tr") || el.closest("td") || el;' +
+            '      if (row) row.style.display = "none";' +
+            '    }' +
+            '  });' +
+            '}' +
+            'check();' +
+            // Re-run after any AJAX refresh
+            'var obs = new MutationObserver(function(){ check(); });' +
+            'obs.observe(document.body, { childList: true, subtree: true });' +
+            '})();';
+
+        if (iframeDoc.body) {
+            iframeDoc.body.appendChild(script);
+        } else {
+            iframeDoc.head.appendChild(script);
+        }
+    }
+
     function injectContainmentScript(iframeDoc) {
         if (!iframeDoc || !iframeDoc.head || iframeDoc.getElementById('medex-wrapper-containment')) {
             return;
@@ -263,6 +309,7 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         injectContainmentScript(iframeDoc);
         normalizeCalendarNavigation(iframeDoc);
         buildSwitcher(iframeDoc);
+        hideTemplateSlots(iframeDoc);
     }
 
     frame.addEventListener('load', refreshIframeEnhancements);
