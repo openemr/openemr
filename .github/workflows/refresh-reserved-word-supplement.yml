@@ -85,13 +85,13 @@ jobs:
         MARIADB_PORT: 3307
       run: php bin/refresh-reserved-word-supplement.php --write
 
-    - name: Verify bot identity secrets are configured
+    - name: Verify bot identity inputs are configured
       env:
-        APP_ID: ${{ secrets.RESERVED_WORD_BOT_APP_ID }}
+        CLIENT_ID: ${{ vars.RESERVED_WORD_BOT_CLIENT_ID }}
         PRIVATE_KEY: ${{ secrets.RESERVED_WORD_BOT_PRIVATE_KEY }}
       run: |
-        if [ -z "$APP_ID" ] || [ -z "$PRIVATE_KEY" ]; then
-          echo "::error::Required repo secrets RESERVED_WORD_BOT_APP_ID and RESERVED_WORD_BOT_PRIVATE_KEY are not set. See the setup steps in PR #12368 for how to create the GitHub App and add its credentials."
+        if [ -z "$CLIENT_ID" ] || [ -z "$PRIVATE_KEY" ]; then
+          echo "::error::Required GitHub App identifiers are not set. Need repo variable RESERVED_WORD_BOT_CLIENT_ID and repo secret RESERVED_WORD_BOT_PRIVATE_KEY. See the setup steps in PR #12368 for how to create the GitHub App and add its credentials."
           exit 1
         fi
 
@@ -99,7 +99,7 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@v3
       with:
-        app-id: ${{ secrets.RESERVED_WORD_BOT_APP_ID }}
+        client-id: ${{ vars.RESERVED_WORD_BOT_CLIENT_ID }}
         private-key: ${{ secrets.RESERVED_WORD_BOT_PRIVATE_KEY }}
 
     - name: Open PR if anything changed
