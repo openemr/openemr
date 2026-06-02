@@ -55,6 +55,7 @@ final readonly class ReservedWordRegistry
      * @var list<string>
      */
     private const RESERVED_WORD_SUPPLEMENT = [
+        'conversion',
         'cume_dist',
         'delete_domain_id',
         'dense_rank',
@@ -93,6 +94,7 @@ final readonly class ReservedWordRegistry
         'stats_persistent',
         'stats_sample_pages',
         'system',
+        'to_date',
         'window',
     ];
 
