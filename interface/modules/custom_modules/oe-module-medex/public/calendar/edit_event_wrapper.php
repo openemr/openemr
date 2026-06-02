@@ -321,9 +321,30 @@ body {
         _frameLoadCount++;
         const iframe = this;
 
-        // Any load after the first means add_edit_event.php saved and redirected.
+        // Any load after the first means add_edit_event.php saved or deleted.
         // Close the outer dlgopen dialog; the calendar refresh callback handles the rest.
         if (_frameLoadCount > 1) {
+            // If this was editing an existing appointment, check whether it was deleted.
+            // If deleted, restore the template Open Slot from the registry so Chip 1
+            // reappears in the FullCalendar. Only template re-deploys should remove slots.
+            const existingEid = <?php echo (int)($eid ?? 0); ?>;
+            if (existingEid > 0) {
+                const restoreUrl = <?php echo json_encode(
+                    ($GLOBALS['webroot'] ?? '') .
+                    '/interface/modules/custom_modules/oe-module-medex/public/calendar/api/restore_slot.php'
+                ); ?>;
+                try {
+                    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+                        top.restoreSession();
+                    }
+                    fetch(restoreUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ appointment_eid: existingEid })
+                    }).catch(function() { /* fire-and-forget — non-blocking */ });
+                } catch (fetchErr) { /* non-fatal */ }
+            }
+
             try {
                 if (parent && typeof parent.dlgclose === 'function') {
                     parent.dlgclose();
