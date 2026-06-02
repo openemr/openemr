@@ -682,25 +682,10 @@ try {
             $title .= ' (Reschedulable)';
         }
 
-        // Do not expose generated/open availability if a real booked appointment
-        // already overlaps this interval for the same provider and date.
-        if ($isGeneratedSlot) {
-            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
-            $hasOverlap = false;
-            if (isset($occupiedByProviderDate[$bucketKey])) {
-                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
-                    $occStart = (int)($window[0] ?? 0);
-                    $occEnd = (int)($window[1] ?? 0);
-                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
-                        $hasOverlap = true;
-                        break;
-                    }
-                }
-            }
-            if ($hasOverlap) {
-                continue;
-            }
-        }
+        // Template-slot chip (Chip 1) is always shown regardless of whether a patient
+        // appointment occupies the same time window.  The two-lane chip layout in
+        // calendar.js renders the slot type chip on the left and the patient appointment
+        // on the right.  Suppressing Chip 1 here would remove the slot-type context.
 
         $events[] = [
             'id' => $row['id'],
@@ -740,7 +725,21 @@ try {
             $events[$eventIndex]['extendedProps']['heldByRole'] = $slotStateByOpenEid[$openEid]['held_by_role'];
             $events[$eventIndex]['extendedProps']['heldByRef'] = $slotStateByOpenEid[$openEid]['held_by_ref'];
         } elseif ($isGeneratedSlot || $isProviderAvailability || $isOpenSlotLike) {
-            $events[$eventIndex]['extendedProps']['slotState'] = 'available';
+            // Mark the template-slot chip as consumed when a patient appointment occupies
+            // the same time window — even if the slot registry hasn't been updated yet.
+            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
+            $isOccupied = false;
+            if ($startTs > 0 && isset($occupiedByProviderDate[$bucketKey])) {
+                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
+                    $occStart = (int)($window[0] ?? 0);
+                    $occEnd = (int)($window[1] ?? 0);
+                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
+                        $isOccupied = true;
+                        break;
+                    }
+                }
+            }
+            $events[$eventIndex]['extendedProps']['slotState'] = $isOccupied ? 'consumed' : 'available';
         }
     }
 
