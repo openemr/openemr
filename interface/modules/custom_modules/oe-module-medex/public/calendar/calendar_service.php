@@ -1091,9 +1091,9 @@ try {
          FROM openemr_postcalendar_events
          WHERE (COALESCE(pc_pid, '') = '' OR pc_pid = '0')
            AND (pc_title LIKE 'Open Slot%' OR pc_title LIKE 'In Office%' OR COALESCE(pc_location, '') LIKE 'MEDEX_%')
-           AND pc_eventDate >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+           AND pc_eventDate >= CURDATE()
          GROUP BY WEEKDAY(pc_eventDate), TIME_FORMAT(pc_startTime, '%H:%i')
-         HAVING COUNT(*) >= 4
+         HAVING COUNT(*) >= 2
          ORDER BY slot_count DESC
          LIMIT 12"
     );
@@ -1248,14 +1248,14 @@ try {
              LEFT JOIN users u ON u.id = pc.pc_aid
              LEFT JOIN openemr_postcalendar_categories cat ON cat.pc_catid = COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid)
              WHERE (COALESCE(pc.pc_pid, '') = '' OR pc.pc_pid = '0')
-               AND pc.pc_eventDate >= DATE_SUB(CURDATE(), INTERVAL 120 DAY)
+               AND pc.pc_eventDate >= CURDATE()
                AND (
                     pc.pc_title LIKE 'Open Slot%'
                     OR pc.pc_title LIKE 'In Office%'
                     OR COALESCE(pc.pc_location, '') LIKE 'MEDEX_%'
                )
              GROUP BY pc.pc_aid, DAYOFWEEK(pc.pc_eventDate), TIME_FORMAT(pc.pc_startTime, '%H:%i'), TIME_FORMAT(pc.pc_endTime, '%H:%i'), COALESCE(NULLIF(pc.pc_prefcatid, 0), pc.pc_catid, 0)
-             HAVING COUNT(*) >= 3
+             HAVING COUNT(*) >= 2
              ORDER BY slot_count DESC, pc.pc_aid, start_time"
         );
 

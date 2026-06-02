@@ -379,12 +379,16 @@ try {
                 $regParams = array_merge($regParams, $registryProviderIds);
             }
 
+            // Only synthesize Chip 1 for confirmed consumptions (patient_pc_eid set).
+            // pending_consumption with no patient means the booking dialog was opened
+            // but not completed — no phantom chip should appear.
             $deletedSlotRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords(
                 "SELECT slot_id, open_slot_eid, patient_pc_eid, provider_id,
                         event_date, start_time, end_time, category_id, slot_state
                  FROM medex_slot_registry
                  WHERE $regWhere
-                   AND slot_state IN ('consumed','pending_consumption')
+                   AND slot_state = 'consumed'
+                   AND patient_pc_eid IS NOT NULL AND patient_pc_eid > 0
                  ORDER BY slot_id DESC",
                 $regParams
             );
