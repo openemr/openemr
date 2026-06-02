@@ -1349,22 +1349,25 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         // Append patient name link
                         titleEl.appendChild(patientLink);
 
-                        // Add status if present
-                        if (statusIcon || status) {
-                            const statusSeparator = document.createTextNode(' ');
-                            const statusSpan = document.createElement('span');
-                            if (statusIcon) {
-                                statusSpan.innerHTML = statusIcon;
-                            } else if (status) {
-                                statusSpan.textContent = '[' + status + ']';
-                            }
-                            statusSpan.style.fontStyle = 'italic';
-                            statusSpan.style.fontSize = '10px';
-                            if (duration < 20 && (info.view.type === 'timeGridWeek' || info.view.type === 'timeGridDay')) {
-                                statusSpan.style.display = 'inline';
-                            }
-                            titleEl.appendChild(statusSeparator);
-                            titleEl.appendChild(statusSpan);
+                        // Reminder channel status icons (SMS / Email / AVM).
+                        // statusIcon is HTML from medex_icons keyed by msg_type + msg_reply in medex_outgoing.
+                        // Only render when actual reminder records exist — never show raw pc_apptstatus codes.
+                        if (statusIcon) {
+                            const iconWrap = document.createElement('span');
+                            iconWrap.className = 'medex-reminder-icons';
+                            iconWrap.innerHTML = statusIcon;
+                            // Scale inner .btn spans down so they fit inside the event chip.
+                            iconWrap.querySelectorAll('.btn').forEach(function(btn) {
+                                btn.style.padding = '1px 3px';
+                                btn.style.fontSize = '10px';
+                                btn.style.lineHeight = '1';
+                                btn.style.verticalAlign = 'middle';
+                                btn.style.borderRadius = '3px';
+                                btn.style.display = 'inline-flex';
+                                btn.style.alignItems = 'center';
+                            });
+                            titleEl.appendChild(document.createTextNode(' '));
+                            titleEl.appendChild(iconWrap);
                         }
 
                         // Derive appointment type robustly. Prefer explicit category, then title remainder.
