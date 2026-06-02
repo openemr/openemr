@@ -984,6 +984,21 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
                     $endTs = $startTs + ($durationMinutes * 60);
                     $end = date('H:i:s', $endTs);
 
+                    // Skip inserting an open slot if a real patient appointment already
+                    // occupies this provider+date+time window. This prevents the deploy
+                    // from creating phantom open slots on top of booked appointments.
+                    $conflictRow = sqlQuery(
+                        "SELECT pc_eid FROM openemr_postcalendar_events
+                         WHERE pc_aid = ? AND pc_eventDate = ?
+                           AND pc_pid > 0 AND pc_pid != ''
+                           AND pc_startTime < ? AND pc_endTime > ?
+                         LIMIT 1",
+                        [$providerId, $date, $end, $start]
+                    );
+                    if (!empty($conflictRow['pc_eid'])) {
+                        continue;
+                    }
+
                     if ($hasLocation && $hasFacility) {
                         sqlInsert(
                             "INSERT INTO openemr_postcalendar_events
