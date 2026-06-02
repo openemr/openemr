@@ -57,7 +57,7 @@ recover. Always use `openemr-cmd worktree` subcommands instead — `add`,
 `remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`,
 `prune`.
 
-If `worktree list` shows entries with status `missing`/`invalid` and a
+If `openemr-cmd worktree list` shows entries with status `missing`/`invalid` and a
 `(N stale entries detected — run "openemr-cmd worktree prune" to clean up)`
 footer, a worktree's directory was deleted out-of-band. Run
 `openemr-cmd worktree prune` to remove those state entries — never
