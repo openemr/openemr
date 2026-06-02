@@ -1189,13 +1189,9 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     }
                 }
 
-                // Render compact state badges on open-slot chips.
-                // Without the Rescheduler service active, show only OPEN/FILLED.
-                const shouldShowSlotStateBadge = isOpenSlotChip
-                    && (slotVisualState === 'open'
-                        || slotVisualState === 'open_not_reschedulable'
-                        || !!info.event.extendedProps.isReschedulable
-                        || hasReschedulableState);
+                // Render compact state badges on open-slot chips (Chip 1) only.
+                // Always show the badge regardless of state so staff can see FILLED/OPEN at a glance.
+                const shouldShowSlotStateBadge = isOpenSlotChip;
                 if (shouldShowSlotStateBadge && !info.el.querySelector('.slot-state-indicator')) {
                     info.el.classList.add('slot-state-' + slotVisualState);
                     info.el.classList.add('has-slot-state-indicator');
@@ -1212,24 +1208,6 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     info.el.classList.remove('has-slot-state-indicator');
                 }
 
-                // Patient appointment events (chip-2, right lane) are not open-slot chips
-                // so they never enter the block above. When the event holds a real patient
-                // (patientId > 0 → slotVisualState 'filled'), attach a FILLED badge so
-                // the Filled filter is visually consistent: every visible event in Filled-
-                // only mode shows the badge, not just the slot anchor chip.
-                if (!isOpenSlotChip && patientId && slotVisualState === 'filled'
-                        && !info.el.querySelector('.slot-state-indicator')) {
-                    info.el.classList.add('has-slot-state-indicator');
-                    const apptBadge = document.createElement('span');
-                    apptBadge.className = 'slot-state-indicator slot-state-indicator--filled';
-                    apptBadge.textContent = 'FILLED';
-                    apptBadge.setAttribute('aria-label', 'Filled');
-                    apptBadge.setAttribute('title', 'Slot state: Filled');
-                    const apptBadgeHost = info.el.querySelector('.fc-event-main')
-                        || info.el.querySelector('.fc-event-title-container')
-                        || info.el;
-                    apptBadgeHost.appendChild(apptBadge);
-                }
 
                 if (isOpenSlotChip) {
                     const slotTitleEl = info.el.querySelector('.fc-event-title');
