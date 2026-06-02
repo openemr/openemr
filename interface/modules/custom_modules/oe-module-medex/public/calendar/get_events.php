@@ -723,26 +723,10 @@ try {
             $title .= ' (Reschedulable)';
         }
 
-        // Template slots are a MedEx concept; the OpenEMR calendar only tracks real appointments.
-        // Suppress generated/open-slot events when a real patient appointment already occupies
-        // that time window — the patient appointment is the authoritative record.
-        if ($isGeneratedSlot) {
-            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
-            $hasOverlap = false;
-            if ($startTs > 0 && isset($occupiedByProviderDate[$bucketKey])) {
-                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
-                    $occStart = (int)($window[0] ?? 0);
-                    $occEnd = (int)($window[1] ?? 0);
-                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
-                        $hasOverlap = true;
-                        break;
-                    }
-                }
-            }
-            if ($hasOverlap) {
-                continue;
-            }
-        }
+        // Template slot chips (Chip 1) always remain visible in MedEx FullCalendar
+        // regardless of whether a patient appointment occupies the same time window.
+        // The two-lane layout shows the slot type on the left and the appointment on the right.
+        // (Note: templates do NOT belong in the native OpenEMR calendar — that is a separate concern.)
 
         $events[] = [
             'id' => $row['id'],
