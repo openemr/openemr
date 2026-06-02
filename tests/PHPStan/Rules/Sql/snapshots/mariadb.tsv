@@ -1,4 +1,4 @@
-# MariaDB reserved-word snapshot. Engine version: 12.2.2-MariaDB-ubu2404.
+# MariaDB reserved-word snapshot. Engine version: 12.3.2-MariaDB-ubu2404.
 # Captured by bin/refresh-reserved-word-supplement.php on cron.
 # Do not edit by hand -- changes here are computed.
 WORD	RESERVED
@@ -25,6 +25,7 @@ always	0
 analyze	1
 and	1
 any	0
+array	0
 as	1
 asc	1
 ascii	0
@@ -105,6 +106,7 @@ contains	0
 context	0
 continue	1
 contributors	0
+conversion	1
 convert	1
 cpu	0
 create	1
@@ -112,6 +114,7 @@ cross	1
 cube	0
 current	0
 current_date	0
+current_path	0
 current_pos	0
 current_role	0
 current_time	0
@@ -397,6 +400,7 @@ null	0
 number	0
 numeric	1
 nvarchar	0
+object	0
 of	0
 offset	1
 old_password	0
@@ -521,6 +525,7 @@ row_format	0
 row_number	1
 rtree	0
 savepoint	0
+scalar	0
 schedule	0
 schema	0
 schemas	1
@@ -627,6 +632,7 @@ tinyblob	1
 tinyint	1
 tinytext	1
 to	1
+to_date	1
 trailing	1
 transaction	0
 transactional	0
