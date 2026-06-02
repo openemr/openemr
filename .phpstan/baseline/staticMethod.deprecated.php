@@ -40,12 +40,6 @@ Use \\\\OpenEMR\\\\PaymentProcessing\\\\Recorder\\:\\:recordActivity directly$#'
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated method toE164\\(\\) of class OpenEMR\\\\Services\\\\PhoneNumberService\\:
-Use PhoneNumber\\:\\:tryParse\\(\\)\\-\\>toE164\\(\\) instead$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:
 since version 9\\.27\\.0
 
