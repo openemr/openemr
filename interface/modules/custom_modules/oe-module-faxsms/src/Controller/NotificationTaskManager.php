@@ -168,7 +168,7 @@ class NotificationTaskManager
         sqlStatementNoLog($sql, [$name]);
     }
 
-    public function getServiceStatus($type): false|array|string
+    public function getServiceStatus($type): false|array
     {
         if ($type == 'sms') {
             $name = 'Notification_SMS_Task';
@@ -179,7 +179,7 @@ class NotificationTaskManager
         }
 
         $sql = "SELECT * FROM `background_services` WHERE `name` = ?";
-        $result[$type] = QueryUtils:: fetchRecordsNoLog($sql, [$name])[0] ?? false;
+        $result[$type] = QueryUtils::querySingleRow($sql, [$name]);
 
         return $result;
     }

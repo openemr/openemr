@@ -65,8 +65,6 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
     }
 }
 
-$currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
-
 if ($_POST['form_save'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->set('editingUser', ($_POST['editingUser'] ?? 0));
@@ -198,9 +196,11 @@ $vendors = $boot->getVendorGlobals();
         $boot->createVendorGlobals();
         $vendors = $boot->getVendorGlobals();
     }
+    $selectedService ??= '';
     $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
     $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
+    $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : false;
 
     $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
     $faxVendor = ServiceType::fromValue($vendors['oefax_enable_fax']);
@@ -523,7 +523,7 @@ $vendors = $boot->getVendorGlobals();
                                 <button type="button" class="btn btn-info" onclick="toggleHelpCard()"><?php echo xlt('Help'); ?></button>
                             </span>
                             </div>
-                            <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
+                            <?php if ($currentStatus && ($currentStatus[$selectedService]) !== false) { ?>
                                 <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string) $selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
