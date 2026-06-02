@@ -716,6 +716,7 @@ try {
                 'providerId' => $row['provider_id'],
                 'providerName' => $providerName,
                 'category' => $displayCategory,
+                'categoryId' => (int)($row['category'] ?? 0),
                 'preferredCategoryId' => (int)($row['preferred_category_id'] ?? 0),
                 'isGeneratedSlot' => $isGeneratedSlot,
                 'isProviderAvailability' => $isProviderAvailability,

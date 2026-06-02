@@ -297,6 +297,18 @@ function shouldDisplayEventByFilters(eventData, selectedSlotStates, selectedCate
     const effectiveCategoryId = preferredCategoryId > 0 ? preferredCategoryId : categoryId;
     const slotVisualState = computeSlotVisualState({ extendedProps: props });
 
+    // Patient appointments always pass the slot-state filter when 'filled' is active,
+    // and always pass the category filter — the category filter targets template slot types.
+    if (patientId > 0) {
+        if (selectedSlotStates instanceof Set && selectedSlotStates.size > 0) {
+            return selectedSlotStates.has('filled');
+        }
+        if (selectedSlotStates instanceof Set && selectedSlotStates.size === 0) {
+            return false;
+        }
+        return true;
+    }
+
     if (selectedSlotStates instanceof Set && selectedSlotStates.size > 0) {
         // When rescheduler is inactive, slots that were Open-P collapse to 'open'.
         // Treat 'open' as matching 'open_reschedulable_available' so saved filters
@@ -320,10 +332,6 @@ function shouldDisplayEventByFilters(eventData, selectedSlotStates, selectedCate
         if (effectiveCategoryId <= 0 || !selectedCategoryIds.has(effectiveCategoryId)) {
             return false;
         }
-    }
-
-    if (patientId > 0) {
-        return true;
     }
 
     return true;
