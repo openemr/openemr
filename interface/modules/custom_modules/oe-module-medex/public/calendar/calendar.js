@@ -1080,6 +1080,7 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                 const statusIcon = info.event.extendedProps.statusIcon;
                 const apptStatusLabel = (info.event.extendedProps.apptStatusLabel || '').trim();
                 const apptStatusColor = (info.event.extendedProps.apptStatusColor || '').trim();
+                const reminderHistory = Array.isArray(info.event.extendedProps.reminderHistory) ? info.event.extendedProps.reminderHistory : [];
                 const categoryLabel = (info.event.extendedProps.category || '').trim();
                 const comments = (info.event.extendedProps.comments || '').replace(/\s+/g, ' ').trim();
                 const slotTypeColor = info.event.extendedProps.slotTypeColor || '';
@@ -1247,6 +1248,21 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         }
                         if (shouldShowSlotStateBadge && slotVisualMeta && slotVisualMeta.label) {
                             tipLines.push({ text: 'Slot: ' + slotVisualMeta.label, muted: true });
+                        }
+
+                        // Reminder message progress from medex_outgoing (synced from MedEx API).
+                        if (patientId && reminderHistory.length > 0) {
+                            tipLines.push({ text: 'Reminders:', bold: true, size: '11px' });
+                            reminderHistory.forEach(function(r) {
+                                const type = String(r.type || '').toUpperCase();
+                                const reply = String(r.reply || '');
+                                const dateStr = r.date ? new Date(r.date.replace(' ', 'T')).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                                const progress = String(r.progress || '').trim();
+                                let line = type + ': ' + reply;
+                                if (dateStr) { line += ' (' + dateStr + ')'; }
+                                if (progress) { line += ' — ' + progress; }
+                                tipLines.push({ text: line, muted: true });
+                            });
                         }
                         if (slotVisualState === 'held_patient') {
                             const holdExpires = String(info.event.extendedProps.holdExpiresAt || '').trim();

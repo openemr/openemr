@@ -754,6 +754,14 @@ try {
                 'apptStatusLabel' => $apptStatMap[(string)($row['status'] ?? '')] ['label'] ?? '',
                 'apptStatusColor' => $apptStatMap[(string)($row['status'] ?? '')]['color'] ?? '',
                 'statusIcon' => $statusIconHtml,
+                'reminderHistory' => array_values(array_map(static function($r) {
+                    return [
+                        'type'     => (string)($r['msg_type']     ?? ''),
+                        'reply'    => (string)($r['msg_reply']    ?? ''),
+                        'date'     => (string)($r['msg_date']     ?? ''),
+                        'progress' => (string)($r['msg_progress'] ?? ''),
+                    ];
+                }, $medexByEid[$row['id']] ?? [])),
                 'medexDebug' => $medexDebug,
                 'facilityId' => $row['facility_id'],
                 'slotTypeColor' => $slotTypeColor !== '' ? $slotTypeColor : $color
