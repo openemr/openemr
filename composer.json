@@ -141,6 +141,7 @@
         "justinrainbow/json-schema": "^6.8",
         "league/flysystem-memory": "^3.31",
         "maglnet/composer-require-checker": "^4.0",
+        "phpmyadmin/sql-parser": "^6.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-deprecation-rules": "^2.0",
