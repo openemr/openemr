@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Background\BackgroundServiceDefinition;
 use OpenEMR\Services\Background\BackgroundServiceRegistry;
 
@@ -178,7 +179,7 @@ class NotificationTaskManager
         }
 
         $sql = "SELECT * FROM `background_services` WHERE `name` = ?";
-        $result[$type] = sqlQueryNoLog($sql, [$name]);
+        $result[$type] = QueryUtils:: fetchRecordsNoLog($sql, [$name])[0] ?? false;
 
         return $result;
     }
