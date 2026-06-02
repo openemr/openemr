@@ -52,7 +52,7 @@ function computeSlotVisualState(event) {
     if (patientId > 0) {
         return 'filled';
     }
-    if (rawSlotState === 'consumed') {
+    if (rawSlotState === 'consumed' || rawSlotState === 'pending_consumption') {
         return 'filled';
     }
     // Without the Rescheduler service, all open slots collapse to a single 'open' state.
