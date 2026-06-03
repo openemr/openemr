@@ -1757,20 +1757,22 @@ $templateCount = count($detectedTemplates);
         }
 
         .cs-shell {
-            display: grid;
-            grid-template-rows: auto 1fr;
-            height: 100vh;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
             gap: 8px;
-            padding: 6px 14px 14px;
+            padding: 6px 14px 24px;
         }
 
         .cs-topbar {
-            background: transparent;
+            position: sticky;
+            top: 0;
+            z-index: 200;
+            background: var(--cs-bg, #f0f4f8);
             border: none;
             border-radius: 0;
             box-shadow: none;
-            padding: 4px 2px;
+            padding: 4px 2px 6px;
             display: grid;
             grid-template-columns: 1fr auto;
             gap: 10px;
@@ -2017,9 +2019,8 @@ $templateCount = count($detectedTemplates);
             display: grid;
             grid-template-columns: 260px 1fr 280px;
             gap: 12px;
-            min-height: 0;
-            height: 100%;
-            overflow: hidden;
+            flex: 1;
+            align-items: start;       /* panels grow to their own natural height */
         }
 
         .panel {
@@ -2028,7 +2029,21 @@ $templateCount = count($detectedTemplates);
             border-radius: 14px;
             box-shadow: var(--cs-shadow);
             padding: 12px;
+            overflow: visible;        /* let content grow; individual panels scroll internally */
+        }
+
+        /* The grid panel is the tallest element — give it a comfortable minimum */
+        .panel.calendar-wrap {
             overflow: auto;
+            min-height: 600px;
+        }
+
+        /* Left/right panels scroll internally when long */
+        .panel:not(.calendar-wrap) {
+            overflow-y: auto;
+            max-height: calc(100vh - 80px);
+            position: sticky;
+            top: 70px;               /* offset below sticky topbar */
         }
 
         .panel h3 {
@@ -2789,13 +2804,13 @@ $templateCount = count($detectedTemplates);
             <option value="<?php echo attr((string)$p['id']); ?>"><?php echo text($p['name']); ?></option>
         <?php endforeach; ?>
     </select>
-    <div id="csConfigWrap" style="display:none;">
+    <div id="csConfigWrap" style="display:none;background:var(--cs-surface);border:1px solid var(--cs-border);border-radius:10px;padding:4px 12px 2px;margin-bottom:4px;">
         <button type="button" id="btnToggleConfig"
-                style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--cs-accent);padding:4px 0 6px;"
+                style="display:flex;align-items:center;gap:6px;background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:var(--cs-accent);padding:4px 0 5px;width:100%;"
                 onclick="(function(){var b=document.getElementById('csConfig');var a=document.getElementById('btnToggleConfigArrow');if(b.style.display==='none'){b.style.display='';a.textContent='▼';}else{b.style.display='none';a.textContent='►';}})()">
             <span id="btnToggleConfigArrow">►</span>
-            <?php echo xlt('Template Settings'); ?>
-            <span style="font-size:10px;font-weight:400;color:var(--cs-subtle);"><?php echo xlt('(review before deploying)'); ?></span>
+            <?php echo xlt('Deploy Settings'); ?>
+            <span style="font-size:10px;font-weight:400;color:var(--cs-subtle);"><?php echo xlt('cadence · horizon · facility · rules'); ?></span>
         </button>
         <div class="cs-config" id="csConfig" style="display:none;">
         <!-- Facility is now set per-slot-type in Manage Types, not globally here -->
