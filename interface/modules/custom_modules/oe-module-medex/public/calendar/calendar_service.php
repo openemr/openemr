@@ -2815,14 +2815,27 @@ $templateCount = count($detectedTemplates);
         <div class="cs-config" id="csConfig" style="display:none;">
         <!-- Facility is now set per-slot-type in Manage Types, not globally here -->
         <div class="field">
-            <label><?php echo xlt('Template Cadence'); ?></label>
+            <label><?php echo xlt('Template Cadence'); ?>
+                <span title="One Day: same schedule every day you're at this location&#10;Every Workday: Mon–Fri same schedule&#10;Weekly: different schedule per weekday&#10;4-Week Rotation: alternating weeks (1st/3rd vs 2nd/4th, different facilities)&#10;Monthly: specific occurrence each month (every 2nd Tuesday)"
+                      style="cursor:help;color:var(--cs-subtle);font-weight:400;margin-left:4px;">?</span>
+            </label>
             <select id="cfgCadence">
-                <option value="one_day"><?php echo xlt('One Day'); ?></option>
-                <option value="workdays"><?php echo xlt('Every Workday'); ?></option>
-                <option value="weekly" selected><?php echo xlt('Weekly'); ?></option>
-                <option value="four_week"><?php echo xlt('4-Week Rotation'); ?></option>
-                <option value="monthly"><?php echo xlt('Monthly'); ?></option>
+                <option value="one_day"><?php echo xlt('One Day — same slots every visit'); ?></option>
+                <option value="workdays"><?php echo xlt('Every Workday — Mon–Fri, same schedule'); ?></option>
+                <option value="weekly" selected><?php echo xlt('Weekly — different pattern per weekday'); ?></option>
+                <option value="four_week"><?php echo xlt('4-Week Rotation — alternating week patterns'); ?></option>
+                <option value="monthly"><?php echo xlt('Monthly — specific occurrence each month'); ?></option>
             </select>
+        </div>
+        <!-- One Day: which day do you work this schedule? -->
+        <div class="field" id="cfgOneDayPanel" style="display:none;">
+            <label><?php echo xlt('Which day?'); ?></label>
+            <select id="cfgOneDaySelect">
+                <?php foreach (['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $i => $d): ?>
+                    <option value="<?php echo attr((string)$i); ?>"><?php echo text($d); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <span style="font-size:10px;color:var(--cs-subtle);display:block;margin-top:3px;"><?php echo xlt('Grid shows only this day. Deploy to any dates in the horizon.'); ?></span>
         </div>
         <div class="field">
             <label><?php echo xlt('Deploy Start Date'); ?></label>
@@ -3117,6 +3130,8 @@ $templateCount = count($detectedTemplates);
         </aside>
 
         <section class="panel calendar-wrap">
+            <!-- Cadence context hint — updates when cadence changes -->
+            <div id="cadenceHint" style="font-size:11px;color:var(--cs-subtle);margin-bottom:6px;padding:4px 6px;background:var(--cs-bg);border-radius:6px;display:none;"></div>
             <!-- 4-week rotation tab bar (hidden unless cadence = four_week) -->
             <div id="fourWeekTabs" style="display:none;border-bottom:2px solid var(--cs-border);margin-bottom:4px;">
                 <button class="btn four-week-tab active" data-week="0" type="button" style="margin:2px;">Week A</button>
@@ -3311,6 +3326,24 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+// Returns the day indices to display in the grid based on the selected cadence.
+// one_day: single day chosen by cfgOneDaySelect; workdays: Mon–Fri; else: all 7.
+function getActiveDayIndices() {
+    const cadence = document.getElementById('cfgCadence')?.value || 'weekly';
+    if (cadence === 'one_day') {
+        const dayEl = document.getElementById('cfgOneDaySelect');
+        return [dayEl ? Math.max(0, Math.min(6, parseInt(dayEl.value || '0', 10))) : 0];
+    }
+    if (cadence === 'workdays') { return [0, 1, 2, 3, 4]; }
+    if (cadence === 'monthly')  { return [0, 1, 2, 3, 4, 5, 6]; } // show all; user picks pattern separately
+    return [0, 1, 2, 3, 4, 5, 6]; // weekly / four_week / default
+}
+
+function rebuildGridForCadence() {
+    buildHeaders();
+    buildGrid();
+}
 const START_HOUR = 7;
 const END_HOUR = 17;
 const INITIAL_GRID_MINUTES = 60;
@@ -3426,12 +3459,19 @@ function getActiveFacilityName() {
 }
 
 function buildHeaders() {
+    const activeDays = getActiveDayIndices();
+    const colCount = activeDays.length;
+    // Update both head and grid CSS column layout dynamically
+    const colDef = '80px repeat(' + colCount + ', minmax(110px, 1fr))';
+    calendarHead.style.gridTemplateColumns = colDef;
+
     calendarHead.innerHTML = '';
     const corner = document.createElement('div');
     corner.textContent = 'Time';
     calendarHead.appendChild(corner);
     const facName = getActiveFacilityName();
-    DAYS.forEach((d) => {
+    activeDays.forEach((dayIdx) => {
+        const d = DAYS[dayIdx];
         const el = document.createElement('div');
         el.style.display = 'flex';
         el.style.flexDirection = 'column';
@@ -3537,17 +3577,23 @@ function clearOverlapsForSpan(dayIdx, startMinute, durationMinutes, excludeKey =
 }
 
 function buildGrid() {
+    const activeDays = getActiveDayIndices();
+    const colCount = activeDays.length;
+    const colDef = '80px repeat(' + colCount + ', minmax(110px, 1fr))';
     calendarGrid.innerHTML = '';
+    calendarGrid.style.gridTemplateColumns = colDef;
+
     for (let mins = START_HOUR * 60; mins < END_HOUR * 60; mins += SLOT_MINUTES) {
         const row = document.createElement('div');
         row.className = 'grid-row';
+        row.style.gridTemplateColumns = colDef;
 
         const timeCell = document.createElement('div');
         timeCell.className = 'time-cell';
         timeCell.textContent = (mins % 15 === 0) ? timeLabel(mins) : '';
         row.appendChild(timeCell);
 
-        for (let dayIdx = 0; dayIdx < DAYS.length; dayIdx += 1) {
+        for (const dayIdx of activeDays) {
             const cell = document.createElement('div');
             cell.className = 'slot-cell';
             cell.dataset.dayIdx = String(dayIdx);
@@ -5372,14 +5418,41 @@ function bindCadenceUI() {
     const slotsByWeek = [new Map(), new Map(), new Map(), new Map()];
     let activeWeek = 0;
 
+    const oneDayPanel  = document.getElementById('cfgOneDayPanel');
+    const oneDaySelect = document.getElementById('cfgOneDaySelect');
+    const cadenceHint  = document.getElementById('cadenceHint');
+
+    const CADENCE_HINTS = {
+        one_day:    '📅 One Day — drag slots into the single column. Deploy writes these slots to every matching visit date in your horizon.',
+        workdays:   '📅 Every Workday — Mon–Fri columns shown. Same slot pattern repeats on every workday in the horizon.',
+        weekly:     '📅 Weekly — set a different pattern for each day of the week. Most common for specialists with varying daily schedules.',
+        four_week:  '📅 4-Week Rotation — use Week A/B/C/D tabs. 1st Thursday = Week A, 2nd = Week B, 3rd = Week C, 4th = Week D. Perfect for alternating facilities.',
+        monthly:    '📅 Monthly — configure the time slots below. The pattern deploys on every matching occurrence (e.g. every 2nd Tuesday) in the horizon.'
+    };
+
     const showCadenceOptions = () => {
         const v = cadenceEl?.value || 'weekly';
         if (fourWeekTabs)  { fourWeekTabs.style.display  = v === 'four_week' ? '' : 'none'; }
         if (fourWeekPanel) { fourWeekPanel.style.display  = v === 'four_week' ? '' : 'none'; }
         if (monthlyPanel)  { monthlyPanel.style.display   = v === 'monthly'   ? '' : 'none'; }
+        if (oneDayPanel)   { oneDayPanel.style.display    = v === 'one_day'   ? '' : 'none'; }
+        if (cadenceHint)   {
+            cadenceHint.textContent = CADENCE_HINTS[v] || '';
+            cadenceHint.style.display = CADENCE_HINTS[v] ? '' : 'none';
+        }
+        // Rebuild grid columns to match cadence
+        if (typeof rebuildGridForCadence === 'function' && document.getElementById('calendarGrid')?.children.length > 0) {
+            rebuildGridForCadence();
+        }
     };
 
     if (cadenceEl) { cadenceEl.addEventListener('change', showCadenceOptions); showCadenceOptions(); }
+    // Rebuild grid when the one-day selector changes
+    if (oneDaySelect) {
+        oneDaySelect.addEventListener('change', () => {
+            if (typeof rebuildGridForCadence === 'function') { rebuildGridForCadence(); }
+        });
+    }
 
     // Monthly mode toggle
     if (monthlyModeEl) {
