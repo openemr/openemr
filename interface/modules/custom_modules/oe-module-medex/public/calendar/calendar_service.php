@@ -911,22 +911,38 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' &&
         }
 
         if ($snapAction === 'list_snapshots') {
-            $providerId = (int)($_POST['provider_id'] ?? 0);
-            if ($providerId <= 0) { cs_json_exit(['success' => false, 'error' => 'provider_id required']); }
+            // provider_id=0 → return all practice snapshots (practice-wide)
+            $filterPid = (int)($_POST['provider_id'] ?? 0);
             $rows = [];
-            $res = sqlStatement(
-                "SELECT snapshot_id, snapshot_name, created_at, notes, created_by
-                 FROM medex_studio_snapshots
-                 WHERE provider_id = ?
-                 ORDER BY snapshot_id DESC LIMIT 50",
-                [$providerId]
-            );
+            $res = $filterPid > 0
+                ? sqlStatement(
+                    "SELECT s.snapshot_id, s.snapshot_name, s.created_at, s.notes, s.provider_id,
+                            TRIM(CONCAT(COALESCE(u.lname,''), ', ', COALESCE(u.fname,''))) AS provider_name
+                     FROM medex_studio_snapshots s
+                     LEFT JOIN users u ON u.id = s.provider_id
+                     WHERE s.provider_id = ?
+                     ORDER BY s.snapshot_id DESC LIMIT 100",
+                    [$filterPid]
+                )
+                : sqlStatement(
+                    "SELECT s.snapshot_id, s.snapshot_name, s.created_at, s.notes, s.provider_id,
+                            TRIM(CONCAT(COALESCE(u.lname,''), ', ', COALESCE(u.fname,''))) AS provider_name
+                     FROM medex_studio_snapshots s
+                     LEFT JOIN users u ON u.id = s.provider_id
+                     ORDER BY s.provider_id, s.snapshot_id DESC LIMIT 200"
+                );
             while ($r = sqlFetchArray($res)) {
+                $pName = trim((string)($r['provider_name'] ?? ''));
+                if ($pName === ',' || $pName === '') {
+                    $pName = 'Provider #' . (int)($r['provider_id'] ?? 0);
+                }
                 $rows[] = [
-                    'id'      => (int)$r['snapshot_id'],
-                    'name'    => (string)$r['snapshot_name'],
-                    'date'    => (string)$r['created_at'],
-                    'notes'   => (string)$r['notes'],
+                    'id'           => (int)$r['snapshot_id'],
+                    'name'         => (string)$r['snapshot_name'],
+                    'date'         => (string)$r['created_at'],
+                    'notes'        => (string)$r['notes'],
+                    'providerId'   => (int)$r['provider_id'],
+                    'providerName' => $pName,
                 ];
             }
             cs_json_exit(['success' => true, 'snapshots' => $rows]);
@@ -3071,17 +3087,17 @@ $templateCount = count($detectedTemplates);
             <!-- Template Snapshots -->
             <div class="section-head" style="margin-top:16px;">
                 <button class="section-toggle" type="button" data-collapse-toggle="snapshots" aria-expanded="false" aria-controls="collapseSnapshotsBody">
-                    <span class="icon">▸</span><span><?php echo xlt('Snapshots / Rollback'); ?></span>
+                    <span class="icon">▾</span><span><?php echo xlt('Snapshots / Rollback'); ?></span>
                 </button>
             </div>
             <div class="section-body" id="collapseSnapshotsBody" style="display:none;">
-                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
                     <button class="btn primary" type="button" id="btnSaveSnapshot"><?php echo xlt('Save Snapshot'); ?></button>
-                    <button class="btn" type="button" id="btnLoadSnapshots"><?php echo xlt('Restore…'); ?></button>
                     <button class="btn" type="button" id="btnCopySnapshot"><?php echo xlt('Copy to Provider…'); ?></button>
                 </div>
-                <div id="snapshotList" style="max-height:200px;overflow-y:auto;font-size:12px;"></div>
-                <div id="snapshotStatus" style="font-size:11px;margin-top:4px;color:#555;"></div>
+                <!-- Snapshot list loads automatically when panel opens -->
+                <div id="snapshotList" style="max-height:260px;overflow-y:auto;font-size:12px;"></div>
+                <div id="snapshotStatus" style="font-size:11px;margin-top:4px;"></div>
             </div>
         </aside>
 
@@ -5503,12 +5519,11 @@ function bindProviderCopyFrom() {
 
 // ─── Snapshot / Rollback / Copy ─────────────────────────────────────
 function bindSnapshotPanel() {
-    const saveBtn   = document.getElementById('btnSaveSnapshot');
-    const loadBtn   = document.getElementById('btnLoadSnapshots');
-    const copyBtn   = document.getElementById('btnCopySnapshot');
-    const listEl    = document.getElementById('snapshotList');
-    const statusEl  = document.getElementById('snapshotStatus');
-    if (!saveBtn || !loadBtn || !copyBtn) { return; }
+    const saveBtn  = document.getElementById('btnSaveSnapshot');
+    const copyBtn  = document.getElementById('btnCopySnapshot');
+    const listEl   = document.getElementById('snapshotList');
+    const statusEl = document.getElementById('snapshotStatus');
+    if (!saveBtn || !copyBtn) { return; }
 
     const providerSelect = document.getElementById('csProvider');
     const getProviderId  = () => providerSelect ? Number(providerSelect.value || 0) : 0;
@@ -5516,92 +5531,138 @@ function bindSnapshotPanel() {
     const setStatus = (msg, ok) => {
         if (!statusEl) { return; }
         statusEl.textContent = msg || '';
-        statusEl.style.color = ok ? '#166534' : '#991b1b';
+        statusEl.style.color = ok === true ? '#166534' : ok === false ? '#991b1b' : '#555';
     };
 
+    // Capture current grid as a JSON blob
     const captureGrid = () => {
-        const slots = [];
+        const captured = [];
         document.querySelectorAll('.grid-slot[data-day][data-minute]').forEach((cell) => {
             const payload = JSON.parse(cell.dataset.slotPayload || '{}');
             if (payload && payload.typeId > 0) {
-                slots.push({ dayIdx: Number(cell.dataset.day), minute: Number(cell.dataset.minute), ...payload });
+                captured.push({ dayIdx: Number(cell.dataset.day), minute: Number(cell.dataset.minute), ...payload });
             }
         });
         return JSON.stringify({
-            slots,
-            cadence:    document.getElementById('cfgCadence')?.value || 'weekly',
-            strictness: document.querySelector('input[name="cfgStrictness"]:checked')?.value || 'guide',
+            slots:       captured,
+            cadence:     document.getElementById('cfgCadence')?.value || 'weekly',
+            strictness:  document.querySelector('input[name="cfgStrictness"]:checked')?.value || 'guide',
             horizonDays: document.getElementById('cfgHorizonDays')?.value || '30',
         });
     };
 
+    // Restore a snapshot into the grid
+    const restoreSnapshot = async (snapId, snapName) => {
+        if (!confirm('Load snapshot "' + snapName + '" into the grid?\nUnsaved grid changes will be lost.')) { return; }
+        const body = new URLSearchParams({ action: 'restore_snapshot', snapshot_id: snapId });
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        try {
+            const resp = await fetch(location.href, { method: 'POST', body });
+            const data = await resp.json();
+            if (data.success && data.template_json) {
+                const tpl = JSON.parse(data.template_json);
+                document.querySelectorAll('.grid-slot').forEach((c) => {
+                    c.dataset.slotPayload = '{}';
+                    c.style.background = '';
+                    c.textContent = '';
+                    c.classList.remove('filled-slot');
+                });
+                if (Array.isArray(tpl.slots)) {
+                    tpl.slots.forEach((slot) => {
+                        if (typeof applyTypeToSlotKey === 'function') {
+                            applyTypeToSlotKey(slot.dayIdx + '_' + slot.minute, slot);
+                        }
+                    });
+                }
+                setStatus('✓ Loaded: ' + data.name, true);
+                loadSnapshotList();
+            } else {
+                setStatus(data.error || 'Restore failed.', false);
+            }
+        } catch (e) { setStatus('Network error', false); }
+    };
+
+    // Load and render practice-wide snapshots (all providers, newest first)
+    const loadSnapshotList = async () => {
+        if (!listEl) { return; }
+        listEl.innerHTML = '<em style="color:#888;font-size:11px;">Loading…</em>';
+        // Pass provider_id=0 to signal "all practice snapshots"
+        const body = new URLSearchParams({ action: 'list_snapshots', provider_id: 0 });
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        try {
+            const resp = await fetch(location.href, { method: 'POST', body });
+            const data = await resp.json();
+            if (!data.success) { listEl.innerHTML = '<em style="color:#991b1b;">' + (data.error || 'Error loading snapshots') + '</em>'; return; }
+            const snaps = data.snapshots || [];
+
+            if (!snaps.length) {
+                listEl.innerHTML = '<div style="padding:8px 2px;color:#888;font-size:11px;font-style:italic;">Nothing saved yet for your practice. Use <strong>Save Snapshot</strong> to capture the current grid.</div>';
+                return;
+            }
+
+            // Group by provider name for readability
+            const byProvider = {};
+            snaps.forEach((s) => {
+                const pKey = s.providerName || ('Provider #' + s.providerId);
+                if (!byProvider[pKey]) { byProvider[pKey] = []; }
+                byProvider[pKey].push(s);
+            });
+
+            const groupCount = Object.keys(byProvider).length;
+            let html = '';
+            Object.entries(byProvider).forEach(([provName, provSnaps]) => {
+                if (groupCount > 1) {
+                    html += '<div style="font-size:10px;font-weight:700;color:#4b5563;padding:4px 0 2px;border-top:1px solid #e5e7eb;margin-top:4px;">'
+                        + provName.replace(/</g,'&lt;') + '</div>';
+                }
+                provSnaps.forEach((s) => {
+                    const d = new Date(s.date).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+                    const label = s.name ? s.name.replace(/</g,'&lt;') : '(unnamed)';
+                    html += '<div style="display:flex;align-items:center;gap:4px;padding:2px 0;">'
+                        + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;" title="' + s.name + '">' + label + '</span>'
+                        + '<span style="color:#9ca3af;font-size:10px;white-space:nowrap;flex-shrink:0;">' + d + '</span>'
+                        + '<button class="btn" style="padding:1px 7px;font-size:10px;flex-shrink:0;" '
+                        +   'data-snap-id="' + s.id + '" data-snap-name="' + label + '" data-action="restore-snap">Load</button>'
+                        + '</div>';
+                });
+            });
+
+            listEl.innerHTML = html;
+
+            listEl.querySelectorAll('button[data-action="restore-snap"]').forEach((btn) => {
+                btn.addEventListener('click', () => restoreSnapshot(btn.dataset.snapId, btn.dataset.snapName));
+            });
+        } catch (e) {
+            listEl.innerHTML = '<em style="color:#991b1b;font-size:11px;">Network error loading snapshots</em>';
+        }
+    };
+
+    // Auto-load snapshot list when the panel is toggled open
+    const snapSection = document.getElementById('collapseSnapshotsBody');
+    if (snapSection) {
+        const observer = new MutationObserver(() => {
+            if (snapSection.style.display !== 'none') { loadSnapshotList(); }
+        });
+        observer.observe(snapSection, { attributes: true, attributeFilter: ['style'] });
+    }
+
     saveBtn.addEventListener('click', async () => {
         const pid = getProviderId();
         if (!pid) { setStatus('Select a provider first.', false); return; }
-        const name = (prompt('Snapshot name (optional):') ?? '').trim();
+        const name = (prompt('Snapshot name (leave blank for auto-name):') ?? '').trim();
         if (name === null) { return; }
         const body = new URLSearchParams({ action: 'save_snapshot', provider_id: pid, snapshot_name: name, template_json: captureGrid() });
         if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
         try {
             const resp = await fetch(location.href, { method: 'POST', body });
             const data = await resp.json();
-            setStatus(data.success ? '✓ Snapshot saved.' : (data.error || 'Error'), !!data.success);
+            if (data.success) {
+                setStatus('✓ Snapshot saved.', true);
+                loadSnapshotList();
+            } else {
+                setStatus(data.error || 'Error', false);
+            }
         } catch (e) { setStatus('Network error', false); }
-    });
-
-    const renderSnapshotList = (snapshots) => {
-        if (!listEl) { return; }
-        if (!snapshots.length) { listEl.innerHTML = '<em>No snapshots saved yet.</em>'; return; }
-        listEl.innerHTML = snapshots.map((s) => {
-            const d = new Date(s.date).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-            return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #eee;">'
-                + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + s.name.replace(/"/g,'&quot;') + '">' + s.name + '</span>'
-                + '<span style="color:#888;font-size:10px;white-space:nowrap;">' + d + '</span>'
-                + '<button class="btn" style="padding:2px 8px;font-size:11px;" data-snap-id="' + s.id + '" data-action="restore">Restore</button>'
-                + '</div>';
-        }).join('');
-        listEl.querySelectorAll('button[data-action="restore"]').forEach((btn) => {
-            btn.addEventListener('click', async () => {
-                if (!confirm('Restore this snapshot? Unsaved grid changes will be lost.')) { return; }
-                const body = new URLSearchParams({ action: 'restore_snapshot', snapshot_id: btn.dataset.snapId });
-                if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
-                const resp = await fetch(location.href, { method: 'POST', body });
-                const data = await resp.json();
-                if (data.success && data.template_json) {
-                    try {
-                        const tpl = JSON.parse(data.template_json);
-                        if (Array.isArray(tpl.slots)) {
-                            document.querySelectorAll('.grid-slot').forEach((c) => {
-                                c.dataset.slotPayload = '{}';
-                                c.style.background = '';
-                                c.textContent = '';
-                                c.classList.remove('filled-slot');
-                            });
-                            tpl.slots.forEach((slot) => {
-                                if (typeof applyTypeToSlotKey === 'function') {
-                                    applyTypeToSlotKey(slot.dayIdx + '_' + slot.minute, slot);
-                                }
-                            });
-                        }
-                        setStatus('✓ Snapshot "' + data.name + '" restored.', true);
-                    } catch (e) { setStatus('Parse error restoring snapshot.', false); }
-                } else { setStatus(data.error || 'Restore failed.', false); }
-            });
-        });
-    };
-
-    loadBtn.addEventListener('click', async () => {
-        const pid = getProviderId();
-        if (!pid) { setStatus('Select a provider first.', false); return; }
-        if (listEl) { listEl.innerHTML = '<em>Loading…</em>'; }
-        const body = new URLSearchParams({ action: 'list_snapshots', provider_id: pid });
-        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
-        try {
-            const resp = await fetch(location.href, { method: 'POST', body });
-            const data = await resp.json();
-            if (data.success) { renderSnapshotList(data.snapshots || []); }
-            else if (listEl) { listEl.innerHTML = '<em>' + (data.error || 'Error') + '</em>'; }
-        } catch (e) { if (listEl) { listEl.innerHTML = '<em>Network error</em>'; } }
     });
 
     copyBtn.addEventListener('click', async () => {
@@ -5620,7 +5681,12 @@ function bindSnapshotPanel() {
         try {
             const resp = await fetch(location.href, { method: 'POST', body });
             const data = await resp.json();
-            setStatus(data.success ? '✓ Copied to provider #' + targetPid : (data.error || 'Error'), !!data.success);
+            if (data.success) {
+                setStatus('✓ Copied to provider #' + targetPid, true);
+                loadSnapshotList();
+            } else {
+                setStatus(data.error || 'Error', false);
+            }
         } catch (e) { setStatus('Network error', false); }
     });
 }
