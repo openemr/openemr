@@ -132,43 +132,39 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
             return;
         }
 
-        // Inject CSS that hides Open Slot / In Office / Out Of Office template events
-        // from the native OpenEMR calendar. These are MedEx scheduling artifacts and
-        // should not appear as appointments in the OpenEMR view.
-        var style = iframeDoc.createElement('style');
-        style.id = 'medex-hide-template-slots';
-        style.textContent = [
-            // Hide table cells / divs whose text starts with these template prefixes
-            'a[title^="Open Slot"], a[title^="In Office"], a[title^="Out Of Office"],',
-            'a[title^="Open Slot -"], [title^="LUNCH"],',
-            // PostCalendar renders event titles in anchor tags with the title as text content
-            // This targets the containing table cell for the event row
-            'td.event a[href*="pc_eid"] { }',  // placeholder to force rule separation
-            ''
-        ].join('\n');
-
-        // JS approach: walk event anchors after render and hide the ones that are template slots.
+        // Hide only MedEx-generated template events from the native calendar.
+        // Targets: "Open Slot - *", "[AI] Surgery Block", "In Office", "Out Of Office".
+        // Keeps: patient appointments, Lunch, Reserved, Vacation, and any other
+        // non-MedEx provider blocks.
         var script = iframeDoc.createElement('script');
-        script.textContent = '(function hideTemplateSlots() {' +
-            'var HIDE_PATTERNS = [/^open\\s+slot/i, /^in\\s+office/i, /^out\\s+of\\s+office/i, /^lunch$/i];' +
-            'function check() {' +
-            '  document.querySelectorAll("a,span,td").forEach(function(el) {' +
-            '    var t = (el.title || el.textContent || "").replace(/^\\d+:\\d+\\s*[-–]?\\s*/,"").trim();' +
-            '    if (HIDE_PATTERNS.some(function(p){ return p.test(t); })) {' +
-            '      var row = el.closest("tr") || el.closest("td") || el;' +
-            '      if (row) row.style.display = "none";' +
+        script.id = 'medex-hide-template-slots';
+        script.textContent = '(function() {' +
+            'var MEDEX_PATTERNS = [' +
+            '  /^open\\s+slot/i,' +
+            '  /^\\[ai\\]/i,' +
+            '  /^in\\s+office$/i,' +
+            '  /^out\\s+of\\s+office$/i' +
+            '];' +
+            'function isMedexTemplate(text) {' +
+            '  var t = text.replace(/^\\d{1,2}:\\d{2}\\s*[-–]\\s*/,"").trim();' +
+            '  return MEDEX_PATTERNS.some(function(p){ return p.test(t); });' +
+            '}' +
+            'function hideTemplates() {' +
+            '  document.querySelectorAll("td a[href*=pc_eid]").forEach(function(a) {' +
+            '    var text = a.textContent || "";' +
+            '    if (isMedexTemplate(text)) {' +
+            '      var cell = a.closest("td") || a.parentNode;' +
+            '      if (cell) { cell.style.visibility = "hidden"; cell.style.pointerEvents = "none"; }' +
             '    }' +
             '  });' +
             '}' +
-            'check();' +
-            // Re-run after any AJAX refresh
-            'var obs = new MutationObserver(function(){ check(); });' +
-            'obs.observe(document.body, { childList: true, subtree: true });' +
+            'hideTemplates();' +
+            'new MutationObserver(hideTemplates).observe(document.body,{childList:true,subtree:true});' +
             '})();';
 
         if (iframeDoc.body) {
             iframeDoc.body.appendChild(script);
-        } else {
+        } else if (iframeDoc.head) {
             iframeDoc.head.appendChild(script);
         }
     }

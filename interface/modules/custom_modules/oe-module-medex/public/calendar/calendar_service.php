@@ -949,17 +949,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
             $datesByWeekday[$weekday][] = $d->format('Y-m-d');
         }
 
-        // Broad wipe: remove ALL Open Slot events for these providers in the entire deploy range,
-        // regardless of which source tag (MEDEX_STUDIO, MEDEX_INTERVIEW_GENERATED, etc.) created them.
-        // This ensures the new template fully overrides the old one without stale slots persisting.
+        // Full future wipe: delete ALL Open Slot events for these providers from the deploy
+        // start date forward. This removes both the deploy range AND any old long-horizon
+        // slots (e.g. from a previous 2-year deploy) that would otherwise linger and
+        // pollute the Calendar Studio inference with stale high-count patterns.
+        // New slots are then inserted only for the configured horizon.
         foreach ($providerIds as $providerId) {
             sqlStatement(
                 "DELETE FROM openemr_postcalendar_events
                  WHERE pc_aid = ?
-                   AND pc_eventDate BETWEEN ? AND ?
+                   AND pc_eventDate >= ?
                    AND COALESCE(pc_pid,'') = ''
                    AND pc_title LIKE 'Open Slot%'",
-                [$providerId, $rangeStart, $rangeEnd]
+                [$providerId, $rangeStart]
             );
         }
 
