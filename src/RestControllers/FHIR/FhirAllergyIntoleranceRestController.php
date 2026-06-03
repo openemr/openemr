@@ -233,6 +233,7 @@ class FhirAllergyIntoleranceRestController
      *
      * @param array<string, mixed> $fhirJson
      */
+    // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/AllergyIntolerance',
         description: 'Creates a new AllergyIntolerance resource.',
@@ -294,4 +295,5 @@ class FhirAllergyIntoleranceRestController
     {
         // Implementation lives in FhirGenericRestController::put()
     }
+    // @codeCoverageIgnoreEnd
 }

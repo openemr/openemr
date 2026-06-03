@@ -173,6 +173,7 @@ class FhirAppointmentRestController
      *
      * @param array<string, mixed> $fhirJson
      */
+    // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/Appointment',
         description: 'Creates a new Appointment resource.',
@@ -195,4 +196,5 @@ class FhirAppointmentRestController
     {
         // Implementation lives in FhirGenericRestController::post()
     }
+    // @codeCoverageIgnoreEnd
 }

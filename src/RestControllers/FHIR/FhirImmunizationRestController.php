@@ -205,6 +205,7 @@ class FhirImmunizationRestController
      *
      * @param array<string, mixed> $fhirJson
      */
+    // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/Immunization',
         description: 'Creates a new Immunization resource.',
@@ -266,4 +267,5 @@ class FhirImmunizationRestController
     {
         // Implementation lives in FhirGenericRestController::put()
     }
+    // @codeCoverageIgnoreEnd
 }

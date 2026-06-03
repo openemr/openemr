@@ -227,6 +227,7 @@ class FhirConditionRestController
      *
      * @param array<string, mixed> $fhirJson
      */
+    // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/Condition',
         description: 'Creates a new Condition resource.',
@@ -288,4 +289,5 @@ class FhirConditionRestController
     {
         // Implementation lives in FhirGenericRestController::put()
     }
+    // @codeCoverageIgnoreEnd
 }

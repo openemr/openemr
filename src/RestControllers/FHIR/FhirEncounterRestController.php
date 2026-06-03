@@ -243,6 +243,7 @@ class FhirEncounterRestController
      *
      * @param array<string, mixed> $fhirJson
      */
+    // @codeCoverageIgnoreStart
     #[OA\Post(
         path: '/fhir/Encounter',
         description: 'Creates a new Encounter resource.',
@@ -304,4 +305,5 @@ class FhirEncounterRestController
     {
         // Implementation lives in FhirGenericRestController::put()
     }
+    // @codeCoverageIgnoreEnd
 }
