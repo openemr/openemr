@@ -349,142 +349,6 @@ try {
         $slotStateByOpenEid = [];
     }
 
-    // Synthesize Chip 1 events for slots that were deleted from openemr_postcalendar_events
-    // when a patient booked (edit_event_wrapper.php deletes the slot row).
-    // The registry preserves the slot metadata; we rebuild the chip from it so Chip 1
-    // stays visible alongside the patient appointment.
-    $existingEventIds = array_flip(array_map(static fn($r) => (int)($r['id'] ?? 0), $rows));
-    if ($hasSlotRegistry) {
-        try {
-            // Build provider IN clause matching the current filter
-            $registryProviderIds = [];
-            foreach ($requestedProviders as $tok) {
-                $tok = trim((string)$tok);
-                if ($tok === '') { continue; }
-                if (ctype_digit($tok)) {
-                    $registryProviderIds[] = (int)$tok;
-                } else {
-                    $uidRow = sqlQuery("SELECT id FROM users WHERE username = ? LIMIT 1", [$tok]);
-                    if (!empty($uidRow['id'])) {
-                        $registryProviderIds[] = (int)$uidRow['id'];
-                    }
-                }
-            }
-
-            $regWhere = "event_date >= ? AND event_date <= ?";
-            $regParams = [$start, $end];
-            if (!empty($registryProviderIds)) {
-                $rp = implode(',', array_fill(0, count($registryProviderIds), '?'));
-                $regWhere .= " AND provider_id IN ($rp)";
-                $regParams = array_merge($regParams, $registryProviderIds);
-            }
-
-            // Only synthesize Chip 1 for confirmed consumptions (patient_pc_eid set).
-            // pending_consumption with no patient means the booking dialog was opened
-            // but not completed — no phantom chip should appear.
-            $deletedSlotRows = \OpenEMR\Common\Database\QueryUtils::fetchRecords(
-                "SELECT slot_id, open_slot_eid, patient_pc_eid, provider_id,
-                        event_date, start_time, end_time, category_id, slot_state
-                 FROM medex_slot_registry
-                 WHERE $regWhere
-                   AND slot_state = 'consumed'
-                   AND patient_pc_eid IS NOT NULL AND patient_pc_eid > 0
-                 ORDER BY slot_id DESC",
-                $regParams
-            );
-
-            // Load category lookup once (name + color)
-            $catLookup = [];
-            $catStmt = sqlStatement("SELECT pc_catid, pc_catname, pc_catcolor FROM openemr_postcalendar_categories");
-            while ($catRow = sqlFetchArray($catStmt)) {
-                $catLookup[(int)$catRow['pc_catid']] = [
-                    'name'  => (string)($catRow['pc_catname'] ?? ''),
-                    'color' => (string)($catRow['pc_catcolor'] ?? ''),
-                ];
-            }
-
-            // Deduplicate: one synthesized Chip 1 per (provider, date, start_time)
-            $seenSynthKeys = [];
-            foreach ($deletedSlotRows as $drRow) {
-                $openEid = (int)($drRow['open_slot_eid'] ?? 0);
-                // Skip if the original slot still exists in the event feed
-                if ($openEid > 0 && isset($existingEventIds[$openEid])) {
-                    continue;
-                }
-
-                $drProvider = (int)($drRow['provider_id'] ?? 0);
-                $drDate     = trim((string)($drRow['event_date'] ?? ''));
-                $drStart    = trim((string)($drRow['start_time'] ?? ''));
-                $drEnd      = trim((string)($drRow['end_time']   ?? ''));
-                $drCatId    = (int)($drRow['category_id'] ?? 0);
-                if ($drProvider <= 0 || $drDate === '' || $drStart === '') {
-                    continue;
-                }
-
-                $synthKey = $drProvider . '|' . $drDate . '|' . $drStart;
-                if (isset($seenSynthKeys[$synthKey])) {
-                    continue;
-                }
-                $seenSynthKeys[$synthKey] = true;
-
-                $catInfo   = $catLookup[$drCatId] ?? ['name' => 'Open Slot', 'color' => ''];
-                $catName   = $catInfo['name'] !== '' ? $catInfo['name'] : 'Open Slot';
-                $rawCatCol = $catInfo['color'];
-                if ($rawCatCol !== '' && $rawCatCol[0] !== '#') {
-                    $rawCatCol = '#' . $rawCatCol;
-                }
-                $synthColor = preg_match('/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/', $rawCatCol)
-                    ? $rawCatCol : '#3788d8';
-
-                $startDt = $drDate . ' ' . $drStart;
-                $startTs2 = strtotime($startDt) ?: 0;
-                if ($drEnd === '' || strtotime($drEnd) <= strtotime($drStart)) {
-                    $drEnd = date('H:i:s', $startTs2 + 900); // fallback 15 min
-                }
-                $endDt = $drDate . ' ' . $drEnd;
-
-                $rr = hexdec(substr($synthColor, 1, 2));
-                $gg = hexdec(substr($synthColor, 3, 2));
-                $bb = hexdec(substr($synthColor, 5, 2));
-                $lum2 = (($rr * 299) + ($gg * 587) + ($bb * 114)) / 1000;
-
-                $slotState2 = (string)($drRow['slot_state'] ?? 'consumed');
-                $rows[] = [
-                    'id'                    => 'reg_' . (int)$drRow['slot_id'],
-                    'title'                 => 'Open Slot - ' . $catName,
-                    'date'                  => $drDate,
-                    'startTime'             => $drStart,
-                    'endTime'               => $drEnd,
-                    'duration'              => max(0, strtotime($drEnd) - strtotime($drStart)),
-                    'category'              => $drCatId,
-                    'preferred_category_id' => $drCatId,
-                    'provider_id'           => $drProvider,
-                    'patient_id'            => null,
-                    'status'                => '-',
-                    'location_tag'          => 'MEDEX_REGISTRY_SYNTH',
-                    'facility_id'           => 0,
-                    'comments'              => '',
-                    'category_name'         => $catName,
-                    'category_color'        => $rawCatCol,
-                    'preferred_category_name'  => $catName,
-                    'preferred_category_color' => $rawCatCol,
-                    'provider_fname'        => '',
-                    'provider_lname'        => '',
-                    'patient_fname'         => '',
-                    'patient_lname'         => '',
-                    // Pre-fill computed fields used later in the loop
-                    '_synth_start_dt'  => $startDt,
-                    '_synth_end_dt'    => $endDt,
-                    '_synth_color'     => $synthColor,
-                    '_synth_text_col'  => $lum2 >= 145 ? '#111111' : '#ffffff',
-                    '_synth_state'     => $slotState2,
-                    '_is_synth'        => true,
-                ];
-            }
-        } catch (\Throwable $ignored) {
-            // Registry synthesis is best-effort; never block the main feed.
-        }
-    }
 
     // Load appointment status labels + colors from list_options (apptstat list).
     // pc_apptstatus is the source of truth — staff and MedEx write directly to it.
@@ -631,47 +495,6 @@ try {
     }
 
     foreach ($rows as $row) {
-        // Synthesized registry rows have pre-computed values — emit them directly.
-        if (!empty($row['_is_synth'])) {
-            $synthColor   = (string)($row['_synth_color']    ?? '#3788d8');
-            $synthTextCol = (string)($row['_synth_text_col'] ?? '#ffffff');
-            $synthState   = (string)($row['_synth_state']    ?? 'consumed');
-            $catName      = (string)($row['category_name']   ?? 'Open Slot');
-            $events[] = [
-                'id'              => $row['id'],
-                'title'           => $catName,
-                'start'           => (string)($row['_synth_start_dt'] ?? ''),
-                'end'             => (string)($row['_synth_end_dt']   ?? ''),
-                'backgroundColor' => $synthColor,
-                'borderColor'     => $synthColor,
-                'textColor'       => $synthTextCol,
-                'extendedProps'   => [
-                    'patientId'          => null,
-                    'patientName'        => '',
-                    'providerId'         => $row['provider_id'],
-                    'providerName'       => '',
-                    'category'           => $catName,
-                    'categoryId'         => (int)($row['category'] ?? 0),
-                    'preferredCategoryId'=> (int)($row['preferred_category_id'] ?? 0),
-                    'isGeneratedSlot'    => true,
-                    'isProviderAvailability' => false,
-                    'isOpenSlotLike'     => true,
-                    'isReschedulable'    => false,
-                    'locationTag'        => 'MEDEX_REGISTRY_SYNTH',
-                    'comments'           => '',
-                    'status'             => '-',
-                    'apptStatusLabel'    => '',
-                    'apptStatusColor'    => '',
-                    'statusIcon'         => '',
-                    'reminderHistory'    => [],
-                    'facilityId'         => 0,
-                    'slotTypeColor'      => $synthColor,
-                    'slotState'          => $synthState,
-                ],
-            ];
-            continue;
-        }
-
         $needsUpdate = false;
 
         // pc_duration is stored in SECONDS by OpenEMR (add_edit_event.php saves $duration*60,
@@ -954,7 +777,21 @@ try {
             $events[$eventIndex]['extendedProps']['heldByRole'] = $slotStateByOpenEid[$openEid]['held_by_role'];
             $events[$eventIndex]['extendedProps']['heldByRef'] = $slotStateByOpenEid[$openEid]['held_by_ref'];
         } elseif ($isGeneratedSlot || $isProviderAvailability || $isOpenSlotLike) {
-            $events[$eventIndex]['extendedProps']['slotState'] = 'available';
+            // Show FILLED when a patient appointment occupies this slot's window.
+            // This is how the badge on Chip 1 changes: OPEN → FILLED.
+            $bucketKey = ((int)($row['provider_id'] ?? 0)) . '|' . (string)($row['date'] ?? '');
+            $isOccupied = false;
+            if ($startTs > 0 && isset($occupiedByProviderDate[$bucketKey])) {
+                foreach ($occupiedByProviderDate[$bucketKey] as $window) {
+                    $occStart = (int)($window[0] ?? 0);
+                    $occEnd   = (int)($window[1] ?? 0);
+                    if ($occStart > 0 && $occEnd > $occStart && $startTs < $occEnd && $endTs > $occStart) {
+                        $isOccupied = true;
+                        break;
+                    }
+                }
+            }
+            $events[$eventIndex]['extendedProps']['slotState'] = $isOccupied ? 'consumed' : 'available';
         }
     }
 

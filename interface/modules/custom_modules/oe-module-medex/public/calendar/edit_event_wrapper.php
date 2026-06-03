@@ -30,93 +30,36 @@ if ($provId <= 0 && !empty($eid)) {
     $provId = (int)($prow['pc_aid'] ?? 0);
 }
 
-// Template slot consumption logic for new appointments
-$consumedSlotEid = null;
-$slotConsumed = false;
+// Look up the template slot at this time to get the preferred category and duration.
+// The slot is NOT deleted — it stays in the calendar permanently as Chip 1.
+// Only a template re-deploy should remove or replace slots.
 $slot_row = [];
+$effectiveCatid = $catid;
 
 if (empty($eid) && !empty($_GET['date']) && !empty($_GET['starttimeh']) && $provId > 0) {
     $provider_id = $provId;
-    $event_date = substr((string)$_GET['date'], 0, 4) . '-' . substr((string)$_GET['date'], 4, 2) . '-' . substr((string)$_GET['date'], 6);
-    $start_hour = (int)$_GET['starttimeh'];
-    $start_min  = (int)($_GET['starttimem'] ?? 0);
-    $start_time = sprintf("%02d:%02d:00", $start_hour, $start_min);
+    $event_date  = substr((string)$_GET['date'], 0, 4) . '-' . substr((string)$_GET['date'], 4, 2) . '-' . substr((string)$_GET['date'], 6);
+    $start_hour  = (int)$_GET['starttimeh'];
+    $start_min   = (int)($_GET['starttimem'] ?? 0);
+    $start_time  = sprintf("%02d:%02d:00", $start_hour, $start_min);
 
-    // Exact start-time match
+    // Read the slot metadata (category, duration) without deleting.
     $slot_row = sqlQuery(
-        "SELECT pc_eid, pc_endTime, pc_duration, pc_catid, pc_prefcatid, pc_title, pc_startTime
+        "SELECT pc_eid, pc_endTime, pc_duration, pc_catid, pc_prefcatid, pc_title
          FROM openemr_postcalendar_events
-         WHERE pc_aid = ? AND pc_eventDate = ? AND pc_startTime = ?
+         WHERE pc_aid = ? AND pc_eventDate = ?
+           AND (pc_startTime = ? OR (pc_startTime < ? AND pc_endTime > ?))
            AND (COALESCE(pc_pid,'') = '' OR pc_pid = '0')
-           AND pc_apptstatus = '-'
            AND (COALESCE(pc_location,'') LIKE 'MEDEX_%' OR pc_title LIKE 'Open Slot%')
-         ORDER BY pc_eid DESC LIMIT 1",
-        [$provider_id, $event_date, $start_time]
+         ORDER BY pc_startTime DESC LIMIT 1",
+        [$provider_id, $event_date, $start_time, $start_time, $start_time]
     );
 
-    // No exact match — look for a slot whose time window CONTAINS the clicked time.
-    if (empty($slot_row['pc_eid'])) {
-        $slot_row = sqlQuery(
-            "SELECT pc_eid, pc_endTime, pc_duration, pc_catid, pc_prefcatid, pc_title, pc_startTime
-             FROM openemr_postcalendar_events
-             WHERE pc_aid = ? AND pc_eventDate = ?
-               AND pc_startTime < ? AND pc_endTime > ?
-               AND (COALESCE(pc_pid,'') = '' OR pc_pid = '0')
-               AND pc_apptstatus = '-'
-               AND (COALESCE(pc_location,'') LIKE 'MEDEX_%' OR pc_title LIKE 'Open Slot%')
-             ORDER BY pc_startTime DESC LIMIT 1",
-            [$provider_id, $event_date, $start_time, $start_time]
-        );
+    if (!empty($slot_row['pc_prefcatid'])) {
+        $effectiveCatid = (int)$slot_row['pc_prefcatid'];
+    } elseif (!empty($slot_row['pc_catid'])) {
+        $effectiveCatid = (int)$slot_row['pc_catid'];
     }
-
-    if (!empty($slot_row['pc_eid'])) {
-        $consumedSlotEid = (int)$slot_row['pc_eid'];
-
-        sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", [$consumedSlotEid]);
-
-        $tableExists = sqlQuery("SHOW TABLES LIKE 'medex_slot_registry'");
-        if (!empty($tableExists)) {
-            $existing = sqlQuery(
-                "SELECT slot_id FROM medex_slot_registry WHERE open_slot_eid = ?",
-                [$consumedSlotEid]
-            );
-            if (empty($existing['slot_id'])) {
-                sqlStatement(
-                    "INSERT INTO medex_slot_registry
-                     (open_slot_eid, patient_pc_eid, provider_id, event_date, start_time, end_time,
-                      category_id, slot_state, slot_source, reschedulable, consumed_at, created_at)
-                     VALUES (?, NULL, ?, ?, ?, ?, ?, 'pending_consumption', 'medex', 1, NOW(), NOW())",
-                    [
-                        $consumedSlotEid,
-                        $provider_id,
-                        $event_date,
-                        $start_time,
-                        $slot_row['pc_endTime'],
-                        (int)($slot_row['pc_prefcatid'] ?: $slot_row['pc_catid'])
-                    ]
-                );
-            }
-        }
-
-        $slotConsumed = true;
-
-        $_SESSION['medex_pending_slot_consumption'] = [
-            'open_slot_eid' => $consumedSlotEid,
-            'provider_id'   => $provider_id,
-            'event_date'    => $event_date,
-            'start_time'    => $start_time,
-            'category_id'   => (int)($slot_row['pc_prefcatid'] ?: $slot_row['pc_catid']),
-            'timestamp'     => time()
-        ];
-    }
-}
-
-// Determine effective category: prefer the slot's category, then URL param
-$effectiveCatid = $catid;
-if ($slotConsumed && !empty($slot_row['pc_prefcatid'])) {
-    $effectiveCatid = (int)$slot_row['pc_prefcatid'];
-} elseif ($slotConsumed && !empty($slot_row['pc_catid'])) {
-    $effectiveCatid = (int)$slot_row['pc_catid'];
 }
 
 // Gather data for template-context banner
@@ -130,7 +73,7 @@ if (empty($eid)) {
     $schedulingRules  = json_decode((string)($srRow['gl_value'] ?? ''), true);
     $isEnforcedStrict = ((string)($schedulingRules['template_enforcement'] ?? 'guideline')) === 'strict';
     $isAdminUser      = AclMain::aclCheckCore('admin', 'users') || AclMain::aclCheckCore('admin', 'super');
-    if ($slotConsumed && !empty($slot_row['pc_prefcatid'] ?: $slot_row['pc_catid'])) {
+    if (!empty($slot_row['pc_prefcatid'] ?: ($slot_row['pc_catid'] ?? 0))) {
         $slotCategoryId = (int)($slot_row['pc_prefcatid'] ?: $slot_row['pc_catid']);
         $catNameRow     = sqlQuery(
             "SELECT pc_catname FROM openemr_postcalendar_categories WHERE pc_catid = ? LIMIT 1",
@@ -166,7 +109,7 @@ if ($effectiveCatid > 0) {
 $queryString = http_build_query($params);
 $formUrl     = $GLOBALS['webroot'] . '/interface/main/calendar/add_edit_event.php?' . $queryString;
 
-$hasBanner  = ($slotConsumed && $slotCategoryName !== '');
+$hasBanner  = (!empty($slot_row['pc_eid']) && $slotCategoryName !== '');
 ?>
 <!DOCTYPE html>
 <html style="margin:0;padding:0;width:100%;height:100%;">
