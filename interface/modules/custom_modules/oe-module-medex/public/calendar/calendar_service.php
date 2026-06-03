@@ -982,9 +982,15 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
             cs_json_exit(['success' => false, 'error' => 'Select at least one provider before deploy.']);
         }
 
-        $facilityId = (int)($payload['facility_id'] ?? 0);
-        $horizonDays = max(30, min(730, (int)($payload['horizon_days'] ?? 30)));
+        $facilityId   = (int)($payload['facility_id'] ?? 0);
+        $horizonDays  = max(30, min(730, (int)($payload['horizon_days'] ?? 30)));
         $rawStartDate = trim((string)($payload['start_date'] ?? ''));
+        $cadence      = trim((string)($payload['cadence'] ?? 'weekly'));
+        $weekAStart   = trim((string)($payload['week_a_start'] ?? ''));   // four_week only
+        $monthlyMode  = trim((string)($payload['monthly_mode'] ?? 'nth_weekday')); // monthly
+        $monthlyN     = max(1, min(5, (int)($payload['monthly_n'] ?? 1)));         // 1st-5th
+        $monthlyWeekday = max(0, min(6, (int)($payload['monthly_weekday'] ?? 0))); // 0=Mon
+        $monthlyDate  = max(1, min(31, (int)($payload['monthly_date'] ?? 1)));     // date-of-month
         $sourceTag = 'MEDEX_STUDIO';
 
         $hasLocation = !empty(sqlQuery("SHOW COLUMNS FROM openemr_postcalendar_events LIKE 'pc_location'"));
@@ -1018,14 +1024,16 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
             if (empty($facilityIds[$slotFacilityId])) {
                 $slotFacilityId = $facilityId;
             }
-            $key = $dayIdx . '|' . $minute;
+            $weekIndex = max(0, min(3, (int)($slot['weekIndex'] ?? 0))); // 0=A,1=B,2=C,3=D
+            $key = $dayIdx . '|' . $minute . '|' . $weekIndex;
             $slotTemplates[$key] = [
-                'dayIdx' => $dayIdx,
-                'minute' => $minute,
-                'typeId' => $typeId,
-                'typeName' => $typeName !== '' ? $typeName : 'Open Slot',
+                'dayIdx'          => $dayIdx,
+                'minute'          => $minute,
+                'weekIndex'       => $weekIndex,
+                'typeId'          => $typeId,
+                'typeName'        => $typeName !== '' ? $typeName : 'Open Slot',
                 'durationMinutes' => $durationMinutes,
-                'facilityId' => $slotFacilityId,
+                'facilityId'      => $slotFacilityId,
             ];
             $weekdaySet[$dayIdx] = true;
         }
@@ -1033,20 +1041,92 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
             cs_json_exit(['success' => false, 'error' => 'No valid slots to deploy.']);
         }
 
-        $today = (preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawStartDate))
+        $today   = (preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawStartDate))
             ? new DateTimeImmutable($rawStartDate)
             : new DateTimeImmutable('today');
         $lastDay = $today->modify('+' . ($horizonDays - 1) . ' days');
         $rangeStart = $today->format('Y-m-d');
         $rangeEnd   = $lastDay->format('Y-m-d');
 
-        $datesByWeekday = [];
-        for ($d = $today; $d <= $lastDay; $d = $d->modify('+1 day')) {
-            $weekday = (int)$d->format('N') - 1;
-            if (!isset($weekdaySet[$weekday])) {
-                continue;
+        // Build date → slot mapping based on cadence.
+        // $dateSlots[date][] = slotTemplate
+        $dateSlots = [];
+
+        if ($cadence === 'four_week') {
+            // 4-week rotation. weekAStart must be a valid date; default to deploy start.
+            $weekARef = preg_match('/^\d{4}-\d{2}-\d{2}$/', $weekAStart)
+                ? new DateTimeImmutable($weekAStart)
+                : $today;
+            // Normalise to Monday of that week.
+            $weekAMon = $weekARef->modify('monday this week');
+            if ($weekAMon > $weekARef) {
+                $weekAMon = $weekARef->modify('last monday');
             }
-            $datesByWeekday[$weekday][] = $d->format('Y-m-d');
+            $weekATs = $weekAMon->getTimestamp();
+
+            for ($d = $today; $d <= $lastDay; $d = $d->modify('+1 day')) {
+                $weekday   = (int)$d->format('N') - 1; // 0=Mon..6=Sun
+                // Start of the ISO week containing $d (Monday)
+                $monOfWeek = $d->modify('monday this week');
+                if ($monOfWeek > $d) {
+                    $monOfWeek = $d->modify('last monday');
+                }
+                $diffWeeks  = (int)round(($monOfWeek->getTimestamp() - $weekATs) / 604800);
+                $weekIdx    = (($diffWeeks % 4) + 4) % 4; // 0=A,1=B,2=C,3=D
+                $dateStr    = $d->format('Y-m-d');
+                foreach ($slotTemplates as $tpl) {
+                    if ($tpl['dayIdx'] === $weekday && $tpl['weekIndex'] === $weekIdx) {
+                        $dateSlots[$dateStr][] = $tpl;
+                    }
+                }
+            }
+        } elseif ($cadence === 'monthly') {
+            // Monthly: find matching dates in each month of the range.
+            for ($d = $today; $d <= $lastDay; ) {
+                $year  = (int)$d->format('Y');
+                $month = (int)$d->format('m');
+                $targetDate = null;
+
+                if ($monthlyMode === 'nth_weekday') {
+                    // Find Nth occurrence of $monthlyWeekday (0=Mon) in this month.
+                    // ISO day: Mon=1..Sun=7; user's weekday: 0=Mon..6=Sun → ISO = weekday+1
+                    $isoDay = $monthlyWeekday + 1;
+                    $firstOfMonth = new DateTimeImmutable("$year-$month-01");
+                    $firstIso = (int)$firstOfMonth->format('N');
+                    $offset   = ($isoDay - $firstIso + 7) % 7;
+                    $firstOccurrence = $firstOfMonth->modify("+{$offset} days");
+                    $nthOccurrence   = $firstOccurrence->modify('+' . ($monthlyN - 1) . ' weeks');
+                    if ((int)$nthOccurrence->format('m') === $month) {
+                        $targetDate = $nthOccurrence;
+                    }
+                } elseif ($monthlyMode === 'date_of_month') {
+                    $daysInMonth = (int)(new DateTimeImmutable("$year-$month-01"))->format('t');
+                    $day = min($monthlyDate, $daysInMonth);
+                    $targetDate = new DateTimeImmutable(sprintf('%04d-%02d-%02d', $year, $month, $day));
+                }
+
+                if ($targetDate !== null && $targetDate >= $today && $targetDate <= $lastDay) {
+                    $dateStr = $targetDate->format('Y-m-d');
+                    foreach ($slotTemplates as $tpl) {
+                        $dateSlots[$dateStr][] = $tpl;
+                    }
+                }
+
+                // Advance to next month
+                $d = $d->modify('first day of next month');
+            }
+        } else {
+            // Weekly / workdays / one_day — original behaviour.
+            for ($d = $today; $d <= $lastDay; $d = $d->modify('+1 day')) {
+                $weekday = (int)$d->format('N') - 1;
+                if (!isset($weekdaySet[$weekday])) { continue; }
+                $dateStr = $d->format('Y-m-d');
+                foreach ($slotTemplates as $tpl) {
+                    if ($tpl['dayIdx'] === $weekday && $tpl['weekIndex'] === 0) {
+                        $dateSlots[$dateStr][] = $tpl;
+                    }
+                }
+            }
         }
 
         // Full future wipe: delete ALL Open Slot events for these providers from the deploy
@@ -1067,8 +1147,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
 
         $inserted = 0;
         foreach ($providerIds as $providerId) {
-            foreach ($slotTemplates as $tpl) {
-                $dayIdx = (int)$tpl['dayIdx'];
+            foreach ($dateSlots as $date => $tplList) {
+              foreach ($tplList as $tpl) {
                 $minute = (int)$tpl['minute'];
                 $typeId = (int)$tpl['typeId'];
                 $typeName = (string)$tpl['typeName'];
@@ -1078,7 +1158,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
                 $startMin = $minute % 60;
                 $start = sprintf('%02d:%02d:00', $startHour, $startMin);
 
-                foreach (($datesByWeekday[$dayIdx] ?? []) as $date) {
+                {
                     $startTs = strtotime($date . ' ' . $start);
                     if ($startTs === false) {
                         continue;
@@ -1127,15 +1207,17 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
                         );
                     }
                     $inserted++;
-                }
-            }
-        }
+                } // end date block
+              } // end tpl loop
+            } // end dateSlots loop
+        } // end providers loop
 
         cs_json_exit([
-            'success' => true,
-            'inserted' => $inserted,
+            'success'   => true,
+            'inserted'  => $inserted,
             'providers' => count($providerIds),
-            'days' => $horizonDays,
+            'days'      => $horizonDays,
+            'cadence'   => $cadence,
         ]);
     } catch (\Throwable $ex) {
         cs_json_exit(['success' => false, 'error' => $ex->getMessage()]);
@@ -2746,6 +2828,45 @@ $templateCount = count($detectedTemplates);
             <input type="number" id="cfgMaxBookings" min="1" max="20" value="1" style="width:70px;">
             <span style="font-size:10px;color:var(--cs-subtle);"><?php echo xlt('Allow overbooking'); ?></span>
         </div>
+
+        <!-- 4-Week Rotation options (shown when cadence = four_week) -->
+        <div class="field" id="cfgFourWeekPanel" style="display:none;">
+            <label><?php echo xlt('Week A Starts'); ?></label>
+            <input type="date" id="cfgWeekAStart" value="<?php echo attr(date('Y-m-d')); ?>"
+                   style="width:100%;padding:4px 6px;border:1px solid var(--cs-border);border-radius:4px;box-sizing:border-box;">
+            <span style="font-size:10px;color:var(--cs-subtle);"><?php echo xlt('Pick the Monday that begins your Week A cycle'); ?></span>
+        </div>
+
+        <!-- Monthly options (shown when cadence = monthly) -->
+        <div class="field" id="cfgMonthlyPanel" style="display:none;">
+            <label><?php echo xlt('Monthly Pattern'); ?></label>
+            <select id="cfgMonthlyMode">
+                <option value="nth_weekday" selected><?php echo xlt('Nth weekday of month'); ?></option>
+                <option value="date_of_month"><?php echo xlt('Specific date of month'); ?></option>
+            </select>
+            <div id="cfgMonthlyNthPanel" style="display:flex;gap:6px;margin-top:6px;align-items:center;">
+                <select id="cfgMonthlyN" style="flex:1;">
+                    <option value="1"><?php echo xlt('1st'); ?></option>
+                    <option value="2" selected><?php echo xlt('2nd'); ?></option>
+                    <option value="3"><?php echo xlt('3rd'); ?></option>
+                    <option value="4"><?php echo xlt('4th'); ?></option>
+                    <option value="5"><?php echo xlt('Last'); ?></option>
+                </select>
+                <select id="cfgMonthlyWeekday" style="flex:2;">
+                    <option value="0"><?php echo xlt('Monday'); ?></option>
+                    <option value="1"><?php echo xlt('Tuesday'); ?></option>
+                    <option value="2"><?php echo xlt('Wednesday'); ?></option>
+                    <option value="3"><?php echo xlt('Thursday'); ?></option>
+                    <option value="4"><?php echo xlt('Friday'); ?></option>
+                    <option value="5"><?php echo xlt('Saturday'); ?></option>
+                    <option value="6"><?php echo xlt('Sunday'); ?></option>
+                </select>
+            </div>
+            <div id="cfgMonthlyDatePanel" style="display:none;margin-top:6px;">
+                <input type="number" id="cfgMonthlyDate" min="1" max="31" value="1" style="width:70px;">
+                <span style="font-size:11px;color:var(--cs-subtle);"><?php echo xlt('of each month'); ?></span>
+            </div>
+        </div>
     </div><!-- /.cs-config -->
     </div><!-- /#csConfigWrap -->
 
@@ -2965,6 +3086,14 @@ $templateCount = count($detectedTemplates);
         </aside>
 
         <section class="panel calendar-wrap">
+            <!-- 4-week rotation tab bar (hidden unless cadence = four_week) -->
+            <div id="fourWeekTabs" style="display:none;border-bottom:2px solid var(--cs-border);margin-bottom:4px;">
+                <button class="btn four-week-tab active" data-week="0" type="button" style="margin:2px;">Week A</button>
+                <button class="btn four-week-tab" data-week="1" type="button" style="margin:2px;">Week B</button>
+                <button class="btn four-week-tab" data-week="2" type="button" style="margin:2px;">Week C</button>
+                <button class="btn four-week-tab" data-week="3" type="button" style="margin:2px;">Week D</button>
+                <span style="font-size:11px;color:var(--cs-subtle);margin-left:8px;"><?php echo xlt('Each tab is an independent week in the 4-week rotation'); ?></span>
+            </div>
             <div class="calendar-head" id="calendarHead"></div>
             <div class="calendar-grid" id="calendarGrid"></div>
         </section>
@@ -3882,29 +4011,47 @@ function bindToolbar() {
         }
 
         const facilityValue = String(document.getElementById('cfgFacility').value || '');
-        const slotPayload = Array.from(slots.values()).map((slot) => ({
-            dayIdx: slot.dayIdx,
-            minute: slot.minute,
-            facilityId: slot.facilityId || '',
-            typeId: slot.typeId,
-            typeName: slot.typeName,
-            durationMinutes: Number(slot.durationMinutes || SLOT_MINUTES),
-            patientBook: !!slot.patientBook,
-            patientRebook: !!slot.patientRebook,
-            staffOnly: !!slot.staffOnly
-        }));
+        const cadenceVal = document.getElementById('cfgCadence')?.value || 'weekly';
+
+        // For 4-week rotation, collect slots from all 4 week tabs (with weekIndex).
+        // For other cadences, use the current grid slots (weekIndex defaults to 0).
+        const fourWeekPayload = typeof window.getFourWeekSlotPayload === 'function'
+            ? window.getFourWeekSlotPayload()
+            : null;
+
+        const slotPayload = fourWeekPayload !== null
+            ? fourWeekPayload
+            : Array.from(slots.values()).map((slot) => ({
+                dayIdx:          slot.dayIdx,
+                minute:          slot.minute,
+                weekIndex:       0,
+                facilityId:      slot.facilityId || '',
+                typeId:          slot.typeId,
+                typeName:        slot.typeName,
+                durationMinutes: Number(slot.durationMinutes || SLOT_MINUTES),
+                patientBook:     !!slot.patientBook,
+                patientRebook:   !!slot.patientRebook,
+                staffOnly:       !!slot.staffOnly
+            }));
 
         const startDateEl = document.getElementById('cfgStartDate');
         const startDateVal = (startDateEl && startDateEl.value) ? startDateEl.value : new Date().toISOString().slice(0, 10);
 
         const payload = {
-            provider_ids: providerValues,
-            facility_id: parseInt(facilityValue, 10) || 0,
-            cadence: document.getElementById('cfgCadence').value,
-            strictness: document.querySelector('input[name="cfgStrictness"]:checked')?.value || 'strict',
-            start_date: startDateVal,
-            horizon_days: Math.max(30, Math.min(730, parseInt((document.getElementById('cfgHorizonDays') || {}).value || '30', 10) || 30)),
-            slots: slotPayload
+            provider_ids:    providerValues,
+            facility_id:     parseInt(facilityValue, 10) || 0,
+            cadence:         cadenceVal,
+            strictness:      document.querySelector('input[name="cfgStrictness"]:checked')?.value || 'strict',
+            start_date:      startDateVal,
+            horizon_days:    Math.max(30, Math.min(730, parseInt((document.getElementById('cfgHorizonDays') || {}).value || '30', 10) || 30)),
+            slots:           slotPayload,
+            // 4-week rotation
+            week_a_start:    document.getElementById('cfgWeekAStart')?.value || '',
+            // Monthly
+            monthly_mode:    document.getElementById('cfgMonthlyMode')?.value || 'nth_weekday',
+            monthly_n:       parseInt(document.getElementById('cfgMonthlyN')?.value || '1', 10) || 1,
+            monthly_weekday: parseInt(document.getElementById('cfgMonthlyWeekday')?.value || '0', 10) || 0,
+            monthly_date:    parseInt(document.getElementById('cfgMonthlyDate')?.value || '1', 10) || 1,
         };
 
         const body = new URLSearchParams();
@@ -5155,9 +5302,186 @@ bindManageTypesModal();
 bindSlotModal();
 initCollapsibleSections();
 bindSnapshotPanel();
+bindCadenceUI();
+bindProviderCopyFrom();
 queueStableRender();
 window.addEventListener('load', queueStableRender);
 window.addEventListener('resize', queueStableRender);
+
+// ─── Cadence UI — show/hide 4-week tabs, monthly options ─────────────
+function bindCadenceUI() {
+    const cadenceEl        = document.getElementById('cfgCadence');
+    const fourWeekTabs     = document.getElementById('fourWeekTabs');
+    const fourWeekPanel    = document.getElementById('cfgFourWeekPanel');
+    const monthlyPanel     = document.getElementById('cfgMonthlyPanel');
+    const monthlyModeEl    = document.getElementById('cfgMonthlyMode');
+    const nthPanel         = document.getElementById('cfgMonthlyNthPanel');
+    const datePanel        = document.getElementById('cfgMonthlyDatePanel');
+
+    // Slot state per 4-week tab (persisted in memory while editor is open).
+    // slotsByWeek[0..3] = Map of key → payload (same format as main slot state)
+    const slotsByWeek = [new Map(), new Map(), new Map(), new Map()];
+    let activeWeek = 0;
+
+    const showCadenceOptions = () => {
+        const v = cadenceEl?.value || 'weekly';
+        if (fourWeekTabs)  { fourWeekTabs.style.display  = v === 'four_week' ? '' : 'none'; }
+        if (fourWeekPanel) { fourWeekPanel.style.display  = v === 'four_week' ? '' : 'none'; }
+        if (monthlyPanel)  { monthlyPanel.style.display   = v === 'monthly'   ? '' : 'none'; }
+    };
+
+    if (cadenceEl) { cadenceEl.addEventListener('change', showCadenceOptions); showCadenceOptions(); }
+
+    // Monthly mode toggle
+    if (monthlyModeEl) {
+        monthlyModeEl.addEventListener('change', () => {
+            const m = monthlyModeEl.value;
+            if (nthPanel)  { nthPanel.style.display  = m === 'nth_weekday' ? '' : 'none'; }
+            if (datePanel) { datePanel.style.display  = m === 'date_of_month' ? '' : 'none'; }
+        });
+    }
+
+    // 4-week tab switching: save current grid to slot store, load target week
+    document.querySelectorAll('.four-week-tab').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const targetWeek = parseInt(btn.dataset.week || '0', 10);
+            if (targetWeek === activeWeek) { return; }
+
+            // Save current week's slots
+            document.querySelectorAll('.grid-slot[data-day][data-minute]').forEach((cell) => {
+                const payload = JSON.parse(cell.dataset.slotPayload || '{}');
+                const key = cell.dataset.day + '_' + cell.dataset.minute;
+                if (payload && payload.typeId > 0) {
+                    slotsByWeek[activeWeek].set(key, payload);
+                } else {
+                    slotsByWeek[activeWeek].delete(key);
+                }
+            });
+
+            // Clear grid
+            document.querySelectorAll('.grid-slot').forEach((c) => {
+                c.dataset.slotPayload = '{}';
+                c.style.background = '';
+                c.textContent = '';
+                c.classList.remove('filled-slot');
+            });
+
+            // Load target week's slots
+            slotsByWeek[targetWeek].forEach((payload, key) => {
+                const [day, minute] = key.split('_');
+                const cell = document.querySelector('.grid-slot[data-day="' + day + '"][data-minute="' + minute + '"]');
+                if (cell && typeof applyTypeToSlotKey === 'function') {
+                    applyTypeToSlotKey(key, payload);
+                }
+            });
+
+            // Update active state
+            activeWeek = targetWeek;
+            document.querySelectorAll('.four-week-tab').forEach((b) => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+
+    // Patch the deploy slot collector to include weekIndex
+    const origGetSlotPayload = window._getDeploySlotPayload;
+    // We intercept the slotPayload built in the deploy handler by exposing the
+    // four-week data globally so the deploy builder can include weekIndex.
+    window.getFourWeekSlotPayload = () => {
+        const cadence = cadenceEl?.value || 'weekly';
+        if (cadence !== 'four_week') { return null; }
+
+        // Save current active tab first
+        document.querySelectorAll('.grid-slot[data-day][data-minute]').forEach((cell) => {
+            const payload = JSON.parse(cell.dataset.slotPayload || '{}');
+            const key = cell.dataset.day + '_' + cell.dataset.minute;
+            if (payload && payload.typeId > 0) {
+                slotsByWeek[activeWeek].set(key, payload);
+            } else {
+                slotsByWeek[activeWeek].delete(key);
+            }
+        });
+
+        const combined = [];
+        slotsByWeek.forEach((weekMap, weekIdx) => {
+            weekMap.forEach((payload, key) => {
+                const [day, minute] = key.split('_');
+                combined.push({ dayIdx: parseInt(day, 10), minute: parseInt(minute, 10), weekIndex: weekIdx, ...payload });
+            });
+        });
+        return combined;
+    };
+}
+
+// ─── Provider copy-from ───────────────────────────────────────────────
+function bindProviderCopyFrom() {
+    // When a provider is selected and has no template, offer to copy from another.
+    // We add a "Copy from provider" button that appears next to the provider selector.
+    const providerSelect = document.getElementById('csProvider');
+    if (!providerSelect) { return; }
+
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'btn';
+    copyBtn.style.cssText = 'display:none;margin-left:6px;font-size:11px;';
+    copyBtn.textContent = '📋 Start from another provider\'s template';
+    providerSelect.parentNode.insertBefore(copyBtn, providerSelect.nextSibling);
+
+    const checkForTemplate = () => {
+        const pid = Number(providerSelect.value || 0);
+        if (!pid) { copyBtn.style.display = 'none'; return; }
+        // Show copy button if grid is empty
+        const hasSlots = Array.from(document.querySelectorAll('.grid-slot[data-slot-payload]'))
+            .some((c) => { try { return JSON.parse(c.dataset.slotPayload || '{}').typeId > 0; } catch(e) { return false; } });
+        copyBtn.style.display = hasSlots ? 'none' : '';
+    };
+
+    providerSelect.addEventListener('change', () => setTimeout(checkForTemplate, 300));
+
+    copyBtn.addEventListener('click', () => {
+        // Build list of providers that have MEDEX_STUDIO slots (from detectedTemplates)
+        const sources = (Array.isArray(window.detectedTemplates) ? window.detectedTemplates : [])
+            .filter((t) => t.providerId && Number(providerSelect.value || 0) !== Number(t.providerId));
+
+        if (!sources.length) {
+            alert('No other providers have deployed templates yet.');
+            return;
+        }
+
+        const options = sources.map((t) => t.providerId + ' — ' + (t.providerName || 'Provider #' + t.providerId)).join('\n');
+        const choice = prompt('Enter the provider ID to copy from:\n\n' + options);
+        if (!choice) { return; }
+
+        const chosenId = parseInt(choice.trim().split(/[^0-9]/)[0], 10);
+        const srcTemplate = sources.find((t) => Number(t.providerId) === chosenId);
+        if (!srcTemplate || !Array.isArray(srcTemplate.blocks)) {
+            alert('Provider #' + chosenId + ' has no detected template.');
+            return;
+        }
+
+        // Apply the blocks to the grid
+        document.querySelectorAll('.grid-slot').forEach((c) => {
+            c.dataset.slotPayload = '{}';
+            c.style.background = '';
+            c.textContent = '';
+            c.classList.remove('filled-slot');
+        });
+        srcTemplate.blocks.forEach((block) => {
+            if (typeof applyTypeToSlotKey === 'function' && block.typeId > 0) {
+                const key = block.weekday + '_' + block.startMinute;
+                applyTypeToSlotKey(key, {
+                    typeId: block.typeId,
+                    typeName: block.typeName,
+                    durationMinutes: block.slotDuration || 30,
+                    color: block.color,
+                    facilityId: 0
+                });
+            }
+        });
+
+        copyBtn.style.display = 'none';
+        alert('Template from "' + (srcTemplate.providerName || 'Provider #' + chosenId) + '" loaded into the grid. Review and deploy when ready.');
+    });
+}
 
 // ─── Snapshot / Rollback / Copy ─────────────────────────────────────
 function bindSnapshotPanel() {
