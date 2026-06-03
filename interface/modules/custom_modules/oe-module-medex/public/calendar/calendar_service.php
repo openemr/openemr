@@ -1004,7 +1004,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
         $cadence      = trim((string)($payload['cadence'] ?? 'weekly'));
         $weekAStart   = trim((string)($payload['week_a_start'] ?? ''));   // four_week only
         $monthlyMode  = trim((string)($payload['monthly_mode'] ?? 'nth_weekday')); // monthly
-        $monthlyN     = max(1, min(5, (int)($payload['monthly_n'] ?? 1)));         // 1st-5th
+        // Monthly Ns: support multiple occurrences (e.g. [2,4] = 2nd AND 4th Thursday)
+        $rawNs = $payload['monthly_ns'] ?? null;
+        if (is_string($rawNs)) { $rawNs = json_decode($rawNs, true); }
+        $monthlyNs = [];
+        if (is_array($rawNs) && !empty($rawNs)) {
+            foreach ($rawNs as $nv) {
+                $nv = max(1, min(5, (int)$nv));
+                $monthlyNs[] = $nv;
+            }
+            $monthlyNs = array_values(array_unique($monthlyNs));
+        }
+        if (empty($monthlyNs)) {
+            $monthlyNs = [max(1, min(5, (int)($payload['monthly_n'] ?? 1)))];
+        }
         $monthlyWeekday = max(0, min(6, (int)($payload['monthly_weekday'] ?? 0))); // 0=Mon
         $monthlyDate  = max(1, min(31, (int)($payload['monthly_date'] ?? 1)));     // date-of-month
         $sourceTag = 'MEDEX_STUDIO';
@@ -1104,17 +1117,27 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'
                 $targetDate = null;
 
                 if ($monthlyMode === 'nth_weekday') {
-                    // Find Nth occurrence of $monthlyWeekday (0=Mon) in this month.
-                    // ISO day: Mon=1..Sun=7; user's weekday: 0=Mon..6=Sun → ISO = weekday+1
-                    $isoDay = $monthlyWeekday + 1;
+                    // Find each checked occurrence of $monthlyWeekday in this month.
+                    $isoDay = $monthlyWeekday + 1; // 0=Mon→ISO 1
                     $firstOfMonth = new DateTimeImmutable("$year-$month-01");
                     $firstIso = (int)$firstOfMonth->format('N');
                     $offset   = ($isoDay - $firstIso + 7) % 7;
                     $firstOccurrence = $firstOfMonth->modify("+{$offset} days");
-                    $nthOccurrence   = $firstOccurrence->modify('+' . ($monthlyN - 1) . ' weeks');
-                    if ((int)$nthOccurrence->format('m') === $month) {
-                        $targetDate = $nthOccurrence;
+
+                    $candidateDates = [];
+                    foreach ($monthlyNs as $nVal) {
+                        $occ = $firstOccurrence->modify('+' . ($nVal - 1) . ' weeks');
+                        if ((int)$occ->format('m') === $month && $occ >= $today && $occ <= $lastDay) {
+                            $candidateDates[] = $occ->format('Y-m-d');
+                        }
                     }
+                    // Add all candidate dates to dateSlots
+                    foreach ($candidateDates as $cDate) {
+                        foreach ($slotTemplates as $tpl) {
+                            $dateSlots[$cDate][] = $tpl;
+                        }
+                    }
+                    $targetDate = null; // handled above, skip the generic block below
                 } elseif ($monthlyMode === 'date_of_month') {
                     $daysInMonth = (int)(new DateTimeImmutable("$year-$month-01"))->format('t');
                     $day = min($monthlyDate, $daysInMonth);
@@ -2888,23 +2911,26 @@ $templateCount = count($detectedTemplates);
                 <option value="nth_weekday" selected><?php echo xlt('Nth weekday of month'); ?></option>
                 <option value="date_of_month"><?php echo xlt('Specific date of month'); ?></option>
             </select>
-            <div id="cfgMonthlyNthPanel" style="display:flex;gap:6px;margin-top:6px;align-items:center;">
-                <select id="cfgMonthlyN" style="flex:1;">
-                    <option value="1"><?php echo xlt('1st'); ?></option>
-                    <option value="2" selected><?php echo xlt('2nd'); ?></option>
-                    <option value="3"><?php echo xlt('3rd'); ?></option>
-                    <option value="4"><?php echo xlt('4th'); ?></option>
-                    <option value="5"><?php echo xlt('Last'); ?></option>
-                </select>
-                <select id="cfgMonthlyWeekday" style="flex:2;">
+            <div id="cfgMonthlyNthPanel" style="margin-top:6px;">
+                <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px;" id="cfgMonthlyNChecks">
+                    <?php foreach ([1=>'1st',2=>'2nd',3=>'3rd',4=>'4th',5=>'5th (Last)'] as $n => $lbl): ?>
+                    <label style="display:flex;align-items:center;gap:3px;font-size:12px;cursor:pointer;padding:2px 6px;border:1px solid var(--cs-border);border-radius:4px;background:var(--cs-bg);">
+                        <input type="checkbox" name="cfgMonthlyN" value="<?php echo attr((string)$n); ?>"
+                               <?php echo $n <= 4 ? 'style="accent-color:var(--cs-accent);"' : ''; ?>>
+                        <?php echo xlt($lbl); ?>
+                    </label>
+                    <?php endforeach; ?>
+                </div>
+                <select id="cfgMonthlyWeekday" style="width:100%;">
                     <option value="0"><?php echo xlt('Monday'); ?></option>
                     <option value="1"><?php echo xlt('Tuesday'); ?></option>
                     <option value="2"><?php echo xlt('Wednesday'); ?></option>
-                    <option value="3"><?php echo xlt('Thursday'); ?></option>
+                    <option value="3" selected><?php echo xlt('Thursday'); ?></option>
                     <option value="4"><?php echo xlt('Friday'); ?></option>
                     <option value="5"><?php echo xlt('Saturday'); ?></option>
                     <option value="6"><?php echo xlt('Sunday'); ?></option>
                 </select>
+                <span style="font-size:10px;color:var(--cs-subtle);display:block;margin-top:3px;"><?php echo xlt('Check each occurrence to include (e.g. 2nd and 4th Thursday).'); ?></span>
             </div>
             <div id="cfgMonthlyDatePanel" style="display:none;margin-top:6px;">
                 <input type="number" id="cfgMonthlyDate" min="1" max="31" value="1" style="width:70px;">
@@ -4144,7 +4170,8 @@ function bindToolbar() {
             week_a_start:    document.getElementById('cfgWeekAStart')?.value || '',
             // Monthly
             monthly_mode:    document.getElementById('cfgMonthlyMode')?.value || 'nth_weekday',
-            monthly_n:       parseInt(document.getElementById('cfgMonthlyN')?.value || '1', 10) || 1,
+            monthly_ns:      JSON.stringify(Array.from(document.querySelectorAll('input[name="cfgMonthlyN"]:checked')).map((cb) => parseInt(cb.value, 10)).filter((n) => n > 0)),
+            monthly_n:       parseInt(document.querySelector('input[name="cfgMonthlyN"]:checked')?.value || '1', 10) || 1,
             monthly_weekday: parseInt(document.getElementById('cfgMonthlyWeekday')?.value || '0', 10) || 0,
             monthly_date:    parseInt(document.getElementById('cfgMonthlyDate')?.value || '1', 10) || 1,
         };
