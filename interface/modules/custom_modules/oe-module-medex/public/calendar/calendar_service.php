@@ -3115,9 +3115,11 @@ $templateCount = count($detectedTemplates);
                     <input id="slotDuration" type="number" min="5" max="240" step="5" value="30">
                     <label for="inspectorFacility" style="margin-top:8px; display:block;"><?php echo xlt('Facility'); ?></label>
                     <select id="inspectorFacility">
-                        <option value="0"><?php echo xlt('— Type Default —'); ?></option>
                         <?php foreach ($facilities as $f): ?>
-                            <option value="<?php echo attr((string)$f['id']); ?>"><?php echo text($f['name']); ?></option>
+                            <option value="<?php echo attr((string)$f['id']); ?>"
+                                <?php echo ($f['id'] === $defaultFacilityId ? ' selected' : ''); ?>>
+                                <?php echo text($f['name']); ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -3290,6 +3292,18 @@ const facilityMap = <?php
     foreach ($facilities as $f) { $fMap[(string)$f['id']] = $f['name']; }
     echo json_encode($fMap, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 ?>;
+const DEFAULT_FACILITY_ID = <?php echo (int)$defaultFacilityId; ?>;
+
+// Resolve the effective facility for a slot: slot's own facility → type's facility → practice default.
+// Never returns 0; always resolves to a real facility so the inspector is never blank.
+function resolveSlotFacility(slotFacilityId, typeId) {
+    const sid = Number(slotFacilityId) || 0;
+    if (sid > 0 && facilityMap[String(sid)]) { return sid; }
+    const type = getAppointmentTypeById(typeId);
+    const tfid = Number((type && type.facilityId) || 0);
+    if (tfid > 0 && facilityMap[String(tfid)]) { return tfid; }
+    return DEFAULT_FACILITY_ID || Number(Object.keys(facilityMap)[0] || 0);
+}
 
 const slots = new Map();
 const selectedSlotKeys = new Set();
@@ -3878,7 +3892,9 @@ function selectSlot(key, options = {}) {
     document.getElementById('rulePatientBook').checked = !!slot.patientBook;
     document.getElementById('rulePatientRebook').checked = !!slot.patientRebook;
     const facilityEl = document.getElementById('inspectorFacility');
-    if (facilityEl) { facilityEl.value = String(slot.facilityId || ''); }
+    if (facilityEl) {
+        facilityEl.value = String(resolveSlotFacility(slot.facilityId, slot.typeId));
+    }
 }
 
 function syncInspectorToSlot() {
@@ -3897,7 +3913,9 @@ function syncInspectorToSlot() {
     slot.patientBook = document.getElementById('rulePatientBook').checked;
     slot.patientRebook = document.getElementById('rulePatientRebook').checked;
     const facilityEl = document.getElementById('inspectorFacility');
-    slot.facilityId = facilityEl ? (facilityEl.value || '') : (slot.facilityId || '');
+    slot.facilityId = facilityEl
+        ? (Number(facilityEl.value) > 0 ? facilityEl.value : String(resolveSlotFacility(0, slot.typeId)))
+        : String(resolveSlotFacility(slot.facilityId, slot.typeId));
     clearOverlapsForSpan(slot.dayIdx, slot.minute, slot.durationMinutes, selectedSlotKey);
     slots.set(selectedSlotKey, slot);
     renderAllSlots();
@@ -4025,7 +4043,7 @@ function bindToolbar() {
                 dayIdx:          slot.dayIdx,
                 minute:          slot.minute,
                 weekIndex:       0,
-                facilityId:      slot.facilityId || '',
+                facilityId:      resolveSlotFacility(slot.facilityId, slot.typeId),
                 typeId:          slot.typeId,
                 typeName:        slot.typeName,
                 durationMinutes: Number(slot.durationMinutes || SLOT_MINUTES),
@@ -5151,7 +5169,7 @@ function openSlotModal(key) {
 
     document.getElementById('slotEditTitle').textContent = 'Edit Slot';
     document.getElementById('slotEditWhen').value = DAYS[slot.dayIdx] + ' at ' + timeLabel(slot.minute);
-    document.getElementById('slotEditFacility').value = String(slot.facilityId || '');
+    document.getElementById('slotEditFacility').value = String(resolveSlotFacility(slot.facilityId, slot.typeId));
     document.getElementById('slotEditType').value = String(slot.typeId || '');
     const typeDefaultDuration = getDefaultDurationForType(Number(slot.typeId || 0));
     const currentDuration = Number(slot.durationMinutes || 0);
@@ -5473,7 +5491,7 @@ function bindProviderCopyFrom() {
                     typeName: block.typeName,
                     durationMinutes: block.slotDuration || 30,
                     color: block.color,
-                    facilityId: 0
+                    facilityId: resolveSlotFacility(0, block.typeId)
                 });
             }
         });
