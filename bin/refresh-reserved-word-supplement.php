@@ -43,8 +43,14 @@ if (PHP_SAPI !== 'cli') {
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use OpenEMR\Common\Command\RootCliGuard;
 use PhpMyAdmin\SqlParser\Context;
 use PhpMyAdmin\SqlParser\Token;
+
+// Refuse to run as root — see RootCliGuard. Uniform policy across bin/
+// scripts; this one writes the registry + snapshot files in-tree which
+// apache later needs to read at PHPStan-analyze time.
+RootCliGuard::assertNotRoot();
 
 const SNAPSHOT_DIR = __DIR__ . '/../tests/PHPStan/Rules/Sql/snapshots';
 const REGISTRY_FILE = __DIR__ . '/../tests/PHPStan/Rules/Sql/ReservedWordRegistry.php';
