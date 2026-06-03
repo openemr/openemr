@@ -225,6 +225,7 @@
             "ext-pdo": "8.2",
             "ext-pdo_mysql": "8.2",
             "ext-phar": "8.2",
+            "ext-redis": "8.2",
             "ext-session": "8.2",
             "ext-simplexml": "8.2",
             "ext-soap": "8.2",
