@@ -2,7 +2,7 @@
 
 This document is the **complete release runbook** for tagged OpenEMR releases — every step from pre-release QA through post-release announcements, including the parts that are automated, the parts that aren't yet, and the parts that are irreducibly manual.
 
-The automation core spans four repositories and is driven by `repository_dispatch` events (most emitted by this repo as the conductor; one — `openemr-docs-binaries` — emitted by `website-openemr` to `website-openemr-files`). It opens three reviewable PRs that cover code/version bumps, install/upgrade/release-notes pages, and CI/Docker pin rotation. Two post-merge steps (demo-farm tag bump, social/forum/email announcement fan-out) remain manual today; see [Automation gaps](#automation-gaps).
+The automation core spans three repositories and is driven by `repository_dispatch` events emitted by this repo as the conductor. It opens three reviewable PRs that cover code/version bumps, install/upgrade/release-notes pages, and CI/Docker pin rotation. Two post-merge steps (demo-farm tag bump, social/forum/email announcement fan-out) remain manual today; see [Automation gaps](#automation-gaps).
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below. For the end-to-end ordered checklist a release manager actually walks through, jump to [Release runbook](#release-runbook).
 
@@ -10,9 +10,8 @@ For background on why the flow is shaped this way, see [openemr/openemr-devops#6
 
 | Repository | Role |
 | --- | --- |
-| [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to `openemr-devops` and `website-openemr`. (`website-openemr-files` is updated downstream by `website-openemr`, not directly by this repo.) |
-| [`openemr/website-openemr`](https://github.com/openemr/website-openemr) | **Docs consumer.** Subscribes to `rel-*` events. Generates per-version Hugo pages (install, upgrade, OpenAPI, release notes draft, acknowledgements). DRAFT until the tag event flips it to FINAL. |
-| [`openemr/website-openemr-files`](https://github.com/openemr/website-openemr-files) | **Binaries target.** Hosts large generated artifacts (EHI/B10 schemaspy HTML trees) referenced by the docs PR. Updated by the same workflow that updates `website-openemr`. |
+| [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to `openemr-devops` and `website-openemr`. |
+| [`openemr/website-openemr`](https://github.com/openemr/website-openemr) | **Docs consumer.** Subscribes to `rel-*` and tag events. Generates per-version Hugo pages (install, upgrade, OpenAPI, release notes draft, acknowledgements). On `openemr-tag` it also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation and publishes it under `/documentation/<version>/b10/` (tracked by git-lfs) in the same docs PR. DRAFT until the tag event flips it to FINAL. |
 | [`openemr/openemr-devops`](https://github.com/openemr/openemr-devops) | **Infra consumer.** Subscribes to `rel-*` and tag events. Rotates the `current` / `next` / `dev` slot in CI matrices, package versions, and Docker pins. Owns the canonical source for the cross-repo dispatch contract and tag verifier. |
 
 ## Cross-repo flow
@@ -37,8 +36,6 @@ flowchart TB
         docsPR(["release-docs/&lt;version&gt; PR<br/>reviewable"])
     end
 
-    wof[("openemr/website-openemr-files<br/>large binaries")]
-
     subgraph od["openemr/openemr-devops"]
         ship{{"ship-release.yml<br/>merges 3 PRs in order"}}
         infraPR(["release-rotation/auto PR<br/>reviewable"])
@@ -62,7 +59,6 @@ flowchart TB
     prepPR -. openemr-rel-update .-> infraPR
     tag -. openemr-tag .-> docsPR
     tag -. openemr-tag .-> infraPR
-    docsPR -. openemr-docs-binaries .-> wof
 
     classDef manualStep fill:#fff4cc,stroke:#b58900
     classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
@@ -78,14 +74,13 @@ flowchart TB
 
 ## Cross-repo events
 
-The conductor in `openemr/openemr` emits `repository_dispatch` on every push to `rel-*` and on tag creation, targeting `openemr/openemr-devops` and `openemr/website-openemr`. Separately, `openemr/website-openemr` emits `openemr-docs-binaries` to `openemr/website-openemr-files` once large generated artifacts are ready to publish. Consumers subscribe via the matching `repository_dispatch` workflow trigger.
+The conductor in `openemr/openemr` emits `repository_dispatch` on every push to `rel-*` and on tag creation, targeting `openemr/openemr-devops` and `openemr/website-openemr`. Consumers subscribe via the matching `repository_dispatch` workflow trigger.
 
 | Event | Emitter → target | When | `data` payload |
 | --- | --- | --- | --- |
 | `openemr-rel-cut` | `openemr/openemr` → devops, website-openemr | First push to a new `rel-*` branch | `{ branch, version, prev_release }` |
 | `openemr-rel-update` | `openemr/openemr` → devops, website-openemr | Subsequent push to an existing `rel-*` branch | `{ branch, version, prev_release }` |
 | `openemr-tag` | `openemr/openemr` → devops, website-openemr | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
-| `openemr-docs-binaries` | `openemr/website-openemr` → website-openemr-files | Large artifacts ready to publish to the binaries repo | `{ version, branch, files }` (`files` is a non-empty array) |
 
 Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data }`.
 
@@ -105,7 +100,7 @@ In short, the conductor rewrites: `version.php`, `library/globals.inc.php` (debu
 
 Long-lived PR per release. Generated content: install/upgrade Hugo pages, OpenAPI YAML, release-notes draft (grouped by `feat:` / `bug:` / `refactor:` / `chore:` prefix), acknowledgements (from `git shortlog vPREV..HEAD`), Hugo aliases for legacy URLs. Pages render with a `DRAFT — based on rel-* @ <sha>` shortcode until the `openemr-tag` event flips them to FINAL.
 
-Large binaries (EHI/B10 schemaspy output) are pushed by the same workflow to `openemr/website-openemr-files` under `files/openemr-<version>-ehi/`.
+On the `openemr-tag` event, the same workflow also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation from the tagged release's schema and commits it under `static/documentation/<version>/b10/` (tracked by git-lfs) in this same docs PR. It is served at `/documentation/<version>/b10/`. The table set in scope is read from `Documentation/EHI_Export/b10-tables.yml` in the tagged openemr checkout, so it always matches that release's schema.
 
 ### Infra PR — `release-rotation/auto` in `openemr/openemr-devops`
 
