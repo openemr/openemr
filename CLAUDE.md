@@ -54,7 +54,30 @@ a per-worktree compose override with its assigned port offset, and a
 generated `.env`. Bypassing it leaves orphaned state files, port collisions
 between worktrees, and broken compose stacks that the script can no longer
 recover. Always use `openemr-cmd worktree` subcommands instead — `add`,
-`remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`.
+`remove`, `up`, `down`, `start`, `stop`, `exec`, `set-env`, `list`, `regen`,
+`prune`.
+
+Even for tasks where it feels like you don't need a docker stack (docs-only
+PRs, branch checkouts for review), still use `openemr-cmd worktree add
+<branch> --start` (`-b` if the branch is new). The `git commit` hook routes
+via openemr-cmd into the worktree's container, so without a state entry
+pointing the hook at a running stack, commits fail with `Could not
+automatically determine target OpenEMR container`. Raw `git worktree add`
+skips both the state registration and the stack. If you already made that
+mistake, recovery is `git worktree remove <path>` then `openemr-cmd worktree
+add <branch> --start` (omit `-b` since the branch persists).
+
+If `openemr-cmd worktree list` shows entries with status `missing` or
+`invalid` (and a footer `(N stale state entries — run "openemr-cmd worktree
+prune" to clean up; directories on disk are left intact)`), a worktree's
+state has drifted from disk/git reality. Run `openemr-cmd worktree prune`
+to remove those state entries — never hand-edit `.worktrees.json`. If
+instead the footer reads `(N entries have missing compose files — run
+"openemr-cmd worktree regen <branch>" to regenerate)`, the directory is
+intact but its compose files are gone; use `regen`, not `prune`.
+`openemr-cmd worktree remove <branch>` is also tolerant of an
+already-missing directory: it cleans the state entry, skips the destructive
+steps, and prints a manual hint for any leftover docker resources.
 
 When running commands against a worktree's containers, use
 `openemr-cmd worktree exec <branch> <cmd>` rather than
