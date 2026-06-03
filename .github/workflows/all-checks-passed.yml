@@ -9,7 +9,7 @@ on:
 jobs:
   all-checks:
     name: All Checks Passed
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
     - uses: lewagon/wait-on-check-action@v1.7.0
       with:
