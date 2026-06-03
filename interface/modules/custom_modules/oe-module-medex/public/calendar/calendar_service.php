@@ -1769,8 +1769,9 @@ $templateCount = count($detectedTemplates);
 
         html, body {
             margin: 0;
-            height: 100%;
-            overflow: hidden;
+            height: auto;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         body {
@@ -1782,20 +1783,16 @@ $templateCount = count($detectedTemplates);
         .cs-shell {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
             gap: 8px;
             padding: 6px 14px 24px;
         }
 
         .cs-topbar {
-            position: sticky;
-            top: 0;
-            z-index: 200;
-            background: var(--cs-bg, #f0f4f8);
+            background: transparent;
             border: none;
             border-radius: 0;
             box-shadow: none;
-            padding: 4px 2px 6px;
+            padding: 4px 2px;
             display: grid;
             grid-template-columns: 1fr auto;
             gap: 10px;
@@ -2042,8 +2039,7 @@ $templateCount = count($detectedTemplates);
             display: grid;
             grid-template-columns: 260px 1fr 280px;
             gap: 12px;
-            flex: 1;
-            align-items: start;       /* panels grow to their own natural height */
+            align-items: start;
         }
 
         .panel {
@@ -2052,21 +2048,13 @@ $templateCount = count($detectedTemplates);
             border-radius: 14px;
             box-shadow: var(--cs-shadow);
             padding: 12px;
-            overflow: visible;        /* let content grow; individual panels scroll internally */
+            overflow: auto;
         }
 
-        /* The grid panel is the tallest element — give it a comfortable minimum */
+        /* Grid panel: tall enough to show a full day without internal scrolling */
         .panel.calendar-wrap {
             overflow: auto;
-            min-height: 600px;
-        }
-
-        /* Left/right panels scroll internally when long */
-        .panel:not(.calendar-wrap) {
-            overflow-y: auto;
-            max-height: calc(100vh - 80px);
-            position: sticky;
-            top: 70px;               /* offset below sticky topbar */
+            min-height: 700px;
         }
 
         .panel h3 {
