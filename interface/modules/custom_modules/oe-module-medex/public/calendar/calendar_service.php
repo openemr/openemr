@@ -380,20 +380,23 @@ function cs_load_appointment_types(): array
 {
     $types = [];
     $res = sqlStatement(
-        "SELECT pc_catid, pc_catname, pc_catcolor, COALESCE(pc_duration, 30) AS pc_duration
-         FROM openemr_postcalendar_categories
-         WHERE COALESCE(pc_active, 1) = 1
-           AND COALESCE(pc_cattype, 0) = 0
-           AND TRIM(COALESCE(pc_catname, '')) <> ''
-           AND LOWER(REPLACE(TRIM(COALESCE(pc_catname, '')), ' ', '')) <> 'noshow'
-         ORDER BY COALESCE(pc_seq, 9999), pc_catname"
+        "SELECT c.pc_catid, c.pc_catname, c.pc_catcolor, COALESCE(c.pc_duration, 30) AS pc_duration,
+                COALESCE(p.facility_id, 0) AS facility_id
+         FROM openemr_postcalendar_categories c
+         LEFT JOIN medex_category_prefs p ON p.pc_catid = c.pc_catid
+         WHERE COALESCE(c.pc_active, 1) = 1
+           AND COALESCE(c.pc_cattype, 0) = 0
+           AND TRIM(COALESCE(c.pc_catname, '')) <> ''
+           AND LOWER(REPLACE(TRIM(COALESCE(c.pc_catname, '')), ' ', '')) <> 'noshow'
+         ORDER BY COALESCE(c.pc_seq, 9999), c.pc_catname"
     );
     while ($row = sqlFetchArray($res)) {
         $types[] = [
-            'id' => (int)($row['pc_catid'] ?? 0),
-            'name' => (string)($row['pc_catname'] ?? 'Appointment'),
-            'color' => cs_normalize_hex_color((string)($row['pc_catcolor'] ?? '')),
-            'duration' => cs_normalize_duration_minutes($row['pc_duration'] ?? 30),
+            'id'         => (int)($row['pc_catid'] ?? 0),
+            'name'       => (string)($row['pc_catname'] ?? 'Appointment'),
+            'color'      => cs_normalize_hex_color((string)($row['pc_catcolor'] ?? '')),
+            'duration'   => cs_normalize_duration_minutes($row['pc_duration'] ?? 30),
+            'facilityId' => (int)($row['facility_id'] ?? 0),
         ];
     }
     return $types;
@@ -572,11 +575,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             }
 
             if ($action === 'upsert_category') {
-                $categoryId = (int)($_POST['category_id'] ?? 0);
-                $name = trim((string)($_POST['category_name'] ?? ''));
-                $duration = cs_normalize_duration_minutes($_POST['duration'] ?? 30);
-                $durationDb = cs_category_duration_to_db_value($duration);
-                $color = cs_normalize_hex_color((string)($_POST['color'] ?? '#1d4ed8'));
+                $categoryId  = (int)($_POST['category_id'] ?? 0);
+                $name        = trim((string)($_POST['category_name'] ?? ''));
+                $duration    = cs_normalize_duration_minutes($_POST['duration'] ?? 30);
+                $durationDb  = cs_category_duration_to_db_value($duration);
+                $color       = cs_normalize_hex_color((string)($_POST['color'] ?? '#1d4ed8'));
+                $facilityPref = (int)($_POST['facility_id'] ?? 0);
                 if ($name === '') {
                     cs_json_exit(['success' => false, 'error' => 'Category name is required.']);
                 }
@@ -625,6 +629,24 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                          VALUES (?, ?, ?, ?, 0, ?, 0, ?, 0, 0, 0, 0, 0, 0, 1, ?, 'encounters|notes')",
                         [$name, $constantId, 'Managed in Calendar Service Studio', $color, '', $durationDb, $nextSeq]
                     );
+                }
+
+                // Save/update facility preference for this type.
+                $savedCatId = (int)sqlQuery(
+                    "SELECT pc_catid FROM openemr_postcalendar_categories WHERE LOWER(pc_catname)=LOWER(?) LIMIT 1",
+                    [$name]
+                )['pc_catid'] ?? 0;
+                if ($savedCatId <= 0 && !empty($existing['pc_catid'])) {
+                    $savedCatId = (int)$existing['pc_catid'];
+                }
+                if ($savedCatId > 0 && $facilityPref >= 0) {
+                    try {
+                        sqlStatement(
+                            "INSERT INTO medex_category_prefs (pc_catid, facility_id) VALUES (?, ?)
+                             ON DUPLICATE KEY UPDATE facility_id = VALUES(facility_id)",
+                            [$savedCatId, $facilityPref]
+                        );
+                    } catch (\Throwable $ignored) {}
                 }
 
                 cs_json_exit(['success' => true, 'types' => cs_load_appointment_types()]);
@@ -861,6 +883,84 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     }
 }
 
+// ── Template snapshot / rollback / copy ─────────────────────────────────────
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' &&
+    in_array((string)($_POST['action'] ?? ''), ['save_snapshot','list_snapshots','restore_snapshot','copy_snapshot'], true)) {
+    try {
+        $snapAction = (string)($_POST['action'] ?? '');
+
+        if ($snapAction === 'save_snapshot') {
+            $providerId    = (int)($_POST['provider_id'] ?? 0);
+            $snapName      = trim((string)($_POST['snapshot_name'] ?? ''));
+            $templateJson  = (string)($_POST['template_json'] ?? '');
+            $notes         = trim((string)($_POST['notes'] ?? ''));
+            if ($providerId <= 0 || $templateJson === '' || json_decode($templateJson) === null) {
+                cs_json_exit(['success' => false, 'error' => 'Invalid snapshot data.']);
+            }
+            if ($snapName === '') {
+                $snapName = 'Snapshot ' . date('Y-m-d H:i');
+            }
+            $userId = (int)($_SESSION['authUserID'] ?? 0);
+            sqlInsert(
+                "INSERT INTO medex_studio_snapshots (provider_id, snapshot_name, created_by, template_json, notes)
+                 VALUES (?, ?, ?, ?, ?)",
+                [$providerId, $snapName, $userId, $templateJson, $notes]
+            );
+            $sid = sqlQuery("SELECT LAST_INSERT_ID() AS sid")['sid'] ?? 0;
+            cs_json_exit(['success' => true, 'snapshot_id' => (int)$sid, 'message' => 'Snapshot saved.']);
+        }
+
+        if ($snapAction === 'list_snapshots') {
+            $providerId = (int)($_POST['provider_id'] ?? 0);
+            if ($providerId <= 0) { cs_json_exit(['success' => false, 'error' => 'provider_id required']); }
+            $rows = [];
+            $res = sqlStatement(
+                "SELECT snapshot_id, snapshot_name, created_at, notes, created_by
+                 FROM medex_studio_snapshots
+                 WHERE provider_id = ?
+                 ORDER BY snapshot_id DESC LIMIT 50",
+                [$providerId]
+            );
+            while ($r = sqlFetchArray($res)) {
+                $rows[] = [
+                    'id'      => (int)$r['snapshot_id'],
+                    'name'    => (string)$r['snapshot_name'],
+                    'date'    => (string)$r['created_at'],
+                    'notes'   => (string)$r['notes'],
+                ];
+            }
+            cs_json_exit(['success' => true, 'snapshots' => $rows]);
+        }
+
+        if ($snapAction === 'restore_snapshot') {
+            $snapId = (int)($_POST['snapshot_id'] ?? 0);
+            if ($snapId <= 0) { cs_json_exit(['success' => false, 'error' => 'snapshot_id required']); }
+            $snap = sqlQuery("SELECT template_json, snapshot_name FROM medex_studio_snapshots WHERE snapshot_id = ? LIMIT 1", [$snapId]);
+            if (empty($snap['template_json'])) { cs_json_exit(['success' => false, 'error' => 'Snapshot not found.']); }
+            cs_json_exit(['success' => true, 'template_json' => $snap['template_json'], 'name' => $snap['snapshot_name']]);
+        }
+
+        if ($snapAction === 'copy_snapshot') {
+            $snapId       = (int)($_POST['snapshot_id'] ?? 0);
+            $targetProv   = (int)($_POST['target_provider_id'] ?? 0);
+            $newName      = trim((string)($_POST['new_name'] ?? ''));
+            if ($snapId <= 0 || $targetProv <= 0) { cs_json_exit(['success' => false, 'error' => 'snapshot_id and target_provider_id required']); }
+            $snap = sqlQuery("SELECT template_json, snapshot_name FROM medex_studio_snapshots WHERE snapshot_id = ? LIMIT 1", [$snapId]);
+            if (empty($snap['template_json'])) { cs_json_exit(['success' => false, 'error' => 'Snapshot not found.']); }
+            $newSnapName = $newName !== '' ? $newName : ('Copy of ' . $snap['snapshot_name']);
+            $userId = (int)($_SESSION['authUserID'] ?? 0);
+            sqlInsert(
+                "INSERT INTO medex_studio_snapshots (provider_id, snapshot_name, created_by, template_json, notes)
+                 VALUES (?, ?, ?, ?, ?)",
+                [$targetProv, $newSnapName, $userId, $snap['template_json'], 'Copied from snapshot #' . $snapId]
+            );
+            cs_json_exit(['success' => true, 'message' => 'Template copied to provider #' . $targetProv]);
+        }
+    } catch (\Throwable $ex) {
+        cs_json_exit(['success' => false, 'error' => $ex->getMessage()]);
+    }
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && (string)($_POST['action'] ?? '') === 'deploy_template') {
     try {
         $payloadRaw = (string)($_POST['payload'] ?? '');
@@ -1058,6 +1158,7 @@ while ($row = sqlFetchArray($providerRes)) {
 }
 
 $facilities = [];
+$defaultFacilityId = 0;
 try {
     $facilityRes = sqlStatement("SELECT id, name FROM facility ORDER BY name");
     while ($frow = sqlFetchArray($facilityRes)) {
@@ -1065,10 +1166,37 @@ try {
             'id' => (int)($frow['id'] ?? 0),
             'name' => (string)($frow['name'] ?? ''),
         ];
+        if ($defaultFacilityId === 0) {
+            $defaultFacilityId = (int)($frow['id'] ?? 0); // first facility = default
+        }
     }
 } catch (\Throwable $ignored) {
     $facilities = [];
 }
+
+// Auto-create medex_category_prefs (per-type facility preference)
+try {
+    sqlStatement("CREATE TABLE IF NOT EXISTS medex_category_prefs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        pc_catid INT NOT NULL,
+        facility_id INT NOT NULL DEFAULT 0,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        UNIQUE KEY uq_catid (pc_catid)
+    )");
+} catch (\Throwable $ignored) {}
+
+// Auto-create medex_studio_snapshots (template version history)
+try {
+    sqlStatement("CREATE TABLE IF NOT EXISTS medex_studio_snapshots (
+        snapshot_id INT AUTO_INCREMENT PRIMARY KEY,
+        provider_id INT NOT NULL,
+        snapshot_name VARCHAR(255) NOT NULL DEFAULT '',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_by INT,
+        template_json MEDIUMTEXT,
+        notes TEXT
+    )");
+} catch (\Throwable $ignored) {}
 
 $appointmentTypes = cs_load_appointment_types();
 
@@ -2572,14 +2700,7 @@ $templateCount = count($detectedTemplates);
             <span style="font-size:10px;font-weight:400;color:var(--cs-subtle);"><?php echo xlt('(review before deploying)'); ?></span>
         </button>
         <div class="cs-config" id="csConfig" style="display:none;">
-        <div class="field">
-            <label><?php echo xlt('Facility'); ?></label>
-            <select id="cfgFacility">
-                <?php foreach ($facilities as $f): ?>
-                    <option value="<?php echo attr((string)$f['id']); ?>"><?php echo text($f['name']); ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+        <!-- Facility is now set per-slot-type in Manage Types, not globally here -->
         <div class="field">
             <label><?php echo xlt('Template Cadence'); ?></label>
             <select id="cfgCadence">
@@ -2823,7 +2944,23 @@ $templateCount = count($detectedTemplates);
                     <?php endforeach; ?>
                     <?php endif; ?>
                 </div>
-                <p class="empty-note"><?php echo xlt('Tip: drag a type onto a time cell. Click a slot to set whether patients can see it for booking and rescheduling.'); ?></p>
+                        <p class="empty-note"><?php echo xlt('Tip: drag a type onto a time cell. Click a slot to set whether patients can see it for booking and rescheduling.'); ?></p>
+            </div>
+
+            <!-- Template Snapshots -->
+            <div class="section-head" style="margin-top:16px;">
+                <button class="section-toggle" type="button" data-collapse-toggle="snapshots" aria-expanded="false" aria-controls="collapseSnapshotsBody">
+                    <span class="icon">▸</span><span><?php echo xlt('Snapshots / Rollback'); ?></span>
+                </button>
+            </div>
+            <div class="section-body" id="collapseSnapshotsBody" style="display:none;">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                    <button class="btn primary" type="button" id="btnSaveSnapshot"><?php echo xlt('Save Snapshot'); ?></button>
+                    <button class="btn" type="button" id="btnLoadSnapshots"><?php echo xlt('Restore…'); ?></button>
+                    <button class="btn" type="button" id="btnCopySnapshot"><?php echo xlt('Copy to Provider…'); ?></button>
+                </div>
+                <div id="snapshotList" style="max-height:200px;overflow-y:auto;font-size:12px;"></div>
+                <div id="snapshotStatus" style="font-size:11px;margin-top:4px;color:#555;"></div>
             </div>
         </aside>
 
@@ -2849,7 +2986,7 @@ $templateCount = count($detectedTemplates);
                     <input id="slotDuration" type="number" min="5" max="240" step="5" value="30">
                     <label for="inspectorFacility" style="margin-top:8px; display:block;"><?php echo xlt('Facility'); ?></label>
                     <select id="inspectorFacility">
-                        <option value=""><?php echo xlt('All Facilities'); ?></option>
+                        <option value="0"><?php echo xlt('— Type Default —'); ?></option>
                         <?php foreach ($facilities as $f): ?>
                             <option value="<?php echo attr((string)$f['id']); ?>"><?php echo text($f['name']); ?></option>
                         <?php endforeach; ?>
@@ -2901,6 +3038,15 @@ $templateCount = count($detectedTemplates);
                 <div class="field" style="margin-top:10px;">
                     <label for="mtDuration"><?php echo xlt('Default Duration (minutes)'); ?></label>
                     <input id="mtDuration" type="number" min="5" max="240" step="5" value="30">
+                </div>
+                <div class="field" style="margin-top:10px;">
+                    <label for="mtFacility"><?php echo xlt('Default Facility'); ?></label>
+                    <select id="mtFacility">
+                        <option value="0"><?php echo xlt('— Practice Default —'); ?></option>
+                        <?php foreach ($facilities as $f): ?>
+                            <option value="<?php echo attr((string)$f['id']); ?>"><?php echo text($f['name']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div style="display:flex; gap:8px; margin-top:12px;">
                     <button class="btn primary" type="button" id="btnManageTypesSave"><?php echo xlt('Save Type'); ?></button>
@@ -4316,9 +4462,10 @@ function bindManageTypesModal() {
     const newBtn = document.getElementById('btnManageTypesNew');
     const saveBtn = document.getElementById('btnManageTypesSave');
     const resetBtn = document.getElementById('btnManageTypesReset');
-    const nameEl = document.getElementById('mtName');
-    const colorEl = document.getElementById('mtColor');
+    const nameEl     = document.getElementById('mtName');
+    const colorEl    = document.getElementById('mtColor');
     const durationEl = document.getElementById('mtDuration');
+    const facilityEl = document.getElementById('mtFacility');
     let editCategoryId = 0;
 
     if (!modal || !openBtn || !closeBtn || !listEl || !statusEl || !newBtn || !saveBtn || !resetBtn || !nameEl || !colorEl || !durationEl) {
@@ -4349,6 +4496,7 @@ function bindManageTypesModal() {
         nameEl.value = '';
         colorEl.value = '#1d4ed8';
         durationEl.value = '30';
+        if (facilityEl) facilityEl.value = '0';
         syncColorPreview('#1d4ed8');
     };
 
@@ -4421,6 +4569,7 @@ function bindManageTypesModal() {
         nameEl.value = String(row.name || '');
         colorEl.value = String(row.color || '#1d4ed8');
         durationEl.value = String(Number(row.duration || 30));
+        if (facilityEl) facilityEl.value = String(Number(row.facilityId || 0));
         syncColorPreview(colorEl.value);
         setStatus('');
     };
@@ -4485,7 +4634,8 @@ function bindManageTypesModal() {
                 category_id: editCategoryId,
                 category_name: name,
                 duration,
-                color
+                color,
+                facility_id: facilityEl ? Number(facilityEl.value || 0) : 0
             });
             appointmentTypes = Array.isArray(data.types) ? data.types : [];
             refreshAppointmentTypeControls();
@@ -5004,9 +5154,134 @@ bindPatterns();
 bindManageTypesModal();
 bindSlotModal();
 initCollapsibleSections();
+bindSnapshotPanel();
 queueStableRender();
 window.addEventListener('load', queueStableRender);
 window.addEventListener('resize', queueStableRender);
+
+// ─── Snapshot / Rollback / Copy ─────────────────────────────────────
+function bindSnapshotPanel() {
+    const saveBtn   = document.getElementById('btnSaveSnapshot');
+    const loadBtn   = document.getElementById('btnLoadSnapshots');
+    const copyBtn   = document.getElementById('btnCopySnapshot');
+    const listEl    = document.getElementById('snapshotList');
+    const statusEl  = document.getElementById('snapshotStatus');
+    if (!saveBtn || !loadBtn || !copyBtn) { return; }
+
+    const providerSelect = document.getElementById('csProvider');
+    const getProviderId  = () => providerSelect ? Number(providerSelect.value || 0) : 0;
+
+    const setStatus = (msg, ok) => {
+        if (!statusEl) { return; }
+        statusEl.textContent = msg || '';
+        statusEl.style.color = ok ? '#166534' : '#991b1b';
+    };
+
+    const captureGrid = () => {
+        const slots = [];
+        document.querySelectorAll('.grid-slot[data-day][data-minute]').forEach((cell) => {
+            const payload = JSON.parse(cell.dataset.slotPayload || '{}');
+            if (payload && payload.typeId > 0) {
+                slots.push({ dayIdx: Number(cell.dataset.day), minute: Number(cell.dataset.minute), ...payload });
+            }
+        });
+        return JSON.stringify({
+            slots,
+            cadence:    document.getElementById('cfgCadence')?.value || 'weekly',
+            strictness: document.querySelector('input[name="cfgStrictness"]:checked')?.value || 'guide',
+            horizonDays: document.getElementById('cfgHorizonDays')?.value || '30',
+        });
+    };
+
+    saveBtn.addEventListener('click', async () => {
+        const pid = getProviderId();
+        if (!pid) { setStatus('Select a provider first.', false); return; }
+        const name = (prompt('Snapshot name (optional):') ?? '').trim();
+        if (name === null) { return; }
+        const body = new URLSearchParams({ action: 'save_snapshot', provider_id: pid, snapshot_name: name, template_json: captureGrid() });
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        try {
+            const resp = await fetch(location.href, { method: 'POST', body });
+            const data = await resp.json();
+            setStatus(data.success ? '✓ Snapshot saved.' : (data.error || 'Error'), !!data.success);
+        } catch (e) { setStatus('Network error', false); }
+    });
+
+    const renderSnapshotList = (snapshots) => {
+        if (!listEl) { return; }
+        if (!snapshots.length) { listEl.innerHTML = '<em>No snapshots saved yet.</em>'; return; }
+        listEl.innerHTML = snapshots.map((s) => {
+            const d = new Date(s.date).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+            return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:1px solid #eee;">'
+                + '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="' + s.name.replace(/"/g,'&quot;') + '">' + s.name + '</span>'
+                + '<span style="color:#888;font-size:10px;white-space:nowrap;">' + d + '</span>'
+                + '<button class="btn" style="padding:2px 8px;font-size:11px;" data-snap-id="' + s.id + '" data-action="restore">Restore</button>'
+                + '</div>';
+        }).join('');
+        listEl.querySelectorAll('button[data-action="restore"]').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('Restore this snapshot? Unsaved grid changes will be lost.')) { return; }
+                const body = new URLSearchParams({ action: 'restore_snapshot', snapshot_id: btn.dataset.snapId });
+                if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+                const resp = await fetch(location.href, { method: 'POST', body });
+                const data = await resp.json();
+                if (data.success && data.template_json) {
+                    try {
+                        const tpl = JSON.parse(data.template_json);
+                        if (Array.isArray(tpl.slots)) {
+                            document.querySelectorAll('.grid-slot').forEach((c) => {
+                                c.dataset.slotPayload = '{}';
+                                c.style.background = '';
+                                c.textContent = '';
+                                c.classList.remove('filled-slot');
+                            });
+                            tpl.slots.forEach((slot) => {
+                                if (typeof applyTypeToSlotKey === 'function') {
+                                    applyTypeToSlotKey(slot.dayIdx + '_' + slot.minute, slot);
+                                }
+                            });
+                        }
+                        setStatus('✓ Snapshot "' + data.name + '" restored.', true);
+                    } catch (e) { setStatus('Parse error restoring snapshot.', false); }
+                } else { setStatus(data.error || 'Restore failed.', false); }
+            });
+        });
+    };
+
+    loadBtn.addEventListener('click', async () => {
+        const pid = getProviderId();
+        if (!pid) { setStatus('Select a provider first.', false); return; }
+        if (listEl) { listEl.innerHTML = '<em>Loading…</em>'; }
+        const body = new URLSearchParams({ action: 'list_snapshots', provider_id: pid });
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        try {
+            const resp = await fetch(location.href, { method: 'POST', body });
+            const data = await resp.json();
+            if (data.success) { renderSnapshotList(data.snapshots || []); }
+            else if (listEl) { listEl.innerHTML = '<em>' + (data.error || 'Error') + '</em>'; }
+        } catch (e) { if (listEl) { listEl.innerHTML = '<em>Network error</em>'; } }
+    });
+
+    copyBtn.addEventListener('click', async () => {
+        const pid = getProviderId();
+        if (!pid) { setStatus('Select a provider first.', false); return; }
+        const targetPid = prompt('Target provider ID to copy current template to:');
+        if (!targetPid || isNaN(Number(targetPid))) { return; }
+        const newName = (prompt('Name for the copy:', 'Copy from provider #' + pid) ?? '').trim();
+        const body = new URLSearchParams({
+            action: 'save_snapshot', provider_id: Number(targetPid),
+            snapshot_name: newName || ('Copy from provider #' + pid),
+            template_json: captureGrid(),
+            notes: 'Copied from provider #' + pid
+        });
+        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+        try {
+            const resp = await fetch(location.href, { method: 'POST', body });
+            const data = await resp.json();
+            setStatus(data.success ? '✓ Copied to provider #' + targetPid : (data.error || 'Error'), !!data.success);
+        } catch (e) { setStatus('Network error', false); }
+    });
+}
 
 // =====================================================================
 // Scheduling Rules card — save on change
