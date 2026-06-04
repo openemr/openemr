@@ -270,11 +270,7 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
                 + '#medex-native-calendar-switcher .view-option{padding:8px;font-size:11px;border:none;text-align:left;transition:background .2s;}'
                 + '#medex-native-calendar-switcher .view-option.active{background:#0099cc;color:#fff;cursor:default;font-weight:500;}'
                 + '#medex-native-calendar-switcher .view-option.link{background:#fff;color:#0099cc;cursor:pointer;}'
-                + '#medex-native-calendar-switcher .view-option.link:hover{background:#e8f4f8 !important;}'
-                + '#medex-slot-toggle-row{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;color:#444;cursor:pointer;}'
-                + '#medex-slot-toggle-row input{cursor:pointer;}'
-                + '.medex-slot-filled-badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:#1c4568;color:#fff;margin-left:3px;vertical-align:middle;}'
-                + 'body.medex-show-slots .event_appointment:not(:has(.fa-user)){display:block!important;height:auto!important;overflow:visible!important;min-height:0!important;opacity:0.7;}';
+                + '#medex-native-calendar-switcher .view-option.link:hover{background:#e8f4f8 !important;}';
             iframeDoc.head.appendChild(style);
         }
 
@@ -314,66 +310,6 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         selector.appendChild(nativeButton);
         host.appendChild(label);
         host.appendChild(selector);
-
-        // Template-slot toggle checkbox
-        var PREF_KEY = 'medex_show_template_slots';
-        var showSlots = localStorage.getItem(PREF_KEY) === '1';
-
-        var toggleRow = iframeDoc.createElement('label');
-        toggleRow.id = 'medex-slot-toggle-row';
-        var cb = iframeDoc.createElement('input');
-        cb.type = 'checkbox';
-        cb.checked = showSlots;
-        var cbText = iframeDoc.createTextNode(' Show Template Slots');
-        toggleRow.appendChild(cb);
-        toggleRow.appendChild(cbText);
-        host.appendChild(toggleRow);
-
-        // Apply or remove slots visibility and mark filled slots
-        function applySlotVisibility(show) {
-            if (show) {
-                iframeDoc.body.classList.add('medex-show-slots');
-                // Mark slots that are "filled" (have a patient appointment at same top position)
-                var allDivs = Array.from(iframeDoc.querySelectorAll('div[data-eid]'));
-                var patientDivs = allDivs.filter(function(d){ return !!d.querySelector('.fa-user'); });
-                var templateDivs = allDivs.filter(function(d){ return !d.querySelector('.fa-user'); });
-                var patientTops = {};
-                patientDivs.forEach(function(d){
-                    var t = Math.round(parseFloat(d.style.top)||0);
-                    patientTops[t] = true;
-                });
-                templateDivs.forEach(function(d){
-                    var t = Math.round(parseFloat(d.style.top)||0);
-                    if (patientTops[t] && !d.querySelector('.medex-slot-filled-badge')) {
-                        var badge = iframeDoc.createElement('span');
-                        badge.className = 'medex-slot-filled-badge';
-                        badge.textContent = 'FILLED';
-                        d.insertBefore(badge, d.firstChild);
-                    }
-                });
-            } else {
-                iframeDoc.body.classList.remove('medex-show-slots');
-                // Re-run the hide logic
-                iframeDoc.querySelectorAll('div[data-eid]').forEach(function(div){
-                    if (!div.querySelector('.fa-user')) {
-                        div.style.display = 'none';
-                        div.style.height = '0';
-                        div.style.overflow = 'hidden';
-                        div.style.minHeight = '0';
-                    }
-                });
-            }
-        }
-
-        cb.addEventListener('change', function() {
-            localStorage.setItem(PREF_KEY, cb.checked ? '1' : '0');
-            applySlotVisibility(cb.checked);
-        });
-
-        // Apply initial state after a short delay (let hide script run first)
-        if (showSlots) {
-            setTimeout(function(){ applySlotVisibility(true); }, 300);
-        }
 
         sidebar.insertBefore(host, sidebar.firstChild);
     }
