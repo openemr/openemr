@@ -38,28 +38,6 @@ Ask the user: *"Should I read CLAUDE.md before proceeding?"*
 **Local Mac = code editing + git storage only.** You do not run or test against localhost.
 Changes are edited on Mac, committed to git, then deployed to k8s. Period.
 
-## ⛔ CRITICAL: NEVER REBUILD DOCKER FOR SINGLE FILE CHANGES ⛔
-
-**For iterative `web_full/` changes during development, use the hotpatch script — NOT Docker rebuild:**
-
-```bash
-cd /Users/ray/projects/medex-local/k8s
-bash hotpatch-live.sh push
-```
-
-Docker image rebuild + k8s rollout restart is ONLY for:
-- Shipping a finished release to production
-- Changes to `Dockerfile`, startup scripts, or system packages
-
-**Why this matters:** Rebuilding is slow, expensive, and burns build minutes.
-All remote (non-k8s) customers will receive fixes via the release image, so use
-hotpatch for rapid dev iteration and reserve rebuild for release day.
-
-**`web_full/` hotpatch does NOT work for ConfigMap-managed files.** For those,
-see the medex-api ConfigMap Policy section below.
-
----
-
 ---
 
 ## 🚨 RULE #1: MEDEX CODE LIVES IN `medex-local/web_full/` ONLY 🚨
