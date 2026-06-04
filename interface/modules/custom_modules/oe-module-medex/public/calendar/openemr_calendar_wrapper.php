@@ -139,7 +139,13 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         // Lunch/Vacation/Reserved are plain text (no .appointment span), unaffected.
         var style = iframeDoc.createElement('style');
         style.id = 'medex-hide-template-slots';
-        style.textContent = 'span.appointment:not(:has(.fa-user)) { display: none !important; }';
+        style.textContent = [
+            /* Hide template slot spans — no patient icon means not a real appointment */
+            'span.appointment:not(:has(.fa-user)) { display: none !important; height: 0 !important; overflow: hidden !important; }',
+            /* Also collapse their parent container divs so no blank space remains */
+            'div:has(> span.appointment:not(:has(.fa-user))):not(:has(> span.appointment:has(.fa-user))) { display: none !important; }',
+            'td:has(> div > span.appointment:not(:has(.fa-user))):not(:has(.fa-user)) { height: 0 !important; overflow: hidden !important; padding: 0 !important; }'
+        ].join(' ');
         if (iframeDoc.head) { iframeDoc.head.appendChild(style); } else if (iframeDoc.body) { iframeDoc.body.insertBefore(style, iframeDoc.body.firstChild); }
         return;
         var script = iframeDoc.createElement('script');

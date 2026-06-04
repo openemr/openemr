@@ -1106,7 +1106,7 @@ $openEmrCalendarCompatible = true;
             color: #1f2933;
             margin-bottom: 1px;
         }
-        /* Stack badge above title in a column so neither clips the other. */
+        /* Title on top, badge on bottom — flex column with explicit order */
         .fc-event.open-slot-chip .fc-event-main {
             display: flex !important;
             flex-direction: column !important;
@@ -1114,7 +1114,16 @@ $openEmrCalendarCompatible = true;
             padding: 2px 4px !important;
             overflow: hidden;
         }
-        /* Title text sits below the badge — always visible */
+        /* Title frame renders first in DOM — stays on top */
+        .fc-event.open-slot-chip .fc-event-main-frame {
+            order: 1;
+        }
+        /* Badge appended after frame — pinned to bottom via order */
+        .fc-event.open-slot-chip .slot-state-indicator {
+            order: 2;
+            margin-top: auto;    /* push to bottom when chip is taller */
+        }
+        /* Title text — always visible */
         .fc-event.open-slot-chip .fc-event-title {
             overflow: hidden;
             text-overflow: ellipsis;
