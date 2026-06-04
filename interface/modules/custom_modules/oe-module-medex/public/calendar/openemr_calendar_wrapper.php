@@ -152,41 +152,27 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         // keep their original positions. After hiding, redistribute widths so
         // remaining visible patient appointments fill the full column width.
         var script = iframeDoc.createElement('script');
-        script.textContent = [
-            '(function(){',
-            '  function run(){',
-            '    // 1. Hide all template event divs (no .fa-user means no real patient)',
-            '    document.querySelectorAll("div[data-eid]").forEach(function(div){',
-            '      if(!div.querySelector(".fa-user")){',
-            '        div.style.display="none";div.style.height="0";',
-            '        div.style.overflow="hidden";div.style.minHeight="0";',
-            '      }',
-            '    });',
-            '    // 2. Within each calendar column, find groups of events at the same',
-            '    // vertical position (same top %) and redistribute their widths evenly.',
-            '    document.querySelectorAll(".calendar_day").forEach(function(col){',
-            '      var visible=Array.from(col.querySelectorAll("div[data-eid]")).filter(function(d){return d.style.display!=="none";});',
-            '      // Group by top position (rounded to avoid float drift)',
-            '      var byTop={};',
-            '      visible.forEach(function(d){',
-            '        var top=Math.round(parseFloat(d.style.top)||0);',
-            '        if(!byTop[top])byTop[top]=[];',
-            '        byTop[top].push(d);',
-            '      });',
-            '      Object.values(byTop).forEach(function(group){',
-            '        if(group.length<2)return;', // nothing to redistribute for single events
-            '        var w=100/group.length;',
-            '        group.forEach(function(d,i){',
-            '          d.style.width=w+"%";',
-            '          d.style.left=(i*w)+"%";',
-            '        });',
-            '      });',
-            '    });',
-            '  }',
-            '  run();',
-            '  new MutationObserver(function(){run();}).observe(document.body,{childList:true,subtree:true});',
-            '})()'
-        ].join('');
+        script.textContent = '(function(){' +
+            'function run(){' +
+            'document.querySelectorAll("div[data-eid]").forEach(function(div){' +
+            'if(!div.querySelector(".fa-user")){' +
+            'div.style.display="none";div.style.height="0";' +
+            'div.style.overflow="hidden";div.style.minHeight="0";}' +
+            '});' +
+            'document.querySelectorAll(".calendar_day").forEach(function(col){' +
+            'var visible=Array.from(col.querySelectorAll("div[data-eid]")).filter(function(d){return d.style.display!=="none";});' +
+            'var byTop={};' +
+            'visible.forEach(function(d){var top=Math.round(parseFloat(d.style.top)||0);if(!byTop[top])byTop[top]=[];byTop[top].push(d);});' +
+            'Object.values(byTop).forEach(function(group){' +
+            'if(group.length<2)return;' +
+            'var w=100/group.length;' +
+            'group.forEach(function(d,i){d.style.width=w+"%";d.style.left=(i*w)+"%";});' +
+            '});' +
+            '});' +
+            '}' +
+            'run();' +
+            'new MutationObserver(function(){run();}).observe(document.body,{childList:true,subtree:true});' +
+            '})()';
         (iframeDoc.body || iframeDoc.head).appendChild(script);
     }
 
