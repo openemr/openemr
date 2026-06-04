@@ -14,20 +14,20 @@
  * the functions here are the thin SQL/formatting primitives that the
  * runner and existing callers invoke.
  *
- * @package   OpenEMR
+ * @package            OpenEMR
  *
- * @link      https://www.open-emr.org
- * @author    Unknown
- * @author    Larry Lart
- * @author    Jerry Padgett
- * @author    Robert Down
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Unknown
- * @copyright Copyright (c) 2008 Larry Lart
- * @copyright Copyright (c) 2018-2024 Jerry Padgett
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link               https://www.open-emr.org
+ * @author             Unknown
+ * @author             Larry Lart
+ * @author             Jerry Padgett
+ * @author             Robert Down
+ * @author             Michael A. Smith <michael@opencoreemr.com>
+ * @copyright          Unknown
+ * @copyright          Copyright (c) 2008 Larry Lart
+ * @copyright          Copyright (c) 2018-2024 Jerry Padgett
+ * @copyright          Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright          Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  * @codeCoverageIgnore Procedural global-namespace SQL helpers loaded via
  *     require_once from two entry points. Every function here either
@@ -72,12 +72,12 @@ if (!function_exists('rc_sms_notification_cron_update_entry')) {
     {
         global $bTestRun;
 
-        if ($bTestRun || (int) trim($recur) > 0) {
+        if ($bTestRun || (int)trim($recur) > 0) {
             return;
         }
 
         $column = match ($channel) {
-            NotificationChannel::SMS   => 'pc_sendalertsms',
+            NotificationChannel::SMS => 'pc_sendalertsms',
             NotificationChannel::EMAIL => 'pc_sendalertemail',
         };
 
@@ -108,10 +108,10 @@ if (!function_exists('faxsms_getAlertPatientData')) {
     {
         $where = match ($channel) {
             NotificationChannel::EMAIL => " AND (p.hipaa_allowemail='YES' AND p.email<>'' AND e.pc_sendalertemail != 'YES' AND e.pc_apptstatus != 'x')",
-            NotificationChannel::SMS   => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')",
+            NotificationChannel::SMS => " AND (p.hipaa_allowsms='YES' AND p.phone_cell<>'' AND e.pc_sendalertsms != 'YES' AND e.pc_apptstatus != 'x')",
         };
-        $adj_date = (int) date("H") + $notificationHour;
-        $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int) date("m"), (int) date("d"), (int) date("Y")));
+        $adj_date = (int)date("H") + $notificationHour;
+        $check_date = date("Y-m-d", mktime($adj_date, 0, 0, (int)date("m"), (int)date("d"), (int)date("Y")));
 
         $events = fetchEvents($check_date, $check_date, $where, 'u.lname,pc_startTime,p.lname');
         if (!is_array($events)) {
@@ -142,7 +142,7 @@ if (!function_exists('faxsms_getAlertPatientData')) {
             $recurrtype = $event['pc_recurrtype'] ?? 0;
             $pcEid = $event['pc_eid'] ?? null;
             if (is_numeric($recurrtype) && $recurrtype > 0 && is_numeric($pcEid)) {
-                $recurringEids[(string) $pcEid] = true;
+                $recurringEids[(string)$pcEid] = true;
             }
         }
 
@@ -159,7 +159,7 @@ if (!function_exists('faxsms_getAlertPatientData')) {
                 $eid = $row['pc_eid'] ?? null;
                 $date = $row['pc_eventDate'] ?? null;
                 if (is_numeric($eid) && is_string($date)) {
-                    $sentNotifications[(string) $eid][$date] = true;
+                    $sentNotifications[(string)$eid][$date] = true;
                 }
             }
         }
@@ -176,7 +176,7 @@ if (!function_exists('faxsms_getAlertPatientData')) {
                 is_numeric($recurrtype) && $recurrtype > 0
                 && is_string($eventDate)
                 && is_numeric($pcEid)
-                && isset($sentNotifications[(string) $pcEid][$eventDate])
+                && isset($sentNotifications[(string)$pcEid][$eventDate])
             ) {
                 continue;
             }
