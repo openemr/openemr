@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "53a7022ca0a061323d26dc325aafa481",
+    "content-hash": "1ad23a65e2494ba217340e324cacdde7",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -472,6 +472,56 @@
                 "source": "https://github.com/claimrevolution/oe-module-claimrev-connect/tree/v2.1.3"
             },
             "time": "2026-05-22T21:09:28+00:00"
+        },
+        {
+            "name": "claimrevolution/oe-module-dorn",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/claimrevolution/oe-module-dorn.git",
+                "reference": "991af7b4bf9dda9ee66c05c76e0d03f0e335886f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/claimrevolution/oe-module-dorn/zipball/991af7b4bf9dda9ee66c05c76e0d03f0e335886f",
+                "reference": "991af7b4bf9dda9ee66c05c76e0d03f0e335886f",
+                "shasum": ""
+            },
+            "require": {
+                "openemr/oe-module-installer-plugin": "^0.1.0",
+                "php": ">=7.1",
+                "symfony/event-dispatcher": "^4.4 || ^5.0 || ^6.0 || ^7.0"
+            },
+            "type": "openemr-module",
+            "autoload": {
+                "psr-4": {
+                    "OpenEMR\\Modules\\Dorn\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Brad Sharp",
+                    "email": "brad.sharp@claimrev.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "OpenEMR module — DORN (Diagnostic Ordering Result Network) lab integration",
+            "keywords": [
+                "dorn",
+                "hl7",
+                "labs",
+                "openemr",
+                "openemr-module"
+            ],
+            "support": {
+                "issues": "https://github.com/claimrevolution/oe-module-dorn/issues",
+                "source": "https://github.com/claimrevolution/oe-module-dorn/tree/v1.0.2"
+            },
+            "time": "2026-06-04T18:40:20+00:00"
         },
         {
             "name": "clue/stream-filter",
@@ -17380,7 +17430,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
@@ -17419,7 +17469,7 @@
         "ext-zip": "*",
         "ext-zlib": "*"
     },
-    "platform-dev": {},
+    "platform-dev": [],
     "platform-overrides": {
         "ext-bcmath": "8.2",
         "ext-calendar": "8.2",
@@ -17456,5 +17506,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
