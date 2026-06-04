@@ -885,7 +885,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 // ── Template snapshot / rollback / copy ─────────────────────────────────────
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' &&
-    in_array((string)($_POST['action'] ?? ''), ['save_snapshot','list_snapshots','restore_snapshot','copy_snapshot'], true)) {
+    in_array((string)($_POST['action'] ?? ''), ['save_snapshot','list_snapshots','restore_snapshot','copy_snapshot','delete_snapshot'], true)) {
     try {
         $snapAction = (string)($_POST['action'] ?? '');
 
@@ -971,6 +971,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' &&
                 [$targetProv, $newSnapName, $userId, $snap['template_json'], 'Copied from snapshot #' . $snapId]
             );
             cs_json_exit(['success' => true, 'message' => 'Template copied to provider #' . $targetProv]);
+        }
+
+        if ($snapAction === 'delete_snapshot') {
+            $snapId = (int)($_POST['snapshot_id'] ?? 0);
+            if ($snapId <= 0) { cs_json_exit(['success' => false, 'error' => 'snapshot_id required']); }
+            sqlStatement("DELETE FROM medex_studio_snapshots WHERE snapshot_id = ?", [$snapId]);
+            cs_json_exit(['success' => true, 'message' => 'Snapshot deleted.']);
         }
     } catch (\Throwable $ex) {
         cs_json_exit(['success' => false, 'error' => $ex->getMessage()]);
@@ -5767,6 +5774,8 @@ function bindSnapshotPanel() {
                         + '<span style="color:#9ca3af;font-size:10px;white-space:nowrap;flex-shrink:0;">' + d + '</span>'
                         + '<button class="btn" style="padding:1px 7px;font-size:10px;flex-shrink:0;" '
                         +   'data-snap-id="' + s.id + '" data-snap-name="' + label + '" data-action="restore-snap">Load</button>'
+                        + '<button class="btn" style="padding:1px 7px;font-size:10px;flex-shrink:0;border-color:#ef4444;color:#b91c1c;" title="Delete" '
+                        +   'data-snap-id="' + s.id + '" data-snap-name="' + label + '" data-action="delete-snap">✕</button>'
                         + '</div>';
                 });
             });
@@ -5775,6 +5784,20 @@ function bindSnapshotPanel() {
 
             listEl.querySelectorAll('button[data-action="restore-snap"]').forEach((btn) => {
                 btn.addEventListener('click', () => restoreSnapshot(btn.dataset.snapId, btn.dataset.snapName));
+            });
+
+            listEl.querySelectorAll('button[data-action="delete-snap"]').forEach((btn) => {
+                btn.addEventListener('click', async () => {
+                    if (!confirm('Delete snapshot "' + btn.dataset.snapName + '"?')) { return; }
+                    const body = new URLSearchParams({ action: 'delete_snapshot', snapshot_id: btn.dataset.snapId });
+                    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+                    try {
+                        const resp = await fetch(location.href, { method: 'POST', body });
+                        const data = await resp.json();
+                        if (data.success) { loadSnapshotList(); setStatus('Snapshot deleted.', null); }
+                        else { setStatus(data.error || 'Delete failed.', false); }
+                    } catch (e) { setStatus('Network error', false); }
+                });
             });
         } catch (e) {
             listEl.innerHTML = '<em style="color:#991b1b;font-size:11px;">Network error loading snapshots</em>';
