@@ -2115,12 +2115,18 @@ $openEmrCalendarCompatible = true;
                 url += '&jumpdate=' + encodeURIComponent(savedDate);
             }
 
-            // Add selected provider (single explicit provider avoids empty first render states).
-            if (selectedProviders.length > 0) {
+            // Provider: native calendar can only filter to ONE provider at a time via pc_username.
+            // If exactly 1 is selected, pass that provider. If 2+ are selected, pass nothing so
+            // the native calendar shows all providers in columns (closest equivalent to multi-select).
+            if (selectedProviders.length === 1) {
                 url += '&pc_username=' + encodeURIComponent(selectedProviders[0]);
             }
+            // Always store ALL selected usernames so the wrapper can display a note
+            if (selectedProviders.length > 1) {
+                url += '&medex_providers=' + encodeURIComponent(selectedProviders.join(','));
+            }
 
-            // Add facility (OpenEMR calendar typically shows one facility at a time)
+            // Facility: pass the selected facility so native calendar pre-filters to it
             if (selectedFacilities.length > 0) {
                 url += '&pc_facility=' + encodeURIComponent(selectedFacilities[0]);
             }
