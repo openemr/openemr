@@ -1822,7 +1822,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "select\\\\r\\\\n\\\\t\\\\t\\\\t\'custom…" and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t\'custom…" and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteDocumentReporter.php',
 ];
@@ -1837,7 +1837,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteDocumentReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "select\\\\r\\\\n\\\\t\\\\t\\\\t\'custom…" and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t\'custom…" and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsitePortalActivityReporter.php',
 ];
@@ -1852,7 +1852,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsitePortalActivityReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "select\\\\r\\\\n\\\\t\\\\t\\\\t …" and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t `patient…" and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
