@@ -674,20 +674,22 @@ abstract class AppDispatch
             $content = text($body) . "\n";
             $from_name = text($from_name);
             $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-            $mail->AddReplyTo($from, $from_name);
-            $mail->SetFrom($from, $from);
+            $mail->addReplyTo($from, $from_name);
+            $mail->setFrom($from, $from);
             $to = $email;
             $to_name = $email;
-            $mail->AddAddress($to, $to_name);
+            $mail->addAddress($to, $to_name);
             $subject = text($subject);
             $mail->Subject = $subject;
             $mail->Body = $content;
             if (!empty($htmlContent)) {
-                $mail->MsgHTML(text($htmlContent));
-                $mail->IsHTML(true);
+                $mail->msgHTML(text($htmlContent));
+                $mail->isHTML(true);
             }
-            if ($mail->Send()) {
-                $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
+            if ($mail->send()) {
+                $status = xlt("Email successfully sent.");
+            } else {
+                $status = xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
             }
         } catch (\Throwable $e) {
             $message = $e->getMessage();
@@ -771,6 +773,6 @@ abstract class AppDispatch
      */
     public function getCredentials(): mixed
     {
-        return AppDispatch::getSetup();
+        return $this->getSetup();
     }
 }
