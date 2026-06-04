@@ -2,7 +2,7 @@
 
 This document is the **complete release runbook** for tagged OpenEMR releases — every step from pre-release QA through post-release announcements, including the parts that are automated, the parts that aren't yet, and the parts that are irreducibly manual.
 
-The automation core spans three repositories and is driven by `repository_dispatch` events emitted by this repo as the conductor. It opens three reviewable PRs that cover code/version bumps, install/upgrade/release-notes pages, and CI/Docker pin rotation. Two post-merge steps (demo-farm tag bump, social/forum/email announcement fan-out) remain manual today; see [Automation gaps](#automation-gaps).
+The automation core spans four repositories and is driven by `repository_dispatch` events emitted by this repo as the conductor. Three of them open reviewable PRs that cover code/version bumps, install/upgrade/release-notes pages, and CI/Docker pin rotation; the fourth (`demo_farm_openemr`) is updated by a direct automated push rather than a PR. Two steps are still done by hand today (merging the `website-openemr` docs PR, social/forum/email announcement fan-out); see [Automation gaps](#automation-gaps).
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below. For the end-to-end ordered checklist a release manager actually walks through, jump to [Release runbook](#release-runbook).
 
@@ -10,9 +10,10 @@ For background on why the flow is shaped this way, see [openemr/openemr-devops#6
 
 | Repository | Role |
 | --- | --- |
-| [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to `openemr-devops` and `website-openemr`. |
+| [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to `openemr-devops`, `website-openemr`, and `demo_farm_openemr`. |
 | [`openemr/website-openemr`](https://github.com/openemr/website-openemr) | **Docs consumer.** Subscribes to `rel-*` and tag events. Generates per-version Hugo pages (install, upgrade, OpenAPI, release notes draft, acknowledgements). On `openemr-tag` it also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation and publishes it under `/documentation/<version>/b10/` (tracked by git-lfs) in the same docs PR. DRAFT until the tag event flips it to FINAL. |
 | [`openemr/openemr-devops`](https://github.com/openemr/openemr-devops) | **Infra consumer.** Subscribes to `rel-*` and tag events. Rotates the `current` / `next` / `dev` slot in CI matrices, package versions, and Docker pins. Owns the canonical source for the cross-repo dispatch contract and tag verifier. |
+| [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr) | **Demo-farm consumer.** Subscribes to the `openemr-tag` event. `bump-tag.yml` rewrites matching production-demo rows in `ip_map_branch.txt` and pushes directly to `master` (no reviewable PR); the demo-farm host's nightly reset picks up the new tag. |
 
 ## Cross-repo flow
 
@@ -74,13 +75,13 @@ flowchart TB
 
 ## Cross-repo events
 
-The conductor in `openemr/openemr` emits `repository_dispatch` on every push to `rel-*` and on tag creation, targeting `openemr/openemr-devops` and `openemr/website-openemr`. Consumers subscribe via the matching `repository_dispatch` workflow trigger.
+The conductor in `openemr/openemr` emits `repository_dispatch` on every push to `rel-*` and on tag creation, targeting `openemr/openemr-devops`, `openemr/website-openemr`, and `openemr/demo_farm_openemr`. Consumers subscribe via the matching `repository_dispatch` workflow trigger; `demo_farm_openemr` acts only on `openemr-tag`.
 
 | Event | Emitter → target | When | `data` payload |
 | --- | --- | --- | --- |
 | `openemr-rel-cut` | `openemr/openemr` → devops, website-openemr | First push to a new `rel-*` branch | `{ branch, version, prev_release }` |
 | `openemr-rel-update` | `openemr/openemr` → devops, website-openemr | Subsequent push to an existing `rel-*` branch | `{ branch, version, prev_release }` |
-| `openemr-tag` | `openemr/openemr` → devops, website-openemr | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
+| `openemr-tag` | `openemr/openemr` → devops, website-openemr, demo_farm_openemr | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
 
 Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data }`.
 
