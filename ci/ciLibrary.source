@@ -65,6 +65,17 @@ _exec() {
 }
 
 ##
+# Echo the first existing web-server user inside the openemr container.
+# OpenEMR ships two web stacks: the apache image uses `apache`, the
+# nginx + php-fpm image uses `www-data`. Probe both so the same wrap
+# pattern works across the full CI matrix without needing per-stack
+# branching at every su call site.
+web_user_in_openemr() {
+    # shellcheck disable=SC2016  # $u is the inner for-loop variable, intentionally evaluated inside the container's shell.
+    _exec sh -c 'for u in apache www-data; do if id "$u" >/dev/null 2>&1; then echo "$u"; exit 0; fi; done; exit 1'
+}
+
+##
 # Run the convert-coverage script inside the Docker container with
 # the standard coverage filter directories. This ensures that
 # realpath() and is_file() resolve correctly for container paths.
@@ -182,7 +193,16 @@ install_configure() {
     # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
     # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
     _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
-    _exec sh -c 'OPENEMR_ENABLE_INSTALLER_AUTO=1 php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'
+    # InstallerAuto goes through the Installer class, which RootCliGuard
+    # refuses to run as root (PR #12267, def8758). Drop to the web user
+    # for the subprocess — same approach as the upgradeOpenEMR override
+    # below. The openemr-devops devtools change will eventually carry the
+    # same privilege drop; until that lands, the ci library wraps locally.
+    # Web user differs between stacks (apache image: apache, nginx image:
+    # www-data); web_user_in_openemr probes both.
+    local web_user
+    web_user=$(web_user_in_openemr)
+    _exec sh -c "OPENEMR_ENABLE_INSTALLER_AUTO=1 su -p -s /bin/sh ${web_user} -c 'php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'"
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
