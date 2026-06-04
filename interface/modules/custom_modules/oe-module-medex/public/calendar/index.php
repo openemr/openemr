@@ -1106,7 +1106,7 @@ $openEmrCalendarCompatible = true;
             color: #1f2933;
             margin-bottom: 1px;
         }
-        /* Title on top, badge on bottom — flex column with explicit order */
+        /* Badge TOP LEFT, title below — badge order:1, frame order:2 */
         .fc-event.open-slot-chip .fc-event-main {
             display: flex !important;
             flex-direction: column !important;
@@ -1114,14 +1114,13 @@ $openEmrCalendarCompatible = true;
             padding: 2px 4px !important;
             overflow: hidden;
         }
-        /* Title frame renders first in DOM — stays on top */
-        .fc-event.open-slot-chip .fc-event-main-frame {
+        /* Badge first in visual order → TOP LEFT */
+        .fc-event.open-slot-chip .slot-state-indicator {
             order: 1;
         }
-        /* Badge appended after frame — pinned to bottom via order */
-        .fc-event.open-slot-chip .slot-state-indicator {
+        /* Title frame second → below the badge */
+        .fc-event.open-slot-chip .fc-event-main-frame {
             order: 2;
-            margin-top: auto;    /* push to bottom when chip is taller */
         }
         /* Title text — always visible */
         .fc-event.open-slot-chip .fc-event-title {

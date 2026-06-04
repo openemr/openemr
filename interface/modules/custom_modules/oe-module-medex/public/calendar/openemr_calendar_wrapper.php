@@ -132,53 +132,32 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
             return;
         }
 
-        // CSS :has() approach — far more reliable than JS DOM walking.
-        // PostCalendar wraps every event in <span class="appointment">.
-        // Patient appointments contain <i class="fas fa-user"> inside.
-        // Template slots have NO fa-user → hidden by the :has() rule.
-        // Lunch/Vacation/Reserved are plain text (no .appointment span), unaffected.
+        // PostCalendar gives every event a div with id="event_NNN".
+        // Patient appointments have .fa-user inside; template slots do not.
+        // JS hides the entire container div so no blank colored rows remain.
+        // CSS hides the appointment span text as a fast first pass.
         var style = iframeDoc.createElement('style');
         style.id = 'medex-hide-template-slots';
-        style.textContent = [
-            /* Hide template slot spans — no patient icon means not a real appointment */
-            'span.appointment:not(:has(.fa-user)) { display: none !important; height: 0 !important; overflow: hidden !important; }',
-            /* Also collapse their parent container divs so no blank space remains */
-            'div:has(> span.appointment:not(:has(.fa-user))):not(:has(> span.appointment:has(.fa-user))) { display: none !important; }',
-            'td:has(> div > span.appointment:not(:has(.fa-user))):not(:has(.fa-user)) { height: 0 !important; overflow: hidden !important; padding: 0 !important; }'
-        ].join(' ');
-        if (iframeDoc.head) { iframeDoc.head.appendChild(style); } else if (iframeDoc.body) { iframeDoc.body.insertBefore(style, iframeDoc.body.firstChild); }
-        return;
-        var script = iframeDoc.createElement('script');
-        script.id = 'medex-hide-template-slots-DISABLED';
-        script.textContent = '(function() {' +
-            'var MEDEX_PATTERNS = [' +
-            '  /^open\\s+slot/i,' +
-            '  /^\\[ai\\]/i,' +
-            '  /^in\\s+office$/i,' +
-            '  /^out\\s+of\\s+office$/i' +
-            '];' +
-            'function isMedexTemplate(text) {' +
-            '  var t = text.replace(/^\\d{1,2}:\\d{2}\\s*[-–]\\s*/,"").trim();' +
-            '  return MEDEX_PATTERNS.some(function(p){ return p.test(t); });' +
-            '}' +
-            'function hideTemplates() {' +
-            '  document.querySelectorAll("td a[href*=pc_eid]").forEach(function(a) {' +
-            '    var text = a.textContent || "";' +
-            '    if (isMedexTemplate(text)) {' +
-            '      var cell = a.closest("td") || a.parentNode;' +
-            '      if (cell) { cell.style.visibility = "hidden"; cell.style.pointerEvents = "none"; }' +
-            '    }' +
-            '  });' +
-            '}' +
-            'hideTemplates();' +
-            'new MutationObserver(hideTemplates).observe(document.body,{childList:true,subtree:true});' +
-            '})();';
+        style.textContent = 'span.appointment:not(:has(.fa-user)){display:none!important}';
+        (iframeDoc.head || iframeDoc.body).appendChild(style);
 
-        if (iframeDoc.body) {
-            iframeDoc.body.appendChild(script);
-        } else if (iframeDoc.head) {
-            iframeDoc.head.appendChild(script);
-        }
+        var script = iframeDoc.createElement('script');
+        script.textContent = [
+            '(function(){',
+            '  function run(){',
+            '    document.querySelectorAll("[id^=\'event_\']").forEach(function(div){',
+            '      if(!div.querySelector(".fa-user")){',
+            '        div.style.display="none";',
+            '        div.style.height="0";',
+            '        div.style.overflow="hidden";',
+            '      }',
+            '    });',
+            '  }',
+            '  run();',
+            '  new MutationObserver(run).observe(document.body,{childList:true,subtree:true});',
+            '})()'
+        ].join('');
+        (iframeDoc.body || iframeDoc.head).appendChild(script);
     }
 
     function injectContainmentScript(iframeDoc) {
