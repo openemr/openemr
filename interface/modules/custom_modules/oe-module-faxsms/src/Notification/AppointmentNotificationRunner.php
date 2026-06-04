@@ -43,18 +43,17 @@ class AppointmentNotificationRunner
 {
     private readonly LoggerInterface $logger;
     private readonly ClockInterface $clock;
-    private ?bool $backgroundRunning = null;
 
     /**
-     * @param NotificationChannel  $channel           Which reminder channel to process.
-     * @param AppDispatch          $client            Configured email or SMS client.
-     * @param int                  $notificationHours Appointment lead time (hours ahead).
-     * @param int                  $cronIntervalHours Background-service execution interval, in hours.
-     * @param bool                 $dryRun            When true, scans and logs but sends nothing.
-     * @param string               $messageTemplate   Raw template with ***PLACEHOLDER*** tokens.
-     * @param string               $gatewayType       Vendor slug persisted to notification_log.
-     * @param LoggerInterface|null $logger            PSR-3 logger (NullLogger when omitted).
-     * @param ClockInterface|null  $clock             Injected clock for deterministic tests.
+     * @param NotificationChannel $channel             Which reminder channel to process.
+     * @param AppDispatch         $client              Configured email or SMS client.
+     * @param int                 $notificationHours   Appointment lead time (hours ahead).
+     * @param int                 $cronIntervalHours   Background-service execution interval, in hours.
+     * @param bool                $dryRun              When true, scans and logs but sends nothing.
+     * @param string              $messageTemplate     Raw template with ***PLACEHOLDER*** tokens.
+     * @param string              $gatewayType         Vendor slug persisted to notification_log.
+     * @param LoggerInterface|null $logger             PSR-3 logger (NullLogger when omitted).
+     * @param ClockInterface|null  $clock              Injected clock for deterministic tests.
      */
     public function __construct(
         private readonly NotificationChannel $channel,
@@ -68,7 +67,6 @@ class AppointmentNotificationRunner
         ?ClockInterface $clock = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
-        $this->backgroundRunning = null;
         $this->clock = $clock ?? new class implements ClockInterface {
             public function now(): \DateTimeImmutable
             {
@@ -86,34 +84,13 @@ class AppointmentNotificationRunner
         $skippedInvalid = 0;
         $failed = 0;
 
-        $this->backgroundRunning = $this->isBackgroundTask();
         foreach ($appointments as $row) {
             if (!$this->isInCronWindow($row)) {
                 continue;
             }
-
             $inWindow++;
+
             $outcome = $this->deliver($row);
-            // When running in a non-background context (e.g. via the admin UI), report reminder for each send.
-            // For admins this reporting in dry-run allows for a review of what would happen in a live run; for background runs, the per-send reporting would spam the logs and provide no value beyond the final summary, so it's skipped.
-            if (!$this->backgroundRunning) {
-                $strMsg = text($this->channel->name) . ' ' . text("TO") .
-                    "<strong> " .
-                    text($row['email']) . ' ' . text($row['fname']) . ' ' . text($row['lname']) .
-                    "</strong> " .
-                    text($row['pc_catname']) . " " . xlt("on") . " " .
-                    text($row['pc_eventDate']) . " " . xlt("at") . " " .
-                    text($row['pc_startTime']);
-                if ($row['pc_recurrtype'] > 0) {
-                    $pc_recurrspec = interpretRecurrence($row['pc_recurrspec'], $row['pc_recurrtype']);
-                    $strMsg .= " " . xlt("A Recurring") . " " .
-                        text(($row['pc_catname'] ?? '')) . " " .
-                        xlt("Event Occurring") . " " .
-                        text(($pc_recurrspec ?? ''));
-                }
-                $strMsg .= "\n";
-                echo(nl2br($strMsg));
-            }
             match ($outcome) {
                 DeliveryOutcome::Sent => $sent++,
                 DeliveryOutcome::SkippedInvalid => $skippedInvalid++,
@@ -148,10 +125,10 @@ class AppointmentNotificationRunner
         int $nowTimestamp,
         int $notificationHours,
     ): int {
-        $apptHour = (int)round($appointmentTimestamp / 3600);
-        $nowHour = (int)round($nowTimestamp / 3600);
+        $apptHour = (int) round($appointmentTimestamp / 3600);
+        $nowHour = (int) round($nowTimestamp / 3600);
         $remainingApptHour = $apptHour - $nowHour;
-        return (int)round($remainingApptHour - $notificationHours);
+        return (int) round($remainingApptHour - $notificationHours);
     }
 
     /**
@@ -214,7 +191,7 @@ class AppointmentNotificationRunner
             return $value;
         }
         if (is_int($value) || is_float($value)) {
-            return (string)$value;
+            return (string) $value;
         }
         return '';
     }
@@ -416,28 +393,6 @@ class AppointmentNotificationRunner
             return;
         }
         $recur = self::stringFromRow($row, 'pc_recurrtype');
-        rc_sms_notification_cron_update_entry($this->channel, (int)$pid, (int)$pcEid, $recur);
-    }
-
-    private function isBackgroundTask(): bool
-    {
-        if ($this->backgroundRunning !== null) {
-            return $this->backgroundRunning;
-        }
-
-        $type = strtolower($this->channel->value);
-
-        $taskManager = new NotificationTaskManager();
-        $result = $taskManager->getServiceStatus($type);
-
-        if (
-            !is_array($result) ||
-            !isset($result[$type]) ||
-            !is_array($result[$type])
-        ) {
-            return false;
-        }
-
-        return ($result[$type]['running'] ?? 0) === 1;
+        rc_sms_notification_cron_update_entry($this->channel, (int) $pid, (int) $pcEid, $recur);
     }
 }
