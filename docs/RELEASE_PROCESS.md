@@ -42,6 +42,10 @@ flowchart TB
         infraPR(["release-rotation/auto PR<br/>reviewable"])
     end
 
+    subgraph df["openemr/demo_farm_openemr"]
+        bump{{"bump-tag.yml<br/>direct push to master"}}
+    end
+
     cut -->|push rel-*| prepPR
     prepPR -->|every push| prepPR
     edit -.-> docsPR
@@ -60,6 +64,7 @@ flowchart TB
     prepPR -. openemr-rel-update .-> infraPR
     tag -. openemr-tag .-> docsPR
     tag -. openemr-tag .-> infraPR
+    tag -. openemr-tag .-> bump
 
     classDef manualStep fill:#fff4cc,stroke:#b58900
     classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
@@ -68,10 +73,10 @@ flowchart TB
     class cut,edit,sign,trigger manualStep
     class prepPR,docsPR,infraPR autoArtifact
     class tag autoTag
-    class ship autoWorkflow
+    class ship,bump autoWorkflow
 ```
 
-**Legend.** Yellow nodes are maintainer actions. Blue nodes are reviewable PRs that workflows open and force-update on every dispatch. The green node is the annotated tag the conductor creates on merge. The purple hexagon is the `ship-release.yml` workflow (in `openemr-devops`) that an operator triggers via `workflow_dispatch`; it merges the three PRs in order (infra → conductor → docs) with mergeability gates. Solid arrows are git/PR actions and workflow triggers; dotted arrows are `repository_dispatch` events labeled with the event name.
+**Legend.** Yellow nodes are maintainer actions. Blue nodes are reviewable PRs that workflows open and force-update on every dispatch. The green node is the annotated tag the conductor creates on merge. Purple hexagons are workflows: `ship-release.yml` (in `openemr-devops`), which an operator triggers via `workflow_dispatch` to merge the three PRs in order (infra → conductor → docs) with mergeability gates; and `bump-tag.yml` (in `demo_farm_openemr`), which consumes `openemr-tag` and pushes the new tag to the demo-farm config directly. Solid arrows are git/PR actions and workflow triggers; dotted arrows are `repository_dispatch` events labeled with the event name.
 
 ## Cross-repo events
 
