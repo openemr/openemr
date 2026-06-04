@@ -686,11 +686,7 @@ abstract class AppDispatch
                 $mail->msgHTML(text($htmlContent));
                 $mail->isHTML(true);
             }
-            if ($mail->send()) {
-                $status = xlt("Email successfully sent.");
-            } else {
-                $status = xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
-            }
+            $status = $mail->send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
         } catch (\Throwable $e) {
             $message = $e->getMessage();
             $status = 'Error: ' . $message;
