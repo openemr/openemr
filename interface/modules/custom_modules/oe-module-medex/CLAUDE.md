@@ -38,8 +38,27 @@ Ask the user: *"Should I read CLAUDE.md before proceeding?"*
 **Local Mac = code editing + git storage only.** You do not run or test against localhost.
 Changes are edited on Mac, committed to git, then deployed to k8s. Period.
 
-**`web_full/` changes are NOT instantly live** — they require a Docker image rebuild and
-k8s rollout restart. See the "Production MedEx API on K8s — Deploy Process" section.
+## ⛔ CRITICAL: NEVER REBUILD DOCKER FOR SINGLE FILE CHANGES ⛔
+
+**For iterative `web_full/` changes during development, use the hotpatch script — NOT Docker rebuild:**
+
+```bash
+cd /Users/ray/projects/medex-local/k8s
+bash hotpatch-live.sh push
+```
+
+Docker image rebuild + k8s rollout restart is ONLY for:
+- Shipping a finished release to production
+- Changes to `Dockerfile`, startup scripts, or system packages
+
+**Why this matters:** Rebuilding is slow, expensive, and burns build minutes.
+All remote (non-k8s) customers will receive fixes via the release image, so use
+hotpatch for rapid dev iteration and reserve rebuild for release day.
+
+**`web_full/` hotpatch does NOT work for ConfigMap-managed files.** For those,
+see the medex-api ConfigMap Policy section below.
+
+---
 
 ---
 
@@ -732,8 +751,23 @@ Response: { insights: [...], recommendations: [...], projected_impact }
 Edit on Mac → git commit → deploy to k8s
 ```
 - **OpenEMR module files:** `cd /Users/ray/projects/openemr && ./deploy_to_pod.sh --module`
-- **MedEx API (web_full changes):** rebuild Docker image for `linux/amd64` + `kubectl rollout restart deployment/medex-api -n medex`
-- **web_full/ changes are NOT instantly live** — they require a full Docker image rebuild.
+- **MedEx API (web_full changes) — HOTPATCH FIRST:**
+  ```bash
+  cd /Users/ray/projects/medex-local/k8s
+  bash hotpatch-live.sh push
+  ```
+  This syncs changed PHP/TPL files directly to the running pod **without a Docker rebuild**.
+  Use this for ALL iterative development changes.
+
+- **Docker rebuild is ONLY for finished releases** — not for individual file changes during development:
+  ```bash
+  docker buildx build --platform linux/amd64 -t ophthal/latest:medex-api-v1 -f Dockerfile . --push
+  kubectl rollout restart deployment/medex-api -n medex
+  ```
+  Rebuild when: shipping a versioned release, adding system packages, or changing the Dockerfile.
+
+- **Remote customers** are NOT in k8s. Any code change must work for remote OpenEMR instances
+  (external URLs). The internal k8s service URL only applies to hipaabank.net hostnames.
 
 ### Database Access
 - **MedEx DB:** `127.0.0.1:3306` (via SSH tunnel in medex-api pod), user=`webserver`, pass=`Budd2833a`, DB=`HIPAA`
