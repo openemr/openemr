@@ -2039,7 +2039,7 @@ $templateCount = count($detectedTemplates);
             display: grid;
             grid-template-columns: 260px 1fr 280px;
             gap: 12px;
-            align-items: start;
+            align-items: stretch;   /* all panels same height */
         }
 
         .panel {
@@ -2049,12 +2049,16 @@ $templateCount = count($detectedTemplates);
             box-shadow: var(--cs-shadow);
             padding: 12px;
             overflow: auto;
+            /* Side panels: fill remaining viewport, scroll internally */
+            max-height: calc(100vh - 130px);
+            min-height: 300px;
         }
 
-        /* Grid panel: tall enough to show a full day without internal scrolling */
+        /* Grid panel scrolls through the time slots internally */
         .panel.calendar-wrap {
             overflow: auto;
-            min-height: 700px;
+            height: calc(100vh - 130px);
+            min-height: 300px;
         }
 
         .panel h3 {
@@ -2492,6 +2496,11 @@ $templateCount = count($detectedTemplates);
             display: grid;
             grid-template-columns: 80px repeat(7, minmax(110px, 1fr));
             gap: 4px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: var(--cs-bg, #f0f4f8);
+            padding-bottom: 4px;
         }
 
         .calendar-head div {
