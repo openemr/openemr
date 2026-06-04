@@ -97,6 +97,9 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
 <script>
 (function () {
     var medexPreferenceUrl = <?php echo json_encode($preferenceUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    // Provider/facility selected in FullCalendar — passed here and preserved across navigation
+    var SAVED_PC_USERNAME = <?php echo json_encode(trim((string)($_GET['pc_username'] ?? ''))); ?>;
+    var SAVED_PC_FACILITY = <?php echo json_encode(trim((string)($_GET['pc_facility'] ?? ''))); ?>;
     var frame = document.getElementById('calendar-frame');
 
     function restoreSessionThen(run) {
@@ -123,6 +126,9 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
 
         parsed.searchParams.set('medex_wrapper', '1');
         parsed.searchParams.set('medex_prefer', 'openemr');
+        // Preserve provider and facility so navigation within native calendar keeps the same filter
+        if (SAVED_PC_USERNAME) { parsed.searchParams.set('pc_username', SAVED_PC_USERNAME); }
+        if (SAVED_PC_FACILITY) { parsed.searchParams.set('pc_facility', SAVED_PC_FACILITY); }
 
         return parsed.pathname + parsed.search + parsed.hash;
     }

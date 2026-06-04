@@ -5564,7 +5564,7 @@ function bindCadenceUI() {
 function bindProviderCopyFrom() {
     // When a provider is selected and has no template, offer to copy from another.
     // We add a "Copy from provider" button that appears next to the provider selector.
-    const providerSelect = document.getElementById('csProvider');
+    const providerSelect = document.getElementById('cfgProvider');
     if (!providerSelect) { return; }
 
     const copyBtn = document.createElement('button');
@@ -5639,8 +5639,14 @@ function bindSnapshotPanel() {
     const statusEl = document.getElementById('snapshotStatus');
     if (!saveBtn || !copyBtn) { return; }
 
-    const providerSelect = document.getElementById('csProvider');
-    const getProviderId  = () => providerSelect ? Number(providerSelect.value || 0) : 0;
+    const providerSelect = document.getElementById('cfgProvider');
+    // cfgProvider is a multi-select; use the first selected option as "current provider"
+    const getProviderId  = () => {
+        if (!providerSelect) { return 0; }
+        const sel = providerSelect.selectedOptions || providerSelect.options;
+        for (let i = 0; i < sel.length; i++) { if (sel[i].selected) { return Number(sel[i].value || 0); } }
+        return Number(providerSelect.value || 0);
+    };
 
     const setStatus = (msg, ok) => {
         if (!statusEl) { return; }
