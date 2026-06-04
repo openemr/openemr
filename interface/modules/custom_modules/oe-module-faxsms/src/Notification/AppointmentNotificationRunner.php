@@ -43,7 +43,7 @@ class AppointmentNotificationRunner
 {
     private readonly LoggerInterface $logger;
     private readonly ClockInterface $clock;
-    private readonly bool $backgroundRunning;
+    private ?bool $backgroundRunning = null;
 
     /**
      * @param NotificationChannel  $channel           Which reminder channel to process.
@@ -68,7 +68,6 @@ class AppointmentNotificationRunner
         ?ClockInterface $clock = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
-        $this->backgroundRunning = $this->isBackgroundTask();
         $this->clock = $clock ?? new class implements ClockInterface {
             public function now(): \DateTimeImmutable
             {
@@ -95,7 +94,7 @@ class AppointmentNotificationRunner
             $outcome = $this->deliver($row);
             // When running in a non-background context (e.g. via the admin UI), report reminder for each send.
             // For admins this reporting in dry-run allows for a review of what would happen in a live run; for background runs, the per-send reporting would spam the logs and provide no value beyond the final summary, so it's skipped.
-            if (!$this->backgroundRunning) {
+            if (!$this->isBackgroundTask()) {
                 $strMsg = text($this->channel->name) . ' ' . text("TO") .
                     "<strong> " .
                     text($row['email']) . ' ' . text($row['fname']) . ' ' . text($row['lname']) .
@@ -420,6 +419,10 @@ class AppointmentNotificationRunner
 
     private function isBackgroundTask(): bool
     {
+        if ($this->backgroundRunning !== null) {
+            return $this->backgroundRunning;
+        }
+
         $type = strtolower($this->channel->value);
 
         $taskManager = new NotificationTaskManager();
@@ -430,9 +433,12 @@ class AppointmentNotificationRunner
             !isset($result[$type]) ||
             !is_array($result[$type])
         ) {
+            $this->backgroundRunning = false;
             return false;
         }
 
-        return ($result[$type]['running'] ?? 0) === 1;
+        $this->backgroundRunning = ($result[$type]['running'] ?? 0) === 1;
+
+        return $this->backgroundRunning;
     }
 }
