@@ -5782,25 +5782,23 @@ function bindSnapshotPanel() {
     };
 
     // Auto-load snapshot list when the panel is toggled open
-    // initCollapsibleSections uses classList.toggle('is-collapsed'), not style.display.
-    // Watch class changes AND also hook the toggle button click directly.
+    // Load snapshots whenever the section becomes visible.
+    // Also loads on init in case localStorage left it expanded.
     const snapSection = document.getElementById('collapseSnapshotsBody');
     const snapToggle  = document.querySelector('[data-collapse-toggle="snapshots"]');
+
+    const maybeLoad = () => {
+        if (snapSection && !snapSection.classList.contains('is-collapsed')) { loadSnapshotList(); }
+    };
+
     if (snapSection) {
-        const observer = new MutationObserver(() => {
-            if (!snapSection.classList.contains('is-collapsed')) { loadSnapshotList(); }
-        });
+        const observer = new MutationObserver(maybeLoad);
         observer.observe(snapSection, { attributes: true, attributeFilter: ['class'] });
+        // Load immediately if section is already expanded
+        setTimeout(maybeLoad, 200);
     }
     if (snapToggle) {
-        snapToggle.addEventListener('click', () => {
-            // Load after toggle completes (next tick)
-            setTimeout(() => {
-                if (snapSection && !snapSection.classList.contains('is-collapsed')) {
-                    loadSnapshotList();
-                }
-            }, 50);
-        });
+        snapToggle.addEventListener('click', () => setTimeout(maybeLoad, 80));
     }
 
     saveBtn.addEventListener('click', async () => {

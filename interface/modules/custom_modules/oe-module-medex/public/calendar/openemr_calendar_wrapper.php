@@ -48,23 +48,22 @@ if ($viewType === 'month') {
     $medexParams['view'] = 'week';
 }
 
-$provider = trim((string)($_GET['pc_username'] ?? ''));
-if ($provider !== '') {
-    $medexParams['providers'] = $provider;
-}
 // Restore all originally-selected providers when returning to FullCalendar
 $medexProviders = trim((string)($_GET['medex_providers'] ?? ''));
+$provider       = trim((string)($_GET['pc_username']    ?? ''));
 if ($medexProviders !== '') {
-    $medexParams['providers'] = $medexProviders; // comma-separated usernames
+    $medexParams['providers'] = $medexProviders; // all comma-separated usernames
+} elseif ($provider !== '') {
+    $medexParams['providers'] = $provider;
 }
 
-$facility = trim((string)($_GET['pc_facility'] ?? ''));
-if ($facility !== '') {
+$medexFacilities = trim((string)($_GET['medex_facilities'] ?? ''));
+$facility        = trim((string)($_GET['pc_facility']      ?? ''));
+if ($medexFacilities !== '') {
+    $medexParams['facilities'] = $medexFacilities;
+} elseif ($facility !== '') {
     $medexParams['facilities'] = $facility;
 }
-
-// Flag: were multiple providers selected in FullCalendar?
-$multiProvider = ($provider === '' && $medexProviders !== '');
 
 $medexRedirectUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/calendar/index.php?' . http_build_query($medexParams);
 $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/calendar/set_calendar_preference.php?' . http_build_query([
@@ -97,11 +96,6 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
     </style>
 </head>
 <body>
-<?php if ($multiProvider): ?>
-<div style="background:#fef3c7;border-bottom:1px solid #fbbf24;padding:4px 12px;font-size:11px;color:#78350f;font-family:sans-serif;">
-    ℹ️ <?php echo xlt('OpenEMR Calendar shows one provider at a time. All providers are shown below. Return to Full Calendar to view specific providers side-by-side.'); ?>
-</div>
-<?php endif; ?>
 <iframe
     id="calendar-frame"
     title="<?php echo attr(xl('OpenEMR Calendar')); ?>"
