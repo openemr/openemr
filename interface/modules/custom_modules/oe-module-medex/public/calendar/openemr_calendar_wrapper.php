@@ -141,20 +141,23 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         style.textContent = 'span.appointment:not(:has(.fa-user)){display:none!important}';
         (iframeDoc.head || iframeDoc.body).appendChild(style);
 
+        // PostCalendar event containers: <div data-eid="NNN" class="event_appointment event" style="background-color:...">
+        // Hide any that lack a .fa-user (patient icon) — those are template slots.
         var script = iframeDoc.createElement('script');
         script.textContent = [
             '(function(){',
             '  function run(){',
-            '    document.querySelectorAll("[id^=\'event_\']").forEach(function(div){',
+            '    document.querySelectorAll("div[data-eid]").forEach(function(div){',
             '      if(!div.querySelector(".fa-user")){',
             '        div.style.display="none";',
             '        div.style.height="0";',
             '        div.style.overflow="hidden";',
+            '        div.style.minHeight="0";',
             '      }',
             '    });',
             '  }',
             '  run();',
-            '  new MutationObserver(run).observe(document.body,{childList:true,subtree:true});',
+            '  new MutationObserver(function(){run();}).observe(document.body,{childList:true,subtree:true});',
             '})()'
         ].join('');
         (iframeDoc.body || iframeDoc.head).appendChild(script);
