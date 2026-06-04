@@ -3144,7 +3144,7 @@ $templateCount = count($detectedTemplates);
             <div class="section-body is-collapsed" id="collapseSnapshotsBody">
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
                     <button class="btn primary" type="button" id="btnSaveSnapshot"><?php echo xlt('Save Snapshot'); ?></button>
-                    <button class="btn" type="button" id="btnCopySnapshot"><?php echo xlt('Copy Grid to Another Provider'); ?></button>
+                    <button class="btn" type="button" id="btnCopySnapshot"><?php echo xlt('Copy Grid to Another Provider…'); ?></button>
                 </div>
                 <p style="font-size:10px;color:var(--cs-subtle);margin:0 0 6px;">
                     <?php echo xlt('Click "Load" on any snapshot below to load that provider\'s template into the current grid.'); ?>
@@ -3212,6 +3212,30 @@ $templateCount = count($detectedTemplates);
                 </div>
             </div>
         </aside>
+    </div>
+</div>
+
+<!-- Copy-to-provider modal -->
+<div class="manage-types-modal" id="copyToProviderModal" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+    <div class="manage-types-dialog" style="max-width:380px;width:90%;" role="dialog" aria-modal="true">
+        <div class="manage-types-head">
+            <h2 style="margin:0;font-size:15px;"><?php echo xlt('Copy Grid to Another Provider'); ?></h2>
+            <button class="btn" type="button" id="btnCloseCopyToProvider" aria-label="Close">✕</button>
+        </div>
+        <div style="padding:12px 0 4px;">
+            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px;"><?php echo xlt('Select target provider:'); ?></label>
+            <select id="copyToProviderSelect" style="width:100%;padding:6px;border:1px solid var(--cs-border);border-radius:6px;font-size:13px;">
+                <option value=""><?php echo xlt('— Choose a provider —'); ?></option>
+                <?php foreach ($providers as $p): ?>
+                    <option value="<?php echo attr((string)$p['id']); ?>"><?php echo text($p['name']); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <p style="font-size:11px;color:var(--cs-subtle);margin:8px 0 0;"><?php echo xlt('The current grid will be loaded for that provider so you can fine-tune and deploy.'); ?></p>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;">
+            <button class="btn" type="button" id="btnCopyToProviderCancel"><?php echo xlt('Cancel'); ?></button>
+            <button class="btn primary" type="button" id="btnCopyToProviderConfirm"><?php echo xlt('Copy & Switch'); ?></button>
+        </div>
     </div>
 </div>
 
@@ -5798,30 +5822,86 @@ function bindSnapshotPanel() {
         } catch (e) { setStatus('Network error', false); }
     });
 
-    copyBtn.addEventListener('click', async () => {
+    // Copy-to-provider modal wiring
+    const copyModal    = document.getElementById('copyToProviderModal');
+    const copySelect   = document.getElementById('copyToProviderSelect');
+    const copyConfirm  = document.getElementById('btnCopyToProviderConfirm');
+    const copyCancel   = document.getElementById('btnCopyToProviderCancel');
+    const copyClose    = document.getElementById('btnCloseCopyToProvider');
+
+    const openCopyModal = () => {
+        if (!copyModal) { return; }
+        if (copySelect) { copySelect.value = ''; }
+        copyModal.style.display = 'flex';
+        copyModal.setAttribute('aria-hidden', 'false');
+    };
+    const closeCopyModal = () => {
+        if (!copyModal) { return; }
+        copyModal.style.display = 'none';
+        copyModal.setAttribute('aria-hidden', 'true');
+    };
+
+    copyBtn.addEventListener('click', () => {
         const pid = getProviderId();
         if (!pid) { setStatus('Select a provider first.', false); return; }
-        const targetPid = prompt('Target provider ID to copy current template to:');
-        if (!targetPid || isNaN(Number(targetPid))) { return; }
-        const newName = (prompt('Name for the copy:', 'Copy from provider #' + pid) ?? '').trim();
-        const body = new URLSearchParams({
-            action: 'save_snapshot', provider_id: Number(targetPid),
-            snapshot_name: newName || ('Copy from provider #' + pid),
-            template_json: captureGrid(),
-            notes: 'Copied from provider #' + pid
-        });
-        if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
-        try {
-            const resp = await fetch(location.href, { method: 'POST', body });
-            const data = await resp.json();
-            if (data.success) {
-                setStatus('✓ Copied to provider #' + targetPid, true);
-                loadSnapshotList();
-            } else {
-                setStatus(data.error || 'Error', false);
-            }
-        } catch (e) { setStatus('Network error', false); }
+        openCopyModal();
     });
+    if (copyCancel) { copyCancel.addEventListener('click', closeCopyModal); }
+    if (copyClose)  { copyClose.addEventListener('click', closeCopyModal); }
+
+    if (copyConfirm) {
+        copyConfirm.addEventListener('click', async () => {
+            const sourcePid = getProviderId();
+            const targetPid = Number(copySelect?.value || 0);
+            if (!targetPid) { return; }
+            if (targetPid === sourcePid) {
+                alert('Source and target are the same provider.');
+                return;
+            }
+            const gridJson = captureGrid();
+            // Save as snapshot for target provider
+            const body = new URLSearchParams({
+                action: 'save_snapshot', provider_id: targetPid,
+                snapshot_name: 'Copied from provider #' + sourcePid,
+                template_json: gridJson,
+                notes: 'Copied from provider #' + sourcePid + ' for fine-tuning'
+            });
+            if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
+            try {
+                const resp = await fetch(location.href, { method: 'POST', body });
+                const data = await resp.json();
+                if (!data.success) { alert(data.error || 'Failed to save snapshot'); return; }
+            } catch (e) { alert('Network error'); return; }
+
+            closeCopyModal();
+
+            // Switch the Studio to the target provider and load the copied grid
+            const sel = document.getElementById('cfgProvider');
+            if (sel) {
+                Array.from(sel.options).forEach((opt) => { opt.selected = (Number(opt.value) === targetPid); });
+            }
+            // Activate the editor for the target provider
+            if (typeof _activateProviderEditor === 'function') { _activateProviderEditor(targetPid); }
+
+            // Load the copied grid into the active view
+            try {
+                const tpl = JSON.parse(gridJson);
+                document.querySelectorAll('.grid-slot').forEach((c) => {
+                    c.dataset.slotPayload = '{}'; c.style.background = ''; c.textContent = ''; c.classList.remove('filled-slot');
+                });
+                if (Array.isArray(tpl.slots)) {
+                    tpl.slots.forEach((slot) => {
+                        if (typeof applyTypeToSlotKey === 'function') {
+                            applyTypeToSlotKey(slot.dayIdx + '_' + slot.minute, slot);
+                        }
+                    });
+                }
+            } catch (e) {}
+
+            setStatus('✓ Switched to provider #' + targetPid + ' with copied grid — fine-tune and deploy.', true);
+            loadSnapshotList();
+        });
+    }
 }
 
 // =====================================================================
