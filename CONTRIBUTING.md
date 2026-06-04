@@ -234,7 +234,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
 
       ```
-      Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env> [options]
+      Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env|prune> [options]
 
         add <branch> [-b] [--env easy|easy-light|easy-redis] [--start]
                                   Create worktree (-b creates new branch, default env: easy)
@@ -247,6 +247,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
         exec <branch> <cmd> [args...]   Run an openemr-cmd command against the worktree's openemr container
         list                      List all worktrees and status
         regen <branch>            Regenerate override/env files
+        prune [--dry-run]         Remove state entries whose worktree dir is gone or invalid
         wt                        Alias for worktree
       ```
 
@@ -296,11 +297,23 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd worktree remove worktree-branch-label
       ```
+      `remove` is also tolerant of an already-deleted worktree directory — it cleans up the state entry, skips the destructive steps, and prints a manual hint for any lingering docker resources for that stack.
 
     - Can view the list of worktrees via:
       ```sh
       openemr-cmd worktree list
       ```
+      Three non-running statuses can appear:
+      - `missing` — the worktree directory is gone (prunable). Footer: `(N stale state entries — run "openemr-cmd worktree prune" to clean up; directories on disk are left intact)`.
+      - `partial` — the directory is intact but its compose files (`.env` / `docker-compose.override.yml`) are gone. Footer: `(N entries have missing compose files — run "openemr-cmd worktree regen <branch>" to regenerate)`.
+      - `invalid` — the directory is intact + has compose files, but `wt_validate_dir_safe` fails (it lives outside the expected parent, or git no longer registers it as a worktree). Counted with `missing` for the prune footer.
+
+    - Can clean up stale state entries (e.g. after deleting a worktree directory manually) via:
+      ```sh
+      openemr-cmd worktree prune
+      openemr-cmd worktree prune --dry-run
+      ```
+      `--dry-run` previews which entries would be removed without changing anything. Prune only touches `.worktrees.json` — directories on disk and their docker resources are left alone. Never hand-edit `.worktrees.json`.
 
     - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
 
