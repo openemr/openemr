@@ -4128,7 +4128,7 @@ function bindToolbar() {
             return;
         }
 
-        const facilityValue = String(document.getElementById('cfgFacility').value || '');
+        const facilityValue = String(document.getElementById('cfgFacility')?.value || '');
         const cadenceVal = document.getElementById('cfgCadence')?.value || 'weekly';
 
         // For 4-week rotation, collect slots from all 4 week tabs (with weekIndex).
