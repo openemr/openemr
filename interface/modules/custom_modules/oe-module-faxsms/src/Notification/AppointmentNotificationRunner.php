@@ -68,6 +68,7 @@ class AppointmentNotificationRunner
         ?ClockInterface $clock = null,
     ) {
         $this->logger = $logger ?? new NullLogger();
+        $this->backgroundRunning = null;
         $this->clock = $clock ?? new class implements ClockInterface {
             public function now(): \DateTimeImmutable
             {
@@ -85,6 +86,7 @@ class AppointmentNotificationRunner
         $skippedInvalid = 0;
         $failed = 0;
 
+        $this->backgroundRunning = $this->isBackgroundTask();
         foreach ($appointments as $row) {
             if (!$this->isInCronWindow($row)) {
                 continue;
@@ -94,7 +96,7 @@ class AppointmentNotificationRunner
             $outcome = $this->deliver($row);
             // When running in a non-background context (e.g. via the admin UI), report reminder for each send.
             // For admins this reporting in dry-run allows for a review of what would happen in a live run; for background runs, the per-send reporting would spam the logs and provide no value beyond the final summary, so it's skipped.
-            if (!$this->isBackgroundTask()) {
+            if (!$this->backgroundRunning) {
                 $strMsg = text($this->channel->name) . ' ' . text("TO") .
                     "<strong> " .
                     text($row['email']) . ' ' . text($row['fname']) . ' ' . text($row['lname']) .
@@ -433,12 +435,9 @@ class AppointmentNotificationRunner
             !isset($result[$type]) ||
             !is_array($result[$type])
         ) {
-            $this->backgroundRunning = false;
             return false;
         }
 
-        $this->backgroundRunning = ($result[$type]['running'] ?? 0) === 1;
-
-        return $this->backgroundRunning;
+        return ($result[$type]['running'] ?? 0) === 1;
     }
 }
