@@ -141,19 +141,40 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         style.textContent = 'span.appointment:not(:has(.fa-user)){display:none!important}';
         (iframeDoc.head || iframeDoc.body).appendChild(style);
 
-        // PostCalendar event containers: <div data-eid="NNN" class="event_appointment event" style="background-color:...">
-        // Hide any that lack a .fa-user (patient icon) — those are template slots.
+        // PostCalendar pre-calculates left/width % for ALL events per time slot.
+        // Hiding template events leaves gaps because surviving patient appointments
+        // keep their original positions. After hiding, redistribute widths so
+        // remaining visible patient appointments fill the full column width.
         var script = iframeDoc.createElement('script');
         script.textContent = [
             '(function(){',
             '  function run(){',
+            '    // 1. Hide all template event divs (no .fa-user means no real patient)',
             '    document.querySelectorAll("div[data-eid]").forEach(function(div){',
             '      if(!div.querySelector(".fa-user")){',
-            '        div.style.display="none";',
-            '        div.style.height="0";',
-            '        div.style.overflow="hidden";',
-            '        div.style.minHeight="0";',
+            '        div.style.display="none";div.style.height="0";',
+            '        div.style.overflow="hidden";div.style.minHeight="0";',
             '      }',
+            '    });',
+            '    // 2. Within each calendar column, find groups of events at the same',
+            '    // vertical position (same top %) and redistribute their widths evenly.',
+            '    document.querySelectorAll(".calendar_day").forEach(function(col){',
+            '      var visible=Array.from(col.querySelectorAll("div[data-eid]")).filter(function(d){return d.style.display!=="none";});',
+            '      // Group by top position (rounded to avoid float drift)',
+            '      var byTop={};',
+            '      visible.forEach(function(d){',
+            '        var top=Math.round(parseFloat(d.style.top)||0);',
+            '        if(!byTop[top])byTop[top]=[];',
+            '        byTop[top].push(d);',
+            '      });',
+            '      Object.values(byTop).forEach(function(group){',
+            '        if(group.length<2)return;', // nothing to redistribute for single events
+            '        var w=100/group.length;',
+            '        group.forEach(function(d,i){',
+            '          d.style.width=w+"%";',
+            '          d.style.left=(i*w)+"%";',
+            '        });',
+            '      });',
             '    });',
             '  }',
             '  run();',
