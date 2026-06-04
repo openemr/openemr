@@ -132,12 +132,18 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
             return;
         }
 
-        // Hide only MedEx-generated template events from the native calendar.
-        // Targets: "Open Slot - *", "[AI] Surgery Block", "In Office", "Out Of Office".
-        // Keeps: patient appointments, Lunch, Reserved, Vacation, and any other
-        // non-MedEx provider blocks.
+        // CSS :has() approach — far more reliable than JS DOM walking.
+        // PostCalendar wraps every event in <span class="appointment">.
+        // Patient appointments contain <i class="fas fa-user"> inside.
+        // Template slots have NO fa-user → hidden by the :has() rule.
+        // Lunch/Vacation/Reserved are plain text (no .appointment span), unaffected.
+        var style = iframeDoc.createElement('style');
+        style.id = 'medex-hide-template-slots';
+        style.textContent = 'span.appointment:not(:has(.fa-user)) { display: none !important; }';
+        if (iframeDoc.head) { iframeDoc.head.appendChild(style); } else if (iframeDoc.body) { iframeDoc.body.insertBefore(style, iframeDoc.body.firstChild); }
+        return;
         var script = iframeDoc.createElement('script');
-        script.id = 'medex-hide-template-slots';
+        script.id = 'medex-hide-template-slots-DISABLED';
         script.textContent = '(function() {' +
             'var MEDEX_PATTERNS = [' +
             '  /^open\\s+slot/i,' +
