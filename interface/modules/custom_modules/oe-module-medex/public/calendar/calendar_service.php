@@ -3141,12 +3141,14 @@ $templateCount = count($detectedTemplates);
                     <span class="icon">▾</span><span><?php echo xlt('Snapshots / Rollback'); ?></span>
                 </button>
             </div>
-            <div class="section-body" id="collapseSnapshotsBody" style="display:none;">
+            <div class="section-body is-collapsed" id="collapseSnapshotsBody">
                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
                     <button class="btn primary" type="button" id="btnSaveSnapshot"><?php echo xlt('Save Snapshot'); ?></button>
-                    <button class="btn" type="button" id="btnCopySnapshot"><?php echo xlt('Copy to Provider…'); ?></button>
+                    <button class="btn" type="button" id="btnCopySnapshot"><?php echo xlt('Copy Grid to Another Provider'); ?></button>
                 </div>
-                <!-- Snapshot list loads automatically when panel opens -->
+                <p style="font-size:10px;color:var(--cs-subtle);margin:0 0 6px;">
+                    <?php echo xlt('Click "Load" on any snapshot below to load that provider\'s template into the current grid.'); ?>
+                </p>
                 <div id="snapshotList" style="max-height:260px;overflow-y:auto;font-size:12px;"></div>
                 <div id="snapshotStatus" style="font-size:11px;margin-top:4px;"></div>
             </div>
@@ -5750,12 +5752,25 @@ function bindSnapshotPanel() {
     };
 
     // Auto-load snapshot list when the panel is toggled open
+    // initCollapsibleSections uses classList.toggle('is-collapsed'), not style.display.
+    // Watch class changes AND also hook the toggle button click directly.
     const snapSection = document.getElementById('collapseSnapshotsBody');
+    const snapToggle  = document.querySelector('[data-collapse-toggle="snapshots"]');
     if (snapSection) {
         const observer = new MutationObserver(() => {
-            if (snapSection.style.display !== 'none') { loadSnapshotList(); }
+            if (!snapSection.classList.contains('is-collapsed')) { loadSnapshotList(); }
         });
-        observer.observe(snapSection, { attributes: true, attributeFilter: ['style'] });
+        observer.observe(snapSection, { attributes: true, attributeFilter: ['class'] });
+    }
+    if (snapToggle) {
+        snapToggle.addEventListener('click', () => {
+            // Load after toggle completes (next tick)
+            setTimeout(() => {
+                if (snapSection && !snapSection.classList.contains('is-collapsed')) {
+                    loadSnapshotList();
+                }
+            }, 50);
+        });
     }
 
     saveBtn.addEventListener('click', async () => {
