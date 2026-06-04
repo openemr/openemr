@@ -1086,14 +1086,14 @@ $openEmrCalendarCompatible = true;
             display: inline;
             max-width: 100%;
         }
+        /* Slot-state badge: sits above the title text, not floating over it.
+           Both are visible even in 5-minute chips. */
         .fc-event .slot-state-indicator {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-left: 0;
-            padding: 0 6px;
-            min-width: 34px;
-            height: 14px;
+            padding: 0 5px;
+            height: 13px;
             border-radius: 999px;
             border: 1px solid rgba(0,0,0,0.22);
             font-size: 9px;
@@ -1104,22 +1104,24 @@ $openEmrCalendarCompatible = true;
             flex: 0 0 auto;
             background: rgba(255,255,255,0.9);
             color: #1f2933;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            z-index: 4;
+            margin-bottom: 1px;
         }
-        /* Anchor for timegrid and daygrid chips so the badge positions correctly. */
-        .fc-event.open-slot-chip.fc-timegrid-event .fc-event-main,
-        .fc-event.open-slot-chip.fc-daygrid-event .fc-event-main {
-            position: relative;
+        /* Stack badge above title in a column so neither clips the other. */
+        .fc-event.open-slot-chip .fc-event-main {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            padding: 2px 4px !important;
+            overflow: hidden;
         }
-        /* Pad only the outermost frame so the badge doesn't overlap title text.
-           Applying to nested title-container/title would stack the indent 3×. */
-        .fc-event.open-slot-chip.fc-timegrid-event.has-slot-state-indicator .fc-event-main-frame,
-        .fc-event.open-slot-chip.fc-daygrid-event.has-slot-state-indicator .fc-event-main-frame {
-            padding-left: 40px;
-            box-sizing: border-box;
+        /* Title text sits below the badge — always visible */
+        .fc-event.open-slot-chip .fc-event-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+            font-size: 10px;
+            line-height: 1.2;
         }
         .fc-event .slot-state-indicator--filled {
             background: #ffffff;

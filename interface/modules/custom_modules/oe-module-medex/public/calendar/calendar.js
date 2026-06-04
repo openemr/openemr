@@ -1200,9 +1200,7 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     info.el.classList.add('has-slot-state-indicator');
                     const stateBadge = document.createElement('span');
                     stateBadge.className = 'slot-state-indicator slot-state-indicator--' + slotVisualState;
-                    // For very short slots (< 8 min) the chip is tiny — abbreviate to single letter
-                    // so the title text stays readable alongside the badge.
-                    stateBadge.textContent = duration < 8 ? slotVisualMeta.short.charAt(0) : slotVisualMeta.short;
+                    stateBadge.textContent = slotVisualMeta.short;
                     stateBadge.setAttribute('aria-label', slotVisualMeta.label);
                     stateBadge.setAttribute('title', 'Slot state: ' + slotVisualMeta.label);
                     const badgeHost = info.el.querySelector('.fc-event-main')
