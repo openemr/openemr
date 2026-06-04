@@ -3223,23 +3223,24 @@ $templateCount = count($detectedTemplates);
 </div>
 
 <!-- Copy-to-provider modal -->
-<div class="manage-types-modal" id="copyToProviderModal" aria-hidden="true" style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
-    <div class="manage-types-dialog" style="max-width:380px;width:90%;" role="dialog" aria-modal="true">
-        <div class="manage-types-head">
-            <h2 style="margin:0;font-size:15px;"><?php echo xlt('Copy Grid to Another Provider'); ?></h2>
-            <button class="btn" type="button" id="btnCloseCopyToProvider" aria-label="Close">✕</button>
+<div id="copyToProviderModal" aria-hidden="true"
+     style="display:none;position:fixed;inset:0;z-index:1200;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;">
+    <div style="background:var(--cs-surface);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.22);
+                padding:20px 22px;max-width:360px;width:90%;box-sizing:border-box;" role="dialog" aria-modal="true">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+            <h2 style="margin:0;font-size:15px;font-weight:700;"><?php echo xlt('Copy Grid to Another Provider'); ?></h2>
+            <button class="btn" type="button" id="btnCloseCopyToProvider" aria-label="Close"
+                    style="padding:2px 8px;font-size:14px;line-height:1;">✕</button>
         </div>
-        <div style="padding:12px 0 4px;">
-            <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px;"><?php echo xlt('Select target provider:'); ?></label>
-            <select id="copyToProviderSelect" style="width:100%;padding:6px;border:1px solid var(--cs-border);border-radius:6px;font-size:13px;">
-                <option value=""><?php echo xlt('— Choose a provider —'); ?></option>
-                <?php foreach ($providers as $p): ?>
-                    <option value="<?php echo attr((string)$p['id']); ?>"><?php echo text($p['name']); ?></option>
-                <?php endforeach; ?>
-            </select>
-            <p style="font-size:11px;color:var(--cs-subtle);margin:8px 0 0;"><?php echo xlt('The current grid will be loaded for that provider so you can fine-tune and deploy.'); ?></p>
-        </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end;padding-top:12px;">
+        <label style="font-size:12px;font-weight:600;display:block;margin-bottom:6px;"><?php echo xlt('Select target provider:'); ?></label>
+        <select id="copyToProviderSelect" style="width:100%;padding:7px 10px;border:1px solid var(--cs-border);border-radius:6px;font-size:13px;box-sizing:border-box;">
+            <option value=""><?php echo xlt('— Choose a provider —'); ?></option>
+            <?php foreach ($providers as $p): ?>
+                <option value="<?php echo attr((string)$p['id']); ?>"><?php echo text($p['name']); ?></option>
+            <?php endforeach; ?>
+        </select>
+        <p style="font-size:11px;color:var(--cs-subtle);margin:8px 0 16px;"><?php echo xlt('The current grid will load for that provider so you can fine-tune and deploy.'); ?></p>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
             <button class="btn" type="button" id="btnCopyToProviderCancel"><?php echo xlt('Cancel'); ?></button>
             <button class="btn primary" type="button" id="btnCopyToProviderConfirm"><?php echo xlt('Copy & Switch'); ?></button>
         </div>
