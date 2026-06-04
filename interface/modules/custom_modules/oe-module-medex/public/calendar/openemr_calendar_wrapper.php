@@ -1,4 +1,17 @@
 <?php
+/**
+ * PROPRIETARY AND CONFIDENTIAL
+ * Copyright (c) 2024-2026 MedEx <support@MedExBank.com>
+ * All Rights Reserved.
+ *
+ * This file is part of the MedEx SaaS platform and is NOT open-source software.
+ * Unauthorized copying, distribution, modification, or use of this file, via any
+ * medium, is strictly prohibited without the express written permission of MedEx.
+ *
+ * @package   MedEx
+ * @copyright Copyright (c) 2024-2026 MedEx
+ * @license   Proprietary - All Rights Reserved
+ */
 
 require_once(__DIR__ . "/../../../../../globals.php");
 
@@ -104,9 +117,15 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
 <script>
 (function () {
     var medexPreferenceUrl = <?php echo json_encode($preferenceUrl, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
-    // Provider/facility selected in FullCalendar — passed here and preserved across navigation
-    var SAVED_PC_USERNAME = <?php echo json_encode(trim((string)($_GET['pc_username'] ?? ''))); ?>;
-    var SAVED_PC_FACILITY = <?php echo json_encode(trim((string)($_GET['pc_facility'] ?? ''))); ?>;
+    // All providers/facilities selected in FullCalendar — use medex_providers for full list
+    var SAVED_PC_USERNAME = <?php
+        $allProviders = trim((string)($_GET['medex_providers'] ?? '')) ?: trim((string)($_GET['pc_username'] ?? ''));
+        echo json_encode($allProviders);
+    ?>;
+    var SAVED_PC_FACILITY = <?php
+        $allFacilities = trim((string)($_GET['medex_facilities'] ?? '')) ?: trim((string)($_GET['pc_facility'] ?? ''));
+        echo json_encode($allFacilities);
+    ?>;
     var frame = document.getElementById('calendar-frame');
 
     function restoreSessionThen(run) {
@@ -324,6 +343,31 @@ $preferenceUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/p
         normalizeCalendarNavigation(iframeDoc);
         buildSwitcher(iframeDoc);
         hideTemplateSlots(iframeDoc);
+        syncNativeSelections(iframeDoc);
+    }
+
+    // Sync the native calendar's facility dropdown and provider multi-select
+    // to match what was selected in FullCalendar before switching.
+    function syncNativeSelections(iframeDoc) {
+        if (!iframeDoc) { return; }
+
+        // Facility: select#pc_facility
+        if (SAVED_PC_FACILITY) {
+            var facSel = iframeDoc.getElementById('pc_facility');
+            if (facSel && facSel.value !== SAVED_PC_FACILITY) {
+                facSel.value = SAVED_PC_FACILITY;
+            }
+        }
+
+        // Providers: select#pc_username (multi-select)
+        // Set the matching options as selected so the sidebar reflects the right providers.
+        var provSel = iframeDoc.getElementById('pc_username');
+        if (provSel && SAVED_PC_USERNAME) {
+            var savedList = SAVED_PC_USERNAME.split(',').map(function(s){ return s.trim(); });
+            Array.from(provSel.options).forEach(function(opt) {
+                opt.selected = savedList.indexOf(opt.value) !== -1;
+            });
+        }
     }
 
     frame.addEventListener('load', refreshIframeEnhancements);

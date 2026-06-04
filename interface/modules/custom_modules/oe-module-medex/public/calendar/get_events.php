@@ -1,4 +1,17 @@
 <?php
+/**
+ * PROPRIETARY AND CONFIDENTIAL
+ * Copyright (c) 2024-2026 MedEx <support@MedExBank.com>
+ * All Rights Reserved.
+ *
+ * This file is part of the MedEx SaaS platform and is NOT open-source software.
+ * Unauthorized copying, distribution, modification, or use of this file, via any
+ * medium, is strictly prohibited without the express written permission of MedEx.
+ *
+ * @package   MedEx
+ * @copyright Copyright (c) 2024-2026 MedEx
+ * @license   Proprietary - All Rights Reserved
+ */
 
 /**
  * Get calendar events from OpenEMR
