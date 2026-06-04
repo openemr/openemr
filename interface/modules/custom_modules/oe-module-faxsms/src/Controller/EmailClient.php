@@ -160,6 +160,7 @@ class EmailClient extends AppDispatch
             throw new EmailSendFailedException($mail->ErrorInfo);
         }
     }
+
     /**
      * @return false|string
      */
@@ -218,5 +219,4 @@ class EmailClient extends AppDispatch
     {
         return xlt('Not Implemented');
     }
-
 }
