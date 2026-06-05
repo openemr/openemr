@@ -21,7 +21,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:dd1a7d8aa43cb1d26cf790bc78141940900ce2cc59230a3491fa35bd87f96caa
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:b14b67e85e11fa53b69eb40aa64e5390224394dd3d55092aa00ccaaef588f6b3
     ports:
     - 8080:80
     - 8523:443
