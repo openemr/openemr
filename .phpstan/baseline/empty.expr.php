@@ -38,53 +38,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 5,
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
@@ -115,11 +70,6 @@ $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceUSCore8Test.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationHistorySdohServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
