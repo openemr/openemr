@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Services\Search;
 
-use Laminas\Mvc\Exception\BadMethodCallException;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
 
@@ -198,7 +197,7 @@ class FHIRSearchFieldFactory
     /**
      * Returns the relative url
      * @param $urlToResolve
-     * @throws BadMethodCallException if the FhirUrlResolver is not setup for this class
+     * @throws \BadMethodCallException if the FhirUrlResolver is not setup for this class
      * @throws \InvalidArgumentException if the URL does not match the server base URL
      * @return string
      */
