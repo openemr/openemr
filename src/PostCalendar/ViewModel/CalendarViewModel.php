@@ -1151,11 +1151,12 @@ final readonly class CalendarViewModel
             if ($catid === 6 || $catid === 7) {
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
-                // Legacy: `xlt($event['title'])` directly. PHPStan's
-                // strict-rule blocks dynamic strings to xlt/xl. Use the
-                // hsc_private_xl_or_warn wrapper (which exists for
-                // exactly this case) then text-escape.
-                $content = \text(\hsc_private_xl_or_warn($title));
+                // Legacy was `xlt($event['title'])` — but event.title is
+                // user-entered admin data (e.g. "Christmas Eve"). It has
+                // no translation catalog entry, so xl() falls through to
+                // the input verbatim and xlt() collapses to text(title).
+                // Drop the no-op translation and just escape.
+                $content = \text($title);
             } else {
                 $content .= \text(\xl_appt_category($rawCatname));
             }
