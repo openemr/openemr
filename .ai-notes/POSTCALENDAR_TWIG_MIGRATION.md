@@ -40,7 +40,7 @@ Non-empty (13):
 | `pntemplates/default/views/month/default.html` | 8 | 0 |
 | `pntemplates/default/views/week/default.html` | 8 | 0 |
 | `pntemplates/default/views/header.html` | 52 | 3 |
-| `pntemplates/default/user/ajax_search.html` | 266 | 0 |
+| `pntemplates/default/user/ajax_search.html` | 266 | 14 (audit was wrong — original claim of 0) |
 | `pntemplates/default/admin/submit_category.html` | 395 | 0 |
 | `pntemplates/default/views/month_print/outlook_ajax_template.html` | 534 | 2 |
 | `pntemplates/default/views/week_print/outlook_ajax_template.html` | 634 | 3 |
@@ -49,7 +49,7 @@ Non-empty (13):
 | `pntemplates/default/views/week/ajax_template.html` | 1044 | 17 |
 | `pntemplates/default/views/day/ajax_template.html` | 1068 | 16 |
 
-Total: 5525 lines. 62 `[-php-]` blocks concentrated in the 6 ajax_templates (50 of 62) + header (3).
+Total: 5525 lines. 76 `[-php-]` blocks across 8 of 13 templates. Heaviest concentration is the 6 ajax_templates (50 + 5 + 4 + 17 + 17 + 16 = ~50 in main ajax, ~25 in print). The `user/ajax_search.html` had 14 blocks despite the initial audit claiming zero — corrected above.
 
 ### Plugins (10 files, 1089 lines; all return void / echo)
 
