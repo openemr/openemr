@@ -115,13 +115,13 @@ jobs:
 
       - name: Upload coverage
         if: ${{ !cancelled() && env.COLLECT_COVERAGE == 'true' }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       - name: Upload test results
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@v7
         with:
           report_type: test_results
           token: ${{ secrets.CODECOV_TOKEN }}
