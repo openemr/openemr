@@ -768,8 +768,9 @@ function postcalendar_userapi_buildView($args)
             $eventDates = array_keys($aEvents);
             $firstDateTs = !empty($eventDates) ? strtotime((string) $eventDates[0]) : false;
             $lastDateTs = !empty($eventDates) ? strtotime((string) $eventDates[count($eventDates) - 1]) : false;
+            // Legacy format: "01 Jun 2026 - 07 Jun 2026"
             $weekHeaderLabel = ($firstDateTs !== false && $lastDateTs !== false)
-                ? date('M j', $firstDateTs) . ' - ' . date('M j Y', $lastDateTs)
+                ? date('d M Y', $firstDateTs) . ' - ' . date('d M Y', $lastDateTs)
                 : '';
 
             $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
@@ -809,6 +810,13 @@ function postcalendar_userapi_buildView($args)
         }
         $renderData['PRINT_VIEW'] = $print ? 1 : 0;
         $renderData['viewtype'] = $viewtype;
+        // body_class for header.html.twig <body> tag — legacy template
+        // read this from session.language_direction inside a [-php-]
+        // block. Pass it explicitly here so the screen views show the
+        // right LTR/RTL class on body.
+        $bodyClassSession = SessionWrapperFactory::getInstance()->getActiveSession()->get('language_direction');
+        $renderData['body_class'] = is_string($bodyClassSession) ? $bodyClassSession : '';
+
         $newTpl = new CalendarRenderer();
         foreach ($renderData as $k => $v) {
             $newTpl->assign($k, $v);
