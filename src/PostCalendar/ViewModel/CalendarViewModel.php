@@ -497,4 +497,104 @@ final readonly class CalendarViewModel
 
         return $positions;
     }
+
+    /**
+     * For a catid=2 (IN) event, extend the duration so the rendered
+     * block reaches the next OUT event in the provider's event list,
+     * or to the end of the clinic day if no matching OUT follows.
+     *
+     * Non-IN events pass through unchanged.
+     *
+     * Algorithm mirrors the legacy:
+     *
+     *     if ($event['catid'] == 2) {
+     *         $found = false;
+     *         foreach ($events as $outevent) {
+     *             ...skip wrong provider, empty eid...
+     *             if ($outevent['eid'] == $event['eid']) { $found = true; continue; }
+     *             if ($found && $outevent['catid'] == 3) {
+     *                 // use outevent's startTime to set duration
+     *                 break;
+     *             }
+     *         }
+     *         if ($outMins == 0) {
+     *             $event['duration'] = ($calEndMin - $eStartMin) * 60;
+     *         }
+     *     }
+     *
+     * Iteration order is the order events appear in the provider's
+     * event list — the "next OUT after this IN" is purely positional,
+     * not eid-matched.
+     *
+     * @param  array<string, mixed> $event
+     * @param  list<array<string, mixed>> $providerEvents
+     * @return array<string, mixed>
+     */
+    public function extendInEventDuration(
+        array $event,
+        array $providerEvents,
+        int $providerId,
+        int $clinicEndMin
+    ): array {
+        $catid = $event['catid'] ?? 0;
+        if (!is_int($catid) && !is_string($catid)) {
+            return $event;
+        }
+        if ((int) $catid !== 2) {
+            return $event;
+        }
+
+        $eid = $event['eid'] ?? null;
+        if (in_array($eid, [null, '', 0], true)) {
+            return $event;
+        }
+
+        $startTime = $event['startTime'] ?? '00:00:00';
+        if (!is_string($startTime)) {
+            return $event;
+        }
+        $inStartMin = $this->startTimeToMinutes($startTime);
+
+        $found = false;
+        foreach ($providerEvents as $candidate) {
+            $candAid = $candidate['aid'] ?? 0;
+            $candAidInt = is_int($candAid) || is_string($candAid) ? (int) $candAid : 0;
+            if ($candAidInt !== $providerId) {
+                continue;
+            }
+
+            $candEid = $candidate['eid'] ?? null;
+            if (in_array($candEid, [null, '', 0], true)) {
+                continue;
+            }
+
+            if ($candEid == $eid) {  // loose match — legacy used `==`
+                $found = true;
+                continue;
+            }
+
+            if (!$found) {
+                continue;
+            }
+
+            $candCatid = $candidate['catid'] ?? 0;
+            $candCatidInt = is_int($candCatid) || is_string($candCatid) ? (int) $candCatid : 0;
+            if ($candCatidInt !== 3) {
+                continue;
+            }
+
+            // Next OUT after our IN — set duration to bridge the gap.
+            $candStartTime = $candidate['startTime'] ?? '00:00:00';
+            if (!is_string($candStartTime)) {
+                continue;
+            }
+            $outStartMin = $this->startTimeToMinutes($candStartTime);
+            $event['duration'] = ($outStartMin - $inStartMin) * 60;
+            return $event;
+        }
+
+        // No matching OUT found — extend to clinic close.
+        $event['duration'] = ($clinicEndMin - $inStartMin) * 60;
+        return $event;
+    }
 }

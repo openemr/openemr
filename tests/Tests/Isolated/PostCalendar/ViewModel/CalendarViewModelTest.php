@@ -545,4 +545,99 @@ final class CalendarViewModelTest extends TestCase
         self::assertCount(1, $positions);
         self::assertArrayHasKey(99, $positions);
     }
+
+    public function testExtendInEventDurationLeavesNonInEventsUntouched(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $event = ['eid' => 1, 'catid' => 5, 'aid' => 42, 'startTime' => '09:00:00', 'duration' => 1800];
+        $result = $vm->extendInEventDuration($event, [$event], 42, 1020);
+
+        self::assertSame(1800, $result['duration']);
+    }
+
+    public function testExtendInEventDurationExtendsToNextOutInList(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $inEvent = ['eid' => 'in-1', 'catid' => 2, 'aid' => 42, 'startTime' => '09:00:00', 'duration' => 0];
+        $providerEvents = [
+            $inEvent,
+            ['eid' => 'middle', 'catid' => 5, 'aid' => 42, 'startTime' => '10:00:00', 'duration' => 1800],
+            ['eid' => 'out-1',  'catid' => 3, 'aid' => 42, 'startTime' => '12:00:00', 'duration' => 0],
+        ];
+
+        $result = $vm->extendInEventDuration($inEvent, $providerEvents, 42, 1020);
+
+        // IN at 9:00, OUT at 12:00 → duration = 180 min = 10800 sec.
+        self::assertSame(10800, $result['duration']);
+    }
+
+    public function testExtendInEventDurationStopsAtFirstMatchingOut(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        // Two OUT events after the IN — only the first should be used.
+        $inEvent = ['eid' => 'in-1', 'catid' => 2, 'aid' => 42, 'startTime' => '09:00:00', 'duration' => 0];
+        $providerEvents = [
+            $inEvent,
+            ['eid' => 'out-1', 'catid' => 3, 'aid' => 42, 'startTime' => '10:00:00', 'duration' => 0],
+            ['eid' => 'out-2', 'catid' => 3, 'aid' => 42, 'startTime' => '15:00:00', 'duration' => 0],
+        ];
+
+        $result = $vm->extendInEventDuration($inEvent, $providerEvents, 42, 1020);
+
+        // IN at 9:00, first OUT at 10:00 → duration = 60 min = 3600 sec.
+        self::assertSame(3600, $result['duration']);
+    }
+
+    public function testExtendInEventDurationFallsBackToClinicCloseWithNoOut(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $inEvent = ['eid' => 'in-1', 'catid' => 2, 'aid' => 42, 'startTime' => '09:00:00', 'duration' => 0];
+        $providerEvents = [$inEvent];
+
+        // Clinic closes at minute 1020 (17:00).
+        $result = $vm->extendInEventDuration($inEvent, $providerEvents, 42, 1020);
+
+        // 9:00 (540) to 17:00 (1020) = 480 min = 28800 sec.
+        self::assertSame(28800, $result['duration']);
+    }
+
+    public function testExtendInEventDurationSkipsOutEventsBeforeTheIn(): void
+    {
+        // An OUT event that appears BEFORE the IN in the event list
+        // should be ignored — the lookahead only considers events that
+        // appear AFTER the IN in iteration order.
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $inEvent = ['eid' => 'in-1', 'catid' => 2, 'aid' => 42, 'startTime' => '09:00:00', 'duration' => 0];
+        $providerEvents = [
+            ['eid' => 'out-early', 'catid' => 3, 'aid' => 42, 'startTime' => '08:30:00', 'duration' => 0],  // before IN
+            $inEvent,
+            // No OUT after the IN.
+        ];
+
+        $result = $vm->extendInEventDuration($inEvent, $providerEvents, 42, 1020);
+
+        // Should fall back to clinic close, NOT use the earlier OUT.
+        self::assertSame(28800, $result['duration']);
+    }
+
+    public function testExtendInEventDurationIgnoresOtherProvidersOutEvents(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $inEvent = ['eid' => 'in-1', 'catid' => 2, 'aid' => 42, 'startTime' => '09:00:00', 'duration' => 0];
+        $providerEvents = [
+            $inEvent,
+            ['eid' => 'out-other', 'catid' => 3, 'aid' => 99, 'startTime' => '10:00:00', 'duration' => 0],
+        ];
+
+        $result = $vm->extendInEventDuration($inEvent, $providerEvents, 42, 1020);
+
+        // Other provider's OUT is skipped, fall back to clinic close.
+        self::assertSame(28800, $result['duration']);
+    }
 }
