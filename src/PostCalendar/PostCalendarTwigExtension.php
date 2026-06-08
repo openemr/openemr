@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Twig functions and filters for the PostCalendar module.
+ * Twig functions for the PostCalendar module.
  *
  * Replaces the legacy Smarty plugins under
- * interface/main/calendar/modules/PostCalendar/plugins/. Each plugin
- * (pc_date_format, pc_url, pc_filter, pc_popup, etc.) becomes a method
- * on this class registered via getFunctions() or getFilters().
+ * interface/main/calendar/modules/PostCalendar/plugins/. Of the 10 plugin
+ * files in that directory, only function.pc_sort_events.php is invoked
+ * from any template (all 9 others are dead code, deleted in Phase 10).
  *
- * Functions return strings. They do not echo. They do not include() PHP
- * files from the legacy pntemplates/ directory. They do not depend on
- * global state. Caller invokes them via Twig {{ pc_url(...) }} and the
- * template renders the returned string.
+ * Functions return data, not strings of HTML. The legacy Smarty plugins
+ * mostly echoed; this extension takes the opposite approach — every
+ * method returns its result, and the template renders it (or in the
+ * case of pc_sort_events, iterates it).
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -25,7 +25,6 @@ declare(strict_types=1);
 namespace OpenEMR\PostCalendar;
 
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 final class PostCalendarTwigExtension extends AbstractExtension
@@ -36,26 +35,31 @@ final class PostCalendarTwigExtension extends AbstractExtension
     public function getFunctions(): array
     {
         return [
-            // Plugins to migrate (commented out until each is implemented):
-            // new TwigFunction('pc_date_format', $this->pcDateFormat(...)),
-            // new TwigFunction('pc_date_select', $this->pcDateSelect(...), ['is_safe' => ['html']]),
-            // new TwigFunction('pc_filter', $this->pcFilter(...), ['is_safe' => ['html']]),
-            // new TwigFunction('pc_form_nav_close', $this->pcFormNavClose(...), ['is_safe' => ['html']]),
-            // new TwigFunction('pc_form_nav_open', $this->pcFormNavOpen(...), ['is_safe' => ['html']]),
-            // new TwigFunction('pc_popup', $this->pcPopup(...), ['is_safe' => ['html']]),
-            // new TwigFunction('pc_sort_events', $this->pcSortEvents(...)),
-            // new TwigFunction('pc_url', $this->pcUrl(...)),
-            // new TwigFunction('pc_view_select', $this->pcViewSelect(...), ['is_safe' => ['html']]),
+            new TwigFunction('pc_sort_events', $this->pcSortEvents(...)),
         ];
     }
 
     /**
-     * @return list<TwigFilter>
+     * Sort events within each date bucket by start time, ascending.
+     *
+     * Replaces `function.pc_sort_events.php`, which supported
+     * sort=time|category|title × order=asc|desc. Only `sort="time"
+     * order="asc"` is actually invoked from any template (see migration
+     * notes), so this implementation handles only that combination.
+     *
+     * @param  array<int|string, list<array<string, mixed>>> $eventsByDate
+     * @return array<int|string, list<array<string, mixed>>>
      */
-    public function getFilters(): array
+    public function pcSortEvents(array $eventsByDate): array
     {
-        return [
-            // new TwigFilter('pc_date_format', $this->pcDateFormatFilter(...)),
-        ];
+        foreach ($eventsByDate as $date => $events) {
+            usort(
+                $events,
+                static fn (array $a, array $b): int => ($a['startTime'] ?? '') <=> ($b['startTime'] ?? '')
+            );
+            $eventsByDate[$date] = $events;
+        }
+
+        return $eventsByDate;
     }
 }

@@ -53,18 +53,22 @@ Total: 5525 lines. 62 `[-php-]` blocks concentrated in the 6 ajax_templates (50 
 
 ### Plugins (10 files, 1089 lines; all return void / echo)
 
-| Plugin | LoC | Notes |
-|---|---|---|
-| `function.pc_date_format.php` | 49 | Echoes a formatted date |
-| `function.pc_date_select.php` | 146 | Echoes a date-picker form widget |
-| `function.pc_filter.php` | 171 | Filters/echoes event list per category/topic/etc. |
-| `function.pc_form_nav_close.php` | 61 | Closes a form-nav block |
-| `function.pc_form_nav_open.php` | 40 | Opens a form-nav block |
-| `function.pc_popup.php` | 235 | Renders the event-detail popup |
-| `function.pc_sort_events.php` | 95 | Sorts events in-place (assigns back to Smarty) |
-| `function.pc_url.php` | 163 | Builds a PostCalendar URL |
-| `function.pc_view_select.php` | 79 | Day/week/month/year toggle |
-| `modifier.pc_date_format.php` | 50 | Filter for `\|pc_date_format` |
+| Plugin | LoC | Used? | Notes |
+|---|---|---|---|
+| `function.pc_date_format.php` | 49 | **dead** | Zero template references — Smarty's built-in `\|date_format` is what templates actually use. |
+| `function.pc_date_select.php` | 146 | **dead** | Zero template references. Date picker (if reachable) renders elsewhere. |
+| `function.pc_filter.php` | 171 | **dead** | Zero template references. |
+| `function.pc_form_nav_close.php` | 61 | **dead** | Zero template references. |
+| `function.pc_form_nav_open.php` | 40 | **dead** | Zero template references. |
+| `function.pc_popup.php` | 235 | **dead** | Zero template references. Event-detail popup (visible in UI) rendered by other code. |
+| `function.pc_sort_events.php` | 95 | **live** | Invoked from 3 templates: `views/{day,week_print,day_print}/...ajax_template.html` as `[-pc_sort_events var="S_EVENTS" sort="time" order="asc" value=$A_EVENTS-]`. Curiously NOT used in `week/ajax_template.html` or `month/ajax_template.html` — needs verification when porting those views (search for an equivalent inline sort). |
+| `function.pc_url.php` | 163 | **dead** | Zero template references. |
+| `function.pc_view_select.php` | 79 | **dead** | Zero template references. |
+| `modifier.pc_date_format.php` | 50 | **dead** | Filter is `\|pc_date_format`, zero references — templates use Smarty's built-in `\|date_format`. |
+
+**Dead-plugin verification**: `grep -rn '\\[-pc_' interface/main/calendar/modules/PostCalendar/pntemplates/` returns only `pc_sort_events` invocations. Cross-checked against all `*.php`, `*.html`, `*.twig`, `*.js`, `*.tsx`, `*.ts` files under `interface/` — only the plugin definitions themselves and PHPStan baseline entries reference these names. Dead plugins get deleted in Phase 10 (legacy removal) along with the rest of `pntemplates/` and `library/smarty_legacy/`. No new Twig methods needed for them.
+
+**Live-plugin port target**: `pc_sort_events` → method on `PostCalendarTwigExtension`. Returns the sorted array as a Twig function: `{% set S_EVENTS = pc_sort_events(A_EVENTS, 'time', 'asc') %}` (vs. Smarty's "assigns the result back to the template var named in `var=`" pattern, which Twig doesn't model — the caller binds the return value with `{% set %}` instead).
 
 ### Smarty library to remove
 
@@ -98,7 +102,7 @@ Concentrated in 7 templates (day/week/month ajax_template + their _print variant
 1. **Foundation classes** (PostCalendarTwigExtension + CalendarRenderer) — empty methods initially. ✅ session 1.
 2. **Smallest templates first** (footer + 3 view defaults) — get the compile pipeline working. ✅ session 1.
 3. **Golden snapshot harness (Phase 0 follow-up)** — capture pre-migration rendered HTML against the current master Smarty output for every reachable view. Pre-requisite for everything below. ✅ session 2 first task — `.ai-notes/snapshots/capture.sh` + 8 baseline fixtures in `.ai-notes/snapshots/baseline/`.
-4. **Plugins → Twig functions** — port `pc_date_format`, `pc_url`, etc. as Twig methods, one at a time. Each port verified against the snapshot harness.
+4. **Plugins → Twig functions** — only `pc_sort_events` needs porting (the other 9 are dead code, see audit above). Port as a method on `PostCalendarTwigExtension`; deletion of all 10 plugin files happens in Phase 10.
 5. **Header template** — first template with `[-php-]` blocks. Extract `create_event_time_anchor` to a method on PostCalendarTwigExtension, move session reads to PHP caller, pass body_class / title / HEADER_SCRIPTS / HEADER_STYLES as template vars.
 6. **Medium templates** (user/ajax_search, admin/submit_category) — no `[-php-]` blocks, mechanical conversion.
 7. **Print views** — `[-php-]` extraction (2-4 blocks per print view).
