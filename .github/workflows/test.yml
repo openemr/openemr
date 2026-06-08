@@ -400,6 +400,20 @@ jobs:
         . ci/ciLibrary.source
         dc config
 
+    - name: Login to Docker Hub
+      # Authenticated pulls have a much higher rate limit than anonymous ones,
+      # reducing the registry failures tracked in #12423. The secrets context
+      # is unavailable in `if`, so map the secrets into env and gate on them;
+      # fork PRs without the secrets skip this and pull anonymously as before.
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source
@@ -528,6 +542,20 @@ jobs:
         # HACK Docker runs with a different uid/gid than the host.
         # See #9233
         sudo chmod -R 0777 .
+
+    - name: Login to Docker Hub
+      # Authenticated pulls have a much higher rate limit than anonymous ones,
+      # reducing the registry failures tracked in #12423. The secrets context
+      # is unavailable in `if`, so map the secrets into env and gate on them;
+      # fork PRs without the secrets skip this and pull anonymously as before.
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Dockers environment start
       env:
