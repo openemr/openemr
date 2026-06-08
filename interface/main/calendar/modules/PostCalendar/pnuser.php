@@ -2,6 +2,7 @@
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PostCalendar\CalendarRenderer;
 
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
@@ -123,9 +124,12 @@ function postcalendar_user_display($args)
  */
 function postcalendar_user_search()
 {
-    $tpl = new pcSmarty();
+    $tpl = new CalendarRenderer();
     $k = pnVarCleanFromInput('pc_keywords') ?? '';
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
+    // Twig template expects the POST-derived values pre-extracted.
+    $tpl->assign('keywords_value', $k);
+    $tpl->assign('keywords_andor', $k_andor);
     $pc_category = pnVarCleanFromInput('pc_category');
     $pc_facility = pnVarCleanFromInput('pc_facility');
     $pc_topic = pnVarCleanFromInput('pc_topic');
@@ -430,9 +434,81 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS', $eventsByDate);
     }
 
-    $tpl->caching = false;
     $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
+    $tpl->assign('USE_TOPICS', _SETTING_DISPLAY_TOPICS);
+
+    // Pre-decorate search_results from A_EVENTS (replaces the legacy
+    // [-php-] block in ajax_search.html that did sqlStatement(provider)
+    // lookups per row during render).
+    $searchResultsForTwig = [];
+    $rawEvents = $tpl->getVar('A_EVENTS');
+    if (is_array($rawEvents)) {
+        foreach ($rawEvents as $eDate => $dateEvents) {
+            if (!is_string($eDate) || !is_array($dateEvents)) {
+                continue;
+            }
+            $eventDateYmd = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
+            foreach ($dateEvents as $event) {
+                if (!is_array($event)) {
+                    continue;
+                }
+                $aid = $event['aid'] ?? null;
+                $provInfo = null;
+                if (is_int($aid) || (is_string($aid) && $aid !== '')) {
+                    $provInfo = \OpenEMR\Common\Database\QueryUtils::fetchSingleRow('SELECT * FROM users WHERE id=?', [$aid]);
+                }
+
+                $startTimeRaw = $event['startTime'] ?? '00:00:00';
+                $startTimeStr = is_string($startTimeRaw) ? $startTimeRaw : '00:00:00';
+                $eventTs = strtotime($eDate . ' ' . $startTimeStr);
+                $datetimeDisplay = $eventTs !== false ? date('Y-m-d h:i a', $eventTs) : '';
+
+                $provFname = is_array($provInfo) && is_string($provInfo['fname'] ?? null) ? $provInfo['fname'] : '';
+                $provPhone = is_array($provInfo) && is_string($provInfo['phonew1'] ?? null) ? $provInfo['phonew1'] : '';
+                $provStreet = is_array($provInfo) && is_string($provInfo['street'] ?? null) ? $provInfo['street'] : '';
+                $provCity = is_array($provInfo) && is_string($provInfo['city'] ?? null) ? $provInfo['city'] : '';
+                $provState = is_array($provInfo) && is_string($provInfo['state'] ?? null) ? $provInfo['state'] : '';
+
+                $provInfoTitle = $provFname . ' ' . xl('contact info') . ":\n";
+                if (is_array($provInfo)) {
+                    $provInfoTitle .= $provPhone . "\n"
+                        . $provStreet . "\n"
+                        . $provCity . ' ' . $provState;
+                }
+
+                $eid = $event['eid'] ?? '';
+                $eidStr = is_int($eid) || is_string($eid) ? (string) $eid : '';
+
+                $searchResultsForTwig[] = [
+                    'event_id_token'      => $eidStr . '~' . $eventDateYmd,
+                    'datetime_display'    => $datetimeDisplay,
+                    'provider_name'       => is_string($event['provider_name'] ?? null) ? $event['provider_name'] : '',
+                    'provider_info_title' => $provInfoTitle,
+                    'catname'             => is_string($event['catname'] ?? null) ? $event['catname'] : '',
+                    'patient_name'        => is_string($event['patient_name'] ?? null) ? $event['patient_name'] : '',
+                ];
+            }
+        }
+    }
+    $tpl->assign('search_results', $searchResultsForTwig);
+
+    // datepicker_xl: capture the JS-config output the legacy template
+    // emitted by require-ing jquery-datetimepicker-2-5-4.js.php inline.
+    $datetimepicker_timepicker = false;
+    $datetimepicker_showseconds = false;
+    $datetimepicker_formatInput = false;
+    ob_start();
+    require OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+    $datepicker_xl = ob_get_clean();
+    $tpl->assign('datepicker_xl', is_string($datepicker_xl) ? $datepicker_xl : '');
+
+    $tpl->assign('globals', $GLOBALS);
+    // header.html.twig reads body_class from the consumer (legacy got it
+    // from session.language_direction inside a [-php-] block).
+    $languageDirection = $session->get('language_direction');
+    $tpl->assign('body_class', is_string($languageDirection) ? $languageDirection : '');
+    $template_name_str = is_string($template_name) && $template_name !== '' ? $template_name : 'default';
     $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
-    $return = $pageSetup . $tpl->fetch($template_name . '/user/ajax_search.html');
+    $return = $pageSetup . $tpl->render('calendar/' . $template_name_str . '/user/ajax_search.html.twig');
     return $return;
 }
