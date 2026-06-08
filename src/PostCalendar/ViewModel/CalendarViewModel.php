@@ -363,4 +363,138 @@ final readonly class CalendarViewModel
             'height'        => (($endInterval - $startInterval) * $timeslotHeightVal) . $timeslotHeightUnit,
         ];
     }
+
+    /**
+     * Returns true when a category should be skipped during overlap
+     * detection. View-specific:
+     *
+     *  - Day view skips only IN (catid 2). OUT events stay visible and
+     *    get re-ordered to the front of each slot by the unshift rule
+     *    below.
+     *  - Week view and day_print skip both IN and OUT.
+     *
+     * Month, month_print, week_print don't call the overlap detector
+     * at all (they either render in flow layout or rely on the legacy
+     * latent dead-code reference to an empty eventPositions array).
+     * For those views this predicate is consulted only if a caller
+     * explicitly invokes detectEventOverlap, which they shouldn't.
+     */
+    private function shouldSkipForOverlap(int $categoryId): bool
+    {
+        if ($categoryId === 2) {
+            return true;
+        }
+
+        return $categoryId === 3 && $this->viewType !== ViewType::Day;
+    }
+
+    /**
+     * Detects overlapping events on one provider's date column and
+     * returns width/leftpos for each event ID. Implements the per-slot
+     * scan from day/week/day_print main loops.
+     *
+     * Algorithm (preserves legacy semantics):
+     *  - For each timeslot, build the list of events overlapping it
+     *    (start-in, end-in, or span). Skip events flagged by
+     *    shouldSkipForOverlap. Skip events with empty eid. Skip
+     *    events whose aid is for another provider (aid 0 = clinic-wide
+     *    and never skipped).
+     *  - In day view, OUT events (catid 3) get pop-then-unshift'd to
+     *    the front of the slot so they render leftmost.
+     *  - Each event's recorded width is the SMALLEST it needs across
+     *    every slot it overlaps (= more crowded). leftpos is the
+     *    GREATEST across every slot (= farther right when an event
+     *    only touches the right edge of a crowded slot).
+     *  - Returns positions keyed by eid as int|string (matches the raw
+     *    event id type — sqlFetch returns strings, fixtures often use
+     *    ints).
+     *
+     * @param  list<array<string, mixed>> $eventsForProvider
+     * @param  list<array{hour: int|string, minute: int|string}> $timeSlots
+     * @return array<int|string, array{width: float, leftpos: float}>
+     */
+    public function detectEventOverlap(
+        array $eventsForProvider,
+        array $timeSlots,
+        int $intervalMinutes,
+        int $providerId
+    ): array {
+        $positions = [];
+
+        foreach ($timeSlots as $slot) {
+            $slotStartMin = ((int) $slot['hour']) * 60 + ((int) $slot['minute']);
+            $slotEndMin = $slotStartMin + $intervalMinutes;
+
+            $eidsInSlot = [];
+
+            foreach ($eventsForProvider as $event) {
+                $rawEid = $event['eid'] ?? null;
+                if (!is_int($rawEid) && !is_string($rawEid)) {
+                    continue;
+                }
+                if ($rawEid === '' || $rawEid === 0) {
+                    continue;
+                }
+                $eid = $rawEid;
+
+                $catid = $event['catid'] ?? 0;
+                $catidInt = is_int($catid) ? $catid : (is_string($catid) ? (int) $catid : 0);
+
+                if ($this->shouldSkipForOverlap($catidInt)) {
+                    continue;
+                }
+
+                $aid = $event['aid'] ?? 0;
+                $aidInt = is_int($aid) ? $aid : (is_string($aid) ? (int) $aid : 0);
+                if ($aidInt !== $providerId && $aidInt !== 0) {
+                    continue;
+                }
+
+                $startTime = $event['startTime'] ?? '00:00:00';
+                if (!is_string($startTime)) {
+                    continue;
+                }
+                $eStart = $this->startTimeToMinutes($startTime);
+
+                $durationSec = $event['duration'] ?? 0;
+                $durationSecInt = is_int($durationSec) ? $durationSec : (is_string($durationSec) ? (int) $durationSec : 0);
+                $eEnd = $eStart + (int) ($durationSecInt / 60);
+
+                $overlaps = ($eStart >= $slotStartMin && $eStart < $slotEndMin)
+                    || ($eEnd > $slotStartMin && $eEnd <= $slotEndMin)
+                    || ($eStart < $slotStartMin && $eEnd > $slotEndMin);
+
+                if (!$overlaps) {
+                    continue;
+                }
+
+                $eidsInSlot[] = $eid;
+                if ($this->viewType === ViewType::Day && $catidInt === 3) {
+                    // OUT event in day view: pop-then-unshift to render leftmost.
+                    array_pop($eidsInSlot);
+                    array_unshift($eidsInSlot, $eid);
+                }
+            }
+
+            if (count($eidsInSlot) === 0) {
+                continue;
+            }
+
+            $width = 100.0 / count($eidsInSlot);
+            $leftpos = 0.0;
+            foreach ($eidsInSlot as $eid) {
+                $prevWidth = $positions[$eid]['width'] ?? null;
+                $prevLeft  = $positions[$eid]['leftpos'] ?? null;
+
+                $positions[$eid] = [
+                    'width'   => $prevWidth === null ? $width : min($prevWidth, $width),
+                    'leftpos' => $prevLeft === null ? $leftpos : max($prevLeft, $leftpos),
+                ];
+
+                $leftpos += $width;
+            }
+        }
+
+        return $positions;
+    }
 }

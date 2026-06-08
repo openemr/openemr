@@ -391,4 +391,158 @@ final class CalendarViewModelTest extends TestCase
         self::assertSame('0em', $geo['top']);
         self::assertSame('2em', $geo['height']);
     }
+
+    public function testDetectEventOverlapSinglesGetFullWidth(): void
+    {
+        // One event in a non-overlapping slot gets width=100, leftpos=0.
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 1, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+        ];
+        // Slots covering 9:00 - 10:00 in 30-min intervals.
+        $slots = [
+            ['hour' => 9, 'minute' => 0],
+            ['hour' => 9, 'minute' => 30],
+        ];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        self::assertSame(100.0, $positions[1]['width']);
+        self::assertSame(0.0,   $positions[1]['leftpos']);
+    }
+
+    public function testDetectEventOverlapTwoEventsShareSlotHalfAndHalf(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 1, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 2, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+        ];
+        $slots = [
+            ['hour' => 9, 'minute' => 0],
+        ];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        self::assertSame(50.0, $positions[1]['width']);
+        self::assertSame(0.0,  $positions[1]['leftpos']);
+        self::assertSame(50.0, $positions[2]['width']);
+        self::assertSame(50.0, $positions[2]['leftpos']);
+    }
+
+    public function testDetectEventOverlapDayViewUnshiftsOutEventToFront(): void
+    {
+        // OUT (catid 3) events render leftmost in day view. Two events:
+        // a regular one (catid 5) at index 0 and an OUT (catid 3) added
+        // second — the OUT should land at leftpos=0 and the regular at
+        // leftpos=50 (50% wide column shared 50/50).
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 5, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 3, 'aid' => 42, 'catid' => 3, 'startTime' => '09:00:00', 'duration' => 1800],
+        ];
+        $slots = [['hour' => 9, 'minute' => 0]];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        // OUT (eid=3) is at leftpos 0; regular (eid=5) is at leftpos 50.
+        self::assertSame(0.0,  $positions[3]['leftpos']);
+        self::assertSame(50.0, $positions[5]['leftpos']);
+    }
+
+    public function testDetectEventOverlapWeekViewSkipsOutEventsEntirely(): void
+    {
+        // Week view skips both IN and OUT for overlap detection — OUT events
+        // don't get a position assigned at all.
+        $vm = new CalendarViewModel(viewType: ViewType::Week, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 5, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 3, 'aid' => 42, 'catid' => 3, 'startTime' => '09:00:00', 'duration' => 1800],
+        ];
+        $slots = [['hour' => 9, 'minute' => 0]];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        // Regular event gets full width (alone in slot after OUT is skipped).
+        self::assertSame(100.0, $positions[5]['width']);
+        self::assertArrayNotHasKey(3, $positions);
+    }
+
+    public function testDetectEventOverlapAlwaysSkipsInCategory(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 5, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 2, 'aid' => 42, 'catid' => 2, 'startTime' => '09:00:00', 'duration' => 1800],  // IN
+        ];
+        $slots = [['hour' => 9, 'minute' => 0]];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        self::assertSame(100.0, $positions[5]['width']);
+        self::assertArrayNotHasKey(2, $positions);
+    }
+
+    public function testDetectEventOverlapWidthCollapsesToSmallestAcrossSlots(): void
+    {
+        // An event spanning two slots — first slot is crowded (3 events),
+        // second slot is alone. The constrained width from the crowded
+        // slot wins, so the event stays at 33.33%.
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 1, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 3600],  // spans both slots
+            ['eid' => 2, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],  // first slot only
+            ['eid' => 3, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],  // first slot only
+        ];
+        $slots = [
+            ['hour' => 9, 'minute' => 0],
+            ['hour' => 9, 'minute' => 30],
+        ];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        // Spanning event sized by the crowded slot.
+        self::assertEqualsWithDelta(33.333, $positions[1]['width'], 0.01);
+    }
+
+    public function testDetectEventOverlapSkipsOtherProvidersExceptClinicWide(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => 1, 'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 2, 'aid' => 99, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],  // wrong provider
+            ['eid' => 3, 'aid' => 0,  'catid' => 6, 'startTime' => '09:00:00', 'duration' => 1800],  // clinic-wide holiday
+        ];
+        $slots = [['hour' => 9, 'minute' => 0]];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        self::assertArrayHasKey(1, $positions);
+        self::assertArrayNotHasKey(2, $positions);
+        self::assertArrayHasKey(3, $positions);
+    }
+
+    public function testDetectEventOverlapIgnoresEmptyEid(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $events = [
+            ['eid' => '',  'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 0,   'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+            ['eid' => 99,  'aid' => 42, 'catid' => 5, 'startTime' => '09:00:00', 'duration' => 1800],
+        ];
+        $slots = [['hour' => 9, 'minute' => 0]];
+
+        $positions = $vm->detectEventOverlap($events, $slots, 30, 42);
+
+        self::assertCount(1, $positions);
+        self::assertArrayHasKey(99, $positions);
+    }
 }
