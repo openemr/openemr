@@ -1152,4 +1152,136 @@ final class CalendarViewModelTest extends TestCase
 
         self::assertStringContainsString('<s>Doe</s>', $result['content']);
     }
+
+    public function testBuildDayScreenEventContentForSpecialCategoryNoSpanWrapper(): void
+    {
+        // Special-category (catid 4/8/11) branch in day-screen does NOT
+        // wrap in <span class='appointment'> — unlike the patient branch.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 4,  // VACATION
+            'startTime'  => '09:00:00',
+            'hometext'   => 'beach',
+            'recurrtype' => 0,
+            'tooltip_date_prefix' => 'Sunday, 15 Mar 2026',
+            'facility_row' => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#fff'],
+        ];
+
+        $result = $vm->buildDayScreenEventContent($event, 1, '/tpl/img', '/openemr', true);
+
+        self::assertStringNotContainsString("<span class='appointment'>", $result['content']);
+        self::assertStringStartsWith('VACATION', $result['content']);
+        self::assertStringContainsString('beach', $result['content']);
+        self::assertSame('', $result['extraClass']);
+    }
+
+    public function testBuildDayScreenEventContentRecurringIconUsesBorder0Class(): void
+    {
+        // Special-category branch uses class='border-0' on the recurring
+        // icon (FA-style). Differs from day_print which used border='0' attr.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 8,  // LUNCH
+            'startTime'  => '12:00:00',
+            'hometext'   => '',
+            'recurrtype' => 1,
+            'tooltip_date_prefix' => '',
+            'facility_row' => ['name' => '', 'id' => 0, 'color' => ''],
+        ];
+
+        $result = $vm->buildDayScreenEventContent($event, 1, '/tpl/img', '/openemr', true);
+
+        self::assertStringContainsString("class='border-0'", $result['content']);
+    }
+
+    public function testBuildDayScreenEventContentForPatientUsesFontAwesomeIcon(): void
+    {
+        // Day-screen uses <i class='fas fa-user text-success'> for patient.
+        // Month-screen used user-green.gif image instead.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'               => 5,
+            'startTime'           => '09:30:00',
+            'pid'                 => 42,
+            'patient_name'        => 'Doe, Jane',
+            'patient_age'         => 30,
+            'patient_dob'         => '1996-01-15',
+            'patient_address'     => '',
+            'apptstatus'          => '-',
+            'recurrtype'          => 0,
+            'tooltip_date_prefix' => '',
+            'facility_row'        => ['name' => '', 'id' => 0, 'color' => ''],
+            'timeAnchorHtml'      => "<a class='event_time'>9:30</a>",
+        ];
+
+        $result = $vm->buildDayScreenEventContent($event, 2, '/tpl/img', '/openemr', true);
+
+        self::assertStringContainsString("<i class='fas fa-user text-success'", $result['content']);
+        self::assertStringNotContainsString('user-green.gif', $result['content']);
+        self::assertStringContainsString("<span class='appointment'>", $result['content']);
+        self::assertStringContainsString('</span>', $result['content']);
+        self::assertSame('', $result['extraClass']);
+    }
+
+    public function testBuildDayScreenEventContentForGroupReturnsExtraGroupsClass(): void
+    {
+        // Group branch emits user-blue equivalent (text-primary) icon AND
+        // returns extraClass=' groups ' so the caller knows to append it
+        // to the wrapping div's class.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 5,
+            'startTime'              => '14:00:00',
+            'gid'                    => 7,
+            'group_name'             => 'Group Therapy',
+            'group_type_name'        => 'Weekly',
+            'catname'                => 'Office Visit',
+            'hometext'               => '',
+            'apptstatus'             => '',
+            'recurrtype'             => 0,
+            'tooltip_date_prefix'    => '',
+            'facility_row'           => ['name' => '', 'id' => 0, 'color' => ''],
+            'timeAnchorHtml'         => "<a class='event_time'>2pm</a>",
+        ];
+
+        $result = $vm->buildDayScreenEventContent($event, 1, '/tpl/img', '/openemr', true);
+
+        self::assertStringContainsString("<i class='fas fa-user text-primary'", $result['content']);
+        self::assertStringContainsString('Group Therapy', $result['content']);
+        self::assertStringContainsString("href='javascript:goGid(", $result['content']);
+        self::assertSame(' groups ', $result['extraClass']);
+    }
+
+    public function testBuildDayScreenEventContentForClosedClinicUsesTitle(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 7,
+            'startTime'              => '00:00:00',
+            'pid'                    => null,
+            'gid'                    => null,
+            'title'                  => 'Christmas Day',
+            'catname'                => 'Closed',
+            'hometext'               => '',
+            'apptstatus'             => '',
+            'recurrtype'             => 0,
+            'tooltip_date_prefix'    => '',
+            'facility_row'           => ['name' => '', 'id' => 0, 'color' => ''],
+            'timeAnchorHtml'         => "<a class='event_time'>12am</a>",
+        ];
+
+        $result = $vm->buildDayScreenEventContent($event, 1, '/tpl/img', '/openemr', true);
+
+        self::assertStringContainsString('Christmas Day', $result['content']);
+    }
 }
