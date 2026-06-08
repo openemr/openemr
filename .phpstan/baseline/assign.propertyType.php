@@ -104,11 +104,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Property Smarty_Legacy\\:\\:\\$caching \\(int\\) does not accept false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$caching \\(int\\) does not accept false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [

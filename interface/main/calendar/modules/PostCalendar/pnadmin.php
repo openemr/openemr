@@ -34,6 +34,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\PostCalendar\CalendarRenderer;
 
 //=========================================================================
 //  Load the API Functions
@@ -431,15 +432,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
-    // set up Smarty
-    $tpl = new pcSmarty();
-    $tpl->caching = false;
+    // set up Twig renderer (replaces legacy pcSmarty)
+    $tpl = new CalendarRenderer();
 
-    $template_name = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
-
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
+    $template_nameRaw = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
+    $template_name = is_string($template_nameRaw) && $template_nameRaw !== ''
+        ? $template_nameRaw
+        : 'default';
 
     $body = $output->generateText(postcalendar_adminmenu("category"));
 
@@ -464,7 +463,8 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
     //print_r($all_categories);
     unset($modinfo);
-    $tpl->config_dir = "modules/$modir/pntemplates/$template_name/config/";
+    // (legacy `$tpl->config_dir = ...` removed — Twig conversion dropped
+    //  the config_load directives that depended on it.)
 
     //=================================================================
     //  PARSE MAIN
@@ -678,7 +678,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
-    $body .= $output->generateText($tpl->fetch($template_name . '/admin/submit_category.html'));
+    $body .= $output->generateText($tpl->render('calendar/' . $template_name . '/admin/submit_category.html.twig'));
     $body .= $output->generateText(postcalendar_footer());
     return $output->GetOutput($body);
 }

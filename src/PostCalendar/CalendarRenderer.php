@@ -77,6 +77,17 @@ final class CalendarRenderer
         }
     }
 
+    /**
+     * Legacy Smarty assign-by-reference. Twig copies values when rendering,
+     * so by-reference semantics don't matter — alias to assign() to keep
+     * the legacy consumer call sites (pnuserapi/pnadmin/pnuser) working
+     * unchanged during the migration window.
+     */
+    public function assign_by_ref(string $name, mixed &$value): void
+    {
+        $this->assign($name, $value);
+    }
+
     public function getVar(string $name): mixed
     {
         return $this->variables[$name] ?? null;
