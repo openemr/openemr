@@ -83,8 +83,21 @@ with_retry() {
 # errors. Separated from `up` so a Docker Hub timeout retries just the pull
 # rather than failing the bring-up. --ignore-buildable skips services that
 # build locally (e.g. inferno's terminology_builder).
+#
+# Pulls at most once per job: dockers_env_start runs in several workflow
+# steps (initial bring-up, again after restarts in setup_e2e_bookends and
+# build_test_e2e), each in a fresh shell, so the guard is a marker file in
+# RUNNER_TEMP rather than a shell variable. Repeat calls skip the pull and
+# rely on `dc up --quiet-pull` to fetch anything still missing (e.g. a
+# profile-gated image the first pull's COMPOSE_PROFILES did not include).
 pull_images() {
+    local marker="${RUNNER_TEMP:-/tmp}/openemr-ci-images-pulled"
+    if [[ -f "${marker}" ]]; then
+        echo 'Images already pulled this job; skipping pull (up will fetch anything missing).'
+        return 0
+    fi
     with_retry 4 5 dc pull --quiet --ignore-buildable
+    touch "${marker}"
 }
 
 _exec() {
