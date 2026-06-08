@@ -513,6 +513,280 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * Build the render-data array for `month/ajax_template.html.twig`.
+     *
+     * Screen view — adds the provider-picker + date-nav scaffolding
+     * the print views don't carry, plus the per-event facility-row
+     * lookup that drives the 3-way display dispatch
+     * (normal / current-facility / filtered-other).
+     *
+     * The consumer is responsible for the monthSelectorHtml string
+     * (ob_start the legacy require) and the chevron icon classes
+     * (computed from session language_direction).
+     *
+     * @param  array<string, list<array<string, mixed>>> $aEvents
+     * @param  list<array<string, mixed>>                $providers   Providers selected to be rendered (subset of provinfo).
+     * @param  list<array<string, mixed>>                $provinfo    All providers (for the picker dropdown).
+     * @param  list<array<string, mixed>>                $facilities
+     * @param  list<string>                              $shortDayNames
+     *
+     * @return array<string, mixed>
+     */
+    public function buildMonthScreenRenderData(
+        array $aEvents,
+        array $providers,
+        array $provinfo,
+        array $facilities,
+        string $dateYmd,
+        array $shortDayNames,
+        int $pcFacility,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $webroot,
+        string $prevMonthUrl,
+        string $nextMonthUrl,
+        string $chevronIconLeft,
+        string $chevronIconRight,
+        string $monthSelectorHtml,
+        bool $showAllFacilitiesOption,
+        string $currentMonthLabel
+    ): array {
+        $year = substr($dateYmd, 0, 4);
+        $month = substr($dateYmd, 4, 2);
+        $currentMini = $this->viewModel->buildMiniCalendar(
+            "{$year}-{$month}-15",
+            $dateYmd
+        );
+
+        $isToday = $dateYmd === date('Ymd');
+
+        // Selected provider usernames for the multi-select default.
+        $selectedUsernames = [];
+        foreach ($providers as $provider) {
+            $uname = $provider['username'] ?? null;
+            if (is_string($uname)) {
+                $selectedUsernames[] = $uname;
+            }
+        }
+
+        // Prev/next month YYYYMMDD with "stay on same day if possible"
+        // (legacy block computes this with checkdate decrement).
+        $cDay = (int) substr($dateYmd, 6, 2);
+        $cMonth = (int) $month;
+        $cYear = (int) $year;
+        $prevMonthYmd = $this->computeAdjacentMonth($cYear, $cMonth, $cDay, -1);
+        $nextMonthYmd = $this->computeAdjacentMonth($cYear, $cMonth, $cDay, 1);
+        $prevMonthTs = strtotime($prevMonthYmd);
+        $nextMonthTs = strtotime($nextMonthYmd);
+        $prevMonthName = $prevMonthTs !== false ? date('F', $prevMonthTs) : '';
+        $nextMonthName = $nextMonthTs !== false ? date('F', $nextMonthTs) : '';
+
+        // Per-provider day grid. Each provider gets a table; each table
+        // has a list of day cells. Pre-computed isStartOfWeek /
+        // isEndOfWeek flags so the template knows when to open/close
+        // <tr> tags without re-doing date math.
+        $dowList = $this->viewModel->dayOfWeekList();
+        $providersGrid = [];
+        foreach ($providers as $provider) {
+            $providerIdRaw = $provider['id'] ?? null;
+            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+
+            $days = [];
+            foreach ($aEvents as $date => $dateEvents) {
+                $dateTs = strtotime($date);
+                if ($dateTs === false) {
+                    continue;
+                }
+                $dayOfWeek = (int) date('w', $dateTs);
+                $eventDateYmd = substr($date, 0, 4) . substr($date, 5, 2) . substr($date, 8, 2);
+
+                $isWeekend = $dayOfWeek === 0 || $dayOfWeek === 6;
+                $decoratedEvents = $this->decorateMonthScreenEvents(
+                    $dateEvents,
+                    $date,
+                    $eventDateYmd,
+                    $providerId,
+                    $pcFacility,
+                    $calendarApptStyle,
+                    $tplImagePath,
+                    $webroot
+                );
+
+                $days[] = [
+                    'dateYmd'         => $eventDateYmd,
+                    'dateDisplay'     => date('d', $dateTs),
+                    'dateAttrTitle'   => date('d M Y', $dateTs),
+                    'gotoUrl'         => '#', // consumer can override with pnModURL if needed
+                    'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
+                    'isStartOfWeek'   => $dayOfWeek === $dowList[0],
+                    'isEndOfWeek'     => $dayOfWeek === $dowList[6],
+                    'events'          => $decoratedEvents,
+                ];
+            }
+
+            $dateHeaderLabels = [];
+            foreach (array_slice(array_keys($aEvents), 0, 7) as $headerDate) {
+                $hTs = strtotime($headerDate);
+                $dateHeaderLabels[] = $hTs !== false ? date('D', $hTs) : '';
+            }
+
+            $providersGrid[] = [
+                'id'                => $providerId,
+                'fname'             => is_string($provider['fname'] ?? null) ? $provider['fname'] : '',
+                'lname'             => is_string($provider['lname'] ?? null) ? $provider['lname'] : '',
+                'dateHeaderLabels'  => $dateHeaderLabels,
+                'days'              => $days,
+            ];
+        }
+
+        return [
+            'viewtype'                => 'month',
+            'Date'                    => $dateYmd,
+            'currentMonthLabel'       => $currentMonthLabel,
+            'isToday'                 => $isToday,
+            'PREV_MONTH_URL'          => $prevMonthUrl,
+            'NEXT_MONTH_URL'          => $nextMonthUrl,
+            'chevron_icon_left'       => $chevronIconLeft,
+            'chevron_icon_right'      => $chevronIconRight,
+            'dowList'                 => $dowList,
+            'A_SHORT_DAY_NAMES'       => $shortDayNames,
+            'prevMonth'               => $prevMonthYmd,
+            'nextMonth'               => $nextMonthYmd,
+            'prevMonthName'           => $prevMonthName,
+            'nextMonthName'           => $nextMonthName,
+            'currentMiniCal'          => $currentMini,
+            'monthSelectorHtml'       => $monthSelectorHtml,
+            'showFacilitySelect'      => count($facilities) > 1,
+            'showAllFacilitiesOption' => $showAllFacilitiesOption,
+            'pc_facility'             => $pcFacility,
+            'facilities'              => $facilities,
+            'provinfo'                => $provinfo,
+            'selectedUsernames'       => $selectedUsernames,
+            'providersGrid'           => $providersGrid,
+            'webroot'                 => $webroot,
+        ];
+    }
+
+    /**
+     * Decorate one day's events for one provider in month-screen.
+     * Skips catid 2/3 (rendered nowhere in month). Looks up the
+     * event's facility row, then computes the 3-way display dispatch
+     * (matching pc_facility / not matching / no filter) — the
+     * template just renders whichever variant the consumer chose.
+     *
+     * @param  list<array<string, mixed>> $events
+     * @return list<array<string, mixed>>
+     */
+    private function decorateMonthScreenEvents(
+        array $events,
+        string $eventDate,
+        string $eventDateYmd,
+        int $providerId,
+        int $pcFacility,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $webroot
+    ): array {
+        $decorated = [];
+        foreach ($events as $event) {
+            $aidRaw = $event['aid'] ?? null;
+            $aid = is_int($aidRaw) || is_string($aidRaw) ? (int) $aidRaw : 0;
+            if ($aid !== 0 && $aid !== $providerId) {
+                continue;
+            }
+
+            $catidRaw = $event['catid'] ?? 0;
+            $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+            if ($catid === 2 || $catid === 3) {
+                continue;
+            }
+
+            $eidRaw = $event['eid'] ?? null;
+            if (!is_int($eidRaw) && !is_string($eidRaw)) {
+                continue;
+            }
+
+            $evtClass = $this->viewModel->eventClassForCategory($catid);
+            $overrideRaw = $event['eventViewClass'] ?? null;
+            if (is_string($overrideRaw)) {
+                $evtClass = $overrideRaw;
+            }
+
+            $catcolor = is_string($event['catcolor'] ?? null) ? $event['catcolor'] : '';
+            $facilityRow = is_array($event['facility_row'] ?? null) ? $event['facility_row'] : null;
+            $facilityId = is_array($facilityRow) && isset($facilityRow['id'])
+                ? (is_int($facilityRow['id']) || is_string($facilityRow['id']) ? (int) $facilityRow['id'] : 0)
+                : 0;
+
+            $built = $this->viewModel->buildMonthScreenEventContent(
+                $event,
+                $eventDate,
+                $calendarApptStyle,
+                $tplImagePath,
+                $webroot
+            );
+
+            // 3-way facility-filter dispatch.
+            if ($pcFacility === 0) {
+                $displayBgColor = $catcolor;
+                $displayContentHtml = $built['content'];
+            } elseif ($pcFacility === $facilityId) {
+                $displayBgColor = $catcolor;
+                $displayContentHtml = $built['content'];
+            } else {
+                $displayBgColor = 'var(--gray300)';
+                $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
+                    ? $facilityRow['name']
+                    : '';
+                $displayContentHtml = "<span class='text-center text-danger'>" . \attr($facilityName) . '</span>';
+            }
+
+            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+
+            $decorated[] = [
+                'eid'                 => $eidRaw,
+                'eventDate'           => $eventDateYmd,
+                'pccattype'           => $pccattype,
+                'evtClass'            => $evtClass,
+                'displayBgColor'      => $displayBgColor,
+                'displayContentHtml'  => $displayContentHtml,
+                'tooltip'             => $built['tooltip'],
+            ];
+        }
+
+        return $decorated;
+    }
+
+    /**
+     * Compute the previous- or next-month YYYYMMDD, staying on the same
+     * day-of-month when possible (decrement day until checkdate accepts).
+     * Mirrors the legacy:
+     *     while (! checkdate($pMonth, $pDay, $pYear)) { $pDay--; }
+     */
+    private function computeAdjacentMonth(int $year, int $month, int $day, int $offset): string
+    {
+        $newMonth = $month + $offset;
+        $newYear = $year;
+        if ($newMonth < 1) {
+            $newMonth = 12;
+            $newYear--;
+        } elseif ($newMonth > 12) {
+            $newMonth = 1;
+            $newYear++;
+        }
+
+        $newDay = $day;
+        while ($newDay > 0 && !checkdate($newMonth, $newDay, $newYear)) {
+            $newDay--;
+        }
+        if ($newDay < 1) {
+            $newDay = 1;
+        }
+
+        return sprintf('%04d%02d%02d', $newYear, $newMonth, $newDay);
+    }
+
+    /**
      * Decorate one day's events for a single provider in week_print.
      * Skips events for other providers, skips empty eids, then applies
      * buildWeekPrintEventContent.

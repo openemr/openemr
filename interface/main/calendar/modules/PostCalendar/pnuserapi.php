@@ -592,13 +592,15 @@ function postcalendar_userapi_buildView($args)
     // Progressive rollout: month_print uses the new CalendarRenderer +
     // builder path. Other views continue using the legacy pcSmarty
     // path below. Each ViewType cuts over in its own focused commit.
-    $useNewRenderer = (in_array($viewtype, ['month', 'week', 'day'], true) && $print);
+    $useNewRenderer = (in_array($viewtype, ['month', 'week', 'day'], true) && $print)
+        || ($viewtype === 'month' && !$print);
     if ($useNewRenderer) {
-        $vmType = match ($viewtype) {
-            'month' => ViewType::MonthPrint,
-            'week'  => ViewType::WeekPrint,
-            'day'   => ViewType::DayPrint,
-            default => ViewType::MonthPrint,
+        $vmType = match (true) {
+            $viewtype === 'month' && (bool) $print => ViewType::MonthPrint,
+            $viewtype === 'week'  && (bool) $print => ViewType::WeekPrint,
+            $viewtype === 'day'   && (bool) $print => ViewType::DayPrint,
+            $viewtype === 'month'                  => ViewType::Month,
+            default                                => ViewType::MonthPrint,
         };
         $vm = new CalendarViewModel(
             viewType: $vmType,
@@ -640,6 +642,53 @@ function postcalendar_userapi_buildView($args)
                 $tplImagePath,
                 $isTwelveHourFormat
             );
+        } elseif ($vmType === ViewType::Month) {
+            // Screen view — needs the picker + nav scaffolding.
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $languageDirection = $session->get('language_direction');
+            $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+            $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
+            // monthSelector.php is the legacy jump-to-month dropdown.
+            // The Twig template renders it via {{ monthSelectorHtml|raw }}.
+            $caldate = strtotime((string) $Date);
+            $cMonth = $caldate !== false ? date('m', $caldate) : '';
+            $cYear = $caldate !== false ? date('Y', $caldate) : '';
+            $cDay = $caldate !== false ? date('d', $caldate) : '';
+            ob_start();
+            include OEGlobalsBag::getInstance()->getKernel()->getRootDir()
+                . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            $monthSelectorHtml = ob_get_clean();
+
+            $facilitiesList = [];
+            $sessionAuthUserID = $session->get('authUserID');
+            $sessionAuthorizedUser = $session->get('authorizeduser');
+            $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
+
+            $currentMonthLabelTs = strtotime((string) $Date);
+            $currentMonthLabel = $currentMonthLabelTs !== false
+                ? date('F', $currentMonthLabelTs) . ' ' . date('Y', $currentMonthLabelTs)
+                : '';
+
+            $renderData = $builder->buildMonthScreenRenderData(
+                $aEvents,
+                $providersList,
+                $provinfo ?? [],
+                is_array($facilitiesList) ? $facilitiesList : [],
+                (string) $Date,
+                $pc_short_day_names,
+                is_int($pc_facility) || is_string($pc_facility) ? (int) $pc_facility : 0,
+                $apptStyle,
+                $tplImagePath,
+                OEGlobalsBag::getInstance()->getString('webroot'),
+                (string) $pc_prev,
+                (string) $pc_next,
+                $chevLeft,
+                $chevRight,
+                is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
+                !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
+                $currentMonthLabel
+            );
         } else {
             $renderData = $builder->buildMonthPrintRenderData(
                 $aEvents,
@@ -649,19 +698,25 @@ function postcalendar_userapi_buildView($args)
                 $apptStyle
             );
         }
-        $renderData['PRINT_VIEW'] = 1;
+        $renderData['PRINT_VIEW'] = $print ? 1 : 0;
         $renderData['viewtype'] = $viewtype;
         $newTpl = new CalendarRenderer();
         foreach ($renderData as $k => $v) {
             $newTpl->assign($k, $v);
         }
-        echo "<html><head>";
-        echo "</head><body>\n";
-        echo $output;
-        echo $newTpl->render("calendar/$template_name/views/$viewtype/$template_view_load.html.twig");
-        echo postcalendar_footer();
-        echo "\n</body></html>";
-        exit;
+        if ($print) {
+            echo "<html><head>";
+            echo "</head><body>\n";
+            echo $output;
+            echo $newTpl->render("calendar/$template_name/views/$viewtype/$template_view_load.html.twig");
+            echo postcalendar_footer();
+            echo "\n</body></html>";
+            exit;
+        }
+        $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+        $output .= $newTpl->render("calendar/$template_name/views/$viewtype/$template_view_load.html.twig");
+        $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
+        return $output;
     }
 
     if (!$print) {

@@ -72,7 +72,6 @@ return ['includes' => [
     __DIR__ . '/logicalAnd.alwaysFalse.php',
     __DIR__ . '/logicalAnd.alwaysTrue.php',
     __DIR__ . '/logicalAnd.leftAlwaysTrue.php',
-    __DIR__ . '/match.alwaysTrue.php',
     __DIR__ . '/method.alreadyNarrowedType.php',
     __DIR__ . '/method.childParameterType.php',
     __DIR__ . '/method.childReturnType.php',
