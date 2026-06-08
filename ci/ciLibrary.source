@@ -53,6 +53,53 @@ dc() {
     docker compose "$@"
 }
 
+##
+# Retry a command with exponential backoff. Docker Hub registry pulls time
+# out transiently in CI (issue #12423); without a retry a single hiccup
+# fails the whole matrix job. Usage: with_retry MAX_ATTEMPTS DELAY cmd args...
+with_retry() {
+    local max_attempts=$1
+    local delay=$2
+    shift 2
+    local attempt=1
+    while true; do
+        # shellcheck disable=SC2310  # the command's failure drives the retry, not errexit
+        if "$@"; then
+            return 0
+        fi
+        if (( attempt >= max_attempts )); then
+            echo "Command failed after ${attempt} attempts: $*" >&2
+            return 1
+        fi
+        echo "Attempt ${attempt}/${max_attempts} failed: $* — retrying in ${delay}s" >&2
+        sleep "${delay}"
+        (( ++attempt ))
+        (( delay *= 2 ))
+    done
+}
+
+##
+# Pull every image the compose stack needs, retrying on transient registry
+# errors. Separated from `up` so a Docker Hub timeout retries just the pull
+# rather than failing the bring-up. --ignore-buildable skips services that
+# build locally (e.g. inferno's terminology_builder).
+#
+# Pulls at most once per job: dockers_env_start runs in several workflow
+# steps (initial bring-up, again after restarts in setup_e2e_bookends and
+# build_test_e2e), each in a fresh shell, so the guard is a marker file in
+# RUNNER_TEMP rather than a shell variable. Repeat calls skip the pull and
+# rely on `dc up --quiet-pull` to fetch anything still missing (e.g. a
+# profile-gated image the first pull's COMPOSE_PROFILES did not include).
+pull_images() {
+    local marker="${RUNNER_TEMP:-/tmp}/openemr-ci-images-pulled"
+    if [[ -f "${marker}" ]]; then
+        echo 'Images already pulled this job; skipping pull (up will fetch anything missing).'
+        return 0
+    fi
+    with_retry 4 5 dc pull --quiet --ignore-buildable
+    touch "${marker}"
+}
+
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         # Set XDEBUG_MODE env var for xdebug coverage (ignored if using pcov).
@@ -95,6 +142,12 @@ convert_coverage() {
 }
 
 dockers_env_start() {
+    # Pull first, with retry, so a transient Docker Hub timeout retries the
+    # pull instead of failing the whole bring-up (issue #12423). `up` then
+    # finds the images already present; its own --quiet-pull is left as a
+    # harmless fallback for anything pull_images skipped (e.g. buildable
+    # services in the inferno stack).
+    pull_images
     dc up --detach --quiet-pull --wait --wait-timeout 300
 }
 

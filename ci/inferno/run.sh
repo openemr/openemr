@@ -178,6 +178,12 @@ main() {
     # The classic Docker builder does not.
     # We need platform arguments.
     export DOCKER_BUILDKIT=1
+    # Source the CI library for with_retry. run.sh runs from ci/inferno, so
+    # resolve the repo root to find it.
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel)"
+    # shellcheck source-path=SCRIPTDIR/..
+    . "${repo_root}/ci/ciLibrary.source"
     local use_cloned_files
     # shellcheck disable=SC2310
     if clone_files; then
@@ -186,7 +192,11 @@ main() {
       use_cloned_files=0
     fi
     echo 'Pulling Docker images...'
-    if ! docker compose pull; then
+    # Retry transient registry timeouts (issue #12423). --ignore-buildable
+    # skips locally built services (inferno, worker, terminology_builder),
+    # which the build step below handles.
+    # shellcheck disable=SC2310  # with_retry's own exit status drives the error path here
+    if ! with_retry 4 5 docker compose pull --ignore-buildable; then
         echo 'ERROR: Failed to pull Docker images'
         exit 1
     fi
