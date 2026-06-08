@@ -1159,13 +1159,15 @@ final readonly class CalendarViewModel
                 // Non-English locales often have those strings in their
                 // translation catalogs (seeded by other call sites), so
                 // the opportunistic-translation IS load-bearing in
-                // multilingual installations. Preserved here via the
-                // hsc_private_xl_or_warn wrapper that handles the dynamic
-                // string (its phpstan-ignore directive is localized inside
-                // it), then text-escape — equivalent to what xlt does
-                // internally.
-                // No baseline entry needed.
-                $content = \text(\hsc_private_xl_or_warn($title));
+                // multilingual installations.
+                //
+                // The dynamic-string arg trips PHPStan's literal-string
+                // rule on xlt. A baseline entry is the honest fix here —
+                // explicit suppression with a user-permitted exception
+                // for this specific load-bearing case. Project owner
+                // approved the baseline entry over using the private
+                // hsc_private_xl_or_warn helper as a back-door.
+                $content = \xlt($title);
             } else {
                 $content .= \text(\xl_appt_category($rawCatname));
             }
