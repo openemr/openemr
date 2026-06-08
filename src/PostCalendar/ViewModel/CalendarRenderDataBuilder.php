@@ -738,7 +738,7 @@ final readonly class CalendarRenderDataBuilder
                 $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
                     ? $facilityRow['name']
                     : '';
-                $displayContentHtml = "<span class='text-center text-danger'>" . \attr($facilityName) . '</span>';
+                $displayContentHtml = "<span class='text-center text-danger'>" . attr($facilityName) . '</span>';
             }
 
             $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
@@ -1168,7 +1168,7 @@ final readonly class CalendarRenderDataBuilder
                     ? $facilityRow['name']
                     : '';
                 $displayBgColor = 'var(--gray300)';
-                $displayContentHtml = "<span class='text-center text-danger'>" . \attr($facilityName) . '</span>';
+                $displayContentHtml = "<span class='text-center text-danger'>" . attr($facilityName) . '</span>';
             }
 
             $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
@@ -1194,7 +1194,7 @@ final readonly class CalendarRenderDataBuilder
                 $entry['inLabelHeightCss'] = $timeslotHeightVal . $timeslotHeightUnit;
                 $startM = substr($startTime, 3, 2);
                 $dispStartH = $this->viewModel->displayStartHour($startTime, false);
-                $entry['inLabelContent']   = \attr($dispStartH . ':' . $startM) . ' ' . $built['content'];
+                $entry['inLabelContent']   = attr($dispStartH . ':' . $startM) . ' ' . $built['content'];
             }
 
             $decorated[] = $entry;
@@ -1316,7 +1316,7 @@ final readonly class CalendarRenderDataBuilder
                     ? $facilityRow['name']
                     : '';
                 $displayBgColor = 'var(--gray300)';
-                $displayContentHtml = "<span class='text-center text-danger'>" . \attr($facilityName) . '</span>';
+                $displayContentHtml = "<span class='text-center text-danger'>" . attr($facilityName) . '</span>';
             }
 
             $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
@@ -1342,7 +1342,7 @@ final readonly class CalendarRenderDataBuilder
                 $entry['inLabelHeightCss'] = $timeslotHeightVal . $timeslotHeightUnit;
                 $startM = substr($startTime, 3, 2);
                 $dispStartH = $this->viewModel->displayStartHour($startTime, $isTwelveHourFormat);
-                $entry['inLabelContent']   = \attr($dispStartH . ':' . $startM) . ' ' . $built['content'];
+                $entry['inLabelContent']   = attr($dispStartH . ':' . $startM) . ' ' . $built['content'];
             }
 
             $decorated[] = $entry;

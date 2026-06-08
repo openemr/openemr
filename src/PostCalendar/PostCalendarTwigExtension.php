@@ -83,9 +83,9 @@ final class PostCalendarTwigExtension extends AbstractExtension
      */
     public function pcEventTimeAnchor(string $displayString): string
     {
-        $title = \xl('Click to edit');
+        $title = xl('Click to edit');
 
         return "<a class='event_time' onclick='event_time_click(this)' title='"
-            . \attr($title) . "'>" . \text($displayString) . "</a>";
+            . attr($title) . "'>" . text($displayString) . "</a>";
     }
 }

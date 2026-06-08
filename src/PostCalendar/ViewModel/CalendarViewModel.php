@@ -135,11 +135,11 @@ final readonly class CalendarViewModel
     public function translatedCategoryName(int $categoryId, string $rawCategoryName): string
     {
         return match ($categoryId) {
-            2       => \xl('IN'),
-            3       => \xl('OUT'),
-            4       => \xl('VACATION'),
-            8       => \xl('LUNCH'),
-            11      => \xl('RESERVED'),
+            2       => xl('IN'),
+            3       => xl('OUT'),
+            4       => xl('VACATION'),
+            8       => xl('LUNCH'),
+            11      => xl('RESERVED'),
             default => $rawCategoryName,
         };
     }
@@ -668,9 +668,9 @@ final readonly class CalendarViewModel
 
         if (in_array($catid, [4, 8, 11], true)) {
             $catname = $this->translatedCategoryName($catid, '');
-            $content = \text($displayTime) . ' ' . \text($catname);
+            $content = text($displayTime) . ' ' . text($catname);
             if ($comment !== '') {
-                $content .= ' - ' . \text($comment);
+                $content .= ' - ' . text($comment);
             }
             return $content;
         }
@@ -679,11 +679,11 @@ final readonly class CalendarViewModel
         $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
         $parsed = $this->parsePatientName($patientName);
 
-        $content = \text($displayTime) . ' ';
+        $content = text($displayTime) . ' ';
         if ($catid === 1) {
             $content .= '<s>';
         }
-        $content .= \text($parsed['lname']);
+        $content .= text($parsed['lname']);
         if ($catid === 1) {
             $content .= '</s>';
         }
@@ -768,9 +768,9 @@ final readonly class CalendarViewModel
         // Special-category branch
         if (in_array($catid, [2, 3, 4, 8, 11], true)) {
             $catname = $this->translatedCategoryName($catid, '');
-            $content = $recurringIcon . \text($catname);
+            $content = $recurringIcon . text($catname);
             if ($comment !== '') {
-                $content .= ' ' . \text($comment);
+                $content .= ' ' . text($comment);
             }
             return $content;
         }
@@ -788,19 +788,19 @@ final readonly class CalendarViewModel
         $startMRaw = explode(':', $startTime)[1] ?? '00';
         $startM = $startMRaw;
 
-        $content = "<span class='appointment" . \attr($apptToggle) . "'>";
-        $content .= \text("$dispStartH:$startM");
+        $content = "<span class='appointment" . attr($apptToggle) . "'>";
+        $content .= text("$dispStartH:$startM");
         $content .= $recurringIcon;
-        $content .= \text($apptStatus);
+        $content .= text($apptStatus);
 
         if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($parsed['lname']);
+            $content .= text($parsed['lname']);
 
             if ($calendarApptStyle !== 1) {
-                $content .= ',' . \text($parsed['fname']);
+                $content .= ',' . text($parsed['fname']);
 
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
@@ -808,13 +808,13 @@ final readonly class CalendarViewModel
                 $address = is_string($addressRaw) ? $addressRaw : '';
 
                 if ($title !== '' && $calendarApptStyle === 5) {
-                    $content .= ',' . \text($address);
+                    $content .= ',' . text($address);
                 }
 
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
-                        $content .= ": <span class='text-success'>" . \text(trim($comment)) . '</span>';
+                        $content .= ": <span class='text-success'>" . text(trim($comment)) . '</span>';
                     }
                     $content .= ')';
                 }
@@ -827,7 +827,7 @@ final readonly class CalendarViewModel
             // No patient_id — fall back to category name (legacy quirk).
             $catnameRaw = $event['catname'] ?? '';
             $catname = is_string($catnameRaw) ? $catnameRaw : '';
-            $content .= \text($catname);
+            $content .= text($catname);
         }
 
         $content .= '</span>';
@@ -890,9 +890,9 @@ final readonly class CalendarViewModel
         // Special-category branch — INCLUDES time prefix (unlike day_print)
         if (in_array($catid, [2, 3, 4, 8, 11], true)) {
             $catname = $this->translatedCategoryName($catid, '');
-            $content = \text($timeLabel) . $recurringIcon . ' ' . \text($catname);
+            $content = text($timeLabel) . $recurringIcon . ' ' . text($catname);
             if ($comment !== '') {
-                $content .= ' ' . \text($comment);
+                $content .= ' ' . text($comment);
             }
             return $content;
         }
@@ -903,18 +903,18 @@ final readonly class CalendarViewModel
         $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
         $parsed = $this->parsePatientName($patientName);
 
-        $content = "<span class='appointment" . \attr($apptToggle) . "'>";
-        $content .= \text($timeLabel) . ' ';
+        $content = "<span class='appointment" . attr($apptToggle) . "'>";
+        $content .= text($timeLabel) . ' ';
         $content .= $recurringIcon;
 
         if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($parsed['lname']);
+            $content .= text($parsed['lname']);
 
             if ($calendarApptStyle !== 1) {
-                $content .= ',' . \text($parsed['fname']);
+                $content .= ',' . text($parsed['fname']);
 
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
@@ -922,15 +922,15 @@ final readonly class CalendarViewModel
                 $address = is_string($addressRaw) ? $addressRaw : '';
 
                 if ($title !== '' && $calendarApptStyle === 5) {
-                    $content .= ',' . \text($address);
+                    $content .= ',' . text($address);
                 }
 
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         // Legacy quirk: week_print uses <font color='green'>
                         // where day_print used <span class='text-success'>.
-                        $content .= ": <font color='green'>" . \text(trim($comment)) . '</font>';
+                        $content .= ": <font color='green'>" . text(trim($comment)) . '</font>';
                     }
                     $content .= ')';
                 }
@@ -942,7 +942,7 @@ final readonly class CalendarViewModel
         } else {
             $catnameRaw = $event['catname'] ?? '';
             $catname = is_string($catnameRaw) ? $catnameRaw : '';
-            $content .= \text($catname);
+            $content .= text($catname);
         }
 
         $content .= '</span>';
@@ -1026,11 +1026,11 @@ final readonly class CalendarViewModel
             }
             $tooltip .= "\n[" . $atitle . ']';
 
-            $content = \text($displayTime) . '&nbsp;' . \text($catname);
+            $content = text($displayTime) . '&nbsp;' . text($catname);
 
             // Note: catid here is one of {4, 8, 11} — the `!= 6` check from
             // the legacy is preserved at the end of this method instead.
-            return ['content' => $content, 'tooltip' => $tooltip . "\n(" . \xl('double click to edit') . ')'];
+            return ['content' => $content, 'tooltip' => $tooltip . "\n(" . xl('double click to edit') . ')'];
         }
 
         // Patient appt / group / fallback branch.
@@ -1050,7 +1050,7 @@ final readonly class CalendarViewModel
         if ($hasGroup) {
             $counselorsRaw = $event['group_counselors_text'] ?? '';
             $counselors = is_string($counselorsRaw) ? $counselorsRaw : '';
-            $tooltip .= "\n" . \xl('Counselors') . ": \n" . $counselors . " \n";
+            $tooltip .= "\n" . xl('Counselors') . ": \n" . $counselors . " \n";
             $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . (is_string($event['group_name'] ?? null) ? $event['group_name'] : '');
         } else {
             $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $parsed['fname'] . ' ' . $parsed['lname'];
@@ -1069,36 +1069,36 @@ final readonly class CalendarViewModel
             $patientAge = is_int($patientAgeRaw) || is_string($patientAgeRaw) ? (string) $patientAgeRaw : '';
             $patientAddress = is_string($event['patient_address'] ?? null) ? $event['patient_address'] : '';
 
-            $linkTitle = \attr($parsed['fname']) . ' ' . \attr($parsed['lname']) . " \n";
-            $linkTitle .= \attr($patientAddress) . "\n";
-            $linkTitle .= \xla('Age') . ': ' . \attr($patientAge) . "\n"
-                . \xla('DOB') . ': ' . \attr($patientDob) . ' ' . $comment . "\n";
-            $linkTitle .= '(' . \xla('Click to view') . ')';
+            $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname']) . " \n";
+            $linkTitle .= attr($patientAddress) . "\n";
+            $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
+                . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";
+            $linkTitle .= '(' . xla('Click to view') . ')';
 
             $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
 
-            $content .= "<a class='link_title' data-pid='" . \attr($patientIdAttr) . "' href='javascript:goPid(" . \attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
+            $content .= "<a class='link_title' data-pid='" . attr($patientIdAttr) . "' href='javascript:goPid(" . attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
 
             $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
-            $content .= "<img src='" . $tplImagePath . "/user-green.gif' onmouseover=\"javascript:ShowImage(" . \attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . $linkTitle . "' alt='View Patient' />";
+            $content .= "<img src='" . $tplImagePath . "/user-green.gif' onmouseover=\"javascript:ShowImage(" . attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . $linkTitle . "' alt='View Patient' />";
 
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($parsed['lname']);
+            $content .= text($parsed['lname']);
 
             if ($calendarApptStyle !== 1) {
-                $content .= ',' . \text($parsed['fname']);
+                $content .= ',' . text($parsed['fname']);
 
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
 
                 if ($title !== '' && $calendarApptStyle === 5) {
-                    $content .= ',' . \text($patientAddress);
+                    $content .= ',' . text($patientAddress);
                 }
 
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         // Legacy comment: "hometext is already escaped in
                         // pnuserapi.php via the pcVarPrepHTMLDisplay
@@ -1119,21 +1119,21 @@ final readonly class CalendarViewModel
             $gidAttr = is_int($gidRaw) || is_string($gidRaw) ? (string) $gidRaw : '';
 
             $tooltip .= "\n" . $groupTypeName . "\n";
-            $linkTitle = $tooltip . "\n" . '(' . \xl('Click to view') . ')';
+            $linkTitle = $tooltip . "\n" . '(' . xl('Click to view') . ')';
 
-            $content .= "<a href='javascript:goGid(" . \attr_js($gidAttr) . ")' title='" . \attr($linkTitle) . "'>";
-            $content .= "<img src='" . $tplImagePath . "/user-blue.gif' border='0' title='" . \attr($linkTitle) . "' alt='View Patient' />";
+            $content .= "<a href='javascript:goGid(" . attr_js($gidAttr) . ")' title='" . attr($linkTitle) . "'>";
+            $content .= "<img src='" . $tplImagePath . "/user-blue.gif' border='0' title='" . attr($linkTitle) . "' alt='View Patient' />";
 
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($groupName);
+            $content .= text($groupName);
 
             if ($calendarApptStyle !== 1) {
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
                     }
@@ -1167,14 +1167,14 @@ final readonly class CalendarViewModel
                 // for this specific load-bearing case. Project owner
                 // approved the baseline entry over using the private
                 // hsc_private_xl_or_warn helper as a back-door.
-                $content = \xlt($title);
+                $content = xlt($title);
             } else {
-                $content .= \text(\xl_appt_category($rawCatname));
+                $content .= text(xl_appt_category($rawCatname));
             }
         }
 
         if ($catid !== 6) {
-            $tooltip .= "\n(" . \xl('double click to edit') . ')';
+            $tooltip .= "\n(" . xl('double click to edit') . ')';
         }
 
         return ['content' => $content, 'tooltip' => $tooltip];
@@ -1246,20 +1246,20 @@ final readonly class CalendarViewModel
             }
             $tooltip .= "\n[" . $atitle . ']';
 
-            $content = \text($catname);
+            $content = text($catname);
 
             $recurrType = $event['recurrtype'] ?? 0;
             $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
             if ($recurrTypeInt > 0) {
-                $content .= "<img class='border-0' src='" . $tplImagePath . "/repeating8.png' style='margin: 0 2px 0 2px;' title='" . \xla('Repeating event') . "' alt='" . \xla('Repeating event') . "' />";
+                $content .= "<img class='border-0' src='" . $tplImagePath . "/repeating8.png' style='margin: 0 2px 0 2px;' title='" . xla('Repeating event') . "' alt='" . xla('Repeating event') . "' />";
             }
             if ($comment !== '') {
-                $content .= ' ' . \text($comment);
+                $content .= ' ' . text($comment);
             }
 
             return [
                 'content'    => $content,
-                'tooltip'    => $tooltip . "\n(" . \xl('double click to edit') . ')',
+                'tooltip'    => $tooltip . "\n(" . xl('double click to edit') . ')',
                 'extraClass' => '',
             ];
         }
@@ -1292,7 +1292,7 @@ final readonly class CalendarViewModel
         $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
         $recurringIcon = '';
         if ($recurrTypeInt > 0) {
-            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . \xla('Repeating event') . "' alt='" . \xla('Repeating event') . "'>";
+            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla('Repeating event') . "' alt='" . xla('Repeating event') . "'>";
         }
 
         $apptStatusRaw = $event['apptstatus'] ?? '';
@@ -1301,7 +1301,7 @@ final readonly class CalendarViewModel
         $content = "<span class='appointment'>";
         $content .= $timeAnchor;
         $content .= $recurringIcon;
-        $content .= '&nbsp;' . \text($apptStatus);
+        $content .= '&nbsp;' . text($apptStatus);
 
         $extraClass = '';
 
@@ -1311,36 +1311,36 @@ final readonly class CalendarViewModel
             $patientAge = is_int($patientAgeRaw) || is_string($patientAgeRaw) ? (string) $patientAgeRaw : '';
             $patientAddress = is_string($event['patient_address'] ?? null) ? $event['patient_address'] : '';
 
-            $linkTitle = \attr($parsed['fname']) . ' ' . \attr($parsed['lname']) . " \n";
-            $linkTitle .= \attr($patientAddress) . "\n";
-            $linkTitle .= \xla('Age') . ': ' . \attr($patientAge) . "\n"
-                . \xla('DOB') . ': ' . \attr($patientDob) . ' ' . $comment . "\n";
-            $linkTitle .= '(' . \xla('Click to view') . ')';
+            $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname']) . " \n";
+            $linkTitle .= attr($patientAddress) . "\n";
+            $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
+                . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";
+            $linkTitle .= '(' . xla('Click to view') . ')';
 
             $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
 
-            $content .= "<a class='link_title' data-pid='" . \attr($patientIdAttr) . "' href='javascript:goPid(" . \attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
+            $content .= "<a class='link_title' data-pid='" . attr($patientIdAttr) . "' href='javascript:goPid(" . attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
 
             $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
-            $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . \attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
+            $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
 
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($parsed['lname']);
+            $content .= text($parsed['lname']);
 
             if ($calendarApptStyle !== 1) {
-                $content .= ',' . \text($parsed['fname']);
+                $content .= ',' . text($parsed['fname']);
 
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
 
                 if ($title !== '' && $calendarApptStyle === 5) {
-                    $content .= ',' . \text($patientAddress);
+                    $content .= ',' . text($patientAddress);
                 }
 
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
                     }
@@ -1358,21 +1358,21 @@ final readonly class CalendarViewModel
             $gidAttr = is_int($gidRaw) || is_string($gidRaw) ? (string) $gidRaw : '';
 
             $tooltip .= "\n" . $groupTypeName . "\n";
-            $linkTitle = $tooltip . "\n" . '(' . \xl('Click to view') . ')';
+            $linkTitle = $tooltip . "\n" . '(' . xl('Click to view') . ')';
 
-            $content .= "<a href='javascript:goGid(" . \attr_js($gidAttr) . ")' title='" . \attr($linkTitle) . "'>";
-            $content .= "<i class='fas fa-user text-primary' title='" . \attr($linkTitle) . "'></i>";
+            $content .= "<a href='javascript:goGid(" . attr_js($gidAttr) . ")' title='" . attr($linkTitle) . "'>";
+            $content .= "<i class='fas fa-user text-primary' title='" . attr($linkTitle) . "'></i>";
 
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($groupName);
+            $content .= text($groupName);
 
             if ($calendarApptStyle !== 1) {
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
                     }
@@ -1397,9 +1397,9 @@ final readonly class CalendarViewModel
                 // Same load-bearing dynamic xlt as month-screen — see the
                 // longer note in buildMonthScreenEventContent for why.
                 // Baseline entry covers both call sites.
-                $content .= \xlt($title);
+                $content .= xlt($title);
             } else {
-                $content .= \text(\xl_appt_category($rawCatname));
+                $content .= text(xl_appt_category($rawCatname));
             }
         }
 
@@ -1407,7 +1407,7 @@ final readonly class CalendarViewModel
 
         return [
             'content'    => $content,
-            'tooltip'    => $tooltip . "\n(" . \xl('double click to edit') . ')',
+            'tooltip'    => $tooltip . "\n(" . xl('double click to edit') . ')',
             'extraClass' => $extraClass,
         ];
     }
@@ -1466,20 +1466,20 @@ final readonly class CalendarViewModel
             }
             $tooltip .= "\n[" . $atitle . ']';
 
-            $content = \text($catname);
+            $content = text($catname);
 
             $recurrType = $event['recurrtype'] ?? 0;
             $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
             if ($recurrTypeInt > 0) {
-                $content .= "<img class='border-0' src='" . $tplImagePath . "/repeating8.png' style='margin: 0 2px 0 2px;' title='" . \xla('Repeating event') . "' alt='" . \xla('Repeating event') . "' />";
+                $content .= "<img class='border-0' src='" . $tplImagePath . "/repeating8.png' style='margin: 0 2px 0 2px;' title='" . xla('Repeating event') . "' alt='" . xla('Repeating event') . "' />";
             }
             if ($comment !== '') {
-                $content .= ' ' . \text($comment);
+                $content .= ' ' . text($comment);
             }
 
             return [
                 'content'    => $content,
-                'tooltip'    => $tooltip . "\n(" . \xl('double click to edit') . ')',
+                'tooltip'    => $tooltip . "\n(" . xl('double click to edit') . ')',
                 'extraClass' => '',
             ];
         }
@@ -1510,17 +1510,17 @@ final readonly class CalendarViewModel
         $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
         $recurringIcon = '';
         if ($recurrTypeInt > 0) {
-            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . \xla('Repeating event') . "' alt='" . \xla('Repeating event') . "'>";
+            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla('Repeating event') . "' alt='" . xla('Repeating event') . "'>";
         }
 
         $apptStatusRaw = $event['apptstatus'] ?? '';
         $apptStatus = is_string($apptStatusRaw) ? $apptStatusRaw : '';
 
         // Week-specific: appointment-toggle class suffix.
-        $content = "<span class='appointment" . \attr($apptToggle) . "'>";
+        $content = "<span class='appointment" . attr($apptToggle) . "'>";
         $content .= $timeAnchor;
         $content .= $recurringIcon;
-        $content .= '&nbsp;' . \text($apptStatus);
+        $content .= '&nbsp;' . text($apptStatus);
 
         $extraClass = '';
 
@@ -1530,18 +1530,18 @@ final readonly class CalendarViewModel
             $patientAge = is_int($patientAgeRaw) || is_string($patientAgeRaw) ? (string) $patientAgeRaw : '';
             $patientAddress = is_string($event['patient_address'] ?? null) ? $event['patient_address'] : '';
 
-            $linkTitle = \attr($parsed['fname']) . ' ' . \attr($parsed['lname'] ?? $parsed['lname']) . " \n";
-            $linkTitle .= \attr($patientAddress) . "\n";
-            $linkTitle .= \xla('Age') . ': ' . \attr($patientAge) . "\n"
-                . \xla('DOB') . ': ' . \attr($patientDob) . ' ' . $comment . "\n";
-            $linkTitle .= '(' . \xla('Click to view') . ')';
+            $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname'] ?? $parsed['lname']) . " \n";
+            $linkTitle .= attr($patientAddress) . "\n";
+            $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
+                . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";
+            $linkTitle .= '(' . xla('Click to view') . ')';
 
             $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
 
-            $content .= "<a class='link_title' data-pid='" . \attr($patientIdAttr) . "' href='javascript:goPid(" . \attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
+            $content .= "<a class='link_title' data-pid='" . attr($patientIdAttr) . "' href='javascript:goPid(" . attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
 
             $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
-            $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . \attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
+            $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
 
             // Week-specific: the show-appointment toggle anchor between
             // the icon and the patient name.
@@ -1550,20 +1550,20 @@ final readonly class CalendarViewModel
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($parsed['lname']);
+            $content .= text($parsed['lname']);
 
             if ($calendarApptStyle !== 1) {
-                $content .= ',' . \text($parsed['fname']);
+                $content .= ',' . text($parsed['fname']);
 
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
 
                 if ($title !== '' && $calendarApptStyle === 5) {
-                    $content .= ',' . \text($patientAddress);
+                    $content .= ',' . text($patientAddress);
                 }
 
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
                     }
@@ -1581,21 +1581,21 @@ final readonly class CalendarViewModel
             $gidAttr = is_int($gidRaw) || is_string($gidRaw) ? (string) $gidRaw : '';
 
             $tooltip .= "\n" . $groupTypeName . "\n";
-            $linkTitle = $tooltip . "\n" . '(' . \xl('Click to view') . ')';
+            $linkTitle = $tooltip . "\n" . '(' . xl('Click to view') . ')';
 
-            $content .= "<a href='javascript:goGid(" . \attr_js($gidAttr) . ")' title='" . \attr($linkTitle) . "'>";
-            $content .= "<i class='fas fa-user text-primary' title='" . \attr($linkTitle) . "'></i>";
+            $content .= "<a href='javascript:goGid(" . attr_js($gidAttr) . ")' title='" . attr($linkTitle) . "'>";
+            $content .= "<i class='fas fa-user text-primary' title='" . attr($linkTitle) . "'></i>";
 
             if ($catid === 1) {
                 $content .= '<s>';
             }
-            $content .= \text($groupName);
+            $content .= text($groupName);
 
             if ($calendarApptStyle !== 1) {
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
                 if ($title !== '' && $calendarApptStyle >= 3) {
-                    $content .= '(' . \text($title);
+                    $content .= '(' . text($title);
                     if ($comment !== '' && $calendarApptStyle >= 4) {
                         $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
                     }
@@ -1614,9 +1614,9 @@ final readonly class CalendarViewModel
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
                 // Third call site sharing the xlt baseline entry.
-                $content .= \xlt($title);
+                $content .= xlt($title);
             } else {
-                $content .= \text(\xl_appt_category($rawCatname));
+                $content .= text(xl_appt_category($rawCatname));
             }
         }
 
@@ -1624,7 +1624,7 @@ final readonly class CalendarViewModel
 
         return [
             'content'    => $content,
-            'tooltip'    => $tooltip . "\n(" . \xl('double click to edit') . ')',
+            'tooltip'    => $tooltip . "\n(" . xl('double click to edit') . ')',
             'extraClass' => $extraClass,
         ];
     }

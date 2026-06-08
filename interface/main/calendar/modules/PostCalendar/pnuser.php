@@ -456,7 +456,8 @@ function postcalendar_user_search()
                 $aid = $event['aid'] ?? null;
                 $provInfo = null;
                 if (is_int($aid) || (is_string($aid) && $aid !== '')) {
-                    $provInfo = QueryUtils::fetchSingleRow('SELECT * FROM users WHERE id=?', [$aid]);
+                    $provRows = QueryUtils::fetchRecords('SELECT * FROM users WHERE id=?', [$aid]);
+                    $provInfo = $provRows[0] ?? null;
                 }
 
                 $startTimeRaw = $event['startTime'] ?? '00:00:00';
