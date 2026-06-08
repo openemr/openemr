@@ -764,21 +764,11 @@ EOF;
 
 function postcalendar_admin_clearCache()
 {
-    $tpl = new pcSmarty();
-    //fmg: check that both subdirs to be cleared first exist and are writeable
-    $spec_err = '';
-
-    if (!file_exists($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' doesn't exist!<br />";
-    } elseif (!is_writable($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br />";
-    }
-
-    //note: we don't abort on error... like before.
-    $tpl->clear_all_cache();
-    $tpl->clear_compiled_tpl();
-
-    return postcalendar_admin_modifyconfig('<div class="text-center">' . $spec_err . text(_PC_CACHE_CLEARED) . '</div>');
+    // Twig's container manages cache invalidation on file-mtime changes,
+    // so an explicit "clear cache" button no longer has real work to do.
+    // Kept as a UI no-op so the admin-menu link doesn't 404 and admins
+    // who muscle-memory click it still get the confirmation message.
+    return postcalendar_admin_modifyconfig('<div class="text-center">' . text(_PC_CACHE_CLEARED) . '</div>');
 }
 
 function postcalendar_admin_testSystem()
@@ -788,7 +778,6 @@ function postcalendar_admin_testSystem()
     $version = $modinfo['version'];
     unset($modinfo);
 
-    $tpl = new pcSmarty();
     $infos = [];
 
     $__SERVER =& $_SERVER;
@@ -823,24 +812,10 @@ function postcalendar_admin_testSystem()
         $error .= '</div>';
     }
     array_push($infos, ['Module version', $version . " $error"]);
-    array_push($infos, ['smarty version', $tpl->_version]);
-    array_push($infos, ['smarty location',  SMARTY_DIR]);
-    array_push($infos, ['smarty template dir', $tpl->template_dir]);
-
-    $info = $tpl->compile_dir;
-    $error = '';
-    if (!file_exists($tpl->compile_dir)) {
-        $error .= " compile dir doesn't exist! [" . text($tpl->compile_dir) . "]<br />";
-    } else {
-        // dir exists -> check if it's writeable
-        if (!is_writable($tpl->compile_dir)) {
-            $error .= " compile dir not writeable! [" . text($tpl->compile_dir) . "]<br />";
-        }
-    }
-    if (strlen($error) > 0) {
-        $info .= "<br /><div class='text-danger'>$error</div>";
-    }
-    array_push($infos, ['smarty compile dir',  $info]);
+    // Legacy "smarty version / template dir / compile dir" diagnostic
+    // items removed — the calendar runs on Twig now, and Twig's cache
+    // management is handled by TwigContainer transparently. Adding
+    // Twig-equivalent diagnostic items would be a separate task.
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";

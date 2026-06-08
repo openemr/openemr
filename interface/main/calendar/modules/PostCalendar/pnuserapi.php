@@ -161,13 +161,13 @@ function postcalendar_userapi_buildView($args)
     }
 
     //=================================================================
-    //  See if the template view exists
+    //  Template-view name. Legacy checked file_exists for a per-view
+    //  override path under pntemplates/; the converted Twig templates
+    //  use the single 'default' set under templates/calendar/default/
+    //  so we just pass through the requested name (which is 'default'
+    //  in practice for every consumer).
     //=================================================================
-    if (!file_exists("modules/$pcDir/pntemplates/$template_name/views/$viewtype/$template_view.html")) {
-        $template_view_load = 'default';
-    } else {
-        $template_view_load = pnVarPrepForOS($template_view);
-    }
+    $template_view_load = pnVarPrepForOS($template_view);
 
     //=================================================================
     //  Grab the current theme information
@@ -180,12 +180,16 @@ function postcalendar_userapi_buildView($args)
     $output = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
 
     //=================================================================
-    //  Setup Smarty Template Engine
+    //  Throwaway CalendarRenderer to absorb the legacy $tpl->assign()
+    //  calls in the variable-setup block below. Those assigns are dead
+    //  — my CalendarRenderer path further down reads from the local
+    //  variables ($eventsByDate, $provinfo, $times, etc.) directly, not
+    //  via $tpl->getVar. Stripping the ~35 dead assign lines is a
+    //  separate cleanup commit; for now they no-op into this throwaway
+    //  instance which then gets garbage-collected.
     //=================================================================
-    $tpl = new pcSmarty();
+    $tpl = new CalendarRenderer();
 
-    //if(!$tpl->is_cached("$template_name/views/$viewtype/$template_view_load.html",$cacheid)) {
-    //disable caching completely
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
@@ -842,23 +846,12 @@ function postcalendar_userapi_buildView($args)
         return $output;
     }
 
-    if (!$print) {
-            $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-            $output .= $tpl->fetch($template, $cacheid);    // cache id
-            $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-    } else {
-            echo "<html><head>";
-            echo "</head><body>\n";
-            echo $output;
-            $tpl->display($template, $cacheid);
-            echo postcalendar_footer();
-            echo "\n</body></html>";
-            exit;
-    }
-
-    //=================================================================
-    //  Return the output
-    //=================================================================
+    // All renderable viewtypes (day/week/month + their print variants)
+    // run through the CalendarRenderer branch above. Year view has no
+    // template directory in pntemplates/ so it never reached the legacy
+    // fetch/display path either. This unreachable-by-design situation
+    // returns the page-setup output without a template body — same
+    // behavior the legacy "if no viewtype matches" path would have had.
     return $output;
 }
 
