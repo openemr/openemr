@@ -1151,12 +1151,21 @@ final readonly class CalendarViewModel
             if ($catid === 6 || $catid === 7) {
                 $titleRaw = $event['title'] ?? '';
                 $title = is_string($titleRaw) ? $titleRaw : '';
-                // Legacy was `xlt($event['title'])` — but event.title is
-                // user-entered admin data (e.g. "Christmas Eve"). It has
-                // no translation catalog entry, so xl() falls through to
-                // the input verbatim and xlt() collapses to text(title).
-                // Drop the no-op translation and just escape.
-                $content = \text($title);
+                // Legacy: `xlt($event['title'])`. The titles for catid 6
+                // (HOLIDAY) and catid 7 (Clinic-closed) come from
+                // admin-uploaded CSVs via the holiday-import feature
+                // (interface/main/holidays/) — standard names like
+                // "Christmas Day", "Independence Day", "Thanksgiving Day".
+                // Non-English locales often have those strings in their
+                // translation catalogs (seeded by other call sites), so
+                // the opportunistic-translation IS load-bearing in
+                // multilingual installations. Preserved here via the
+                // hsc_private_xl_or_warn wrapper that handles the dynamic
+                // string (its phpstan-ignore directive is localized inside
+                // it), then text-escape — equivalent to what xlt does
+                // internally.
+                // No baseline entry needed.
+                $content = \text(\hsc_private_xl_or_warn($title));
             } else {
                 $content .= \text(\xl_appt_category($rawCatname));
             }
