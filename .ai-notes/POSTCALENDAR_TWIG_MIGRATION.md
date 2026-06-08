@@ -105,10 +105,34 @@ Concentrated in 7 templates (day/week/month ajax_template + their _print variant
 4. **Plugins → Twig functions** — only `pc_sort_events` needs porting (the other 9 are dead code, see audit above). Port as a method on `PostCalendarTwigExtension`; deletion of all 10 plugin files happens in Phase 10.
 5. **Header template** — first template with `[-php-]` blocks. Extract `create_event_time_anchor` to a method on PostCalendarTwigExtension, move session reads to PHP caller, pass body_class / title / HEADER_SCRIPTS / HEADER_STYLES as template vars.
 6. **Medium templates** (user/ajax_search, admin/submit_category) — no `[-php-]` blocks, mechanical conversion.
-7. **Print views** — `[-php-]` extraction (2-4 blocks per print view).
-8. **The big 3** (day/week/month ajax_template) — most `[-php-]` blocks (16-17 each). Hardest. Plan per block.
-9. **Switch consumers** — replace `new pcSmarty()` with `new CalendarRenderer()` in pnuserapi/pnuser/pnadmin.
+7. **~~Print views~~ → merged with 8 below.** Initially planned as a separate "small [-php-] block" phase; after surveying the templates, the [-php-] blocks in print views are NOT small. `month_print` has 2 blocks, but block #2 is 272 lines and defines `PrintDatePicker()` inline plus the entire calendar-grid rendering loop. Conversion isn't mechanical — it requires the same view-model extraction the main ajax_templates need.
+8. **Calendar rendering service + the big 6** (3 main ajax_templates + 3 print views) — extract a `PostCalendarViewModel` (or equivalent service) that owns: DOWlist construction, provider-info lookup, event decoration (catid→evtClass mapping, displayTime formatting, patient_name parsing, content-string building), and the calendar-grid date matrix. Templates then iterate pre-decorated data instead of computing inline. All 6 templates share this contract — design driven by day/ajax_template (largest, 16 [-php-] blocks, ~1068 LoC) then applied to the others.
+9. **Switch consumers** — replace `new pcSmarty()` with `new CalendarRenderer()` in pnuserapi/pnuser/pnadmin. The new code path uses the view-model from Phase 8.
 10. **Delete legacy**: `library/smarty_legacy/`, `pcSmarty.class.php`, `pntemplates/`, all 10 plugins.
+
+## Mid-migration architectural decision: the view-model boundary
+
+The original Phase 7/8 split assumed print views had "small" extraction work and main ajax_templates had "big" extraction work — wrong. Both share the same problem: calendar-rendering logic embedded in [-php-] blocks, computing per-event display data inline (`displayTime`, `evtClass`, etc.) plus structural data (DOWlist, provinfo, date matrix). When all six templates need the same pre-decoration, the right move is one service-layer extraction up front, then six straight template conversions.
+
+The service should:
+- Accept the same raw inputs the consumer assigns today (`$A_EVENTS`, `$providers`, `$Date`, etc.) plus required globals/session reads as constructor args (no global-state reach-ins from inside the service)
+- Return a structured DTO containing: a flat decorated event list per provider+date, DOWlist, provinfo, and any per-view derived data (currentMonth label, dateRange string, etc.)
+- Be unit-testable in isolation (no DB; tests pass fixture inputs and assert output structure)
+
+With that DTO in hand, each template becomes `{% for provider in vm.providers %}{% for date, events in provider.events %}{% for event in events %}{{ event.displayTime|text }} {{ event.content|raw }}{% endfor %}{% endfor %}{% endfor %}` — pure iteration, zero formatting.
+
+The DB lookups (`getProviderInfo()`, `sqlStatement()` for user info in ajax_search) move into the service layer too, called once at construction. Templates do no I/O.
+
+## Session-3 plan (next time)
+
+1. Read all 6 calendar-rendering templates in full; catalog every variable accessed and every derivation done in [-php-] blocks. Output: a "view model contract" spec.
+2. Implement `PostCalendarViewModel` (or whatever it ends up being named) under `src/PostCalendar/`. Single class with a `build(): CalendarRenderData` method or similar. Constructor takes the raw inputs as typed args.
+3. Write isolated unit tests for the view model: fixture-data input, asserted output structure. No DB.
+4. Convert the smallest template (e.g. `month_print/outlook_ajax_template.html` → `.twig`) against the new contract first. Confirm compilation. Re-capture against harness baseline once consumer switches.
+5. Convert remaining 5 templates one by one. Each commit independently compilable.
+6. Switch the relevant consumer (pnuserapi/pnuser/pnadmin) to `CalendarRenderer` + view-model. End-to-end diff against `.ai-notes/snapshots/baseline/` is the verification gate.
+
+Estimated effort: 4-8 hours focused work for the view-model + 6 templates, depending on how clean the extraction lands.
 
 ## Verification harness (load-bearing — DO before phase 4)
 
