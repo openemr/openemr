@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PostCalendar\CalendarRenderer;
@@ -455,7 +456,7 @@ function postcalendar_user_search()
                 $aid = $event['aid'] ?? null;
                 $provInfo = null;
                 if (is_int($aid) || (is_string($aid) && $aid !== '')) {
-                    $provInfo = \OpenEMR\Common\Database\QueryUtils::fetchSingleRow('SELECT * FROM users WHERE id=?', [$aid]);
+                    $provInfo = QueryUtils::fetchSingleRow('SELECT * FROM users WHERE id=?', [$aid]);
                 }
 
                 $startTimeRaw = $event['startTime'] ?? '00:00:00';
