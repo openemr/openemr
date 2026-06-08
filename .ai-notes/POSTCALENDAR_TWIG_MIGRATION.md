@@ -97,7 +97,7 @@ Concentrated in 7 templates (day/week/month ajax_template + their _print variant
 
 1. **Foundation classes** (PostCalendarTwigExtension + CalendarRenderer) — empty methods initially. ✅ session 1.
 2. **Smallest templates first** (footer + 3 view defaults) — get the compile pipeline working. ✅ session 1.
-3. **Golden snapshot harness (Phase 0 follow-up)** — capture pre-migration rendered HTML against the current master Smarty output for every reachable view. Pre-requisite for everything below. ⏳ session 2 first task.
+3. **Golden snapshot harness (Phase 0 follow-up)** — capture pre-migration rendered HTML against the current master Smarty output for every reachable view. Pre-requisite for everything below. ✅ session 2 first task — `.ai-notes/snapshots/capture.sh` + 8 baseline fixtures in `.ai-notes/snapshots/baseline/`.
 4. **Plugins → Twig functions** — port `pc_date_format`, `pc_url`, etc. as Twig methods, one at a time. Each port verified against the snapshot harness.
 5. **Header template** — first template with `[-php-]` blocks. Extract `create_event_time_anchor` to a method on PostCalendarTwigExtension, move session reads to PHP caller, pass body_class / title / HEADER_SCRIPTS / HEADER_STYLES as template vars.
 6. **Medium templates** (user/ajax_search, admin/submit_category) — no `[-php-]` blocks, mechanical conversion.
@@ -120,15 +120,19 @@ No automated calendar render tests exist in master today. The harness must be bu
 - `admin/submit_category.html`
 - `user/ajax_search.html`
 
-**Capture strategy** — invoke `pcSmarty::fetch()` directly with a controlled input set (specific date, deterministic provider list, fixed event list). Deterministic, no auth needed, runs in isolated PHPUnit. Compare future Twig output via the same input-set construction.
+**Capture strategy** — HTTP capture against the running dev-easy stack with admin credentials, fixed date (20260601 — past seed-data window, so view templates render the "empty event list" branch). Out-of-band sed normalisation strips per-request variability (cache-busting `?v=N`/`?t=N`, CSRF tokens, nonces). Script at `.ai-notes/snapshots/capture.sh`; baseline fixtures in `.ai-notes/snapshots/baseline/`.
 
-**Input set construction**: study what `pnuserapi.php` assigns before each fetch and replicate it as fixture data. Likely needs a small "PostCalendarTestFixtures" helper that builds the assignment array for each view.
+**Why HTTP and not direct `pcSmarty::fetch()`**: the consumer files (pnuserapi/pnuser/pnadmin) build the assignment array from session state, GET params, DB lookups, and module function dispatch. Replicating that scaffolding in isolated PHPUnit would have been its own project. HTTP capture exercises the production code path end-to-end, with the trade-off that the baseline is tied to specific seed data and one running stack. After conversion, re-run capture.sh against the Twig output and `diff -r` the two trees.
 
-**Output normalization**: strip timestamps, CSRF tokens, session-ID-derived nonces, anything else date-of-render dependent. Diff the structural remainder.
+**Output normalization**: cache-busting `?v=N` / `?t=N` query params, CSRF tokens (16-byte hex), session-derived `nonce-…` identifiers. Other per-request randomness (if any surfaces in the diff later) gets added to the sed pipeline in capture.sh.
 
-**Storage**: `tests/Tests/Isolated/PostCalendar/fixtures/render/{view}.html` — matches the existing OpenEMR Twig render-test convention so `composer update-twig-fixtures` can be extended to regenerate.
+**Storage**: `.ai-notes/snapshots/baseline/{view}.html`, gitignored — point-in-time captures, regeneratable via capture.sh from current master. Contain upstream-Smarty HTML with typos that trip codespell (one variant of "modal" recurs 16 times in `admin_categories`), which is the proximate reason for not committing. If render verification proves load-bearing for CI later, promote to `tests/Tests/Isolated/PostCalendar/fixtures/render/` and integrate with `composer update-twig-fixtures` (with codespell skip for that path).
 
-**Estimated effort**: ½ day to build the harness skeleton + one view. Each additional view ~1-2 hours once the pattern is set. Total ~2 days for all 8.
+**To use across sessions**: re-run `.ai-notes/snapshots/capture.sh .ai-notes/snapshots/baseline` against pre-migration master, then check out the work branch — the baseline persists in the working tree (it's gitignored, not git-clean'd). To capture post-migration state for diffing, target a different dir: `capture.sh .ai-notes/snapshots/post-migration` (also gitignored), then `diff -r baseline/ post-migration/`.
+
+**Coverage**: 8 views — day, week, month, day_print, week_print, month_print, user_search, admin_categories. Print views and the 3 main views together exercise all 6 ajax_template families; user_search covers user/ajax_search.html; admin_categories covers admin/submit_category.html.
+
+**Actual effort**: built and run in one session (~30 min including login-form CSRF dead-end and a `set -u` foot-gun in normalise()). Faster than the ½-day estimate because HTTP capture sidestepped the PHPUnit fixture-construction work entirely.
 
 **Why session-2-first**: session 1's commits added foundation classes + 4 dormant template files. None of those affect rendered output, so the missing harness didn't bite yet. The moment session 2 starts porting plugins (which produce HTML strings that templates emit), every plugin port becomes "does this match what Smarty did?" — and without the harness, the only answer is manual eyeballing the rendered page.
 
