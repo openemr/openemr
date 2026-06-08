@@ -1,0 +1,296 @@
+{# day-screen ajax_template — Smarty→Twig conversion.
+
+   Most structural scaffolding is identical to month-screen
+   (provider picker + date nav + view picker + mini-cal). The
+   difference is the big-cal area: each provider gets a single column
+   with absolutely-positioned event DIVs over a times column, instead
+   of a 7-day grid.
+
+   Input contract — extends the month-screen contract with these
+   day-specific additions:
+
+   - PREV_DAY_URL, NEXT_DAY_URL : nav URLs (replacing prev/next month)
+   - timeRows : list of {hour, minute, displayLabel, isHalfHour?} —
+       consumer pre-formats the displayable hour:minute string
+   - openHourSlot : index into timeRows of the first slot at/after
+       clinic open (legacy uses this only for header positioning)
+   - dayHeaderLabel : e.g. "Sunday March 15 2026"
+   - timeslotCss : "20px" — height of one slot row (pre-formatted)
+   - providers : list of {id, fname, lname, classForWeekend, events}
+       Each event extends the month-screen event shape with the
+       geometry/IN-event fields:
+         - evtTopCss, evtHeightCss : CSS strings with unit baked in
+         - divWidthCss : "width: 50%" / "" (overlap-derived)
+         - divLeftCss : "left: 50%" / "" (overlap-derived)
+         - inLabelTopCss, inLabelHeightCss : only for catid 2 events;
+           the geometry for the time-label DIV above the actual event
+         - inLabelContent : only for catid 2; the pre-built
+           "dispstarth:startm content" HTML for the label DIV
+#}
+
+<form name="theform" id="theform" action="index.php?module=PostCalendar&amp;func=view&amp;tplview=default&amp;pc_category=&amp;pc_topic=" method="post" onsubmit="return top.restoreSession()">
+<div class="container-fluid sticky-top">
+<div id="topToolbarRight" class="bgcolor2">
+    <div id="functions">
+        <a id="menu-toggle" href="#" class="btn btn-outline-dark"><i class="fas fa-bars"></i></a>
+        <input type="hidden" name="jumpdate" id="jumpdate" value="" />
+        <input type="hidden" name="viewtype" id="viewtype" value="{{ viewtype|attr }}" />
+        <a href="#" title="{{ 'New Appointment'|xla }}" onclick="newEvt(1, 9, 00, {{ Date|attr_js }}, 0, 0)" class="btn btn-primary"><i class="fa fa-plus"></i></a>
+        <a href="#" title="{{ 'Search Appointment'|xla }}" onclick='top.restoreSession();location="index.php?module=PostCalendar&amp;func=search"' class="btn btn-primary"><i class="fa fa-search"></i></a>
+        {% if not isToday %}
+            <a href="#" name="bnsubmit" value="{{ 'Today'|xla }}" onclick="GoToToday(theform);" class="btn btn-primary">{{ 'Today'|xlt }}</a>
+        {% endif %}
+    </div>
+
+    <div id="dateNAV">
+        <a id="prevday" href="{{ PREV_DAY_URL }}" onclick="top.restoreSession()" title="{{ 'Previous Day'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
+        {{ dayHeaderLabel|text }}
+        <a id="nextday" href="{{ NEXT_DAY_URL }}" onclick="top.restoreSession()" title="{{ 'Next Day'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
+    </div>
+
+    <div id="viewPicker">
+        <a href="#" id="printview" title="{{ 'View Printable Version'|xla }}" class="btn btn-primary"><i class="fa fa-print"></i></a>
+        <a href="#" title="{{ 'Refresh'|xla }}" onclick="javascript:refreshme()" class="btn btn-primary"><i class="fa fa-sync"></i></a>
+        <a href="#" type="button" id="dayview" title="{{ 'Day View'|xla }}" class="btn btn-primary">{{ 'Day'|xlt }}</a>
+        <a href="#" type="button" id="weekview" title="{{ 'Week View'|xla }}" class="btn btn-primary">{{ 'Week'|xlt }}</a>
+        <a href="#" type="button" id="monthview" title="{{ 'Month View'|xla }}" class="btn btn-primary">{{ 'Month'|xlt }}</a>
+    </div>
+</div>
+</div>
+
+<div class="sticky-top">
+<div id="bottomLeft" class="sidebar-wrapper">
+<div id="datePicker">
+    {{ monthSelectorHtml|raw }}
+    <div class="table-responsive">
+        <table class="table table-sm table-borderless">
+            <tbody>
+                <tr>
+                    <td class="tdDOW-small tdDatePicker tdNav" id="{{ prevMonth|attr }}" title="{{ prevMonthName|xla }}">&lt;</td>
+                    <td colspan="5" class="tdMonthName-small">{{ currentMiniCal.monthLabel|xl }}</td>
+                    <td class="tdDOW-small tdDatePicker tdNav" id="{{ nextMonth|attr }}" title="{{ nextMonthName|xla }}">&gt;</td>
+                </tr>
+                <tr>
+                    {% for dow in dowList %}
+                        <td class="tdDOW-small">{{ A_SHORT_DAY_NAMES[dow]|text }}</td>
+                    {% endfor %}
+                </tr>
+                {% for week in currentMiniCal.weeks %}
+                    <tr>
+                        {% for day in week %}
+                            {% set tdClass = 'tdMonthDay-small' %}
+                            {% if not day.inMonth %}
+                                {% set tdClass = 'tdOtherMonthDay-small' %}
+                            {% endif %}
+                            {% if day.isWeekend %}
+                                {% set tdClass = 'tdWeekend-small' %}
+                            {% endif %}
+                            {% if day.isCurrent %}
+                                {% set tdClass = tdClass ~ ' currentDate' %}
+                            {% endif %}
+                            {% set tdClass = tdClass ~ ' tdDatePicker' %}
+                            <td class="{{ tdClass|attr }}" id="{{ day.dateYmd|attr }}" title="{{ 'Go to'|xla }} {{ day.dateYmd|attr }}"> {{ day.day|text }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div id="providerPicker">
+    {{ 'Providers'|xlt }}
+    <div>
+        {% if showFacilitySelect %}
+            <select name="pc_facility" id="pc_facility" class="view1 form-control">
+                {% if showAllFacilitiesOption %}
+                    <option class="bg-info" value="0" {% if not pc_facility %}selected="selected"{% endif %}>{{ 'All Facilities'|xlt }}</option>
+                {% endif %}
+                {% for fa in facilities %}
+                    <option class="bg-info" value="{{ fa.id|attr }}" {% if pc_facility == fa.id %}selected="selected"{% endif %}>{{ fa.name|text }}</option>
+                {% endfor %}
+            </select>
+        {% endif %}
+    </div>
+    <select multiple size="5" name="pc_username[]" id="pc_username" class="view2 form-control">
+        <option value="__PC_ALL__">{{ 'All Users'|xlt }}</option>
+        {% for doc in provinfo %}
+            <option value="{{ doc.username|attr }}" {% if doc.username in selectedUsernames %}selected{% endif %}>{{ doc.lname|text }}, {{ doc.fname|text }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+{% if pc_facility == 0 %}
+    <ul class="list-group list-group-flush" id="facilityColor">
+        {% for f in facilities %}
+            <li class="list-group-item" style="border-left: 35px solid {{ f.color|attr }};">{{ f.name|text }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div id="popup" class="pop-up">
+    <img id="popupImage" alt="" />
+</div>
+</div><!-- end bottomLeft -->
+</div>
+
+<div class="page-content-wrapper">
+<div class="container-fluid calsearch_body">
+<div id="bigCal">
+    <div class="table-responsive">
+        <table class="table border-0">
+            <tr>
+                <td id="times">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <tr><td class="timeslot providerXbtn" data-username="__PC_ALL__"><i class="fa fa-lg fa-user-md"></i></td></tr>
+                            {% for slot in timeRows %}
+                                <tr>
+                                    <td class="timeslot">
+                                        <a href="javascript:newEvt({{ slot.startampm|attr_js }},{{ slot.hour|attr_js }},{{ slot.minute|attr_js }},{{ Date|attr_js }},0,0)" title="{{ 'New Appointment'|xla }}" alt="{{ 'New Appointment'|xla }}">
+                                            {{ slot.displayLabel|text }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </td>
+
+                {% for provider in providers %}
+                    <td class="schedule {{ provider.classForWeekend|attr }}" title="{{ provider.fname|attr }} {{ provider.lname|attr }}" date="{{ Date|attr }}" provider="{{ provider.id|attr }}">
+                        <div class="providerheader providerday">
+                            {{ provider.fname|text }} {{ provider.lname|text }}
+                            <a class="providerXbtn userClose" data-username="{{ provider.username|attr }}"></a>
+                        </div>
+                        <div class="calendar_day">
+                            {% for event in provider.events %}
+                                {% if event.catid == 2 %}
+                                    {# IN event: label DIV above the body DIV, both share the wrapper class.
+                                       The body DIV stays empty for IN — the legacy renders content via the
+                                       label DIV with no background, then an empty bg-colored body DIV. #}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event in_start"
+                                         style="top:{{ event.inLabelTopCss }}; height:{{ event.inLabelHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}; border: none"
+                                         title="{{ event.tooltip|attr }}"
+                                         id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                        {{ event.inLabelContent|raw }}
+                                    </div>
+                                {% endif %}
+
+                                {% if event.catid != 6 %}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                         style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; background-color: {{ event.displayBgColor }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
+                                         title="{{ event.tooltip|attr }}"
+                                         id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                        {% if event.catid != 2 %}
+                                            {{ event.displayContentHtml|raw }}
+                                        {% endif %}
+                                    </div>
+                                {% else %}
+                                    {# catid 6 (HOLIDAY): legacy applies bg in CSS, not inline #}
+                                    <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                         style="top:{{ event.evtTopCss }}; height:{{ event.evtHeightCss }}; {{ event.divWidthCss }}; {{ event.divLeftCss }}"
+                                         title="{{ event.tooltip|attr }}"
+                                         id="{{ event.eventDate|attr }}-{{ event.eid|attr }}-{{ event.pccattype|attr }}">
+                                        {{ event.displayContentHtml|raw }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+</div>
+</div>
+</form>
+</div>
+
+<script>
+$(function () {
+    $("#pc_username").change(function() { ChangeProviders(this); });
+    $("#pc_facility").change(function() { ChangeProviders(this); });
+    $("#weekview").click(function() { ChangeView(this); });
+    $("#monthview").click(function() { ChangeView(this); });
+    $(".tdDatePicker").click(function() { ChangeDate(this); });
+    $("#datePicker .tdNav").mouseover(function() { $(this).toggleClass("tdDatePickerHighlight"); });
+    $("#datePicker .tdNav").mouseout(function() { $(this).toggleClass("tdDatePickerHighlight"); });
+    $("#printview").click(function() { PrintView(this); });
+    $(".event").dblclick(function() { EditEvent(this); });
+    $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
+    $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+});
+
+function ShowImage(src) {
+    var img = document.getElementById('popupImage');
+    var div = document.getElementById('popup');
+    img.src = src;
+    div.style.display = "block";
+}
+
+function HideImage() {
+    document.getElementById('popup').style.display = "none";
+}
+
+function goPid(pid) {
+    top.restoreSession();
+    top.RTop.location = '../../patient_file/summary/demographics.php?set_pid=' + encodeURIComponent(pid);
+}
+
+function goGid(gid) {
+    top.restoreSession();
+    top.RTop.location = '{{ webroot }}/therapy_groups/index.php?method=groupDetails&group_id=' + encodeURIComponent(gid);
+}
+
+function GoToToday(form) {
+    var today = new Date();
+    var y = today.getFullYear();
+    var m = (today.getMonth() + 1).toString().padStart(2, '0');
+    var d = today.getDate().toString().padStart(2, '0');
+    form.jumpdate.value = y + m + d;
+    form.submit();
+}
+
+function refreshme() {
+    top.restoreSession();
+    location.reload();
+}
+
+function ChangeProviders(elem) {
+    top.restoreSession();
+    document.getElementById('theform').submit();
+}
+
+function ChangeView(elem) {
+    top.restoreSession();
+    var viewType = elem.id.replace('view', '');
+    document.getElementById('viewtype').value = viewType;
+    document.getElementById('theform').submit();
+}
+
+function ChangeDate(elem) {
+    top.restoreSession();
+    document.getElementById('jumpdate').value = elem.id;
+    document.getElementById('theform').submit();
+}
+
+function PrintView(elem) {
+    top.restoreSession();
+    var url = "index.php?module=PostCalendar&func=view&viewtype={{ viewtype|attr_js }}&tplview=default&Date={{ Date|attr_js }}&print=1";
+    window.open(url, '_blank');
+}
+
+function EditEvent(elem) {
+    if ($(elem).hasClass('hiddenevent')) { return; }
+    var parts = elem.id.split("-");
+    var eventDate = parts[0];
+    var eventId = parts[1];
+    var pccattype = parts[2];
+    if ($(elem).hasClass('groups')) {
+        oldGroupEvt('add_edit_event.php?date=' + encodeURIComponent(eventDate) + '&eid=' + encodeURIComponent(eventId));
+    } else {
+        oldEvt('add_edit_event.php?date=' + encodeURIComponent(eventDate) + '&eid=' + encodeURIComponent(eventId) + '&type=' + encodeURIComponent(pccattype));
+    }
+}
+</script>
