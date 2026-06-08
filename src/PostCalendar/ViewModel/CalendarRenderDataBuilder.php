@@ -718,6 +718,12 @@ final readonly class CalendarRenderDataBuilder
                 ? (is_int($facilityRow['id']) || is_string($facilityRow['id']) ? (int) $facilityRow['id'] : 0)
                 : 0;
 
+            // i18n decoration before content build — tooltip date prefix
+            // via dateformat() (locale-aware day-name + month-name +
+            // ordering) and patient_dob via oeFormatShortDate (respects
+            // date_display_format). Legacy templates did this inline.
+            $event = $this->addI18nDateDecoration($event, $eventDate);
+
             $built = $this->viewModel->buildMonthScreenEventContent(
                 $event,
                 $eventDate,
@@ -1144,6 +1150,9 @@ final readonly class CalendarRenderDataBuilder
             $divWidthCss = $position !== null ? 'width: ' . $position['width'] . '%' : '';
             $divLeftCss = $position !== null ? 'left: ' . $position['leftpos'] . '%' : '';
 
+            // i18n decoration before content build (see month-screen).
+            $event = $this->addI18nDateDecoration($event, $eventDate);
+
             $built = $this->viewModel->buildWeekScreenEventContent(
                 $event,
                 $calendarApptStyle,
@@ -1290,6 +1299,9 @@ final readonly class CalendarRenderDataBuilder
             $divWidthCss = $position !== null ? 'width: ' . $position['width'] . '%' : '';
             $divLeftCss = $position !== null ? 'left: ' . $position['leftpos'] . '%' : '';
 
+            // i18n decoration before content build (see month-screen).
+            $event = $this->addI18nDateDecoration($event, $eventDate);
+
             $built = $this->viewModel->buildDayScreenEventContent(
                 $event,
                 $calendarApptStyle,
@@ -1379,6 +1391,37 @@ final readonly class CalendarRenderDataBuilder
     {
         $ts = strtotime($ymd);
         return $ts !== false ? date('F', $ts) : '';
+    }
+
+    /**
+     * Decorate an event with i18n-formatted date fields the content
+     * builders expect on their event input:
+     *
+     *  - `tooltip_date_prefix`: dateformat() with day-of-week — respects
+     *    user language (Swedish/Dutch/German/Hebrew/Spanish use day-month-year
+     *    ordering vs English month-day-year, day and month names localized).
+     *  - `patient_dob`: oeFormatShortDate() — respects user's
+     *    date_display_format global (0=YYYY-MM-DD, 1=MM/DD/YYYY, 2=DD/MM/YYYY).
+     *
+     * Both overwrite anything already on the event. The legacy templates
+     * computed both inline in [-php-] blocks; this method centralizes them
+     * so the three screen decorators don't each have to duplicate the
+     * calls.
+     *
+     * @param  array<string, mixed> $event
+     * @return array<string, mixed>
+     */
+    private function addI18nDateDecoration(array $event, string $eventDate): array
+    {
+        $dateTs = strtotime($eventDate);
+        $event['tooltip_date_prefix'] = $dateTs !== false ? dateformat($dateTs, true) : '';
+
+        $rawDob = $event['patient_dob'] ?? null;
+        if (is_string($rawDob) && $rawDob !== '') {
+            $event['patient_dob'] = oeFormatShortDate($rawDob);
+        }
+
+        return $event;
     }
 
     /**

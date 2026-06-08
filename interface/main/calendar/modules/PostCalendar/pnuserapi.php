@@ -666,9 +666,12 @@ function postcalendar_userapi_buildView($args)
             $sessionAuthorizedUser = $session->get('authorizeduser');
             $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
 
+            // Month-screen page header — legacy was xlt(date('F', $ts)) . ' ' . text(date('Y', $ts)).
+            // That translates the English month name via the translation catalog (less
+            // sophisticated than dateformat() but matches what the legacy emitted).
             $currentMonthLabelTs = strtotime((string) $Date);
             $currentMonthLabel = $currentMonthLabelTs !== false
-                ? date('F', $currentMonthLabelTs) . ' ' . date('Y', $currentMonthLabelTs)
+                ? xlt(date('F', $currentMonthLabelTs)) . ' ' . text(date('Y', $currentMonthLabelTs))
                 : '';
 
             $renderData = $builder->buildMonthScreenRenderData(
@@ -712,10 +715,10 @@ function postcalendar_userapi_buildView($args)
             $sessionAuthorizedUser = $session->get('authorizeduser');
             $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
 
+            // Day-screen page header — legacy used dateformat(strtotime($atmp[0]), true)
+            // which respects user language for day/month names and date ordering.
             $dayHeaderTs = strtotime((string) $Date);
-            $dayHeaderLabel = $dayHeaderTs !== false
-                ? date('l F j Y', $dayHeaderTs)
-                : '';
+            $dayHeaderLabel = $dayHeaderTs !== false ? dateformat($dayHeaderTs, true) : '';
 
             $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
             $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
@@ -763,14 +766,17 @@ function postcalendar_userapi_buildView($args)
             $sessionAuthorizedUser = $session->get('authorizeduser');
             $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
 
-            // Week header: "March 15 - 21 2026" style, from first/last
-            // dates in $aEvents.
+            // Week-screen page header — legacy emitted "$first_month_name $first_day - $last_month_name $last_day"
+            // where the month-names came from the localized pnModAPIFunc('getmonthname')
+            // helper. Using xlt(date('F')) + text(date('d')) approximates that with the
+            // same xlt-on-English-month-name pattern used elsewhere in OpenEMR templates.
             $eventDates = array_keys($aEvents);
             $firstDateTs = !empty($eventDates) ? strtotime((string) $eventDates[0]) : false;
             $lastDateTs = !empty($eventDates) ? strtotime((string) $eventDates[count($eventDates) - 1]) : false;
-            // Legacy format: "01 Jun 2026 - 07 Jun 2026"
             $weekHeaderLabel = ($firstDateTs !== false && $lastDateTs !== false)
-                ? date('d M Y', $firstDateTs) . ' - ' . date('d M Y', $lastDateTs)
+                ? xlt(date('F', $firstDateTs)) . ' ' . text(date('d', $firstDateTs))
+                    . ' - '
+                    . xlt(date('F', $lastDateTs)) . ' ' . text(date('d', $lastDateTs))
                 : '';
 
             $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
