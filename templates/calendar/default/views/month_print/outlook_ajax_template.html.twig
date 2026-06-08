@@ -1,0 +1,115 @@
+{# month_print outlook calendar — Smarty→Twig conversion.
+
+   Input contract (provided by the consumer, populated using CalendarViewModel
+   primitives plus per-event decoration):
+
+   - providers : list of {id, fname, lname}
+   - dowList : list<int> of 7 weekday indices from CalendarViewModel::dayOfWeekList()
+   - A_SHORT_DAY_NAMES : 7 localized day-name strings indexed 0..6
+   - dateLabel : "March 2026" style label for the page header
+   - dayHeaderDates : first 7 ISO date strings (YYYY-MM-DD) from A_EVENTS keys
+   - currentMonthMini, nextMonthMini : dicts from CalendarViewModel::buildMiniCalendar()
+   - A_EVENTS : ordered map of "YYYY-MM-DD" => list of pre-decorated events.
+       Each event must carry these fields (consumer populates from
+       CalendarViewModel methods plus per-view content build):
+       - eid           : raw event ID
+       - aid           : provider ID owning the event
+       - catid         : raw category ID (used to skip catids 2 and 3)
+       - evtClass      : CSS class (eventClassForCategory + eventViewClass override)
+       - catcolor      : raw color string for background-color
+       - content       : pre-built HTML string for the event body
+       - eventDateYmd  : YYYYMMDD form of the event's date key (consumer derives)
+   - dowOfDate : map of "YYYY-MM-DD" => int weekday (0=Sun..6=Sat), used by the
+       row open/close logic. Pre-computed by consumer to avoid mid-template
+       date math.
+#}
+
+<!DOCTYPE html>
+<html>
+<head>
+    {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_textformat', 'no_dialog']) }}
+    <style>
+        a { text-decoration: none; }
+        td { font-family: Arial, Helvetica, sans-serif; }
+        div.tiny { width: 1px; height: 1px; font-size: 1px; }
+        #bigCalHeader { width: 100%; height: 20%; font-family: Arial, Helvetica, sans-serif; font-size: 1em; }
+        #bigCalText { float: left; }
+        #provname { font-size: 2em; }
+        #daterange { font-size: 1.8em; font-weight: bold; }
+        #bigCal { width: 100%; height: 80%; overflow: hidden; background-color: lightblue; }
+        .pagebreak { page-break-after: always; }
+        .schedule { background-color: pink; vertical-align: top; padding: 0px; margin: 0px; border: 1px solid #999999; }
+        .event_appointment, .event_noshow, .event_in, .event_out, .event_reserved, .event_holiday {
+            overflow: hidden; width: 100%; font-size: 0.8em; border-bottom: 1px solid lightgrey;
+        }
+        .event_appointment { height: 1.4em; }
+        .event_in { background-color: white; width: 100%; }
+        .event_out { background-color: pink; width: 100%; }
+    </style>
+</head>
+<body>
+
+{% for provider in providers %}
+    {% if not loop.first %}
+        <div class="pagebreak"></div>
+    {% endif %}
+
+    <div id="bigCalHeader">
+        <div id="bigCalText">
+            <span id="provname">{{ provider.fname|text }} {{ provider.lname|text }}</span>
+            <br />
+            <span id="daterange">{{ dateLabel|text }}</span>
+        </div>
+        <div id="datePicker">
+            {% include 'calendar/default/views/_mini_calendar.html.twig' with {
+                mini: nextMonthMini,
+                dowList: dowList,
+                dayNames: A_SHORT_DAY_NAMES,
+                hideOutOfMonth: true
+            } only %}
+        </div>
+        <div id="datePicker">
+            {% include 'calendar/default/views/_mini_calendar.html.twig' with {
+                mini: currentMonthMini,
+                dowList: dowList,
+                dayNames: A_SHORT_DAY_NAMES,
+                hideOutOfMonth: true
+            } only %}
+        </div>
+    </div>
+
+    <div id="bigCal">
+        <table>
+            <tr>
+                {% for date in dayHeaderDates %}
+                    <th>{{ date|date('l')|xlt }}</th>
+                {% endfor %}
+            </tr>
+
+            {% for date, events in A_EVENTS %}
+                {% if dowOfDate[date] == dowList[0] %}<tr>{% endif %}
+                <td class="schedule">
+                    <div style="position: relative; height: 100%; width: 100%;">
+                        <div style="width:100%; font-size: 0.8em; text-align:right; background-color:lightgrey; padding:1px 2px 1px 2px;">
+                            {{ date|date('d')|text }}
+                        </div>
+                        {% set rendered = 0 %}
+                        {% for event in events %}
+                            {% if event.aid == provider.id and event.catid != 2 and event.catid != 3 %}
+                                {% set rendered = rendered + 1 %}
+                                <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }}" style="background-color:{{ event.catcolor|attr }};">
+                                    {{ event.content|raw }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% if rendered == 0 %}&nbsp;{% endif %}
+                    </div>
+                </td>
+                {% if dowOfDate[date] == dowList[6] %}</tr>{% endif %}
+            {% endfor %}
+        </table>
+    </div>
+{% endfor %}
+
+</body>
+</html>
