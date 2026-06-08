@@ -35,20 +35,56 @@ final class BranchVersionResolverTest extends TestCase
         $this->removeRecursive($this->tmpDir);
     }
 
-    public function testBranchToVersionParsesRel810(): void
+    public function testBranchToVersionCutsDotZeroWhenMinorLineHasNoTag(): void
     {
-        self::assertSame('8.1.0', BranchVersionResolver::branchToVersion('rel-810'));
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.1.0', $resolver->branchToVersion('rel-810'));
     }
 
-    public function testBranchToVersionParsesRel700(): void
+    public function testBranchToVersionCutsDotZeroOnFreshRepoForRel700(): void
     {
-        self::assertSame('7.0.0', BranchVersionResolver::branchToVersion('rel-700'));
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('7.0.0', $resolver->branchToVersion('rel-700'));
+    }
+
+    public function testBranchToVersionCutsNextPatchAfterExistingRelease(): void
+    {
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 released 2026-05-01']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.1.1', $resolver->branchToVersion('rel-810'));
+    }
+
+    public function testBranchToVersionPicksHighestPatchOnMinorLine(): void
+    {
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 released 2026-05-01']);
+        $this->git(['tag', '-a', 'v8_1_1', '-m', 'OpenEMR 8.1.1 released 2026-05-15']);
+        $this->git(['tag', '-a', 'v8_1_2', '-m', 'OpenEMR 8.1.2 released 2026-06-01']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.1.3', $resolver->branchToVersion('rel-810'));
+    }
+
+    public function testBranchToVersionIgnoresTagsOnOtherMinorLines(): void
+    {
+        // Tags on 8.0.x and 8.2.x must not influence the patch chosen
+        // for the 8.1 line.
+        $this->git(['tag', '-a', 'v8_0_5', '-m', 'OpenEMR 8.0.5 released 2026-03-01']);
+        $this->git(['tag', '-a', 'v8_2_0', '-m', 'OpenEMR 8.2.0 released 2026-07-01']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.1.0', $resolver->branchToVersion('rel-810'));
+    }
+
+    public function testBranchToVersionIgnoresNonReleaseVTags(): void
+    {
+        $this->git(['tag', 'v8_1_x-nightly']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.1.0', $resolver->branchToVersion('rel-810'));
     }
 
     public function testBranchToVersionRejectsBadInput(): void
     {
+        $resolver = new BranchVersionResolver($this->tmpDir);
         $this->expectException(\InvalidArgumentException::class);
-        BranchVersionResolver::branchToVersion('main');
+        $resolver->branchToVersion('main');
     }
 
     public function testPreviousReleaseFallsBackWhenNoTagExists(): void

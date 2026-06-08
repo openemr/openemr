@@ -29,14 +29,26 @@ final readonly class BranchVersionResolver
     ) {
     }
 
-    public static function branchToVersion(string $branch): string
+    /**
+     * Translate a rel-<MAJOR><MINOR>0 branch to the version it should
+     * cut next. The trailing 0 is a structural marker — there is one
+     * release branch per minor line, so rel-810 is the home for all of
+     * 8.1.x — not the patch digit. The patch is derived from tags:
+     * the highest existing v<MAJOR>_<MINOR>_* patch plus one, or 0 when
+     * no release has been cut on that minor line yet.
+     */
+    public function branchToVersion(string $branch): string
     {
         if (preg_match('/^rel-(\d+)(\d)0$/', $branch, $m) !== 1) {
             throw new \InvalidArgumentException(
                 'branch must match rel-<MAJOR><MINOR>0; got: ' . $branch,
             );
         }
-        return sprintf('%s.%s.0', $m[1], $m[2]);
+        $major = (int) $m[1];
+        $minor = (int) $m[2];
+        $highestPatch = $this->highestPatchOnMinorLine($major, $minor);
+        $nextPatch = $highestPatch === null ? 0 : $highestPatch + 1;
+        return sprintf('%d.%d.%d', $major, $minor, $nextPatch);
     }
 
     /**
@@ -66,23 +78,57 @@ final readonly class BranchVersionResolver
 
     private function latestVersionTagBelow(string $targetVersion): ?string
     {
-        $process = new Process(['git', 'tag', '--list', 'v*', '--sort=-v:refname'], $this->repoDir);
-        $process->mustRun();
-        $output = trim($process->getOutput());
-        if ($output === '') {
-            return null;
-        }
-        $split = preg_split('/\R/', $output);
-        $lines = $split === false ? [] : $split;
-        foreach ($lines as $tag) {
-            if (preg_match('/^v(\d+)_(\d+)_(\d+)$/', $tag, $m) !== 1) {
-                continue;
-            }
-            $candidate = sprintf('%s.%s.%s', $m[1], $m[2], $m[3]);
+        foreach ($this->releaseTags() as [$major, $minor, $patch]) {
+            $candidate = sprintf('%d.%d.%d', $major, $minor, $patch);
             if (version_compare($candidate, $targetVersion, '<')) {
                 return $candidate;
             }
         }
         return null;
+    }
+
+    /**
+     * Highest PATCH among v<MAJOR>_<MINOR>_* tags on the given minor
+     * line, or null when no release has been cut on that line yet.
+     */
+    private function highestPatchOnMinorLine(int $major, int $minor): ?int
+    {
+        $highest = null;
+        foreach ($this->releaseTags() as [$tagMajor, $tagMinor, $tagPatch]) {
+            if ($tagMajor !== $major || $tagMinor !== $minor) {
+                continue;
+            }
+            if ($highest === null || $tagPatch > $highest) {
+                $highest = $tagPatch;
+            }
+        }
+        return $highest;
+    }
+
+    /**
+     * All v<MAJOR>_<MINOR>_<PATCH> release tags in the repo, parsed into
+     * [major, minor, patch] tuples and sorted descending by version
+     * (highest first). Non-release v* tags are skipped.
+     *
+     * @return list<array{int, int, int}>
+     */
+    private function releaseTags(): array
+    {
+        $process = new Process(['git', 'tag', '--list', 'v*', '--sort=-v:refname'], $this->repoDir);
+        $process->mustRun();
+        $output = trim($process->getOutput());
+        if ($output === '') {
+            return [];
+        }
+        $split = preg_split('/\R/', $output);
+        $lines = $split === false ? [] : $split;
+        $tags = [];
+        foreach ($lines as $tag) {
+            if (preg_match('/^v(\d+)_(\d+)_(\d+)$/', $tag, $m) !== 1) {
+                continue;
+            }
+            $tags[] = [(int) $m[1], (int) $m[2], (int) $m[3]];
+        }
+        return $tags;
     }
 }
