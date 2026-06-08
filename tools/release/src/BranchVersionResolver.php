@@ -110,11 +110,18 @@ final readonly class BranchVersionResolver
      * [major, minor, patch] tuples and sorted descending by version
      * (highest first). Non-release v* tags are skipped.
      *
+     * Only annotated tags count: the release spec requires `git tag -a`
+     * (see TagVerifier), so a lightweight tag whose name happens to look
+     * like a release must not influence the derived version.
+     *
      * @return list<array{int, int, int}>
      */
     private function releaseTags(): array
     {
-        $process = new Process(['git', 'tag', '--list', 'v*', '--sort=-v:refname'], $this->repoDir);
+        $process = new Process(
+            ['git', 'tag', '--list', 'v*', '--sort=-v:refname', '--format=%(objecttype) %(refname:short)'],
+            $this->repoDir,
+        );
         $process->mustRun();
         $output = trim($process->getOutput());
         if ($output === '') {
@@ -123,7 +130,15 @@ final readonly class BranchVersionResolver
         $split = preg_split('/\R/', $output);
         $lines = $split === false ? [] : $split;
         $tags = [];
-        foreach ($lines as $tag) {
+        foreach ($lines as $line) {
+            $parts = explode(' ', $line, 2);
+            if (count($parts) !== 2) {
+                continue;
+            }
+            [$objectType, $tag] = $parts;
+            if ($objectType !== 'tag') {
+                continue;
+            }
             if (preg_match('/^v(\d+)_(\d+)_(\d+)$/', $tag, $m) !== 1) {
                 continue;
             }

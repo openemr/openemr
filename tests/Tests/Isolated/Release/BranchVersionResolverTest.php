@@ -80,6 +80,17 @@ final class BranchVersionResolverTest extends TestCase
         self::assertSame('8.1.0', $resolver->branchToVersion('rel-810'));
     }
 
+    public function testBranchToVersionIgnoresLightweightReleaseShapedTags(): void
+    {
+        // A lightweight tag whose name matches the release pattern must
+        // not bump the patch: the spec requires annotated tags, so only
+        // an annotated v8_1_0 below counts toward the next version.
+        $this->git(['tag', '-a', 'v8_1_0', '-m', 'OpenEMR 8.1.0 released 2026-05-01']);
+        $this->git(['tag', 'v8_1_5']);
+        $resolver = new BranchVersionResolver($this->tmpDir);
+        self::assertSame('8.1.1', $resolver->branchToVersion('rel-810'));
+    }
+
     public function testBranchToVersionRejectsBadInput(): void
     {
         $resolver = new BranchVersionResolver($this->tmpDir);
