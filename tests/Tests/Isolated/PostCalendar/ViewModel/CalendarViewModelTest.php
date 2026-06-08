@@ -640,4 +640,107 @@ final class CalendarViewModelTest extends TestCase
         // Other provider's OUT is skipped, fall back to clinic close.
         self::assertSame(28800, $result['duration']);
     }
+
+    public function testFormatCompactEventTimeUsesShortFormForZeroMinutes(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        self::assertSame('9am',  $vm->formatCompactEventTime('2026-03-15', '09:00:00'));
+        self::assertSame('1pm',  $vm->formatCompactEventTime('2026-03-15', '13:00:00'));
+        self::assertSame('12pm', $vm->formatCompactEventTime('2026-03-15', '12:00:00'));
+    }
+
+    public function testFormatCompactEventTimeIncludesMinutesWhenNonZero(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        self::assertSame('9:30am', $vm->formatCompactEventTime('2026-03-15', '09:30:00'));
+        self::assertSame('2:15pm', $vm->formatCompactEventTime('2026-03-15', '14:15:00'));
+    }
+
+    public function testBuildMonthPrintEventContentForPatientAppointment(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 5,
+            'startTime'    => '09:30:00',
+            'patient_name' => 'Doe, Jane',
+        ];
+
+        $content = $vm->buildMonthPrintEventContent($event, '2026-03-15', 1);
+
+        // Format: "displayTime lname"
+        self::assertSame('9:30am Doe', $content);
+    }
+
+    public function testBuildMonthPrintEventContentWrapsNoShowInStrikeThrough(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 1,  // NO-SHOW
+            'startTime'    => '10:00:00',
+            'patient_name' => 'Doe, Jane',
+        ];
+
+        $content = $vm->buildMonthPrintEventContent($event, '2026-03-15', 1);
+        self::assertSame('10am <s>Doe</s>', $content);
+    }
+
+    public function testBuildMonthPrintEventContentForVacationCategory(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'     => 4,  // VACATION
+            'startTime' => '00:00:00',
+            'hometext'  => '',
+        ];
+
+        $content = $vm->buildMonthPrintEventContent($event, '2026-03-15', 1);
+
+        // "displayTime translatedCatname"
+        self::assertSame('12am VACATION', $content);
+    }
+
+    public function testBuildMonthPrintEventContentAppendsCommentForSpecialCategory(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'     => 8,  // LUNCH
+            'startTime' => '12:00:00',
+            'hometext'  => 'cafeteria',
+        ];
+
+        $content = $vm->buildMonthPrintEventContent($event, '2026-03-15', 1);
+        self::assertSame('12pm LUNCH - cafeteria', $content);
+    }
+
+    public function testBuildMonthPrintEventContentStyleFiveAppendsMoreFields(): void
+    {
+        // calendar_appt_style == 5 is the RM-tagged extension that adds
+        // ", fname , address comment" after lname. NOT escaped (matches
+        // legacy quirk where these were appended without text()).
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::MonthPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'           => 5,
+            'startTime'       => '09:00:00',
+            'patient_name'    => 'Doe, Jane',
+            'patient_address' => '123 Main',
+            'hometext'        => 'follow-up',
+        ];
+
+        $content = $vm->buildMonthPrintEventContent($event, '2026-03-15', 5);
+
+        // "9am Doe" + ", Jane , 123 Mainfollow-up"
+        self::assertSame('9am Doe, Jane , 123 Mainfollow-up', $content);
+    }
 }

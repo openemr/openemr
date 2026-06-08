@@ -597,4 +597,106 @@ final readonly class CalendarViewModel
         $event['duration'] = ($clinicEndMin - $inStartMin) * 60;
         return $event;
     }
+
+    /**
+     * Formats an event's startTime as the compact "g" / "g:ia" string the
+     * month + month_print templates display.
+     *
+     * Examples:
+     *   "09:00:00" + date "2026-03-15" → "9am"  (zero minutes → just hour + meridian)
+     *   "09:30:00" + date "2026-03-15" → "9:30am"
+     *   "13:00:00" + date "2026-03-15" → "1pm"
+     *
+     * Mirrors:
+     *     $displayTime = date("g", $startDateTime);
+     *     if (date("i", $startDateTime) == "00") {
+     *         $displayTime .= date("a", $startDateTime);
+     *     } else {
+     *         $displayTime .= date(":ia", $startDateTime);
+     *     }
+     */
+    public function formatCompactEventTime(string $eventDate, string $startTime): string
+    {
+        $combined = strtotime($eventDate . ' ' . $startTime);
+        if ($combined === false) {
+            return '';
+        }
+
+        $hourPart = date('g', $combined);
+        if (date('i', $combined) === '00') {
+            return $hourPart . date('a', $combined);
+        }
+
+        return $hourPart . date(':ia', $combined);
+    }
+
+    /**
+     * Builds the inner HTML of a single event card for the month_print
+     * view. Returns an HTML string the template renders via `|raw`.
+     *
+     * Replaces the inline content-build branches in month_print's main
+     * loop. Two top-level branches as in the legacy:
+     *  - catid 4 / 8 / 11 → "displayTime catname [- comment]" with the
+     *    catname overridden to the localized special-category label
+     *  - everything else → "displayTime lname" plus, when
+     *    calendar_appt_style == 5, ", fname , address comment" tacked on
+     *
+     * NO-SHOW (catid 1) gets the lname wrapped in <s>...</s> as in the
+     * legacy. Group events and holiday/closed special branches are NOT
+     * supported by month_print — they fall through to the default
+     * "displayTime lname" rendering, matching legacy behavior.
+     *
+     * Required event fields:
+     *   - catid (int|string), startTime (HH:MM:SS), patient_name (?string),
+     *     patient_address (?string), hometext (?string), catname (string)
+     *
+     * @param  array<string, mixed> $event
+     */
+    public function buildMonthPrintEventContent(array $event, string $eventDate, int $calendarApptStyle): string
+    {
+        $catidRaw = $event['catid'] ?? 0;
+        $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+
+        $startTime = $event['startTime'] ?? '00:00:00';
+        if (!is_string($startTime)) {
+            $startTime = '00:00:00';
+        }
+        $displayTime = $this->formatCompactEventTime($eventDate, $startTime);
+
+        $commentRaw = $event['hometext'] ?? '';
+        $comment = is_string($commentRaw) ? $commentRaw : '';
+
+        if (in_array($catid, [4, 8, 11], true)) {
+            $catname = $this->translatedCategoryName($catid, '');
+            $content = \text($displayTime) . ' ' . \text($catname);
+            if ($comment !== '') {
+                $content .= ' - ' . \text($comment);
+            }
+            return $content;
+        }
+
+        $patientNameRaw = $event['patient_name'] ?? null;
+        $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
+        $parsed = $this->parsePatientName($patientName);
+
+        $content = \text($displayTime) . ' ';
+        if ($catid === 1) {
+            $content .= '<s>';
+        }
+        $content .= \text($parsed['lname']);
+        if ($catid === 1) {
+            $content .= '</s>';
+        }
+
+        if ($calendarApptStyle === 5) {
+            // Style 5 was a RM-tagged extension in the legacy. Note the
+            // legacy code did NOT pass these through text() — preserved
+            // as-is. The address and comment fields are appended raw.
+            $addressRaw = $event['patient_address'] ?? '';
+            $address = is_string($addressRaw) ? $addressRaw : '';
+            $content .= ', ' . $parsed['fname'] . ' , ' . $address . $comment;
+        }
+
+        return $content;
+    }
 }
