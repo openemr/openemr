@@ -948,4 +948,223 @@ final readonly class CalendarViewModel
         $content .= '</span>';
         return $content;
     }
+
+    /**
+     * Builds the body HTML for one event card in the on-screen MONTH view
+     * (NOT month_print). The screen variant adds:
+     *
+     *  - patient-link anchor with picture-hover ShowImage(...) icon
+     *  - group-session branch with goGid(...) anchor and user-blue icon
+     *  - clinic-closed / holiday content fallback (catid 6/7) using
+     *    event.title via xlt rather than the category name
+     *  - month-specific compact time format (g[a] / g:ia)
+     *  - create_event_time_anchor() wrapping around displayTime (the same
+     *    anchor pcEventTimeAnchor produces — passed in pre-built so this
+     *    method stays stateless)
+     *
+     * The consumer is responsible for loading these fields onto the event
+     * before passing in (DB lookups happen in the consumer, batched once
+     * per render rather than per event as the legacy did):
+     *
+     *   - patient_age, patient_dob (already oeFormatShortDate'd),
+     *     patient_address, patient_name, pid
+     *   - gid, group_name, group_counselors_text (already joined with
+     *     getUserNameById newlines), group_type_name (already resolved
+     *     via getTypeName)
+     *   - title, hometext (already pcVarPrepHTMLDisplay-escaped per
+     *     the legacy comments — NOT double-escaped here)
+     *
+     * Returns an array shape with both the body HTML and the multi-line
+     * tooltip text (`divTitle` in the legacy). The template uses
+     * tooltip as the `title="..."` attribute on the wrapping div.
+     *
+     * @param  array<string, mixed> $event
+     * @return array{content: string, tooltip: string}
+     */
+    public function buildMonthScreenEventContent(
+        array $event,
+        string $eventDate,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $webroot
+    ): array {
+        $catidRaw = $event['catid'] ?? 0;
+        $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+
+        $startTime = $event['startTime'] ?? '00:00:00';
+        if (!is_string($startTime)) {
+            $startTime = '00:00:00';
+        }
+        $displayTime = $this->formatCompactEventTime($eventDate, $startTime);
+
+        $commentRaw = $event['hometext'] ?? '';
+        $comment = is_string($commentRaw) ? $commentRaw : '';
+
+        $catnameRaw = $event['catname'] ?? '';
+        $rawCatname = is_string($catnameRaw) ? $catnameRaw : '';
+
+        // Tooltip prefix: legacy dateformat(strtotime($date), true) and the
+        // facility name on its own line. The consumer pre-formats the date
+        // (the dateformat() helper isn't in the view-model's scope).
+        $tooltipPrefix = $event['tooltip_date_prefix'] ?? '';
+        $tooltipPrefixStr = is_string($tooltipPrefix) ? $tooltipPrefix : '';
+        $facilityRow = $event['facility_row'] ?? null;
+        $facilityName = is_array($facilityRow) && isset($facilityRow['name']) && is_string($facilityRow['name'])
+            ? $facilityRow['name']
+            : '';
+
+        $tooltip = $tooltipPrefixStr . "\n" . $facilityName;
+
+        // Special-category branch (catid 4/8/11). NOT 2/3 — month-screen
+        // doesn't render IN/OUT events at all (skipped before this method
+        // is called).
+        if (in_array($catid, [4, 8, 11], true)) {
+            $catname = $this->translatedCategoryName($catid, $rawCatname);
+            $atitle = $catname;
+            if ($comment !== '') {
+                $atitle .= ' ' . $comment;
+            }
+            $tooltip .= "\n[" . $atitle . ']';
+
+            $content = \text($displayTime) . '&nbsp;' . \text($catname);
+
+            // Note: catid here is one of {4, 8, 11} — the `!= 6` check from
+            // the legacy is preserved at the end of this method instead.
+            return ['content' => $content, 'tooltip' => $tooltip . "\n(" . \xl('double click to edit') . ')'];
+        }
+
+        // Patient appt / group / fallback branch.
+        $patientId = $event['pid'] ?? null;
+        $gidRaw = $event['gid'] ?? null;
+        $hasGroup = $gidRaw !== null && $gidRaw !== '' && $gidRaw !== 0;
+        // Legacy: `if($groupid) $patientid = '';` — group events suppress
+        // the patient-link branch.
+        if ($hasGroup) {
+            $patientId = '';
+        }
+
+        $patientNameRaw = $event['patient_name'] ?? null;
+        $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
+        $parsed = $this->parsePatientName($patientName);
+
+        if ($hasGroup) {
+            $counselorsRaw = $event['group_counselors_text'] ?? '';
+            $counselors = is_string($counselorsRaw) ? $counselorsRaw : '';
+            $tooltip .= "\n" . \xl('Counselors') . ": \n" . $counselors . " \n";
+            $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . (is_string($event['group_name'] ?? null) ? $event['group_name'] : '');
+        } else {
+            $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $parsed['fname'] . ' ' . $parsed['lname'];
+        }
+
+        // The pre-built event-time anchor — caller passes via
+        // event.timeAnchorHtml to avoid this method re-implementing
+        // pcEventTimeAnchor.
+        $timeAnchorRaw = $event['timeAnchorHtml'] ?? '';
+        $timeAnchor = is_string($timeAnchorRaw) ? $timeAnchorRaw : '';
+        $content = $timeAnchor;
+
+        if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
+            $patientDob = is_string($event['patient_dob'] ?? null) ? $event['patient_dob'] : '';
+            $patientAgeRaw = $event['patient_age'] ?? '';
+            $patientAge = is_int($patientAgeRaw) || is_string($patientAgeRaw) ? (string) $patientAgeRaw : '';
+            $patientAddress = is_string($event['patient_address'] ?? null) ? $event['patient_address'] : '';
+
+            $linkTitle = \attr($parsed['fname']) . ' ' . \attr($parsed['lname']) . " \n";
+            $linkTitle .= \attr($patientAddress) . "\n";
+            $linkTitle .= \xla('Age') . ': ' . \attr($patientAge) . "\n"
+                . \xla('DOB') . ': ' . \attr($patientDob) . ' ' . $comment . "\n";
+            $linkTitle .= '(' . \xla('Click to view') . ')';
+
+            $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
+
+            $content .= "<a class='link_title' data-pid='" . \attr($patientIdAttr) . "' href='javascript:goPid(" . \attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
+
+            $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+            $content .= "<img src='" . $tplImagePath . "/user-green.gif' onmouseover=\"javascript:ShowImage(" . \attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" border='0' title='" . $linkTitle . "' alt='View Patient' />";
+
+            if ($catid === 1) {
+                $content .= '<s>';
+            }
+            $content .= \text($parsed['lname']);
+
+            if ($calendarApptStyle !== 1) {
+                $content .= ',' . \text($parsed['fname']);
+
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+
+                if ($title !== '' && $calendarApptStyle === 5) {
+                    $content .= ',' . \text($patientAddress);
+                }
+
+                if ($title !== '' && $calendarApptStyle >= 3) {
+                    $content .= '(' . \text($title);
+                    if ($comment !== '' && $calendarApptStyle >= 4) {
+                        // Legacy comment: "hometext is already escaped in
+                        // pnuserapi.php via the pcVarPrepHTMLDisplay
+                        // function; we don't double escape it here."
+                        $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
+                    }
+                    $content .= ')';
+                }
+            }
+
+            if ($catid === 1) {
+                $content .= '</s>';
+            }
+            $content .= '</a>';
+        } elseif ($hasGroup) {
+            $groupName = is_string($event['group_name'] ?? null) ? $event['group_name'] : '';
+            $groupTypeName = is_string($event['group_type_name'] ?? null) ? $event['group_type_name'] : '';
+            $gidAttr = is_int($gidRaw) || is_string($gidRaw) ? (string) $gidRaw : '';
+
+            $tooltip .= "\n" . $groupTypeName . "\n";
+            $linkTitle = $tooltip . "\n" . '(' . \xl('Click to view') . ')';
+
+            $content .= "<a href='javascript:goGid(" . \attr_js($gidAttr) . ")' title='" . \attr($linkTitle) . "'>";
+            $content .= "<img src='" . $tplImagePath . "/user-blue.gif' border='0' title='" . \attr($linkTitle) . "' alt='View Patient' />";
+
+            if ($catid === 1) {
+                $content .= '<s>';
+            }
+            $content .= \text($groupName);
+
+            if ($calendarApptStyle !== 1) {
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+                if ($title !== '' && $calendarApptStyle >= 3) {
+                    $content .= '(' . \text($title);
+                    if ($comment !== '' && $calendarApptStyle >= 4) {
+                        $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
+                    }
+                    $content .= ')';
+                }
+            }
+
+            if ($catid === 1) {
+                $content .= '</s>';
+            }
+            $content .= '</a>';
+        } else {
+            // No patient, no group — catid 6/7 use event.title, others use
+            // catname via xl_appt_category.
+            if ($catid === 6 || $catid === 7) {
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+                // Legacy: `xlt($event['title'])` directly. PHPStan's
+                // strict-rule blocks dynamic strings to xlt/xl. Use the
+                // hsc_private_xl_or_warn wrapper (which exists for
+                // exactly this case) then text-escape.
+                $content = \text(\hsc_private_xl_or_warn($title));
+            } else {
+                $content .= \text(\xl_appt_category($rawCatname));
+            }
+        }
+
+        if ($catid !== 6) {
+            $tooltip .= "\n(" . \xl('double click to edit') . ')';
+        }
+
+        return ['content' => $content, 'tooltip' => $tooltip];
+    }
 }

@@ -993,4 +993,163 @@ final class CalendarViewModelTest extends TestCase
         $content = $vm->buildWeekPrintEventContent($event, '2026-03-15', 1, '/tpl/img');
         self::assertStringContainsString('<s>Doe</s>', $content);
     }
+
+    public function testBuildMonthScreenEventContentForVacationCategory(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 4,  // VACATION
+            'startTime'              => '00:00:00',
+            'hometext'               => 'beach',
+            'catname'                => 'Vacation',
+            'tooltip_date_prefix'    => 'Sunday, 15 Mar 2026',
+            'facility_row'           => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#ffffff'],
+        ];
+
+        $result = $vm->buildMonthScreenEventContent($event, '2026-03-15', 1, '/tpl/img', '/openemr');
+
+        self::assertSame('12am&nbsp;VACATION', $result['content']);
+        self::assertStringContainsString('Main Clinic', $result['tooltip']);
+        self::assertStringContainsString('[VACATION beach]', $result['tooltip']);
+        self::assertStringContainsString('double click to edit', $result['tooltip']);
+    }
+
+    public function testBuildMonthScreenEventContentForPatientWithPictureHover(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'               => 5,
+            'startTime'           => '09:30:00',
+            'pid'                 => 42,
+            'patient_name'        => 'Doe, Jane',
+            'patient_age'         => 30,
+            'patient_dob'         => '1996-01-15',
+            'patient_address'     => '123 Main',
+            'hometext'            => 'follow-up',
+            'catname'             => 'Office Visit',
+            'tooltip_date_prefix' => 'Sunday, 15 Mar 2026',
+            'facility_row'        => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#fff'],
+            'timeAnchorHtml'      => "<a class='event_time'>9:30am</a>",
+        ];
+
+        $result = $vm->buildMonthScreenEventContent($event, '2026-03-15', 4, '/tpl/img', '/openemr');
+
+        // Patient link anchor with picture hover ShowImage(...)
+        self::assertStringContainsString("data-pid='42'", $result['content']);
+        self::assertStringContainsString('user-green.gif', $result['content']);
+        self::assertStringContainsString('ShowImage(', $result['content']);
+        self::assertStringContainsString("href='javascript:goPid(", $result['content']);
+        // Patient name with style >= 3 (title) and >= 4 (hometext in text-success)
+        self::assertStringContainsString('Doe,Jane', $result['content']);
+        // Time anchor is pre-built and prefixed
+        self::assertStringStartsWith("<a class='event_time'", $result['content']);
+    }
+
+    public function testBuildMonthScreenEventContentForGroupSession(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 5,
+            'startTime'              => '14:00:00',
+            'gid'                    => 7,
+            'group_name'             => 'Group Therapy',
+            'group_type_name'        => 'Weekly',
+            'group_counselors_text'  => 'Dr. Smith',
+            'catname'                => 'Office Visit',
+            'hometext'               => '',
+            'tooltip_date_prefix'    => 'Sunday, 15 Mar 2026',
+            'facility_row'           => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#fff'],
+            'timeAnchorHtml'         => "<a class='event_time'>2pm</a>",
+        ];
+
+        $result = $vm->buildMonthScreenEventContent($event, '2026-03-15', 1, '/tpl/img', '/openemr');
+
+        // Group session uses user-blue.gif and goGid()
+        self::assertStringContainsString('user-blue.gif', $result['content']);
+        self::assertStringContainsString("href='javascript:goGid(", $result['content']);
+        self::assertStringContainsString('Group Therapy', $result['content']);
+        // Tooltip mentions counselors
+        self::assertStringContainsString('Counselors', $result['tooltip']);
+        self::assertStringContainsString('Dr. Smith', $result['tooltip']);
+    }
+
+    public function testBuildMonthScreenEventContentForClosedClinicUsesTitle(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 7,  // Clinic closed
+            'startTime'              => '00:00:00',
+            'pid'                    => null,
+            'gid'                    => null,
+            'title'                  => 'Christmas Eve',
+            'catname'                => 'Closed',
+            'hometext'               => '',
+            'tooltip_date_prefix'    => 'Thursday, 24 Dec 2026',
+            'facility_row'           => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#fff'],
+            'timeAnchorHtml'         => "<a class='event_time'>12am</a>",
+        ];
+
+        $result = $vm->buildMonthScreenEventContent($event, '2026-12-24', 1, '/tpl/img', '/openemr');
+
+        // catid 7: content is xlt(event.title), NOT catname
+        self::assertSame('Christmas Eve', $result['content']);
+    }
+
+    public function testBuildMonthScreenEventContentForNoPatientNoGroupRegularCategory(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 5,
+            'startTime'              => '09:00:00',
+            'pid'                    => null,
+            'gid'                    => null,
+            'catname'                => 'Office Visit',
+            'hometext'               => '',
+            'tooltip_date_prefix'    => 'Sunday, 15 Mar 2026',
+            'facility_row'           => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#fff'],
+            'timeAnchorHtml'         => "<a class='event_time'>9am</a>",
+        ];
+
+        $result = $vm->buildMonthScreenEventContent($event, '2026-03-15', 1, '/tpl/img', '/openemr');
+
+        // Fallback: text(xl_appt_category(catname)) appended to time anchor
+        self::assertStringContainsString('Office Visit', $result['content']);
+        self::assertStringStartsWith("<a class='event_time'", $result['content']);
+    }
+
+    public function testBuildMonthScreenEventContentNoShowWrapsPatientInStrike(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'                  => 1,  // NO-SHOW
+            'startTime'              => '09:00:00',
+            'pid'                    => 42,
+            'patient_name'           => 'Doe, Jane',
+            'patient_age'            => 30,
+            'patient_dob'            => '1996-01-15',
+            'patient_address'        => '',
+            'catname'                => 'Office Visit',
+            'hometext'               => '',
+            'tooltip_date_prefix'    => 'Sunday, 15 Mar 2026',
+            'facility_row'           => ['name' => 'Main Clinic', 'id' => 1, 'color' => '#fff'],
+            'timeAnchorHtml'         => '',
+        ];
+
+        // Style 1 = lname only, so the strike wraps just "Doe".
+        $result = $vm->buildMonthScreenEventContent($event, '2026-03-15', 1, '/tpl/img', '/openemr');
+
+        self::assertStringContainsString('<s>Doe</s>', $result['content']);
+    }
 }
