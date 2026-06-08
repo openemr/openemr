@@ -1284,4 +1284,80 @@ final class CalendarViewModelTest extends TestCase
 
         self::assertStringContainsString('Christmas Day', $result['content']);
     }
+
+    public function testBuildWeekScreenEventContentAppendsApptToggleToWrapperClass(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Week, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'               => 5,
+            'startTime'           => '09:30:00',
+            'pid'                 => 42,
+            'patient_name'        => 'Doe, Jane',
+            'patient_age'         => 30,
+            'patient_dob'         => '1996-01-15',
+            'patient_address'     => '',
+            'apptstatus'          => '-',
+            'recurrtype'          => 0,
+            'tooltip_date_prefix' => '',
+            'facility_row'        => ['name' => '', 'id' => 0, 'color' => ''],
+            'timeAnchorHtml'      => '',
+        ];
+
+        // apptToggle="-toggled" → wrapper becomes <span class='appointment-toggled'>
+        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr', '-toggled');
+
+        self::assertStringContainsString("<span class='appointment-toggled'>", $result['content']);
+    }
+
+    public function testBuildWeekScreenEventContentEmitsShowAppointmentToggleForPatient(): void
+    {
+        // Patient-appt branch gets an extra `<a class="show-appointment shown">`
+        // anchor between the picture-hover icon and the patient name. Not in
+        // day-screen.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Week, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'               => 5,
+            'startTime'           => '09:30:00',
+            'pid'                 => 42,
+            'patient_name'        => 'Doe, Jane',
+            'patient_age'         => 30,
+            'patient_dob'         => '1996-01-15',
+            'patient_address'     => '',
+            'apptstatus'          => '',
+            'recurrtype'          => 0,
+            'tooltip_date_prefix' => '',
+            'facility_row'        => ['name' => '', 'id' => 0, 'color' => ''],
+            'timeAnchorHtml'      => '',
+        ];
+
+        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr');
+
+        self::assertStringContainsString("<a class='show-appointment shown'></a>", $result['content']);
+    }
+
+    public function testBuildWeekScreenEventContentForVacationCategoryHasNoSpanWrapperOrToggleAnchor(): void
+    {
+        // Special-category branch is unchanged from day-screen — no wrapper
+        // span, no toggle anchor. Verify both.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::Week, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 4,
+            'startTime'  => '09:00:00',
+            'hometext'   => '',
+            'recurrtype' => 0,
+            'tooltip_date_prefix' => '',
+            'facility_row' => ['name' => '', 'id' => 0, 'color' => ''],
+        ];
+
+        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr', '-anything');
+
+        self::assertStringNotContainsString("<span class='appointment", $result['content']);
+        self::assertStringNotContainsString('show-appointment', $result['content']);
+    }
 }

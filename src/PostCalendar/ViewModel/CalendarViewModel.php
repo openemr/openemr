@@ -1411,4 +1411,221 @@ final readonly class CalendarViewModel
             'extraClass' => $extraClass,
         ];
     }
+
+    /**
+     * Builds the body HTML for one event card in the on-screen WEEK view.
+     *
+     * Near-twin of buildDayScreenEventContent with two additions the
+     * legacy week template makes explicit:
+     *
+     *  - The wrapping `<span class='appointment...'>` includes the
+     *    consumer-built apptToggle suffix (legacy $apptToggle).
+     *  - Patient-appointment branch emits an extra anchor:
+     *      <a class="show-appointment shown">...</a>
+     *    placed inside the patient link block. The "shown" class
+     *    indicates initial visibility — JS code toggles this.
+     *
+     * catid 99 → event_holiday is handled by eventClassForCategory
+     * (which branches on viewType), so the consumer passes the
+     * already-resolved evtClass; no week-specific logic in here.
+     *
+     * @param  array<string, mixed> $event
+     * @return array{content: string, tooltip: string, extraClass: string}
+     */
+    public function buildWeekScreenEventContent(
+        array $event,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $webroot,
+        string $apptToggle = ''
+    ): array {
+        $catidRaw = $event['catid'] ?? 0;
+        $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+
+        $commentRaw = $event['hometext'] ?? '';
+        $comment = is_string($commentRaw) ? $commentRaw : '';
+
+        $catnameRaw = $event['catname'] ?? '';
+        $rawCatname = is_string($catnameRaw) ? $catnameRaw : '';
+
+        $tooltipPrefix = $event['tooltip_date_prefix'] ?? '';
+        $tooltipPrefixStr = is_string($tooltipPrefix) ? $tooltipPrefix : '';
+        $facilityRow = $event['facility_row'] ?? null;
+        $facilityName = is_array($facilityRow) && isset($facilityRow['name']) && is_string($facilityRow['name'])
+            ? $facilityRow['name']
+            : '';
+
+        $tooltip = $tooltipPrefixStr . "\n" . $facilityName;
+
+        // Special-category branch (same as day-screen — no <span> wrapper).
+        if (in_array($catid, [2, 3, 4, 8, 11], true)) {
+            $catname = $this->translatedCategoryName($catid, $rawCatname);
+            $atitle = $catname;
+            if ($comment !== '') {
+                $atitle .= ' ' . $comment;
+            }
+            $tooltip .= "\n[" . $atitle . ']';
+
+            $content = \text($catname);
+
+            $recurrType = $event['recurrtype'] ?? 0;
+            $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
+            if ($recurrTypeInt > 0) {
+                $content .= "<img class='border-0' src='" . $tplImagePath . "/repeating8.png' style='margin: 0 2px 0 2px;' title='" . \xla('Repeating event') . "' alt='" . \xla('Repeating event') . "' />";
+            }
+            if ($comment !== '') {
+                $content .= ' ' . \text($comment);
+            }
+
+            return [
+                'content'    => $content,
+                'tooltip'    => $tooltip . "\n(" . \xl('double click to edit') . ')',
+                'extraClass' => '',
+            ];
+        }
+
+        // Patient / group / fallback branch with `<span class='appointment{apptToggle}'>`.
+        $patientId = $event['pid'] ?? null;
+        $gidRaw = $event['gid'] ?? null;
+        $hasGroup = $gidRaw !== null && $gidRaw !== '' && $gidRaw !== 0;
+        if ($hasGroup) {
+            $patientId = '';
+        }
+
+        $patientNameRaw = $event['patient_name'] ?? null;
+        $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
+        $parsed = $this->parsePatientName($patientName);
+
+        if ($hasGroup) {
+            $groupName = is_string($event['group_name'] ?? null) ? $event['group_name'] : '';
+            $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $groupName;
+        } else {
+            $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $parsed['fname'] . ' ' . $parsed['lname'];
+        }
+
+        $timeAnchorRaw = $event['timeAnchorHtml'] ?? '';
+        $timeAnchor = is_string($timeAnchorRaw) ? $timeAnchorRaw : '';
+
+        $recurrType = $event['recurrtype'] ?? 0;
+        $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
+        $recurringIcon = '';
+        if ($recurrTypeInt > 0) {
+            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . \xla('Repeating event') . "' alt='" . \xla('Repeating event') . "'>";
+        }
+
+        $apptStatusRaw = $event['apptstatus'] ?? '';
+        $apptStatus = is_string($apptStatusRaw) ? $apptStatusRaw : '';
+
+        // Week-specific: appointment-toggle class suffix.
+        $content = "<span class='appointment" . \attr($apptToggle) . "'>";
+        $content .= $timeAnchor;
+        $content .= $recurringIcon;
+        $content .= '&nbsp;' . \text($apptStatus);
+
+        $extraClass = '';
+
+        if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
+            $patientDob = is_string($event['patient_dob'] ?? null) ? $event['patient_dob'] : '';
+            $patientAgeRaw = $event['patient_age'] ?? '';
+            $patientAge = is_int($patientAgeRaw) || is_string($patientAgeRaw) ? (string) $patientAgeRaw : '';
+            $patientAddress = is_string($event['patient_address'] ?? null) ? $event['patient_address'] : '';
+
+            $linkTitle = \attr($parsed['fname']) . ' ' . \attr($parsed['lname'] ?? $parsed['lname']) . " \n";
+            $linkTitle .= \attr($patientAddress) . "\n";
+            $linkTitle .= \xla('Age') . ': ' . \attr($patientAge) . "\n"
+                . \xla('DOB') . ': ' . \attr($patientDob) . ' ' . $comment . "\n";
+            $linkTitle .= '(' . \xla('Click to view') . ')';
+
+            $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
+
+            $content .= "<a class='link_title' data-pid='" . \attr($patientIdAttr) . "' href='javascript:goPid(" . \attr_js($patientIdAttr) . ")' title='" . $linkTitle . "'>";
+
+            $imageHref = $webroot . '/controller.php?document&retrieve&patient_id=' . urlencode($patientIdAttr) . '&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture';
+            $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . \attr_js($imageHref) . ");\" onmouseout=\"javascript:HideImage();\" title='" . $linkTitle . "'></i>";
+
+            // Week-specific: the show-appointment toggle anchor between
+            // the icon and the patient name.
+            $content .= "<a class='show-appointment shown'></a>";
+
+            if ($catid === 1) {
+                $content .= '<s>';
+            }
+            $content .= \text($parsed['lname']);
+
+            if ($calendarApptStyle !== 1) {
+                $content .= ',' . \text($parsed['fname']);
+
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+
+                if ($title !== '' && $calendarApptStyle === 5) {
+                    $content .= ',' . \text($patientAddress);
+                }
+
+                if ($title !== '' && $calendarApptStyle >= 3) {
+                    $content .= '(' . \text($title);
+                    if ($comment !== '' && $calendarApptStyle >= 4) {
+                        $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
+                    }
+                    $content .= ')';
+                }
+            }
+
+            if ($catid === 1) {
+                $content .= '</s>';
+            }
+            $content .= '</a>';
+        } elseif ($hasGroup) {
+            $groupName = is_string($event['group_name'] ?? null) ? $event['group_name'] : '';
+            $groupTypeName = is_string($event['group_type_name'] ?? null) ? $event['group_type_name'] : '';
+            $gidAttr = is_int($gidRaw) || is_string($gidRaw) ? (string) $gidRaw : '';
+
+            $tooltip .= "\n" . $groupTypeName . "\n";
+            $linkTitle = $tooltip . "\n" . '(' . \xl('Click to view') . ')';
+
+            $content .= "<a href='javascript:goGid(" . \attr_js($gidAttr) . ")' title='" . \attr($linkTitle) . "'>";
+            $content .= "<i class='fas fa-user text-primary' title='" . \attr($linkTitle) . "'></i>";
+
+            if ($catid === 1) {
+                $content .= '<s>';
+            }
+            $content .= \text($groupName);
+
+            if ($calendarApptStyle !== 1) {
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+                if ($title !== '' && $calendarApptStyle >= 3) {
+                    $content .= '(' . \text($title);
+                    if ($comment !== '' && $calendarApptStyle >= 4) {
+                        $content .= ": <span class='text-success'>" . trim($comment) . '</span>';
+                    }
+                    $content .= ')';
+                }
+            }
+
+            if ($catid === 1) {
+                $content .= '</s>';
+            }
+            $content .= '</a>';
+
+            $extraClass = ' groups ';
+        } else {
+            if ($catid === 6 || $catid === 7) {
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+                // Third call site sharing the xlt baseline entry.
+                $content .= \xlt($title);
+            } else {
+                $content .= \text(\xl_appt_category($rawCatname));
+            }
+        }
+
+        $content .= '</span>';
+
+        return [
+            'content'    => $content,
+            'tooltip'    => $tooltip . "\n(" . \xl('double click to edit') . ')',
+            'extraClass' => $extraClass,
+        ];
+    }
 }
