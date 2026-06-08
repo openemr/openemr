@@ -258,4 +258,109 @@ final readonly class CalendarViewModel
             'weeks'      => $weeks,
         ];
     }
+
+    /**
+     * Returns a new event array with startTime / duration overridden to
+     * span the full clinic window when the event is marked all-day.
+     * Non-all-day events pass through unchanged.
+     *
+     * Mirrors the legacy normalization that runs before the geometry
+     * math:
+     *     if ($event['alldayevent'] == 1) {
+     *         $tmpTime = $times[0];
+     *         ...
+     *         $event['startTime'] = "$hour:$minute:00";
+     *         $event['duration'] = ($calEndMin - $calStartMin) * 60;
+     *     }
+     *
+     * Padding the hour/minute strings to 2 digits matches the legacy
+     * defensive `if (strlen(...)<2) { ... = "0".... }` lines.
+     *
+     * @param  array<string, mixed> $event
+     * @param  array{hour: int|string, minute: int|string} $firstTimeSlot
+     * @return array<string, mixed>
+     */
+    public function normalizeAllDayEvent(
+        array $event,
+        array $firstTimeSlot,
+        int $clinicStartMin,
+        int $clinicEndMin
+    ): array {
+        // Legacy stored `alldayevent` as a string "1" / "0" out of MySQL;
+        // narrowing via == 1 matches both "1" and int 1 without the loose
+        // (int) cast PHPStan rejects on mixed.
+        $allDay = $event['alldayevent'] ?? 0;
+        if ($allDay !== 1 && $allDay !== '1') {
+            return $event;
+        }
+
+        $hour   = str_pad((string) $firstTimeSlot['hour'], 2, '0', STR_PAD_LEFT);
+        $minute = str_pad((string) $firstTimeSlot['minute'], 2, '0', STR_PAD_LEFT);
+
+        $event['startTime'] = "{$hour}:{$minute}:00";
+        $event['duration']  = ($clinicEndMin - $clinicStartMin) * 60;
+
+        return $event;
+    }
+
+    /**
+     * Parses "HH:MM:SS" or "HH:MM" into a minute-of-day integer.
+     *
+     * Mirrors the legacy:
+     *     $starth = substr($event['startTime'], 0, 2);
+     *     $startm = substr($event['startTime'], 3, 2);
+     *     $eStartMin = $starth * 60 + $startm;
+     *
+     * Out-of-format input (no colon, non-numeric parts) returns 0
+     * — matches the legacy `(int) substr(...)` coercion behavior.
+     */
+    public function startTimeToMinutes(string $startTime): int
+    {
+        $parts = explode(':', $startTime);
+        $hour = (int) $parts[0];
+        $minute = isset($parts[1]) ? (int) $parts[1] : 0;
+
+        return $hour * 60 + $minute;
+    }
+
+    /**
+     * Computes positioned-DIV geometry for one event inside the
+     * times column. Used by day, week, day_print, week_print.
+     *
+     * Mirrors the legacy:
+     *     $eMinDiff       = $eStartMin - $calStartMin;
+     *     $eStartInterval = floor($eMinDiff / $interval);
+     *     $evtTop         = $eStartInterval * $timeslotHeightVal . $timeslotHeightUnit;
+     *
+     *     $eEndMin       = $eStartMin + ($duration / 60);
+     *     $eEndInterval  = ceil(($eEndMin - $calStartMin) / $interval);
+     *     $evtHeight     = ($eEndInterval - $eStartInterval) * $timeslotHeightVal . $timeslotHeightUnit;
+     *
+     * `top` and `height` come back as CSS strings with the unit suffix
+     * baked in (matches what the legacy templates wrote into `style=""`
+     * attributes). `startInterval` / `endInterval` are surfaced too
+     * because the overlap detector needs them.
+     *
+     * @return array{startInterval: int, endInterval: int, top: string, height: string}
+     */
+    public function computeEventGeometry(
+        int $startMinFromMidnight,
+        int $durationMinutes,
+        int $clinicStartMin,
+        int $intervalMinutes,
+        int $timeslotHeightVal,
+        string $timeslotHeightUnit
+    ): array {
+        $startInterval = (int) floor(($startMinFromMidnight - $clinicStartMin) / $intervalMinutes);
+
+        $endMin = $startMinFromMidnight + $durationMinutes;
+        $endInterval = (int) ceil(($endMin - $clinicStartMin) / $intervalMinutes);
+
+        return [
+            'startInterval' => $startInterval,
+            'endInterval'   => $endInterval,
+            'top'           => ($startInterval * $timeslotHeightVal) . $timeslotHeightUnit,
+            'height'        => (($endInterval - $startInterval) * $timeslotHeightVal) . $timeslotHeightUnit,
+        ];
+    }
 }
