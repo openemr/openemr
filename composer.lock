@@ -737,16 +737,16 @@
         },
         {
             "name": "digitickets/lalit",
-            "version": "3.4.1",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/digitickets/lalit.git",
-                "reference": "2e41932ca4ef0aa68230b23de17f2e513fd0d90c"
+                "reference": "bdd435cf4d36ca8f75be7f042b31be0089a4a82f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/digitickets/lalit/zipball/2e41932ca4ef0aa68230b23de17f2e513fd0d90c",
-                "reference": "2e41932ca4ef0aa68230b23de17f2e513fd0d90c",
+                "url": "https://api.github.com/repos/digitickets/lalit/zipball/bdd435cf4d36ca8f75be7f042b31be0089a4a82f",
+                "reference": "bdd435cf4d36ca8f75be7f042b31be0089a4a82f",
                 "shasum": ""
             },
             "require": {
@@ -778,16 +778,16 @@
                 }
             ],
             "description": "GitHub copy of LaLit's XML2Array and Array2XML",
-            "homepage": "http://www.lalit.org/lab",
+            "homepage": "https://github.com/digitickets/lalit/blob/master/README.md",
             "keywords": [
                 "array",
                 "xml"
             ],
             "support": {
                 "issues": "https://github.com/digitickets/lalit/issues",
-                "source": "https://github.com/digitickets/lalit/tree/3.4.1"
+                "source": "https://github.com/digitickets/lalit/tree/3.4.2"
             },
-            "time": "2026-04-02T16:57:46+00:00"
+            "time": "2026-06-04T16:09:01+00:00"
         },
         {
             "name": "doctrine/collections",
