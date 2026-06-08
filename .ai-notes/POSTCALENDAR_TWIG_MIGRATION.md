@@ -95,21 +95,42 @@ Concentrated in 7 templates (day/week/month ajax_template + their _print variant
 
 ### Order of operations
 
-1. **Foundation classes** (PostCalendarTwigExtension + CalendarRenderer) — empty methods initially.
-2. **Smallest templates first** (footer, defaults, header) — get rendering pipeline working end-to-end with a tiny scope.
-3. **Plugins → Twig functions** — port `pc_date_format`, `pc_url`, etc. as Twig methods, one at a time. Verify each via the rendered output.
-4. **Medium templates** (user/ajax_search, admin/submit_category) — no `[-php-]` blocks, mechanical conversion.
-5. **Print views** — first ones with `[-php-]` blocks; extract those to PHP caller.
-6. **The big 3** (day/week/month ajax_template) — most `[-php-]` blocks. Hardest. Plan carefully.
-7. **Switch consumers** — replace `new pcSmarty()` with `new CalendarRenderer()` in pnuserapi/pnuser/pnadmin.
-8. **Delete legacy**: `library/smarty_legacy/`, `pcSmarty.class.php`, `pntemplates/`, all 10 plugins.
+1. **Foundation classes** (PostCalendarTwigExtension + CalendarRenderer) — empty methods initially. ✅ session 1.
+2. **Smallest templates first** (footer + 3 view defaults) — get the compile pipeline working. ✅ session 1.
+3. **Golden snapshot harness (Phase 0 follow-up)** — capture pre-migration rendered HTML against the current master Smarty output for every reachable view. Pre-requisite for everything below. ⏳ session 2 first task.
+4. **Plugins → Twig functions** — port `pc_date_format`, `pc_url`, etc. as Twig methods, one at a time. Each port verified against the snapshot harness.
+5. **Header template** — first template with `[-php-]` blocks. Extract `create_event_time_anchor` to a method on PostCalendarTwigExtension, move session reads to PHP caller, pass body_class / title / HEADER_SCRIPTS / HEADER_STYLES as template vars.
+6. **Medium templates** (user/ajax_search, admin/submit_category) — no `[-php-]` blocks, mechanical conversion.
+7. **Print views** — `[-php-]` extraction (2-4 blocks per print view).
+8. **The big 3** (day/week/month ajax_template) — most `[-php-]` blocks (16-17 each). Hardest. Plan per block.
+9. **Switch consumers** — replace `new pcSmarty()` with `new CalendarRenderer()` in pnuserapi/pnuser/pnadmin.
+10. **Delete legacy**: `library/smarty_legacy/`, `pcSmarty.class.php`, `pntemplates/`, all 10 plugins.
 
-## Verification harness
+## Verification harness (load-bearing — DO before phase 4)
 
-- No automated calendar render tests exist in master today. Need to build.
-- Plan: for each view (day, week, month, day_print, week_print, month_print), capture HTML output via a test-driven render with known fixture data (specific date, specific provider, specific events).
-- Fixture comparison: normalize whitespace + comments; compare structural HTML.
-- Manual: dev-easy stack — navigate to calendar, click around. Visual parity check against master.
+No automated calendar render tests exist in master today. The harness must be built from scratch before any plugin port or template conversion that produces user-visible HTML. Without it every subsequent phase relies on manual eyeballing.
+
+**Targets**: 8 fixture endpoints covering the surface that gets converted:
+- `views/day/ajax_template.html` (day view)
+- `views/week/ajax_template.html` (week view)
+- `views/month/ajax_template.html` (month view)
+- `views/day_print/outlook_ajax_template.html`
+- `views/week_print/outlook_ajax_template.html`
+- `views/month_print/outlook_ajax_template.html`
+- `admin/submit_category.html`
+- `user/ajax_search.html`
+
+**Capture strategy** — invoke `pcSmarty::fetch()` directly with a controlled input set (specific date, deterministic provider list, fixed event list). Deterministic, no auth needed, runs in isolated PHPUnit. Compare future Twig output via the same input-set construction.
+
+**Input set construction**: study what `pnuserapi.php` assigns before each fetch and replicate it as fixture data. Likely needs a small "PostCalendarTestFixtures" helper that builds the assignment array for each view.
+
+**Output normalization**: strip timestamps, CSRF tokens, session-ID-derived nonces, anything else date-of-render dependent. Diff the structural remainder.
+
+**Storage**: `tests/Tests/Isolated/PostCalendar/fixtures/render/{view}.html` — matches the existing OpenEMR Twig render-test convention so `composer update-twig-fixtures` can be extended to regenerate.
+
+**Estimated effort**: ½ day to build the harness skeleton + one view. Each additional view ~1-2 hours once the pattern is set. Total ~2 days for all 8.
+
+**Why session-2-first**: session 1's commits added foundation classes + 4 dormant template files. None of those affect rendered output, so the missing harness didn't bite yet. The moment session 2 starts porting plugins (which produce HTML strings that templates emit), every plugin port becomes "does this match what Smarty did?" — and without the harness, the only answer is manual eyeballing the rendered page.
 
 ## CLAUDE.md compliance gates
 
