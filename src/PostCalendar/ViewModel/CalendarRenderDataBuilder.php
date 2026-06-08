@@ -758,6 +758,356 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * Build the render-data array for `day/ajax_template.html.twig`.
+     *
+     * Combines month-screen's picker + nav scaffolding with day_print's
+     * geometry pipeline. The big difference from day_print is the
+     * screen-specific per-event decoration (groups, picture hover,
+     * 3-way facility filter) handled by buildDayScreenEventContent.
+     *
+     * @param  array<string, list<array<string, mixed>>> $aEvents
+     * @param  list<array<string, mixed>>                $providers
+     * @param  list<array<string, mixed>>                $provinfo
+     * @param  list<array<string, mixed>>                $facilities
+     * @param  list<array{hour: int|string, minute: int|string, mer?: string}> $times
+     * @param  list<string>                              $shortDayNames
+     *
+     * @return array<string, mixed>
+     */
+    public function buildDayScreenRenderData(
+        array $aEvents,
+        array $providers,
+        array $provinfo,
+        array $facilities,
+        array $times,
+        int $intervalMinutes,
+        string $dateYmd,
+        array $shortDayNames,
+        int $pcFacility,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $webroot,
+        string $prevDayUrl,
+        string $nextDayUrl,
+        string $chevronIconLeft,
+        string $chevronIconRight,
+        string $monthSelectorHtml,
+        bool $showAllFacilitiesOption,
+        string $dayHeaderLabel,
+        bool $isTwelveHourFormat
+    ): array {
+        $year = substr($dateYmd, 0, 4);
+        $month = substr($dateYmd, 4, 2);
+        $currentMini = $this->viewModel->buildMiniCalendar("{$year}-{$month}-15", $dateYmd);
+
+        $isToday = $dateYmd === date('Ymd');
+
+        $selectedUsernames = $this->extractSelectedUsernames($providers);
+
+        $cDay = (int) substr($dateYmd, 6, 2);
+        $cMonth = (int) $month;
+        $cYear = (int) $year;
+        $prevMonthYmd = $this->computeAdjacentMonth($cYear, $cMonth, $cDay, -1);
+        $nextMonthYmd = $this->computeAdjacentMonth($cYear, $cMonth, $cDay, 1);
+        $prevMonthName = $this->ymdMonthName($prevMonthYmd);
+        $nextMonthName = $this->ymdMonthName($nextMonthYmd);
+
+        $firstTime = $times[0] ?? ['hour' => 0, 'minute' => 0];
+        $lastTime = $times[count($times) - 1] ?? ['hour' => 0, 'minute' => 0];
+        $clinicStartMin = ((int) $firstTime['hour']) * 60 + ((int) $firstTime['minute']);
+        $clinicEndMin = ((int) $lastTime['hour']) * 60 + ((int) $lastTime['minute']);
+
+        $timeslotHeightVal = 20;
+        $timeslotHeightUnit = 'px';
+        $timeslotCss = $timeslotHeightVal . $timeslotHeightUnit;
+        $timeRows = $this->buildTimeRows($times, $isTwelveHourFormat);
+
+        $dates = array_keys($aEvents);
+        $eventDate = $dates[0] ?? '';
+        $eventDateYmd = $eventDate !== ''
+            ? substr($eventDate, 0, 4) . substr($eventDate, 5, 2) . substr($eventDate, 8, 2)
+            : '';
+
+        $providersGrid = [];
+        foreach ($providers as $provider) {
+            $providerIdRaw = $provider['id'] ?? null;
+            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+
+            $rawDayEvents = $aEvents[$eventDate] ?? [];
+
+            $overlapPositions = $this->viewModel->detectEventOverlap(
+                $rawDayEvents,
+                $times,
+                $intervalMinutes,
+                $providerId
+            );
+
+            $decoratedEvents = $this->decorateDayScreenEvents(
+                $rawDayEvents,
+                $eventDateYmd,
+                $eventDate,
+                $providerId,
+                $pcFacility,
+                $times,
+                $intervalMinutes,
+                $clinicStartMin,
+                $clinicEndMin,
+                $timeslotHeightVal,
+                $timeslotHeightUnit,
+                $overlapPositions,
+                $calendarApptStyle,
+                $tplImagePath,
+                $webroot,
+                $isTwelveHourFormat
+            );
+
+            $providersGrid[] = [
+                'id'              => $providerId,
+                'fname'           => is_string($provider['fname'] ?? null) ? $provider['fname'] : '',
+                'lname'           => is_string($provider['lname'] ?? null) ? $provider['lname'] : '',
+                'username'        => is_string($provider['username'] ?? null) ? $provider['username'] : '',
+                'classForWeekend' => 'work-day',
+                'events'          => $decoratedEvents,
+            ];
+        }
+
+        return [
+            'viewtype'                => 'day',
+            'Date'                    => $dateYmd,
+            'dayHeaderLabel'          => $dayHeaderLabel,
+            'isToday'                 => $isToday,
+            'PREV_DAY_URL'            => $prevDayUrl,
+            'NEXT_DAY_URL'            => $nextDayUrl,
+            'chevron_icon_left'       => $chevronIconLeft,
+            'chevron_icon_right'      => $chevronIconRight,
+            'dowList'                 => $this->viewModel->dayOfWeekList(),
+            'A_SHORT_DAY_NAMES'       => $shortDayNames,
+            'prevMonth'               => $prevMonthYmd,
+            'nextMonth'               => $nextMonthYmd,
+            'prevMonthName'           => $prevMonthName,
+            'nextMonthName'           => $nextMonthName,
+            'currentMiniCal'          => $currentMini,
+            'monthSelectorHtml'       => $monthSelectorHtml,
+            'showFacilitySelect'      => count($facilities) > 1,
+            'showAllFacilitiesOption' => $showAllFacilitiesOption,
+            'pc_facility'             => $pcFacility,
+            'facilities'              => $facilities,
+            'provinfo'                => $provinfo,
+            'selectedUsernames'       => $selectedUsernames,
+            'timeRows'                => $timeRows,
+            'timeslotCss'             => $timeslotCss,
+            'providers'               => $providersGrid,
+            'webroot'                 => $webroot,
+        ];
+    }
+
+    /**
+     * Decorate one day's events for one provider in day-screen.
+     * Runs the full per-event pipeline (normalize, IN-extend, geometry,
+     * overlap) plus the 3-way facility filter and the IN-event two-DIV
+     * pattern bits.
+     *
+     * @param  list<array<string, mixed>> $events
+     * @param  list<array{hour: int|string, minute: int|string}> $times
+     * @param  array<int|string, array{width: float, leftpos: float}> $overlapPositions
+     * @return list<array<string, mixed>>
+     */
+    private function decorateDayScreenEvents(
+        array $events,
+        string $eventDateYmd,
+        string $eventDate,
+        int $providerId,
+        int $pcFacility,
+        array $times,
+        int $intervalMinutes,
+        int $clinicStartMin,
+        int $clinicEndMin,
+        int $timeslotHeightVal,
+        string $timeslotHeightUnit,
+        array $overlapPositions,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $webroot,
+        bool $isTwelveHourFormat
+    ): array {
+        $decorated = [];
+        $firstTimeSlot = $times[0] ?? ['hour' => 0, 'minute' => 0];
+
+        foreach ($events as $rawEvent) {
+            $aidRaw = $rawEvent['aid'] ?? null;
+            $aid = is_int($aidRaw) || is_string($aidRaw) ? (int) $aidRaw : 0;
+            if ($aid !== 0 && $aid !== $providerId) {
+                continue;
+            }
+
+            $eidRaw = $rawEvent['eid'] ?? null;
+            if (!is_int($eidRaw) && !is_string($eidRaw)) {
+                continue;
+            }
+            if ($eidRaw === '' || $eidRaw === 0) {
+                continue;
+            }
+
+            $event = $this->viewModel->normalizeAllDayEvent(
+                $rawEvent,
+                $firstTimeSlot,
+                $clinicStartMin,
+                $clinicEndMin
+            );
+            $event = $this->viewModel->extendInEventDuration(
+                $event,
+                $events,
+                $providerId,
+                $clinicEndMin
+            );
+
+            $startTime = is_string($event['startTime'] ?? null) ? $event['startTime'] : '00:00:00';
+            $startMin = $this->viewModel->startTimeToMinutes($startTime);
+            $durationSecRaw = $event['duration'] ?? 0;
+            $durationSec = is_int($durationSecRaw) || is_string($durationSecRaw) ? (int) $durationSecRaw : 0;
+            $durationMin = (int) ($durationSec / 60);
+
+            $geometry = $this->viewModel->computeEventGeometry(
+                $startMin,
+                $durationMin,
+                $clinicStartMin,
+                $intervalMinutes,
+                $timeslotHeightVal,
+                $timeslotHeightUnit
+            );
+
+            $catidRaw = $event['catid'] ?? 0;
+            $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+            $evtClass = $this->viewModel->eventClassForCategory($catid);
+            $overrideRaw = $event['eventViewClass'] ?? null;
+            if (is_string($overrideRaw)) {
+                $evtClass = $overrideRaw;
+            }
+
+            $position = $overlapPositions[$eidRaw] ?? null;
+            $divWidthCss = $position !== null ? 'width: ' . $position['width'] . '%' : '';
+            $divLeftCss = $position !== null ? 'left: ' . $position['leftpos'] . '%' : '';
+
+            $built = $this->viewModel->buildDayScreenEventContent(
+                $event,
+                $calendarApptStyle,
+                $tplImagePath,
+                $webroot,
+                $isTwelveHourFormat
+            );
+            // Append the group class if the content builder flagged it.
+            if ($built['extraClass'] !== '') {
+                $evtClass .= $built['extraClass'];
+            }
+
+            // 3-way facility-filter dispatch (same shape as month-screen).
+            $catcolor = is_string($event['catcolor'] ?? null) ? $event['catcolor'] : '';
+            $facilityRow = is_array($event['facility_row'] ?? null) ? $event['facility_row'] : null;
+            $facilityId = is_array($facilityRow) && isset($facilityRow['id'])
+                ? (is_int($facilityRow['id']) || is_string($facilityRow['id']) ? (int) $facilityRow['id'] : 0)
+                : 0;
+            if ($pcFacility === 0 || $pcFacility === $facilityId) {
+                $displayBgColor = $catcolor;
+                $displayContentHtml = $built['content'];
+            } else {
+                $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
+                    ? $facilityRow['name']
+                    : '';
+                $displayBgColor = 'var(--gray300)';
+                $displayContentHtml = "<span class='text-center text-danger'>" . \attr($facilityName) . '</span>';
+            }
+
+            $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
+
+            $entry = [
+                'eid'                => $eidRaw,
+                'catid'              => $catid,
+                'eventDate'          => $eventDateYmd,
+                'pccattype'          => $pccattype,
+                'evtClass'           => $evtClass,
+                'displayBgColor'     => $displayBgColor,
+                'displayContentHtml' => $displayContentHtml,
+                'tooltip'            => $built['tooltip'],
+                'evtTopCss'          => $geometry['top'],
+                'evtHeightCss'       => $geometry['height'],
+                'divWidthCss'        => $divWidthCss,
+                'divLeftCss'         => $divLeftCss,
+            ];
+
+            if ($catid === 2) {
+                $inLabelTopPx = ($geometry['startInterval'] - 1) * $timeslotHeightVal;
+                $entry['inLabelTopCss']    = $inLabelTopPx . $timeslotHeightUnit;
+                $entry['inLabelHeightCss'] = $timeslotHeightVal . $timeslotHeightUnit;
+                $startM = substr($startTime, 3, 2);
+                $dispStartH = $this->viewModel->displayStartHour($startTime, $isTwelveHourFormat);
+                $entry['inLabelContent']   = \attr($dispStartH . ':' . $startM) . ' ' . $built['content'];
+            }
+
+            $decorated[] = $entry;
+        }
+
+        return $decorated;
+    }
+
+    /**
+     * Extract the list of provider usernames from the selected-providers
+     * input. Used by screen views to pre-select the right options in the
+     * multi-select picker.
+     *
+     * @param  list<array<string, mixed>> $providers
+     * @return list<string>
+     */
+    private function extractSelectedUsernames(array $providers): array
+    {
+        $names = [];
+        foreach ($providers as $provider) {
+            $uname = $provider['username'] ?? null;
+            if (is_string($uname)) {
+                $names[] = $uname;
+            }
+        }
+        return $names;
+    }
+
+    /**
+     * Format the localized month name of a YYYYMMDD string for the
+     * mini-cal prev/next title attributes.
+     */
+    private function ymdMonthName(string $ymd): string
+    {
+        $ts = strtotime($ymd);
+        return $ts !== false ? date('F', $ts) : '';
+    }
+
+    /**
+     * Build the timeRows structure for timed-view templates. Each row
+     * carries the consumer-formatted displayLabel + isOnTheHour bool
+     * + startampm (1=am, 2=pm) for the newEvt() onclick handler.
+     *
+     * @param  list<array{hour: int|string, minute: int|string, mer?: string}> $times
+     * @return list<array{hour:int, minute:int, startampm:int, isOnTheHour:bool, displayLabel:string}>
+     */
+    private function buildTimeRows(array $times, bool $isTwelveHourFormat): array
+    {
+        $rows = [];
+        foreach ($times as $slot) {
+            $hourInt = (int) $slot['hour'];
+            $minuteInt = (int) $slot['minute'];
+            $minuteStr = sprintf('%02d', $minuteInt);
+            $displayHour = $this->viewModel->displayStartHour(sprintf('%02d:00:00', $hourInt), $isTwelveHourFormat);
+            $startampm = ($slot['mer'] ?? '') === 'pm' ? 2 : 1;
+            $rows[] = [
+                'hour'         => $hourInt,
+                'minute'       => $minuteInt,
+                'startampm'    => $startampm,
+                'isOnTheHour'  => $minuteInt === 0,
+                'displayLabel' => $displayHour . ':' . $minuteStr,
+            ];
+        }
+        return $rows;
+    }
+
+    /**
      * Compute the previous- or next-month YYYYMMDD, staying on the same
      * day-of-month when possible (decrement day until checkdate accepts).
      * Mirrors the legacy:

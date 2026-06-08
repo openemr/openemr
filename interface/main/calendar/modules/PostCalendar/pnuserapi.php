@@ -593,13 +593,14 @@ function postcalendar_userapi_buildView($args)
     // builder path. Other views continue using the legacy pcSmarty
     // path below. Each ViewType cuts over in its own focused commit.
     $useNewRenderer = (in_array($viewtype, ['month', 'week', 'day'], true) && $print)
-        || ($viewtype === 'month' && !$print);
+        || (in_array($viewtype, ['month', 'day'], true) && !$print);
     if ($useNewRenderer) {
         $vmType = match (true) {
             $viewtype === 'month' && (bool) $print => ViewType::MonthPrint,
             $viewtype === 'week'  && (bool) $print => ViewType::WeekPrint,
             $viewtype === 'day'   && (bool) $print => ViewType::DayPrint,
             $viewtype === 'month'                  => ViewType::Month,
+            $viewtype === 'day'                    => ViewType::Day,
             default                                => ViewType::MonthPrint,
         };
         $vm = new CalendarViewModel(
@@ -688,6 +689,59 @@ function postcalendar_userapi_buildView($args)
                 is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $currentMonthLabel
+            );
+        } elseif ($vmType === ViewType::Day) {
+            // Day-screen: same scaffolding as month-screen plus timed-view
+            // geometry inputs.
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $languageDirection = $session->get('language_direction');
+            $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+            $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
+            $caldate = strtotime((string) $Date);
+            $cMonth = $caldate !== false ? date('m', $caldate) : '';
+            $cYear = $caldate !== false ? date('Y', $caldate) : '';
+            $cDay = $caldate !== false ? date('d', $caldate) : '';
+            ob_start();
+            include OEGlobalsBag::getInstance()->getKernel()->getRootDir()
+                . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            $monthSelectorHtml = ob_get_clean();
+
+            $facilitiesList = [];
+            $sessionAuthUserID = $session->get('authUserID');
+            $sessionAuthorizedUser = $session->get('authorizeduser');
+            $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
+
+            $dayHeaderTs = strtotime((string) $Date);
+            $dayHeaderLabel = $dayHeaderTs !== false
+                ? date('l F j Y', $dayHeaderTs)
+                : '';
+
+            $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
+            $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
+            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+
+            $renderData = $builder->buildDayScreenRenderData(
+                $aEvents,
+                $providersList,
+                $provinfo ?? [],
+                is_array($facilitiesList) ? $facilitiesList : [],
+                is_array($times) ? $times : [],
+                $intervalInt,
+                (string) $Date,
+                $pc_short_day_names,
+                is_int($pc_facility) || is_string($pc_facility) ? (int) $pc_facility : 0,
+                $apptStyle,
+                $tplImagePath,
+                OEGlobalsBag::getInstance()->getString('webroot'),
+                (string) $pc_prev_day,
+                (string) $pc_next_day,
+                $chevLeft,
+                $chevRight,
+                is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
+                !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
+                $dayHeaderLabel,
+                $isTwelveHourFormat
             );
         } else {
             $renderData = $builder->buildMonthPrintRenderData(
