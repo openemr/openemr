@@ -142,10 +142,8 @@ require_once("modules/$pcDir/pnincludes/Date/Calc.php");
 //=========================================================================
 require_once("modules/$pcDir/pnlang/eng/global.php");
 
-//=========================================================================
-//  Setup Smarty defines
-//=========================================================================
-require_once("modules/$pcDir/pcSmarty.class.php");
+// (legacy `require_once("modules/$pcDir/pcSmarty.class.php")` removed —
+//  the Twig conversion deleted pcSmarty along with library/smarty_legacy/.)
 //=========================================================================
 //  utility functions for postcalendar
 //=========================================================================
