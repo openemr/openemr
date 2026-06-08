@@ -55,6 +55,26 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
     const PARTICIPANT_TYPE_PARTICIPANT_TEXT = "Participant";
 
     /**
+     * Fallback appointment category title when the FHIR Appointment carries no
+     * appointmentType display. Passed through xl_appt_category() for translation.
+     */
+    private const DEFAULT_CATEGORY_TITLE = 'Office Visit';
+
+    /**
+     * Default openemr_postcalendar_categories.pc_catid used when the FHIR
+     * Appointment carries no resolvable appointmentType. 9 is the stock
+     * "Office Visit" category in the default category seed.
+     */
+    private const DEFAULT_CATEGORY_ID = 9;
+
+    /**
+     * Default appointment duration in seconds (15 minutes) when the FHIR
+     * Appointment does not yield a start/end span. The AppointmentValidator
+     * requires a non-empty pc_duration.
+     */
+    private const DEFAULT_DURATION_SECONDS = 900;
+
+    /**
      * @var AppointmentService
      */
     private $appointmentService;
@@ -301,11 +321,12 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             }
         }
 
-        // Default pc_title from appointmentType display or "Office Visit"
+        // Default pc_title from appointmentType display, else the translated
+        // fallback category title.
         if (!empty($json['appointmentType']['coding'][0]['display'])) {
             $data['pc_title'] = $json['appointmentType']['coding'][0]['display'];
         } else {
-            $data['pc_title'] = 'Office Visit';
+            $data['pc_title'] = \xl_appt_category(self::DEFAULT_CATEGORY_TITLE);
         }
 
         // Authorization context for provider/facility attribution. Only callers
@@ -485,12 +506,12 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         // Default pc_catid if not provided (required by validator)
         if (empty($openEmrRecord['pc_catid'])) {
-            $openEmrRecord['pc_catid'] = 9; // Office Visit is typically 9
+            $openEmrRecord['pc_catid'] = self::DEFAULT_CATEGORY_ID;
         }
 
         // Default pc_duration if not provided (validator requires it)
         if (empty($openEmrRecord['pc_duration'])) {
-            $openEmrRecord['pc_duration'] = 900; // 15 minutes default
+            $openEmrRecord['pc_duration'] = self::DEFAULT_DURATION_SECONDS;
         }
 
         // Validate that required fields are present

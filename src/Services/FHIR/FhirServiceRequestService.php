@@ -950,14 +950,9 @@ class FhirServiceRequestService extends FhirServiceBase implements
         $reasonCoding = $json['reasonCode'][0]['coding'][0] ?? null;
         if (is_array($reasonCoding) && !empty($reasonCoding['code']) && is_string($reasonCoding['code'])) {
             $system = is_string($reasonCoding['system'] ?? null) ? $reasonCoding['system'] : '';
-            $prefix = match ($system) {
-                'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10:',
-                'http://hl7.org/fhir/sid/icd-9-cm' => 'ICD9:',
-                'http://snomed.info/sct' => 'SNOMED-CT:',
-                default => '',
-            };
             if ($codes !== []) {
-                $codes[0]['diagnoses'] = $prefix . $reasonCoding['code'];
+                $codes[0]['diagnoses'] = (new CodeTypesService())
+                    ->getOpenEMRCodeForSystemAndCode($system, $reasonCoding['code']);
             }
         }
 

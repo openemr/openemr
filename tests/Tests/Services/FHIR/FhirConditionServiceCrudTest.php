@@ -112,4 +112,59 @@ class FhirConditionServiceCrudTest extends TestCase
         $this->assertGreaterThan(0, count($actualResult->getValidationMessages()));
         $this->assertEquals(0, count($actualResult->getData()));
     }
+
+    /**
+     * ICD-10-CM and ICD-9-CM are the US Core diagnosis code systems. They must
+     * map to OpenEMR's ICD10 / ICD9 code-type prefixes via CodeTypesService, not
+     * be passed through as the raw system URL.
+     */
+    #[Test]
+    public function testParseMapsIcdSystemsToOpenEmrCodeTypes(): void
+    {
+        $fixture = $this->fhirConditionFixture->jsonSerialize();
+        $fixture['code'] = [
+            'coding' => [
+                ['system' => 'http://hl7.org/fhir/sid/icd-10-cm', 'code' => 'E11.9'],
+                ['system' => 'http://hl7.org/fhir/sid/icd-9-cm', 'code' => '250.00'],
+            ],
+        ];
+        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
+
+        $this->assertSame('ICD10:E11.9;ICD9:250.00', $parsed['diagnosis']);
+    }
+
+    /**
+     * FHIR R4 dateTime permits partial values (YYYY, YYYY-MM). Those cannot be
+     * represented faithfully as a calendar date, so the parser drops the field
+     * rather than silently truncating to a wrong day.
+     */
+    #[Test]
+    public function testParseRejectsPartialOnsetDateTime(): void
+    {
+        $fixture = $this->fhirConditionFixture->jsonSerialize();
+        $fixture['onsetDateTime'] = '2020';
+        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
+        $this->assertArrayNotHasKey('begdate', $parsed);
+
+        $fixture['onsetDateTime'] = '2020-03';
+        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
+        $this->assertArrayNotHasKey('begdate', $parsed);
+    }
+
+    /**
+     * A full FHIR date (YYYY-MM-DD) and full date-time both resolve to the
+     * OpenEMR Y-m-d begdate.
+     */
+    #[Test]
+    public function testParseAcceptsFullOnsetDateTime(): void
+    {
+        $fixture = $this->fhirConditionFixture->jsonSerialize();
+        $fixture['onsetDateTime'] = '2020-03-15';
+        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
+        $this->assertSame('2020-03-15', $parsed['begdate']);
+
+        $fixture['onsetDateTime'] = '2020-03-15T09:30:00+00:00';
+        $parsed = $this->fhirConditionService->parseFhirResource(new FHIRCondition($fixture));
+        $this->assertSame('2020-03-15', $parsed['begdate']);
+    }
 }

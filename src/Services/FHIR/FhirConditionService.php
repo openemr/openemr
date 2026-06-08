@@ -5,6 +5,7 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
@@ -160,19 +161,14 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         // Code -> title and diagnosis
         if (!empty($json['code']['coding'])) {
+            $codeTypesService = new CodeTypesService();
             $diagnosisParts = [];
             foreach ($json['code']['coding'] as $coding) {
-                $system = $coding['system'] ?? '';
-                $codeValue = $coding['code'] ?? '';
+                $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
                 $display = $coding['display'] ?? '';
-                if (!empty($codeValue)) {
-                    $prefix = match ($system) {
-                        'http://snomed.info/sct' => 'SNOMED-CT',
-                        'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10',
-                        'http://hl7.org/fhir/sid/icd-9-cm' => 'ICD9',
-                        default => $system,
-                    };
-                    $diagnosisParts[] = $prefix . ':' . $codeValue;
+                if ($codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
                 }
                 if (!empty($display) && empty($data['title'])) {
                     $data['title'] = $display;
@@ -206,20 +202,18 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
         // OnsetDateTime -> begdate (ConditionValidator expects Y-m-d)
         if (!empty($json['onsetDateTime'])) {
-            $dateValue = $json['onsetDateTime'];
-            if (strlen((string) $dateValue) > 10) {
-                $dateValue = substr((string) $dateValue, 0, 10);
+            $begdate = $this->parseFullDateTimeToDate($json['onsetDateTime']);
+            if ($begdate !== null) {
+                $data['begdate'] = $begdate;
             }
-            $data['begdate'] = $dateValue;
         }
 
         // AbatementDateTime -> enddate
         if (!empty($json['abatementDateTime'])) {
-            $dateValue = $json['abatementDateTime'];
-            if (strlen((string) $dateValue) > 10) {
-                $dateValue = substr((string) $dateValue, 0, 10);
+            $enddate = $this->parseFullDateTimeToDate($json['abatementDateTime']);
+            if ($enddate !== null) {
+                $data['enddate'] = $enddate;
             }
-            $data['enddate'] = $dateValue;
         }
 
         // Note -> comments
@@ -228,6 +222,30 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         }
 
         return $data;
+    }
+
+    /**
+     * Parses a FHIR dateTime that is a full date (YYYY-MM-DD) or full
+     * date-time (YYYY-MM-DDThh:mm:ss±zz:zz) into an OpenEMR Y-m-d string.
+     *
+     * FHIR R4 dateTime also permits partial values (YYYY, YYYY-MM); those are
+     * intentionally rejected here (returns null) rather than silently
+     * truncated, because a year-only onset cannot be represented faithfully as
+     * a calendar date. Full partial-precision handling is tracked separately.
+     *
+     * @see https://build.fhir.org/datatypes.html#dateTime
+     */
+    private function parseFullDateTimeToDate(mixed $value): ?string
+    {
+        if (!is_string($value)) {
+            return null;
+        }
+        // Require at least a full date; reject YYYY and YYYY-MM partials.
+        if (preg_match('/^\d{4}-\d{2}-\d{2}([T ].*)?$/', $value) !== 1) {
+            return null;
+        }
+        $dt = date_create_immutable($value);
+        return $dt === false ? null : $dt->format('Y-m-d');
     }
 
     /**

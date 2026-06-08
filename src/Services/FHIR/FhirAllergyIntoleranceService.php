@@ -13,6 +13,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -277,19 +278,14 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
         // Code -> title and diagnosis
         if (!empty($json['code']['coding'])) {
+            $codeTypesService = new CodeTypesService();
             $diagnosisParts = [];
             foreach ($json['code']['coding'] as $coding) {
-                $system = $coding['system'] ?? '';
-                $codeValue = $coding['code'] ?? '';
+                $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
                 $display = $coding['display'] ?? '';
-                if (!empty($codeValue)) {
-                    $prefix = match ($system) {
-                        'http://snomed.info/sct' => 'SNOMED-CT',
-                        'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RXNORM',
-                        'http://hl7.org/fhir/ndc' => 'NDC',
-                        default => $system,
-                    };
-                    $diagnosisParts[] = $prefix . ':' . $codeValue;
+                if ($codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
                 }
                 if (!empty($display) && empty($data['title'])) {
                     $data['title'] = $display;
@@ -348,16 +344,13 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
 
         // Reaction -> reaction code
         if (!empty($json['reaction'][0]['manifestation'][0]['coding'])) {
+            $codeTypesService = new CodeTypesService();
             $reactionParts = [];
             foreach ($json['reaction'][0]['manifestation'][0]['coding'] as $coding) {
-                $codeValue = $coding['code'] ?? '';
-                if (!empty($codeValue)) {
-                    $system = $coding['system'] ?? '';
-                    $prefix = match ($system) {
-                        'http://snomed.info/sct' => 'SNOMED-CT',
-                        default => $system,
-                    };
-                    $reactionParts[] = $prefix . ':' . $codeValue;
+                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
+                if ($codeValue !== '' && $codeValue !== false) {
+                    $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+                    $reactionParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
                 }
             }
             if (!empty($reactionParts)) {

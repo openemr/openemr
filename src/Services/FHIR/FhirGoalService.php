@@ -586,18 +586,12 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     /**
      * Mirrors the CarePlan write-side helper for code-system prefixing into the
      * form_care_plan.code "PREFIX:value" convention used by the read side.
+     * Resolves the system URL through CodeTypesService so the supported code
+     * systems stay in sync with the read side.
      */
     private function prefixCodeForStorage(string $system, string $code): string
     {
-        $prefix = match ($system) {
-            'http://snomed.info/sct' => 'SNOMED-CT',
-            'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RXNORM',
-            'http://loinc.org' => 'LOINC',
-            'http://www.ama-assn.org/go/cpt' => 'CPT4',
-            'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10',
-            default => '',
-        };
-        return $prefix === '' ? $code : ($prefix . ':' . $code);
+        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)

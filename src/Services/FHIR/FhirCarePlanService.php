@@ -27,6 +27,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanActivity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -952,19 +953,13 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
     /**
      * OpenEMR's form_care_plan.code column stores codes prefixed by code-type
-     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService.
+     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService,
+     * so the write side resolves the system URL through the same service to stay
+     * in sync with the supported code systems.
      */
     private function prefixCodeForStorage(string $system, string $code): string
     {
-        $prefix = match ($system) {
-            'http://snomed.info/sct' => 'SNOMED-CT',
-            'http://www.nlm.nih.gov/research/umls/rxnorm' => 'RXNORM',
-            'http://loinc.org' => 'LOINC',
-            'http://www.ama-assn.org/go/cpt' => 'CPT4',
-            'http://hl7.org/fhir/sid/icd-10-cm' => 'ICD10',
-            default => '',
-        };
-        return $prefix === '' ? $code : ($prefix . ':' . $code);
+        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
     }
 
     /**
