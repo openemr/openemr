@@ -592,11 +592,12 @@ function postcalendar_userapi_buildView($args)
     // Progressive rollout: month_print uses the new CalendarRenderer +
     // builder path. Other views continue using the legacy pcSmarty
     // path below. Each ViewType cuts over in its own focused commit.
-    $useNewRenderer = (in_array($viewtype, ['month', 'week'], true) && $print);
+    $useNewRenderer = (in_array($viewtype, ['month', 'week', 'day'], true) && $print);
     if ($useNewRenderer) {
         $vmType = match ($viewtype) {
             'month' => ViewType::MonthPrint,
             'week'  => ViewType::WeekPrint,
+            'day'   => ViewType::DayPrint,
             default => ViewType::MonthPrint,
         };
         $vm = new CalendarViewModel(
@@ -623,6 +624,21 @@ function postcalendar_userapi_buildView($args)
                 $pc_short_day_names,
                 $apptStyle,
                 $tplImagePath
+            );
+        } elseif ($vmType === ViewType::DayPrint) {
+            $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
+            $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
+            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+            $renderData = $builder->buildDayPrintRenderData(
+                $aEvents,
+                $providersList,
+                is_array($times) ? $times : [],
+                $intervalInt,
+                (string) $Date,
+                $pc_short_day_names,
+                $apptStyle,
+                $tplImagePath,
+                $isTwelveHourFormat
             );
         } else {
             $renderData = $builder->buildMonthPrintRenderData(

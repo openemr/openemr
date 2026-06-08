@@ -252,6 +252,267 @@ final readonly class CalendarRenderDataBuilder
     }
 
     /**
+     * Build the render-data array for `day_print/outlook_ajax_template.html.twig`.
+     *
+     * First timed view through the builder — brings the geometry +
+     * overlap pipeline online. Per-event work runs:
+     *   normalizeAllDayEvent -> extendInEventDuration (catid 2 only) ->
+     *   computeEventGeometry -> overlap-positions lookup.
+     *
+     * @param  array<string, list<array<string, mixed>>> $aEvents
+     * @param  list<array<string, mixed>>                $providers
+     * @param  list<array{hour: int|string, minute: int|string, mer?: string}> $times
+     * @param  list<string>                              $shortDayNames
+     *
+     * @return array<string, mixed>
+     */
+    public function buildDayPrintRenderData(
+        array $aEvents,
+        array $providers,
+        array $times,
+        int $intervalMinutes,
+        string $dateYmd,
+        array $shortDayNames,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        bool $isTwelveHourFormat
+    ): array {
+        $year = substr($dateYmd, 0, 4);
+        $month = substr($dateYmd, 4, 2);
+        $currentMini = $this->viewModel->buildMiniCalendar("{$year}-{$month}-15");
+
+        $monthInt = (int) $month;
+        $yearInt = (int) $year;
+        $monthInt++;
+        if ($monthInt > 12) {
+            $monthInt = 1;
+            $yearInt++;
+        }
+        $nextMini = $this->viewModel->buildMiniCalendar(sprintf('%04d-%02d-15', $yearInt, $monthInt));
+
+        // Clinic window in minutes-from-midnight, derived from the
+        // first and last entries of $times. Same derivation the legacy
+        // does inline in every timed-view template.
+        $firstTime = $times[0] ?? ['hour' => 0, 'minute' => 0];
+        $lastTime = $times[count($times) - 1] ?? ['hour' => 0, 'minute' => 0];
+        $clinicStartMin = ((int) $firstTime['hour']) * 60 + ((int) $firstTime['minute']);
+        $clinicEndMin = ((int) $lastTime['hour']) * 60 + ((int) $lastTime['minute']);
+
+        $timeslotHeightVal = 20;
+        $timeslotHeightUnit = 'px';
+        $timeslotCss = $timeslotHeightVal . $timeslotHeightUnit;
+
+        // The displayed date is the only date in $aEvents for day_print
+        // (the controller passes a single-day events list).
+        $dates = array_keys($aEvents);
+        $eventDate = $dates[0] ?? '';
+        $eventTs = $eventDate !== '' ? strtotime($eventDate) : false;
+        $dateHeader = [
+            'dateLabel'     => $eventTs !== false ? date('d F Y', $eventTs) : '',
+            'weekdayLabel'  => $eventTs !== false ? date('l', $eventTs) : '',
+        ];
+        $eventDateYmd = $eventDate !== ''
+            ? substr($eventDate, 0, 4) . substr($eventDate, 5, 2) . substr($eventDate, 8, 2)
+            : '';
+
+        // timeRows for the times-column display. Each row carries the
+        // displayLabel (already 12h-shifted via displayStartHour where
+        // applicable) plus isOnTheHour for the boldface treatment.
+        $timeRows = [];
+        foreach ($times as $slot) {
+            $hourInt = (int) $slot['hour'];
+            $minuteInt = (int) $slot['minute'];
+            $minuteStr = sprintf('%02d', $minuteInt);
+            $displayHour = $this->viewModel->displayStartHour(sprintf('%02d:00:00', $hourInt), $isTwelveHourFormat);
+            $startampm = ($slot['mer'] ?? '') === 'pm' ? 2 : 1;
+            $timeRows[] = [
+                'hour'         => $hourInt,
+                'minute'       => $minuteInt,
+                'startampm'    => $startampm,
+                'isOnTheHour'  => $minuteInt === 0,
+                'displayLabel' => $displayHour . ':' . $minuteStr,
+            ];
+        }
+
+        // Per-provider decoration. Each provider gets a list of decorated
+        // events with geometry, overlap-positions, and bodyContent.
+        $providersGrid = [];
+        foreach ($providers as $provider) {
+            $providerIdRaw = $provider['id'] ?? null;
+            $providerId = is_int($providerIdRaw) || is_string($providerIdRaw) ? (int) $providerIdRaw : 0;
+
+            $rawDayEvents = $aEvents[$eventDate] ?? [];
+
+            $overlapPositions = $this->viewModel->detectEventOverlap(
+                $rawDayEvents,
+                $times,
+                $intervalMinutes,
+                $providerId
+            );
+
+            $decoratedEvents = $this->decorateDayPrintEvents(
+                $rawDayEvents,
+                $eventDateYmd,
+                $eventDate,
+                $providerId,
+                $times,
+                $intervalMinutes,
+                $clinicStartMin,
+                $clinicEndMin,
+                $timeslotHeightVal,
+                $timeslotHeightUnit,
+                $overlapPositions,
+                $calendarApptStyle,
+                $tplImagePath,
+                $isTwelveHourFormat
+            );
+
+            $providersGrid[] = [
+                'id'       => $providerId,
+                'fname'    => is_string($provider['fname'] ?? null) ? $provider['fname'] : '',
+                'lname'    => is_string($provider['lname'] ?? null) ? $provider['lname'] : '',
+                'username' => is_string($provider['username'] ?? null) ? $provider['username'] : '',
+                'classForWeekend' => 'work-day', // print views don't legacy-distinguish; preserved as work-day
+                'events'   => $decoratedEvents,
+            ];
+        }
+
+        return [
+            'providers'         => $providersGrid,
+            'dowList'           => $this->viewModel->dayOfWeekList(),
+            'A_SHORT_DAY_NAMES' => $shortDayNames,
+            'dateHeader'        => $dateHeader,
+            'currentMonthMini'  => $currentMini,
+            'nextMonthMini'     => $nextMini,
+            'timeRows'          => $timeRows,
+            'timeslotCss'       => $timeslotCss,
+        ];
+    }
+
+    /**
+     * Decorate one day's events for one provider in day_print, including
+     * geometry + overlap + IN-event lookahead.
+     *
+     * @param  list<array<string, mixed>> $events
+     * @param  list<array{hour: int|string, minute: int|string}> $times
+     * @param  array<int|string, array{width: float, leftpos: float}> $overlapPositions
+     * @return list<array<string, mixed>>
+     */
+    private function decorateDayPrintEvents(
+        array $events,
+        string $eventDateYmd,
+        string $eventDate,
+        int $providerId,
+        array $times,
+        int $intervalMinutes,
+        int $clinicStartMin,
+        int $clinicEndMin,
+        int $timeslotHeightVal,
+        string $timeslotHeightUnit,
+        array $overlapPositions,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        bool $isTwelveHourFormat
+    ): array {
+        $decorated = [];
+        $firstTimeSlot = $times[0] ?? ['hour' => 0, 'minute' => 0];
+
+        foreach ($events as $rawEvent) {
+            $aidRaw = $rawEvent['aid'] ?? null;
+            $aid = is_int($aidRaw) || is_string($aidRaw) ? (int) $aidRaw : 0;
+            if ($aid !== 0 && $aid !== $providerId) {
+                continue;
+            }
+
+            $eidRaw = $rawEvent['eid'] ?? null;
+            if (!is_int($eidRaw) && !is_string($eidRaw)) {
+                continue;
+            }
+            if ($eidRaw === '' || $eidRaw === 0) {
+                continue;
+            }
+
+            // Per-event pipeline: all-day normalization -> IN duration
+            // extension -> geometry -> overlap-positions.
+            $event = $this->viewModel->normalizeAllDayEvent(
+                $rawEvent,
+                $firstTimeSlot,
+                $clinicStartMin,
+                $clinicEndMin
+            );
+            $event = $this->viewModel->extendInEventDuration(
+                $event,
+                $events,
+                $providerId,
+                $clinicEndMin
+            );
+
+            $startTime = is_string($event['startTime'] ?? null) ? $event['startTime'] : '00:00:00';
+            $startMin = $this->viewModel->startTimeToMinutes($startTime);
+            $durationSecRaw = $event['duration'] ?? 0;
+            $durationSec = is_int($durationSecRaw) || is_string($durationSecRaw) ? (int) $durationSecRaw : 0;
+            $durationMin = (int) ($durationSec / 60);
+
+            $geometry = $this->viewModel->computeEventGeometry(
+                $startMin,
+                $durationMin,
+                $clinicStartMin,
+                $intervalMinutes,
+                $timeslotHeightVal,
+                $timeslotHeightUnit
+            );
+
+            $catidRaw = $event['catid'] ?? 0;
+            $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+            $evtClass = $this->viewModel->eventClassForCategory($catid);
+            $overrideRaw = $event['eventViewClass'] ?? null;
+            if (is_string($overrideRaw)) {
+                $evtClass = $overrideRaw;
+            }
+
+            $position = $overlapPositions[$eidRaw] ?? null;
+            $divWidthCss = $position !== null ? 'width: ' . $position['width'] . '%' : '';
+            $divLeftCss = $position !== null ? 'left: ' . $position['leftpos'] . '%' : '';
+
+            $bodyContent = $this->viewModel->buildDayPrintEventContent(
+                $event,
+                $calendarApptStyle,
+                $isTwelveHourFormat,
+                $tplImagePath
+            );
+
+            $entry = [
+                'eid'         => $eidRaw,
+                'catid'       => $catid,
+                'eventDate'   => $eventDateYmd,
+                'evtClass'    => $evtClass,
+                'catcolor'    => is_string($event['catcolor'] ?? null) ? $event['catcolor'] : '',
+                'evtTop'      => $geometry['top'],
+                'evtHeight'   => $geometry['height'],
+                'divWidth'    => $divWidthCss,
+                'divLeft'     => $divLeftCss,
+                'bodyContent' => $bodyContent,
+            ];
+
+            // IN events (catid 2) need the time-label DIV above the
+            // body. The label sits one timeslot above the body.
+            if ($catid === 2) {
+                $inLabelTopPx = ($geometry['startInterval'] - 1) * $timeslotHeightVal;
+                $entry['inLabelTop']     = $inLabelTopPx . $timeslotHeightUnit;
+                $entry['inLabelHeight']  = $timeslotHeightVal . $timeslotHeightUnit;
+                $startH = (int) substr($startTime, 0, 2);
+                $startM = substr($startTime, 3, 2);
+                $dispStartH = $this->viewModel->displayStartHour($startTime, $isTwelveHourFormat);
+                $entry['inLabelContent'] = htmlspecialchars($dispStartH . ':' . $startM, ENT_QUOTES) . ' ' . $bodyContent;
+            }
+
+            $decorated[] = $entry;
+        }
+
+        return $decorated;
+    }
+
+    /**
      * Decorate one day's events for a single provider in week_print.
      * Skips events for other providers, skips empty eids, then applies
      * buildWeekPrintEventContent.
