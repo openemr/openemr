@@ -743,4 +743,160 @@ final class CalendarViewModelTest extends TestCase
         // "9am Doe" + ", Jane , 123 Mainfollow-up"
         self::assertSame('9am Doe, Jane , 123 Mainfollow-up', $content);
     }
+
+    public function testDisplayStartHourShiftsForTwelveHourFormat(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        self::assertSame(9,  $vm->displayStartHour('09:00:00', true));   // morning unchanged
+        self::assertSame(1,  $vm->displayStartHour('13:00:00', true));   // 1pm
+        self::assertSame(11, $vm->displayStartHour('23:00:00', true));   // 11pm
+        self::assertSame(12, $vm->displayStartHour('12:00:00', true));   // noon stays 12
+    }
+
+    public function testDisplayStartHourLeavesHourUnchangedForTwentyFourHour(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        self::assertSame(13, $vm->displayStartHour('13:00:00', false));
+        self::assertSame(23, $vm->displayStartHour('23:00:00', false));
+    }
+
+    public function testBuildDayPrintEventContentForSpecialCategoryWithComment(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 4,  // VACATION
+            'startTime'  => '09:00:00',
+            'hometext'   => 'beach',
+            'recurrtype' => 0,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 1, true, '/tpl/img');
+
+        self::assertSame('VACATION beach', $content);
+    }
+
+    public function testBuildDayPrintEventContentRecurringIconAppearsForRecurrtype1(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 8,  // LUNCH
+            'startTime'  => '12:00:00',
+            'hometext'   => '',
+            'recurrtype' => 1,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 1, true, '/tpl/img');
+
+        self::assertStringContainsString("src='/tpl/img/repeating8.png'", $content);
+        self::assertStringEndsWith('LUNCH', $content);
+    }
+
+    public function testBuildDayPrintEventContentForPatientApptStyleOne(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 5,
+            'startTime'    => '09:30:00',
+            'pid'          => 100,
+            'patient_name' => 'Doe, Jane',
+            'apptstatus'   => '-',
+            'recurrtype'   => 0,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 1, true, '/tpl/img');
+
+        // Style 1: lname only, no fname/title/comment
+        self::assertSame("<span class='appointment'>9:30-Doe</span>", $content);
+    }
+
+    public function testBuildDayPrintEventContentForPatientApptStyleTwoAddsFirstName(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 5,
+            'startTime'    => '09:30:00',
+            'pid'          => 100,
+            'patient_name' => 'Doe, Jane',
+            'apptstatus'   => '-',
+            'title'        => 'Visit',
+            'recurrtype'   => 0,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 2, true, '/tpl/img');
+
+        // Style 2: lname,fname — title NOT included (style 2 stops before title)
+        self::assertSame("<span class='appointment'>9:30-Doe,Jane</span>", $content);
+    }
+
+    public function testBuildDayPrintEventContentForPatientApptStyleFourIncludesHometext(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 5,
+            'startTime'    => '09:30:00',
+            'pid'          => 100,
+            'patient_name' => 'Doe, Jane',
+            'apptstatus'   => '-',
+            'title'        => 'Visit',
+            'hometext'     => 'follow-up',
+            'recurrtype'   => 0,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 4, true, '/tpl/img');
+
+        self::assertStringContainsString("Doe,Jane(Visit:", $content);
+        self::assertStringContainsString("class='text-success'>follow-up</span>", $content);
+    }
+
+    public function testBuildDayPrintEventContentNoShowWrapsLnameInStrike(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 1,  // NO-SHOW
+            'startTime'    => '09:00:00',
+            'pid'          => 100,
+            'patient_name' => 'Doe, Jane',
+            'apptstatus'   => '-',
+            'recurrtype'   => 0,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 2, true, '/tpl/img');
+
+        self::assertStringContainsString('<s>Doe,Jane</s>', $content);
+    }
+
+    public function testBuildDayPrintEventContentNoPatientIdFallsBackToCatname(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::DayPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 5,
+            'startTime'  => '09:00:00',
+            'pid'        => null,  // no patient
+            'catname'    => 'Office Visit',
+            'apptstatus' => '',
+            'recurrtype' => 0,
+        ];
+
+        $content = $vm->buildDayPrintEventContent($event, 1, true, '/tpl/img');
+
+        // No-patient branch outputs catname instead of lname
+        self::assertStringContainsString('Office Visit', $content);
+        self::assertStringNotContainsString('<s>', $content);
+    }
 }

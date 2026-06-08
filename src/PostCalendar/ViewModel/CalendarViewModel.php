@@ -699,4 +699,138 @@ final readonly class CalendarViewModel
 
         return $content;
     }
+
+    /**
+     * Returns the legacy `dispstarth` for an event — the start-hour as
+     * an int adjusted for 12-hour display. `$dispstarth = ($starth > 12)
+     * ? ($starth - 12) : $starth` when 12-hour display is on; otherwise
+     * the raw hour. The 0-hour edge case (midnight) is left as 0 to
+     * match the legacy code; templates that display "12" for midnight
+     * handle that separately.
+     */
+    public function displayStartHour(string $startTime, bool $isTwelveHourFormat): int
+    {
+        $parts = explode(':', $startTime);
+        $hour = (int) $parts[0];
+
+        if ($isTwelveHourFormat && $hour > 12) {
+            return $hour - 12;
+        }
+
+        return $hour;
+    }
+
+    /**
+     * Builds the body HTML for one event card in the day_print view.
+     *
+     * Replaces the inline content-build block in day_print's main loop.
+     * Two top-level branches, mirroring the legacy:
+     *
+     *  - Special category (catid 2/3/4/8/11) → "[recurr icon] catname
+     *    [comment]". Catname overridden to the localized special label.
+     *  - Patient appointment branch → "<span class='appointment{toggle}'>
+     *    {dispstarth}:{startm} [recurr icon] {apptstatus} {lname [, fname
+     *    [, address] [(title [: hometext])]]} </span>" with NO-SHOW
+     *    (catid 1) wrapping lname in <s>...</s>.
+     *
+     * Group sessions and the holiday/closed catid 6/7 special branches
+     * are NOT supported by day_print (matches legacy).
+     *
+     * @param  array<string, mixed> $event
+     */
+    public function buildDayPrintEventContent(
+        array $event,
+        int $calendarApptStyle,
+        bool $isTwelveHourFormat,
+        string $tplImagePath,
+        string $apptToggle = ''
+    ): string {
+        $catidRaw = $event['catid'] ?? 0;
+        $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+
+        $startTime = $event['startTime'] ?? '00:00:00';
+        if (!is_string($startTime)) {
+            $startTime = '00:00:00';
+        }
+
+        $recurringIcon = '';
+        $recurrType = $event['recurrtype'] ?? 0;
+        $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
+        if ($recurrTypeInt === 1) {
+            // The legacy used a fixed icon path under TPL_IMAGE_PATH.
+            // The width/height/title/alt are hard-coded in the same way.
+            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
+        }
+
+        $commentRaw = $event['hometext'] ?? '';
+        $comment = is_string($commentRaw) ? $commentRaw : '';
+
+        // Special-category branch
+        if (in_array($catid, [2, 3, 4, 8, 11], true)) {
+            $catname = $this->translatedCategoryName($catid, '');
+            $content = $recurringIcon . \text($catname);
+            if ($comment !== '') {
+                $content .= ' ' . \text($comment);
+            }
+            return $content;
+        }
+
+        // Patient appointment branch
+        $patientId = $event['pid'] ?? null;
+        $patientNameRaw = $event['patient_name'] ?? null;
+        $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
+        $parsed = $this->parsePatientName($patientName);
+
+        $apptStatusRaw = $event['apptstatus'] ?? '';
+        $apptStatus = is_string($apptStatusRaw) ? $apptStatusRaw : '';
+
+        $dispStartH = $this->displayStartHour($startTime, $isTwelveHourFormat);
+        $startMRaw = explode(':', $startTime)[1] ?? '00';
+        $startM = $startMRaw;
+
+        $content = "<span class='appointment" . \attr($apptToggle) . "'>";
+        $content .= \text("$dispStartH:$startM");
+        $content .= $recurringIcon;
+        $content .= \text($apptStatus);
+
+        if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
+            if ($catid === 1) {
+                $content .= '<s>';
+            }
+            $content .= \text($parsed['lname']);
+
+            if ($calendarApptStyle !== 1) {
+                $content .= ',' . \text($parsed['fname']);
+
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+                $addressRaw = $event['patient_address'] ?? '';
+                $address = is_string($addressRaw) ? $addressRaw : '';
+
+                if ($title !== '' && $calendarApptStyle === 5) {
+                    $content .= ',' . \text($address);
+                }
+
+                if ($title !== '' && $calendarApptStyle >= 3) {
+                    $content .= '(' . \text($title);
+                    if ($comment !== '' && $calendarApptStyle >= 4) {
+                        $content .= ": <span class='text-success'>" . \text(trim($comment)) . '</span>';
+                    }
+                    $content .= ')';
+                }
+            }
+
+            if ($catid === 1) {
+                $content .= '</s>';
+            }
+        } else {
+            // No patient_id — fall back to category name (legacy quirk).
+            $catnameRaw = $event['catname'] ?? '';
+            $catname = is_string($catnameRaw) ? $catnameRaw : '';
+            $content .= \text($catname);
+        }
+
+        $content .= '</span>';
+        return $content;
+    }
 }

@@ -1,0 +1,147 @@
+{# day_print outlook calendar — Smarty→Twig conversion.
+
+   Input contract (consumer fills via CalendarViewModel primitives plus
+   per-event decoration described below):
+
+   - providers : list of {id, fname, lname, events}
+       where events is a list of decorated events for THIS provider
+   - dateHeader : {dateLabel, weekdayLabel} — top-of-page big date
+   - dowList : list<int> of 7 weekday indices
+   - A_SHORT_DAY_NAMES : 7 localized day-name strings indexed 0..6
+   - currentMonthMini, nextMonthMini : from CalendarViewModel::buildMiniCalendar()
+   - timeRows : list of {hour, minute, isOnTheHour, displayLabel}
+       displayLabel is the consumer's already-formatted "h:mm" string
+   - timeslotCss : e.g. "20px" — height of one timeslot row
+   - decorated event fields:
+       eid, catid (the only catid value the template inspects — for the
+       IN-event two-DIV pattern), evtClass, catcolor, eventdate,
+       evtTop / evtHeight (CSS strings with unit baked in),
+       divWidth / divLeft (CSS fragments like "width: 50%" / "left: 50%"
+       or empty strings), bodyContent (HTML).
+       IN events (catid == 2) additionally carry:
+         inLabelTop, inLabelHeight (CSS strings with unit),
+         inLabelContent (HTML string — the legacy's "dispstarth:startm
+         content_body" pre-built form).
+#}
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        a { text-decoration: none; }
+        td { font-family: Arial, Helvetica, sans-serif; }
+        div.tiny { width: 1px; height: 1px; font-size: 1px; }
+        #bigCalHeader { height: 20%; font-family: Arial, Helvetica, sans-serif; }
+        #bigCalText { float: left; }
+        #provname { font-size: 2em; }
+        #daterange { font-size: 1.8em; font-weight: bold; }
+        #bigCal { height: 80%; }
+        #bigCal table { border-collapse: collapse; }
+        #datePicker { float: right; display: inline; padding: 5px; text-align: center; background-color: lightblue; }
+        #datePicker td { font-family: Arial, Helvetica, sans-serif; font-size: 0.7em; }
+        #datePicker table { border-collapse: collapse; }
+        #datePicker .tdDOW-small, #datePicker .tdWeekend-small, #datePicker .tdOtherMonthDay-small, #datePicker .tdMonthDay-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top; padding: 2px 3px 2px 3px;
+        }
+        #datePicker .tdDOW-small { background-color: lightblue; text-align: center; border: none; }
+        #datePicker .tdDatePicker { cursor: pointer; }
+        #datePicker .tdWeekend-small { background-color: #dddddd; color: #999999; border: none; }
+        #datePicker .tdOtherMonthDay-small { background-color: #ffffff; color: #999999; border: none; }
+        #datePicker .tdMonthName-small { text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 12px; }
+        #datePicker .tdMonthDay-small { background-color: #ffffff; border: none; }
+        #datePicker .currentDate { border: 1px solid blue; background-color: blue; color: lightblue; }
+        #times { border-right: 1px solid #999; }
+        #times table { border-collapse: collapse; width: 100%; margin: 0; padding: 0; }
+        #times table td { border: 0; border-top: 1px solid #999; margin: 0; padding: 0; font-size: 10pt; }
+        .timeslot { height: {{ timeslotCss }}; margin: 0; padding: 0; }
+        .schedule { background-color: pink; vertical-align: top; padding: 0; margin: 0; border-right: 1px solid black; }
+        .event_in       { position: absolute; background-color: white;     width: 100%; font-size: 0.8em; color: #ddd; border-top: 1px dashed #ddd; }
+        .event_out      { position: absolute; background-color: lightgray; width: 100%; font-size: 0.8em; color: #ddd; border-top: 1px dashed #ddd; }
+        .event_appointment { position: absolute; background-color: white; overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
+        .event_noshow      { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
+        .event_reserved    { position: absolute; background-color: pink;  overflow: hidden; border: 1px solid blue; width: 100%; font-size: 0.8em; }
+    </style>
+    {{ setupHeader(['no_bootstrap', 'no_fontawesome', 'no_main-theme', 'no_dialog']) }}
+</head>
+<body>
+
+<div id="bigCalHeader">
+    <div id="bigCalText">
+        <span id="daterange">
+            {{ dateHeader.dateLabel|text }}
+            <br />
+            <span style="font-size:0.8em;font-weight:normal">{{ dateHeader.weekdayLabel|xlt }}</span>
+        </span>
+    </div>
+    <div id="datePicker">
+        {% include 'calendar/default/views/_mini_calendar.html.twig' with {
+            mini: nextMonthMini,
+            dowList: dowList,
+            dayNames: A_SHORT_DAY_NAMES,
+            hideOutOfMonth: true
+        } only %}
+    </div>
+    <div id="datePicker">
+        {% include 'calendar/default/views/_mini_calendar.html.twig' with {
+            mini: currentMonthMini,
+            dowList: dowList,
+            dayNames: A_SHORT_DAY_NAMES,
+            hideOutOfMonth: true
+        } only %}
+    </div>
+</div>
+
+<div id="bigCal">
+<table border="0" cellpadding="1" cellspacing="0" width="100%">
+    <tr>
+        <td id="times" style="width:2em;">
+            <div>
+                <table>
+                    <td class="timeslot" style="text-align: center; background-color:#ddd;">&nbsp;</td>
+                    {% for slot in timeRows %}
+                        <tr>
+                            <td class="timeslot">
+                                {% if slot.isOnTheHour %}
+                                    <b>{{ slot.displayLabel|text }}</b>
+                                {% else %}
+                                    {{ slot.displayLabel|text }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </td>
+
+        {% for provider in providers %}
+            <td class="schedule" style="border: 1px solid #999;" title="{{ provider.fname|attr }} {{ provider.lname|attr }}">
+                <div class="timeslot" style="font-size: 0.8em; text-align: center; background-color:#ddd; width: 100%; overflow: hidden; border-bottom: 1px solid lightgray;">
+                    {{ provider.fname|text }} {{ provider.lname|text }}
+                </div>
+                <div style="position: relative; height: 100%; width: 100%;">
+                    {% for event in provider.events %}
+                        {% if event.catid == 2 %}
+                            {# IN event: label DIV above the actual block #}
+                            <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                                 style="top:{{ event.inLabelTop }}; height:{{ event.inLabelHeight }}; {{ event.divWidth }}; {{ event.divLeft }}; background:transparent; border: none">
+                                {{ event.inLabelContent|raw }}
+                            </div>
+                        {% endif %}
+                        <div data-eid="{{ event.eid|attr }}" class="{{ event.evtClass|attr }} event"
+                             style="top:{{ event.evtTop }}; height:{{ event.evtHeight }}; background-color:{{ event.catcolor|attr }}; {{ event.divWidth }}; {{ event.divLeft }}"
+                             id="{{ event.eventdate|attr }}-{{ event.eid|attr }}">
+                            {% if event.catid != 2 %}
+                                {{ event.bodyContent|raw }}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </td>
+        {% endfor %}
+    </tr>
+</table>
+<p>
+
+</div>
+
+</body>
+</html>
