@@ -18,6 +18,10 @@ use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
+use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
+use OpenEMR\PostCalendar\ViewModel\ViewType;
 use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
@@ -584,6 +588,39 @@ function postcalendar_userapi_buildView($args)
     //  Parse the template
     //=================================================================
     $template = "$template_name/views/$viewtype/$template_view_load.html";
+
+    // Progressive rollout: month_print uses the new CalendarRenderer +
+    // builder path. Other views continue using the legacy pcSmarty
+    // path below. Each ViewType cuts over in its own focused commit.
+    $useNewRenderer = ($viewtype === 'month' && $print);
+    if ($useNewRenderer) {
+        $vm = new CalendarViewModel(
+            viewType: ViewType::MonthPrint,
+            firstDayOfWeek: (int) pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek')
+        );
+        $builder = new CalendarRenderDataBuilder($vm);
+        $renderData = $builder->buildMonthPrintRenderData(
+            is_array($eventsByDate) ? $eventsByDate : [],
+            is_array($provinfo) ? $provinfo : [],
+            (string) $Date,
+            $pc_short_day_names,
+            OEGlobalsBag::getInstance()->getInt('calendar_appt_style')
+        );
+        $renderData['PRINT_VIEW'] = 1;
+        $renderData['viewtype'] = $viewtype;
+        $newTpl = new CalendarRenderer();
+        foreach ($renderData as $k => $v) {
+            $newTpl->assign($k, $v);
+        }
+        echo "<html><head>";
+        echo "</head><body>\n";
+        echo $output;
+        echo $newTpl->render("calendar/$template_name/views/$viewtype/$template_view_load.html.twig");
+        echo postcalendar_footer();
+        echo "\n</body></html>";
+        exit;
+    }
+
     if (!$print) {
             $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
             $output .= $tpl->fetch($template, $cacheid);    // cache id
