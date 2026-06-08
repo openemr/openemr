@@ -28,6 +28,12 @@
            "dispstarth:startm content" HTML for the label DIV
 #}
 
+{# Include the calendar header — emits <html><head>setupHeader()</head><body>
+   that the legacy template's `[-include file="$TPL_NAME/views/header.html"-]`
+   provided. Without this, none of the external JS / CSS (jQuery, bootstrap,
+   utility.js, etc.) gets loaded. #}
+{% include 'calendar/default/views/header.html.twig' %}
+
 <form name="theform" id="theform" action="index.php?module=PostCalendar&amp;func=view&amp;tplview=default&amp;pc_category=&amp;pc_topic=" method="post" onsubmit="return top.restoreSession()">
 <div class="container-fluid sticky-top">
 <div id="topToolbarRight" class="bgcolor2">

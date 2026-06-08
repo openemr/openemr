@@ -657,7 +657,7 @@ function postcalendar_userapi_buildView($args)
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
             ob_start();
-            include OEGlobalsBag::getInstance()->getKernel()->getRootDir()
+            include OEGlobalsBag::getInstance()->getProjectDir() . '/interface'
                 . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
             $monthSelectorHtml = ob_get_clean();
 
@@ -703,8 +703,8 @@ function postcalendar_userapi_buildView($args)
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
             ob_start();
-            include OEGlobalsBag::getInstance()->getKernel()->getRootDir()
-                . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            include OEGlobalsBag::getInstance()->getProjectDir()
+                . '/interface/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
             $monthSelectorHtml = ob_get_clean();
 
             $facilitiesList = [];
@@ -755,7 +755,7 @@ function postcalendar_userapi_buildView($args)
             $cYear = $caldate !== false ? date('Y', $caldate) : '';
             $cDay = $caldate !== false ? date('d', $caldate) : '';
             ob_start();
-            include OEGlobalsBag::getInstance()->getKernel()->getRootDir()
+            include OEGlobalsBag::getInstance()->getProjectDir() . '/interface'
                 . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
             $monthSelectorHtml = ob_get_clean();
 
