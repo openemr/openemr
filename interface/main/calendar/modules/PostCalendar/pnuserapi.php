@@ -592,8 +592,7 @@ function postcalendar_userapi_buildView($args)
     // Progressive rollout: month_print uses the new CalendarRenderer +
     // builder path. Other views continue using the legacy pcSmarty
     // path below. Each ViewType cuts over in its own focused commit.
-    $useNewRenderer = (in_array($viewtype, ['month', 'week', 'day'], true) && $print)
-        || (in_array($viewtype, ['month', 'day'], true) && !$print);
+    $useNewRenderer = in_array($viewtype, ['month', 'week', 'day'], true);
     if ($useNewRenderer) {
         $vmType = match (true) {
             $viewtype === 'month' && (bool) $print => ViewType::MonthPrint,
@@ -601,6 +600,7 @@ function postcalendar_userapi_buildView($args)
             $viewtype === 'day'   && (bool) $print => ViewType::DayPrint,
             $viewtype === 'month'                  => ViewType::Month,
             $viewtype === 'day'                    => ViewType::Day,
+            $viewtype === 'week'                   => ViewType::Week,
             default                                => ViewType::MonthPrint,
         };
         $vm = new CalendarViewModel(
@@ -741,6 +741,61 @@ function postcalendar_userapi_buildView($args)
                 is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $dayHeaderLabel,
+                $isTwelveHourFormat
+            );
+        } elseif ($vmType === ViewType::Week) {
+            // Week-screen: like day-screen but 7 day-columns per provider.
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $languageDirection = $session->get('language_direction');
+            $chevLeft = $languageDirection === 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+            $chevRight = $languageDirection === 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+
+            $caldate = strtotime((string) $Date);
+            $cMonth = $caldate !== false ? date('m', $caldate) : '';
+            $cYear = $caldate !== false ? date('Y', $caldate) : '';
+            $cDay = $caldate !== false ? date('d', $caldate) : '';
+            ob_start();
+            include OEGlobalsBag::getInstance()->getKernel()->getRootDir()
+                . '/main/calendar/modules/PostCalendar/pntemplates/default/views/monthSelector.php';
+            $monthSelectorHtml = ob_get_clean();
+
+            $sessionAuthUserID = $session->get('authUserID');
+            $sessionAuthorizedUser = $session->get('authorizeduser');
+            $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
+
+            // Week header: "March 15 - 21 2026" style, from first/last
+            // dates in $aEvents.
+            $eventDates = array_keys($aEvents);
+            $firstDateTs = !empty($eventDates) ? strtotime((string) $eventDates[0]) : false;
+            $lastDateTs = !empty($eventDates) ? strtotime((string) $eventDates[count($eventDates) - 1]) : false;
+            $weekHeaderLabel = ($firstDateTs !== false && $lastDateTs !== false)
+                ? date('M j', $firstDateTs) . ' - ' . date('M j Y', $lastDateTs)
+                : '';
+
+            $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
+            $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
+            $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
+
+            $renderData = $builder->buildWeekScreenRenderData(
+                $aEvents,
+                $providersList,
+                $provinfo ?? [],
+                is_array($facilitiesList) ? $facilitiesList : [],
+                is_array($times) ? $times : [],
+                $intervalInt,
+                (string) $Date,
+                $pc_short_day_names,
+                is_int($pc_facility) || is_string($pc_facility) ? (int) $pc_facility : 0,
+                $apptStyle,
+                $tplImagePath,
+                OEGlobalsBag::getInstance()->getString('webroot'),
+                (string) $pc_prev_week,
+                (string) $pc_next_week,
+                $chevLeft,
+                $chevRight,
+                is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
+                !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
+                $weekHeaderLabel,
                 $isTwelveHourFormat
             );
         } else {
