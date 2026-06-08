@@ -899,4 +899,98 @@ final class CalendarViewModelTest extends TestCase
         self::assertStringContainsString('Office Visit', $content);
         self::assertStringNotContainsString('<s>', $content);
     }
+
+    public function testBuildWeekPrintEventContentSpecialCategoryIncludesTimePrefix(): void
+    {
+        // Differs from day_print: week_print prefixes the time even in the
+        // special-category branch.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::WeekPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 4,  // VACATION
+            'startTime'  => '09:00:00',
+            'hometext'   => 'beach',
+            'recurrtype' => 0,
+        ];
+
+        $content = $vm->buildWeekPrintEventContent($event, '2026-03-15', 1, '/tpl/img');
+
+        // "09:00 VACATION beach" — note zero-padded 12-hour, no AM/PM
+        self::assertSame('09:00 VACATION beach', $content);
+    }
+
+    public function testBuildWeekPrintEventContentTimeFormatIsZeroPaddedTwelveHour(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::WeekPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 8,  // LUNCH
+            'startTime'  => '13:30:00',
+            'hometext'   => '',
+            'recurrtype' => 0,
+        ];
+
+        // PHP date('h:i') for 13:30 = "01:30" — 12-hour zero-padded, AM/PM omitted.
+        $content = $vm->buildWeekPrintEventContent($event, '2026-03-15', 1, '/tpl/img');
+        self::assertStringStartsWith('01:30 LUNCH', $content);
+    }
+
+    public function testBuildWeekPrintEventContentPatientApptUsesFontGreenForHometext(): void
+    {
+        // Legacy quirk: week_print uses <font color='green'>, day_print used
+        // <span class='text-success'>. Preserved verbatim.
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::WeekPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 5,
+            'startTime'    => '09:30:00',
+            'pid'          => 100,
+            'patient_name' => 'Doe, Jane',
+            'title'        => 'Visit',
+            'hometext'     => 'follow-up',
+            'recurrtype'   => 0,
+        ];
+
+        $content = $vm->buildWeekPrintEventContent($event, '2026-03-15', 4, '/tpl/img');
+
+        self::assertStringContainsString("<font color='green'>follow-up</font>", $content);
+        self::assertStringNotContainsString("text-success", $content);
+    }
+
+    public function testBuildWeekPrintEventContentRecurringIconAppears(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::WeekPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'      => 11,  // RESERVED
+            'startTime'  => '08:00:00',
+            'hometext'   => '',
+            'recurrtype' => 1,
+        ];
+
+        $content = $vm->buildWeekPrintEventContent($event, '2026-03-15', 1, '/tpl/img');
+
+        self::assertStringContainsString("src='/tpl/img/repeating8.png'", $content);
+    }
+
+    public function testBuildWeekPrintEventContentNoShowWrapsLnameInStrike(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+        $vm = new CalendarViewModel(viewType: ViewType::WeekPrint, firstDayOfWeek: 0);
+
+        $event = [
+            'catid'        => 1,  // NO-SHOW
+            'startTime'    => '09:00:00',
+            'pid'          => 100,
+            'patient_name' => 'Doe, Jane',
+            'recurrtype'   => 0,
+        ];
+
+        $content = $vm->buildWeekPrintEventContent($event, '2026-03-15', 1, '/tpl/img');
+        self::assertStringContainsString('<s>Doe</s>', $content);
+    }
 }

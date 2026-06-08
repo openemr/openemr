@@ -833,4 +833,119 @@ final readonly class CalendarViewModel
         $content .= '</span>';
         return $content;
     }
+
+    /**
+     * Builds the body HTML for one event card in the week_print view.
+     *
+     * Differs from day_print's builder in two ways the legacy makes
+     * explicit:
+     *
+     *  - Time format is zero-padded 12-hour "h:i" via the combined
+     *    eventDate + startTime timestamp, NOT the dispstarth:startm
+     *    integer-and-string concat day_print uses. AM/PM is omitted
+     *    in this format — legacy quirk, ambiguous between 9:30am and
+     *    9:30pm in raw output.
+     *  - Hometext gets wrapped in `<font color='green'>` rather than
+     *    `<span class='text-success'>`. Preserved as-is to match the
+     *    legacy week_print byte-output.
+     *
+     * Also differs from day_print: the special-category branch (catids
+     * 2, 3, 4, 8, 11) INCLUDES the formatted time prefix. day_print's
+     * special-cat branch did not.
+     *
+     * Group sessions NOT supported (matches legacy week_print).
+     *
+     * @param  array<string, mixed> $event
+     */
+    public function buildWeekPrintEventContent(
+        array $event,
+        string $eventDate,
+        int $calendarApptStyle,
+        string $tplImagePath,
+        string $apptToggle = ''
+    ): string {
+        $catidRaw = $event['catid'] ?? 0;
+        $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+
+        $startTime = $event['startTime'] ?? '00:00:00';
+        if (!is_string($startTime)) {
+            $startTime = '00:00:00';
+        }
+
+        // Legacy: $eventdatetime = strtotime("$date $starth:$startm");
+        // and then date("h:i", $eventdatetime).
+        $eventTs = strtotime($eventDate . ' ' . $startTime);
+        $timeLabel = $eventTs !== false ? date('h:i', $eventTs) : '00:00';
+
+        $recurringIcon = '';
+        $recurrType = $event['recurrtype'] ?? 0;
+        $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
+        if ($recurrTypeInt === 1) {
+            $recurringIcon = "<img src='" . $tplImagePath . "/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='Repeating event' alt='Repeating event'>";
+        }
+
+        $commentRaw = $event['hometext'] ?? '';
+        $comment = is_string($commentRaw) ? $commentRaw : '';
+
+        // Special-category branch — INCLUDES time prefix (unlike day_print)
+        if (in_array($catid, [2, 3, 4, 8, 11], true)) {
+            $catname = $this->translatedCategoryName($catid, '');
+            $content = \text($timeLabel) . $recurringIcon . ' ' . \text($catname);
+            if ($comment !== '') {
+                $content .= ' ' . \text($comment);
+            }
+            return $content;
+        }
+
+        // Patient appointment branch
+        $patientId = $event['pid'] ?? null;
+        $patientNameRaw = $event['patient_name'] ?? null;
+        $patientName = is_string($patientNameRaw) ? $patientNameRaw : null;
+        $parsed = $this->parsePatientName($patientName);
+
+        $content = "<span class='appointment" . \attr($apptToggle) . "'>";
+        $content .= \text($timeLabel) . ' ';
+        $content .= $recurringIcon;
+
+        if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
+            if ($catid === 1) {
+                $content .= '<s>';
+            }
+            $content .= \text($parsed['lname']);
+
+            if ($calendarApptStyle !== 1) {
+                $content .= ',' . \text($parsed['fname']);
+
+                $titleRaw = $event['title'] ?? '';
+                $title = is_string($titleRaw) ? $titleRaw : '';
+                $addressRaw = $event['patient_address'] ?? '';
+                $address = is_string($addressRaw) ? $addressRaw : '';
+
+                if ($title !== '' && $calendarApptStyle === 5) {
+                    $content .= ',' . \text($address);
+                }
+
+                if ($title !== '' && $calendarApptStyle >= 3) {
+                    $content .= '(' . \text($title);
+                    if ($comment !== '' && $calendarApptStyle >= 4) {
+                        // Legacy quirk: week_print uses <font color='green'>
+                        // where day_print used <span class='text-success'>.
+                        $content .= ": <font color='green'>" . \text(trim($comment)) . '</font>';
+                    }
+                    $content .= ')';
+                }
+            }
+
+            if ($catid === 1) {
+                $content .= '</s>';
+            }
+        } else {
+            $catnameRaw = $event['catname'] ?? '';
+            $catname = is_string($catnameRaw) ? $catnameRaw : '';
+            $content .= \text($catname);
+        }
+
+        $content .= '</span>';
+        return $content;
+    }
 }
