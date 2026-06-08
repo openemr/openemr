@@ -186,4 +186,82 @@ final class CalendarViewModelTest extends TestCase
         yield 'null'                 => [null,           ['lname' => '',      'fname' => '']];
         yield 'three commas'         => ['a, b, c',      ['lname' => 'a',     'fname' => 'b, c']];
     }
+
+    public function testBuildMiniCalendarShapesForMarch2026SundayFirst(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $cal = $vm->buildMiniCalendar('2026-03-15', '20260315');
+
+        self::assertSame(2026, $cal['year']);
+        self::assertSame(3, $cal['month']);
+        self::assertSame('March 2026', $cal['monthLabel']);
+
+        // March 2026: starts Sunday March 1, ends Tuesday March 31.
+        // With Sunday-first dowList, the grid pads to start Sun Mar 1 and
+        // end Sat Apr 4 — that's 5 full weeks.
+        self::assertCount(5, $cal['weeks']);
+        foreach ($cal['weeks'] as $week) {
+            self::assertCount(7, $week);
+        }
+
+        // First cell is Sunday Mar 1.
+        self::assertSame('20260301', $cal['weeks'][0][0]['dateYmd']);
+        self::assertSame(1,           $cal['weeks'][0][0]['day']);
+        self::assertSame(0,           $cal['weeks'][0][0]['dayOfWeek']);
+        self::assertTrue($cal['weeks'][0][0]['inMonth']);
+        self::assertTrue($cal['weeks'][0][0]['isWeekend']);
+        self::assertFalse($cal['weeks'][0][0]['isCurrent']);
+
+        // Mar 15 is week 3, Sunday position. Marked current.
+        self::assertSame('20260315', $cal['weeks'][2][0]['dateYmd']);
+        self::assertTrue($cal['weeks'][2][0]['isCurrent']);
+    }
+
+    public function testBuildMiniCalendarMondayFirstAdjustsLeadingPadding(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 1);
+
+        $cal = $vm->buildMiniCalendar('2026-03-15');
+
+        // Monday-first: first row starts on Monday. March 1 is Sunday, so
+        // the first row's first cell is the previous Monday — Feb 23, 2026.
+        self::assertSame('20260223', $cal['weeks'][0][0]['dateYmd']);
+        self::assertFalse($cal['weeks'][0][0]['inMonth']);
+        self::assertSame(1, $cal['weeks'][0][0]['dayOfWeek']);
+
+        // Last cell of first row is the following Sunday — Mar 1.
+        self::assertSame('20260301', $cal['weeks'][0][6]['dateYmd']);
+        self::assertTrue($cal['weeks'][0][6]['inMonth']);
+        self::assertSame(0, $cal['weeks'][0][6]['dayOfWeek']);
+        self::assertTrue($cal['weeks'][0][6]['isWeekend']);
+    }
+
+    public function testBuildMiniCalendarMarksOutOfMonthDaysCorrectly(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $cal = $vm->buildMiniCalendar('2026-03-15');
+
+        // Find any day with inMonth=false and confirm its month differs.
+        $foundOutOfMonth = false;
+        foreach ($cal['weeks'] as $week) {
+            foreach ($week as $day) {
+                if (!$day['inMonth']) {
+                    $foundOutOfMonth = true;
+                    $actualMonth = (int) substr($day['dateYmd'], 4, 2);
+                    self::assertNotSame(3, $actualMonth);
+                }
+            }
+        }
+        self::assertTrue($foundOutOfMonth, 'Expected at least one out-of-month padding day');
+    }
+
+    public function testBuildMiniCalendarThrowsOnUnparseableAnchor(): void
+    {
+        $vm = new CalendarViewModel(viewType: ViewType::Month, firstDayOfWeek: 0);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $vm->buildMiniCalendar('not-a-date');
+    }
 }

@@ -172,4 +172,90 @@ final readonly class CalendarViewModel
             'fname' => $parts[1] ?? '',
         ];
     }
+
+    /**
+     * Builds the data for a small month-grid calendar of the given date's
+     * month. The structure intentionally exposes raw flags (inMonth,
+     * isWeekend, isCurrent) rather than baked-in CSS class strings, so
+     * the same builder serves both the print PrintDatePicker (which
+     * just skips out-of-month days) and the screen mini-calendars
+     * (which color out-of-month, weekend, and holiday cells).
+     *
+     * Replaces the inline PrintDatePicker helper-function definitions
+     * inside day_print/week_print/month_print templates, plus the very
+     * similar mini-calendar block in day/week/month on-screen templates.
+     *
+     * @param  string  $monthAnchor   Any parseable date string within the target month (e.g. "2026-03-15", "20260315")
+     * @param  ?string $currentDate   YYYYMMDD of the date to mark as `isCurrent`, or null for none
+     * @return array{monthLabel: string, year: int, month: int, weeks: list<list<array{dateYmd: string, day: int, dayOfWeek: int, inMonth: bool, isWeekend: bool, isCurrent: bool}>>}
+     */
+    public function buildMiniCalendar(string $monthAnchor, ?string $currentDate = null): array
+    {
+        $anchor = strtotime($monthAnchor);
+        if ($anchor === false) {
+            throw new \InvalidArgumentException("Cannot parse month anchor: {$monthAnchor}");
+        }
+
+        $year = (int) date('Y', $anchor);
+        $month = (int) date('n', $anchor);
+        $dowList = $this->dayOfWeekList();
+
+        // Pad backwards from the 1st until the row starts on dowList[0].
+        $startDate = mktime(0, 0, 0, $month, 1, $year);
+        // mktime never fails for valid arithmetic, but PHPStan can't prove that.
+        if ($startDate === false) {
+            throw new \RuntimeException('mktime failed for month start');
+        }
+        while ((int) date('w', $startDate) !== $dowList[0]) {
+            $startDate -= 86400;
+        }
+
+        // Pad forwards from the last day of month until the row ends on dowList[6].
+        $lastDayOfMonth = (int) date('t', $anchor);
+        $endDate = mktime(0, 0, 0, $month, $lastDayOfMonth, $year);
+        if ($endDate === false) {
+            throw new \RuntimeException('mktime failed for month end');
+        }
+        while ((int) date('w', $endDate) !== $dowList[6]) {
+            $endDate += 86400;
+        }
+
+        $weeks = [];
+        $currentWeek = [];
+        $cursor = $startDate;
+        while ($cursor <= $endDate) {
+            $cursorYmd = date('Ymd', $cursor);
+            $cursorDow = (int) date('w', $cursor);
+            $currentWeek[] = [
+                'dateYmd'   => $cursorYmd,
+                'day'       => (int) date('d', $cursor),
+                'dayOfWeek' => $cursorDow,
+                'inMonth'   => (int) date('m', $cursor) === $month,
+                'isWeekend' => $cursorDow === 0 || $cursorDow === 6,
+                'isCurrent' => $currentDate !== null && $cursorYmd === $currentDate,
+            ];
+
+            if ($cursorDow === $dowList[6]) {
+                $weeks[] = $currentWeek;
+                $currentWeek = [];
+            }
+
+            // The legacy code added `+1000` seconds per iteration alongside
+            // 86400 ("for some unknown reason" per the original author,
+            // suspected DST guard). It is not a DST guard — it just drifts
+            // forward 16 min per day and over a 35-day grid accumulates
+            // past endDate by ~9.5 hours, silently dropping the last
+            // partial week (months ending Mon/Tue/Wed lose their last
+            // Sat/Sun row). Removed here; the snapshot diff will tell us
+            // if any rendering depended on the truncation.
+            $cursor += 86400;
+        }
+
+        return [
+            'monthLabel' => date('F Y', $anchor),
+            'year'       => $year,
+            'month'      => $month,
+            'weeks'      => $weeks,
+        ];
+    }
 }
