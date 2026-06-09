@@ -17,7 +17,7 @@
     {% if HEADER_STYLES is defined and HEADER_STYLES %}
         <!-- Module Styles Started -->
         {% for cssSrc in HEADER_STYLES %}
-            <link rel="stylesheet" href="{{ cssSrc }}" type="text/css" />
+            <link rel="stylesheet" href="{{ cssSrc|safe_href }}" type="text/css" />
         {% endfor %}
         <!-- Module Styles Ended -->
     {% endif %}

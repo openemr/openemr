@@ -26,7 +26,7 @@
     <title>{{ _EDIT_PC_CONFIG_CATDETAILS|text }}</title>
 </head>
 <body>
-<form name="cats" action="{{ action }}" method="post" enctype="application/x-www-form-urlencoded">
+<form name="cats" action="{{ action|safe_href }}" method="post" enctype="application/x-www-form-urlencoded">
 <!-- GATHER NEW DATA START -->
 	<table class="table table-bordered" cellpadding="5" cellspacing="0">
 			<tr>

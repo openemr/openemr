@@ -24,7 +24,7 @@
             <h2>{{ 'Searching for appointments'|xlt }}</h2>
         </div>
         <div class="col-12">
-            <form name="theform" id="theform" action="{{ FORM_ACTION }}" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
+            <form name="theform" id="theform" action="{{ FORM_ACTION|safe_href }}" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                 <!-- Keywords -->
                 <div class="form-group">
                     <label for="pc_keywords">{{ 'Keywords'|xlt }}:</label>

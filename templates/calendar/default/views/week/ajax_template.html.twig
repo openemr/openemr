@@ -54,9 +54,9 @@
     </div>
 
     <div id="dateNAV">
-        <a id="prevweek" href="{{ PREV_WEEK_URL }}" onclick="top.restoreSession()" title="{{ 'Previous Week'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
+        <a id="prevweek" href="{{ PREV_WEEK_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Previous Week'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
         {{ weekHeaderLabel|raw }}
-        <a id="nextweek" href="{{ NEXT_WEEK_URL }}" onclick="top.restoreSession()" title="{{ 'Next Week'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
+        <a id="nextweek" href="{{ NEXT_WEEK_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Next Week'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
     </div>
 
     <div id="viewPicker">

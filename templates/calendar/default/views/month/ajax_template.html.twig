@@ -79,9 +79,9 @@
     </div>
 
     <div id="dateNAV">
-        <a id="prevmonth" href="{{ PREV_MONTH_URL }}" onclick="top.restoreSession()" title="{{ 'Previous Month'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
+        <a id="prevmonth" href="{{ PREV_MONTH_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Previous Month'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
         {{ currentMonthLabel|raw }}
-        <a id="nextmonth" href="{{ NEXT_MONTH_URL }}" onclick="top.restoreSession()" title="{{ 'Next Month'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
+        <a id="nextmonth" href="{{ NEXT_MONTH_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Next Month'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
     </div>
 
     <div id="viewPicker">

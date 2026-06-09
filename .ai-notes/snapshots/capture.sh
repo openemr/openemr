@@ -19,23 +19,23 @@
 
 set -euo pipefail
 
-TARGET="${1:?usage: $0 <target-dir>}"
+TARGET="${1:?usage: ${0} <target-dir>}"
 BASE="http://localhost:8302"
 COOKIES=$(mktemp)
-trap 'rm -f "$COOKIES"' EXIT
+trap 'rm -f "${COOKIES}"' EXIT
 
-mkdir -p "$TARGET"
+mkdir -p "${TARGET}"
 
 echo "Logging in as admin..."
 # Prime session
-curl -s -c "$COOKIES" "$BASE/interface/login/login.php?site=default" > /dev/null
+curl -s -c "${COOKIES}" "${BASE}/interface/login/login.php?site=default" > /dev/null
 
 # POST credentials. OpenEMR's login form has no CSRF field (verified by
 # inspecting the rendered form's input names) so authProvider + authUser +
 # clearPass are sufficient. languageChoice + new_login_session_management
 # match the form's hidden inputs.
-curl -s -L -b "$COOKIES" -c "$COOKIES" -o /dev/null -w "  login HTTP %{http_code}\n" \
-    -X POST "$BASE/interface/main/main_screen.php?auth=login" \
+curl -s -L -b "${COOKIES}" -c "${COOKIES}" -o /dev/null -w "  login HTTP %{http_code}\n" \
+    -X POST "${BASE}/interface/main/main_screen.php?auth=login" \
     --data-urlencode "new_login_session_management=1" \
     --data-urlencode "authProvider=Default" \
     --data-urlencode "authUser=admin" \
@@ -68,11 +68,11 @@ DATE="20260601"
 capture() {
     local name=$1
     local query=$2
-    local out="$TARGET/${name}.html"
+    local out="${TARGET}/${name}.html"
     echo "  -> ${name}"
-    curl -s -b "$COOKIES" "${BASE}/interface/main/calendar/index.php?${query}" \
-        | normalise > "$out"
-    wc -l "$out" | awk '{print "     " $1 " lines"}'
+    curl -s -b "${COOKIES}" "${BASE}/interface/main/calendar/index.php?${query}" \
+        | normalise > "${out}"
+    wc -l "${out}" | awk '{print "     " $1 " lines"}'
 }
 
 echo "Capturing views..."
@@ -85,4 +85,4 @@ capture "month_print"       "module=PostCalendar&func=view&viewtype=month&Date=$
 capture "user_search"       "module=PostCalendar&func=search"
 capture "admin_categories"  "module=PostCalendar&type=admin&func=categories"
 
-echo "Done. Outputs in $TARGET/"
+echo "Done. Outputs in ${TARGET}/"

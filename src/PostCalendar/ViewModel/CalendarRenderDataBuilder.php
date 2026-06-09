@@ -1352,7 +1352,7 @@ final readonly class CalendarRenderDataBuilder
 
     /**
      * Extract the list of provider usernames from the selected-providers
-     * input. Used by screen views to pre-select the right options in the
+     * input. Used by screen views to preselect the right options in the
      * multi-select picker.
      *
      * @param  list<array<string, mixed>> $providers

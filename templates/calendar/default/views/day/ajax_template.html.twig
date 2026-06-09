@@ -54,9 +54,9 @@
     </div>
 
     <div id="dateNAV">
-        <a id="prevday" href="{{ PREV_DAY_URL }}" onclick="top.restoreSession()" title="{{ 'Previous Day'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
+        <a id="prevday" href="{{ PREV_DAY_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Previous Day'|xla }}"><i class="fa {{ chevron_icon_left|attr }} chevron_color"></i></a>
         {{ dayHeaderLabel|text }}
-        <a id="nextday" href="{{ NEXT_DAY_URL }}" onclick="top.restoreSession()" title="{{ 'Next Day'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
+        <a id="nextday" href="{{ NEXT_DAY_URL|safe_href }}" onclick="top.restoreSession()" title="{{ 'Next Day'|xla }}"><i class="fa {{ chevron_icon_right|attr }} chevron_color"></i></a>
     </div>
 
     <div id="viewPicker">
