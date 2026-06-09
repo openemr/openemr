@@ -36,11 +36,6 @@ final class PostCalendarTwigExtension extends AbstractExtension
     {
         return [
             new TwigFunction('pc_sort_events', $this->pcSortEvents(...)),
-            new TwigFunction(
-                'pc_event_time_anchor',
-                $this->pcEventTimeAnchor(...),
-                ['is_safe' => ['html']]
-            ),
         ];
     }
 
@@ -68,24 +63,4 @@ final class PostCalendarTwigExtension extends AbstractExtension
         return $eventsByDate;
     }
 
-    /**
-     * HTML anchor that, on click, triggers the event editor for the enclosing
-     * appointment block. Caller is responsible for escaping any HTML in
-     * $displayString (the legacy contract — see migration notes — that
-     * `text()` here intentionally preserves: the caller may supply text or
-     * pre-escaped HTML).
-     *
-     * Replaces the legacy `create_event_time_anchor()` helper defined inside
-     * a `[-php-]` block in `pntemplates/default/views/header.html`. Called
-     * from `[-php-]` blocks in day/week/month ajax_templates today; after
-     * those templates convert to Twig the call site becomes
-     * `{{ pc_event_time_anchor(displayTime) }}`.
-     */
-    public function pcEventTimeAnchor(string $displayString): string
-    {
-        $title = xl('Click to edit');
-
-        return "<a class='event_time' onclick='event_time_click(this)' title='"
-            . attr($title) . "'>" . text($displayString) . "</a>";
-    }
 }

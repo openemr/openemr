@@ -30,7 +30,6 @@ final class PostCalendarTwigExtensionTest extends TestCase
         );
 
         self::assertContains('pc_sort_events', $names);
-        self::assertContains('pc_event_time_anchor', $names);
     }
 
     public function testPcSortEventsReturnsEmptyArrayForEmptyInput(): void
@@ -119,34 +118,4 @@ final class PostCalendarTwigExtensionTest extends TestCase
         self::assertSame(['2026-06-01', '2026-06-15'], array_keys($sorted));
     }
 
-    public function testPcEventTimeAnchorEscapesDisplayString(): void
-    {
-        // disable_translation makes xl() return its input verbatim so the
-        // title attribute is predictable. attr()/text() apply HTML-escaping
-        // regardless.
-        $GLOBALS['disable_translation'] = true;
-
-        $extension = new PostCalendarTwigExtension();
-
-        $html = $extension->pcEventTimeAnchor("10:00 <script>");
-
-        self::assertStringContainsString('class=\'event_time\'', $html);
-        self::assertStringContainsString('onclick=\'event_time_click(this)\'', $html);
-        self::assertStringContainsString('title=\'Click to edit\'', $html);
-        // <script> must be escaped, not pass through raw.
-        self::assertStringNotContainsString('<script>', $html);
-        self::assertStringContainsString('&lt;script&gt;', $html);
-    }
-
-    public function testPcEventTimeAnchorReturnsAnchorTag(): void
-    {
-        $GLOBALS['disable_translation'] = true;
-        $extension = new PostCalendarTwigExtension();
-
-        $html = $extension->pcEventTimeAnchor('10:00');
-
-        self::assertStringStartsWith('<a ', $html);
-        self::assertStringEndsWith('</a>', $html);
-        self::assertStringContainsString('>10:00<', $html);
-    }
 }

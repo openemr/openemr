@@ -17,12 +17,17 @@
  *
  *   - assign(string|array, mixed = null): assign template variables
  *   - render(string $template): return rendered HTML
- *   - getVar(string): retrieve a previously-assigned variable (only used
- *     by pnadmin.php legacy diagnostics; can be dropped once those are
- *     cleaned up).
+ *   - getVar(string): retrieve a previously-assigned variable. Used by
+ *     pnuser.php's search-results path to read back the A_EVENTS array
+ *     after assignment for a follow-up provider-name resolution pass —
+ *     could be refactored to compute that pass before the assign, but
+ *     until then the round-trip needs read access.
  *
  * The renderer holds no global state and can be instantiated multiple
- * times per request.
+ * times per request. There's no clear() — assigned variables
+ * accumulate across calls. Each legacy entry point instantiates a
+ * fresh renderer per request, so this is fine; if a caller ever
+ * reuses an instance across renders it needs to manage that itself.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org

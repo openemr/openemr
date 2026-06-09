@@ -21,15 +21,14 @@ namespace OpenEMR\PostCalendar\ViewModel;
  * The CalendarViewModel methods are pure transformations on single
  * events / single dates. This class composes them — looping events
  * per provider, computing nav URLs, building the day-grid structure
- * per view, etc. — so the consumer's switch from pcSmarty to
- * CalendarRenderer stays small (build the data, hand it to the
- * renderer) and the orchestration is unit-testable.
+ * per view, etc. — so the consumer's switch to CalendarRenderer
+ * stays small (build the data, hand it to the renderer) and the
+ * orchestration is unit-testable.
  *
- * Initial scope: month_print only. Subsequent commits add the other
- * five views (week_print, day_print, then month/week/day screen).
- * Consumer (pnuserapi.php) branches by ViewType during the rollout —
- * un-converted views continue to use pcSmarty, converted ones use
- * this builder.
+ * One public method per view: buildMonthScreenRenderData,
+ * buildDayScreenRenderData, buildWeekScreenRenderData, and the
+ * three matching print variants. Each is called from pnuserapi.php
+ * by viewtype dispatch.
  */
 final readonly class CalendarRenderDataBuilder
 {
@@ -1003,7 +1002,8 @@ final readonly class CalendarRenderDataBuilder
                     $calendarApptStyle,
                     $tplImagePath,
                     $webroot,
-                    $apptToggle
+                    $apptToggle,
+                    $isTwelveHourFormat
                 );
 
                 $dayColumns[] = [
@@ -1083,7 +1083,8 @@ final readonly class CalendarRenderDataBuilder
         int $calendarApptStyle,
         string $tplImagePath,
         string $webroot,
-        string $apptToggle
+        string $apptToggle,
+        bool $isTwelveHourFormat
     ): array {
         $decorated = [];
         $firstTimeSlot = $times[0] ?? ['hour' => 0, 'minute' => 0];
@@ -1151,6 +1152,7 @@ final readonly class CalendarRenderDataBuilder
                 $calendarApptStyle,
                 $tplImagePath,
                 $webroot,
+                $isTwelveHourFormat,
                 $apptToggle
             );
             if ($built['extraClass'] !== '') {

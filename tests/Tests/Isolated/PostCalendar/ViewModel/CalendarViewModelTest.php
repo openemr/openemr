@@ -1306,7 +1306,7 @@ final class CalendarViewModelTest extends TestCase
         ];
 
         // apptToggle="-toggled" → wrapper becomes <span class='appointment-toggled'>
-        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr', '-toggled');
+        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr', false, '-toggled');
 
         self::assertStringContainsString("<span class='appointment-toggled'>", $result['content']);
     }
@@ -1355,9 +1355,33 @@ final class CalendarViewModelTest extends TestCase
             'facility_row' => ['name' => '', 'id' => 0, 'color' => ''],
         ];
 
-        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr', '-anything');
+        $result = $vm->buildWeekScreenEventContent($event, 1, '/tpl/img', '/openemr', false, '-anything');
 
         self::assertStringNotContainsString("<span class='appointment", $result['content']);
         self::assertStringNotContainsString('show-appointment', $result['content']);
+    }
+
+    public function testEventTimeAnchorHtmlReturnsAnchorTagWithClickToEditTitle(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+
+        $html = CalendarViewModel::eventTimeAnchorHtml('10:00');
+
+        self::assertStringStartsWith('<a ', $html);
+        self::assertStringEndsWith('</a>', $html);
+        self::assertStringContainsString('>10:00<', $html);
+        self::assertStringContainsString("class='event_time'", $html);
+        self::assertStringContainsString("onclick='event_time_click(this)'", $html);
+        self::assertStringContainsString("title='Click to edit'", $html);
+    }
+
+    public function testEventTimeAnchorHtmlEscapesDisplayString(): void
+    {
+        $GLOBALS['disable_translation'] = true;
+
+        $html = CalendarViewModel::eventTimeAnchorHtml('10:00 <script>');
+
+        self::assertStringNotContainsString('<script>', $html);
+        self::assertStringContainsString('&lt;script&gt;', $html);
     }
 }

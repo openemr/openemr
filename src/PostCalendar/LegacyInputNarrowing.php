@@ -130,7 +130,9 @@ final class LegacyInputNarrowing
 
     /**
      * Narrow a mixed value to an int, with an optional default for
-     * inputs that aren't int|string-coerceable.
+     * inputs that aren't int|string-coerceable. Non-empty strings get
+     * the PHP `(int)` cast — "12abc" becomes 12, matching the
+     * truncating behavior the legacy entry points rely on.
      */
     public static function intValue(mixed $value, int $default = 0): int
     {

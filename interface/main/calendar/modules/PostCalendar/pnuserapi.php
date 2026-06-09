@@ -526,11 +526,12 @@ function postcalendar_userapi_buildView($args)
 
     };
 
-    // Progressive rollout: month_print uses the new CalendarRenderer +
-    // builder path. Other views continue using the legacy pcSmarty
-    // path below. Each ViewType cuts over in its own focused commit.
-    $useNewRenderer = in_array($viewtype, ['month', 'week', 'day'], true);
-    if ($useNewRenderer) {
+    // Year view has no template — it falls through to the page-setup
+    // output without a rendered body, same behavior the legacy "if no
+    // viewtype matches" path had. Everything else (month/week/day,
+    // each in their screen and print variants) goes through the
+    // CalendarRenderer + builder.
+    if (in_array($viewtype, ['month', 'week', 'day'], true)) {
         // After the in_array guard, $viewtype is 'month'|'week'|'day'.
         // Array dispatch avoids the cascade-of-tautologies PHPStan
         // flags when sequential match arms (or if/elseif chains)

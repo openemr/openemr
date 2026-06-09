@@ -721,6 +721,21 @@ final readonly class CalendarViewModel
     }
 
     /**
+     * Wraps the formatted event-time string in the clickable anchor the
+     * day/week/month-screen templates expose. The onclick handler
+     * (event_time_click defined in _calendar_screen_js.html.twig)
+     * dispatches to EditEvent on the enclosing .event_appointment DIV,
+     * so clicking the time opens the appointment editor. Replaces the
+     * legacy `create_event_time_anchor()` helper that lived inside a
+     * [-php-] block in the Smarty header template.
+     */
+    public static function eventTimeAnchorHtml(string $displayTime): string
+    {
+        return "<a class='event_time' onclick='event_time_click(this)' title='"
+            . attr(xl('Click to edit')) . "'>" . text($displayTime) . "</a>";
+    }
+
+    /**
      * Builds the body HTML for one event card in the day_print view.
      *
      * Replaces the inline content-build block in day_print's main loop.
@@ -1056,12 +1071,9 @@ final readonly class CalendarViewModel
             $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $parsed['fname'] . ' ' . $parsed['lname'];
         }
 
-        // The pre-built event-time anchor — caller passes via
-        // event.timeAnchorHtml to avoid this method re-implementing
-        // pcEventTimeAnchor.
-        $timeAnchorRaw = $event['timeAnchorHtml'] ?? '';
-        $timeAnchor = is_string($timeAnchorRaw) ? $timeAnchorRaw : '';
-        $content = $timeAnchor;
+        // Clickable event-time anchor (clicking opens the editor via
+        // event_time_click → EditEvent). Legacy: create_event_time_anchor().
+        $content = self::eventTimeAnchorHtml($displayTime);
 
         if ($patientId !== null && $patientId !== '' && $patientId !== 0) {
             $patientDob = is_string($event['patient_dob'] ?? null) ? $event['patient_dob'] : '';
@@ -1188,8 +1200,8 @@ final readonly class CalendarViewModel
      *  - Patient icon is <i class='fas fa-user text-success'> (FA glyph),
      *    NOT user-green.gif. Group icon is <i class='fas fa-user text-primary'>.
      *  - Time prefix uses `dispstarth:startm` (legacy zero-padded minute
-     *    via sprintf("%02s")) wrapped in create_event_time_anchor — passed
-     *    in via event.timeAnchorHtml from pcEventTimeAnchor.
+     *    via sprintf("%02s")) wrapped in the clickable event-time anchor
+     *    via eventTimeAnchorHtml().
      *  - Patient/group branch is wrapped in <span class='appointment'>.
      *  - Special-category branch (catid 2/3/4/8/11) emits time-less
      *    catname-then-recurring-icon-then-comment, with the recurring icon
@@ -1285,8 +1297,13 @@ final readonly class CalendarViewModel
             $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $parsed['fname'] . ' ' . $parsed['lname'];
         }
 
-        $timeAnchorRaw = $event['timeAnchorHtml'] ?? '';
-        $timeAnchor = is_string($timeAnchorRaw) ? $timeAnchorRaw : '';
+        // Clickable event-time anchor — legacy used
+        // create_event_time_anchor($dispstarth . ":" . sprintf("%02s", $startm))
+        // where dispstarth came from displayStartHour.
+        $dayStartParts = explode(":", $startTime);
+        $dayStartHour = $this->displayStartHour($startTime, $isTwelveHourFormat);
+        $dayStartMinute = isset($dayStartParts[1]) ? sprintf("%02s", $dayStartParts[1]) : "00";
+        $timeAnchor = self::eventTimeAnchorHtml($dayStartHour . ":" . $dayStartMinute);
 
         $recurrType = $event['recurrtype'] ?? 0;
         $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
@@ -1437,10 +1454,16 @@ final readonly class CalendarViewModel
         int $calendarApptStyle,
         string $tplImagePath,
         string $webroot,
+        bool $isTwelveHourFormat = false,
         string $apptToggle = ''
     ): array {
         $catidRaw = $event['catid'] ?? 0;
         $catid = is_int($catidRaw) || is_string($catidRaw) ? (int) $catidRaw : 0;
+
+        $startTime = $event['startTime'] ?? '00:00:00';
+        if (!is_string($startTime)) {
+            $startTime = '00:00:00';
+        }
 
         $commentRaw = $event['hometext'] ?? '';
         $comment = is_string($commentRaw) ? $commentRaw : '';
@@ -1503,8 +1526,13 @@ final readonly class CalendarViewModel
             $tooltip .= "\r\n[" . $rawCatname . ' ' . $comment . ']' . $parsed['fname'] . ' ' . $parsed['lname'];
         }
 
-        $timeAnchorRaw = $event['timeAnchorHtml'] ?? '';
-        $timeAnchor = is_string($timeAnchorRaw) ? $timeAnchorRaw : '';
+        // Clickable event-time anchor — legacy used
+        // create_event_time_anchor($dispstarth . ":" . sprintf("%02s", $startm))
+        // where dispstarth came from displayStartHour.
+        $weekStartParts = explode(":", $startTime);
+        $weekStartHour = $this->displayStartHour($startTime, $isTwelveHourFormat);
+        $weekStartMinute = isset($weekStartParts[1]) ? sprintf("%02s", $weekStartParts[1]) : "00";
+        $timeAnchor = self::eventTimeAnchorHtml($weekStartHour . ":" . $weekStartMinute);
 
         $recurrType = $event['recurrtype'] ?? 0;
         $recurrTypeInt = is_int($recurrType) || is_string($recurrType) ? (int) $recurrType : 0;
