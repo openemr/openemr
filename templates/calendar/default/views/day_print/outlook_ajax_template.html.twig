@@ -143,5 +143,18 @@
 
 </div>
 
+{# Trigger the browser print dialog on page load via the framework's
+   printLogPrint helper (defined in library/restoreSession.php). The
+   popup is opened by the parent calendar via window.open(), so
+   printLogPrint may be reachable on top or on opener.top depending
+   on how the print popup is framed. Mirrors the legacy day_print
+   $(function(){ ... }) block at the bottom of the Smarty template. #}
+<script>
+    $(function () {
+        var win = top.printLogPrint ? top : opener.top;
+        win.printLogPrint(window);
+    });
+</script>
+
 </body>
 </html>
