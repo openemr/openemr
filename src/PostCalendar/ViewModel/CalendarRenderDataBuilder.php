@@ -732,20 +732,13 @@ final readonly class CalendarRenderDataBuilder
                 $webroot
             );
 
-            // 3-way facility-filter dispatch.
-            if ($pcFacility === 0) {
-                $displayBgColor = $catcolor;
-                $displayContentHtml = $built['content'];
-            } elseif ($pcFacility === $facilityId) {
-                $displayBgColor = $catcolor;
-                $displayContentHtml = $built['content'];
-            } else {
-                $displayBgColor = 'var(--gray300)';
-                $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
-                    ? $facilityRow['name']
-                    : '';
-                $displayContentHtml = "<span class='text-center text-danger'>" . attr($facilityName) . '</span>';
-            }
+            $display = $this->applyFacilityFilterDispatch(
+                $pcFacility,
+                $facilityId,
+                $catcolor,
+                $built['content'],
+                $facilityRow
+            );
 
             $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
 
@@ -754,8 +747,8 @@ final readonly class CalendarRenderDataBuilder
                 'eventDate'           => $eventDateYmd,
                 'pccattype'           => $pccattype,
                 'evtClass'            => $evtClass,
-                'displayBgColor'      => $displayBgColor,
-                'displayContentHtml'  => $displayContentHtml,
+                'displayBgColor'      => $display['displayBgColor'],
+                'displayContentHtml'  => $display['displayContentHtml'],
                 'tooltip'             => $built['tooltip'],
             ];
         }
@@ -1169,16 +1162,13 @@ final readonly class CalendarRenderDataBuilder
             $facilityId = is_array($facilityRow) && isset($facilityRow['id'])
                 ? (is_int($facilityRow['id']) || is_string($facilityRow['id']) ? (int) $facilityRow['id'] : 0)
                 : 0;
-            if ($pcFacility === 0 || $pcFacility === $facilityId) {
-                $displayBgColor = $catcolor;
-                $displayContentHtml = $built['content'];
-            } else {
-                $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
-                    ? $facilityRow['name']
-                    : '';
-                $displayBgColor = 'var(--gray300)';
-                $displayContentHtml = "<span class='text-center text-danger'>" . attr($facilityName) . '</span>';
-            }
+            $display = $this->applyFacilityFilterDispatch(
+                $pcFacility,
+                $facilityId,
+                $catcolor,
+                $built['content'],
+                $facilityRow
+            );
 
             $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
 
@@ -1188,8 +1178,8 @@ final readonly class CalendarRenderDataBuilder
                 'eventDate'          => $eventDateYmd,
                 'pccattype'          => $pccattype,
                 'evtClass'           => $evtClass,
-                'displayBgColor'     => $displayBgColor,
-                'displayContentHtml' => $displayContentHtml,
+                'displayBgColor'     => $display['displayBgColor'],
+                'displayContentHtml' => $display['displayContentHtml'],
                 'tooltip'            => $built['tooltip'],
                 'evtTopCss'          => $geometry['top'],
                 'evtHeightCss'       => $geometry['height'],
@@ -1320,16 +1310,13 @@ final readonly class CalendarRenderDataBuilder
             $facilityId = is_array($facilityRow) && isset($facilityRow['id'])
                 ? (is_int($facilityRow['id']) || is_string($facilityRow['id']) ? (int) $facilityRow['id'] : 0)
                 : 0;
-            if ($pcFacility === 0 || $pcFacility === $facilityId) {
-                $displayBgColor = $catcolor;
-                $displayContentHtml = $built['content'];
-            } else {
-                $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
-                    ? $facilityRow['name']
-                    : '';
-                $displayBgColor = 'var(--gray300)';
-                $displayContentHtml = "<span class='text-center text-danger'>" . attr($facilityName) . '</span>';
-            }
+            $display = $this->applyFacilityFilterDispatch(
+                $pcFacility,
+                $facilityId,
+                $catcolor,
+                $built['content'],
+                $facilityRow
+            );
 
             $pccattype = is_string($event['pccattype'] ?? null) ? $event['pccattype'] : '';
 
@@ -1339,8 +1326,8 @@ final readonly class CalendarRenderDataBuilder
                 'eventDate'          => $eventDateYmd,
                 'pccattype'          => $pccattype,
                 'evtClass'           => $evtClass,
-                'displayBgColor'     => $displayBgColor,
-                'displayContentHtml' => $displayContentHtml,
+                'displayBgColor'     => $display['displayBgColor'],
+                'displayContentHtml' => $display['displayContentHtml'],
                 'tooltip'            => $built['tooltip'],
                 'evtTopCss'          => $geometry['top'],
                 'evtHeightCss'       => $geometry['height'],
@@ -1391,6 +1378,39 @@ final readonly class CalendarRenderDataBuilder
     {
         $ts = strtotime($ymd);
         return $ts !== false ? date('F', $ts) : '';
+    }
+
+    /**
+     * 3-way facility filter dispatch shared by all three screen
+     * decorators. Computes the displayBgColor + displayContentHtml
+     * pair the templates render:
+     *
+     *  - pc_facility == 0 (no filter) → catcolor bg, full content
+     *  - pc_facility == event's facility → catcolor bg, full content
+     *  - else (event's facility doesn't match selected) → greyed-out
+     *    bg and a placeholder span showing the facility name in red
+     *
+     * @param  ?array<mixed> $facilityRow
+     * @return array{displayBgColor: string, displayContentHtml: string}
+     */
+    private function applyFacilityFilterDispatch(
+        int $pcFacility,
+        int $eventFacilityId,
+        string $catcolor,
+        string $contentHtml,
+        ?array $facilityRow
+    ): array {
+        if ($pcFacility === 0 || $pcFacility === $eventFacilityId) {
+            return ['displayBgColor' => $catcolor, 'displayContentHtml' => $contentHtml];
+        }
+
+        $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
+            ? $facilityRow['name']
+            : '';
+        return [
+            'displayBgColor'     => 'var(--gray300)',
+            'displayContentHtml' => "<span class='text-center text-danger'>" . attr($facilityName) . '</span>',
+        ];
     }
 
     /**
