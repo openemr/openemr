@@ -35,6 +35,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 //=========================================================================
 //  Load the API Functions
@@ -774,10 +775,18 @@ EOF;
 
 function postcalendar_admin_clearCache()
 {
-    // Twig's container manages cache invalidation on file-mtime changes,
-    // so an explicit "clear cache" button no longer has real work to do.
-    // Kept as a UI no-op so the admin-menu link doesn't 404 and admins
-    // who muscle-memory click it still get the confirmation message.
+    // Calendar Twig templates have no on-disk cache (TwigContainer does
+    // not set a cache option, so Twig recompiles per request). Modern
+    // Smarty (vendor/smarty/smarty, used by library/classes/Controller
+    // and other admin pages) does have a compiled-template cache under
+    // CacheDirectory's openemr-smarty scope; clear that here so an
+    // admin clicking this button gets the work the legacy button used
+    // to do against the now-deleted pcSmarty.
+    $smarty = new Smarty();
+    $smarty->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
+    $smarty->clearAllCache();
+    $smarty->clearCompiledTemplate();
+
     return postcalendar_admin_modifyconfig('<div class="text-center">' . text(_PC_CACHE_CLEARED) . '</div>');
 }
 
@@ -822,10 +831,24 @@ function postcalendar_admin_testSystem()
         $error .= '</div>';
     }
     array_push($infos, ['Module version', $version . " $error"]);
-    // Legacy "smarty version / template dir / compile dir" diagnostic
-    // items removed — the calendar runs on Twig now, and Twig's cache
-    // management is handled by TwigContainer transparently. Adding
-    // Twig-equivalent diagnostic items would be a separate task.
+
+    // Modern Smarty (vendor/smarty/smarty) is still in OpenEMR for the
+    // non-calendar pages that extend Controller. Surface its version
+    // and compile-dir status here the way the legacy diagnostic did
+    // for pcSmarty.
+    $smartyCompileDir = (new CacheDirectory())->for('openemr-smarty');
+    $smartyCompileDirError = '';
+    if (!file_exists($smartyCompileDir)) {
+        $smartyCompileDirError = ' <span class="text-danger">' . xlt('compile dir does not exist') . '</span>';
+    } elseif (!is_writable($smartyCompileDir)) {
+        $smartyCompileDirError = ' <span class="text-danger">' . xlt('compile dir not writeable') . '</span>';
+    }
+    array_push($infos, ['Smarty version', Smarty::SMARTY_VERSION]);
+    array_push($infos, ['Smarty compile dir', $smartyCompileDir . $smartyCompileDirError]);
+
+    // Twig has no on-disk cache configured by TwigContainer, so there's
+    // no equivalent compile-dir to report. Note the version for parity.
+    array_push($infos, ['Twig version', \Twig\Environment::VERSION]);
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
