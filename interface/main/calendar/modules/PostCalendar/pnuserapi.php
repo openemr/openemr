@@ -757,7 +757,7 @@ function postcalendar_userapi_buildView($args)
         $bodyClassSession = SessionWrapperFactory::getInstance()->getActiveSession()->get('language_direction');
         $renderData['body_class'] = is_string($bodyClassSession) ? $bodyClassSession : '';
 
-        $newTpl = new CalendarRenderer();
+        $newTpl = CalendarRenderer::create();
         foreach ($renderData as $k => $v) {
             $newTpl->assign($k, $v);
         }

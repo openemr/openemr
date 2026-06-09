@@ -124,7 +124,7 @@ function postcalendar_user_display($args)
  */
 function postcalendar_user_search()
 {
-    $tpl = new CalendarRenderer();
+    $tpl = CalendarRenderer::create();
     $k = pnVarCleanFromInput('pc_keywords') ?? '';
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
     // Twig template expects the POST-derived values pre-extracted.

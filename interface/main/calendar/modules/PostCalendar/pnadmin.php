@@ -433,7 +433,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     // set up Twig renderer (replaces legacy pcSmarty)
-    $tpl = new CalendarRenderer();
+    $tpl = CalendarRenderer::create();
 
     $template_nameRaw = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
     $template_name = is_string($template_nameRaw) && $template_nameRaw !== ''

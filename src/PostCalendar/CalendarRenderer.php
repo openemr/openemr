@@ -41,16 +41,29 @@ use Twig\Environment;
 
 final class CalendarRenderer
 {
-    private readonly Environment $twig;
-
     /** @var array<string, mixed> */
     private array $variables = [];
 
-    public function __construct()
+    public function __construct(
+        private readonly Environment $twig,
+    ) {
+    }
+
+    /**
+     * Build a renderer wired to the OpenEMR-configured Twig environment.
+     *
+     * Used by the legacy entry points (pnuserapi.php, pnuser.php,
+     * pnadmin.php) where constructor injection isn't practical because
+     * those files run at include-time, not through a DI container.
+     * Tests should call the constructor directly with a fixture
+     * Environment so they don't need a booted Kernel.
+     */
+    public static function create(): self
     {
         $container = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-        $this->twig = $container->getTwig();
-        $this->twig->addExtension(new PostCalendarTwigExtension());
+        $twig = $container->getTwig();
+        $twig->addExtension(new PostCalendarTwigExtension());
+        return new self($twig);
     }
 
     /**
