@@ -192,7 +192,7 @@
                 <td class="schedule {{ day.classForWeekend|attr }}">
                     <div class="calendar_day">
                         <div class="month_daylink">
-                            <a href="{{ day.gotoUrl }}" alt="{{ 'Go to'|xla }} {{ day.dateAttrTitle|attr }}" title="{{ 'Go to'|xla }} {{ day.dateAttrTitle|attr }}">{{ day.dateDisplay|text }}</a>
+                            <a href="{{ day.gotoUrl|safe_href }}" alt="{{ 'Go to'|xla }} {{ day.dateAttrTitle|attr }}" title="{{ 'Go to'|xla }} {{ day.dateAttrTitle|attr }}">{{ day.dateDisplay|text }}</a>
                         </div>
                         {% set rendered = 0 %}
                         {% for event in day.events %}

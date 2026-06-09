@@ -485,7 +485,7 @@ final readonly class CalendarRenderDataBuilder
                 'catid'       => $catid,
                 'eventDate'   => $eventDateYmd,
                 'evtClass'    => $evtClass,
-                'catcolor'    => is_string($event['catcolor'] ?? null) ? $event['catcolor'] : '',
+                'catcolor'    => self::sanitizeCssColor(is_string($event['catcolor'] ?? null) ? $event['catcolor'] : ''),
                 'evtTop'      => $geometry['top'],
                 'evtHeight'   => $geometry['height'],
                 'divWidth'    => $divWidthCss,
@@ -615,7 +615,10 @@ final readonly class CalendarRenderDataBuilder
                     'dateYmd'         => $eventDateYmd,
                     'dateDisplay'     => date('d', $dateTs),
                     'dateAttrTitle'   => date('d M Y', $dateTs),
-                    'gotoUrl'         => '#', // consumer can override with pnModURL if needed
+                    'gotoUrl'         => $webroot . '/interface/main/calendar/index.php'
+                        . '?module=PostCalendar&func=view&viewtype=day'
+                        . '&Date=' . $eventDateYmd
+                        . '&pc_username=&pc_category=&pc_topic=',
                     'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
                     'isStartOfWeek'   => $dayOfWeek === $dowList[0],
                     'isEndOfWeek'     => $dayOfWeek === $dowList[6],
@@ -1009,7 +1012,10 @@ final readonly class CalendarRenderDataBuilder
                 $dayColumns[] = [
                     'dateYmd'         => $columnYmd,
                     'dateAttrTitle'   => date('d M Y', $columnTs),
-                    'gotoUrl'         => '#', // overridden by consumer via pnModURL if needed
+                    'gotoUrl'         => $webroot . '/interface/main/calendar/index.php'
+                        . '?module=PostCalendar&func=view&viewtype=day'
+                        . '&Date=' . $columnYmd
+                        . '&pc_username=&pc_category=&pc_topic=',
                     'dayHeaderLabel'  => date('D m/d', $columnTs),
                     'classForWeekend' => $isWeekend ? 'weekend-day' : 'work-day',
                     'isCurrentDay'    => $columnYmd === $dateYmd,
@@ -1615,7 +1621,7 @@ final readonly class CalendarRenderDataBuilder
                 'eid'         => $eidRaw,
                 'eventDate'   => $eventDateYmd,
                 'evtClass'    => $evtClass,
-                'catcolor'    => is_string($event['catcolor'] ?? null) ? $event['catcolor'] : '',
+                'catcolor'    => self::sanitizeCssColor(is_string($event['catcolor'] ?? null) ? $event['catcolor'] : ''),
                 'bodyContent' => $bodyContent,
             ];
         }

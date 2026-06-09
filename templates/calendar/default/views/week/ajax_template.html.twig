@@ -182,7 +182,7 @@
                     {% if column.isCurrentDay %}{% set columnClass = columnClass ~ ' week_currday' %}{% endif %}
                     <td class="{{ columnClass|attr }}" date="{{ column.dateYmd|attr }}" provider="{{ provider.id|attr }}">
                         <div class="dayheader">
-                            <a href="{{ column.gotoUrl }}" title="{{ column.dateAttrTitle|attr }}">{{ column.dayHeaderLabel|xlt }}</a>
+                            <a href="{{ column.gotoUrl|safe_href }}" title="{{ column.dateAttrTitle|attr }}">{{ column.dayHeaderLabel|xlt }}</a>
                         </div>
                         <div class="calendar_day">
                             {% for event in column.events %}
