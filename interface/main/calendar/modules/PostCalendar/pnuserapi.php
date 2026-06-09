@@ -153,23 +153,6 @@ function postcalendar_userapi_buildView($args)
     }
 
     //=================================================================
-    //  Find out what Template View to use
-    //=================================================================
-    $template_view = pnVarCleanFromInput('tplview');
-    if (!isset($template_view)) {
-        $template_view = 'default';
-    }
-
-    //=================================================================
-    //  Template-view name. Legacy checked file_exists for a per-view
-    //  override path under pntemplates/; the converted Twig templates
-    //  use the single 'default' set under templates/calendar/default/
-    //  so we just pass through the requested name (which is 'default'
-    //  in practice for every consumer).
-    //=================================================================
-    $template_view_load = pnVarPrepForOS($template_view);
-
-    //=================================================================
     //  Grab the current theme information
     //=================================================================
     global $bgcolor1, $bgcolor2, $bgcolor3, $bgcolor4, $bgcolor5, $bgcolor6, $textcolor1, $textcolor2;
@@ -421,8 +404,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'month',
+            ['viewtype' => 'month',
             'Date' => $prev_month,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -433,8 +415,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'month',
+            ['viewtype' => 'month',
             'Date' => $next_month,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -447,8 +428,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'day',
+            ['viewtype' => 'day',
             'Date' => $prev_day,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -459,8 +439,7 @@ function postcalendar_userapi_buildView($args)
             __POSTCALENDAR__,
             'user',
             'view',
-            ['tplview' => $template_view,
-            'viewtype' => 'day',
+            ['viewtype' => 'day',
             'Date' => $next_day,
             'pc_username' => $pc_username,
             'pc_category' => $category,
@@ -587,11 +566,6 @@ function postcalendar_userapi_buildView($args)
         $tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__, 'user', 'submit'));
         $tpl->assign_by_ref('intervals', $intervals);
     };
-
-    //=================================================================
-    //  Parse the template
-    //=================================================================
-    $template = "$template_name/views/$viewtype/$template_view_load.html";
 
     // Progressive rollout: month_print uses the new CalendarRenderer +
     // builder path. Other views continue using the legacy pcSmarty
@@ -835,13 +809,13 @@ function postcalendar_userapi_buildView($args)
             echo "<html><head>";
             echo "</head><body>\n";
             echo $output;
-            echo $newTpl->render("calendar/$template_name/views/$viewtype/$template_view_load.html.twig");
+            echo $newTpl->render("calendar/$template_name/views/$viewtype/default.html.twig");
             echo postcalendar_footer();
             echo "\n</body></html>";
             exit;
         }
         $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-        $output .= $newTpl->render("calendar/$template_name/views/$viewtype/$template_view_load.html.twig");
+        $output .= $newTpl->render("calendar/$template_name/views/$viewtype/default.html.twig");
         $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
         return $output;
     }

@@ -85,10 +85,9 @@ function postcalendar_user_view()
  */
 function postcalendar_user_display($args)
 {
-    [$eid, $viewtype, $tplview, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
+    [$eid, $viewtype, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
         'eid',
         'viewtype',
-        'tplview',
         'pc_username',
         'Date',
         'print',

@@ -122,13 +122,13 @@
     }
 
     var ChangeDate = function(eObj) {
-        baseURL = "{{ webroot }}/interface/main/calendar/index.php?module=PostCalendar&func=view&tplview=&viewtype={{ viewtype|default('day') }}&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
+        baseURL = "{{ webroot }}/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype={{ viewtype|default('day') }}&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
         newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
         document.location.href=newURL;
     }
 
     var PrintView = function (eventObject) {
-        printURL = "{{ webroot }}/interface/main/calendar/index.php?module=PostCalendar&func=view&tplview=&viewtype={{ viewtype|default('day') }}&Date={{ Date|default('') }}&print=1&pc_username=&pc_category=&pc_topic=";
+        printURL = "{{ webroot }}/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype={{ viewtype|default('day') }}&Date={{ Date|default('') }}&print=1&pc_username=&pc_category=&pc_topic=";
         window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
         return false;
     }
