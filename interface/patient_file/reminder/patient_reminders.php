@@ -13,14 +13,16 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/reminders.php");
-require_once("$srcdir/clinical_rules.php");
-require_once "$srcdir/report_database.inc.php";
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/reminders.php");
+require_once($srcdir . "/clinical_rules.php");
+require_once($srcdir . "/report_database.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -35,6 +37,7 @@ if (!$thisauth) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or patients/reminder: Patient Reminders", xl("Patient Reminders"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <html>
@@ -63,6 +66,7 @@ if (!empty($patient_id)) {
     $update_rem_log = update_reminders('', $patient_id);
 }
 
+$rules_default = [];
 if ($mode == "simple") {
     // Collect the rules for the per patient rules selection tab
     $rules_default = resolve_rules_sql('', '0', true);
@@ -134,6 +138,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 if ($sortorder == "") {
                     $sortorder = "asc";
                 }
+                $sortlink = [];
                 for ($i = 0; $i < count($sort); $i++) {
                     $sortlink[$i] = "<a class='arrowhead' href=\"patient_reminders.php?patient_id=" . attr_url($patient_id) . "&mode=" . attr_url($mode) . "&sortby=" . attr_url($sort[$i]) . "&sortorder=asc\" onclick=\"top.restoreSession()\" title ='" . xla('Sort Up') . "'>" .
                     "<i class='fa fa-sort-desc fa-lg'></i></a>";
@@ -370,7 +375,7 @@ $(function () {
       type: 'patient_reminder',
       setting: this.value,
       patient_id: <?php echo js_escape($patient_id); ?>,
-      csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+      csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
   });
 
@@ -385,7 +390,7 @@ $(function () {
 
    top.restoreSession();
    $.get("../../../library/ajax/collect_new_report_id.php",
-     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
+     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -398,7 +403,7 @@ $(function () {
        $.post("../../../library/ajax/execute_pat_reminder.php",
          {process_type: processType,
           execute_report_id: $("#form_new_report_id").val(),
-          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
    });
 
@@ -412,7 +417,7 @@ $(function () {
    $.post("../../../library/ajax/status_report.php",
      {
        status_report_id: report_id,
-       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      },
      function(data){
        if (data == "PENDING") {

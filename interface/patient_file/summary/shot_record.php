@@ -11,13 +11,15 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/immunization_helper.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/immunization_helper.php");
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $facilityService = new FacilityService();
 
@@ -37,15 +39,16 @@ $data_array = convertToDataArray($res3);
 $title = xl('Shot Record as of:') . ' ' . date('m/d/Y h:i:s a');
 
 if ($_GET['output'] == "html") {
-    printHTML($res, $res2, $data_array);
+    printHTML($res, $res2, $data_array, $title);
 } else {
-    printPDF($res, $res2, $data_array);
+    printPDF($res, $res2, $data_array, $title);
 }
 
 
 function convertToDataArray($data_array)
 {
     $current = 0;
+    $data = [];
     while ($row = sqlFetchArray($data_array)) {
         //admin date
         $temp_date = new DateTime($row['administered_date']);
@@ -53,7 +56,7 @@ function convertToDataArray($data_array)
 
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if ($GLOBALS['use_custom_immun_list']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
             $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {
@@ -108,7 +111,7 @@ function convertToDataArray($data_array)
     return $data;
 }
 
-function printPDF($res, $res2, $data): void
+function printPDF($res, $res2, $data, $title): void
 {
 
     $pdf = new Cezpdf("LETTER");
@@ -128,7 +131,7 @@ function printPDF($res, $res2, $data): void
     $pdf->ezStream();
 }
 
-function printHTML($res, $res2, $data): void
+function printHTML($res, $res2, $data, $title): void
 {
 //print html css
 

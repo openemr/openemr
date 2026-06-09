@@ -1,4 +1,5 @@
 <?php
+
 /*
  * CdaValidateDocumentsTest.php  Does a smoke test of the CdaValidateDocuments service to make sure the validation is running
  * and reporting errors as expected.
@@ -11,10 +12,9 @@
 
 namespace OpenEMR\Tests\Services\Cda;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CdaValidateDocumentsTest extends TestCase {
     const EXAMPLE_DIR = __DIR__ . "/../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/";
@@ -23,7 +23,7 @@ class CdaValidateDocumentsTest extends TestCase {
     {
         $ccda = file_get_contents(self::EXAMPLE_DIR . "ccda-example-response1.xml");
         $cdaDocumentValidator = new CdaValidateDocuments();
-        $cdaDocumentValidator->setSystemLogger(new SystemLogger(Level::Critical));
+        $cdaDocumentValidator->setSystemLogger($this->createMock(LoggerInterface::class));
         $validationResponse = $cdaDocumentValidator->validateDocument($ccda, 'ccda');
         $this->assertNotEmpty($validationResponse);
         $this->assertArrayHasKey('errorCount', $validationResponse);

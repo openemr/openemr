@@ -74,8 +74,8 @@ class LogoService
      */
     public function getLogo(string $type, string $filename = "logo.*"): string
     {
-        $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
-        $publicDir = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/logos/" . $type . "/";
+        $publicDir = OEGlobalsBag::getInstance()->getKernel()->getImagesAbsolute() . "/logos/" . $type . "/";
         $paths = [];
 
         if ($this->fs->exists($publicDir)) {
@@ -116,9 +116,10 @@ class LogoService
      */
     private function convertToWebPath(string $path): string
     {
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
         $paths = [
-            $GLOBALS['OE_SITE_DIR'] => $GLOBALS['OE_SITE_WEBROOT'],
-            $GLOBALS['images_static_absolute'] => $GLOBALS['images_static_relative'],
+            OEGlobalsBag::getInstance()->get('OE_SITE_DIR') => OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT'),
+            $kernel->getImagesAbsolute() => $kernel->getImagesRelative(),
         ];
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             $path = str_replace('\\', '/', $path);
@@ -134,7 +135,7 @@ class LogoService
      *
      * @param array   $directory Array of directories to search
      * @param string  $filename  File to look for
-     * @param boolean $timestamp Will return with a query string of the last modified time
+     * @param bool $timestamp Will return with a query string of the last modified time
      * @return string|null String of real path or null if no file found
      */
     private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
@@ -145,14 +146,13 @@ class LogoService
 
         $this->finder->files()->in($directory)->name($filename);
 
+        $return = "";
         if ($this->finder->hasResults()) {
             // There is at least 1 file in the sites directory for the given logo
             foreach ($this->finder as $f) {
                 $return = $f->getRealPath();
                 $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
-        } else {
-            $return = "";
         }
 
         return $return;

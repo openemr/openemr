@@ -17,15 +17,16 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\FHIR\Config\ServerConfig;
 
 // not sure I really like this here... it seems like some of this
 // should be encapsulated in a class that autoloading can reach.
@@ -50,7 +51,7 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
-        if (empty($GLOBALS['rest_fhir_api'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('rest_fhir_api'))) {
             // do not show patient summary widget if fhir portal is off
             return;
         }
@@ -94,7 +95,10 @@ class SmartLaunchController
             $this->renderLaunchScript();
     }
 
-    public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, $launchText = "Launch")
+    /**
+     * @param literal-string $launchText
+     */
+    public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, string $launchText = "Launch")
     {
         $launchCode = $launchToken->serialize();
         $launchParams = "?launch=" . urlencode((string) $launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
@@ -114,17 +118,20 @@ class SmartLaunchController
         if (empty($client)) {
             throw new \Exception("Invalid client id");
         }
-        CsrfUtils::verifyCsrfToken($csrf_token);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        CsrfUtils::verifyCsrfToken($csrf_token, session: $session);
         $puuid = null;
         $euuid = null;
-        if (isset($_SESSION['pid'])) {
+        $pid = $session->get('pid');
+        if (!empty($pid)) {
             // grab the patient puuid
             $patientService = new PatientService();
-            $puuid = UuidRegistry::uuidToString($patientService->getUuid($_SESSION['pid']));
+            $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
         }
-        if (!empty($_SESSION['encounter'])) {
+        $encounter = $session->get('encounter');
+        if (!empty($encounter)) {
             // grab the encounter euuid
-            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
+            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($encounter, 'form_encounter', 'encounter'));
         }
         $appointmentUuid = null;
         if (!empty($intentData)) {
@@ -145,9 +152,9 @@ class SmartLaunchController
                 }
             }
         }
-        if (!empty($_SESSION['encounter'])) {
+        if (!empty($encounter)) {
             // grab the encounter euuid
-            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
+            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($encounter, 'form_encounter', 'encounter'));
         }
 
         $issuer = (new ServerConfig())->getFhirUrl();
@@ -194,7 +201,7 @@ class SmartLaunchController
     {
         $token = new SMARTLaunchToken($patientUUID, $encounterId);
         $token->setIntent($intent);
-        if (empty($intent)) {
+        if ($intent === null) {
             $intent = SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
         }
         $token->setIntent($intent);

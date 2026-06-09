@@ -13,11 +13,14 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/options.inc.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
@@ -56,10 +59,10 @@ echo "<title>" . xlt('Amendment List') . "</title>";
         });
     }
     var AddAmendment = function () {
-        window.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/summary/add_edit_amendments.php"
     };
     var ListAmendments = function () {
-        window.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/patient_file/summary/list_amendments.php"
     };
 </script>
 </head>

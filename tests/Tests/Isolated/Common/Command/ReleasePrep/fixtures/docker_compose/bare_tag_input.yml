@@ -1,0 +1,5 @@
+services:
+  openemr:
+    image: openemr/openemr:latest
+    ports:
+    - 80:80

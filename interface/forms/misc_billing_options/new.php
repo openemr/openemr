@@ -20,32 +20,45 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\OeUI\OemrUI;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/user.inc.php");
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (isset($_REQUEST['isBilling'])) {
     $pid = $_REQUEST['pid'];
     SessionUtil::setSession('billpid', $pid);
 
-    if ($pid != $_SESSION["pid"]) {
+    if ($pid != $session->get('pid')) {
         setpid($pid);
     }
 
     $encounter = $_REQUEST['enc'];
     SessionUtil::setSession('billencounter', $encounter);
 
-    if ($encounter != $_SESSION["encounter"]) {
+    if ($encounter != $session->get('encounter')) {
         setencounter($encounter);
     }
-} elseif (isset($_SESSION['billencounter'])) {
+} elseif ($session->has('billencounter')) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
 
@@ -90,7 +103,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
             <div class="col-sm-12">
                 <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
@@ -386,7 +399,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

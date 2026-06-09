@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -10,7 +11,7 @@
  *
  * @param string $resource_type
  * @param string $resource_name
- * @return boolean
+ * @return bool
  */
 
 //  $resource_type, $resource_name

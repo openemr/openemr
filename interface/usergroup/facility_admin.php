@@ -11,7 +11,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -30,7 +30,7 @@ $listService = new ListService();
 
 $alertmsg = '';
 $use_validate_js = 1;
-require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $rules = collectValidationPageRules("/interface/usergroup/facilities_add.php");
@@ -43,7 +43,7 @@ $disabled = (!empty($resPBE) && count($resPBE) > 0) ? 'disabled' : '';
 $args = [
     'collectThis' => (empty($rules)) ? "undefined" : json_sanitize($rules["facility-add"]["rules"]),
     'forceClose' => (isset($_POST["mode"]) && $_POST["mode"] == "facility") ? true : false,
-    'erxEnabled' => $GLOBALS['erx_enable'],
+    'erxEnabled' => OEGlobalsBag::getInstance()->getBoolean('erx_enable'),
     'alertMsg' => trim($alertmsg) ? true : false,
     'disablePBE' => $disabled,
     'pos_code' => $pc->get_pos_ref(),

@@ -11,11 +11,10 @@
 namespace OpenEMR\Tests\Services\Modules\CareCoordination\Model;
 
 use Carecoordination\Model\CcdaServiceDocumentRequestor;
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
-use PHPUnit\Framework\TestCase;
-use DOMXPath;
 use DOMDocument;
+use DOMXPath;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CcdaServiceDocumentRequestorTest extends TestCase
 {
@@ -59,7 +58,7 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $data = trim($data); // trim whitespace as CCDA service requires the <CCDA> and </CCDA> tag to be at the start and end of the data
 
         $docRequestor = new CcdaServiceDocumentRequestor();
-        $docRequestor->setSystemLogger(new SystemLogger(Level::Critical));
+        $docRequestor->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $docRequestor->socket_get($data);
 
         $this->assertNotEmpty($response);
@@ -100,7 +99,7 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $xpath = new DOMXPath($xml);
         $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
         $effectiveTime = $xpath->query("//hl7:effectiveTime")->item(0);
-        if ($effectiveTime && $effectiveTime->hasAttribute('value')) {
+        if ($effectiveTime instanceof \DOMElement && $effectiveTime->hasAttribute('value')) {
             return $effectiveTime->getAttribute('value');
         } else {
             throw new \RuntimeException('effectiveTime element with value attribute not found in XML');
@@ -115,7 +114,9 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $expr = '//*[@value="' . $currentTimestamp .  '"]';
         $timestampValues = $xpath->query($expr);
         foreach ($timestampValues as $timestamp) {
-            $timestamp->setAttribute('value', $newTimeStamp);
+            if ($timestamp instanceof \DOMElement) {
+                $timestamp->setAttribute('value', $newTimeStamp);
+            }
         }
 
         $dateTime = \DateTimeImmutable::createFromFormat("Ymd", $currentTimestamp);
@@ -175,6 +176,8 @@ class CcdaServiceDocumentRequestorTest extends TestCase
 
             $currentNodeId = $path->query(".//hl7:id", $currentNode)->item(0);
             $expectedNodeId = $expectedXpath->query(".//hl7:id", $expectedNode)->item(0);
+            static::assertInstanceOf(\DOMElement::class, $currentNodeId);
+            static::assertInstanceOf(\DOMElement::class, $expectedNodeId);
 
             $expectedRootId = $expectedNodeId->getAttribute('root');
             $currentNodeId->setAttribute('root', $expectedRootId);

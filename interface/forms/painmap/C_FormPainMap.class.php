@@ -10,7 +10,10 @@
  */
 
 /* Include the class we're extending. */
-require_once($GLOBALS['fileroot'] . "/interface/clickmap/C_AbstractClickmap.php");
+
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . "/interface/clickmap/C_AbstractClickmap.php");
 
 /* included so that we can instantiate FormPainMap in createModel, to model the data contained in this form. */
 require_once("FormPainMap.php");
@@ -44,7 +47,7 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * @brief Called by C_AbstractClickmap's members to instantiate a Model object on demand.
      *
-     * @param form_id
+     * @param mixed $form_id
      *  optional id of a form in the EMR, to populate data from.
      */
     public function createModel($form_id = "")
@@ -61,7 +64,7 @@ class C_FormPainMap extends C_AbstractClickmap
      */
     function getImage()
     {
-        return $GLOBALS['webroot'] . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png";
+        return OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png";
     }
 
     /**

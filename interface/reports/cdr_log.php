@@ -12,14 +12,14 @@
 
 require_once("../globals.php");
 require_once("../../library/patient.inc.php");
-require_once "$srcdir/options.inc.php";
-require_once "$srcdir/clinical_rules.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/clinical_rules.php";
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 try {
     $request = Request::createFromGlobals();
-    if (empty($request->get('action'))) {
+    if (empty($request->query->get('action'))) {
         $request->query->set('action', 'log!view');
     }
     $controllerRouter = new ControllerRouter();
@@ -40,13 +40,13 @@ try {
     );
 } catch (NotFoundHttpException $e) {
     // Log the exception
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
     $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/404.html.twig');
     // Send the error response
     $response = new Response($contents, 404);
 } catch (\Throwable $e) {
     // Log the exception
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
     $contents =  (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/general_http_error.html.twig');
     // Send the error response
     $response = new Response($contents, 500);

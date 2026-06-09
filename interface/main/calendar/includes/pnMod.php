@@ -155,7 +155,7 @@ function pnModGetIDFromName($module)
 
 /**
  * get information on module
- * @param id
+ * @param int $modid
  * @returns array
  * @ return array of module information or false if core ( id = 0 )
  */
@@ -205,8 +205,8 @@ function pnModGetInfo($modid)
 
 /**
  * load an API for a module
- * @param modname - registered name of the module
- * @param type - type of functions to load
+ * @param mixed $modname - registered name of the module
+ * @param mixed $type - type of functions to load
  * @returns bool
  * @return true on success, false on failure
  */
@@ -269,8 +269,8 @@ function pnModAPILoad($modname, $type = 'user')
 
 /**
  * load database definition for a module
- * @param name - name of module to load database definition for
- * @param directory - directory that module is in (if known)
+ * @param string $modname - name of module to load database definition for
+ * @param mixed $directory - directory that module is in (if known)
  * @returns bool
  */
 function pnModDBInfoLoad($modname, $directory = '')
@@ -319,8 +319,8 @@ function pnModDBInfoLoad($modname, $directory = '')
 
 /**
  * load a module
- * @param name - name of module to load
- * @param type - type of functions to load
+ * @param string $modname - name of module to load
+ * @param mixed $type - type of functions to load
  * @return string|false|null name of module loaded, or false on failure
  */
 function pnModLoad($modname, $type = 'user')
@@ -384,10 +384,10 @@ function pnModLoad($modname, $type = 'user')
 
 /**
  * run a module API function
- * @param modname - registered name of module
- * @param type - type of function to run
- * @param func - specific function to run
- * @param args - arguments to pass to the function
+ * @param mixed $modname - registered name of module
+ * @param mixed $type - type of function to run
+ * @param mixed $func - specific function to run
+ * @param mixed $args - arguments to pass to the function
  * @returns mixed
  */
 function pnModAPIFunc($modname, $type, $func, $args = [])
@@ -416,10 +416,10 @@ function pnModAPIFunc($modname, $type, $func, $args = [])
 
 /**
  * run a module function
- * @param modname - registered name of module
- * @param type - type of function to run
- * @param func - specific function to run
- * @param args - argument array
+ * @param mixed $modname - registered name of module
+ * @param mixed $type - type of function to run
+ * @param mixed $func - specific function to run
+ * @param mixed $args - argument array
  * @returns mixed
  */
 function pnModFunc($modname, $type, $func, $args = [])
@@ -448,10 +448,10 @@ function pnModFunc($modname, $type, $func, $args = [])
 
 /**
  * generate a module function URL
- * @param modname - registered name of module
- * @param type - type of function
- * @param func - module function
- * @param args - array of arguments to put on the URL
+ * @param mixed $modname - registered name of module
+ * @param mixed $type - type of function
+ * @param mixed $func - module function
+ * @param mixed $args - array of arguments to put on the URL
  * @returns string
  * @return absolute URL for call
  */

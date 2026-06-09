@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\MessageService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\MessageService;
 
 #[OA\Schema(
     schema: 'api_message_request',

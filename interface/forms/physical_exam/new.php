@@ -13,18 +13,32 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("lines.php");
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+/** @var array<string, array<string, string>> $pelines (set in lines.php via $GLOBALS) */
 
 if (! $encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
 
 $returnurl = 'encounter_top.php';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function showExamLine($line_id, $description, &$linedbrow, $sysnamedisp): void
 {
@@ -91,9 +105,7 @@ if ($_POST['bn_save']) {
  // Skip rows that have no entries.
  // There are also 3 special rows with just one checkbox and a text
  // input field.  Maybe also a diagnosis line, not clear.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($formid) {
         $query = "DELETE FROM form_physical_exam WHERE forms_id = ?";
@@ -165,7 +177,7 @@ if ($formid) {
 <body class="body_top">
 <form method="post" action="<?php echo $rootdir ?>/forms/physical_exam/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

@@ -14,46 +14,35 @@
 
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
-use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
-use OpenEMR\Common\Logging\SystemLogger;
+use Documents\Controller\DocumentsController;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
+use Laminas\View\Model\ViewModel;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Documents\Plugin\Documents Documents()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class CarecoordinationController extends AbstractActionController
 {
-    /**
-     * @var Carecoordination\Model\CarecoordinationTable
-     */
-    private $carecoordinationTable;
+    private readonly Listener $listenerObject;
 
-    /**
-     * @var Documents\Controller\DocumentsController
-     */
-    private $documentsController;
+    private readonly string $date_format;
 
-    /**
-     * @var Application\Listener\Listener
-     */
-    private $listenerObject;
-
-    /**
-     * @var string
-     */
-    private $date_format;
-
-    public function __construct(CarecoordinationTable $table, DocumentsController $documentsController)
+    public function __construct(private readonly CarecoordinationTable $carecoordinationTable, private readonly DocumentsController $documentsController)
     {
-        $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
-        $this->date_format = ApplicationTable::dateFormat($GLOBALS['date_display_format']);
-        $this->documentsController = $documentsController;
+        $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
     }
 
     /**
@@ -136,8 +125,9 @@ class CarecoordinationController extends AbstractActionController
                 $this->importZipUpload($request);
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    ['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
+                    ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
                     $_REQUEST["document_id"] = $uploaded_documents[0]['id'];
@@ -696,6 +686,7 @@ class CarecoordinationController extends AbstractActionController
     <tbody>';
                     foreach ($social_history_audit['social_history'] as $val) {
                         $array_his_tobacco = explode("|", (string) $val['smoking']);
+                        $his_tob_date = '';
                         if ($array_his_tobacco[2] != 0 && $array_his_tobacco[2] != '') {
                             $his_tob_date = substr($array_his_tobacco[2], 0, 4) . "-" . substr($array_his_tobacco[2], 4, 2) . "-" . substr($array_his_tobacco[2], 6, 2);
                         }
@@ -945,7 +936,7 @@ class CarecoordinationController extends AbstractActionController
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
-            (new SystemLogger())->error("File in zip is " . $stat['name']);
+            ServiceContainer::getLogger()->error("File in zip is " . $stat['name']);
         }
         $z->close();
     }

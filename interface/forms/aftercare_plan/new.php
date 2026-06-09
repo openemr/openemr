@@ -13,18 +13,29 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 
 formHeader("Form:AfterCare Planning");
 $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);
 $obj = $formid ? formFetch("form_aftercare_plan", $formid) : [];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$disabled = '';
 ?>
 <html>
 <head>
@@ -40,7 +51,7 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : [];
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });
@@ -54,31 +65,33 @@ $obj = $formid ? formFetch("form_aftercare_plan", $formid) : [];
 echo "<form method='post' name='my_form' " .
   "action='$rootdir/forms/aftercare_plan/save.php?id=" . attr_url($formid) . "'>\n";
 ?>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table  border="0">
 <tr>
 <td align="left" class="forms" class="forms"><?php echo xlt('Client Name'); ?>:</td>
         <td class="forms">
-            <label class="forms-data"> <?php if (is_numeric($pid)) {
+            <label class="forms-data"> <?php
+            $patient_name = '';
+            if ($pid > 0) {
                 $result = getPatientData($pid, "fname,lname,squad");
                 echo text($result['fname']) . " " . text($result['lname']);
-                                       }
-
-                                       $patient_name = ($result['fname']) . " " . ($result['lname']);
-                                        ?>
+                $patient_name = $result['fname'] . " " . $result['lname'];
+            }
+            ?>
    </label>
    <input type="hidden" name="client_name" value="<?php echo attr($patient_name);?>">
         </td>
         <td align="left"  class="forms"><?php echo xlt('DOB'); ?>:</td>
         <td class="forms">
-        <label class="forms-data"> <?php if (is_numeric($pid)) {
+        <label class="forms-data"> <?php
+        $dob = '';
+        if ($pid > 0) {
             $result = getPatientData($pid, "*");
             echo text($result['DOB']);
-                                   }
-
-                                   $dob = ($result['DOB']);
-                                    ?>
+            $dob = $result['DOB'];
+        }
+        ?>
    </label>
      <input type="hidden" name="DOB" value="<?php echo attr($dob);?>">
         </td>

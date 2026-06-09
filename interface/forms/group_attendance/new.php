@@ -19,7 +19,18 @@ require_once("functions.php");
 require_once(__DIR__ . "/../../../library/group.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$encounter = EncounterSessionUtil::getEncounter();
+$therapy_group = (PatientSessionUtil::getPid() === 0)
+    ? (SessionWrapperFactory::getInstance()->getActiveSession()->get('therapy_group') ?? 0)
+    : 0;
 
 //Check acl
 $can_view = AclMain::aclCheckCore("groups", "gadd", false, 'view');
@@ -138,7 +149,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 $('#group_attendance_form_table_filter').hide(); //hide searchbar
             },
             <?php // Bring in the translations ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 
         /* 'Add Participant' elements */
@@ -151,7 +162,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             top.restoreSession();
             $('.new_patient').css("border-color", "var(--body-color)");
             $('.error_wrap .error').html("");
-            var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
+            var url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot()?>/interface/main/calendar/find_patient_popup.php';
             dlgopen(url, '_blank', 500, 400);
         });
 

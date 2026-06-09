@@ -11,10 +11,11 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/pnotes.inc.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . '/pnotes.inc.php');
+require_once($srcdir . '/patient.inc.php');
+require_once($srcdir . '/options.inc.php');
+require_once($srcdir . '/gprelations.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -22,13 +23,19 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+$userauthorized = OEGlobalsBag::getInstance()->get('userauthorized', 0);
+$result_count = 0;
+$result_sent_count = 0;
+$notes_sent_count = 0;
 
 if (!empty($_GET['set_pid'])) {
-    require_once($GLOBALS['srcdir'] . '/pid.inc.php');
+    require_once($srcdir . '/pid.inc.php');
     setpid($_GET['set_pid']);
 }
 
@@ -107,18 +114,16 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {
             if (str_starts_with((string) $var, 'act')) {
                 $id = str_replace("act", "", $var);
                 if ($_POST["chk$id"]) {
-                    reappearPnote($id);
+                    reappearPnote($id, $patient_id);
                 } else {
-                    disappearPnote($id);
+                    disappearPnote($id, $patient_id);
                 }
 
                 if ($docid) {
@@ -133,7 +138,7 @@ if (isset($mode)) {
     } elseif ($mode == "new") {
         $note = $_POST['note'];
         if ($noteid) {
-            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', !empty($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '');
+            updatePnote($noteid, $note, $_POST['form_note_type'], $_POST['assigned_to'], '', !empty($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '', $patient_id);
         } else {
             $noteid = addPnote(
                 $patient_id,
@@ -157,7 +162,7 @@ if (isset($mode)) {
         $noteid = '';
     } elseif ($mode == "delete") {
         if ($noteid) {
-            deletePnote($noteid);
+            deletePnote($noteid, $patient_id);
             EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $noteid);
         }
 
@@ -232,13 +237,13 @@ $(function () {
     // I can't find a reason to load this!
     /*$("#stats_div").load("stats.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         }
     );*/
 
     $("#notes_div").load("pnotes_fragment.php",
         {
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         }
     );
 
@@ -286,7 +291,7 @@ function restoreSession() {
 <div class="container mt-3" id="pnotes"> <!-- large outer DIV -->
 
     <form method='post' name='new_note' id="new_note" action='pnotes_full.php?docid=<?php echo attr_url($docid); ?>&orderid=<?php echo attr_url($orderid); ?>&<?php echo $activity_string_html; ?>' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
         <?php
         $title_docname = "";
@@ -404,7 +409,7 @@ function restoreSession() {
         <div id='inbox_div' class="table-responsive">
             <form method='post' name='update_activity' id='update_activity'
                 action="pnotes_full.php?<?php echo $urlparms; ?>&<?php echo $activity_string_html;?>" onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                 <!-- start of previous notes DIV -->
                 <div class="pat_notes">

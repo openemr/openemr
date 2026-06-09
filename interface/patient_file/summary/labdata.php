@@ -34,20 +34,24 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 require_once("../../../library/options.inc.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Labs", xl("Labs"));
 }
+
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$web_root = OEGlobalsBag::getInstance()->getWebRoot();
 
 // Set the path to this script
 $path_to_this_script = $rootdir . "/patient_file/summary/labdata.php";
@@ -81,14 +85,14 @@ $main_spell .= "ORDER BY procedure_report.date_collected DESC ";
 <head>
 <title><?php echo xlt("Labs"); ?></title>
 
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader('dygraphs'); ?>
 
 <?php if ($session->get('language_direction') === "rtl") { ?>
-  <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/rtl_labdata.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
 <?php } else { ?>
-  <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/labdata.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getThemesRelative(); ?>/misc/labdata.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
 <?php } ?>
 
 <script>
@@ -246,6 +250,7 @@ function checkAll(bx) {
                 //-------------------------------------------
                 $mode = $_POST['mode'] ?? null;
                 $value_select = $_POST['value_code'] ?? null;
+                $nothing = false;
                 // are some Items selected?
                 if ($value_select) {
                     // print in List-Mode
@@ -276,6 +281,7 @@ function checkAll(bx) {
                             // get data from db
                             $spell  = $main_spell;
                             $query  = sqlStatement($spell, [$this_value,$pid]);
+                            $the_item = '';
                             while ($myrow = sqlFetchArray($query)) {
                                 $value_array[0][$value_count]   = $myrow['result'];
                                 $date_array[$value_count]   = $myrow['date_collected'];
@@ -343,7 +349,7 @@ function checkAll(bx) {
                                                 track:  thetitle,
                                                 items:  theitem,
                                                 thecheckboxes: checkboxfake,
-                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                                             },
                                         dataType: "json",
                                         success: function(returnData){
@@ -408,6 +414,8 @@ function checkAll(bx) {
                         rsort($datelist);
 
                         // sort item-data
+                        $result_code = [];
+                        $date_collected = [];
                         foreach ($value_matrix as $key => $row) {
                             $result_code[$key] = $row['result_code'];
                             $date_collected[$key] = $row['date_collected'];

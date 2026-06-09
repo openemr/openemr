@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_InsuranceNumbers extends Controller
 {
@@ -21,9 +22,9 @@ class C_InsuranceNumbers extends Controller
         parent::__construct();
         $this->providers = [];
         $this->insurance_numbers = [];
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&");
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&insurance_numbers&");
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
     function default_action()
@@ -97,7 +98,7 @@ class C_InsuranceNumbers extends Controller
             $this->assign("show_edit_gui", false);
         }
 
-        return $this->fetch($GLOBALS['template_dir'] . "insurance_numbers/" . $this->template_mod . "_edit.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_numbers/" . $this->template_mod . "_edit.html");
     }
 
     function list_action()
@@ -105,7 +106,7 @@ class C_InsuranceNumbers extends Controller
 
         $p = new Provider();
         $this->assign("providers", $p->providers_factory());
-        return $this->fetch($GLOBALS['template_dir'] . "insurance_numbers/" . $this->template_mod . "_list.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "insurance_numbers/" . $this->template_mod . "_list.html");
     }
 
 
@@ -128,7 +129,7 @@ class C_InsuranceNumbers extends Controller
         $_POST['process'] = "";
 
         if (!is_numeric($_POST['id'])) {//Z&H
-            header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
+            header('Location:' . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&insurance_numbers&action=list");//Z&H
         }//Z&H
     }
 }

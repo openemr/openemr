@@ -14,10 +14,10 @@ use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\DashboardContext\Bootstrap;
 
-$file = OEGlobalsBag::getInstance()->get('fileroot');
+$file = OEGlobalsBag::getInstance()->getProjectDir();
 $classLoader = new ModulesClassLoader($file);
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\DashboardContext\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
-$eventDispatcher = OEGlobalsBag::getInstance()->get('kernel')->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 $bootstrap = new Bootstrap($eventDispatcher);
 $bootstrap->subscribeToEvents();

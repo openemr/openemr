@@ -17,22 +17,20 @@
  */
 $oeGlobals = require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\FHIR\SMART\ClientAdminController;
-use OpenEMR\Common\Logging\SystemLogger;
-use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
-
+use OpenEMR\FHIR\SMART\ClientAdminController;
+use Symfony\Component\HttpFoundation\Request;
 
 try {
     // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that
     $request = HttpRestRequest::createFromGlobals();
     $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_CORE);
-    $sessionFactory->setUseExistingSessionBridge(true);
     $session = $sessionFactory->createSession();
     $request = Request::createFromGlobals();
     $router = new ClientAdminController(
@@ -46,9 +44,9 @@ try {
 } catch (CsrfInvalidException) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {
-    (new SystemLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
 } catch (\Throwable $exception) {
-    (new SystemLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

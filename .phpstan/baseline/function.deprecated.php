@@ -20,16 +20,6 @@ use EmployerService\\-\\>getMostRecentEmployerData\\(\\)$#',
     'path' => __DIR__ . '/../../custom/export_xml.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function get_magic_quotes_runtime\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlClose\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collectAndOrganizeExpandSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:collectAndOrganizeExpandSetting$#',
     'count' => 1,
@@ -70,12 +60,6 @@ $ignoreErrors[] = [
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function addForm\\(\\)\\:
-Use FormService\\:\\:addForm\\(\\) instead$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/ajax_save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
@@ -338,7 +322,7 @@ Use the standard DB connections instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
 ];
 $ignoreErrors[] = [
@@ -630,21 +614,6 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlClose\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/batch_phone_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlClose\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_email_notification.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlClose\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../modules/sms_email_reminder/cron_sms_notification.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function privQuery\\(\\)\\:
 Use the standard DB connections instead\\.$#',
     'count' => 1,
@@ -655,24 +624,6 @@ $ignoreErrors[] = [
 Use the standard DB connections instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/account/index_reset.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function getUserIDInfo\\(\\)\\:
-7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
-Use the standard DB connections instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
-Use the standard DB connections instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserIDInfo\\(\\)\\:
@@ -695,13 +646,13 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privQuery\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 15,
+    'count' => 14,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privStatement\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 13,
+    'count' => 11,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [

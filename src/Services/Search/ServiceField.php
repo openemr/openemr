@@ -11,14 +11,13 @@
 
 namespace OpenEMR\Services\Search;
 
-
 class ServiceField
 {
     const TYPE_STRING = "string";
     const TYPE_NUMBER = "number";
     const TYPE_UUID = "uuid";
 
-    public function __construct(private $field, private $type = self::TYPE_STRING)
+    public function __construct(private readonly string $field, private readonly string $type = self::TYPE_STRING)
     {
     }
 
@@ -30,10 +29,7 @@ class ServiceField
         return $this->type;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getField()
+    public function getField(): string
     {
         return $this->field;
     }

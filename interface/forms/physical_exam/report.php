@@ -12,8 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/api.inc.php");
 require_once("lines.php");
 
 function physical_exam_report($pid, $encounter, $cols, $id): void
@@ -29,7 +31,9 @@ function physical_exam_report($pid, $encounter, $cols, $id): void
     echo "<table cellpadding='0' cellspacing='0'>\n";
 
     foreach ($pelines as $sysname => $sysarray) {
-        $sysnamedisp = xl($sysname);
+        $sysnameStr = is_string($sysname) ? $sysname : '';
+        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+        $sysnamedisp = xl($sysnameStr);
         foreach ($sysarray as $line_id => $description) {
             $linedbrow = $rows[$line_id];
             if (

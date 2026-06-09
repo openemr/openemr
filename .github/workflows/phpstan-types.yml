@@ -12,6 +12,7 @@ on:
     - rel-*
     paths:
     - sql/database.sql
+    - interface/forms/CAMOS/table.sql
     - src/Common/Database/TableTypes.php
     - src/Common/Command/GeneratePhpstanTypesCommand.php
     - bin/generate-phpstan-types.php
@@ -22,6 +23,7 @@ on:
     - rel-*
     paths:
     - sql/database.sql
+    - interface/forms/CAMOS/table.sql
     - src/Common/Database/TableTypes.php
     - src/Common/Command/GeneratePhpstanTypesCommand.php
     - bin/generate-phpstan-types.php
@@ -50,9 +52,30 @@ jobs:
 
     - name: Regenerate TableTypes.php
       run: |
+        # Generate types from database.sql
         php bin/generate-phpstan-types.php sql/database.sql \
           patient_data users form_encounter insurance_data billing \
+          background_services forms form_vitals layout_options \
           > src/Common/Database/TableTypes.php
+
+        # Append CAMOS form types (tables defined in form-specific SQL, not database.sql)
+        php bin/generate-phpstan-types.php interface/forms/CAMOS/table.sql \
+          form_CAMOS form_CAMOS_category form_CAMOS_subcategory form_CAMOS_item \
+          | awk '/^ \* @phpstan-type/,/^ \*\//{if(/^ \*\//) next; print}' \
+          > /tmp/camos-types.txt
+
+        # Insert CAMOS types before the closing */ of the interface docblock
+        python3 -c "
+        from pathlib import Path
+        f = Path('src/Common/Database/TableTypes.php')
+        content = f.read_text()
+        block = Path('/tmp/camos-types.txt').read_text().rstrip()
+        marker = ' */\ninterface TableTypes'
+        if marker not in content:
+            raise SystemExit('Marker for inserting CAMOS types not found in TableTypes.php; aborting.')
+        content = content.replace(marker, ' *\n' + block + '\n */\ninterface TableTypes')
+        f.write_text(content)
+        "
 
     - name: Check for differences
       run: |
@@ -60,17 +83,12 @@ jobs:
           {
             echo "## ❌ TableTypes.php is out of date"
             echo ""
-            echo "The generated PHPStan types do not match \`database.sql\`."
+            echo "The generated PHPStan types do not match the database schema."
             echo ""
             echo "### How to fix"
             echo ""
-            echo "Run this command from the repository root and commit the result:"
-            echo ""
-            echo "\`\`\`bash"
-            echo "php bin/generate-phpstan-types.php sql/database.sql \\"
-            echo "  patient_data users form_encounter insurance_data billing \\"
-            echo "  > src/Common/Database/TableTypes.php"
-            echo "\`\`\`"
+            echo "See the generation steps in \`.github/workflows/phpstan-types.yml\`"
+            echo "or run \`workflow_dispatch\` to regenerate."
             echo ""
             echo "### What changed"
             echo ""

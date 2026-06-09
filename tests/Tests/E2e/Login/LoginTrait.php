@@ -8,7 +8,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Login;
 
+use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\WebDriver;
 use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTestData;
 
@@ -80,6 +82,23 @@ trait LoginTrait
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
         $this->crawler = $this->client->submit($form);
+        if ($goalPass) {
+            // The post-login redirect is asynchronous: submit() returns
+            // once the POST responds, but the browser still needs to
+            // follow the redirect and load the main shell before
+            // document.title transitions from 'OpenEMR Login' to
+            // 'OpenEMR'. Under CI load the lag is long enough that
+            // reading getTitle() immediately races the redirect and
+            // fails with "Expected 'OpenEMR'; actual 'OpenEMR Login'".
+            try {
+                $this->client->wait(10)->until(
+                    static fn(WebDriver $driver): bool => $driver->getTitle() === 'OpenEMR'
+                );
+            } catch (TimeoutException) {
+                // Fall through so the assertSame below reports the
+                // actual title for diagnostic purposes.
+            }
+        }
         $title = $this->client->getTitle();
         if ($goalPass) {
             $this->assertSame('OpenEMR', $title, 'Login FAILED');

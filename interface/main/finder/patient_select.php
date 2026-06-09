@@ -11,18 +11,28 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/report_database.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
+use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/report_database.inc.php");
+
+$report_id = 0;
+$itemized_test_id = 0;
+$pass_id = "all";
+$numerator_label = '';
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -133,7 +143,7 @@ form {
 
 <script>
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
 } ?>
 </script>
 
@@ -141,7 +151,7 @@ form {
 <body class="body_top">
 
 <form method='post' action='patient_select.php' name='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type='hidden' name='fstart'  value='<?php echo attr($fstart); ?>' />
 
@@ -211,7 +221,7 @@ if ($popup) {
 
     // Custom filtering which enables module developer to filter patients out of search
     $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
-    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
+    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
     $boundFilter = $patientSelectFilterEvent->getBoundFilter();
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
@@ -246,11 +256,11 @@ if ($popup) {
     if ($print_patients) {
         // collect entire listing for printing
         $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label);
-        $GLOBALS['PATIENT_INC_COUNT'] = count($result);
-        $MAXSHOW = $GLOBALS['PATIENT_INC_COUNT'];
+        OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', count($result));
+        $MAXSHOW = OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT');
     } else {
         // collect the total listing count
-        $GLOBALS['PATIENT_INC_COUNT'] = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, true);
+        OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, true));
         // then just collect applicable list for pagination
         $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, false, $sqllimit, $fstart);
     }
@@ -301,7 +311,7 @@ if ($popup) {
   </td>
   <td>
     <?php if ($from_page == "cdr_report") { ?>
-        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
+        <?php echo "<a href='patient_select.php?from_page=cdr_report&pass_id=" . attr_url($pass_id) . "&report_id=" . attr_url($report_id) . "&itemized_test_id=" . attr_url($itemized_test_id) . "&numerator_label=" . attr_url($row['numerator_label'] ?? '') . "&print_patients=1&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' class='btn btn-primary' onclick='top.restoreSession()'><span>" . xlt("Print Entire Listing") . "</span></a>"; ?>
     <?php } ?> &nbsp;
   </td>
   <td class='text' align='right'><?php
@@ -309,7 +319,7 @@ if ($popup) {
     echo $paginator->render(
         offset: $fstart,
         pageSize: $MAXSHOW,
-        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+        totalCount: OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT'),
         filename: basename(__FILE__),
         onclick: 'top.restoreSession()'
     );
@@ -341,7 +351,7 @@ if ($popup) {
 <th class="srDOB"><?php echo xlt('DOB'); ?></th>
 <th class="srID"><?php echo xlt('ID'); ?></th>
 
-<?php if (empty($GLOBALS['patient_search_results_style'])) { ?>
+<?php if (empty(OEGlobalsBag::getInstance()->get('patient_search_results_style'))) { ?>
 <th class="srPID"><?php echo xlt('PID'); ?></th>
 <th class="srNumEnc"><?php echo xlt('[Number Of Encounters]'); ?></th>
 <th class="srNumDays"><?php echo xlt('[Days Since Last Encounter]'); ?></th>
@@ -419,7 +429,7 @@ if ($result) {
             text($iter['phone_home']) . "</td>\n";
 
         echo "<td class='srSS'>" . text($iter['ss']) . "</td>";
-        if ($iter["DOB"] != "0000-00-00 00:00:00") {
+        if (!Utilities::isDateEmpty($iter["DOB"])) {
             echo "<td class='srDOB'>" . text(oeFormatShortDate($iter['DOB'])) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";
@@ -427,7 +437,7 @@ if ($result) {
 
         echo "<td class='srID'>" . text($iter['pubpid']) . "</td>";
 
-        if (empty($GLOBALS['patient_search_results_style'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('patient_search_results_style'))) {
             echo "<td class='srPID'>" . text($iter['pid']) . "</td>";
 
           //setup for display of encounter date info

@@ -14,8 +14,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once "$srcdir/options.inc.php";
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
@@ -28,7 +28,7 @@ $records2 = [];
     <head>
         <?php Header::setupHeader();?>
         <title><?php echo xlt('External Data'); ?></title>
-        <script><?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
+        <script><?php require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?></script>
         <?php
         $arrOeUiSettings = [
             'heading_title' => xl('External Data'),
@@ -49,7 +49,7 @@ $records2 = [];
             <div class="row">
                 <div class="col-sm-12">
                     <?php
-                    require_once("$include_root/patient_file/summary/dashboard_header.php")
+                    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getIncludeRoot() . "/patient_file/summary/dashboard_header.php")
                     ?>
                 </div>
             </div>
@@ -80,7 +80,7 @@ $records2 = [];
                                     LEFT JOIN users AS u1 ON u1.id = ee.ee_provider_id
                                     LEFT JOIN users AS u2 ON u2.id = ee.ee_facility_id
                                     WHERE ee.ee_pid = ?";
-                                $res1 = sqlStatement($query1, [$pid]);
+                                $res1 = sqlStatement($query1, [\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid')]);
                                 while ($row1 = sqlFetchArray($res1)) {
                                     $records1[] = $row1;
                                 }
@@ -119,7 +119,7 @@ $records2 = [];
                             <div class="table-responsive">
                                 <?php
                                 $query2 = "SELECT ep.*,u.organization AS facility FROM external_procedures AS ep LEFT JOIN users AS u ON u.id = ep.ep_facility_id WHERE ep.ep_pid = ?";
-                                $res2 = sqlStatement($query2, [$pid]);
+                                $res2 = sqlStatement($query2, [\OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession()->get('pid')]);
                                 while ($row2 = sqlFetchArray($res2)) {
                                     $records2[] = $row2;
                                 }

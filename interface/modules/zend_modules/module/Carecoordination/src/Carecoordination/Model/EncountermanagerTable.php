@@ -13,19 +13,20 @@
 
 namespace Carecoordination\Model;
 
-// TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
-
 use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\XmlUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
+
+// TODO: we need to refactor all of this so it can go into a class for this functionality
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/ccr/transmitCCD.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/library/amc.php');
 
 class EncountermanagerTable
 {
@@ -151,6 +152,7 @@ class EncountermanagerTable
         $date = str_replace('/', '-', $date);
         $arr = explode('-', $date);
 
+        $formatted_date = $date;
         if ($format == 'm/d/y') {
             $formatted_date = $arr[1] . "/" . $arr[2] . "/" . $arr[0];
         }
@@ -167,11 +169,12 @@ class EncountermanagerTable
             if ($row['couch_docid'] != '') {
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
+                $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                    $cryptoGen = ServiceContainer::getCrypto();
+                    $content = $cryptoGen->decryptFromFilesystem(is_string($respData) ? $respData : '');
                 } else {
-                    $content = base64_decode((string) $resp->data);
+                    $content = base64_decode(is_string($respData) ? $respData : '');
                 }
             } elseif (!$row['couch_docid']) {
                 if (!filesize($row['ccda_data'])) {
@@ -179,8 +182,8 @@ class EncountermanagerTable
                 }
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
+                    $cryptoGen = ServiceContainer::getCrypto();
+                    $content = $cryptoGen->decryptFromFilesystem(fread($fccda, filesize($row['ccda_data'])));
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
@@ -193,7 +196,7 @@ class EncountermanagerTable
         }
     }
 
-    private function getCcdaAsPdf($ccda)
+    private function getCcdaAsPdf(string $ccda)
     {
         $dompdf = new Dompdf();
         $dompdf->loadHtml($this->getCcdaAsHTML($ccda));
@@ -201,9 +204,19 @@ class EncountermanagerTable
         return $dompdf->output();
     }
 
-    public function getCcdaAsHTML($ccda)
+    private function getCcdaAsXml(string $ccda): string
     {
-        $xml = simplexml_load_string((string) $ccda);
+        $xml = XmlUtils::loadString($ccda);
+        $output = $xml->asXML();
+        if ($output === false) {
+            throw new \RuntimeException("Failed to serialize CCDA as XML");
+        }
+        return $output;
+    }
+
+    public function getCcdaAsHTML(string $ccda)
+    {
+        $xml = XmlUtils::loadString($ccda);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.
@@ -236,12 +249,13 @@ class EncountermanagerTable
         $d_Address = '';
         // no point in continuing if we are not setup here
         $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-        if ($GLOBALS['phimail_enable'] == false) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        $verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? true : false;
+        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
+        $elec_sent = [];
         try {
             foreach ($rec_arr as $recipient) {
                 $elec_sent = [];
@@ -249,6 +263,8 @@ class EncountermanagerTable
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
                     $result = QueryUtils::fetchRecords($query, [$value]);
+                    $ccda_id = null;
+                    $trans_id = null;
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
@@ -265,20 +281,19 @@ class EncountermanagerTable
                     $document = $documents[0];
                     $ccda = $document->get_data();
                     // use the filename that exists in the document for what is sent
-                    $fileName = $document->get_name();
-                    if (empty($ccda) || empty($fileName)) {
+                    $fileName = (string) $document->get_name();
+                    $ccdaString = (string) $ccda;
+                    if ($ccdaString === '' || $fileName === '') {
                         throw new \RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
                             . $document->get_id());
                     }
 
-                    if ($xml_type == 'html') {
-                        $ccda_file = $this->getCcdaAsHTML($ccda);
-                    } elseif ($xml_type == 'pdf') {
-                        $ccda_file = $this->getCcdaAsPdf($ccda);
-                    } elseif ($xml_type == 'xml') {
-                        $xml = simplexml_load_string($ccda);
-                        $ccda_file = $xml->saveXML();
-                    }
+                    $ccda_file = match ($xml_type) {
+                        'html' => $this->getCcdaAsHTML($ccdaString),
+                        'pdf' => $this->getCcdaAsPdf($ccdaString),
+                        'xml' => $this->getCcdaAsXml($ccdaString),
+                        default => throw new \RuntimeException("Unsupported CCDA export type: " . $xml_type),
+                    };
                     $replaceExt = "." . $xml_type;
                     $extpos = strrpos($fileName, ".xml");
                     if ($extpos !== false) {
@@ -294,7 +309,7 @@ class EncountermanagerTable
                 }
             }
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
+            ServiceContainer::getLogger()->error("EncountermanagerTable: " . $exception->getMessage(), ['data' => $data, 'exception' => $exception]);
             return ("Delivery failed to send");
         }
 

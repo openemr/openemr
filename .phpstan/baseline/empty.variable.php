@@ -2,9 +2,9 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$code_list in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Variable \\$selected_aco_array in empty\\(\\) always exists and is always falsy\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
+    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$parent_name in empty\\(\\) is never defined\\.$#',
@@ -287,11 +287,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$userData in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$owner in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
@@ -348,7 +343,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$object_type in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 7,
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$parent_id in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -400,6 +400,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$subject in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$id in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/VitalsService.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

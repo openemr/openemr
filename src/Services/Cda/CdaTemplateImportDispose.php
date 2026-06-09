@@ -17,9 +17,10 @@ namespace OpenEMR\Services\Cda;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
@@ -154,6 +155,7 @@ class CdaTemplateImportDispose
                 }
             }
 
+            $res_q_sel_allergies = [];
             if (!empty($value['extension'])) {
                 $q_sel_allergies = "SELECT *
                               FROM lists
@@ -245,6 +247,9 @@ class CdaTemplateImportDispose
             $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authProvider = $session->get("authProvider", '');
+        $authUser = $session->get("authUser", '');
         foreach ($care_plan_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             $end_date = $value['end_date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
@@ -284,7 +289,7 @@ class CdaTemplateImportDispose
             }
 
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'] ?? '', $value['reason_code_text'] ?? '', $low_date, $high_date, $value['reason_status'] ?? null]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $authProvider, $authUser, $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'] ?? '', $value['reason_code_text'] ?? '', $low_date, $high_date, $value['reason_status'] ?? null]);
 
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -292,7 +297,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
-                QueryUtils::sqlStatementThrowException($query, [date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $_SESSION["authUser"] ?? '', $_SESSION["authProvider"] ?? '', 'care_plan']);
+                QueryUtils::sqlStatementThrowException($query, [date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $authUser, $authProvider, 'care_plan']);
             }
         }
     }
@@ -317,6 +322,10 @@ class CdaTemplateImportDispose
         foreach ($res as $val) {
             $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authProvider = $session->get("authProvider");
+        $authUser = $session->get("authUser");
         foreach ($clinical_note_array as $value) {
             $plan_date_value = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
             // encounters already created or should have been created
@@ -335,7 +344,7 @@ class CdaTemplateImportDispose
                 }
             }
             $query_insert = "INSERT INTO `form_clinical_notes` (`form_id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`clinical_notes_type`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type']]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $authProvider, $authUser, $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type']]);
 
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -343,7 +352,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
-                QueryUtils::sqlStatementThrowException($query, [date('Y-m-d'), $k, 'Clinical Notes Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'clinical_notes']);
+                QueryUtils::sqlStatementThrowException($query, [date('Y-m-d'), $k, 'Clinical Notes Form', $form['form_id'], $pid, $authUser, $authProvider, 'clinical_notes']);
             }
         }
     }
@@ -363,6 +372,12 @@ class CdaTemplateImportDispose
         $encounter_for_billing = 0;
         foreach ($proc_array as $value) {
             $procedure_date_value = null;
+            $end_date = null;
+            $facility_id = null;
+            $facility_id2 = null;
+            $pro_id = null;
+            $res3 = [];
+            $res6 = [];
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
                 $procedure_date_value = !empty($value['date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
                 $end_date = !empty($value['end_date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
@@ -568,15 +583,21 @@ class CdaTemplateImportDispose
         }
 
         $isuser = sqlQuery("Select id, username From users Where fname = ? And lname = ?", ['External', 'Provider']);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // set the session user if not already set
-        if (empty($_SESSION['authUser'] ?? '') && !empty($isuser)) {
-            $_SESSION['authUserID'] = $isuser['id'];
-            $_SESSION['authUser'] = $isuser['username'];
+        if (empty($session->get('authUser', '')) && !empty($isuser)) {
+            $session->set('authUserID', $isuser['id']);
+            $session->set('authUser', $isuser['username']);
         }
 
+        $encounter_id = null;
         foreach ($enc_array as $value) {
             $encounter_id = QueryUtils::generateId();
 
+            $provider_id = null;
+            $facility_id = null;
+            $res_query_sel_users = [];
+            $res_query_sel_fac = [];
             $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
@@ -589,8 +610,8 @@ class CdaTemplateImportDispose
             } else {
                 $provider_id = $this->insertImportedUser($value, true);
             }
-            if (empty($_SESSION['authProviderID'])) {
-                $_SESSION['authProviderID'] = $provider_id ?? null;
+            if (empty($session->get('authProviderID'))) {
+                $session->set('authProviderID', ($provider_id ?? null));
             }
             //facility
             if (empty($value['represented_organization_name'])) {
@@ -677,6 +698,7 @@ class CdaTemplateImportDispose
             }
             $pc_catid = $pc_catid ?: $pc_catid_default;
 
+            $res_q_sel_encounter = [];
             if (!empty($value['extension'])) {
                 $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id = ? AND pid = ?";
                 $res_q_sel_encounter = QueryUtils::fetchRecords($q_sel_encounter, [$value['extension'], $pid]);
@@ -756,7 +778,7 @@ class CdaTemplateImportDispose
             }
 
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
-            QueryUtils::sqlStatementThrowException($q_ins_forms, [$encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient']);
+            QueryUtils::sqlStatementThrowException($q_ins_forms, [$encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, $session->get('authProvider'), 'Default', 0, 'newpatient']);
             if (!empty($value['encounter_diagnosis_code'])) {
                 $dcode = explode('|', (string) $value['encounter_diagnosis_code']);
                 $dissue = explode('|', (string) $value['encounter_diagnosis_issue']);
@@ -766,6 +788,7 @@ class CdaTemplateImportDispose
                     $diag_date = !empty($ddate[$k]) ? date("Y-m-d H:i:s", $this->str_to_time($ddate[$k])) : null;
                     $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
                     $result = QueryUtils::fetchRecords($query_select, [$diag_date, $dissue[$k], $pid]);
+                    $list_id = null;
                     if (count($result) > 0) {
                         foreach ($result as $value1) {
                             $list_id = $value1['id'];
@@ -780,7 +803,7 @@ class CdaTemplateImportDispose
                     $q_sel_iss_enc = "SELECT * FROM issue_encounter WHERE pid=? and list_id=? and encounter=?";
                     $res_sel_iss_enc = QueryUtils::fetchRecords($q_sel_iss_enc, [$pid, $list_id, $encounter_id]);
                     if (count($res_sel_iss_enc) === 0) {
-                        $patientIssuesService->linkIssueToEncounter($pid, $encounter_id, $list_id, $_SESSION['authUserID'], 0);
+                        $patientIssuesService->linkIssueToEncounter($pid, $encounter_id, $list_id, $session->get('authUserID'), 0);
                     }
                 }
             }
@@ -790,7 +813,9 @@ class CdaTemplateImportDispose
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
             QueryUtils::sqlStatementThrowException($insertEX, [$encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)]);
         }
-        $this->currentEncounter = $encounter_id;
+        if ($encounter_id !== null) {
+            $this->currentEncounter = $encounter_id;
+        }
     }
 
     /**
@@ -809,11 +834,19 @@ class CdaTemplateImportDispose
 
         $qc_select = "SELECT ct_id FROM code_types WHERE ct_key = ?";
         $c_result = QueryUtils::fetchRecords($qc_select, ['CVX']);
+        $ct_id = null;
         foreach ($c_result as $val) {
             $ct_id = $val['ct_id'];
         }
 
         foreach ($imm_array as $value) {
+            $provider_id = null;
+            $facility_id = null;
+            $immunization_date_value = null;
+            $oid_unit = null;
+            $res_query_sel_users = [];
+            $res_query_sel_fac = [];
+            $res_q_sel_imm = [];
             //provider
             $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
@@ -1081,6 +1114,8 @@ class CdaTemplateImportDispose
 
         $oid_route = $unit_option_id = $oidu_unit = '';
         foreach ($pres_array as $value) {
+            $provider_id = null;
+            $res_query_sel_users = [];
             $active = 1;
             if (empty($value['enddate'])) {
                 $value['enddate'] = (null);
@@ -1397,6 +1432,10 @@ class CdaTemplateImportDispose
 
         foreach ($med_pblm_array as $value) {
             $activity = 1;
+            $med_pblm_begdate_value = null;
+            $med_pblm_enddate_value = null;
+            $o_id = null;
+            $res_q_sel_med_pblm = [];
 
             if (!empty($value['begdate']) && $revapprove == 0) {
                 $med_pblm_begdate_value = date("Y-m-d H:i:s", $this->str_to_time($value['begdate']));
@@ -1559,8 +1598,9 @@ class CdaTemplateImportDispose
             $value['provider_state'] ?? null,
             $value['provider_postalCode'] ?? null]);
 
-        if (empty($_SESSION['authUser'] ?? '')) {
-            $_SESSION['authUser'] = $userName;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (empty($session->get('authUser', ''))) {
+            $session->get('authUser', $userName);
         }
 
         return $user_id;
@@ -1582,6 +1622,7 @@ class CdaTemplateImportDispose
             $pro_name = xlt('Qrda Lab');
         }
         foreach ($lab_results as $value) {
+            $pro_id = null;
             $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             $value['proc_text'] ??= xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date']));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
@@ -1689,6 +1730,11 @@ class CdaTemplateImportDispose
             $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authProvider = $session->get('authProvider');
+        $authUser = $session->get('authUser');
+        $date = date('Y-m-d');
+        $encounter_for_forms = null;
         foreach ($functional_cognitive_status_array as $value) {
             $date = $value['date'] != '' ? $carecoordinationTable->formatDate($value['date']) : date('Y-m-d');
 
@@ -1712,12 +1758,12 @@ class CdaTemplateImportDispose
             }
 
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $authProvider, $authUser, $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
         }
 
         if (count($functional_cognitive_status_array) > 0) {
             $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir)VALUES(?,?,?,?,?,?,?,?)";
-            QueryUtils::sqlStatementThrowException($query, [$date, $encounter_for_forms, 'Functional and Cognitive Status Form', $newid, $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status']);
+            QueryUtils::sqlStatementThrowException($query, [$date, $encounter_for_forms, 'Functional and Cognitive Status Form', $newid, $pid, $authUser, $authProvider, 'functional_cognitive_status']);
         }
     }
 
@@ -1731,6 +1777,12 @@ class CdaTemplateImportDispose
         foreach ($res as $val) {
             $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authProvider = $session->get('authProvider');
+        $authUser = $session->get('authUser');
+        $date = null;
+        $forms_encounters = [];
         foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
                 $date = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
@@ -1769,7 +1821,7 @@ class CdaTemplateImportDispose
                 }
             }
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $authProvider, $authUser, $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
             $plan_date_value = null; // leaving variable in before in case code relies on key as it was undefined and newer versions of php doesn't like that.
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -1777,7 +1829,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir)VALUES(?,?,?,?,?,?,?,?)";
-                QueryUtils::sqlStatementThrowException($query, [$date, $k, 'Functional and Cognitive Status Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status']);
+                QueryUtils::sqlStatementThrowException($query, [$date, $k, 'Functional and Cognitive Status Form', $form['form_id'], $pid, $authUser, $authProvider, 'functional_cognitive_status']);
             }
         }
     }
@@ -1794,9 +1846,13 @@ class CdaTemplateImportDispose
             return;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authProvider = $session->get('authProvider', '');
+        $authUser = $session->get('authUser', '');
+        $userauthorized = $session->get('userauthorized', '');
         foreach ($arr_referral as $value) {
             $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
-            $trans_id = QueryUtils::sqlInsert($query_insert, [date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $_SESSION["userauthorized"] ?? '']);
+            $trans_id = QueryUtils::sqlInsert($query_insert, [date('Y-m-d H:i:s'), 'LBTref', $pid, $authProvider, $authUser, $userauthorized]);
             if ($trans_id) {
                 QueryUtils::sqlStatementThrowException("INSERT INTO lbt_data SET form_id = ?,field_id = ?,field_value = ?", [$trans_id, 'body', $value['body']]);
             }
@@ -1812,6 +1868,7 @@ class CdaTemplateImportDispose
     {
         $query = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ? and d.deleted = 0";
         $docEnc = QueryUtils::fetchRecords($query, [$doc_id, $pid]);
+        $enc_id = 0;
 
         if (count($docEnc) == 0) {
             $enc = QueryUtils::fetchRecords("SELECT encounter
@@ -1847,6 +1904,9 @@ class CdaTemplateImportDispose
             return;
         }
         foreach ($vitals_array as $value) {
+            $vitals_date_value = null;
+            $vitals_id = null;
+            $res_q_sel_vitals = [];
             if (!empty($value['date']) && $revapprove == 0) {
                 $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             } elseif (!empty($value['date']) && $revapprove == 1) {
@@ -2012,11 +2072,12 @@ class CdaTemplateImportDispose
                   ?,
                   'vitals'
                 )";
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             QueryUtils::sqlStatementThrowException($query, [$vitals_date_forms,
                 $encounter_for_forms,
                 $vitals_id,
                 $pid,
-                ($_SESSION['authUser'] ?? null)]);
+                $session->get('authUser')]);
         }
     }
 
@@ -2038,8 +2099,13 @@ class CdaTemplateImportDispose
             $newid = $val['largestId'] ? $val['largestId'] + 1 : 1;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $authProvider = $session->get('authProvider');
         foreach ($observation_preformed_array as $key => $value) {
             $date_end = null;
+            $enc_date = null;
+            $encounter_for_forms = null;
             if (!empty($value['date'])) {
                 $enc_date = date("Y-m-d", $this->str_to_time($value['date']));
                 $date = date("Y-m-d H:i:s", $this->str_to_time($value['date']));
@@ -2085,7 +2151,7 @@ class CdaTemplateImportDispose
                              date_end)
                 VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
                 [
-                    $newid, $date, $pid, $_SESSION['authProvider'], $_SESSION['authUser'], $encounter_for_forms, 1,
+                    $newid, $date, $pid, $authProvider, $authUser, $encounter_for_forms, 1,
                     $value['code'] ?: null,
                     $value['observation'],
                     $value['result_code_text'],
@@ -2106,7 +2172,7 @@ class CdaTemplateImportDispose
             }
             if (count($observation_preformed_array) > 0) {
                 $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
-                QueryUtils::sqlStatementThrowException($query, [$date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation']);
+                QueryUtils::sqlStatementThrowException($query, [$date, $encounter_for_forms, 'Observation Form', $newid, $pid, $authUser, $authProvider, 'observation']);
             }
         }
     }
@@ -2150,6 +2216,7 @@ class CdaTemplateImportDispose
         $data["plan_name"] = 'QRDA Payer';
         $data["policy_number"] = $payer['code'] ?? '1';
 
+        $id_data = null;
         if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
             $insuranceEntry = $insuranceData->search(['type' => 'primary', 'pid' => $pid]);
             if ($insuranceEntry->hasData()) {
@@ -2159,9 +2226,9 @@ class CdaTemplateImportDispose
         } else {
             $id_data = $insuranceData->insert($data);
         }
-        if (!$id_data->isValid()) {
-            (new SystemLogger())->errorLogCaller(
-                'Error inserting insurance data',
+        if ($id_data === null || !$id_data->isValid()) {
+            ServiceContainer::getLogger()->error(
+                'Error inserting insurance data: {validationErrors} {internalErrors}',
                 [
                     'internalErrors' => $id_data->getInternalErrors(), 'validationErrors' => $id_data->getValidationMessages()
                 ]

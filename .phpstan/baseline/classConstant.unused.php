@@ -7,11 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Constant OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:SUPPORTED_SEARCH_FIELDS is unused\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Constant OpenEMR\\\\RestControllers\\\\TransactionRestController\\:\\:SUPPORTED_SEARCH_FIELDS is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',

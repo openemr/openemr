@@ -17,10 +17,10 @@
 
 namespace OpenEMR\Events\UserInterface;
 
-use Symfony\Contracts\EventDispatcher\Event;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Menu\MenuItems;
 use OpenEMR\Menu\MenuItemInterface;
+use OpenEMR\Menu\MenuItems;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class PageHeadingRenderEvent extends Event
 {
@@ -127,7 +127,7 @@ class PageHeadingRenderEvent extends Event
     }
 
     /**
-     * @param array
+     * @param array $actions
      * @return UserEditRenderEvent
      */
     public function setActions(array $actions): PageHeadingRenderEvent

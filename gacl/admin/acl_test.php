@@ -1,4 +1,5 @@
 <?php
+
 /*
 meinhard_jahn@web.de, 20041102: link to acl_test2.php and acl_test3.php
 */
@@ -24,6 +25,10 @@ require_once('../profiler.inc.php');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 $smarty->assign("return_page", $_SERVER['PHP_SELF'] );
 

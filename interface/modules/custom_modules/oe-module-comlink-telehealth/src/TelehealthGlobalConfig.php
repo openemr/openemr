@@ -12,14 +12,15 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use MyMailer;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
-use MyMailer;
 use Twig\Environment;
 
 class TelehealthGlobalConfig
@@ -65,10 +66,7 @@ class TelehealthGlobalConfig
     const LOCALE_TIMEZONE_DEFAULT = "Unassigned";
     const LOCALE_TIMEZONE = "gbl_time_zone";
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     /**
      * @var publicWebPath
@@ -78,7 +76,7 @@ class TelehealthGlobalConfig
 
     public function __construct($publicWebPath, private readonly Environment $twig)
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->publicWebPath = $publicWebPath;
     }
 
@@ -161,7 +159,7 @@ class TelehealthGlobalConfig
     /**
      * Checks if the core telehealth configuration settings are properly setup.
      *
-     * @return false|void
+     * @return bool
      */
     public function isTelehealthCoreSettingsConfigured()
     {
@@ -174,7 +172,7 @@ class TelehealthGlobalConfig
             $value = $this->getGlobalSetting($key);
 
             if (empty($value)) {
-                (new SystemLogger())->debug("Telehealth is missing configuration key", ['key' => $key]);
+                ServiceContainer::getLogger()->debug("Telehealth is missing configuration key", ['key' => $key]);
                 return false;
             }
         }
@@ -213,13 +211,13 @@ class TelehealthGlobalConfig
         return false;
     }
 
-    private function isThirdPartyConfigurationSetup()
+    private function isThirdPartyConfigurationSetup(): bool
     {
         // check to make sure the dependent portal settings are setup correctly
         $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
         $useBasePath = $this->getGlobalSetting('portal_onsite_two_basepath') == '1';
         if (!$enabled) {
-            (new SystemLogger())->debug("Telehealth is missing portal_onsite_two_enable enabled");
+            ServiceContainer::getLogger()->debug("Telehealth is missing portal_onsite_two_enable enabled");
             return false;
         }
         if (!$useBasePath) {
@@ -227,13 +225,13 @@ class TelehealthGlobalConfig
             $defaultValue = $this->getGlobalSetting('portal_onsite_two_address');
             // TODO: @adunsulag can we pull the default onsite configuration pulled out into a constant somewhere?
             if ($defaultValue == 'https://your_web_site.com/openemr/portal') {
-                (new SystemLogger())->debug("Telehealth is using unconfigured portal_onsite_two_address");
+                ServiceContainer::getLogger()->debug("Telehealth is using unconfigured portal_onsite_two_address");
                 return false;
             }
         }
         // have to have the qualified site address for our full email link
         if (empty($this->getQualifiedSiteAddress())) {
-            (new SystemLogger())->debug("Telehealth is missing qualified site address");
+            ServiceContainer::getLogger()->debug("Telehealth is missing qualified site address");
             return false;
         }
         return true;
@@ -287,7 +285,7 @@ class TelehealthGlobalConfig
     public function getRegistrationAPIPassword()
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
+        return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     public function getRegistrationAPICmsId()
@@ -304,7 +302,7 @@ class TelehealthGlobalConfig
     public function getGlobalSetting($settingKey)
     {
         // don't like this as php 8.1 requires this but OpenEMR works with globals and this is annoying.
-        return $GLOBALS[$settingKey] ?? '';
+        return OEGlobalsBag::getInstance()->get($settingKey) ?? '';
     }
 
     public function getAppRegistrationCodeLength()
@@ -470,7 +468,7 @@ class TelehealthGlobalConfig
         $settings = $this->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $setting = new GlobalSetting(
                 xlt($config['title']),
                 $config['type'],

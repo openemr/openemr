@@ -1596,10 +1596,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:getSingleFixture\\(\\) should be compatible with return type \\(OpenEMR\\\\Tests\\\\Fixtures\\\\a\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleFixture\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/GaclFixtureManager.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

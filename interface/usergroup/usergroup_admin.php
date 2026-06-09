@@ -20,7 +20,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sessionAllowWrite = true;
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -28,6 +27,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -36,8 +36,9 @@ use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_REQUEST)) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -76,7 +77,7 @@ $show_message = 0;
 /* Sending a mail to the admin when the breakglass user is activated only if $GLOBALS['Emergency_Login_email'] is set to 1 */
 if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
     $bg_count = count($_POST['access_group']);
-    $mail_id = explode(".", (string) $SMTP_HOST);
+    $mail_id = explode(".", OEGlobalsBag::getInstance()->getString('SMTP_HOST'));
     for ($i = 0; $i < $bg_count; $i++) {
         if (($_POST['access_group'][$i] == "Emergency Login") && ($_POST['active'] == 'on') && ($_POST['pre_active'] == 0)) {
             if (($_POST['get_admin_id'] == 1) && ($_POST['admin_id'] != "")) {
@@ -84,7 +85,7 @@ if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
                 $row = sqlFetchArray($res);
                 $uname = $row['username'];
                 $mail = new MyMailer();
-                $mail->From = $GLOBALS["practice_return_email_path"];
+                $mail->From = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
                 $mail->FromName = "Administrator OpenEMR";
                 $text_body = "Hello Security Admin,\n\n The Emergency Login user " . $uname .
                     " was activated at " . date('l jS \of F Y h:i:s A') . " \n\nThanks,\nAdmin OpenEMR.";
@@ -103,8 +104,8 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", [$_POST["id"]]));
 
         if (isset($_POST["username"])) {
-            sqlStatement("update users set username=? where id= ? ", [trim($_POST["username"]), $_POST["id"]]);
-            sqlStatement("update `groups` set user=? where user= ?", [trim($_POST["username"]), $user_data["username"]]);
+            sqlStatement("update users set username=? where id= ? ", [trim((string) $_POST["username"]), $_POST["id"]]);
+            sqlStatement("update `groups` set user=? where user= ?", [trim((string) $_POST["username"]), $user_data["username"]]);
         }
 
         if ($_POST["taxid"]) {
@@ -165,7 +166,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             //END (CHEMED)
         }
 
-        if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') || OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
             if (empty($_POST["schedule_facility"])) {
                 $_POST["schedule_facility"] = [];
             }
@@ -240,7 +241,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         if ($_POST["adminPass"] && $_POST["clearPass"]) {
             $authUtilsUpdatePassword = new AuthUtils();
-            $success = $authUtilsUpdatePassword->updatePassword($_SESSION['authUserID'], $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
+            $success = $authUtilsUpdatePassword->updatePassword($session->get('authUserID'), $_POST['id'], $_POST['adminPass'], $_POST['clearPass']);
             if (!$success) {
                 error_log(errorLogEscape($authUtilsUpdatePassword->getErrorMessage()));
                 $alertmsg .= $authUtilsUpdatePassword->getErrorMessage();
@@ -306,6 +307,11 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set google_signin_email = ? where id = ? ", [$googleSigninEmail, $_POST["id"]]);
         }
 
+        if (isset($_POST["email"])) {
+            $email = trim($_POST["email"]);
+            sqlStatement("update users set email = ? where id = ? ", [$email, $_POST["id"]]);
+        }
+
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", [$_POST["id"]]));
         AclExtended::setUserAro(
@@ -330,6 +336,7 @@ if (isset($_POST["mode"])) {
             $_POST["authorized"] = 0;
         }
 
+        $success = false;
         $calvar = (!empty($_POST["calendar"])) ? 1 : 0;
         $portalvar = (!empty($_POST["portal_user"])) ? 1 : 0;
 
@@ -339,59 +346,72 @@ if (isset($_POST["mode"])) {
             $doit = false;
         }
 
-        if ($doit == true) {
-            // google_signin_email has unique key constraint, needs to be handled differently
-            $googleSigninEmail = "NULL";
-            if (isset($_POST["google_signin_email"])) {
-                if (empty($_POST["google_signin_email"])) {
-                    $googleSigninEmail = "NULL";
-                } else {
-                    $googleSigninEmail = "'" . add_escape_custom(trim((string) $_POST["google_signin_email"])) . "'";
-                }
-            }
-            $insertUserSQL =
-            "insert into users set " .
-            "username = '"         . add_escape_custom(trim(($_POST['rumple'] ?? ''))) .
-            "', password = '"      . 'NoLongerUsed'                  .
-            "', fname = '"         . add_escape_custom(trim(($_POST['fname'] ?? ''))) .
-            "', mname = '"         . add_escape_custom(trim(($_POST['mname'] ?? ''))) .
-            "', lname = '"         . add_escape_custom(trim(($_POST['lname'] ?? ''))) .
-            "', suffix = '"         . add_escape_custom(trim(($_POST['suffix'] ?? ''))) .
-            "', google_signin_email = " . $googleSigninEmail .
-            ", valedictory = '"         . add_escape_custom(trim(($_POST['valedictory'] ?? ''))) .
-            "', federaltaxid = '"  . add_escape_custom(trim(($_POST['federaltaxid'] ?? ''))) .
-            "', state_license_number = '"  . add_escape_custom(trim(($_POST['state_license_number'] ?? ''))) .
-            "', newcrop_user_role = '"  . add_escape_custom(trim(($_POST['erxrole'] ?? ''))) .
-            "', physician_type = '"  . add_escape_custom(trim(($_POST['physician_type'] ?? ''))) .
-            "', main_menu_role = '"  . add_escape_custom(trim(($_POST['main_menu_role'] ?? ''))) .
-            "', patient_menu_role = '"  . add_escape_custom(trim(($_POST['patient_menu_role'] ?? ''))) .
-            "', weno_prov_id = '"  . add_escape_custom(trim(($_POST['erxprid'] ?? ''))) .
-            "', authorized = '"    . add_escape_custom(trim(($_POST['authorized'] ?? ''))) .
-            "', info = '"          . add_escape_custom(trim(($_POST['info'] ?? ''))) .
-            "', federaldrugid = '" . add_escape_custom(trim(($_POST['federaldrugid'] ?? ''))) .
-            "', upin = '"          . add_escape_custom(trim(($_POST['upin'] ?? ''))) .
-            "', npi  = '"          . add_escape_custom(trim(($_POST['npi'] ?? ''))) .
-            "', taxonomy = '"      . add_escape_custom(trim(($_POST['taxonomy'] ?? ''))) .
-            "', facility_id = '"   . add_escape_custom(trim(($_POST['facility_id'] ?? ''))) .
-            "', billing_facility_id = '"   . add_escape_custom(trim(($_POST['billing_facility_id'] ?? ''))) .
-            "', specialty = '"     . add_escape_custom(trim(($_POST['specialty'] ?? ''))) .
-            "', see_auth = '"      . add_escape_custom(trim(($_POST['see_auth'] ?? ''))) .
-            "', default_warehouse = '" . add_escape_custom(trim(($_POST['default_warehouse'] ?? ''))) .
-            "', irnpool = '"       . add_escape_custom(trim(($_POST['irnpool'] ?? ''))) .
-            "', calendar = '"      . add_escape_custom($calvar) .
-            "', portal_user = '"   . add_escape_custom($portalvar) .
-            "', supervisor_id = '" . add_escape_custom((isset($_POST['supervisor_id']) ? (int)$_POST['supervisor_id'] : 0)) .
-            "'";
+        if ($doit) {
+            // Declare field mappings by type: POST key => column name
+            $stringFields = [
+                'rumple'               => 'username',
+                'fname'                => 'fname',
+                'mname'                => 'mname',
+                'lname'                => 'lname',
+                'suffix'               => 'suffix',
+                'email'                => 'email',
+                'valedictory'          => 'valedictory',
+                'federaltaxid'         => 'federaltaxid',
+                'state_license_number' => 'state_license_number',
+                'erxrole'              => 'newcrop_user_role',
+                'physician_type'       => 'physician_type',
+                'main_menu_role'       => 'main_menu_role',
+                'patient_menu_role'    => 'patient_menu_role',
+                'erxprid'              => 'weno_prov_id',
+                'info'                 => 'info',
+                'federaldrugid'        => 'federaldrugid',
+                'upin'                 => 'upin',
+                'npi'                  => 'npi',
+                'taxonomy'             => 'taxonomy',
+                'specialty'            => 'specialty',
+                'default_warehouse'    => 'default_warehouse',
+                'irnpool'              => 'irnpool',
+            ];
+            // POST key => [column name, default value]
+            $intFields = [
+                'authorized'           => ['authorized', 0],
+                'facility_id'          => ['facility_id', 0],
+                'billing_facility_id'  => ['billing_facility_id', 0],
+                'see_auth'             => ['see_auth', 1],
+                'supervisor_id'        => ['supervisor_id', 0],
+            ];
 
+            $filters = array_fill_keys(array_keys($stringFields), FILTER_UNSAFE_RAW)
+                + array_fill_keys(array_keys($intFields), FILTER_VALIDATE_INT)
+                + ['google_signin_email' => FILTER_UNSAFE_RAW];
+            $input = filter_input_array(INPUT_POST, $filters);
+
+            $userData = ['password' => 'NoLongerUsed'];
+            foreach ($stringFields as $postKey => $column) {
+                $userData[$column] = trim((string) ($input[$postKey] ?? ''));
+            }
+            foreach ($intFields as $postKey => [$column, $default]) {
+                $userData[$column] = (int) ($input[$postKey] ?? $default);
+            }
+
+            // google_signin_email has a unique key constraint — store NULL for empty
+            $googleSigninEmail = trim((string) ($input['google_signin_email'] ?? ''));
+            $userData['google_signin_email'] = $googleSigninEmail !== '' ? $googleSigninEmail : null;
+
+            // Precomputed integer fields
+            $userData['calendar'] = $calvar;
+            $userData['portal_user'] = $portalvar;
+
+            $newUsername = $userData['username'];
             $authUtilsNewPassword = new AuthUtils();
             $success = $authUtilsNewPassword->updatePassword(
-                $_SESSION['authUserID'],
+                $session->get('authUserID'),
                 0,
                 $_POST['adminPass'],
                 $_POST['stiltskin'],
                 true,
-                $insertUserSQL,
-                trim(($_POST['rumple'] ?? ''))
+                $userData,
+                $newUsername
             );
             if (!empty($authUtilsNewPassword->getErrorMessage())) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();
@@ -463,6 +483,7 @@ if (isset($_POST["mode"])) {
         }
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
+        $result = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
@@ -512,10 +533,12 @@ if (isset($_GET["mode"])) {
 
     if ($_GET["mode"] == "delete_group") {
         $res = sqlStatement("select distinct user from `groups` where id = ?", [$_GET["id"]]);
+        $result = [];
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
             $result[$iter] = $row;
         }
 
+        $un = '';
         foreach ($result as $iter) {
             $un = $iter["user"];
         }
@@ -533,10 +556,11 @@ if (isset($_GET["mode"])) {
         }
     }
 }
-// added for form submits from usergroup_admin_add and user_admin.php
-// sjp 12/29/17
+// AJAX form submits from usergroup_admin_add and user_admin.php
+// return the alert message (empty on success) and stop rendering the page
 if (isset($_REQUEST["mode"])) {
-    exit(text(trim($alertmsg)));
+    echo text(trim($alertmsg));
+    return;
 }
 
 $form_inactive = !empty($_POST['form_inactive']);
@@ -575,8 +599,8 @@ function resetCounter(username) {
     request = new FormData;
     request.append("function", "resetUsernameCounter");
     request.append("username", username);
-    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-    fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'counter')); ?>);
+    fetch("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/login_counter_ip_tracker.php", {
         method: 'POST',
         credentials: 'same-origin',
         body: request
@@ -605,7 +629,7 @@ function resetCounter(username) {
                 <a href="facility_user.php" class="btn btn-secondary btn-show"><?php echo xlt('View Facility Specific User Information'); ?></a>
             </div>
             <form name='userlist' method='post' style="display: inline;" class="form-inline" class="float-right" action='usergroup_admin.php' onsubmit='return top.restoreSession()'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <div class="checkbox">
                     <label for="form_inactive">
                         <input type='checkbox' class="form-control" id="form_inactive" name='form_inactive' value='1' onclick='submit()' <?php echo ($form_inactive) ? 'checked ' : ''; ?>>
@@ -634,12 +658,13 @@ function resetCounter(username) {
                         <tr>
                             <th><?php echo xlt('Username'); ?></th>
                             <th><?php echo xlt('Real Name'); ?></th>
+                            <th><?php echo xlt('Email'); ?></th>
                             <th><?php echo xlt('Additional Info'); ?></th>
                             <th><?php echo xlt('Authorized'); ?></th>
                             <th><?php echo xlt('MFA'); ?></th>
                             <?php
                             $checkPassExp = false;
-                            if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
+                            if ((OEGlobalsBag::getInstance()->getInt('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_grace_time')))) {
                                 $checkPassExp = true;
                                 echo '<th>' . xlt('Password Expiration') . '</th>';
                             }
@@ -655,10 +680,14 @@ function resetCounter(username) {
 
                         $query .= "ORDER BY username";
                         $res = sqlStatement($query);
+                        $result4 = [];
                         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                             $result4[$iter] = $row;
                         }
 
+                        $current_date = '';
+                        $pwd_expires = '';
+                        $grace_time = '';
                         foreach ($result4 as $iter) {
                             // Skip this user if logged-in user does not have all of its permissions.
                             // Note that a superuser now has all permissions.
@@ -678,14 +707,15 @@ function resetCounter(username) {
                             if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
                                 $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
-                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
-                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . $GLOBALS['password_grace_time'] . " days"));
+                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . " days"));
+                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->getInt('password_grace_time') . " days"));
                             }
 
                             print "<tr>
-                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
+                                <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
                                 "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
                                 <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
+                                <td>" . text($iter["email"] ?? '') . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
                                 <td align='left'><span>" . text($iter["authorized"]) . "</td>
                                 <td align='left'><span>" . text($isMfa) . "</td>";
@@ -694,10 +724,10 @@ function resetCounter(username) {
                                     // LDAP bypasses expired password mechanism
                                     echo '<td>';
                                     echo xlt('Not Applicable');
-                                } elseif (strtotime((string) $current_date) > strtotime((string) $grace_time)) {
+                                } elseif (strtotime($current_date) > strtotime($grace_time)) {
                                     echo '<td class="bg-danger text-light">';
                                     echo xlt('Expired');
-                                } elseif (strtotime((string) $current_date) > strtotime((string) $pwd_expires)) {
+                                } elseif (strtotime($current_date) > strtotime($pwd_expires)) {
                                     echo '<td class="bg-warning text-dark">';
                                     echo xlt('Grace Period');
                                 } else {
@@ -720,11 +750,11 @@ function resetCounter(username) {
                                     echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
                                     $autoBlocked = false;
                                     $autoBlockEnd = null;
-                                    if ((int)$GLOBALS['password_max_failed_logins'] != 0 && ($queryCounter['login_fail_counter'] > (int)$GLOBALS['password_max_failed_logins'])) {
-                                        if ((int)$GLOBALS['time_reset_password_max_failed_logins'] != 0) {
-                                            if ($queryCounter['seconds_last_login_fail'] < (int)$GLOBALS['time_reset_password_max_failed_logins']) {
+                                    if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0 && ($queryCounter['login_fail_counter'] > OEGlobalsBag::getInstance()->getInt('password_max_failed_logins'))) {
+                                        if (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') != 0) {
+                                            if ($queryCounter['seconds_last_login_fail'] < OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
                                                 $autoBlocked = true;
-                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)$GLOBALS['time_reset_password_max_failed_logins'] - $queryCounter['seconds_last_login_fail'])));
+                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') - $queryCounter['seconds_last_login_fail'])));
                                             }
                                         } else {
                                             $autoBlocked = true;
@@ -748,21 +778,23 @@ function resetCounter(username) {
                 </table>
             </div>
             <?php
-            if (empty($GLOBALS['disable_non_default_groups'])) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
                 $res = sqlStatement("select * from `groups` order by name");
+                $result5 = [];
                 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $result5[$iter] = $row;
                 }
 
+                $grouplist = [];
                 foreach ($result5 as $iter) {
-                    $grouplist[$iter["name"]] .= text($iter["user"]) .
+                    $grouplist[$iter["name"]] = ($grouplist[$iter["name"]] ?? '') . text($iter["user"]) .
                         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-                        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
+                        attr_url($iter["id"]) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt('Remove') . "</a>), ";
                 }
 
                 foreach ($grouplist as $groupname => $list) {
                     print "<span class='bold'>" . text($groupname) . "</span><br />\n<span>" .
-                        substr((string) $list, 0, strlen((string) $list) - 2) . "</span><br />\n";
+                        substr($list, 0, strlen($list) - 2) . "</span><br />\n";
                 }
             }
             ?>

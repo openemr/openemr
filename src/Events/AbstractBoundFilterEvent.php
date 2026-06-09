@@ -20,18 +20,11 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 abstract class AbstractBoundFilterEvent extends Event
 {
-    /**
-     * AppointmentsFilterEvent constructor.
-     * @param string $boundFilter
-     */
     public function __construct(private BoundFilter $boundFilter)
     {
     }
 
-    /**
-     * @return string
-     */
-    public function getBoundFilter()
+    public function getBoundFilter(): BoundFilter
     {
         return $this->boundFilter;
     }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * @package Smarty
@@ -10,7 +11,7 @@
  *
  * @param string $compile_path
  * @param string $template_compiled
- * @return boolean
+ * @return bool
  */
 
 //This provides a cross-platform alternative to strftime() for when it will be removed from PHP.

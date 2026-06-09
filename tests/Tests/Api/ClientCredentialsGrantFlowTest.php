@@ -11,18 +11,18 @@
 
 namespace OpenEMR\Tests\Api;
 
+use JsonException;
+use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
+use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
-use JsonException;
-use League\OAuth2\Server\Exception\OAuthServerException;
-use PHPUnit\Framework\MockObject\Exception;
 
 class ClientCredentialsGrantFlowTest extends TestCase
 {

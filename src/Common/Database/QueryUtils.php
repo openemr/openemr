@@ -15,7 +15,8 @@
 namespace OpenEMR\Common\Database;
 
 use ADORecordSet;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use Throwable;
 
 class QueryUtils
@@ -41,6 +42,11 @@ class QueryUtils
 
     public static function escapeTableName(string $table): string
     {
+        // Reject table names containing backticks to prevent identifier-context injection
+        if (str_contains($table, '`')) {
+            throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . \errorLogEscape($table));
+        }
+
         $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
         $tables_array = [];
         while ($row = self::fetchArrayFromResultSet($res)) {
@@ -48,8 +54,9 @@ class QueryUtils
             $tables_array[] = $row[$keys_return[0]];
         }
 
-        // Now can escape(via whitelisting) the sql table name
-        return \escape_identifier($table, $tables_array, true, false);
+        // Whitelist against actual tables, then backtick-quote to keep in identifier context
+        $tableName = \escape_identifier($table, $tables_array, true, false);
+        return sprintf('`%s`', $tableName);
     }
 
     /**
@@ -247,7 +254,7 @@ class QueryUtils
                 unset($statement); // free the resource
                 return true;
             }
-        } catch (\Throwable) {
+        } catch (SqlQueryException) {
             // do nothing as we know the table doesn't exist
         }
         return false;
@@ -292,14 +299,14 @@ class QueryUtils
 
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return OEGlobalsBag::getInstance()->get('lastidado') > 0 ? OEGlobalsBag::getInstance()->get('lastidado') : OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
      * Shared getter for SQL selects.
      *
      * @param string $sqlUpToFromStatement - The sql string up to (and including) the FROM line.
-     * @param array{
+     * @param mixed $map array{
      *   data?: mixed,
      *   where?: string,
      *   order?: string,
@@ -400,7 +407,7 @@ class QueryUtils
     {
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return (OEGlobalsBag::getInstance()->get('lastidado') ?? 0) > 0 ? OEGlobalsBag::getInstance()->get('lastidado') : OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -416,7 +423,7 @@ class QueryUtils
     {
         /** @var mixed $params */
         if (!is_array($params)) {
-            (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
+            ServiceContainer::getLogger()->debug('Non-array $params passed to {method}: {trace}', [
                 'method' => __METHOD__,
                 'trace' => (new \Exception())->getTraceAsString(),
             ]);
@@ -459,9 +466,9 @@ class QueryUtils
      */
     public static function getLastError(): string
     {
-        return !empty($GLOBALS['last_mysql_error'])
-            ? (string) $GLOBALS['last_mysql_error']
-            : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+        return !empty(OEGlobalsBag::getInstance()->get('last_mysql_error'))
+            ? (string) OEGlobalsBag::getInstance()->get('last_mysql_error')
+            : (string) OEGlobalsBag::getInstance()->get('adodb')['db']->ErrorMsg();
     }
 
     /**
@@ -469,6 +476,13 @@ class QueryUtils
      */
     private static function getADODB()
     {
-        return $GLOBALS['adodb']['db'];
+        if (!function_exists('sqlQuery')) {
+            // GROSS HACK: if if the first query run goes through QueryUtils
+            // rather than the global functions, the connection may not have
+            // been set up yet.
+            require_once __DIR__ . '/../../../library/sql.inc.php';
+        }
+
+        return OEGlobalsBag::getInstance()->get('adodb')['db'];
     }
 }

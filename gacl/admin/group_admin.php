@@ -1,10 +1,12 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
@@ -12,6 +14,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 }
 
 require_once('gacl_admin.inc.php');
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 //GET takes precedence.
 $group_type = $_GET['group_type'] != '' ? $_GET['group_type'] : $_POST['group_type'];
@@ -85,7 +91,7 @@ $smarty->assign('page_title', strtoupper($group_type) .' Group Admin');
 $smarty->assign('phpgacl_version', $gacl_api->get_version());
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version());
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: SessionWrapperFactory::getInstance()->getActiveSession()));
 
 $smarty->display('phpgacl/group_admin.tpl');
 ?>

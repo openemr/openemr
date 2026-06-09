@@ -1,10 +1,10 @@
 services:
   mysql:
     restart: always
-    image: mariadb:11.8
-    command: ['mariadbd','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
+    image: mariadb:11.8.8@sha256:be1ef4fe5f14589325c08a41c76334097ce66c86264b75e1d28342c742782a61
+    command: ['mariadbd', '--character-set-server=utf8mb4', '--ssl-ca=/etc/ssl/ca.pem', '--ssl_cert=/etc/ssl/server-cert.pem', '--ssl_key=/etc/ssl/server-key.pem']
     ports:
-    - 8320:3306
+    - "${WT_MYSQL_PORT:-8320}:3306"
     volumes:
     - ../library/sql-ssl-certs-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
     - ../library/sql-ssl-certs-keys/easy/server-cert.pem:/etc/ssl/server-cert.pem:ro
@@ -26,19 +26,21 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex
+    image: openemr/openemr:flex@sha256:227bcf2e7181a3d786f3109b56fdbd7d26c0dacd6ddcf359328a64b5b9ec3ffc
     ports:
-    - 8300:80
-    - 9300:443
+    - "${WT_HTTP_PORT:-8300}:80"
+    - "${WT_HTTPS_PORT:-9300}:443"
     volumes:
-    - ../..:/openemr:ro
-    - ../..:/var/www/localhost/htdocs/openemr:rw
+    - ${OPENEMR_DIR:-../..}:/openemr:ro
+    - ${OPENEMR_DIR:-../..}:/var/www/localhost/htdocs/openemr:rw
     - assetvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
     - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
+    - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
+    - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
     environment:
@@ -66,7 +68,7 @@ services:
       SELENIUM_FORCE_HEADLESS: "false"
       SELENIUM_BASE_URL: "http://openemr"
       OPENEMR_DOCKER_ENV_TAG: easy-dev-docker
-      OPENEMR_SETTING_site_addr_oath: 'https://localhost:9300'
+      OPENEMR_SETTING_site_addr_oath: 'https://localhost:${WT_HTTPS_PORT:-9300}'
       OPENEMR_SETTING_oauth_password_grant: 3
       OPENEMR_SETTING_rest_system_scopes_api: 1
       OPENEMR_SETTING_rest_api: 1
@@ -111,10 +113,10 @@ services:
       retries: 3
   selenium:
     restart: always
-    image: selenium/standalone-chromium:4.41.0
+    image: selenium/standalone-chromium:148.0.7778.178@sha256:8c5a8629c96104c0d73df94c6437af9ab9059c4e16aa32e35b330b7d77defe0b
     ports:
-    - 4444:4444    # Selenium WebDriver interface
-    - 7900:7900    # VNC port for viewing browser during tests (to work, will require SELENIUM_FORCE_HEADLESS to be "false" in openemr service)
+    - "${WT_SELENIUM_PORT:-4444}:4444"
+    - "${WT_VNC_PORT:-7900}:7900"
     environment:
       SE_VNC_PASSWORD: openemr123
       SE_SCREEN_WIDTH: 1920
@@ -131,9 +133,9 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin
+    image: phpmyadmin:5.2.3@sha256:7dfd52c452049bf077f5ae6d46324f5f33ea0130c16b958d9821aff5c6f812ef
     ports:
-    - 8310:80
+    - "${WT_PMA_PORT:-8310}:80"
     environment:
       PMA_HOSTS: mysql
     depends_on:
@@ -141,10 +143,10 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb
+    image: couchdb:3.5.2@sha256:9a84b943671e9587a690e0c4418e0bd89984b5045db84532add2e560e6b76127
     ports:
-    - 5984:5984
-    - 6984:6984
+    - "${WT_COUCHDB_PORT:-5984}:5984"
+    - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
     volumes:
     - ../library/couchdb-config-ssl-cert-keys/local.ini:/opt/couchdb/etc/local.ini:rw
     - ../library/couchdb-config-ssl-cert-keys/easy/ca.pem:/etc/ssl/ca.pem:ro
@@ -156,7 +158,7 @@ services:
       COUCHDB_PASSWORD: password
   openldap:
     restart: always
-    image: openemr/dev-ldap:easy
+    image: openemr/dev-ldap:easy@sha256:b1dbb4b1f1074b6a298dabd256b80d766bccbfca99aa89d023cf894d6f4c57aa
     environment:
       LDAP_TLS_VERIFY_CLIENT: try
       LDAP_TLS_CA_CRT_FILENAME: ca.pem
@@ -164,10 +166,10 @@ services:
       LDAP_TLS_KEY_FILENAME: server-key.pem
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:latest
+    image: axllent/mailpit:v1.30.1@sha256:3bd7c2f2696deb35a4780d152b404dceec99cb041b942c0877b3b22384714f85
     ports:
-    - 8025:8025    # Web UI and API
-    - 1025:1025    # SMTP server
+    - "${WT_MAILPIT_UI_PORT:-8025}:8025"
+    - "${WT_MAILPIT_SMTP_PORT:-1025}:1025"
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
@@ -188,7 +190,9 @@ volumes:
   sitesvolume: {}
   nodemodules: {}
   vendordir: {}
+  phpstanvolume: {}
   ccdanodemodules: {}
+  ccdanodemodules2: {}
   logvolume: {}
   couchdbvolume: {}
   mailpitvolume: {}

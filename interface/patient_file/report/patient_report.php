@@ -17,20 +17,26 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/patient.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('rootdir');
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/forms.inc.php");
+require_once($srcdir . "/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
+
+/** @var array<string, array<int, mixed>> $ISSUE_TYPES */
+$ISSUE_TYPES = OEGlobalsBag::getInstance()->get('ISSUE_TYPES', []);
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Patient Reports", xl("Patient Reports"));
@@ -44,9 +50,9 @@ $auth_relaxed  = AclMain::aclCheckCore('encounters', 'relaxed');
 $auth_med      = AclMain::aclCheckCore('patients', 'med');
 $auth_demo     = AclMain::aclCheckCore('patients', 'demo');
 
-/**
- * @var EventDispatcherInterface $eventDispatcher  The event dispatcher / listener object
- */
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 ?>
 <!DOCTYPE>
@@ -73,7 +79,7 @@ function show_date_fun(){
   }
   return;
 }
-<?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
+<?php require_once($webserver_root . "/interface/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>
 </script>
 <?php
 $arrOeUiSettings = [
@@ -96,7 +102,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div id="patient_reports"> <!-- large outer DIV -->
             <div class="row">
                 <div class="col-sm-12">
-                    <?php require_once("$include_root/patient_file/summary/dashboard_header.php");?>
+                    <?php require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");?>
                 </div>
             </div>
             <?php
@@ -107,7 +113,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             <?php
-            if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
+            if (OEGlobalsBag::getInstance()->getBoolean('activate_ccr_ccd_report')) { // show CCR/CCD reporting options ?>
                 <div class="mt-3" id="ccr_report">
                     <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
                         <fieldset>
@@ -143,7 +149,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="generateCCR_download_p btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
 
                                 <?php
-                                if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+                                if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccr_enable')) { ?>
                                     <button type="button" class="viewCCR_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>"><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccr_send_dialog" style="display: none">
@@ -178,7 +184,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="viewNewCCD btn btn-primary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate New Report'); ?></button>
                                 <button type="button" class="viewCCD_download btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                                 <?php
-                                if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+                                if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccd_enable')) { ?>
                                     <button type="button" class="viewCCD_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccd_send_dialog" style="display: none">
@@ -240,7 +246,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <br />
                                     <input type='checkbox' name='include_billing' id='include_billing' value="billing"
                                     <?php
-                                    if (!$GLOBALS['simplified_demographics']) {
+                                    if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                         echo 'checked';
                                     } ?> /><?php echo xlt('Billing'); ?>
                                     <br />
@@ -393,6 +399,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             }
                                                         }
                                                     }
+                                                    // AI-generated code (Claude Code) - start
+                                                    // Print any forms not in the registry (e.g. custom LBF layouts)
+                                                    foreach ($html_strings as $key => $toprint) {
+                                                        if (!in_array($key, $registry_form_name, true)) {
+                                                            foreach ($toprint as $item) {
+                                                                print $item;
+                                                            }
+                                                        }
+                                                    }
+                                                    // AI-generated code (Claude Code) - end
                                                     $html_strings = [];
                                                     echo "</div>\n"; // end DIV encounter_forms
                                                     echo "</div>\n\n";  //end DIV encounter_data
@@ -459,6 +475,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                             }
                                         }
+                                        // AI-generated code (Claude Code) - start
+                                        // Print any forms not in the registry (e.g. custom LBF layouts)
+                                        foreach ($html_strings as $key => $toprint) {
+                                            if (!in_array($key, $registry_form_name, true)) {
+                                                foreach ($toprint as $item) {
+                                                    print $item;
+                                                }
+                                            }
+                                        }
+                                        // AI-generated code (Claude Code) - end
                                         ?>
 
                                         <?php
@@ -526,7 +552,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <ul>
                         <?php
                         // show available documents
-                        $db = $GLOBALS['adodb']['db'];
+                        $db = OEGlobalsBag::getInstance()->get('adodb')['db'];
                         $sql = "SELECT d.id, d.url, d.name as document_name, c.name, c.aco_spec FROM documents AS d " .
                                 "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                                 "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
@@ -564,7 +590,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 
@@ -630,7 +656,7 @@ $(function () {
         // there's a lot of ways to do this but for now, we'll go with this!
         top.restoreSession();
         let url = './../../../ccdaservice/ccda_gateway.php?action=report_ccd_view&csrf_token_form=' +
-            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken() ?>");
+            encodeURIComponent("<?php echo CsrfUtils::collectCsrfToken(session: $session) ?>");
         fetch(url, {
             credentials: 'same-origin',
             method: 'GET',
@@ -671,7 +697,7 @@ $(function () {
         $("#ccr_form").submit();
     });
 
-    <?php if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccr_enable')) { ?>
         $(".viewCCR_send_dialog").click(function() {
             $("#ccr_send_dialog").toggle();
         });
@@ -713,7 +739,7 @@ $(function () {
         });
     <?php }
 
-    if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+    if (OEGlobalsBag::getInstance()->getBoolean('phimail_enable') && OEGlobalsBag::getInstance()->getBoolean('phimail_ccd_enable')) { ?>
         $(".viewCCD_send_dialog").click(function() {
             $("#ccd_send_dialog").toggle();
         });

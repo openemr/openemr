@@ -9,10 +9,10 @@
 
 namespace RestApiEventHookExample;
 
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
 {

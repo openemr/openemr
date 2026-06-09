@@ -14,17 +14,17 @@
 namespace OpenEMR\Common\Http;
 
 use Http\Message\Encoding\GzipDecodeStream;
+use InvalidArgumentException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Stringable;
 use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
-use Stringable;
-use InvalidArgumentException;
 
 class HttpRestRequest extends Request implements Stringable
 {
@@ -188,7 +188,10 @@ class HttpRestRequest extends Request implements Stringable
         $this->method = $requestMethod;
     }
 
-    public function setQueryParams($queryParams): void
+    /**
+     * @param array<string, mixed> $queryParams
+     */
+    public function setQueryParams(array $queryParams): void
     {
         $this->query = new InputBag($queryParams);
     }
@@ -198,7 +201,7 @@ class HttpRestRequest extends Request implements Stringable
         return $this->query->all();
     }
 
-    public function getQueryParam($key): bool|float|int|null|string
+    public function getQueryParam(string $key): bool|float|int|null|string
     {
         return $this->query->get($key);
     }
@@ -774,6 +777,9 @@ class HttpRestRequest extends Request implements Stringable
         return $this->cookies->all();
     }
 
+    /**
+     * @param array<string, mixed> $cookies
+     */
     public function withCookieParams(array $cookies): self
     {
         $clonedRequest = clone $this;
@@ -781,6 +787,9 @@ class HttpRestRequest extends Request implements Stringable
         return $clonedRequest;
     }
 
+    /**
+     * @param array<string, mixed> $query
+     */
     public function withQueryParams(array $query): self
     {
         $clonedRequest = clone $this;
@@ -805,10 +814,13 @@ class HttpRestRequest extends Request implements Stringable
         return $this->getPayload()->all();
     }
 
+    /**
+     * @param array<string, mixed>|null $data
+     */
     public function withParsedBody($data): self
     {
         $clonedRequest = clone $this;
-        $clonedRequest->request = new InputBag($data);
+        $clonedRequest->request = new InputBag($data ?? []);
         return $clonedRequest;
     }
 

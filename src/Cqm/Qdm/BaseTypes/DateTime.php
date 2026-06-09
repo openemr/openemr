@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      https://www.open-emr.org
@@ -9,12 +10,11 @@
 
 namespace OpenEMR\Cqm\Qdm\BaseTypes;
 
-
 use OpenEMR\Services\Qrda\Util\DateHelper;
 
 class DateTime extends AbstractType implements \JsonSerializable
 {
-    public $date;
+    public ?string $date = null;
 
     public function jsonSerialize(): mixed
     {

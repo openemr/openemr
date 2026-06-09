@@ -16,15 +16,16 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
@@ -58,7 +59,7 @@ $actionName = $_POST['form_action_name'] ?? null;
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -76,7 +77,7 @@ $actionName = $_POST['form_action_name'] ?? null;
         }
 
         <?php
-        if ($GLOBALS['payment_gateway'] == 'Sphere') {
+        if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
             echo SphereRevert::renderRevertSphereJs();
         }
         ?>
@@ -120,7 +121,7 @@ $actionName = $_POST['form_action_name'] ?? null;
 </div>
 
 <form method='post' name='theform' id='theform' action='payment_processing_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 
@@ -253,12 +254,12 @@ if (!empty($_POST['form_refresh'])) {
                         }
                     }
                     if (!empty($auditEntry['offer_void'])) {
-                        if (($auditEntry['service'] == 'sphere') && ($GLOBALS['payment_gateway'] == 'Sphere')) {
+                        if (($auditEntry['service'] == 'sphere') && (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere')) {
                             echo SphereRevert::renderSphereVoidButton($auditEntry['front'], $auditEntry['transaction_id'], $auditEntry['uuid']);
                         }
                     }
                     if (!empty($auditEntry['offer_credit'])) {
-                        if (($auditEntry['service'] == 'sphere') && ($GLOBALS['payment_gateway'] == 'Sphere')) {
+                        if (($auditEntry['service'] == 'sphere') && (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere')) {
                             echo SphereRevert::renderSphereCreditButton($auditEntry['front'], $auditEntry['transaction_id'], $auditEntry['uuid']);
                         }
                     }

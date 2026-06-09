@@ -1,0 +1,11 @@
+{
+  "event": "openemr-rel-cut",
+  "repo": "openemr/openemr",
+  "sha": "0123456789abcdef0123456789abcdef01234567",
+  "actor": "openemr-release-bot",
+  "dispatched_at": "2026-04-29T12:00:00Z",
+  "data": {
+    "branch": "rel-810",
+    "version": "8.1.0"
+  }
+}

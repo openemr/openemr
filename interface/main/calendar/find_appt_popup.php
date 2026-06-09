@@ -18,19 +18,18 @@
 */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once(__DIR__ . "/../../../library/appointments.inc.php");
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\HolidayService;
 
-?>
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
-<?php
- // check access controls
+// check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
@@ -40,6 +39,10 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
 $eid = empty($_REQUEST['eid']) ? 0 : 0 + $_REQUEST['eid'];
 
 $input_catid = $_REQUEST['catid'];
+$providerid = '';
+$slots = [];
+$prov = [];
+$isProv = false;
 
 // Record an event into the slots array for a specified day.
 function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
@@ -90,32 +93,34 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = OEGlobalsBag::getInstance()->getInt('calendar_interval') * 60;
 
 
 $catslots = 1;
 if ($input_catid) {
     $srow = sqlQuery("SELECT pc_duration FROM openemr_postcalendar_categories WHERE pc_catid = ?", [$input_catid]);
     if ($srow['pc_duration']) {
-        $catslots = ceil($srow['pc_duration'] / $slotsecs);
+        $catslots = (int) ceil($srow['pc_duration'] / $slotsecs);
     }
 }
 
 $info_msg = "";
 
 $searchdays = 7; // default to a 1-week lookahead
-if (!empty($_REQUEST['searchdays'])) {
-    $searchdays = $_REQUEST['searchdays'];
+if (!empty($_REQUEST['searchdays']) && is_numeric($_REQUEST['searchdays'])) {
+    $searchdays = (int) $_REQUEST['searchdays'];
 }
 
 // Get a start date.
 $sdate = ($_REQUEST['startdate']) ? DateToYYYYMMDD($_REQUEST['startdate']) : date("Y-m-d");
 
 // Get an end date - actually the date after the end date.
-preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches);
+if (!preg_match("/(\d\d\d\d)\D*(\d\d)\D*(\d\d)/", (string) $sdate, $matches)) {
+    die(xlt('Invalid start date'));
+}
 $edate = date(
     "Y-m-d",
-    mktime(0, 0, 0, $matches[2], $matches[3] + $searchdays, $matches[1])
+    mktime(0, 0, 0, (int) $matches[2], (int) $matches[3] + $searchdays, (int) $matches[1])
 );
 
 // compute starting time slot number and number of slots.
@@ -139,7 +144,7 @@ if (isset($_REQUEST['evdur'])) {
     // if the global calendar interval is less than or equal to zero, use 10 mins
     $evdur = ValidationUtils::validateInt($_REQUEST['evdur'], min: 1);
     if ($evdur === false) {
-        $evdur = ValidationUtils::validateInt($GLOBALS['calendar_interval'], min: 1);
+        $evdur = ValidationUtils::validateInt(OEGlobalsBag::getInstance()->get('calendar_interval'), min: 1);
         if ($evdur === false) {
             $evdur = 10;
         }
@@ -171,7 +176,7 @@ if ($_REQUEST['providerid']) {
         "WHERE pc_aid = ? AND " .
         "pc_eid != ? AND " .
         "((pc_endDate >= ? AND pc_eventDate < ? ) OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        "(pc_endDate IS NULL AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
         array_push($sqlBindArray, $providerid, $eid, $sdate, $edate, $sdate, $edate);
 
@@ -226,9 +231,10 @@ $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
 $is_holiday = false;
-$holidays_controller = new Holidays_Controller();
-$holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-if (in_array($sdate, $holidays)) {
+$holidayService = HolidayService::createForLegacyContext();
+$sdateStr = (string) $sdate;
+$holidays = $holidayService->getHolidaysByDateRange($sdateStr, $edate);
+if (in_array($sdateStr, $holidays, true)) {
     $is_holiday = true;
     $ckavail = true;
 }
@@ -352,7 +358,7 @@ if (isset($_REQUEST['cktime'])) {
             <?php echo xlt('Start date:'); ?>
         <input type='text' class='datepicker input-sm form-control' name='startdate' id='startdate' size='10' value='<?php echo attr(oeFormatShortDate($sdate)); ?>' title='<?php echo xla('Starting date for search'); ?> '/>
             <?php echo xlt('for'); ?>
-        <input type='text' class="input-sm form-control" name='searchdays' size='3' value='<?php echo attr($searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
+        <input type='text' class="input-sm form-control" name='searchdays' size='3' value='<?php echo attr((string) $searchdays) ?>' title='<?php echo xla('Number of days to search from the start date'); ?>' />
             <?php echo xlt('days'); ?>&nbsp;
         <button type='submit' class='btn btn-primary btn-search'><?php echo xla('Search'); ?></button>
         </form>
@@ -407,7 +413,7 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $ampmFlag = $ampm;
-                $hour_format_leading_zeros = ($GLOBALS['time_display_format'] == 0) ? 'h' : 'H';
+                $hour_format_leading_zeros = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'h' : 'H';
 
                 $atitle = "Choose " . date($hour_format_leading_zeros . ":i a", $utime);
                 $adate = getdate($utime);
@@ -419,7 +425,7 @@ if (isset($_REQUEST['cktime'])) {
                 attr_js($adate['minutes']) . ")'" .
                 " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
                 ">";
-                $hour_format = ($GLOBALS['time_display_format'] == 0) ? 'G' : 'g';
+                $hour_format = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'G' : 'g';
                 echo (strlen(date($hour_format, $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
                 $anchor . date($hour_format . ":i", $utime) . "</a> ";
 
@@ -452,7 +458,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

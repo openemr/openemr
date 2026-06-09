@@ -22,7 +22,7 @@ RUN apt-get update \
                        mariadb-client
 
 # Install correct version nodejs
-RUN curl -sL https://deb.nodesource.com/setup_22.x \
+RUN curl -sL https://deb.nodesource.com/setup_24.x \
   | bash - \
  && apt-get update \
  && apt-get install -y nodejs

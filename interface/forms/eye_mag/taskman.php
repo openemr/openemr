@@ -36,16 +36,20 @@ if (php_sapi_name() === 'cli') {
     $sessionAllowWrite = true;
 }
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
+
+use OpenEMR\Core\OEGlobalsBag;
+
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/api.inc.php");
+require_once($srcdir . "/forms.inc.php");
 require_once("php/" . $form_name . "_functions.php");
 require_once($srcdir . "/../controllers/C_Document.class.php");
 require_once($srcdir . "/documents.php");
 
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/report.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/report.inc.php");
 require_once("php/taskman_functions.php");
 require_once("report.php");
 

@@ -13,6 +13,7 @@
 namespace OpenEMR\Services;
 
 use Exception;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
@@ -120,6 +121,8 @@ class QuestionnaireService extends BaseService
         }
         $name = trim((string) $name);
         $id = empty($q_record_id) ? $this->getQuestionnaireIdAndVersion($name, $q_id) : $q_record_id;
+        $q_uuid = null;
+        $q_url = null;
         if (empty($id)) {
             $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
             $q_id = UuidRegistry::uuidToString($q_uuid);
@@ -144,10 +147,11 @@ class QuestionnaireService extends BaseService
         $q_display = $q_ob['code'][0]['display'] ?? null;
 
         $content = $this->jsonSerialize($fhir_ob);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $bind = [
             $q_uuid,
             $q_id,
-            $_SESSION['authUserID'],
+            $session->get('authUserID'),
             $q_version,
             $q_last_date,
             $name,
@@ -168,7 +172,7 @@ class QuestionnaireService extends BaseService
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;
             $bind = [
-                $_SESSION['authUserID'],
+                $session->get('authUserID'),
                 $version_update,
                 date("Y-m-d H:i:s"),
                 $name,

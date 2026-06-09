@@ -17,9 +17,11 @@
 namespace Installer\Model;
 
 use Interop\Container\ContainerInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
@@ -37,8 +39,8 @@ class InstModuleTable
     public function __construct(
         private readonly ContainerInterface $container
     ) {
-        $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
-            . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
+        $this->module_zend_path = OEGlobalsBag::getInstance()->getSrcDir() . DIRECTORY_SEPARATOR
+            . ".." . DIRECTORY_SEPARATOR . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('zendModDir') . DIRECTORY_SEPARATOR . "module";
     }
 
     /**
@@ -56,7 +58,7 @@ class InstModuleTable
 
     /**
      * @param string $dir
-     * @return boolean
+     * @return bool
      */
     public function installSQL($modId, $mod_type, $dir)
     {
@@ -162,11 +164,11 @@ class InstModuleTable
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
             } catch (\Throwable $exception) {
-                $context = ['trace' => $exception->getTraceAsString()];
+                $context = ['exception' => $exception];
                 if ($exception instanceof SqlQueryException) {
                     $context['statement'] = $exception->getSqlStatement();
                 }
-                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
+                ServiceContainer::getLogger()->error("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {
@@ -189,8 +191,10 @@ class InstModuleTable
             $fieldName,
             $moduleId,
         ];
-        $createdBy = $_SESSION['authUserID'];
-        $updatedBy = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID');
+        $createdBy = $authUserID;
+        $updatedBy = $authUserID;
         $result = QueryUtils::fetchRecords($sql, $params);
         if (count($result) > 0) {
             $sql = "UPDATE module_configuration SET field_value = ?, updated_by = ?
@@ -219,7 +223,7 @@ class InstModuleTable
     /**
      * this will be used to register a module
      *
-     * @return boolean
+     * @return bool
      */
     public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
     {
@@ -233,8 +237,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
+            if (file_exists(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file(OEGlobalsBag::getInstance()->getSrcDir() . "/../interface/modules/$base/$added$directory/info.txt");
             }
             $name = !empty($lines) ? $lines[0] : $directory;
 
@@ -298,7 +302,7 @@ class InstModuleTable
     /**
      * get the list of all modules
      *
-     * @return multitype:
+     * @return array
      */
     public function allModules()
     {
@@ -309,7 +313,7 @@ class InstModuleTable
     /**
      * get the list of all modules
      *
-     * @return multitype:
+     * @return array
      */
     public function getInstalledModules()
     {
@@ -736,11 +740,11 @@ class InstModuleTable
     public function getDependencyModules($mod_id)
     {
         $modDirname = $this->getModuleDirectory($mod_id);
+        $ret_str = "";
         if ($modDirname <> "") {
             $depModuleStatusArr = [];
             //GET DEPENDED MODULES OF A MODULE HOOKS FROM A FUNCTION IN ITS MODEL CONFIGURATION CLASS
             $depModulesArr = $this->getDependedModulesByDirectoryName($modDirname);
-            $ret_str = "";
             if (count($depModulesArr) > 0) {
                 $count = 0;
                 foreach ($depModulesArr as $modDir) {
@@ -1013,7 +1017,7 @@ class InstModuleTable
      * validateNickName
      *
      * @param String $name nickname
-     * @return boolean Nickname available or not.
+     * @return bool Nickname available or not.
      **/
     public function validateNickName($name)
     {

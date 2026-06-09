@@ -1,0 +1,90 @@
+# Posts a sticky PR comment summarizing how the PHPStan baseline counts
+# differ vs master, per error identifier.
+#
+# Runs on workflow_run (not pull_request) so that comments can be posted on
+# pull requests from forks: workflow_run executes in the base repository's
+# context with a GITHUB_TOKEN that has `pull-requests: write`, whereas the
+# PHPStan workflow itself (triggered by pull_request) has a read-only token
+# when the PR comes from a fork.
+#
+# The PHPStan workflow uploads the regenerated baseline as the
+# `phpstan-baseline-php<version>` artifact on every PR outcome. This workflow
+# downloads that artifact and compares it against the master baseline files
+# checked into the repo.
+name: PHPStan Baseline Diff
+
+on:
+  workflow_run:
+    workflows: [PHPStan]
+    types: [completed]
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: read
+
+concurrency:
+  # Serialize per PR head branch so rapid pushes don't race to post the
+  # comment; the sticky header makes the final run overwrite the prior
+  # comment either way, but cancelling the older run saves API calls.
+  group: ${{ github.workflow }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  comment:
+    # Only process PR runs. Push-to-master runs don't need a PR comment.
+    if: github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Resolve PR number from head SHA
+      id: pr
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        REPO: ${{ github.repository }}
+      run: |
+        # github.event.workflow_run.pull_requests is empty for fork PRs, so
+        # resolve the PR number by looking up PRs associated with the head
+        # commit. This works for both in-repo and fork PRs.
+        # `|| true` prevents `set -e` from aborting if `gh api` fails (e.g.
+        # 404 when the head SHA isn't reachable in this repo because a fork
+        # branch was rebased or force-pushed). `// empty` makes jq emit
+        # nothing instead of `null` on an empty array.
+        number=$(gh api "repos/${REPO}/commits/${HEAD_SHA}/pulls" --jq '.[0].number // empty' 2>/dev/null || true)
+        if [ -z "$number" ]; then
+          echo "Could not resolve a PR number for commit ${HEAD_SHA}; skipping."
+          exit 0
+        fi
+        printf 'number=%s\n' "$number" >> "$GITHUB_OUTPUT"
+
+    - name: Checkout master baseline
+      if: steps.pr.outputs.number
+      uses: actions/checkout@v6
+      with:
+        ref: master
+        sparse-checkout: |
+          .phpstan
+        sparse-checkout-cone-mode: false
+
+    - name: Download PR baseline
+      if: steps.pr.outputs.number
+      uses: actions/download-artifact@v8
+      with:
+        name: phpstan-baseline-php8.5
+        path: pr-baseline
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        run-id: ${{ github.event.workflow_run.id }}
+
+    - name: Generate diff markdown
+      if: steps.pr.outputs.number
+      run: |
+        php .phpstan/baseline-diff.php .phpstan/baseline pr-baseline > diff.md
+        cat diff.md
+
+    - name: Post sticky comment
+      if: steps.pr.outputs.number
+      uses: marocchino/sticky-pull-request-comment@v3
+      with:
+        header: phpstan-baseline-diff
+        number: ${{ steps.pr.outputs.number }}
+        path: diff.md

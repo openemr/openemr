@@ -7,11 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Expression "\\$data" on a separate line does not do anything\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/gad7/report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Expression "\\$patientCountHash\\[\\$patientNameIndex\\]" on a separate line does not do anything\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
@@ -40,11 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Expression "\\$this\\-\\>model \\=\\= \\[\\]" on a separate line does not do anything\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Expression "\\$this\\-\\>algo \\=\\= "DEFAULT"" on a separate line does not do anything\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression "clone \\$instance" on a separate line does not do anything\\.$#',

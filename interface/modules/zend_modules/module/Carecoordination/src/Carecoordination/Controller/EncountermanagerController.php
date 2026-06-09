@@ -24,7 +24,7 @@ use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
@@ -34,6 +34,10 @@ use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Validators\ProcessingResult;
 use XSLTProcessor;
 
+/**
+ * @method \Application\Plugin\CommonPlugin CommonPlugin()
+ * @method \Laminas\Http\Request getRequest()
+ */
 class EncountermanagerController extends AbstractActionController
 {
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
@@ -61,9 +65,9 @@ class EncountermanagerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $fromDate = $request->getPost('form_date_from', null);
-        $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format'));
         $toDate = $request->getPost('form_date_to', null);
-        $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format'));
         // encounter_date
         // patient_date_created
 
@@ -75,8 +79,8 @@ class EncountermanagerController extends AbstractActionController
         $status = $request->getPost('form_status', null);
 
         if (!$pid && !$encounter && !$status) {
-            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime("-3 months", $fromDate));
-            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime("-3 months", $fromDate));
+            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
         }
 
         $results = $request->getPost('form_results', 500);
@@ -109,6 +113,8 @@ class EncountermanagerController extends AbstractActionController
             || ($downloadqrda3_consolidated == 'download_qrda3_consolidated')
         ) {
             $pids = '';
+            $combination = null;
+            $pid = null;
             if ($request->getQuery('pid_ccda')) {
                 $pid = $request->getQuery('pid_ccda');
                 if ($pid != '') {
@@ -276,9 +282,9 @@ class EncountermanagerController extends AbstractActionController
             echo $updatedContent;
         } catch (\Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
-            (new SystemLogger())->errorLogCaller(
+            ServiceContainer::getLogger()->error(
                 "Failed to generate preview for ccda document",
-                ['docId' => $docId, 'message' => $exception, 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'docId' => $docId]
             );
         }
         $view = new ViewModel();

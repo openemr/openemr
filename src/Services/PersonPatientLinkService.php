@@ -11,11 +11,11 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 class PersonPatientLinkService extends BaseService
 {
@@ -26,7 +26,7 @@ class PersonPatientLinkService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
     }
 
     /**

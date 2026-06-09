@@ -96,5 +96,10 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchFieldStatementResolver.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Instanceof between PhpParser\\\\Node\\\\ArrayItem and PhpParser\\\\Node\\\\ArrayItem will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/PHPStan/Rules/OEGlobalsBagTypedGetterRule.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

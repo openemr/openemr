@@ -28,6 +28,10 @@
 function smarty_function_pc_sort_events($params, &$smarty): void
 {
     extract($params);
+    $order ??= 'asc';
+    $sort ??= '';
+    $value ??= [];
+    $function = null;
 
     if (empty($var)) {
         trigger_error("sort_array: missing 'var' parameter", E_USER_WARNING);

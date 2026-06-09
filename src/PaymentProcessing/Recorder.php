@@ -2,7 +2,7 @@
 
 /**
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      https://www.open-emr.org
  * @package   OpenEMR
@@ -54,7 +54,7 @@ class Recorder
     }
 
     /**
-     * @param array{
+     * @param mixed $data array{
      *   payerId: string,
      *   userId: string,
      *   reference: string,
@@ -120,7 +120,7 @@ class Recorder
      *
      * payerType seems to be a number in [0-3]
      *
-     * @param array{
+     * @param mixed $data array{
      *   patientId: string,
      *   encounterId: string,
      *   codeType: string,

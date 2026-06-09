@@ -226,7 +226,7 @@ class Config_File_Legacy {
      * Load a configuration file manually.
      *
      * @param string $file_name file name to load
-     * @param boolean $prepend_path whether current config path should be
+     * @param bool $prepend_path whether current config path should be
      *                              prepended to the filename
      */
     function load_file($file_name, $prepend_path = true)
@@ -342,7 +342,7 @@ class Config_File_Legacy {
      * @param array &$container
      * @param string $var_name
      * @param mixed $var_value
-     * @param boolean $booleanize determines whether $var_value is converted to
+     * @param bool $booleanize determines whether $var_value is converted to
      *                            to true/false
      */
     function _set_config_var(&$container, $var_name, $var_value, $booleanize)
@@ -377,7 +377,7 @@ class Config_File_Legacy {
     /**
      * @uses trigger_error() creates a PHP warning/error
      * @param string $error_msg
-     * @param integer $error_type one of
+     * @param int $error_type one of
      */
     function _trigger_error_msg($error_msg, $error_type = E_USER_WARNING)
     {

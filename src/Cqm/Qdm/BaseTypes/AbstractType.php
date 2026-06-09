@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      https://www.open-emr.org
@@ -30,9 +31,9 @@ abstract class AbstractType implements \JsonSerializable
         return $vars;
     }
 
-    public function propertyExists($property)
+    public function propertyExists(string $property): bool
     {
         $vars = get_object_vars($this);
-        return property_exists($this, $property) || $vars[$property] ?? false;
+        return property_exists($this, $property) || isset($vars[$property]);
     }
 }

@@ -16,14 +16,14 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Services\AppointmentService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
+use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\UserService;
 
 function newpatient_report($pid, $encounter, $cols, $id): void
 {
@@ -68,13 +68,10 @@ function newpatient_report($pid, $encounter, $cols, $id): void
             'referringProvider' => $referringProvider,
             'posCode' => $posCode,
             'facility' => $facility_name,
-            'dispensedMedications' => []
         ];
-        /**
-         * @var \OpenEMR\Core\OEGlobalsBag $globalsBag
-         */
-        $globalsBag = $GLOBALS['globalsBag'];
-        if ($globalsBag->getInt(GlobalFeaturesEnum::INHOUSE_PHARMACY->value, 0) === 1) {
+        // interface/globals.php stores inhouse_pharmacy as a boolean (true for db
+        // values 1/2/3, false for 0/unset), so getInt() throws on the boolean.
+        if (OEGlobalsBag::getInstance()->getBoolean(GlobalFeaturesEnum::INHOUSE_PHARMACY->value)) {
             $encounterUuid = UuidRegistry::uuidToString($result['uuid']);
             $patientService = new PatientService();
             $patientUuid = UuidRegistry::uuidToString($patientService->getUuid($pid));

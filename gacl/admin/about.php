@@ -1,4 +1,5 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
@@ -47,6 +48,10 @@ function get_system_info() {
 }
 
 $system_info = get_system_info();
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 //Read credits.
 $smarty->assign("credits", implode('',file('../CREDITS')) );

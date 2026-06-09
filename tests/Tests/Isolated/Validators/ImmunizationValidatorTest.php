@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\ImmunizationValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ImmunizationValidator;
 use PHPUnit\Framework\TestCase;
 
 class ImmunizationValidatorTest extends TestCase

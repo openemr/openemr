@@ -15,6 +15,7 @@
 namespace OpenEMR\Modules\DashboardContext\Controller;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 
 class UserContextController
@@ -25,7 +26,8 @@ class UserContextController
     public function __construct()
     {
         $this->contextService = new DashboardContextService();
-        $this->userId = (int)($_SESSION['authUserID'] ?? 0);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->userId = (int)($session->get('authUserID') ?? 0);
     }
 
     /**
@@ -33,7 +35,8 @@ class UserContextController
      */
     public function handleRequest(): void
     {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? $_GET["csrf_token_form"] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? $_GET["csrf_token_form"] ?? '', session: $session)) {
             $this->sendError('CSRF verification failed', 403);
             return;
         }

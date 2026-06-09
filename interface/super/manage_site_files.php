@@ -15,23 +15,22 @@
 
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: File management", xl("File management"));
 }
 
-$educationdir = "$OE_SITE_DIR/documents/education";
-
+$educationdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/education";
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_save'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
      // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
@@ -52,9 +51,7 @@ if (!empty($_POST['bn_save'])) {
         }
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
-        if ($GLOBALS['drive_encryption']) {
-            $fileData = (new Cryptogen())->encryptStandard($fileData, null, 'database');
-        }
+        $fileData = ServiceContainer::getCrypto()->encryptForFilesystem($fileData);
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));
         }
@@ -67,10 +64,7 @@ if (!empty($_POST['bn_save'])) {
  */
 
 if (isset($_POST['generate_thumbnails'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $thumb_generator = new ThumbnailGenerator();
     $results = $thumb_generator->generate_all();
@@ -95,7 +89,7 @@ if (isset($_POST['generate_thumbnails'])) {
  * Dependence - turn on global setting 'secure_upload'
  */
 
-if ($GLOBALS['secure_upload']) {
+if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) {
     $mime_types  = ['image/*', 'text/*', 'audio/*', 'video/*'];
 
     $responseError = false;
@@ -132,10 +126,7 @@ if ($GLOBALS['secure_upload']) {
     }
 
     if (isset($_POST['submit_form'])) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $new_white_list = empty($_POST['white_list']) ? [] : $_POST['white_list'];
 
@@ -208,7 +199,7 @@ function msfFileChanged() {
 <body class="body_top">
 <form method='post' action='manage_site_files.php' enctype='multipart/form-data'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 
@@ -244,7 +235,7 @@ function msfFileChanged() {
             </td>
             <td  class="thumb_form" style="width: 17%; border-right: none">
                 <form method='post' action='manage_site_files.php#generate_thumb'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input style="margin-top: 10px" class="btn btn-primary" type="submit" name="generate_thumbnails" value="<?php echo xla('Generate') ?>" />
                 </form>
             </td>
@@ -252,7 +243,7 @@ function msfFileChanged() {
     </table>
 </div>
 
-<?php if ($GLOBALS['secure_upload']) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) { ?>
 <div id="file_type_whitelist">
     <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">
@@ -314,7 +305,7 @@ function msfFileChanged() {
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" class="btn btn-primary" value="<?php echo xla('Save'); ?>" />
             <input type="hidden" name="submit_form" value="1" />
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         </div>
     </form>
 

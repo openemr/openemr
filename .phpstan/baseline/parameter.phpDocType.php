@@ -12,6 +12,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$dateArray with type array\\|string is not subtype of native type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$arr with type string is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
@@ -22,19 +27,29 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$type with type mixed is not subtype of native type string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$exception with type mixed is not subtype of native type Exception\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$target with type mixed is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$factory with type Doctrine\\\\DBAL\\\\Connection is incompatible with native type Closure\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/ConnectionManager.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$periodStart with type DateTime\\|null is not subtype of native type DateTime\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$boundFilter with type string is incompatible with native type OpenEMR\\\\Events\\\\BoundFilter\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/AbstractBoundFilterEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$component with type string is incompatible with native type array\\.$#',
@@ -45,11 +60,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$components with type string is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPreParseEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$menu with type mixed is not subtype of native type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Encounter/EncounterMenuEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$formName with type mixed is not subtype of native type string\\.$#',
@@ -65,11 +75,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$pageName with type mixed is not subtype of native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Encounter/LoadEncounterFormFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$globalsService with type array is incompatible with native type OpenEMR\\\\Services\\\\Globals\\\\GlobalsService\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Globals/GlobalsInitializedEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$patientData with type mixed is not subtype of native type array\\.$#',
@@ -90,6 +95,21 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$patientData with type mixed is not subtype of native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Patient/PatientCreatedEvent.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$data with type mixed is not subtype of native type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Rainforest/EncounterData.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$data with type mixed is not subtype of native type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Rainforest/Metadata.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @param for parameter \\$data with type mixed is not subtype of native type array\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/PaymentProcessing/Recorder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$fhirResource with type array is incompatible with native type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',

@@ -19,13 +19,14 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
     FhirSearchWhereClauseBuilder,
+    ISearchField,
     SearchModifier,
     TokenSearchField,
     TokenSearchValue,
@@ -73,7 +74,7 @@ class InsuranceService extends BaseService
         return sqlQuery($sql, [$id, $type]);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT `insurance_data`.*,
                        `puuid`,
@@ -135,11 +136,11 @@ class InsuranceService extends BaseService
 
     /**
      * @deprecated use search instead
-     * @param $search
+     * @param array<string, string> $search
      * @param $isAndCondition
      * @return ProcessingResult|true
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
 
         // Validating and Converting Patient UUID to PID
@@ -576,9 +577,9 @@ class InsuranceService extends BaseService
                     QueryUtils::rollbackTransaction();
                 }
             } catch (\Throwable $e) {
-                (new SystemLogger())->errorLogCaller(
+                ServiceContainer::getLogger()->error(
                     "Failed to rollback transaction " . $e->getMessage(),
-                    ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
+                    ['exception' => $e, 'type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
                 );
             }
         }

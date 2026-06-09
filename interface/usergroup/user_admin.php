@@ -17,13 +17,14 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserEditRenderEvent;
@@ -32,10 +33,9 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -49,6 +49,7 @@ if (!$_GET["id"]) {
 }
 
 $res = sqlStatement("select * from users where id=?", [$_GET["id"]]);
+$result = [];
 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                 $result[$iter] = $row;
 }
@@ -66,7 +67,7 @@ $iter = $result[0];
 <!-- validation library -->
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php    $use_validate_js = 1;?>
-<?php  require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php"); ?>
+<?php  require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/validation/validation_script.js.php"); ?>
 <?php
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
@@ -93,7 +94,7 @@ function submitform() {
 
     top.restoreSession();
     var flag=0;
-<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
@@ -133,6 +134,13 @@ function submitform() {
         return false;
     }
 
+    // Validate email address (if provided)
+    if(document.forms[0].email.value != "" && !isValidEmail(document.forms[0].email.value)) {
+        flag=1;
+        alert(<?php echo xlj('Email provided is invalid/not properly formatted (e.g. name@example.com)') ?>);
+        return false;
+    }
+
 <?php } ?>
   if (document.forms[0].access_group_id) {
     var sel = getSelected(document.forms[0].access_group_id.options);
@@ -143,7 +151,7 @@ function submitform() {
     }
   }
 
-        <?php if ($GLOBALS['erx_enable']) { ?>
+        <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
     alertMsg='';
     f=document.forms[0];
     for(i=0;i<f.length;i++){
@@ -250,9 +258,9 @@ function toggle_password() {
     $is_super_user = AclMain::aclCheckCore('admin', 'super');
     $acl_name = AclExtended::aclGetGroupTitles($iter["username"]);
     $bg_name = '';
+    $selected_user_is_superuser = false;
     if (is_countable($acl_name)) {
         $bg_count = count($acl_name);
-        $selected_user_is_superuser = false;
         for ($i = 0; $i < $bg_count; $i++) {
             if ($acl_name[$i] == "Emergency Login") {
                 $bg_name = $acl_name[$i];
@@ -274,11 +282,11 @@ function toggle_password() {
 </table>
 <br />
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
-<input type=hidden name="get_admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email']); ?>" >
-<input type=hidden name="admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email_id']); ?>" >
+<input type=hidden name="get_admin_id" value="<?php echo attr(OEGlobalsBag::getInstance()->get('Emergency_Login_email')); ?>" >
+<input type=hidden name="admin_id" value="<?php echo attr(OEGlobalsBag::getInstance()->getString('Emergency_Login_email_id')); ?>" >
 <input type=hidden name="check_acl" value="">
 <input type=hidden name="user_type" value="<?php echo attr($bg_name); ?>" >
 
@@ -297,12 +305,12 @@ function toggle_password() {
 <TR>
     <TD style="width:180px;"><span class=text><?php echo xlt('Username'); ?>: </span></TD>
     <TD style="width:270px;"><input type="text" name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
-<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
         <TD style="width:200px;"><span class=text>*<?php echo xlt('Your Password'); ?>*: </span></TD>
         <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  class="form-control" value="" autocomplete='off'><font class="mandatory"></font></TD>
 <?php } ?>
 </TR>
-<?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->getString('gbl_ldap_exclusions'))) { ?>
 <TR>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
@@ -362,6 +370,7 @@ if ($iter["portal_user"]) {
 <?php
 $fres = $facilityService->getAllServiceLocations();
 if ($fres) {
+    $result = [];
     for ($iter2 = 0; $iter2 < count($fres); $iter2++) {
                 $result[$iter2] = $fres[$iter2];
     }
@@ -379,7 +388,7 @@ if ($fres) {
 
 </tr>
 
-<?php if ($GLOBALS['restrict_user_facility']) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) { ?>
 <tr>
  <td colspan=2>&nbsp;</td>
  <td><span class=text><?php echo xlt('Schedule Facilities:');?></td>
@@ -473,6 +482,9 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <td><span class="text"><?php echo xlt('Weno User ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:150px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"]); ?>"></td>
 <td><span class="text"><?php echo xlt('Google Email for Login'); ?>: </span></td><td><input type="text" name="google_signin_email" style="width:150px;" class="form-control" value="<?php echo attr($iter["google_signin_email"]); ?>"></td>
 </tr>
+<tr>
+<td><span class="text"><?php echo xlt('Email'); ?>: </span></td><td><input type="email" name="email" style="width:150px;" class="form-control" value="<?php echo attr($iter["email"] ?? ''); ?>"></td>
+</tr>
 
 <tr>
   <td><span class="text"><?php echo xlt('Provider Type'); ?>: </span></td>
@@ -499,7 +511,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
   </td>
 
 </tr>
-<?php if (!empty($GLOBALS['inhouse_pharmacy'])) { ?>
+<?php if (!empty(OEGlobalsBag::getInstance()->get('inhouse_pharmacy'))) { ?>
 <tr>
  <td class="text"><?php echo xlt('Default Warehouse'); ?>: </td>
  <td class='text'>
@@ -513,7 +525,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
     ?>
  </td>
 
-    <?php if (!empty($GLOBALS['inhouse_pharmacy'])) { ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('inhouse_pharmacy'))) { ?>
  <td class="text"><?php echo xlt('Invoice Refno Pool'); ?>: </td>
  <td class='text'>
         <?php
@@ -533,14 +545,14 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <?php } ?>
 
 <!-- facility and warehouse restrictions, optional -->
-<?php if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') || OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) { ?>
  <tr title="<?php echo xla('If nothing is selected here then all are permitted.'); ?>">
-  <td class="text"><?php echo !empty($GLOBALS['gbl_fac_warehouse_restrictions']) ?
+  <td class="text"><?php echo OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') ?
     xlt('Facility and warehouse permissions') : xlt('Facility permissions'); ?>:</td>
   <td colspan="3">
    <select name="schedule_facility[]" multiple style="width:490px;">
     <?php
-    $userFacilities = getUserFacilities($_GET['id'], 'id', $GLOBALS['gbl_fac_warehouse_restrictions']);
+    $userFacilities = getUserFacilities($_GET['id'], 'id', OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions'));
     $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
@@ -558,7 +570,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
             echo " value='" . attr($frow['id']) . "'>" . text($frow['name']) . "</option>\n";
             // Then generate an option for each of the facility's warehouses.
             // Does not apply if the site does not use warehouse restrictions.
-            if (!empty($GLOBALS['gbl_fac_warehouse_restrictions'])) {
+            if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions')) {
                 $lres = sqlStatement(
                     "SELECT option_id, title FROM list_options WHERE " .
                     "list_id = ? AND option_value = ? ORDER BY seq, title",
@@ -659,7 +671,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
 
-<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr($GLOBALS['secure_password']); ?>">
+<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
 </FORM>
 <script>
 $(function () {

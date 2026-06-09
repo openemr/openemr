@@ -163,12 +163,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
 use createProcessingResultResponse\\(\\) instead\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
-use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
 ];
 $ignoreErrors[] = [
@@ -214,6 +208,12 @@ Use random_bytes\\(\\) directly$#',
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/RandomGenUtilsTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
+use createProcessingResultResponse\\(\\) instead\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/HandleProcessingResultTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'count' => 1,
@@ -224,12 +224,6 @@ $ignoreErrors[] = [
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'count' => 7,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated method handleProcessingResult\\(\\) of class OpenEMR\\\\RestControllers\\\\RestControllerHelper\\:
-use createProcessingResultResponse\\(\\) instead\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/HandleProcessingResultTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

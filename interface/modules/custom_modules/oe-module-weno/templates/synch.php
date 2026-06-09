@@ -12,8 +12,9 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
-use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
@@ -70,14 +71,14 @@ if ($result == true) {
 function downloadWenoLogCsv()
 {
     if (headers_sent()) {
-        return js_escape("Headers already sent, CSV download cannot proceed.");
+        return "Headers already sent, CSV download cannot proceed.";
     }
     ob_start();
     // Query to get the log data
     $sql = "SELECT `id`, `value`, `status`, `created_at` FROM `weno_download_log` ORDER BY `id` DESC";
     $result = sqlStatement($sql);
     if (!$result) {
-        return js_escape("Failed to retrieve data from the database.");
+        return "Failed to retrieve data from the database.";
     }
     // Set the headers for the CSV download
     header('Content-Type: text/csv');
@@ -103,7 +104,7 @@ function downloadWenoLogCsv()
 function downloadWenoLogCsvAndZip()
 {
     if (headers_sent()) {
-        return js_escape("Headers already sent, download cannot proceed.");
+        return "Headers already sent, download cannot proceed.";
     }
 
     $tempDir = sys_get_temp_dir();
@@ -111,19 +112,19 @@ function downloadWenoLogCsvAndZip()
     $csvFilePath = $tempDir . DIRECTORY_SEPARATOR . $csvFileName;
     $zipFileName = 'weno_support_debug.zip';
     $zipFilePath = $tempDir . DIRECTORY_SEPARATOR . $zipFileName;
-    $wenoDirectory = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+    $wenoDirectory = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
     // Create CSV of log content to temporary file
     $csvFile = fopen($csvFilePath, 'w');
     if ($csvFile === false) {
-        return js_escape("Failed to open temporary CSV file.");
+        return "Failed to open temporary CSV file.";
     }
     // Query to get the log data
     $sql = "SELECT `id`, `value`, `status`, `created_at`, `data_in_context` FROM `weno_download_log` ORDER BY `id` DESC";
     $result = sqlStatement($sql);
     if (!$result) {
         fclose($csvFile);
-        return js_escape("Failed to retrieve data from the database.");
+        return "Failed to retrieve data from the database.";
     }
     fputcsv($csvFile, ['ID', 'Value', 'Status', 'Created At']);
     while ($row = sqlFetchArray($result)) {
@@ -133,7 +134,7 @@ function downloadWenoLogCsvAndZip()
 
     $zip = new ZipArchive();
     if ($zip->open($zipFilePath, ZipArchive::CREATE | ZipArchive::OVERWRITE) !== true) {
-        return js_escape("Failed to create ZIP archive.");
+        return "Failed to create ZIP archive.";
     }
     $zip->addFile($csvFilePath, $csvFileName);
     $files = new RecursiveIteratorIterator(

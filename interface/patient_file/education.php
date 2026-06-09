@@ -13,13 +13,14 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$educationdir = "$OE_SITE_DIR/documents/education";
+$educationdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/education";
 
 $codetype  = empty($_REQUEST['type'    ]) ? '' : $_REQUEST['type'    ];
 $codevalue = empty($_REQUEST['code'    ]) ? '' : $_REQUEST['code'    ];
@@ -28,10 +29,9 @@ $source    = empty($_REQUEST['source'  ]) ? '' : $_REQUEST['source'  ];
 
 $errmsg = '';
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($source == 'MLP') {
         // MedlinePlus Connect Web Application.  See:
@@ -76,16 +76,14 @@ if (!empty($_POST['bn_submit'])) {
         }
         $filename = strtolower("{$codetype}_{$codevalue}_{$lang}.pdf");
         check_file_dir_name($filename);
-        $filepath = "$educationdir/$filename";
+        $filepath = $educationdir . '/' . basename($filename);
 
         if (is_file($filepath)) {
             $fileData = file_get_contents($filepath);
 
             // Decrypt file, if applicable.
-            $cryptoGen = new CryptoGen();
-            if ($cryptoGen->cryptCheckStandard($fileData)) {
-                $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
-            }
+            $cryptoGen = ServiceContainer::getCrypto();
+            $fileData = $cryptoGen->decryptFromFilesystem($fileData);
 
             header('Content-Description: File Transfer');
             header('Content-Transfer-Encoding: binary');
@@ -93,7 +91,8 @@ if (!empty($_POST['bn_submit'])) {
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             // attachment, not inline
-            header("Content-Disposition: attachment; filename=\"$filename\"");
+            $safeFilename = str_replace(['"', "\r", "\n"], '', $filename);
+            header("Content-Disposition: attachment; filename=\"" . $safeFilename . "\"");
             header("Content-Type: application/pdf");
             header("Content-Length: " . strlen($fileData));
             ob_clean();
@@ -140,7 +139,7 @@ if (!empty($_POST['bn_submit'])) {
         <div class='row'>
             <div class='col-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input type='hidden' name='type' value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code' value='<?php echo attr($codevalue); ?>' />
                     <input type='hidden' name='language' value='<?php echo attr($language); ?>' />

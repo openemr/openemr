@@ -4,10 +4,11 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
+use OpenEMR\Rector\Rules\OEGlobalsBagTypedGettersRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
-use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
 use Rector\Config\RectorConfig;
 use Rector\Php80\Rector\Class_\ClassPropertyAssignToConstructorPromotionRector;
 use Rector\ValueObject\PhpVersion;
@@ -27,13 +28,20 @@ return RectorConfig::configure()
         __DIR__ . '/gacl',
         __DIR__ . '/interface',
         __DIR__ . '/library',
-        __DIR__ . '/modules',
         __DIR__ . '/oauth2',
         __DIR__ . '/portal',
         __DIR__ . '/sites',
         __DIR__ . '/sphere',
         __DIR__ . '/src',
         __DIR__ . '/tests',
+    ])
+    // oe-module-claimrev-connect is a Composer dependency
+    // (claimrevolution/oe-module-claimrev-connect), relocated into this path by
+    // the oe-module-installer-plugin during `composer install`. It is
+    // third-party code, not maintained in this repo, so skip it the same way
+    // vendor/ is skipped.
+    ->withSkip([
+        __DIR__ . '/interface/modules/custom_modules/oe-module-claimrev-connect',
     ])
     ->withCache(
         // ensure file system caching is used instead of in-memory
@@ -60,10 +68,8 @@ return RectorConfig::configure()
     ->withRules([
         CallUserFuncArrayToVariadicRector::class,
         CatchExceptionToThrowableRector::class,
+        OEGlobalsBagTypedGettersRector::class,
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()
-    ->withSkip([
-        __DIR__ . '/sites/default/documents/smarty'
-    ])
     ->withTypeCoverageLevel(5);

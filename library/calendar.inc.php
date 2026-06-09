@@ -9,15 +9,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-//Require once the holidays controller for the is_holiday() function
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\HolidayService;
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
 //
 function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 {
-    $restrict = $inventory ? $GLOBALS['gbl_fac_warehouse_restrictions'] : $GLOBALS['restrict_user_facility'];
+    $restrict = $inventory ? OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
     if ($restrict) {
         // No entries in this table means the user is not restricted.
         $countrow = sqlQuery(
@@ -70,13 +70,13 @@ function getUserFacWH($uID, $fID)
 
  /**
  * Check if day is weekend day
- * @param (int) $day
- * @return boolean
+ * @param int $day
+ * @return bool
  */
 function is_weekend_day($day)
 {
 
-    if (in_array($day, $GLOBALS['weekend_days'])) {
+    if (in_array($day, OEGlobalsBag::getInstance()->get('weekend_days'))) {
         return true;
     } else {
         return false;
@@ -84,11 +84,12 @@ function is_weekend_day($day)
 }
 
 /**
- * This function checks if a certain date (YYYY/MM/DD) is a marked as a holiday/closed event in the events table
- * @param (int) $day
- * @return boolean
+ * Returns true when $date (YYYY-MM-DD or YYYY/MM/DD) is a holiday/closed date.
  */
-function is_holiday($date)
+function is_holiday(string $date): bool
 {
-    return Holidays_Controller::is_holiday($date);
+    /** @var HolidayService|null $service */
+    static $service = null;
+    $service ??= HolidayService::createForLegacyContext();
+    return $service->isHoliday($date);
 }

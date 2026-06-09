@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\ImmunizationService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\ImmunizationService;
 
 class ImmunizationRestController
 {

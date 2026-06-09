@@ -5,10 +5,16 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
+use Doctrine\DBAL\{
+    Connection,
+    DriverManager,
+};
 use mysqli;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @deprecated New code should use existing DB tooling and not directly create new connections.
@@ -21,10 +27,9 @@ class DatabaseConnectionFactory
     ): ADODB_mysqli_log {
         self::loadAdodbClasses();
         $conn = ADONewConnection('mysqli_log');
-        if ($conn === false) {
-            throw new \Exception('SUPER BROKEN');
+        if (!$conn instanceof ADODB_mysqli_log) {
+            throw new RuntimeException('ADONewConnection did not return an ADODB_mysqli_log');
         }
-        assert($conn instanceof ADODB_mysqli_log);
 
         // These were settings applied throughout the app. Not 100% clear if
         // they're still required.
@@ -39,7 +44,9 @@ class DatabaseConnectionFactory
         }
 
         // Sockets? It's supported on paper but unclear now to configure.
-        assert($config->host !== null);
+        if ($config->host === null) {
+            throw new RuntimeException('ADODB driver does not yet support unix socket connections; configure host/port');
+        }
 
         $conn->port = $config->port;
         if ($persistent) {
@@ -65,6 +72,17 @@ class DatabaseConnectionFactory
         // Other paths may end up customizing this further.
 
         return $conn;
+    }
+
+    public static function createDbal(
+        DatabaseConnectionOptions $config,
+        bool $persistent,
+    ): Connection {
+        $params = $config->toDbalParams();
+        if ($persistent) {
+            $params['persistent'] = true;
+        }
+        return DriverManager::getConnection($params);
     }
 
     /**
@@ -118,7 +136,7 @@ class DatabaseConnectionFactory
 
     public static function detectConnectionPersistence(
         ParameterBag $globals,
-        SessionWrapperInterface $session,
+        SessionInterface $session,
     ): bool {
         if ($globals->getBoolean('connection_pooling_off')) {
             return false;
@@ -138,15 +156,16 @@ class DatabaseConnectionFactory
     public static function detectConnectionPersistenceFromGlobalState(): bool
     {
         // If connection pooling is explicitly disabled, return false
-        if (!empty($GLOBALS['connection_pooling_off'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('connection_pooling_off'))) {
             return false;
         }
 
         // Check if pooling is enabled via globals or session
-        if (!empty($GLOBALS['enable_database_connection_pooling'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('enable_database_connection_pooling')) {
             return true;
         }
-        if (!empty($_SESSION['enable_database_connection_pooling'])) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!empty($session->get('enable_database_connection_pooling'))) {
             return true;
         }
 

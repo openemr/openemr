@@ -36,26 +36,20 @@ class ApiTestClientTest extends TestCase
         $this->client = new ApiTestClient($baseUrl, false);
     }
 
-    public function testGetConfigWithNull(): void
+    public function testGetHeaders(): void
     {
-        $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->expectException(\InvalidArgumentException::class);
-        $this->client->getConfig(null);
-
-        $this->client->cleanupRevokeAuth();
-        $this->client->cleanupClient();
+        $actualHeaders = $this->client->getHeaders();
+        $this->assertEquals("application/json", $actualHeaders["Accept"]);
+        $this->assertEquals("application/json", $actualHeaders["Content-Type"]);
     }
 
-    public function testGetConfig(): void
+    public function testGetHeadersAfterAuth(): void
     {
         $this->client->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-        $this->assertFalse($this->client->getConfig("http_errors"));
-        $this->assertEquals(10, $this->client->getConfig("timeout"));
-        $this->assertNotNull($this->client->getConfig("base_uri"));
 
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertEquals("application/json", $actualHeaders["Accept"]);
-        $this->assertArrayHasKey("User-Agent", $actualHeaders);
+        $this->assertArrayHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
         $this->client->cleanupClient();
@@ -125,14 +119,14 @@ class ApiTestClientTest extends TestCase
         $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
         $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
         $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
@@ -150,14 +144,14 @@ class ApiTestClientTest extends TestCase
         $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
         $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
         $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $refreshBody = [
@@ -180,7 +174,8 @@ class ApiTestClientTest extends TestCase
             ]
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
+        /** @var \stdClass&object{id_token: string, access_token: string, refresh_token: string} $responseBody */
+        $responseBody = json_decode((string) $authResponse->getBody());
         $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
@@ -200,14 +195,14 @@ class ApiTestClientTest extends TestCase
         $this->assertGreaterThan(10, strlen((string) $this->client->getAccessToken()));
         $this->assertGreaterThan(10, strlen((string) $this->client->getRefreshToken()));
 
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayHasKey("Authorization", $actualHeaders);
 
         $authHeaderValue = substr((string) $actualHeaders["Authorization"], 7);
         $this->assertGreaterThan(10, strlen($authHeaderValue));
 
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $refreshBody = [
@@ -249,7 +244,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
@@ -271,7 +266,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $refreshBody = [
@@ -294,7 +289,8 @@ class ApiTestClientTest extends TestCase
             ]
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
+        /** @var \stdClass&object{id_token: string, access_token: string, refresh_token: string} $responseBody */
+        $responseBody = json_decode((string) $authResponse->getBody());
         $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
@@ -303,7 +299,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
@@ -325,7 +321,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         // remove the route scope
@@ -356,7 +352,8 @@ class ApiTestClientTest extends TestCase
             ]
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
+        /** @var \stdClass&object{id_token: string, access_token: string, refresh_token: string} $responseBody */
+        $responseBody = json_decode((string) $authResponse->getBody());
         $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
@@ -365,7 +362,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_FORBIDDEN, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
@@ -387,7 +384,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         // remove the endpoint scope
@@ -418,7 +415,8 @@ class ApiTestClientTest extends TestCase
             ]
         );
         $this->assertEquals(200, $authResponse->getStatusCode());
-        $responseBody = json_decode($authResponse->getBody());
+        /** @var \stdClass&object{id_token: string, access_token: string, refresh_token: string} $responseBody */
+        $responseBody = json_decode((string) $authResponse->getBody());
         $this->assertGreaterThan(10, strlen((string) $responseBody->id_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->access_token));
         $this->assertGreaterThan(10, strlen((string) $responseBody->refresh_token));
@@ -427,7 +425,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(401, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
@@ -448,8 +446,9 @@ class ApiTestClientTest extends TestCase
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
-        $id_token = json_decode((string) $actualValue->getBody())->id_token;
-        $this->assertGreaterThan(10, strlen((string) $id_token));
+        /** @var \stdClass&object{id_token: string} $authBody */
+        $authBody = json_decode((string) $actualValue->getBody());
+        $this->assertGreaterThan(10, strlen($authBody->id_token));
 
         $actualResponse = $this->client->cleanupRevokeAuth();
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
@@ -457,6 +456,7 @@ class ApiTestClientTest extends TestCase
 
         $actualResponse = $this->client->cleanupRevokeAuth();
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $actualResponse->getStatusCode());
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals("You are currently not signed in.", $responseBody['message']);
 
@@ -464,7 +464,7 @@ class ApiTestClientTest extends TestCase
         $this->assertEquals(400, $actualResponse->getStatusCode());
 
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupClient();
@@ -484,7 +484,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT_INVALID_SITE);
         $this->assertEquals(400, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->cleanupRevokeAuth();
@@ -505,7 +505,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $this->client->setBearer(ApiTestClient::BOGUS_ACCESS_TOKEN);
@@ -530,7 +530,7 @@ class ApiTestClientTest extends TestCase
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
         $this->assertEquals(Response::HTTP_OK, $actualResponse->getStatusCode());
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
 
         $actualResponse = $this->client->get(self::EXAMPLE_API_ENDPOINT);
@@ -543,7 +543,7 @@ class ApiTestClientTest extends TestCase
     public function testRemoveAuthTokenNoToken(): void
     {
         $this->client->removeAuthToken();
-        $actualHeaders = $this->client->getConfig("headers");
+        $actualHeaders = $this->client->getHeaders();
         $this->assertArrayNotHasKey("Authorization", $actualHeaders);
     }
 

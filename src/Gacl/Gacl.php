@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Gacl class - phpGACL main class
  *
@@ -29,6 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 /*
  * Path to ADODB.
  */
+
 if ( !defined('ADODB_DIR') ) {
     define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
@@ -74,12 +76,21 @@ class Gacl {
     /** The time for the cache to expire in seconds - 600 == Ten Minutes */
     private int $_cache_expire_time=600;
 
+    /** @var int Number of items to display per page */
+    protected int $_items_per_page = 100;
+
+    /** @var int Maximum number of items to display in a select box */
+    protected int $_max_select_box_items = 100;
+
+    /** @var int Maximum number of items to return in a search */
+    protected int $_max_search_return_items = 100;
+
     /** A switch to put acl_check into '_group_' mode */
     private string $_group_switch = '_group_';
 
     /**
      * Constructor
-     * @param array $options An array of options to override the class defaults
+     * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
         $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','caching','force_cache_expire','cache_dir','cache_expire_time'];
@@ -89,7 +100,7 @@ class Gacl {
                 $config = parse_ini_file($this->config_file);
 
             if ( is_array($config) ) {
-                    $gacl_options = array_merge($config, $options);
+                    $gacl_options = array_merge($config, $options ?? []);
             }
 
                 unset($config);
@@ -101,8 +112,22 @@ class Gacl {
 
                 if (in_array($key, $available_options) ) {
                     $this->debug_text("Valid Config options: $key");
-                    $property = '_'.$key;
-                    $this->$property = $value;
+                    // AI / Claude Code refactored to solve phpstan reported issue
+                    $stringVal = is_scalar($value) ? (string) $value : '';
+                    $intVal = is_numeric($value) ? (int) $value : 0;
+                    match ($key) {
+                        'db' => $value instanceof \ADOConnection ? $this->_db = $value : null,
+                        'debug' => $this->_debug = (bool) $value,
+                        'items_per_page' => $this->_items_per_page = $intVal,
+                        'max_select_box_items' => $this->_max_select_box_items = $intVal,
+                        'max_search_return_items' => $this->_max_search_return_items = $intVal,
+                        'db_table_prefix' => $this->_db_table_prefix = $stringVal,
+                        'caching' => $this->_caching = (bool) $value,
+                        'force_cache_expire' => $this->_force_cache_expire = (bool) $value,
+                        'cache_dir' => $this->_cache_dir = $stringVal,
+                        default => $this->_cache_expire_time = $intVal,
+                    };
+                    // End of AI / Claude Code refactor
                 } else {
                     $this->debug_text("ERROR: Config option: $key is not a valid option");
                 }
@@ -124,7 +149,7 @@ class Gacl {
             //Use NUM for slight performance/memory reasons.
             $this->db->SetFetchMode(ADODB_FETCH_NUM);
 
-            if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
+            if (!empty(OEGlobalsBag::getInstance()->get('debug_ssl_mysql_connection'))) {
                 error_log("CHECK SSL CIPHER IN GACL ADODB: " . htmlspecialchars(print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true), ENT_QUOTES));
             }
 
@@ -159,8 +184,8 @@ class Gacl {
 
     /**
     * Prints debug text if debug is enabled.
-    * @param string THe text to output
-    * @return boolean Always returns true
+    * @param string $text THe text to output
+    * @return bool Always returns true
     */
     function debug_text($text) {
 
@@ -173,7 +198,7 @@ class Gacl {
 
     /**
     * Prints database debug text if debug is enabled.
-    * @param string The name of the function calling this method
+    * @param string $function_name The name of the function calling this method
     * @return string Returns an error message
     */
     function debug_db($function_name = '') {
@@ -197,9 +222,9 @@ class Gacl {
     * @param string $aro_value The ARO value
     * @param string $axo_section_value The AXO section value (optional)
     * @param string $axo_value The AXO section value (optional)
-    * @param integer $root_aro_group The group id of the ARO (optional)
-    * @param integer $root_axo_group The group id of the AXO (optional)
-    * @return boolean true if the check succeeds, false if not.
+    * @param int $root_aro_group The group id of the ARO (optional)
+    * @param int $root_axo_group The group id of the AXO (optional)
+    * @return bool true if the check succeeds, false if not.
     */
     function acl_check($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
         $acl_result = $this->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value, $root_aro_group, $root_axo_group);
@@ -211,14 +236,14 @@ class Gacl {
     * Wraps the actual acl_query() function.
     *
     * Quick access to the return value of an ACL.
-    * @param string The ACO section value
-    * @param string The ACO value
-    * @param string The ARO section value
-    * @param string The ARO section
-    * @param string The AXO section value (optional)
-    * @param string The AXO section value (optional)
-    * @param integer The group id of the ARO (optional)
-    * @param integer The group id of the AXO (optional)
+    * @param string $aco_section_value The ACO section value
+    * @param string $aco_value The ACO value
+    * @param string $aro_section_value The ARO section value
+    * @param string $aro_value The ARO section
+    * @param string $axo_section_value The AXO section value (optional)
+    * @param string $axo_value The AXO section value (optional)
+    * @param int $root_aro_group The group id of the ARO (optional)
+    * @param int $root_axo_group The group id of the AXO (optional)
     * @return string The return value of the ACL
     */
     function acl_return_value($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL) {
@@ -229,9 +254,9 @@ class Gacl {
 
     /**
     * Handles ACL lookups over arrays of AROs
-    * @param string The ACO section value
-    * @param string The ACO value
-    * @param array An named array of arrays, each element in the format aro_section_value=>array(aro_value1,aro_value1,...)
+    * @param string $aco_section_value The ACO section value
+    * @param string $aco_value The ACO value
+    * @param array $aro_array An named array of arrays, each element in the format aro_section_value=>array(aro_value1,aro_value1,...)
     * @return mixed The same data format as inputted.
      */
     function acl_check_array($aco_section_value, $aco_value, $aro_array) {
@@ -267,16 +292,16 @@ class Gacl {
     /**
     * The Main function that does the actual ACL lookup.
         *
-    * @param string The ACO section value
-    * @param string The ACO value
-    * @param string The ARO section value
-    * @param string The ARO value
-    * @param string The AXO section value (optional)
-    * @param string The AXO value (optional)
-    * @param string The value of the ARO group (optional)
-    * @param string The value of the AXO group (optional)
-    * @param boolean Debug the operation if true (optional)
-        * @param boolean Option to return all applicable ACL's rather than just one. (optional) (Added by OpenEMR)
+    * @param string $aco_section_value The ACO section value
+    * @param string $aco_value The ACO value
+    * @param string $aro_section_value The ARO section value
+    * @param string $aro_value The ARO value
+    * @param string $axo_section_value The AXO section value (optional)
+    * @param string $axo_value The AXO value (optional)
+    * @param string $root_aro_group The value of the ARO group (optional)
+    * @param string $root_axo_group The value of the AXO group (optional)
+    * @param bool $debug Debug the operation if true (optional)
+        * @param bool $return_all Option to return all applicable ACL's rather than just one. (optional) (Added by OpenEMR)
     * @return array Returns as much information as possible about the ACL so other functions can trim it down and omit unwanted data.
     */
     function acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value=NULL, $axo_value=NULL, $root_aro_group=NULL, $root_axo_group=NULL, $debug=NULL, $return_all=FALSE) {
@@ -517,14 +542,14 @@ class Gacl {
 
     /**
     * Grabs all groups mapped to an ARO. You can also specify a root_group for subtree'ing.
-    * @param string The section value or the ARO or ACO
-    * @param string The value of the ARO or ACO
-    * @param integer The group id of the group to start at (optional)
-    * @param string The type of group, either ARO or AXO (optional)
+    * @param string $section_value The section value or the ARO or ACO
+    * @param string $value The value of the ARO or ACO
+    * @param int $root_group The group id of the group to start at (optional)
+    * @param string $group_type The type of group, either ARO or AXO (optional)
     */
     function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
-        switch(strtolower((string) $group_type)) {
+        switch(strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
             case 'axo':
                 $group_type = 'axo';
                 $object_table = $this->_db_table_prefix .'axo';
@@ -615,7 +640,7 @@ class Gacl {
     /**
     * Uses PEAR's Cache_Lite package to grab cached arrays, objects, variables etc...
     * using unserialize() so it can handle more then just text string.
-    * @param string The id of the cached object
+    * @param string $cache_id The id of the cached object
     * @return mixed The cached object, otherwise FALSE if the object identifier was not found
     */
     function get_cache($cache_id) {
@@ -624,7 +649,7 @@ class Gacl {
             $this->debug_text("get_cache(): on ID: $cache_id");
 
             if ( is_string($this->Cache_Lite->get($cache_id) ) ) {
-                return unserialize($this->Cache_Lite->get($cache_id) );
+                return unserialize($this->Cache_Lite->get($cache_id), ['allowed_classes' => false]);
             }
         }
 
@@ -634,8 +659,8 @@ class Gacl {
     /**
     * Uses PEAR's Cache_Lite package to write cached arrays, objects, variables etc...
     * using serialize() so it can handle more then just text string.
-    * @param mixed A variable to cache
-    * @param string The id of the cached variable
+    * @param mixed $data A variable to cache
+    * @param string $cache_id The id of the cached variable
     */
     function put_cache($data, $cache_id) {
 

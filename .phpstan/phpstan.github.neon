@@ -11,5 +11,8 @@ parameters:
   scanFiles:
     - ../vendor/phpunit/phpunit/src/Framework/TestCase.php
   excludePaths:
-    - ../sites/default/documents/smarty
     - ../tests/Rector
+    # Fixture files for SqlReservedWordRuleTest deliberately contain SQL
+    # patterns the rule should flag; excluding them keeps full-codebase
+    # PHPStan runs from reporting those intentional bugs.
+    - ../tests/Tests/Isolated/PHPStan/Sql/data

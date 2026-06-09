@@ -40,8 +40,7 @@ class ExceptionFormatter
      * or using the php debug_backtrace() function
      *
      * @access public
-     * @param
-     *          array debug_backtrace. For example: debug_backtrace() -or- $exception->getTrace()
+     * @param array $tb debug_backtrace. For example: debug_backtrace() -or- $exception->getTrace()
      * @param int $depth
      *          how far to go back in the stack (default = unlimited)
      * @param string $join

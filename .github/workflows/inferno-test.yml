@@ -55,8 +55,8 @@ jobs:
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
-        php-version: ['8.4']
-        node-version: ['22']
+        php-version: ['8.5']
+        node-version: ['24']
     steps:
     - uses: actions/checkout@v6
       with:
@@ -88,8 +88,8 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'vendor=${{ runner.os }}-vendor-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ matrix.php-version }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
         } >> "$GITHUB_OUTPUT"
 
     ##
@@ -294,7 +294,7 @@ jobs:
           public/themes/
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
+      uses: docker/setup-buildx-action@v4
 
     - name: Log Docker info
       run: |
@@ -323,7 +323,7 @@ jobs:
 
     - name: Upload Inferno test results to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('junit-inferno.xml') != '' }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-inferno.xml
@@ -336,7 +336,7 @@ jobs:
 
     - name: Upload PHPUnit coverage to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('coverage.inferno-phpunit.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.inferno-phpunit.clover.xml
@@ -348,7 +348,7 @@ jobs:
 
     - name: Upload HTTP coverage to Codecov
       if: ${{ !cancelled() && needs.check_secret.outputs.has_codecov_token == 'true' && hashFiles('coverage.inferno-http.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.inferno-http.clover.xml
@@ -385,8 +385,6 @@ jobs:
           coverage.inferno-phpunit.clover.xml
           coverage.inferno-http.clover.xml
 
-    - name: Cleanup Docker resources
-      if: always()
-      run: |
-        docker compose -f ci/inferno/compose.yml down --volumes --remove-orphans || true
-        docker system prune -f || true
+    - name: Show Docker logs
+      if: ${{ !cancelled() }}
+      run: docker compose -f ci/inferno/compose.yml logs

@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_Pharmacy extends Controller
 {
@@ -22,9 +23,9 @@ class C_Pharmacy extends Controller
     {
         parent::__construct();
         $this->pharmacies = [];
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&");
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&pharmacy&");
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
         $this->Pharmacy = new Pharmacy();
         $this->totalpages = $this->Pharmacy->totalPages();
         $this->pageno = $this->Pharmacy->getPageno();
@@ -47,7 +48,7 @@ class C_Pharmacy extends Controller
         }
 
         $this->assign("pharmacy", $this->pharmacies[0]);
-        return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_edit.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "pharmacies/" . $this->template_mod . "_edit.html");
     }
 
     function list_action()
@@ -55,7 +56,7 @@ class C_Pharmacy extends Controller
         $this->assign("pharmacies", $this->Pharmacy->pharmacies_factory());
 
         //print_r(Prescription::prescriptions_factory($id));
-        return $this->fetch($GLOBALS['template_dir'] . "pharmacies/" . $this->template_mod . "_list.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "pharmacies/" . $this->template_mod . "_list.html");
     }
 
 
@@ -74,6 +75,6 @@ class C_Pharmacy extends Controller
         $this->pharmacies[0]->persist();
         //echo "action processed";
         $_POST['process'] = "";
-        header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
+        header('Location:' . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&pharmacy&action=list");//Z&H
     }
 }

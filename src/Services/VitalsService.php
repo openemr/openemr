@@ -14,11 +14,11 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchModifier;
@@ -40,7 +40,7 @@ class VitalsService extends BaseService
     public const TABLE_VITALS = "form_vitals";
 
     /**
-     * @var boolean whether vital measurement for records retrieved should be converted based upon global settings.
+     * @var bool whether vital measurement for records retrieved should be converted based upon global settings.
      */
     private $shouldConvertVitalMeasurements;
 
@@ -52,7 +52,7 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        $this->units_of_measurement = $units_of_measurement ?? $GLOBALS['units_of_measurement'];
+        $this->units_of_measurement = $units_of_measurement ?? OEGlobalsBag::getInstance()->get('units_of_measurement');
         $globalsBag = OEGlobalsBag::getInstance();
         if ($globalsBag->hasKernel()) {
             $this->dispatcher = $globalsBag->getKernel()->getEventDispatcher();

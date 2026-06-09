@@ -12,6 +12,9 @@
 
 namespace OpenEMR\Modules\FaxSMS;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Companion to event bootstrapping
  */
@@ -158,8 +161,8 @@ class BootstrapService
         $vendor = '_persisted';
         $authUserId = 0;
         $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$authUserId, $vendor]) ?? [];
-        if (is_string($globals['credentials'])) {
-            return json_decode($globals['credentials'], true) ?? [];
+        if (is_string(OEGlobalsBag::getInstance()->get('credentials'))) {
+            return json_decode(OEGlobalsBag::getInstance()->get('credentials'), true) ?? [];
         }
         return [];
     }
@@ -167,7 +170,8 @@ class BootstrapService
     public static function getUserPermission($user_id, $service)
     {
         if (empty($user_id)) {
-            $user_id = $_SESSION['authUserID'] ?? 0;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_id = $session->get('authUserID', 0);
         }
         $setting_label = "module_faxsms_{$service}_permission";
         $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
@@ -181,7 +185,8 @@ class BootstrapService
             return '0';
         }
         if (empty($user_id)) {
-            $user_id = $_SESSION['authUserID'] ?? 0;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_id = $session->get('authUserID', 0);
         }
         $setting_label = "module_faxsms_use_primary";
         $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";

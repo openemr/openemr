@@ -17,13 +17,23 @@
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 
-// Function to collect ip address(es)
-function collectIpAddresses()
+/**
+ * Function to collect ip address(es)
+ *
+ * @return array{
+ *   ip_string: string,
+ *   ip: string,
+ *   forward_ip: string,
+ * }
+ */
+function collectIpAddresses(): array
 {
-    $mainIp = $_SERVER['REMOTE_ADDR'];
+    /** @var string */
+    $mainIp = $_SERVER['REMOTE_ADDR'] ?? ''; // Fallback to blank for CLI, etc
     $stringIp = $mainIp;
 
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        /** @var string */
         $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
         $stringIp .= " (" . $forwardIp . ")";
     }
@@ -155,8 +165,8 @@ function sanitizeNumber($number)
  * Function to get sql statement for empty datetime check.
  *
  * @param  string  $sqlColumn     SQL column/field name
- * @param  boolean  $time         flag used to determine if it's a datetime or a date
- * @param  boolean  $rev          flag used to reverse the condition
+ * @param bool $time flag used to determine if it's a datetime or a date
+ * @param bool $rev flag used to reverse the condition
  * @return string                 SQL statement checking if passed column is empty
  */
 

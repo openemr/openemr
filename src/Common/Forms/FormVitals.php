@@ -25,6 +25,7 @@ use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 
 class FormVitals extends ORDataObject
 {
@@ -100,7 +101,7 @@ class FormVitals extends ORDataObject
 
         $this->_table = self::TABLE_NAME;
         $this->activity = 1;
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         if (!empty($id)) {
             $this->populate();
         }
@@ -229,7 +230,7 @@ class FormVitals extends ORDataObject
     public function display_weight($pounds)
     {
         if ($pounds != 0) {
-            if ($GLOBALS['us_weight_format'] == 2) {
+            if (OEGlobalsBag::getInstance()->get('us_weight_format') == 2) {
                 $pounds_int = floor($pounds);
                 return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
             }
@@ -464,6 +465,49 @@ class FormVitals extends ORDataObject
         if (isset($details)) {
             return !empty($details->get_reason_code());
         }
+    }
+
+    /**
+     * Validates all numeric vital properties against VitalsFieldRanges.
+     *
+     * @return array{errors: list<string>, warnings: list<string>}
+     */
+    public function validate(): array
+    {
+        $errors = [];
+        $warnings = [];
+
+        foreach (VitalsFieldRanges::getRanges() as $fieldName => $field) {
+            $value = $this->$fieldName;
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $label = $field['label'];
+
+            if (!is_numeric($value)) {
+                $errors[] = sprintf(xl('Field "%1$s" has a non-numeric value.'), $label);
+                continue;
+            }
+
+            $numericValue = (float) $value;
+
+            if ($numericValue < 0) {
+                $errors[] = sprintf(xl('Field "%1$s" cannot be negative.'), $label);
+                continue;
+            }
+
+            if ($numericValue < $field['min'] || $numericValue > $field['max']) {
+                $errors[] = sprintf(xl('Field "%1$s" is outside acceptable range (%2$s–%3$s).'), $label, $field['min'], $field['max']);
+                continue;
+            }
+
+            if ($numericValue < $field['warningMin'] || $numericValue > $field['warningMax']) {
+                $warnings[] = sprintf(xl('Field "%1$s" is outside typical clinical range (%2$s–%3$s).'), $label, $field['warningMin'], $field['warningMax']);
+            }
+        }
+
+        return ['errors' => $errors, 'warnings' => $warnings];
     }
 
     public function persist()

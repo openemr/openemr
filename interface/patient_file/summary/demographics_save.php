@@ -15,25 +15,27 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
 
 // Initialize logger
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 global $pid;
 
@@ -189,8 +191,8 @@ while ($frow = sqlFetchArray($fres)) {
 // Save patient and employer data
 try {
     updatePatientData($pid, $newdata['patient_data']);
-    if (!$GLOBALS['omit_employers']) {
-        updateEmployerData($pid, [], $newdata['employer_data']);
+    if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
+        updateEmployerData($pid, $newdata['employer_data'], false, $newdata['patient_data']);
     }
 } catch (\Throwable $e) {
     $logger->error("Error updating patient/employer data", [
@@ -444,10 +446,9 @@ if (!empty($relationFieldsToSave)) {
  * Trigger events for listeners
  */
 try {
-    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(
+    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
         new PatientUpdatedEventAux($pid, $_POST),
-        PatientUpdatedEventAux::EVENT_HANDLE,
-        10
+        PatientUpdatedEventAux::EVENT_HANDLE
     );
 } catch (\Throwable $e) {
     $logger->error("Error dispatching event", [

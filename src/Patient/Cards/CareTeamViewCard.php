@@ -15,12 +15,14 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\CareTeamService;
-use OpenEMR\Services\ContactService; // AI-generated import
-use OpenEMR\Services\ContactRelationService; // AI-generated import
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ListService;
 
 class CareTeamViewCard extends CardModel
@@ -121,23 +123,27 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        if (($_POST['save_care_team'] ?? '') === 'true') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
-                CsrfUtils::csrfNotVerified();
-            }
-
-            $teamId = ValidationUtils::validateInt($_POST['team_id']);
-            $teamId = $teamId === false ? null : $teamId;
-            $teamName = trim($_POST['team_name'] ?? '');
-            $team = $_POST['team'] ?? [];
-            $teamStatus = trim($_POST['team_status'] ?? 'active'); // AI-generated addition
-
-            if (!$this->pid) {
-                die(xlt("Invalid request."));
-            }
-
-            $this->getCareTeamService()->saveCareTeam($this->pid, $teamId, $teamName, $team, $teamStatus);
+        $request = HttpRestRequest::createFromGlobals()->request;
+        if ($request->getString('save_care_team') !== 'true') {
+            return;
         }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+
+        $teamId = ValidationUtils::validateInt($request->getString('team_id'));
+        $teamId = $teamId === false ? null : $teamId;
+        $teamName = trim($request->getString('team_name'));
+        // `team` is the only field that legitimately arrives as an array
+        // (per-row metadata for each team member). Fall through to
+        // ->all() for that one field.
+        $allPost = $request->all();
+        $team = is_array($allPost['team'] ?? null) ? $allPost['team'] : [];
+        $teamStatus = trim($request->getString('team_status', 'active'));
+
+        if (!$this->pid) {
+            die(xlt("Invalid request."));
+        }
+
+        $this->getCareTeamService()->saveCareTeam($this->pid, $teamId, $teamName, $team, $teamStatus);
     }
 
     private function getUserCardSetting($settingName)
@@ -331,6 +337,7 @@ class CareTeamViewCard extends CardModel
         }
         // AI-generated addition - End
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return [
             'team_id' => $careTeamResult['team_id'] ?? null,
             'pid' => $pid,
@@ -346,7 +353,7 @@ class CareTeamViewCard extends CardModel
             'role_options' => $templateData['role_options'],
             'status_options' => $templateData['status_options'],
             'existing_care_team' => $existingCareTeam,
-            'csrf_token' => CsrfUtils::collectCsrfToken(),
+            'csrf_token' => CsrfUtils::collectCsrfToken(session: $session),
             'translations' => self::getTranslations()
         ];
     }

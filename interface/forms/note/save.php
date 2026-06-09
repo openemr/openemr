@@ -14,23 +14,29 @@
 
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\EncounterSessionUtil;
+use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$pid = PatientSessionUtil::getPid();
+$encounter = EncounterSessionUtil::getEncounter();
+$userauthorized = PatientSessionUtil::getUserAuthorized();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 /*
  * name of the database table associated with this form
  */
 $table_name = "form_note";
-
-if ($encounter == "") {
-    $encounter = date("Ymd");
-}
 
 $_POST['date_of_signature'] = DateToYYYYMMDD($_POST['date_of_signature']);
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * PlaceOfServiceEnum.php
  * @package openemr

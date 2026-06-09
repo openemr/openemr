@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use Ramsey\Uuid\Uuid;
 
 /**
@@ -26,36 +26,49 @@ class FixtureManager
     // use a prefix so we can easily remove fixtures
     const PATIENT_FIXTURE_PUBPID_PREFIX = "test-fixture";
 
-    private $patientFixtures;
+    /** @var array<string, mixed>[] */
+    private readonly array $patientFixtures;
     private $fhirPatientFixtures;
     private $addressFixtures;
     private $contactFixtures;
     private $contactAddressFixtures;
 
     /**
-     * @var
+     * @var mixed
      */
     private $fhirAllergyIntoleranceFixtures;
 
     public function __construct()
     {
-        $this->addressFixtures = $this->loadJsonFile("addresses.json");
-        $this->contactAddressFixtures = $this->loadJsonFile("contact-addresses.json");
-        $this->contactFixtures = $this->loadJsonFile("contacts.json");
-        $this->patientFixtures = $this->loadJsonFile("patients.json");
+        $this->addressFixtures = $this->loadPhpFile("addresses.php");
+        $this->contactAddressFixtures = $this->loadPhpFile("contact-addresses.php");
+        $this->contactFixtures = $this->loadPhpFile("contacts.php");
+        $this->patientFixtures = $this->loadPhpFile("patients.php");
         $this->fhirPatientFixtures = $this->loadJsonFile("FHIR/patients.json");
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
-     * @return array of records.
+     * @return array<string, mixed>[]
      */
-    private function loadJsonFile($fileName)
+    private function loadPhpFile(string $fileName): array
     {
-        $filePath = __DIR__ . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData, true);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file. Used for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    private function loadJsonFile(string $fileName): array
+    {
+        /** @var array<string, mixed>[] $parsedRecords */
+        $parsedRecords = json_decode((string) file_get_contents(__DIR__ . '/' . $fileName), true);
         return $parsedRecords;
     }
 
@@ -64,7 +77,7 @@ class FixtureManager
      * This will return a recorded uuid (recorded in uuid_registry)
      *
      * @param $tableName The target OpenEMR DB table name.
-     * @return uuid.
+     * @return string uuid
      */
     private function getUuid($tableName)
     {
@@ -72,7 +85,7 @@ class FixtureManager
     }
 
     /**
-     * @return the next available patient pid/identifier.
+     * @return int the next available patient pid/identifier.
      */
     private function getNextPid()
     {
@@ -87,7 +100,7 @@ class FixtureManager
      *
      * @param $tableName The target OpenEMR DB table name.
      * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
+     * @return int the number of fixtures installed.
      */
     private function installFixtures($tableName, $fixtures)
     {
@@ -140,7 +153,7 @@ class FixtureManager
     }
 
     /**
-     * @return single/random fhir patient fixture
+     * @return array<string, mixed> a single random fhir patient fixture
      */
     public function getSingleFhirPatientFixture()
     {
@@ -158,24 +171,26 @@ class FixtureManager
     public function getAllergyIntoleranceFixtures()
     {
         if (empty($this->fhirAllergyIntoleranceFixtures)) {
-            $this->fhirAllergyIntoleranceFixtures = $this->loadJsonFile("allergy-intolerance.json");
+            $this->fhirAllergyIntoleranceFixtures = $this->loadPhpFile("allergy-intolerance.php");
         }
         return $this->fhirAllergyIntoleranceFixtures;
     }
 
     /**
-     * @return random single entry from an array.
+     * @template T
+     * @param T[] $array
+     * @return T
      */
-    private function getSingleEntry($array)
+    private function getSingleEntry(array $array): mixed
     {
         $randomIndex = array_rand($array, 1);
         return $array[$randomIndex];
     }
 
     /**
-     * @return a random patient fixture.
+     * @return array<string, mixed>
      */
-    public function getSinglePatientFixture()
+    public function getSinglePatientFixture(): array
     {
         return $this->getSingleEntry($this->patientFixtures);
     }
@@ -206,7 +221,7 @@ class FixtureManager
     /**
      * Installs a single Patient Fixtures into the OpenEMR DB.
      * @param $patientFixture - The fixture to install.
-     * @return count of records inserted.
+     * @return int the number of records inserted.
      */
     public function installSinglePatientFixture($patientFixture)
     {
@@ -261,7 +276,7 @@ class FixtureManager
 
     /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
-     * @return uuid4 string value
+     * @return string a uuid4 string value
      */
     public function getUnregisteredUuid()
     {

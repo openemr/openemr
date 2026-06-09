@@ -13,19 +13,21 @@
 // These lists are based on the constants found in the
 // openemr/library/classes/Prescription.class.php file.
 
-use PHPMailer\PHPMailer\PHPMailer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
+use PHPMailer\PHPMailer\PHPMailer;
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision
 // is reversed.
-$GLOBALS['SELL_FROM_ONE_WAREHOUSE'] = true;
+OEGlobalsBag::getInstance()->set('SELL_FROM_ONE_WAREHOUSE', true);
 
 $substitute_array = ['', xl('Allowed'), xl('Not Allowed')];
 
 function send_drug_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }
@@ -99,7 +101,8 @@ function sellDrug(
 function isUserRestricted($userid = 0)
 {
     if (!$userid) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
@@ -112,7 +115,8 @@ function isUserRestricted($userid = 0)
 function isFacilityAllowed($facid, $userid = 0)
 {
     if (!$userid) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     $countrow = sqlQuery(
@@ -137,7 +141,8 @@ function isFacilityAllowed($facid, $userid = 0)
 function isWarehouseAllowed($facid, $whid, $userid = 0)
 {
     if (!$userid) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     $countrow = sqlQuery(

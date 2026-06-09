@@ -2,7 +2,7 @@
 
 /**
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  * @link      https://www.open-emr.org
  * @package   OpenEMR
@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\PaymentProcessing\Rainforest;
 
+use OpenEMR\BC\ServiceContainer;
 use GuzzleHttp\{Client, ClientInterface};
 use Money\Money;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
@@ -145,11 +145,8 @@ readonly class Api
      */
     public static function makeFromGlobals(OEGlobalsBag $bag): Api
     {
-        $crypto = new CryptoGen();
-        $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
-        if ($apiKey === false) {
-            throw new \RuntimeException('Failed to decrypt rainforest_api_key');
-        }
+        $crypto = ServiceContainer::getCrypto();
+        $apiKey = $crypto->decryptFromDatabase($bag->getString('rainforest_api_key'));
         $mid = $bag->getString('rainforest_merchant_id');
         $pid = $bag->getString('rainforest_platform_id');
 

@@ -13,12 +13,13 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/registry.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/registry.inc.php");
 require_once("batchcom.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -26,11 +27,17 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/notification: Email Notification", xl("Email Notification"));
 }
 
+$form_err = '';
+$notification_id = '';
+$provider_name = '';
+$email_sender = '';
+$email_subject = '';
+$message = '';
+
 // process form
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (! is_numeric($_POST['notification_id'])) {  // shouldn't happen
         $form_err .= xl('Missing/invalid notification id') . '<br />';
@@ -113,7 +120,7 @@ if ($result) {
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="Hidden" name="type" value="Email">
             <input type="Hidden" name="notification_id" value="<?php echo attr($notification_id);?>">
             <div class="row">

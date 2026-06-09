@@ -12,6 +12,8 @@
 
 use OpenEMR\Common\Acl\AclMain;
 
+/** @var string $tab */
+
 $isAuth = AclMain::aclCheckCore('admin', 'users') ?? false;
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">

@@ -12,7 +12,6 @@
 
 namespace Application\Helper;
 
-
 /**
  * Decorates the OpenEMR functions making it so a module can avoid hard coding global functions
  */
@@ -20,8 +19,10 @@ class TranslatorViewHelper extends \Laminas\View\Helper\AbstractHelper
 {
     /**
      * Translates a string.
+     *
+     * @param literal-string $str
      */
-    public function xl($str)
+    public function xl(string $str): string
     {
         return xl($str);
     }

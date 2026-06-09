@@ -46,7 +46,7 @@ jobs:
           jq -rc 'map({
             docker_dir: .output.docker_dir,
             php: .output.php,
-            display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
+            display_name: ("PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)" + (if .output.redis_sentinel_enabled == "true" then (" - Redis Sentinel" + (if (.output.docker_dir | endswith("_mtls")) then " mTLS" elif (.output.docker_dir | endswith("_tls")) then " TLS" else "" end)) else "" end)),
             save_composer_cache: .output.save_composer_cache,
             save_node_cache: .output.save_node_cache
           }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"

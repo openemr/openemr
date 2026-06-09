@@ -19,10 +19,10 @@ use Application\Controller\SoapController;
 use Application\Listener\Listener;
 use Application\Listener\ModuleMenuSubscriber;
 use Application\Model\SendtoTable;
+use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
-use Interop\Container\ContainerInterface;
 
 //
 return [

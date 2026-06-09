@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Events\RestApiExtend;
 
-use Symfony\Contracts\EventDispatcher\Event;
 use InvalidArgumentException;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class RestApiScopeEvent extends Event
 {

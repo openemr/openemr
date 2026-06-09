@@ -53,6 +53,53 @@ dc() {
     docker compose "$@"
 }
 
+##
+# Retry a command with exponential backoff. Docker Hub registry pulls time
+# out transiently in CI (issue #12423); without a retry a single hiccup
+# fails the whole matrix job. Usage: with_retry MAX_ATTEMPTS DELAY cmd args...
+with_retry() {
+    local max_attempts=$1
+    local delay=$2
+    shift 2
+    local attempt=1
+    while true; do
+        # shellcheck disable=SC2310  # the command's failure drives the retry, not errexit
+        if "$@"; then
+            return 0
+        fi
+        if (( attempt >= max_attempts )); then
+            echo "Command failed after ${attempt} attempts: $*" >&2
+            return 1
+        fi
+        echo "Attempt ${attempt}/${max_attempts} failed: $* — retrying in ${delay}s" >&2
+        sleep "${delay}"
+        (( ++attempt ))
+        (( delay *= 2 ))
+    done
+}
+
+##
+# Pull every image the compose stack needs, retrying on transient registry
+# errors. Separated from `up` so a Docker Hub timeout retries just the pull
+# rather than failing the bring-up. --ignore-buildable skips services that
+# build locally (e.g. inferno's terminology_builder).
+#
+# Pulls at most once per job: dockers_env_start runs in several workflow
+# steps (initial bring-up, again after restarts in setup_e2e_bookends and
+# build_test_e2e), each in a fresh shell, so the guard is a marker file in
+# RUNNER_TEMP rather than a shell variable. Repeat calls skip the pull and
+# rely on `dc up --quiet-pull` to fetch anything still missing (e.g. a
+# profile-gated image the first pull's COMPOSE_PROFILES did not include).
+pull_images() {
+    local marker="${RUNNER_TEMP:-/tmp}/openemr-ci-images-pulled"
+    if [[ -f "${marker}" ]]; then
+        echo 'Images already pulled this job; skipping pull (up will fetch anything missing).'
+        return 0
+    fi
+    with_retry 4 5 dc pull --quiet --ignore-buildable
+    touch "${marker}"
+}
+
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         # Set XDEBUG_MODE env var for xdebug coverage (ignored if using pcov).
@@ -62,6 +109,17 @@ _exec() {
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
     fi
+}
+
+##
+# Echo the first existing web-server user inside the openemr container.
+# OpenEMR ships two web stacks: the apache image uses `apache`, the
+# nginx + php-fpm image uses `www-data`. Probe both so the same wrap
+# pattern works across the full CI matrix without needing per-stack
+# branching at every su call site.
+web_user_in_openemr() {
+    # shellcheck disable=SC2016  # $u is the inner for-loop variable, intentionally evaluated inside the container's shell.
+    _exec sh -c 'for u in apache www-data; do if id "$u" >/dev/null 2>&1; then echo "$u"; exit 0; fi; done; exit 1'
 }
 
 ##
@@ -84,7 +142,41 @@ convert_coverage() {
 }
 
 dockers_env_start() {
+    # Pull first, with retry, so a transient Docker Hub timeout retries the
+    # pull instead of failing the whole bring-up (issue #12423). `up` then
+    # finds the images already present; its own --quiet-pull is left as a
+    # harmless fallback for anything pull_images skipped (e.g. buildable
+    # services in the inferno stack).
+    pull_images
     dc up --detach --quiet-pull --wait --wait-timeout 300
+}
+
+##
+# Dump the database to stdout. Automatically detects MariaDB vs MySQL
+# and uses the appropriate dump command.
+dump_database() {
+    local dump_cmd
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if dc exec -T mysql sh -c 'command -v mariadb-dump' </dev/null >/dev/null 2>&1; then
+        dump_cmd='mariadb-dump'
+    else
+        dump_cmd='mysqldump'
+    fi
+    dc exec -T mysql "${dump_cmd}" -u root -proot --all-databases --routines --triggers --events
+}
+
+##
+# Import a database dump from stdin. Automatically detects MariaDB vs MySQL.
+import_database() {
+    # Detect the client command without consuming stdin (the dump comes via stdin)
+    local import_cmd
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if dc exec -T mysql sh -c 'command -v mariadb' </dev/null >/dev/null 2>&1; then
+        import_cmd='mariadb'
+    else
+        import_cmd='mysql'
+    fi
+    dc exec -T mysql "${import_cmd}" -u root -proot
 }
 
 selenium_video_start() {
@@ -154,7 +246,56 @@ install_configure() {
     # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
     # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
     _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
-    _exec sh -c 'OPENEMR_ENABLE_INSTALLER_AUTO=1 php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'
+    # InstallerAuto goes through the Installer class, which RootCliGuard
+    # refuses to run as root (PR #12267, def8758). Drop to the web user
+    # for the subprocess — same approach as the upgradeOpenEMR override
+    # below. The openemr-devops devtools change will eventually carry the
+    # same privilege drop; until that lands, the ci library wraps locally.
+    # Web user differs between stacks (apache image: apache, nginx image:
+    # www-data); web_user_in_openemr probes both.
+    local web_user
+    web_user=$(web_user_in_openemr)
+    _exec sh -c "OPENEMR_ENABLE_INSTALLER_AUTO=1 su -p -s /bin/sh ${web_user} -c 'php -f ./contrib/util/installScripts/InstallerAuto.php rootpass=root server=mysql loginhost=%'"
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_portal_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "oauth_password_grant"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_system_scopes_api"' openemr
+    _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 3 WHERE gl_name = "ccda_alt_service_enable"' openemr
+}
+
+##
+# Reseed the database from the flex image's 5.0.0 demo dump and run the
+# upgrade chain to current — the same flow developers hit locally via
+# `openemr-cmd drid` (dev-reset-install-demodata). install_configure must
+# have completed first so sqlconf.php exists for sql_upgrade.php to find
+# the database.
+post_install_upgrade() {
+    # Run only the demoData portion of openemr-cmd drid: drop the fresh
+    # install's tables, reseed from /root/demo_5_0_0_5.sql, run
+    # sql_upgrade.php --from=5.0.0 through every sql/*upgrade.sql file
+    # to current, and re-encode to utf8mb4. The full drid sequence
+    # (dev-reset-install-demodata) also runs resetOpenemr + installOpenemr
+    # first, but resetOpenemr rsyncs from /openemr/sites which only exists
+    # in the dev compose (read-only second bind mount) — the CI compose
+    # has no such mount, so the rsync silently fails and leaves
+    # sites/default/config.php missing, which then crashes sql_upgrade.php
+    # before any migration runs. install_configure has already established
+    # the install for us, so we just need the schema-migration half.
+    #
+    # devtoolsLibrary.source uses bash-style [[ ]]; the container's
+    # /bin/sh is busybox ash which supports it. prepareVariables() reads
+    # MYSQL_HOST and MYSQL_ROOT_PASS from the env (the dev compose sets
+    # these on the openemr service; the CI compose does not). Export
+    # rather than the `VAR=val cmd` form — demoData also references
+    # $MYSQL_HOST / $MYSQL_ROOT_PASS directly, and the inline form would
+    # scope them only to the prepareVariables call.
+    _exec sh -c 'export MYSQL_HOST=mysql MYSQL_ROOT_PASS=root && . /root/devtoolsLibrary.source && prepareVariables && demoData'
+
+    # demoData drops all tables and reseeds from the 5.0.0 dump (which
+    # has its own globals values), so the CI-specific globals that
+    # install_configure set originally are gone. Re-apply.
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'INSERT INTO product_registration (opt_out) VALUES (1)' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_api"' openemr
     _exec mysql -u openemr --password=openemr --ssl=false -h mysql -e 'UPDATE globals SET gl_value = 1 WHERE gl_name = "rest_fhir_api"' openemr
@@ -306,7 +447,6 @@ build_test_e2e() {
     _exec php "${php_args[@]}" ./vendor/bin/phpunit \
         --log-junit junit-e2e.xml \
         --testsuite e2e \
-        --testdox \
         "${e2e_coverage_args[@]}"
     status=$?
     set -e
@@ -333,6 +473,152 @@ build_test_e2e() {
     fi
 
     return "${status}"
+}
+
+##
+# Verify that OpenEMR is healthy after a Redis master failover.
+#
+# Steps:
+#  1. Confirm the app is healthy before touching Redis
+#  2. Stop the redis-master container to trigger sentinel election
+#  3. Poll until sentinel reports the new master as clean (flags == "master")
+#  4. Confirm the app recovers within the post-failover window
+#  5. Restart redis-master so it re-joins as a replica (leaves cluster intact)
+build_test_redis_failover() {
+    local sentinel_container="sentinel-1"
+    local sentinel_master_name="redis-master"
+    local max_failover_wait=90
+    local poll_interval=3
+
+    # Detect TLS mode so redis-cli commands use the right flags.
+    # The openemr container carries the authoritative env vars.
+    local -a redis_cli_tls_args=()
+    local tls_label=""
+    local _tls _x509
+    _tls=$(docker compose exec -T openemr printenv REDIS_TLS 2>/dev/null) || _tls=""
+    if [[ "${_tls}" == "yes" ]]; then
+        redis_cli_tls_args=(--tls --cacert /certs/ca.crt)
+        tls_label=" (TLS)"
+        _x509=$(docker compose exec -T openemr printenv REDIS_X509 2>/dev/null) || _x509=""
+        if [[ "${_x509}" == "yes" ]]; then
+            redis_cli_tls_args+=(--cert /certs/client.crt --key /certs/client.key)
+            tls_label=" (mTLS)"
+        fi
+    fi
+
+    echo "=== Redis Sentinel${tls_label} Failover Test ==="
+
+    # Step 0: run PHPUnit locking integration tests against the healthy cluster
+    echo "Step 0: Running Redis session locking integration tests..."
+    phpunit --testsuite redis-sentinel
+    echo ""
+
+    # Step 1: health check before failover
+    echo "Step 1: Verifying OpenEMR health before failover..."
+    _exec curl -fsSL --insecure --max-time 15 https://localhost/meta/health/readyz
+    echo ""
+
+    # Step 1.5: write a test value to Redis before the failover.
+    # After failover we verify this value survived on the promoted replica,
+    # proving replication preserved session data.
+    echo "Step 1.5: Writing pre-failover test value to Redis..."
+    # shellcheck disable=SC2016
+    _exec php -r '
+        require "/var/www/localhost/htdocs/openemr/vendor/autoload.php";
+        $r = (new \OpenEMR\Common\Session\Predis\SentinelUtil())->configureClient();
+        $r->set("oe:failover-test", "pre-failover-data");
+        echo "Written: " . $r->get("oe:failover-test") . "\n";
+    '
+    echo ""
+
+    # Step 2: stop the master
+    echo "Step 2: Stopping redis-master to trigger sentinel failover..."
+    dc stop redis-master
+
+    # Step 3: poll sentinel until a clean master is elected.
+    # Wait for sentinel to detect the failure first — down-after-milliseconds
+    # is 5000 ms, so at 0 s the old master still appears healthy.
+    echo "Step 3: Waiting for sentinel to detect failure and elect a new master (up to ${max_failover_wait}s)..."
+    sleep 7
+    local elapsed=7
+    while true; do
+        # SENTINEL master <name> returns alternating field/value pairs;
+        # extract the value on the line following "flags".
+        # Sentinels have no requirepass in this config so no -a flag.
+        # Use docker compose directly (not the dc() wrapper) so SC2310 is not
+        # triggered by a bash function appearing in a || condition.
+        local flags
+        flags=$(docker compose exec -T "${sentinel_container}" \
+            redis-cli "${redis_cli_tls_args[@]}" -p 26379 \
+            SENTINEL master "${sentinel_master_name}" 2>/dev/null \
+            | awk '/^"?flags"?$/{getline; print}' | tr -d '"' 2>/dev/null) || flags="unavailable"
+
+        echo "  Sentinel master flags: '${flags}' (${elapsed}s elapsed)"
+
+        if [[ "${flags}" == "master" ]]; then
+            echo "  New master elected."
+            break
+        fi
+
+        if (( elapsed >= max_failover_wait )); then
+            echo "ERROR: Sentinel failover did not complete within ${max_failover_wait}s"
+            docker compose exec -T "${sentinel_container}" \
+                redis-cli "${redis_cli_tls_args[@]}" -p 26379 \
+                SENTINEL master "${sentinel_master_name}" || true
+            return 1
+        fi
+
+        sleep "${poll_interval}"
+        (( elapsed += poll_interval )) || true
+    done
+
+    # Step 4: verify the app recovers — retry for up to 60 s because Predis
+    # creates a fresh client per request, so the first request after failover
+    # may still hit a brief connection window before the new master is stable
+    echo "Step 4: Verifying OpenEMR health after failover (up to 60s)..."
+    local retry=0
+    while true; do
+        # Use docker compose exec directly (not _exec wrapper) so SC2310 is not
+        # triggered by a bash function appearing in a || condition.
+        local health_status=0
+        local health_body=""
+        health_body=$(docker compose exec -T openemr curl -fsSL --insecure --max-time 15 https://localhost/meta/health/readyz 2>/dev/null) || health_status=$?
+        # readyz returns HTTP 200 even for errors; check the body for "error" status
+        if [[ "${health_status}" -eq 0 && "${health_body}" != *'"status":"error"'* ]]; then
+            echo "  ${health_body}"
+            echo "  OpenEMR is healthy after failover."
+            break
+        fi
+        (( retry++ )) || true
+        if (( retry >= 12 )); then
+            echo "ERROR: OpenEMR did not recover within 60s after sentinel failover"
+            return 1
+        fi
+        echo "  Health check attempt ${retry}/12 failed, retrying in 5s..."
+        sleep 5
+    done
+
+    # Step 4.5: verify the pre-failover test value survived on the promoted replica.
+    echo "Step 4.5: Verifying pre-failover data survived on new master..."
+    # shellcheck disable=SC2016
+    _exec php -r '
+        require "/var/www/localhost/htdocs/openemr/vendor/autoload.php";
+        $r = (new \OpenEMR\Common\Session\Predis\SentinelUtil())->configureClient();
+        $v = $r->get("oe:failover-test");
+        if ($v !== "pre-failover-data") {
+            fwrite(STDERR, "FAIL: expected \"pre-failover-data\", got \"" . ($v ?? "null") . "\"\n");
+            exit(1);
+        }
+        echo "Verified: " . $v . "\n";
+        $r->del("oe:failover-test");
+    '
+    echo ""
+
+    # Step 5: bring redis-master back so it rejoins as a replica
+    echo "Step 5: Restarting redis-master (will rejoin cluster as a replica)..."
+    dc start redis-master
+
+    echo "=== Redis Sentinel${tls_label} Failover Test PASSED ==="
 }
 
 ##
@@ -382,7 +668,7 @@ phpunit() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
         php_args+=( -d xdebug.mode=coverage )
     fi
-    _exec php "${php_args[@]}" ./vendor/bin/phpunit --testdox "${args[@]}"
+    _exec php "${php_args[@]}" ./vendor/bin/phpunit "${args[@]}"
 }
 
 ##
@@ -407,6 +693,9 @@ build_test() {
              return
              ;;
         e2e) build_test_e2e "$@"
+             return
+             ;;
+        redis-failover) build_test_redis_failover "$@"
              return
              ;;
         *) :;;

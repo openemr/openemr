@@ -1,15 +1,16 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //ensure user has proper access
@@ -18,6 +19,10 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 }
 
 require_once("gacl_admin.inc.php");
+
+/** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
+/** @var \ADOConnection $db */
+/** @var \Smarty $smarty */
 
 //GET takes precedence.
 if ( isset($_GET['object_type']) AND $_GET['object_type'] != '' ) {
@@ -93,7 +98,7 @@ switch ($postAction) {
     default:
         $query = "select id,value,order_value,name from $object_sections_table order by order_value";
 
-        $rs = $db->pageexecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
+        $rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
         $rows = $rs->GetRows();
 
         $sections = [];
@@ -139,7 +144,7 @@ $smarty->assign('page_title', 'Edit '. strtoupper($object_type) .' Sections');
 $smarty->assign("phpgacl_version", $gacl_api->get_version() );
 $smarty->assign("phpgacl_schema_version", $gacl_api->get_schema_version() );
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
 $smarty->display('phpgacl/edit_object_sections.tpl');
 ?>

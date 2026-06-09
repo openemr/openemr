@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
+
 require_once(__DIR__ . '/../../../library/api.inc.php');
 
 
@@ -35,7 +37,7 @@ function phq9_report($pid, $encounter, $cols, $id): void
         print "<table><tr>";
         foreach ($data as $key => $value) {
 // include scores_array and total for backward compatibility
-            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" || $key == "scores_array" || $key == "total" || $value == "0000-00-00 00:00:00") {
+            if (in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || Utilities::isDateEmpty($value) || $key == "scores_array" || $key == "total") {
                 continue;
             }
             if ($key == "difficulty") {

@@ -29,12 +29,17 @@
 
 require_once("../../globals.php");
 
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+$webserver_root = \OpenEMR\Core\OEGlobalsBag::getInstance()->getProjectDir();
+// fetchNextXAppts() (in library/appointments.inc.php) writes $resNotNull via the
+// global keyword to signal whether the appointments query returned a non-null result.
+$resNotNull = false;
+require_once($srcdir . "/lists.inc.php");
+require_once($srcdir . "/patient.inc.php");
+require_once($srcdir . "/options.inc.php");
 require_once("../history/history.inc.php");
-require_once("$srcdir/clinical_rules.php");
-require_once("$srcdir/group.inc.php");
+require_once($srcdir . "/clinical_rules.php");
+require_once($srcdir . "/group.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -46,25 +51,24 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
-use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
+use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
-use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!isset($pid)) {
     $pid = $session->get('pid') ?? $_GET['pid'] ?? null;
@@ -72,13 +76,13 @@ if (!isset($pid)) {
 
 // Reset the previous name flag to allow normal operation.
 // This is set in new.php so we can prevent new previous name from being added i.e no pid available.
-OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
+SessionUtil::setSession('disablePreviousNameAdds', 0);
 
 $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
 // Set session for pid (via setpid). Also set session for encounter (if applicable)
 if (isset($_GET['set_pid'])) {
-    require_once("$srcdir/pid.inc.php");
+    require_once($srcdir . "/pid.inc.php");
     setpid($_GET['set_pid']);
     $ptService = new PatientService();
     $newPatient = $ptService->findByPid($pid);
@@ -96,16 +100,13 @@ $smartLaunchController = new SMARTLaunchController(OEGlobalsBag::getInstance()->
 $smartLaunchController->registerContextEvents();
 $hiddenCards = getHiddenDashboardCards();
 
-/**
- * @var EventDispatcher
- */
 $ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 $active_reminders = false;
 $all_allergy_alerts = false;
-if ($GLOBALS['enable_cdr']) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
     //CDR Engine stuff
-    if ($GLOBALS['enable_allergy_check'] && $GLOBALS['enable_alert_log']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('enable_allergy_check') && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
         //Check for new allergies conflicts and throw popup if any exist(note need alert logging to support this)
         $new_allergy_alerts = allergy_conflict($pid, 'new', $session->get('authUser'));
         if (!empty($new_allergy_alerts)) {
@@ -118,10 +119,10 @@ if ($GLOBALS['enable_cdr']) {
     }
 
     $alertNotifyPid = $session->get('alert_notify_pid');
-    if ((empty($alertNotifyPid) || ($alertNotifyPid != $pid)) && isset($_GET['set_pid']) && $GLOBALS['enable_cdr_crp']) {
+    if ((empty($alertNotifyPid) || ($alertNotifyPid != $pid)) && isset($_GET['set_pid']) && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_crp')) {
         // showing a new patient, so check for active reminders and allergy conflicts, which use in active reminder popup
         $active_reminders = active_alert_summary($pid, "reminders-due", '', 'default', $session->get('authUser'), true);
-        if ($GLOBALS['enable_allergy_check']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('enable_allergy_check')) {
             $all_allergy_alerts = allergy_conflict($pid, 'all', $session->get('authUser'), true);
         }
     }
@@ -132,7 +133,7 @@ if ($GLOBALS['enable_cdr']) {
     }
 }
 //Check to see is only one insurance is allowed
-$insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+$insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 function getHiddenDashboardCards(): array
 {
@@ -192,9 +193,9 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND c.id = cd.category_id
             AND c.name LIKE ?
             ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
-    }
-    while ($result = sqlFetchArray($query)) {
-        $results[] = $result['id'];
+        while ($result = sqlFetchArray($query)) {
+            $results[] = $result['id'];
+        }
     }
     return ($results ?? false);
 }
@@ -202,7 +203,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
 function isPortalEnabled(): bool
 {
     if (
-        !$GLOBALS['portal_onsite_two_enable']
+        !OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')
     ) {
         return false;
     }
@@ -215,7 +216,7 @@ function isPortalSiteAddressValid(): bool
     if (
         // maybe can use filter_var() someday but the default value in GLOBALS
         // fails with FILTER_VALIDATE_URL
-        !isset($GLOBALS['portal_onsite_two_address'])
+        !OEGlobalsBag::getInstance()->has('portal_onsite_two_address')
     ) {
         return false;
     }
@@ -270,7 +271,7 @@ function isContactEmail($pid): bool
 function isEnforceSigninEmailPortal(): bool
 {
     if (
-        $GLOBALS['enforce_signin_email']
+        OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')
     ) {
         return true;
     }
@@ -289,11 +290,12 @@ function deceasedDays($days_deceased)
         $num_of_days = $deceased_days . " " . xl("days ago");
     } elseif ($deceased_days >= 90 && $deceased_days < 731) {
         $num_of_days = "~" . round($deceased_days / 30) . " " . xl("months ago");  // function intdiv available only in php7
-    } elseif ($deceased_days >= 731) {
+    } else {
+        // $deceased_days is >= 731 here (covered by the prior elseif chain).
         $num_of_days = xl("More than") . " " . round($deceased_days / 365) . " " . xl("years ago");
     }
 
-    if (strlen($days_deceased['date_deceased'] ?? '') > 10 && $GLOBALS['date_display_format'] < 1) {
+    if (strlen($days_deceased['date_deceased'] ?? '') > 10 && OEGlobalsBag::getInstance()->get('date_display_format') < 1) {
         $deceased_date = substr((string) $days_deceased['date_deceased'], 0, 10);
     } else {
         $deceased_date = oeFormatShortDate($days_deceased['date_deceased'] ?? '');
@@ -312,7 +314,7 @@ function image_widget($doc_id, $doc_catg): void
     $docobj = new Document($doc_id);
     $image_file = $docobj->get_url_file();
     $image_file_name = $docobj->get_name();
-    $image_width = $GLOBALS['generate_doc_thumb'] == 1 ? '' : 'width=100';
+    $image_width = OEGlobalsBag::getInstance()->getBoolean('generate_doc_thumb') ? '' : 'width=100';
     $extension = substr((string) $image_file_name, strrpos((string) $image_file_name, "."));
     $viewable_types = ['.png', '.jpg', '.jpeg', '.png', '.bmp', '.PNG', '.JPG', '.JPEG', '.PNG', '.BMP'];
     if (in_array($extension, $viewable_types)) { // extension matches list
@@ -380,7 +382,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <head>
     <?php
     Header::setupHeader(['common', 'utility']);
-    require_once("$srcdir/options.js.php");
+    require_once($srcdir . "/options.js.php");
     ?>
     <script>
         // Process click on diagnosis for referential cds popup.
@@ -415,7 +417,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 patient: <?php echo js_escape($pid); ?>
             });
             dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
@@ -451,7 +453,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 0,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             } else {
                 $(target).find(".indicator").text(<?php echo xlj('collapse'); ?>);
@@ -459,7 +461,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 1,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             }
         }
@@ -496,7 +498,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             let csrf = new FormData;
             // a security given.
-            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
             if (embedded === true) {
                 // special formatting in certain widgets.
                 csrf.append("embeddedScreen", true);
@@ -542,7 +544,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $(function () {
             var msg_updation = '';
             <?php
-            if ($GLOBALS['erx_enable']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
                 $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", [$pid]);
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
             top.restoreSession();
@@ -591,7 +593,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
 
                     <?php
-                    if ($GLOBALS['erx_import_status_message']) { ?>
+                    if (OEGlobalsBag::getInstance()->getBoolean('erx_import_status_message')) { ?>
             if (msg_updation)
                 alert(msg_updation);
                         <?php
@@ -611,7 +613,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $(this).on("click", ".complete_btn", function () {
                     let btn = $(this);
                     let csrf = new FormData;
-                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                     fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')), {
                         method: "POST",
                         credentials: 'same-origin',
@@ -629,7 +631,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             placeHtml("vitals_fragment.php", "vitals_ps_expand");
             <?php } ?>
 
-            <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr') && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_crw')) { ?>
             placeHtml("clinical_reminders_fragment.php", "clinical_reminders_ps_expand", true, true).then(() => {
                 // (note need to place javascript code here also to get the dynamic link to work)
                 $(".medium_modal").on('click', function (e) {
@@ -651,7 +653,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 });
                 $(".cdr-rule-btn-info-launch").on("click", function (e) {
                     let pid = <?php echo js_escape($pid); ?>;
-                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
+                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
                     let ruleId = $(this).data("ruleId");
                     const params = new URLSearchParams({
                         action: 'review!view',
@@ -659,7 +661,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         pid: pid,
                         rule_id: ruleId
                     });
-                    let launchUrl = "<?php echo $GLOBALS['webroot']; ?>/interface/super/rules/index.php?" + params;
+                    let launchUrl = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/rules/index.php?" + params;
                     e.preventDefault();
                     e.stopPropagation();
                     // as we're loading another iframe, make sure to sync session
@@ -709,7 +711,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php } // end crw
             ?>
 
-            <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_cdr') && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_prw')) { ?>
             placeHtml("patient_reminders_fragment.php", "patient_reminders_ps_expand", false, true);
             <?php } // end prw
             ?>
@@ -725,7 +727,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ORDER BY grp_seq, grp_title");
             while ($gfrow = sqlFetchArray($gfres)) { ?>
             $(<?php echo js_escape("#" . $gfrow['grp_form_id'] . "_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>, {
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             });
             <?php } ?>
             tabbify();
@@ -843,7 +845,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 });
             }
 
-            <?php if ($GLOBALS['patient_birthday_alert']) {
+            <?php if (OEGlobalsBag::getInstance()->get('patient_birthday_alert')) {
             // To display the birthday alert:
             //  1. The patient is not deceased
             //  2. The birthday is today (or in the past depending on global selection)
@@ -896,7 +898,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
             }
             let formData = new FormData();
-            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>);
+            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
             top.restoreSession();
@@ -950,6 +952,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
             parent.left_nav.syncRadios();
             <?php if ((isset($_GET['set_pid'])) && (isset($_GET['set_encounterid'])) && (intval($_GET['set_encounterid']) > 0)) {
+                $encounter = (int)$_GET['set_encounterid'];
                 $query_result = sqlQuery("SELECT `date` FROM `form_encounter` WHERE `encounter` = ?", [$encounter]); ?>
             const encParams = new URLSearchParams({
                 pid: <?php echo js_escape($pid); ?>,
@@ -983,7 +986,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
       } */
 
       <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($session->get('language_direction') == 'ltr')) { ?>
+        if (OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics') && ($session->get('language_direction') == 'ltr')) { ?>
       div.tab td.label_custom, div.label_custom {
         text-align: right !important;
       }
@@ -1049,7 +1052,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
-    $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
+    $viewEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
@@ -1069,8 +1072,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
-            require_once("$include_root/patient_file/summary/dashboard_header.php");
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
+            require_once($webserver_root . "/interface/patient_file/summary/dashboard_header.php");
         endif;
 
         $list_id = "dashboard"; // to indicate nav item is active, count and give correct id
@@ -1079,8 +1082,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $menuPatient->displayHorizNavBarMenu();
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
-        if ($GLOBALS['patient_id_category_name']) {
-            $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name'], 3);
+        if (OEGlobalsBag::getInstance()->getString('patient_id_category_name')) {
+            $idcard_doc_id = get_document_by_catg($pid, OEGlobalsBag::getInstance()->getString('patient_id_category_name'), 3);
         }
         ?>
         <div class="main mb-1">
@@ -1092,7 +1095,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
                 $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
                 $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
-                $rx = !$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx') && !in_array('card_prescriptions', $hiddenCards) ? 1 : 0;
+                $rx = !OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions') && AclMain::aclCheckCore('patients', 'rx') && !in_array('card_prescriptions', $hiddenCards) ? 1 : 0;
                 $cards = max(1, ($allergy + $pl + $meds));
                 $col = "p-1 ";
                 $colInt = 12 / $cards;
@@ -1125,7 +1128,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/allergies.html.twig', $viewArgs);
@@ -1149,7 +1152,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'listTouched' => (!empty(getListTouch($pid, 'medical_problem'))) ? true : false,
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
@@ -1171,7 +1174,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'listTouched' => (!empty(getListTouch($pid, 'medication'))) ? true : false,
                         'auth' => true,
                         'btnLabel' => 'Edit',
-                        'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
+                        'btnLink' => "return load_location('" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                     ];
                     echo "<div class=\"$col\">";
                     echo $t->render('patient/card/medication.html.twig', $viewArgs);
@@ -1180,7 +1183,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 // Render the Prescriptions card if turned on
                 if ($rx === 1) :
-                    if ($GLOBALS['erx_enable'] && ($display_current_medications_below ?? '') == 1) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && ($display_current_medications_below ?? '') == 1) {
                         $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
                         $res = sqlStatement($sql, [$pid]);
 
@@ -1216,12 +1219,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
                     ];
 
-                    if ($GLOBALS['erx_enable']) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
                         $viewArgs['title'] = 'Prescription History';
                         $viewArgs['btnLabel'] = 'Add';
-                        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
+                        $viewArgs['btnLink'] = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/eRx.php?page=compose";
+                        $viewArgs['linkMethod'] = 'html';
                     } else {
-                        $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+                        $viewArgs['btnLink'] = "editScripts('" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                         $viewArgs['linkMethod'] = "javascript";
                         $viewArgs['btnClass'] = "iframe";
                     }
@@ -1233,7 +1237,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // a Twig template. This reduces the amount of refactoring that is required but ideally the
                     // Smarty template should be upgraded to Twig
                     ob_start();
-                    echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
+                    echo $c->dispatch(['controller' => 'prescription', 'action' => 'fragment', 'patient_id' => $pid]);
                     $viewArgs['content'] = ob_get_contents();
                     ob_end_clean();
 
@@ -1335,7 +1339,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('primary'), SectionEvent::EVENT_HANDLE);
                     $sectionRenderEvents->addCard(new DemographicsViewCard($result, $result2, ['dispatcher' => $ed]));
 
-                    if (!$GLOBALS['hide_billing_widget']) {
+                    if (!OEGlobalsBag::getInstance()->getBoolean('hide_billing_widget')) {
                         $sectionRenderEvents->addCard(new BillingViewCard($pid, $insco_name, $result['billing_note'], $result3, ['dispatcher' => $ed]));
                     }
 
@@ -1347,7 +1351,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     // if anyone wants to render anything before the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
+                    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
 
                     foreach ($sectionCards as $card) {
                         $_auth = $card->getAcl();
@@ -1396,7 +1400,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end if notes authorized
 
-                    if (AclMain::aclCheckCore('patients', 'reminder') && $GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_prw']) :
+                    if (AclMain::aclCheckCore('patients', 'reminder') && OEGlobalsBag::getInstance()->getBoolean('enable_cdr') && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_prw')) :
                         // patient reminders collapse widget
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('reminder'), CardRenderEvent::EVENT_HANDLE);
                         $id = "patient_reminders_ps_expand";
@@ -1440,7 +1444,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                     endif; // end if disclosures authorized
 
-                    if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) :
+                    if (OEGlobalsBag::getInstance()->getBoolean('amendments') && AclMain::aclCheckCore('patients', 'amendment')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('amendment'), CardRenderEvent::EVENT_HANDLE);
                         // Amendments widget
                         $sql = "SELECT * FROM amendments WHERE pid = ? ORDER BY amendment_date DESC";
@@ -1456,7 +1460,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'btnLabel' => 'Edit',
-                            'btnLink' => $GLOBALS['webroot'] . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
+                            'btnLink' => OEGlobalsBag::getInstance()->getWebRoot() . "/interface/patient_file/summary/list_amendments.php?id=" . attr_url($pid),
                             'btnCLass' => '',
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
@@ -1526,7 +1530,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
+                    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
 
                     // This generates a section similar to Vitals for each LBF form that
                     // supports charting.  The form ID is used as the "widget label".
@@ -1544,6 +1548,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         if ($LBF_ACO && !AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
                             continue;
                         }
+
+                        $vitals_form_id = $gfrow['option_id'];
 
                         // vitals expand collapse widget
                         $widgetAuth = false;
@@ -1574,10 +1580,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <!-- start right column div -->
                     <?php
                     $_extAccess = [
-                        $GLOBALS['portal_onsite_two_enable'],
-                        $GLOBALS['rest_fhir_api'],
-                        $GLOBALS['rest_api'],
-                        $GLOBALS['rest_portal_api'],
+                        OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable'),
+                        OEGlobalsBag::getInstance()->get('rest_fhir_api'),
+                        OEGlobalsBag::getInstance()->get('rest_api'),
+                        OEGlobalsBag::getInstance()->get('rest_portal_api'),
                     ];
                     foreach ($_extAccess as $_) {
                         if ($_) {
@@ -1622,7 +1628,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
 
-                    if ($GLOBALS['erx_enable']) :
+                    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('demographics'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render('patient/partials/erx.html.twig', [
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
@@ -1631,7 +1637,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     // If there is an ID Card or any Photos show the widget
-                    $photos = pic_array($pid, $GLOBALS['patient_photo_category_name']);
+                    $photos = pic_array($pid, OEGlobalsBag::getInstance()->getString('patient_photo_category_name'));
                     if ($photos or $idcard_doc_id) {
                         $id = "photos_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('patient_photo'), CardRenderEvent::EVENT_HANDLE);
@@ -1643,8 +1649,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => "javascript",
                             'bodyClass' => 'collapse show',
                             'auth' => false,
-                            'patientIDCategoryID' => $GLOBALS['patient_id_category_name'],
-                            'patientPhotoCategoryName' => $GLOBALS['patient_photo_category_name'],
+                            'patientIDCategoryID' => OEGlobalsBag::getInstance()->getString('patient_id_category_name'),
+                            'patientPhotoCategoryName' => OEGlobalsBag::getInstance()->getString('patient_photo_category_name'),
                             'photos' => $photos,
                             'idCardDocID' => $idcard_doc_id,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
@@ -1654,7 +1660,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     // Advance Directives
-                    if ($GLOBALS['advance_directives_warning']) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('advance_directives_warning')) {
                         // advance directives expand collapse widget
 
                         $counterFlag = false; //flag to record whether any categories contain ad records
@@ -1718,8 +1724,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Show Clinical Reminders for any user that has rules that are permitted.
                     $clin_rem_check = resolve_rules_sql('', '0', true, '', $session->get('authUser'));
-                    $cdr = $GLOBALS['enable_cdr'];
-                    $cdr_crw = $GLOBALS['enable_cdr_crw'];
+                    $cdr = OEGlobalsBag::getInstance()->getBoolean('enable_cdr');
+                    $cdr_crw = OEGlobalsBag::getInstance()->getBoolean('enable_cdr_crw');
                     if (!empty($clin_rem_check) && $cdr && $cdr_crw && AclMain::aclCheckCore('patients', 'alert')) {
                         // clinical summary expand collapse widget
                         $id = "clinical_reminders_ps_expand";
@@ -1745,20 +1751,22 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // Show current and upcoming appointments.
                     // Recurring appointment support and Appointment Display Sets
                     // added to Appointments by Ian Jardine ( epsdky ).
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
+                    if (isset($pid) && !OEGlobalsBag::getInstance()->getBoolean('disable_calendar') && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayAppts = true;
                         $current_date2 = date('Y-m-d');
                         $events = [];
-                        $apptNum = (int)$GLOBALS['number_of_appts_to_show'];
+                        $apptNum = OEGlobalsBag::getInstance()->getInt('number_of_appts_to_show');
                         $apptNum2 = ($apptNum != 0) ? abs($apptNum) : 10;
 
-                        $mode1 = !$GLOBALS['appt_display_sets_option'];
-                        $colorSet1 = $GLOBALS['appt_display_sets_color_1'];
-                        $colorSet2 = $GLOBALS['appt_display_sets_color_2'];
-                        $colorSet3 = $GLOBALS['appt_display_sets_color_3'];
-                        $colorSet4 = $GLOBALS['appt_display_sets_color_4'];
+                        $mode1 = !OEGlobalsBag::getInstance()->getBoolean('appt_display_sets_option');
+                        $colorSet1 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_1');
+                        $colorSet2 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_2');
+                        $colorSet3 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_3');
+                        $colorSet4 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_4');
                         $extraAppts = ($mode1) ? 1 : 6;
                         $extraApptDate = '';
+                        $firstApptIndx = 0;
+                        $bgColor = $colorSet1;
 
                         $past_appts = [];
                         $recallArr = [];
@@ -1839,10 +1847,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         foreach ($events as $row) {
                             $count++;
                             $dayname = date("D", strtotime((string) $row['pc_eventDate']));
-                            $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
+                            $displayMeridiem = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? "" : "am";
                             $disphour = substr((string) $row['pc_startTime'], 0, 2) + 0;
                             $dispmin = substr((string) $row['pc_startTime'], 3, 2);
-                            if ($disphour >= 12 && $GLOBALS['time_display_format'] == 1) {
+                            if ($disphour >= 12 && OEGlobalsBag::getInstance()->get('time_display_format') == 1) {
                                 $displayMeridiem = "pm";
                                 if ($disphour > 12) {
                                     $disphour -= 12;
@@ -1869,7 +1877,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             }
@@ -1916,7 +1924,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     /* Widget that shows recurrences for appointments. */
                     $recurr = [];
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && $GLOBALS['appt_recurrences_widget'] && AclMain::aclCheckCore('patients', 'appt')) {
+                    if (isset($pid) && !OEGlobalsBag::getInstance()->getBoolean('disable_calendar') && OEGlobalsBag::getInstance()->getBoolean('appt_recurrences_widget') && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayRecurrAppts = true;
                         $count = 0;
                         $toggleSet = true;
@@ -1942,14 +1950,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // Show PAST appointments.
                     // added by Terry Hill to allow reverse sorting of the appointments
                     $direction = '1';
-                    if ($GLOBALS['num_past_appointments_to_show'] < 0) {
+                    if (OEGlobalsBag::getInstance()->getInt('num_past_appointments_to_show') < 0) {
                         $direction = '2';
-                        ($showpast = -1 * $GLOBALS['num_past_appointments_to_show']);
+                        ($showpast = -1 * OEGlobalsBag::getInstance()->getInt('num_past_appointments_to_show'));
                     } else {
-                        $showpast = $GLOBALS['num_past_appointments_to_show'];
+                        $showpast = OEGlobalsBag::getInstance()->getInt('num_past_appointments_to_show');
                     }
 
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {
+                    if (isset($pid) && !OEGlobalsBag::getInstance()->getBoolean('disable_calendar') && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayPastAppts = true;
 
                         $pastAppts = fetchXPastAppts($pid, $showpast, $direction); // This line added by epsdky
@@ -1959,12 +1967,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         foreach ($pastAppts as $row) {
                             $count++;
                             $dayname = date("D", strtotime((string) $row['pc_eventDate']));
-                            $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
+                            $displayMeridiem = (OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? "" : "am";
                             $disphour = substr((string) $row['pc_startTime'], 0, 2) + 0;
                             $dispmin = substr((string) $row['pc_startTime'], 3, 2);
                             if ($disphour >= 12) {
                                 $displayMeridiem = "pm";
-                                if ($disphour > 12 && $GLOBALS['time_display_format'] == 1) {
+                                if ($disphour > 12 && OEGlobalsBag::getInstance()->get('time_display_format') == 1) {
                                     $disphour -= 12;
                                 }
                             }
@@ -1975,7 +1983,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $row['etitle'] = $petitle;
 
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;
@@ -1988,7 +1996,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // END of past appointments
 
                     // Display the Appt card only if user has permission
-                    if (isset($pid) && !$GLOBALS['disable_calendar'] && AclMain::aclCheckCore('patients', 'appt')) {
+                    if (isset($pid) && !OEGlobalsBag::getInstance()->getBoolean('disable_calendar') && AclMain::aclCheckCore('patients', 'appt')) {
                         $id = "appointments_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render('patient/card/appointments.html.twig', [
@@ -2038,8 +2046,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($thisauth) :
                         echo $twig->getTwig()->render('patient/partials/delete.html.twig', [
                             'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
-                            'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
-                            'csrf' => CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()),
+                            'allowPatientDelete' => OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete'),
+                            'csrf' => CsrfUtils::collectCsrfToken(session: $session),
                             'pid' => $pid
                         ]);
                     endif;

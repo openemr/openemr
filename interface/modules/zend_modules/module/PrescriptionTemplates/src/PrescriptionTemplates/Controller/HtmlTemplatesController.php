@@ -21,7 +21,6 @@
 
 namespace PrescriptionTemplates\Controller;
 
-
 /**
  * Class HtmlTemplatesController
  * Here you can add custom html template for print prescription.

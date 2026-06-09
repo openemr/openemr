@@ -15,8 +15,10 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/LogIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Viewer.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/LogIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Viewer.php';
 
 class Form_Log implements LogIF
 {
@@ -58,18 +60,18 @@ class Form_Log implements LogIF
 
     public function getViewScript()
     {
-        return $GLOBALS['srcdir'] . '/ESign/views/default/esign_signature_log.php';
+        return OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/views/default/esign_signature_log.php';
     }
 
     /**
      * Check if the log is viewable.
      *
-     * @return boolean
+     * @return bool
      */
     public function isViewable()
     {
         $viewable = false;
-        if ($GLOBALS['esign_individual']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('esign_individual')) {
             $viewable = true;
         }
 

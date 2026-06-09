@@ -15,8 +15,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\EncounterValidator;
 use PHPUnit\Framework\TestCase;
 
 class EncounterValidatorTest extends TestCase

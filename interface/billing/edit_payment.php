@@ -22,14 +22,29 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
-
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RawPostParser;
+use OpenEMR\Common\Http\RawPostParserException;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/payment.inc.php');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$CountIndexAbove = 0;
+$CountIndexBelow = 0;
+$TypeCode = '';
+$AccountCode = '';
+$AdjustString = '';
+$bgcolor = '';
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Confirm Payment", xl("Confirm Payment"));
@@ -39,11 +54,15 @@ $screen = 'edit_payment';
 
 $recorder = new Recorder();
 
+/** @var string|null $saveError User-visible error when the body could not be re-parsed. */
+$saveError = null;
+
 // Deletion of payment distribution code
 
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePaymentDistribution") {
-        $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim($_POST['DeletePaymentDistributionId']) : '');
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+        $DeletePaymentDistributionId = (isset($_POST['DeletePaymentDistributionId']) ? trim((string) $_POST['DeletePaymentDistributionId']) : '');
         $DeletePaymentDistributionIdArray = explode('_', $DeletePaymentDistributionId);
         $payment_id = $DeletePaymentDistributionIdArray[0];
         $PId = $DeletePaymentDistributionIdArray[1];
@@ -73,7 +92,34 @@ if (isset($_POST["mode"])) {
 //Modify Payment Code.
 //===============================================================================
 
-if (isset($_POST["mode"])) {
+// CSRF + raw-body re-parse for the two mutating modes. Done in a top
+// guard block so a parser failure can fail closed: $saveError is set, the
+// existing write block below short-circuits on it, and the page renders
+// the banner instead of silently committing a partial post.
+$paymentMode = filter_input(INPUT_POST, 'mode');
+if (in_array($paymentMode, ['ModifyPayments', 'FinishPayments'], true)) {
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    try {
+        // ModifyPayments posts one Payment$CountRow, AdjAmount$CountRow,
+        // etc. set per encounter row. For patients with many encounters
+        // this exceeds PHP's max_input_vars and silently truncates $_POST.
+        // applyToGlobals re-parses the raw body and also rebuilds $_REQUEST
+        // so loop-bound reads (CountIndexAbove/Below) see the full payload.
+        RawPostParser::fromGlobals()->applyToGlobals();
+    } catch (RawPostParserException $e) {
+        $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. No payments were modified.');
+        ServiceContainer::getLogger()->error('raw POST parse failed', [
+            'component' => 'edit_payment',
+            'mode' => $paymentMode,
+            'payment_id' => filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT),
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
+    }
+}
+
+if ($saveError === null && isset($_POST["mode"])) {
     if ($_POST["mode"] == "ModifyPayments" || $_POST["mode"] == "FinishPayments") {
         $payment_id = $_REQUEST['payment_id'];
         //ar_session Code
@@ -87,7 +133,7 @@ if (isset($_POST["mode"])) {
             $updatedValues['patient_id'] = trimPost('hidden_type_code');
         }
 
-        $user_id = $_SESSION['authUserID'];
+        $user_id = $session->get('authUserID');
         $closed = 0;
         $modified_time = date('Y-m-d H:i:s');
         $check_date = DateToYYYYMMDD(trimPost('check_date'));
@@ -121,10 +167,12 @@ if (isset($_POST["mode"])) {
 
         // This becomes MUCH more straightforward with actual dbal, but this is
         // still safe from SQLI since the keys are all string literals.
-        $query = 'UPDATE ar_session SET ';
-        $updates = array_map(fn ($col) => sprintf('`%s`=?', $col), array_keys($updatedValues));
-        $query .= implode(', ', $updates);
-        $query .= 'WHERE session_id = ?';
+        $updates = array_map(fn ($col) => sprintf('`%s` = ?', $col), array_keys($updatedValues));
+        $query = implode(' ', [
+            'UPDATE ar_session SET',
+            implode(', ', $updates),
+            'WHERE session_id = ?',
+        ]);
         $params = array_values($updatedValues);
         $params[] = $payment_id;
         sqlStatement($query, $params);
@@ -132,7 +180,7 @@ if (isset($_POST["mode"])) {
         $CountIndexAbove = $_REQUEST['CountIndexAbove'];
         $CountIndexBelow = $_REQUEST['CountIndexBelow'];
         $hidden_patient_code = $_REQUEST['hidden_patient_code'];
-        $user_id = $_SESSION['authUserID'];
+        $user_id = $session->get('authUserID');
         $created_time = date('Y-m-d H:i:s');
         //==================================================================
         //UPDATION
@@ -175,7 +223,7 @@ if (isset($_POST["mode"])) {
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
                         'reasonCode' => trimPost("ReasonCode$CountRow"),
-                        'postUser' => trim(add_escape_custom($user_id)),
+                        'postUser' => trim((string) add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => trimPost("Payment$CountRow"),
                         'adjustmentAmount' => '0.0',
@@ -208,7 +256,7 @@ if (isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim(add_escape_custom($user_id)),
+                        'postUser' => trim((string) add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => trimPost("AdjAmount$CountRow"),
@@ -234,7 +282,7 @@ if (isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim(add_escape_custom($user_id)),
+                        'postUser' => trim((string) add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => '0.0',
@@ -260,7 +308,7 @@ if (isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim(add_escape_custom($user_id)),
+                        'postUser' => trim((string) add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => strval(floatval(trimPost("Takeback$CountRow")) * -1),
                         'adjustmentAmount' => '0.0',
@@ -285,7 +333,7 @@ if (isset($_POST["mode"])) {
                         'code' => trimPost("HiddenCode$CountRow"),
                         'modifier' => trimPost("HiddenModifier$CountRow"),
                         'payerType' => trimPost("HiddenIns$CountRow"),
-                        'postUser' => trim(add_escape_custom($user_id)),
+                        'postUser' => trim((string) add_escape_custom($user_id)),
                         'sessionId' => trimPost('payment_id'),
                         'payAmount' => '0.0',
                         'adjustmentAmount' => '0.0',
@@ -356,8 +404,8 @@ $ResultSearchSub = sqlStatement(
     <script>
     const mypcc = '1';
     </script>
-    <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
         function ModifyPayments() {//Used while modifying the allocation
             if (!FormValidations())//FormValidations contains the form checks
@@ -514,7 +562,7 @@ $ResultSearchSub = sqlStatement(
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -573,6 +621,11 @@ $ResultSearchSub = sqlStatement(
 </head>
 <body class="body_top" onload="OnloadAction()">
     <div class="container-fluid">
+        <?php if ($saveError !== null) { ?>
+            <div class="alert alert-danger m-2" role="alert" id="payment-save-error">
+                <?php echo text($saveError); ?>
+            </div>
+        <?php } ?>
         <?php
         if (($_REQUEST['ParentPage'] ?? '') == 'new_payment') {
             ?>
@@ -608,6 +661,7 @@ $ResultSearchSub = sqlStatement(
         $onclick = empty($payment_id) ? "top.restoreSession();return SavePayment();" : "return false;";
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <?php
             if (!empty($payment_id)) { ?>
             <fieldset>

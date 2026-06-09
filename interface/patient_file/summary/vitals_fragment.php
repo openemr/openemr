@@ -13,10 +13,12 @@
 require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-    CsrfUtils::csrfNotVerified();
-}
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 ?>
 <div id='vitals''><!--outer div-->
@@ -37,7 +39,7 @@ if (!$result) { //If there are no disclosures recorded
   </b></span>
   <br />
   <br />
-    <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
+    <?php include_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/forms/vitals/report.php");
     vitals_report('', '', 1, $result['id']);
     ?>  <span class='text'>
   <br />

@@ -4,7 +4,7 @@
  * Webhook receiver for Rainforest data
  *
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright (c) 2026 OpenCoreEMR, Inc
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @link      https://docs.rainforestpay.com/docs/payin-webhooks
  * @package   OpenEMR
@@ -21,13 +21,13 @@ require_once 'interface/globals.php';
 use Http\Discovery\Psr17Factory;
 use Lcobucci\Clock\SystemClock;
 use Monolog\Logger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{
     Dispatcher,
     RecordPayment,
     Verifier,
 };
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Core\OEGlobalsBag;
 
 $gb = OEGlobalsBag::getInstance();
 
@@ -36,10 +36,10 @@ if ($mid === '') {
     throw new InvalidArgumentException('rainforest_merchant_id config is missing.');
 }
 
-$crypto = new CryptoGen();
+$crypto = ServiceContainer::getCrypto();
 $whv = new Verifier(
     clock: SystemClock::fromSystemTimezone(),
-    webhookSecret: $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'))
+    webhookSecret: $crypto->decryptFromDatabase($gb->getString('rainforest_webhook_secret'))
 );
 
 $req = (new Psr17Factory())->createServerRequestFromGlobals();

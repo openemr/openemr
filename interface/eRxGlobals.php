@@ -10,8 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Services\VersionService;
+use OpenEMR\BC\ServiceContainer;
 
 class eRxGlobals
 {
@@ -49,15 +48,8 @@ class eRxGlobals
         if (array_key_exists($key, $this->configuration)) {
             return $this->configuration[$key];
         }
-    }
 
-    /**
-     * Return the version of OpenEMR
-     * @return string OpenEMR version
-     */
-    public function getOpenEMRVersion()
-    {
-        return (new VersionService())->asString();
+        return null;
     }
 
     /**
@@ -71,7 +63,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx service
-     * @return boolean Ensora eRx service enabled state
+     * @return bool Ensora eRx service enabled state
      */
     public function getEnabled()
     {
@@ -98,7 +90,7 @@ class eRxGlobals
 
     /**
      * Return the Ensora eRx allergies time-to-live
-     * @return integer Time-to-live in seconds for Ensora eRx allergies
+     * @return int Time-to-live in seconds for Ensora eRx allergies
      */
     public function getTTLSoapAllergies()
     {
@@ -107,7 +99,7 @@ class eRxGlobals
 
     /**
      * Return the Ensora eRx medications time-to-live
-     * @return integer Time-to-live in seconds for Ensora eRx medications
+     * @return int Time-to-live in seconds for Ensora eRx medications
      */
     public function getTTLSoapMedications()
     {
@@ -138,8 +130,9 @@ class eRxGlobals
      */
     public function getAccountPassword()
     {
-        $cryptoGen = new CryptoGen();
-        return $cryptoGen->decryptStandard($this->getGlobalValue('erx_account_password'));
+        $cryptoGen = ServiceContainer::getCrypto();
+        $value = $this->getGlobalValue('erx_account_password');
+        return $cryptoGen->decryptFromDatabase(is_string($value) ? $value : null);
     }
 
     /**
@@ -153,7 +146,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx only upload prescriptions
-     * @return boolean Ensora eRx only upload prescriptions enabled state
+     * @return bool Ensora eRx only upload prescriptions enabled state
      */
     public function getUploadActive()
     {
@@ -162,7 +155,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx import status message
-     * @return boolean Ensora eRx import status message enabled state
+     * @return bool Ensora eRx import status message enabled state
      */
     public function getImportStatusMessage()
     {
@@ -171,7 +164,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx display medications uploaded
-     * @return boolean Ensora eRx display medications uploaded enabled state
+     * @return bool Ensora eRx display medications uploaded enabled state
      */
     public function getDisplayMedication()
     {
@@ -180,7 +173,7 @@ class eRxGlobals
 
     /**
      * Return enable state for Ensora eRx display allergies uploaded
-     * @return boolean Ensora eRx display allergies uploaded enabled state
+     * @return bool Ensora eRx display allergies uploaded enabled state
      */
     public function getDisplayAllergy()
     {
@@ -211,7 +204,7 @@ class eRxGlobals
 
     /**
      * Return Debug Ensora eRx settings
-     * @return integer Debug settings: flags [ 1 = XML, 2 = RESULT ]
+     * @return int Debug settings: flags [ 1 = XML, 2 = RESULT ]
      */
     public function getDebugSetting()
     {

@@ -58,8 +58,13 @@ rules:
       # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
   - pattern: generate_display_field(...)
   - pattern: generate_select_list(...)
+      # OpenEMR layout editor functions (interface/super/edit_layout.php) - use attr()/text() internally
+  - pattern: genLayoutOptions(...)
+  - pattern: genGroupSelector(...)
       # JSON encoding - safe for HTML context (encodes special chars)
   - pattern: json_encode(...)
+      # CSRF token - returns 40-char hex substring of HMAC-SHA256 (src/Common/Csrf/CsrfUtils.php)
+  - pattern: CsrfUtils::collectCsrfToken(...)
   fix: echo attr($...VARS);
   metadata:
     technology:
@@ -142,8 +147,13 @@ rules:
       # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
   - pattern: generate_display_field(...)
   - pattern: generate_select_list(...)
+      # OpenEMR layout editor functions (interface/super/edit_layout.php) - use attr()/text() internally
+  - pattern: genLayoutOptions(...)
+  - pattern: genGroupSelector(...)
       # JSON encoding - safe for HTML context (encodes special chars)
   - pattern: json_encode(...)
+      # CSRF token - returns 40-char hex substring of HMAC-SHA256 (src/Common/Csrf/CsrfUtils.php)
+  - pattern: CsrfUtils::collectCsrfToken(...)
   fix: print attr($...VARS);
   metadata:
     technology:

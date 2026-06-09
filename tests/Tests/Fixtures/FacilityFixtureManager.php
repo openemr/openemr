@@ -21,11 +21,12 @@ use OpenEMR\Tests\Fixtures\BaseFixtureManager;
  */
 class FacilityFixtureManager extends BaseFixtureManager
 {
+    /** @var array<string, mixed>[] */
     private $fhirFacilityFixtures;
 
     public function __construct()
     {
-        parent::__construct("facility.json", "facility");
+        parent::__construct("facility.php", "facility");
         $this->fhirFacilityFixtures = $this->loadJsonFile("FHIR/facility.json");
     }
 
@@ -38,7 +39,7 @@ class FacilityFixtureManager extends BaseFixtureManager
     }
 
     /**
-     * @return single/random fhir facility fixture
+     * @return array<string, mixed> a single random fhir facility fixture
      */
     public function getSingleFhirFacilityFixture()
     {
@@ -55,7 +56,7 @@ class FacilityFixtureManager extends BaseFixtureManager
 
 
     /**
-     * @return a random facility fixture.
+     * @return array<string, mixed>
      */
     public function getSingleFacilityFixture()
     {
@@ -66,16 +67,6 @@ class FacilityFixtureManager extends BaseFixtureManager
      * Installs Facility Fixtures into the OpenEMR DB.
      */
     public function installFacilityFixtures()
-    {
-        return $this->installFixtures();
-    }
-
-    /**
-     * Installs a single Facility Fixtures into the OpenEMR DB.
-     * @param $facilityFixture - The fixture to install.
-     * @return count of records inserted.
-     */
-    public function installSingleFacilityFixture($facilityFixture)
     {
         return $this->installFixtures();
     }

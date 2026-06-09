@@ -1,15 +1,16 @@
 <?php
+
 //First make sure user has access
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 //ensure user has proper access
@@ -52,6 +53,7 @@ switch ($postAction) {
 
         //Parse the form values
         //foreach ($_POST['delete_assigned_aro'] as $aro_value) {
+        $selected_object_array = [];
         foreach ($_POST['delete_assigned_object'] as $object_value) {
             $split_object_value = explode('^', (string) $object_value);
             $selected_object_array[$split_object_value[0]][] = $split_object_value[1];
@@ -76,6 +78,7 @@ switch ($postAction) {
         //showarray($_POST['selected_'.$_POST['group_type']]);
         //Parse the form values
         //foreach ($_POST['selected_aro'] as $aro_value) {
+        $selected_object_array = [];
         foreach ($_POST['selected_'.$_POST['group_type']] as $object_value) {
             $split_object_value = explode('^', (string) $object_value);
             $selected_object_array[$split_object_value[0]][] = $split_object_value[1];
@@ -126,6 +129,7 @@ switch ($postAction) {
         unset($tmp_section_value);
 
         if (is_object($rs)) {
+            $i = 0;
             while ($row = $rs->FetchRow()) {
                 //list($section_value, $value, $name) = $row;
 
@@ -157,7 +161,7 @@ switch ($postAction) {
 		FROM	'. $group_map_table .' a
 		INNER JOIN	'. $table .' b ON b.id=a.'. $group_type .'_id
 		INNER JOIN	'. $group_sections_table .' c ON c.value=b.section_value
-		WHERE   a.group_id='. $db->qstr($_GET['group_id']) .'
+		WHERE   a.group_id='. $db->qStr($_GET['group_id']) .'
 		ORDER BY c.name, b.name';
     //$rs = $db->Execute($query);
         $rs = $db->PageExecute($query, $gacl_api->_items_per_page, ($_GET['page'] ?? null));
@@ -205,7 +209,7 @@ $smarty->assign('page_title', 'Assign Group - '. strtoupper($group_type));
 $smarty->assign('phpgacl_version', $gacl_api->get_version() );
 $smarty->assign('phpgacl_schema_version', $gacl_api->get_schema_version() );
 
-$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+$smarty->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
 $smarty->display('phpgacl/assign_group.tpl');
 ?>

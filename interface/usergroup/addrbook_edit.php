@@ -15,21 +15,21 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Address Book", xl("Address Book"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Collect user id if editing entry
@@ -177,7 +177,7 @@ function addrbook_invalue(string $name): string
     // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Need to fetch more
     const params = new URLSearchParams({
-        csrf_token: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     if (npi) params.append('number', npi);
     if (firstName) params.append('first_name', firstName + '*');
@@ -574,7 +574,7 @@ if ($type) { // note this only happens when its new
 </script>
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <!-- NPI Lookup Results Container -->
 <div id="npi-lookup-results"></div>
@@ -879,7 +879,7 @@ if ($type) { // note this only happens when its new
 
 <input type='submit' class='btn btn-primary' name='form_save' value='<?php echo xla('Save'); ?>' />
 
-<?php if ($userid && !$row['username']) { ?>
+<?php if ($userid && (($row['username'] ?? '') === '')) { ?>
 &nbsp;
 <input type='submit' class='btn btn-danger' name='form_delete' value='<?php echo xla('Delete'); ?>' />
 <?php } ?>

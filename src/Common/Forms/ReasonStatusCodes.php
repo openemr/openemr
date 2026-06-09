@@ -19,7 +19,10 @@ class ReasonStatusCodes
     const PENDING = "pending";
     const NONE = "";
 
-    public static function getCodesWithDescriptions()
+    /**
+     * @return array<string, array{code: string, description: string}>
+     */
+    public static function getCodesWithDescriptions(): array
     {
         return [
             self::NONE => [

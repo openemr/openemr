@@ -14,10 +14,10 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use Psr\Http\Message\ResponseInterface;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Services\PractitionerService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\PractitionerService;
+use Psr\Http\Message\ResponseInterface;
 
 class PractitionerRestController
 {
