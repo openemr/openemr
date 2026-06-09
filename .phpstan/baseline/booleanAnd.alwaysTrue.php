@@ -8,11 +8,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
 ];

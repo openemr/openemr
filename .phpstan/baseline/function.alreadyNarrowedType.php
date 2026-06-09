@@ -42,21 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/track_anything/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with \'default\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with list\\<array\\{hour\\: int, minute\\: string, mer\\: \'am\'\\|\'pm\'\\}\\> will always evaluate to true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_string\\(\\) with \'\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_countable\\(\\) with list will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',

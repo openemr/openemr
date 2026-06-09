@@ -1530,7 +1530,7 @@ final readonly class CalendarViewModel
             $patientAge = is_int($patientAgeRaw) || is_string($patientAgeRaw) ? (string) $patientAgeRaw : '';
             $patientAddress = is_string($event['patient_address'] ?? null) ? $event['patient_address'] : '';
 
-            $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname'] ?? $parsed['lname']) . " \n";
+            $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname']) . " \n";
             $linkTitle .= attr($patientAddress) . "\n";
             $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
                 . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";

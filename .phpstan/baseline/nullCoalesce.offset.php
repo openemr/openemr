@@ -247,11 +247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lname\' on array\\{lname\\: string, fname\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/PostCalendar/ViewModel/CalendarViewModel.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\' on array\\{\'http\\://hl7\\.org/fhir/us/core/CodeSystem/condition\\-category\\|health\\-concern\'\\: \'Health Concerns\', \'http\\://terminology\\.hl7\\.org/CodeSystem/condition\\-category\\|encounter\\-diagnosis\'\\: \'Encounter Diagnoses\', \'http\\://terminology\\.hl7\\.org/CodeSystem/condition\\-category\\|problem\\-list\\-item\'\\: \'Problem List Items\', \'http\\://terminology\\.hl7\\.org/CodeSystem/observation\\-category\\|clinical\\-test\'\\: \'Clinical Test\', \'http\\://terminology\\.hl7\\.org/CodeSystem/observation\\-category\\|laboratory\'\\: \'Laboratory\', \'http\\://terminology\\.hl7\\.org//CodeSystem\\-observation\\-category\\|social\\-history\'\\: \'Social History\', \'http\\://hl7\\.org/fhir/us/core/CodeSystem/us\\-core\\-category\\|sdoh\'\\: \'Social Determinants…\', \'http\\://terminology\\.hl7\\.org/CodeSystem/observation\\-category\\|survey\'\\: \'Survey\', \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/SMART/ScopePermissionParser.php',

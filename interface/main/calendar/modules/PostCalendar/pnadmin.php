@@ -492,7 +492,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $tpl->assign('globals', $GLOBALS);
     $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
     $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
-    $tpl->assign_by_ref('TPL_NAME', $template_name);
+    $tpl->assign('TPL_NAME', $template_name);
     $tpl->assign('FUNCTION', pnVarCleanFromInput('func'));
     $tpl->assign_by_ref('ModuleName', $modname);
     $tpl->assign_by_ref('ModuleDirectory', $modir);

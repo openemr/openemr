@@ -20,6 +20,7 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\PostCalendar\LegacyInputNarrowing;
 use OpenEMR\PostCalendar\ViewModel\CalendarRenderDataBuilder;
 use OpenEMR\PostCalendar\ViewModel\CalendarViewModel;
 use OpenEMR\PostCalendar\ViewModel\ViewType;
@@ -161,7 +162,10 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     //  Insert necessary JavaScript into the page
     //=================================================================
-    $output = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    $pageSetupResult = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    // pnModAPIFunc returns mixed; the @return string on this function
+    // means we have to narrow it before concatenating + returning.
+    $output = is_string($pageSetupResult) ? $pageSetupResult : '';
 
     if (true) {
         //=================================================================
@@ -527,28 +531,40 @@ function postcalendar_userapi_buildView($args)
     // path below. Each ViewType cuts over in its own focused commit.
     $useNewRenderer = in_array($viewtype, ['month', 'week', 'day'], true);
     if ($useNewRenderer) {
-        $vmType = match (true) {
-            $viewtype === 'month' && (bool) $print => ViewType::MonthPrint,
-            $viewtype === 'week'  && (bool) $print => ViewType::WeekPrint,
-            $viewtype === 'day'   && (bool) $print => ViewType::DayPrint,
-            $viewtype === 'month'                  => ViewType::Month,
-            $viewtype === 'day'                    => ViewType::Day,
-            $viewtype === 'week'                   => ViewType::Week,
-            default                                => ViewType::MonthPrint,
-        };
+        // After the in_array guard, $viewtype is 'month'|'week'|'day'.
+        // Array dispatch avoids the cascade-of-tautologies PHPStan
+        // flags when sequential match arms (or if/elseif chains)
+        // narrow each other (by the third arm, $viewtype would
+        // already be the literal value being compared).
+        $isPrint = (bool) $print;
+        $vmTypeMap = [
+            'month' => $isPrint ? ViewType::MonthPrint : ViewType::Month,
+            'week'  => $isPrint ? ViewType::WeekPrint  : ViewType::Week,
+            'day'   => $isPrint ? ViewType::DayPrint   : ViewType::Day,
+        ];
+        // Lookup is guaranteed-present because the in_array guard
+        // above narrows $viewtype to one of the three map keys.
+        $vmType = $vmTypeMap[$viewtype];
         $vm = new CalendarViewModel(
             viewType: $vmType,
             firstDayOfWeek: (int) pnModGetVar(__POSTCALENDAR__, 'pcFirstDayOfWeek')
         );
         $builder = new CalendarRenderDataBuilder($vm);
         $apptStyle = OEGlobalsBag::getInstance()->getInt('calendar_appt_style');
-        $aEvents = is_array($eventsByDate) ? $eventsByDate : [];
-        $providersList = is_array($provinfo) ? $provinfo : [];
+        // The legacy entry-point variables — $eventsByDate, $provinfo,
+        // $times, $Date, $pc_prev*, etc. — all come from extract()'d
+        // $args and pnVarCleanFromInput() and are mixed-typed at the
+        // PHPStan level. Narrow each into the typed shape the builder
+        // methods expect via LegacyInputNarrowing.
+        $aEvents = LegacyInputNarrowing::dateEvents($eventsByDate ?? null);
+        $providersList = LegacyInputNarrowing::rowList($provinfo ?? null);
+        $shortDayNames = LegacyInputNarrowing::stringList($pc_short_day_names);
+        $dateStr = LegacyInputNarrowing::stringValue($Date);
         // TPL_IMAGE_PATH is what pcSmarty's constructor builds at
         // pcSmarty.class.php:120. Re-build it here from the same inputs
         // so the new path doesn't depend on the legacy class.
-        $pcDirStr = is_string($pcDir) ? $pcDir : '';
-        $tplNameStr = is_string($template_name) ? $template_name : 'default';
+        $pcDirStr = LegacyInputNarrowing::stringValue($pcDir);
+        $tplNameStr = LegacyInputNarrowing::stringValue($template_name, 'default');
         $tplImagePath = OEGlobalsBag::getInstance()->getKernel()->getRootDir()
             . '/main/calendar/modules/' . $pcDirStr . '/pntemplates/' . $tplNameStr . '/images';
 
@@ -556,22 +572,24 @@ function postcalendar_userapi_buildView($args)
             $renderData = $builder->buildWeekPrintRenderData(
                 $aEvents,
                 $providersList,
-                (string) $Date,
-                $pc_short_day_names,
+                $dateStr,
+                $shortDayNames,
                 $apptStyle,
                 $tplImagePath
             );
         } elseif ($vmType === ViewType::DayPrint) {
-            $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
-            $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
+            $intervalInt = LegacyInputNarrowing::intValue(
+                OEGlobalsBag::getInstance()->get('calendar_interval'),
+                30
+            );
             $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
             $renderData = $builder->buildDayPrintRenderData(
                 $aEvents,
                 $providersList,
-                is_array($times) ? $times : [],
+                LegacyInputNarrowing::timeRows($times),
                 $intervalInt,
-                (string) $Date,
-                $pc_short_day_names,
+                $dateStr,
+                $shortDayNames,
                 $apptStyle,
                 $tplImagePath,
                 $isTwelveHourFormat
@@ -610,19 +628,19 @@ function postcalendar_userapi_buildView($args)
             $renderData = $builder->buildMonthScreenRenderData(
                 $aEvents,
                 $providersList,
-                $provinfo ?? [],
-                is_array($facilitiesList) ? $facilitiesList : [],
-                (string) $Date,
-                $pc_short_day_names,
-                is_int($pc_facility) || is_string($pc_facility) ? (int) $pc_facility : 0,
+                LegacyInputNarrowing::rowList($provinfo ?? null),
+                LegacyInputNarrowing::rowList($facilitiesList),
+                $dateStr,
+                $shortDayNames,
+                LegacyInputNarrowing::intValue($pc_facility),
                 $apptStyle,
                 $tplImagePath,
                 OEGlobalsBag::getInstance()->getString('webroot'),
-                (string) $pc_prev,
-                (string) $pc_next,
+                LegacyInputNarrowing::stringValue($pc_prev),
+                LegacyInputNarrowing::stringValue($pc_next),
                 $chevLeft,
                 $chevRight,
-                is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
+                LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $currentMonthLabel
             );
@@ -653,28 +671,30 @@ function postcalendar_userapi_buildView($args)
             $dayHeaderTs = strtotime((string) $Date);
             $dayHeaderLabel = $dayHeaderTs !== false ? dateformat($dayHeaderTs, true) : '';
 
-            $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
-            $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
+            $intervalInt = LegacyInputNarrowing::intValue(
+                OEGlobalsBag::getInstance()->get('calendar_interval'),
+                30
+            );
             $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
 
             $renderData = $builder->buildDayScreenRenderData(
                 $aEvents,
                 $providersList,
-                $provinfo ?? [],
-                is_array($facilitiesList) ? $facilitiesList : [],
-                is_array($times) ? $times : [],
+                LegacyInputNarrowing::rowList($provinfo ?? null),
+                LegacyInputNarrowing::rowList($facilitiesList),
+                LegacyInputNarrowing::timeRows($times),
                 $intervalInt,
-                (string) $Date,
-                $pc_short_day_names,
-                is_int($pc_facility) || is_string($pc_facility) ? (int) $pc_facility : 0,
+                $dateStr,
+                $shortDayNames,
+                LegacyInputNarrowing::intValue($pc_facility),
                 $apptStyle,
                 $tplImagePath,
                 OEGlobalsBag::getInstance()->getString('webroot'),
-                (string) $pc_prev_day,
-                (string) $pc_next_day,
+                LegacyInputNarrowing::stringValue($pc_prev_day),
+                LegacyInputNarrowing::stringValue($pc_next_day),
                 $chevLeft,
                 $chevRight,
-                is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
+                LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $dayHeaderLabel,
                 $isTwelveHourFormat
@@ -703,8 +723,8 @@ function postcalendar_userapi_buildView($args)
             // where the month-names came from the localized pnModAPIFunc('getmonthname')
             // helper. Month::label() now provides the same translated month name.
             $eventDates = array_keys($aEvents);
-            $firstDateTs = !empty($eventDates) ? strtotime((string) $eventDates[0]) : false;
-            $lastDateTs = !empty($eventDates) ? strtotime((string) $eventDates[count($eventDates) - 1]) : false;
+            $firstDateTs = !empty($eventDates) ? strtotime($eventDates[0]) : false;
+            $lastDateTs = !empty($eventDates) ? strtotime($eventDates[count($eventDates) - 1]) : false;
             $weekHeaderLabel = ($firstDateTs !== false && $lastDateTs !== false)
                 ? text(Month::from((int) date('n', $firstDateTs))->label())
                     . ' ' . text(date('d', $firstDateTs))
@@ -713,28 +733,30 @@ function postcalendar_userapi_buildView($args)
                     . ' ' . text(date('d', $lastDateTs))
                 : '';
 
-            $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
-            $intervalInt = is_int($intervalRaw) || is_string($intervalRaw) ? (int) $intervalRaw : 30;
+            $intervalInt = LegacyInputNarrowing::intValue(
+                OEGlobalsBag::getInstance()->get('calendar_interval'),
+                30
+            );
             $isTwelveHourFormat = OEGlobalsBag::getInstance()->getInt('time_display_format') === 1;
 
             $renderData = $builder->buildWeekScreenRenderData(
                 $aEvents,
                 $providersList,
-                $provinfo ?? [],
-                is_array($facilitiesList) ? $facilitiesList : [],
-                is_array($times) ? $times : [],
+                LegacyInputNarrowing::rowList($provinfo ?? null),
+                LegacyInputNarrowing::rowList($facilitiesList),
+                LegacyInputNarrowing::timeRows($times),
                 $intervalInt,
-                (string) $Date,
-                $pc_short_day_names,
-                is_int($pc_facility) || is_string($pc_facility) ? (int) $pc_facility : 0,
+                $dateStr,
+                $shortDayNames,
+                LegacyInputNarrowing::intValue($pc_facility),
                 $apptStyle,
                 $tplImagePath,
                 OEGlobalsBag::getInstance()->getString('webroot'),
-                (string) $pc_prev_week,
-                (string) $pc_next_week,
+                LegacyInputNarrowing::stringValue($pc_prev_week),
+                LegacyInputNarrowing::stringValue($pc_next_week),
                 $chevLeft,
                 $chevRight,
-                is_string($monthSelectorHtml) ? $monthSelectorHtml : '',
+                LegacyInputNarrowing::stringValue($monthSelectorHtml),
                 !OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility'),
                 $weekHeaderLabel,
                 $isTwelveHourFormat
@@ -743,8 +765,8 @@ function postcalendar_userapi_buildView($args)
             $renderData = $builder->buildMonthPrintRenderData(
                 $aEvents,
                 $providersList,
-                (string) $Date,
-                $pc_short_day_names,
+                $dateStr,
+                $shortDayNames,
                 $apptStyle
             );
         }

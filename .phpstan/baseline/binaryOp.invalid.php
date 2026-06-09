@@ -2927,11 +2927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'calendar/\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and "\',\\\\n\\\\t\\\\t              …" results in an error\\.$#',
     'count' => 11,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
@@ -3154,16 +3149,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\' results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and string results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [

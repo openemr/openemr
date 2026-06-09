@@ -75,7 +75,11 @@ function postcalendar_user_view()
         $pc_username = $sessionPcUsername;
     }
 
-    return postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]) . postcalendar_footer();
+    $displayResult = postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]);
+    $footer = postcalendar_footer();
+    $displayStr = is_string($displayResult) ? $displayResult : '';
+    $footerStr = is_string($footer) ? $footer : '';
+    return $displayStr . $footerStr;
 }
 
 /**
@@ -304,11 +308,6 @@ function postcalendar_user_search()
     }
 
     //=================================================================
-    //  Find out what Template we're using
-    //=================================================================
-    $template_name = _SETTING_TEMPLATE !== '' ? _SETTING_TEMPLATE : 'default';
-
-    //=================================================================
     //  Output the search form
     //=================================================================
         $tpl->assign('FORM_ACTION', pnModURL(__POSTCALENDAR__, 'user', 'search'));
@@ -508,8 +507,11 @@ function postcalendar_user_search()
     // from session.language_direction inside a [-php-] block).
     $languageDirection = $session->get('language_direction');
     $tpl->assign('body_class', is_string($languageDirection) ? $languageDirection : '');
-    $template_name_str = is_string($template_name) && $template_name !== '' ? $template_name : 'default';
-    $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
-    $return = $pageSetup . $tpl->render('calendar/' . $template_name_str . '/user/ajax_search.html.twig');
-    return $return;
+    $pageSetup = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    $pageSetupStr = is_string($pageSetup) ? $pageSetup : '';
+    // Only the 'default' PostCalendar template set ships with the
+    // codebase (per the earlier tplview removal — see 2f84202232);
+    // hardcoding the template name matches what pnuserapi.php does
+    // for the same render path.
+    return $pageSetupStr . $tpl->render('calendar/default/user/ajax_search.html.twig');
 }
