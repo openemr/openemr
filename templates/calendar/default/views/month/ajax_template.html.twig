@@ -58,6 +58,11 @@
    utility.js, etc.) gets loaded. #}
 {% include 'calendar/default/views/header.html.twig' %}
 
+{# #wrapper is the toggle target the hamburger button (id menu-toggle)
+   keys off: clicking it toggles the `toggled` class here, which the
+   ajax_calendar_sass.scss rules use to slide the sidebar in/out. #}
+<div id="wrapper">
+
 <!-- main navigation -->
 <form name="theform" id="theform" action="index.php?module=PostCalendar&amp;func=view&amp;pc_category=&amp;pc_topic=" method="post" onsubmit="return top.restoreSession()">
 <div class="container-fluid sticky-top">
@@ -213,5 +218,6 @@
 </div>
 </form>
 </div>
+</div><!-- end #wrapper -->
 
 {% include 'calendar/default/views/_calendar_screen_js.html.twig' %}
