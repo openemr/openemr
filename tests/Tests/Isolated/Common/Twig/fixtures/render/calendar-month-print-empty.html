@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- setupHeader stub -->
+    <style>
+        a { text-decoration: none; }
+        td { font-family: Arial, Helvetica, sans-serif; }
+        div.tiny { width: 1px; height: 1px; font-size: 1px; }
+        #bigCalHeader { width: 100%; height: 20%; font-family: Arial, Helvetica, sans-serif; font-size: 1em; }
+        #bigCalText { float: left; }
+        #provname { font-size: 2em; }
+        #daterange { font-size: 1.8em; font-weight: bold; }
+        #bigCal { width: 100%; height: 80%; overflow: hidden; background-color: lightblue; }
+        .pagebreak { page-break-after: always; }
+        .schedule { background-color: pink; vertical-align: top; padding: 0px; margin: 0px; border: 1px solid #999999; }
+        .event_appointment, .event_noshow, .event_in, .event_out, .event_reserved, .event_holiday {
+            overflow: hidden; width: 100%; font-size: 0.8em; border-bottom: 1px solid lightgrey;
+        }
+        .event_appointment { height: 1.4em; }
+        .event_in { background-color: white; width: 100%; }
+        .event_out { background-color: pink; width: 100%; }
+    </style>
+</head>
+<body>
+
+
+    <div id="bigCalHeader">
+        <div id="bigCalText">
+            <span id="provname">Alice Smith</span>
+            <br />
+            <span id="daterange">March 2026</span>
+        </div>
+        <div id="datePicker">
+
+<table>
+    <tr>
+        <td colspan="7" class="tdMonthName-small">April 2026</td>
+    </tr>
+    <tr>
+                    <td class="tdDOW-small">Sun</td>
+                    <td class="tdDOW-small">Mon</td>
+                    <td class="tdDOW-small">Tue</td>
+                    <td class="tdDOW-small">Wed</td>
+                    <td class="tdDOW-small">Thu</td>
+                    <td class="tdDOW-small">Fri</td>
+                    <td class="tdDOW-small">Sat</td>
+            </tr>
+    </table>
+        </div>
+        <div id="datePicker">
+
+<table>
+    <tr>
+        <td colspan="7" class="tdMonthName-small">March 2026</td>
+    </tr>
+    <tr>
+                    <td class="tdDOW-small">Sun</td>
+                    <td class="tdDOW-small">Mon</td>
+                    <td class="tdDOW-small">Tue</td>
+                    <td class="tdDOW-small">Wed</td>
+                    <td class="tdDOW-small">Thu</td>
+                    <td class="tdDOW-small">Fri</td>
+                    <td class="tdDOW-small">Sat</td>
+            </tr>
+    </table>
+        </div>
+    </div>
+
+    <div id="bigCal">
+        <table>
+            <tr>
+                            </tr>
+
+                    </table>
+    </div>
+
+</body>
+</html>
