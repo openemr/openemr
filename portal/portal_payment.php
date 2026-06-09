@@ -119,32 +119,35 @@ if ($_POST['form_save'] ?? '') {
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
-        $payment_id = sqlInsert(
-            "insert into ar_session set " .
-            "payer_id = ?" .
-            ", patient_id = ?" .
-            ", user_id = ?" .
-            ", closed = ?" .
-            ", reference = ?" .
-            ", check_date =  now() , deposit_date = now() " .
-            ",  pay_total = ?" .
-            ", payment_type = 'patient'" .
-            ", description = ?" .
-            ", adjustment_code = 'pre_payment'" .
-            ", post_to_date = now() " .
-            ", payment_method = ?",
-            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
-        );
+        $prepayment = $_REQUEST['form_prepayment'] ?? null;
+        if (is_numeric($prepayment) && (float) $prepayment > 0) {
+            $payment_id = sqlInsert(
+                "insert into ar_session set " .
+                "payer_id = ?" .
+                ", patient_id = ?" .
+                ", user_id = ?" .
+                ", closed = ?" .
+                ", reference = ?" .
+                ", check_date =  now() , deposit_date = now() " .
+                ",  pay_total = ?" .
+                ", payment_type = 'patient'" .
+                ", description = ?" .
+                ", adjustment_code = 'pre_payment'" .
+                ", post_to_date = now() " .
+                ", payment_method = ?",
+                [0, $form_pid, $session->get('authUserID'), 0, $form_source, (float) $prepayment, $NameNew, $form_method]
+            );
 
-        frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
+            frontPayment($form_pid, 0, $form_method, $form_source, (float) $prepayment, 0, $timestamp);//insertion to 'payments' table.
+        }
     }
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            $amount = (float)$payment;
-            if ($amount <= 0) {
+            if (!is_numeric($payment) || (float) $payment <= 0) {
                 continue;
             }
+            $amount = (float) $payment;
 
             $zero_enc = $enc;
 
