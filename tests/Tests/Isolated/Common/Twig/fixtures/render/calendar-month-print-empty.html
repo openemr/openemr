@@ -11,8 +11,49 @@
         #bigCalText { float: left; }
         #provname { font-size: 2em; }
         #daterange { font-size: 1.8em; font-weight: bold; }
-        #bigCal { width: 100%; height: 80%; overflow: hidden; background-color: lightblue; }
+        #bigCal {
+            width: 100%; height: 80%; overflow: hidden; background-color: lightblue;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        #bigCal table { border-collapse: collapse; width: 100%; height: 100%; }
+        #bigCal table th { height: 5%; text-align: center; width: 13%; font-size: 0.7em; }
+        #bigCal table td { height: 15%; white-space: nowrap; overflow: hidden; }
         .pagebreak { page-break-after: always; }
+
+        /* small datepicker DIV */
+        #datePicker {
+            float: right; padding: 5px; text-align: center; background-color: lightblue;
+        }
+        #datePicker td { font-family: Arial, Helvetica, sans-serif; font-size: 0.7em; }
+        #datePicker table { border-collapse: collapse; }
+        #datePicker .tdDOW-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top;
+            background-color: lightblue; text-align: center; border-bottom: 1px solid black;
+            padding: 2px 3px 2px 3px;
+        }
+        #datePicker .tdWeekend-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top;
+            border: none; padding: 2px 3px 2px 3px; background-color: #dddddd; color: #999999;
+        }
+        #datePicker .tdOtherMonthDay-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top;
+            border: none; padding: 2px 3px 2px 3px; background-color: #ffffff; color: #999999;
+        }
+        #datePicker .tdMonthName-small {
+            text-align: center; font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px; font-style: normal;
+        }
+        #datePicker .tdMonthDay-small {
+            font-family: Arial, Helvetica, sans-serif; font-size: 10px; vertical-align: top;
+            border: none; padding: 2px 3px 2px 3px; background-color: #ffffff;
+        }
+        #datePicker .currentWeek {
+            border-top: 1px solid blue; border-bottom: 1px solid blue; background-color: lightblue;
+        }
+        #datePicker .currentDate {
+            border: 1px solid blue; background-color: blue; color: lightblue;
+        }
+
         .schedule { background-color: pink; vertical-align: top; padding: 0px; margin: 0px; border: 1px solid #999999; }
         .event_appointment, .event_noshow, .event_in, .event_out, .event_reserved, .event_holiday {
             overflow: hidden; width: 100%; font-size: 0.8em; border-bottom: 1px solid lightgrey;
