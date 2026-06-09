@@ -658,7 +658,7 @@ final readonly class CalendarRenderDataBuilder
             'showFacilitySelect'      => count($facilities) > 1,
             'showAllFacilitiesOption' => $showAllFacilitiesOption,
             'pc_facility'             => $pcFacility,
-            'facilities'              => $facilities,
+            'facilities'              => self::sanitizeFacilityColors($facilities),
             'provinfo'                => $provinfo,
             'selectedUsernames'       => $selectedUsernames,
             'providersGrid'           => $providersGrid,
@@ -889,7 +889,7 @@ final readonly class CalendarRenderDataBuilder
             'showFacilitySelect'      => count($facilities) > 1,
             'showAllFacilitiesOption' => $showAllFacilitiesOption,
             'pc_facility'             => $pcFacility,
-            'facilities'              => $facilities,
+            'facilities'              => self::sanitizeFacilityColors($facilities),
             'provinfo'                => $provinfo,
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
@@ -1046,7 +1046,7 @@ final readonly class CalendarRenderDataBuilder
             'showFacilitySelect'      => count($facilities) > 1,
             'showAllFacilitiesOption' => $showAllFacilitiesOption,
             'pc_facility'             => $pcFacility,
-            'facilities'              => $facilities,
+            'facilities'              => self::sanitizeFacilityColors($facilities),
             'provinfo'                => $provinfo,
             'selectedUsernames'       => $selectedUsernames,
             'timeRows'                => $timeRows,
@@ -1403,7 +1403,7 @@ final readonly class CalendarRenderDataBuilder
         ?array $facilityRow
     ): array {
         if ($pcFacility === 0 || $pcFacility === $eventFacilityId) {
-            return ['displayBgColor' => $catcolor, 'displayContentHtml' => $contentHtml];
+            return ['displayBgColor' => self::sanitizeCssColor($catcolor), 'displayContentHtml' => $contentHtml];
         }
 
         $facilityName = is_array($facilityRow) && is_string($facilityRow['name'] ?? null)
@@ -1413,6 +1413,65 @@ final readonly class CalendarRenderDataBuilder
             'displayBgColor'     => 'var(--gray300)',
             'displayContentHtml' => "<span class='text-center text-danger'>" . attr($facilityName) . '</span>',
         ];
+    }
+
+    /**
+     * Sanitize the `color` field of each facility row so the templates
+     * can safely embed it into inline style attributes.
+     *
+     * @param  list<array<string, mixed>> $facilities
+     * @return list<array<string, mixed>>
+     */
+    private static function sanitizeFacilityColors(array $facilities): array
+    {
+        $result = [];
+        foreach ($facilities as $facility) {
+            $colorRaw = $facility['color'] ?? '';
+            $facility['color'] = is_string($colorRaw) ? self::sanitizeCssColor($colorRaw) : '';
+            $result[] = $facility;
+        }
+        return $result;
+    }
+
+    /**
+     * Validate a DB-backed color string for safe inclusion in inline
+     * style attributes. Accepts:
+     *
+     *   - #RGB, #RRGGBB, #RRGGBBAA (with or without leading '#')
+     *   - simple lowercase named colors (limited to the CSS color
+     *     keywords actually used by the calendar UI)
+     *
+     * Anything else (untrusted CSS, e.g. `red; background-image:url(...)`)
+     * is dropped to the empty string, which Twig will then render as
+     * `background-color: ;` — visually equivalent to "no color" rather
+     * than letting an admin escape into the surrounding style.
+     */
+    private static function sanitizeCssColor(string $value): string
+    {
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return '';
+        }
+        if (preg_match('/^#?[0-9a-fA-F]{3}$/', $trimmed)) {
+            return str_starts_with($trimmed, '#') ? $trimmed : '#' . $trimmed;
+        }
+        if (preg_match('/^#?[0-9a-fA-F]{6}$/', $trimmed)) {
+            return str_starts_with($trimmed, '#') ? $trimmed : '#' . $trimmed;
+        }
+        if (preg_match('/^#?[0-9a-fA-F]{8}$/', $trimmed)) {
+            return str_starts_with($trimmed, '#') ? $trimmed : '#' . $trimmed;
+        }
+        // A short allowlist of named colors the calendar UI uses.
+        $namedColors = [
+            'transparent', 'inherit', 'currentcolor',
+            'red', 'green', 'blue', 'yellow', 'orange', 'purple',
+            'black', 'white', 'gray', 'grey', 'lightgray', 'lightgrey',
+            'pink', 'lightblue', 'lightgreen', 'lightyellow',
+        ];
+        if (in_array(strtolower($trimmed), $namedColors, true)) {
+            return strtolower($trimmed);
+        }
+        return '';
     }
 
     /**

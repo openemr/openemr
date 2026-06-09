@@ -689,12 +689,13 @@ final readonly class CalendarViewModel
         }
 
         if ($calendarApptStyle === 5) {
-            // Style 5 was a RM-tagged extension in the legacy. Note the
-            // legacy code did NOT pass these through text() — preserved
-            // as-is. The address and comment fields are appended raw.
+            // Style 5 was a RM-tagged extension in the legacy. The legacy
+            // emitted these unescaped which was a stored-XSS path on
+            // patient_address and hometext; escape both with text() here
+            // to close it without changing the legacy field order.
             $addressRaw = $event['patient_address'] ?? '';
             $address = is_string($addressRaw) ? $addressRaw : '';
-            $content .= ', ' . $parsed['fname'] . ' , ' . $address . $comment;
+            $content .= ', ' . text($parsed['fname']) . ' , ' . text($address) . text($comment);
         }
 
         return $content;
@@ -1084,7 +1085,7 @@ final readonly class CalendarViewModel
             $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname']) . " \n";
             $linkTitle .= attr($patientAddress) . "\n";
             $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
-                . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";
+                . xla('DOB') . ': ' . attr($patientDob) . ' ' . attr($comment) . "\n";
             $linkTitle .= '(' . xla('Click to view') . ')';
 
             $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
@@ -1331,7 +1332,7 @@ final readonly class CalendarViewModel
             $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname']) . " \n";
             $linkTitle .= attr($patientAddress) . "\n";
             $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
-                . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";
+                . xla('DOB') . ': ' . attr($patientDob) . ' ' . attr($comment) . "\n";
             $linkTitle .= '(' . xla('Click to view') . ')';
 
             $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';
@@ -1561,7 +1562,7 @@ final readonly class CalendarViewModel
             $linkTitle = attr($parsed['fname']) . ' ' . attr($parsed['lname']) . " \n";
             $linkTitle .= attr($patientAddress) . "\n";
             $linkTitle .= xla('Age') . ': ' . attr($patientAge) . "\n"
-                . xla('DOB') . ': ' . attr($patientDob) . ' ' . $comment . "\n";
+                . xla('DOB') . ': ' . attr($patientDob) . ' ' . attr($comment) . "\n";
             $linkTitle .= '(' . xla('Click to view') . ')';
 
             $patientIdAttr = is_int($patientId) || is_string($patientId) ? (string) $patientId : '';

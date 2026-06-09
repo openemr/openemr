@@ -489,7 +489,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $styleFilterEvent->setContextArgument('viewtype', 'admin');
     $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
-    $tpl->assign('globals', $GLOBALS);
+    // Templates need a small fixed subset of globals; avoid dumping
+    // the whole $GLOBALS into template scope (it exposes secrets,
+    // paths, DB handles, etc.). submit_category.html.twig reads
+    // translate_appt_categories.
+    $tpl->assign('globals', [
+        'translate_appt_categories' => OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories'),
+    ]);
     $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
     $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
     $tpl->assign('TPL_NAME', $template_name);
@@ -678,7 +684,11 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
-    $body .= $output->generateText($tpl->render('calendar/' . $template_name . '/admin/submit_category.html.twig'));
+    // Only the 'default' PostCalendar template set ships with the
+    // codebase (per 2f84202232's tplview removal); hardcoding the
+    // path matches what pnuserapi.php does and avoids letting the
+    // admin-set pcTemplate value reach Twig's FilesystemLoader.
+    $body .= $output->generateText($tpl->render('calendar/default/admin/submit_category.html.twig'));
     $body .= $output->generateText(postcalendar_footer());
     return $output->GetOutput($body);
 }

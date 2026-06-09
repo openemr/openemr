@@ -502,7 +502,13 @@ function postcalendar_user_search()
     $datepicker_xl = ob_get_clean();
     $tpl->assign('datepicker_xl', is_string($datepicker_xl) ? $datepicker_xl : '');
 
-    $tpl->assign('globals', $GLOBALS);
+    // Templates need a small fixed subset of globals; avoid dumping
+    // the whole $GLOBALS into template scope (it exposes secrets,
+    // paths, DB handles, etc.). ajax_search.html.twig reads
+    // images_static_relative for the provinfo icon.
+    $tpl->assign('globals', [
+        'images_static_relative' => OEGlobalsBag::getInstance()->getString('images_static_relative'),
+    ]);
     // header.html.twig reads body_class from the consumer (legacy got it
     // from session.language_direction inside a [-php-] block).
     $languageDirection = $session->get('language_direction');

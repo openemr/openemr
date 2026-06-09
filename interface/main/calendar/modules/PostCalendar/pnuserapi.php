@@ -788,13 +788,13 @@ function postcalendar_userapi_buildView($args)
             echo "<html><head>";
             echo "</head><body>\n";
             echo $output;
-            echo $newTpl->render("calendar/$template_name/views/$viewtype/default.html.twig");
+            echo $newTpl->render("calendar/default/views/$viewtype/default.html.twig");
             echo postcalendar_footer();
             echo "\n</body></html>";
             exit;
         }
         $output .= "\n\n<!-- START POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
-        $output .= $newTpl->render("calendar/$template_name/views/$viewtype/default.html.twig");
+        $output .= $newTpl->render("calendar/default/views/$viewtype/default.html.twig");
         $output .= "\n\n<!-- END POSTCALENDAR OUTPUT [-: HTTP://POSTCALENDAR.TV :-] -->\n\n";
         return $output;
     }
