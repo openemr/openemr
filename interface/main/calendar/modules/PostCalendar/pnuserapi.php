@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
+use OpenEMR\Common\Calendar\Month;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
@@ -598,12 +599,12 @@ function postcalendar_userapi_buildView($args)
             $sessionAuthorizedUser = $session->get('authorizeduser');
             $facilitiesList = $sessionAuthorizedUser == 1 ? getFacilities() : getUserFacilities($sessionAuthUserID);
 
-            // Month-screen page header — legacy was xlt(date('F', $ts)) . ' ' . text(date('Y', $ts)).
-            // That translates the English month name via the translation catalog (less
-            // sophisticated than dateformat() but matches what the legacy emitted).
+            // Month-screen page header — month name via Month::label() (translated +
+            // statically-extractable), year via text(date('Y')).
             $currentMonthLabelTs = strtotime((string) $Date);
             $currentMonthLabel = $currentMonthLabelTs !== false
-                ? xlt(date('F', $currentMonthLabelTs)) . ' ' . text(date('Y', $currentMonthLabelTs))
+                ? text(Month::from((int) date('n', $currentMonthLabelTs))->label())
+                    . ' ' . text(date('Y', $currentMonthLabelTs))
                 : '';
 
             $renderData = $builder->buildMonthScreenRenderData(
@@ -700,15 +701,16 @@ function postcalendar_userapi_buildView($args)
 
             // Week-screen page header — legacy emitted "$first_month_name $first_day - $last_month_name $last_day"
             // where the month-names came from the localized pnModAPIFunc('getmonthname')
-            // helper. Using xlt(date('F')) + text(date('d')) approximates that with the
-            // same xlt-on-English-month-name pattern used elsewhere in OpenEMR templates.
+            // helper. Month::label() now provides the same translated month name.
             $eventDates = array_keys($aEvents);
             $firstDateTs = !empty($eventDates) ? strtotime((string) $eventDates[0]) : false;
             $lastDateTs = !empty($eventDates) ? strtotime((string) $eventDates[count($eventDates) - 1]) : false;
             $weekHeaderLabel = ($firstDateTs !== false && $lastDateTs !== false)
-                ? xlt(date('F', $firstDateTs)) . ' ' . text(date('d', $firstDateTs))
+                ? text(Month::from((int) date('n', $firstDateTs))->label())
+                    . ' ' . text(date('d', $firstDateTs))
                     . ' - '
-                    . xlt(date('F', $lastDateTs)) . ' ' . text(date('d', $lastDateTs))
+                    . text(Month::from((int) date('n', $lastDateTs))->label())
+                    . ' ' . text(date('d', $lastDateTs))
                 : '';
 
             $intervalRaw = OEGlobalsBag::getInstance()->get('calendar_interval');
