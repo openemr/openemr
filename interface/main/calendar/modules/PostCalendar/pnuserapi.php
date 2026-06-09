@@ -162,17 +162,6 @@ function postcalendar_userapi_buildView($args)
     //=================================================================
     $output = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
 
-    //=================================================================
-    //  Throwaway CalendarRenderer to absorb the legacy $tpl->assign()
-    //  calls in the variable-setup block below. Those assigns are dead
-    //  — my CalendarRenderer path further down reads from the local
-    //  variables ($eventsByDate, $provinfo, $times, etc.) directly, not
-    //  via $tpl->getVar. Stripping the ~35 dead assign lines is a
-    //  separate cleanup commit; for now they no-op into this throwaway
-    //  instance which then gets garbage-collected.
-    //=================================================================
-    $tpl = new CalendarRenderer();
-
     if (true) {
         //=================================================================
         //  Let's just finish setting things up
@@ -239,9 +228,7 @@ function postcalendar_userapi_buildView($args)
         }
 
         // passing the times array to the tpl the times array is for the days schedule
-        $tpl->assign_by_ref("times", $times);
         // load the table width to the template
-        // $tpl->assign("day_td_width",$GLOBALS['day_view_td_width']);
 
         //=================================================================
         //  Week View is a bit of a pain in the ass, so we need to
@@ -498,7 +485,6 @@ function postcalendar_userapi_buildView($args)
         $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
 
         if (isset($calendarView)) {
-            $tpl->assign_by_ref('CAL_FORMAT', $calendarView);
         }
 
         if ($viewtype == "week") {
@@ -516,17 +502,12 @@ function postcalendar_userapi_buildView($args)
                 }
             }
 
-            $tpl->assign("last_blocks", $last_blocks);
         }
 
-        $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
-        $tpl->assign('show_days', $show_days);
 
         //$provinfo[count($provinfo) +1] = array("id" => "","lname" => "Other");
-        $tpl->assign_by_ref('providers', $provinfo);
 
         if (pnVarCleanFromInput("show_days") != 1) {
-            $tpl->assign('showdaysurl', "index.php?" . $_SERVER['QUERY_STRING'] . "&show_days=1");
         }
 
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
@@ -538,33 +519,6 @@ function postcalendar_userapi_buildView($args)
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
         $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
-        $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
-        $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
-        $tpl->assign('interval', OEGlobalsBag::getInstance()->get('calendar_interval'));
-        $tpl->assign_by_ref('VIEW_TYPE', $viewtype);
-        $tpl->assign_by_ref('A_MONTH_NAMES', $pc_month_names);
-        $tpl->assign_by_ref('A_LONG_DAY_NAMES', $pc_long_day_names);
-        $tpl->assign_by_ref('A_SHORT_DAY_NAMES', $pc_short_day_names);
-        $tpl->assign_by_ref('S_LONG_DAY_NAMES', $daynames);
-        $tpl->assign_by_ref('S_SHORT_DAY_NAMES', $sdaynames);
-        $tpl->assign_by_ref('A_EVENTS', $eventsByDate);
-        $tpl->assign_by_ref('A_CATEGORY', $all_categories);
-        $tpl->assign_by_ref('PREV_MONTH_URL', $pc_prev);
-        $tpl->assign_by_ref('NEXT_MONTH_URL', $pc_next);
-        $tpl->assign_by_ref('PREV_DAY_URL', $pc_prev_day);
-        $tpl->assign_by_ref('NEXT_DAY_URL', $pc_next_day);
-        $tpl->assign_by_ref('PREV_WEEK_URL', $pc_prev_week);
-        $tpl->assign_by_ref('NEXT_WEEK_URL', $pc_next_week);
-        $tpl->assign_by_ref('PREV_YEAR_URL', $pc_prev_year);
-        $tpl->assign_by_ref('NEXT_YEAR_URL', $pc_next_year);
-        $tpl->assign_by_ref('WEEK_START_DATE', $week_view_start);
-        $tpl->assign_by_ref('WEEK_END_DATE', $week_view_end);
-        $tpl->assign_by_ref('MONTH_START_DATE', $month_view_start);
-        $tpl->assign_by_ref('MONTH_END_DATE', $month_view_end);
-        $tpl->assign_by_ref('TODAY_DATE', $today_date);
-        $tpl->assign_by_ref('DATE', $Date);
-        $tpl->assign('SCHEDULE_BASE_URL', pnModURL(__POSTCALENDAR__, 'user', 'submit'));
-        $tpl->assign_by_ref('intervals', $intervals);
     };
 
     // Progressive rollout: month_print uses the new CalendarRenderer +
