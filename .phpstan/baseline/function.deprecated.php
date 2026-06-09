@@ -629,24 +629,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserIDInfo\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function privQuery\\(\\)\\:
-Use the standard DB connections instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function privStatement\\(\\)\\:
-Use the standard DB connections instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/get_patient_info.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function getUserIDInfo\\(\\)\\:
-7\\.0\\.3 see UserSettingsService\\:\\:getUserIDInfo$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [

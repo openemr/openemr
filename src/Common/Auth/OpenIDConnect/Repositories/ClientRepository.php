@@ -15,6 +15,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -89,7 +90,7 @@ class ClientRepository implements ClientRepositoryInterface
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $cryptoGen = $this->getCryptoGen();
-            $info['client_secret'] = $cryptoGen->encryptStandard(is_string($info['client_secret']) ? $info['client_secret'] : null);
+            $info['client_secret'] = $cryptoGen->encryptForDatabase(is_string($info['client_secret']) ? $info['client_secret'] : null);
         }
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
@@ -195,7 +196,11 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (ServiceContainer::getCrypto())->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
+                try {
+                    $secret = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+                } catch (CryptoGenException) {
+                    return false;
+                }
                 if (empty($secret)) {
                     return false;
                 }

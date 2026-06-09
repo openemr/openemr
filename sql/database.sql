@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 538
+-- v_database: 539
 --
 
 --
@@ -12714,27 +12714,27 @@ CREATE TABLE ccda_field_mapping (
 --
 
 DROP TABLE IF EXISTS `ccda`;
-CREATE TABLE ccda (
-  id INT(11) NOT NULL AUTO_INCREMENT,
+CREATE TABLE `ccda` (
+  `id` INT(11) NOT NULL AUTO_INCREMENT,
   `uuid` binary(16) DEFAULT NULL,
-  pid BIGINT(20) DEFAULT NULL,
-  encounter BIGINT(20) DEFAULT NULL,
-  ccda_data LONGTEXT,
-  time VARCHAR(50) DEFAULT NULL,
-  status SMALLINT(6) DEFAULT NULL,
-  updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  user_id VARCHAR(50) null,
-  couch_docid VARCHAR(100) NULL,
-  couch_revid VARCHAR(100) NULL,
+  `pid` BIGINT(20) DEFAULT NULL,
+  `encounter` BIGINT(20) DEFAULT NULL,
+  `ccda_data` LONGTEXT,
+  `time` VARCHAR(50) DEFAULT NULL,
+  `status` SMALLINT(6) DEFAULT NULL,
+  `updated_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `user_id` VARCHAR(50) null,
+  `couch_docid` VARCHAR(100) NULL,
+  `couch_revid` VARCHAR(100) NULL,
   `hash` varchar(255) DEFAULT NULL,
   `view` tinyint(4) NOT NULL DEFAULT '0',
   `transfer` tinyint(4) NOT NULL DEFAULT '0',
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
   `transaction_id` BIGINT(20) COMMENT 'fk to transaction referral record',
-  PRIMARY KEY (id),
+  PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`),
-  UNIQUE KEY unique_key (pid,encounter,time)
+  UNIQUE KEY `unique_key` (`pid`,`encounter`,`time`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -14428,10 +14428,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('rec
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'DOB', 'Date of Birth', '40');
 
 DROP TABLE IF EXISTS `recent_patients`;
-CREATE TABLE recent_patients (
-    user_id varchar(40) NOT NULL,
-    patients TEXT,
-    PRIMARY KEY (user_id)
+CREATE TABLE `recent_patients` (
+    `user_id` varchar(40) NOT NULL,
+    `patients` TEXT,
+    PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB;
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`) VALUES ('lists','nationality_with_country','Nationality',1,1,0,'',NULL,'',0,0,1,'',1,'2023-09-24 18:21:13');

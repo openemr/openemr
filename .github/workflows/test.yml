@@ -46,6 +46,7 @@ on:
         options:
         - apache_82_118
         - apache_82_118_redis_sentinel_mtls
+        - apache_82_118_upgrade
         - apache_83_118
         - apache_84_118
         - apache_85_1011
@@ -55,6 +56,7 @@ on:
         - apache_85_118_redis_sentinel
         - apache_85_118_redis_sentinel_tls
         - apache_85_118_redis_sentinel_mtls
+        - apache_85_118_upgrade
         - apache_85_122
         - apache_85_57
         - apache_85_80
@@ -398,6 +400,20 @@ jobs:
         . ci/ciLibrary.source
         dc config
 
+    - name: Login to Docker Hub
+      # Authenticated pulls have a much higher rate limit than anonymous ones,
+      # reducing the registry failures tracked in #12423. The secrets context
+      # is unavailable in `if`, so map the secrets into env and gate on them;
+      # fork PRs without the secrets skip this and pull anonymously as before.
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source
@@ -407,6 +423,12 @@ jobs:
       run: |
         . ci/ciLibrary.source
         install_configure
+
+    - name: Reseed DB from 5.0.0 dump and run upgrade chain
+      if: ${{ endsWith(inputs.docker_dir, '_upgrade') }}
+      run: |
+        . ci/ciLibrary.source
+        post_install_upgrade
 
     - name: PHP info
       run: |
@@ -521,6 +543,20 @@ jobs:
         # See #9233
         sudo chmod -R 0777 .
 
+    - name: Login to Docker Hub
+      # Authenticated pulls have a much higher rate limit than anonymous ones,
+      # reducing the registry failures tracked in #12423. The secrets context
+      # is unavailable in `if`, so map the secrets into env and gate on them;
+      # fork PRs without the secrets skip this and pull anonymously as before.
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Dockers environment start
       env:
         # E2E needs selenium/video containers
@@ -579,11 +615,11 @@ jobs:
     # Upload test results to Codecov
     - name: Upload test results to Codecov
       if: ${{ !cancelled() && hashFiles(format('junit-{0}.xml', matrix.suite)) != '' }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
         report_type: test_results
 
     ##
@@ -593,21 +629,21 @@ jobs:
     # plus test-file coverage (coverage.<suite>-tests.clover.xml).
     - name: Upload test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles(format('coverage.{0}.clover.xml', matrix.suite)) != '' }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
     - name: Upload test file coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && (matrix.suite == 'api' || matrix.suite == 'e2e') && hashFiles(format('coverage.{0}-tests.clover.xml', matrix.suite)) != '' }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
-        flags: ${{ matrix.suite }}-tests,php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        flags: ${{ matrix.suite }}-tests,php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
 
     ##
     # Upload JUnit results to GitHub

@@ -53,7 +53,6 @@ use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
 use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
 use OpenEMR\Modules\FaxSMS\Notification\AppointmentNotificationRunner;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 $_SERVER['SERVER_NAME'] = 'localhost';
 
@@ -83,6 +82,8 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
 require_once(__DIR__ . "/rc_sms_notification_helpers.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
     displayHelp();

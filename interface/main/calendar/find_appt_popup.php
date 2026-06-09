@@ -24,15 +24,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\HolidayService;
 
 require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
-require_once(OEGlobalsBag::getInstance()->getKernel()->getIncludeRoot() . "/main/holidays/Holidays_Controller.php");
 
-?>
-
-<?php
- // check access controls
+// check access controls
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Find Available Appointments", xl("Find Available Appointments"));
 }
@@ -234,9 +231,10 @@ $ckavail = true;
 // If the requested date is a holiday/closed date we need to alert the user about it and let him choose if he wants to proceed
 //////
 $is_holiday = false;
-$holidays_controller = new Holidays_Controller();
-$holidays = $holidays_controller->get_holidays_by_date_range($sdate, $edate);
-if (in_array($sdate, $holidays)) {
+$holidayService = HolidayService::createForLegacyContext();
+$sdateStr = (string) $sdate;
+$holidays = $holidayService->getHolidaysByDateRange($sdateStr, $edate);
+if (in_array($sdateStr, $holidays, true)) {
     $is_holiday = true;
     $ckavail = true;
 }

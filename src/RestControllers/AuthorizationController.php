@@ -50,6 +50,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
@@ -289,7 +290,7 @@ class AuthorizationController
                 // @see https://tools.ietf.org/html/rfc7591#section-2
                 'scope' => null,
                 // additional meta attributes can be added here
-                'dsi_type' => array_values(DecisionSupportInterventionService::DSI_TYPES),
+                'dsi_type' => DecisionSupportInterventionService::DSI_TYPES,
                 'dsi_source_attributes' => [] // do we care to report errors on source attributes for the values we support? they won't save if we don't have it in the system
             ];
             $this->getSystemLogger()->debug("Initial validation passed");
@@ -492,10 +493,14 @@ class AuthorizationController
                 throw new OAuthServerException('Invalid client', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
             if ($client['registration_access_token'] !== $token) {
-                throw new OAuthServerException('Invalid registration token', 0, 'invalid _request', Response::HTTP_FORBIDDEN);
+                throw new OAuthServerException('Invalid registration token', 0, 'invalid_request', Response::HTTP_FORBIDDEN);
             }
             $params['client_id'] = $client['client_id'];
-            $params['client_secret'] = $this->cryptoGen->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
+            try {
+                $params['client_secret'] = $this->cryptoGen->decryptFromDatabase(is_string($client['client_secret']) ? $client['client_secret'] : null);
+            } catch (CryptoGenException) {
+                throw new OAuthServerException('Client secret decryption failed', 0, 'server_error', Response::HTTP_INTERNAL_SERVER_ERROR);
+            }
             $params['contacts'] = explode('|', (string) $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
@@ -1450,7 +1455,7 @@ class AuthorizationController
         try {
             $id_token = $request->query->get('id_token_hint', '');
             if (empty($id_token)) {
-                throw new OAuthServerException('Id token missing from request', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);
+                throw new OAuthServerException('Id token missing from request', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
             }
             $post_logout_url = $request->query->get('post_logout_redirect_uri', '');
             $state = $request->query->get('state', '');
@@ -1476,7 +1481,7 @@ class AuthorizationController
             $session_nonce = (json_decode((string) $trustedUser['session_cache'], true)['nonce']) ?? '';
             // this should be enough to confirm valid id
             if ($session_nonce !== $id_nonce) {
-                throw new OAuthServerException('Id token not issued from this server', 0, 'invalid _request', Response::HTTP_BAD_REQUEST);
+                throw new OAuthServerException('Id token not issued from this server', 0, 'invalid_request', Response::HTTP_BAD_REQUEST);
             }
             // clear the users session
             $this->trustedUserService->deleteTrustedUserById($trustedUser['id']);

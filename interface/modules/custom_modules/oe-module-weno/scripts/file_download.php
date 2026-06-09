@@ -20,8 +20,8 @@ $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 
 $cryptoGen = ServiceContainer::getCrypto();
 $weno_username = OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
-$weno_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
-$encryption_key = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
+$weno_password = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
+$encryption_key = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $pharmacyDownloadService = new DownloadWenoPharmacies();

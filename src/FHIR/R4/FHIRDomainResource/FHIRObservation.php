@@ -157,63 +157,63 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     public $performer = [];
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity|null
      */
     public $valueQuantity = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept|null
      */
     public $valueCodeableConcept = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRString
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRString|null
      */
     public $valueString = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean|null
      */
     public $valueBoolean = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger|null
      */
     public $valueInteger = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRRange|null
      */
     public $valueRange = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio|null
      */
     public $valueRatio = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData|null
      */
     public $valueSampledData = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRTime|null
      */
     public $valueTime = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime|null
      */
     public $valueDateTime = null;
 
     /**
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod|null
      */
     public $valuePeriod = null;
 
     /**
      * Provides a reason why the expected value in the element Observation.value[x] is missing.
-     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
+     * @var \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept|null
      */
     public $dataAbsentReason = null;
 
@@ -575,7 +575,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity|null
      */
     public function getValueQuantity()
     {
@@ -583,7 +583,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity $valueQuantity
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity|null $valueQuantity
      * @return $this
      */
     public function setValueQuantity($valueQuantity)
@@ -593,7 +593,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept|null
      */
     public function getValueCodeableConcept()
     {
@@ -601,7 +601,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $valueCodeableConcept
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept|null $valueCodeableConcept
      * @return $this
      */
     public function setValueCodeableConcept($valueCodeableConcept)
@@ -611,7 +611,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRString|null
      */
     public function getValueString()
     {
@@ -619,7 +619,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString $valueString
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRString|null $valueString
      * @return $this
      */
     public function setValueString($valueString)
@@ -629,7 +629,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean|null
      */
     public function getValueBoolean()
     {
@@ -637,7 +637,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean $valueBoolean
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRBoolean|null $valueBoolean
      * @return $this
      */
     public function setValueBoolean($valueBoolean)
@@ -647,7 +647,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger|null
      */
     public function getValueInteger()
     {
@@ -655,7 +655,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger $valueInteger
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRInteger|null $valueInteger
      * @return $this
      */
     public function setValueInteger($valueInteger)
@@ -665,7 +665,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRange|null
      */
     public function getValueRange()
     {
@@ -673,7 +673,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange $valueRange
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRange|null $valueRange
      * @return $this
      */
     public function setValueRange($valueRange)
@@ -683,7 +683,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio|null
      */
     public function getValueRatio()
     {
@@ -691,7 +691,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio $valueRatio
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRRatio|null $valueRatio
      * @return $this
      */
     public function setValueRatio($valueRatio)
@@ -701,7 +701,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData|null
      */
     public function getValueSampledData()
     {
@@ -709,7 +709,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData $valueSampledData
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRSampledData|null $valueSampledData
      * @return $this
      */
     public function setValueSampledData($valueSampledData)
@@ -719,7 +719,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRTime|null
      */
     public function getValueTime()
     {
@@ -727,7 +727,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime $valueTime
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRTime|null $valueTime
      * @return $this
      */
     public function setValueTime($valueTime)
@@ -737,7 +737,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime|null
      */
     public function getValueDateTime()
     {
@@ -745,7 +745,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime $valueDateTime
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime|null $valueDateTime
      * @return $this
      */
     public function setValueDateTime($valueDateTime)
@@ -755,7 +755,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod|null
      */
     public function getValuePeriod()
     {
@@ -763,7 +763,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
     }
 
     /**
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod $valuePeriod
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod|null $valuePeriod
      * @return $this
      */
     public function setValuePeriod($valuePeriod)
@@ -774,7 +774,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
 
     /**
      * Provides a reason why the expected value in the element Observation.value[x] is missing.
-     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept
+     * @return \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept|null
      */
     public function getDataAbsentReason()
     {
@@ -783,7 +783,7 @@ class FHIRObservation extends FHIRDomainResource implements \JsonSerializable
 
     /**
      * Provides a reason why the expected value in the element Observation.value[x] is missing.
-     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept $dataAbsentReason
+     * @param \OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept|null $dataAbsentReason
      * @return $this
      */
     public function setDataAbsentReason($dataAbsentReason)

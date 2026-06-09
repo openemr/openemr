@@ -48,7 +48,7 @@ class KeychainTest extends TestCase
         $keychain->registerCipher($id2, $cipher2);
 
 
-        assert($cipher1 !== $cipher2);
+        self::assertNotSame($cipher1, $cipher2);
 
         $retr1 = $keychain->getCipher($id1);
         self::assertSame($cipher1, $retr1);

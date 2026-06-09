@@ -51,7 +51,9 @@ final readonly class Message
      */
     private static function parseImplicitKey(string $encodedMessage): Message
     {
-        assert(strlen($encodedMessage) >= 3);
+        if (strlen($encodedMessage) < 3) {
+            throw new UnexpectedValueException('Encoded message is too short to contain an implicit key id');
+        }
 
         // `001`-`007`
         $numericKeyId = substr($encodedMessage, 0, 3);
@@ -80,7 +82,7 @@ final readonly class Message
 
     private function encodeImplicitKey(): string
     {
-        assert($this->format === MessageFormat::ImplicitKey);
+        // Called only from encode()'s match on $this->format === ImplicitKey.
         return sprintf('%s%s',
             $this->keyId->id,
             base64_encode($this->ciphertext->value),

@@ -141,10 +141,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DocumentTemplates/DocumentTemplateService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'us_core_v311\' and \'g10_certification\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/US_Core_311/InfernoSinglePatientAPITest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

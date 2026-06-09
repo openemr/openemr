@@ -65,7 +65,7 @@ class MessageTest extends TestCase
     {
         $data = $this->fixtures->getCiphertext(7);
         $message = Message::parse($data);
-        assert($message->format === MessageFormat::ImplicitKey);
+        self::assertSame(MessageFormat::ImplicitKey, $message->format);
         $reencoded = $message->encode();
         self::assertSame($data, $reencoded);
     }

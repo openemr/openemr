@@ -307,7 +307,9 @@ if ((($_POST['formaction'] ?? '') == 'save') && $list_id && $alertmsg == '') {
         $list_id = $newlistID;
     } else {
         // send error and continue.
-        echo "<script>let error=" . js_escape(xlt("The new list") . " [" . $_POST['newlistname'] . "] " . xlt("already exists! Please try again.")) . ";</script>";
+        $rawNewListName = $_POST['newlistname'] ?? null;
+        $newlistname = is_string($rawNewListName) ? $rawNewListName : '';
+        echo "<script>let error=" . xlj("The new list") . " + ' [' + " . js_escape($newlistname) . " + '] ' + " . xlj("already exists! Please try again.") . ";</script>";
     }
     EventAuditLogger::getInstance()->newEvent(
         "add_list",

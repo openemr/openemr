@@ -85,7 +85,7 @@ class FixtureManager
     }
 
     /**
-     * @return the next available patient pid/identifier.
+     * @return int the next available patient pid/identifier.
      */
     private function getNextPid()
     {
@@ -100,7 +100,7 @@ class FixtureManager
      *
      * @param $tableName The target OpenEMR DB table name.
      * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
+     * @return int the number of fixtures installed.
      */
     private function installFixtures($tableName, $fixtures)
     {
@@ -221,7 +221,7 @@ class FixtureManager
     /**
      * Installs a single Patient Fixtures into the OpenEMR DB.
      * @param $patientFixture - The fixture to install.
-     * @return count of records inserted.
+     * @return int the number of records inserted.
      */
     public function installSinglePatientFixture($patientFixture)
     {
@@ -276,7 +276,7 @@ class FixtureManager
 
     /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
-     * @return uuid4 string value
+     * @return string a uuid4 string value
      */
     public function getUnregisteredUuid()
     {

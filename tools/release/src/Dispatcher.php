@@ -21,6 +21,13 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class Dispatcher
 {
+    /** @var list<string> Default consumer repos when --target-repos is not supplied. */
+    public const DEFAULT_TARGET_REPOS = [
+        'openemr/openemr-devops',
+        'openemr/website-openemr',
+        'openemr/demo_farm_openemr',
+    ];
+
     public function __construct(
         private HttpClientInterface $httpClient,
         private string $schemaPath,

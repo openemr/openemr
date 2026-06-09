@@ -149,6 +149,7 @@ updates:
   directories:
   - ci/apache_82_118/
   - ci/apache_82_118_redis_sentinel_mtls/
+  - ci/apache_82_118_upgrade/
   - ci/apache_83_118/
   - ci/apache_84_118/
   - ci/apache_85_1011/
@@ -158,6 +159,7 @@ updates:
   - ci/apache_85_118_redis_sentinel/
   - ci/apache_85_118_redis_sentinel_tls/
   - ci/apache_85_118_redis_sentinel_mtls/
+  - ci/apache_85_118_upgrade/
   - ci/apache_85_122/
   - ci/apache_85_57/
   - ci/apache_85_80/

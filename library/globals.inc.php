@@ -1025,6 +1025,13 @@ $GLOBALS_METADATA = [
             xl('This will activate the CCR(Continuity of Care Record) and CCD(Continuity of Care Document) reporting.')
         ],
 
+        'database_encryption' => [
+            xl('Enable Encryption of Data Stored in the Database (Keep on unless DB server is encrypted)'),
+            'bool',
+            '1',
+            xl('This will enable encryption of certain data stored in the database. This should be left enabled unless the database server itself is encrypted')
+        ],
+
         'drive_encryption' => [
             xl('Enable Encryption of Items Stored on Drive/CouchDB (Strongly recommend keeping this on)'),
             'bool',                           // data type
@@ -2777,16 +2784,23 @@ $GLOBALS_METADATA = [
     //
     'Logging' => [
 
-        'user_debug' => [
-            xl('User Debugging Options'),
+        'user_php_debug' => [
+            xl('User Debug PHP Reporting Options'),
             [
-                '0' => xl('None'),
-                '1' => xl('Display Window Errors Only'),
-                '2' => xl('Display Application Errors Only'),
-                '3' => xl('All'),
+                '0' => xl('Use Server Defaults (Display off)'),
+                '2' => xl('Display Errors Only'),
+                '3' => xl('Display Errors and Warnings Only'),
+                '4' => xl('Display Current Runtime Reporting'),
             ],
-            '0',                               // default
-            xl('User Debugging Mode.')
+            '0',
+            xl('Controls PHP error display/debug behavior without overriding server defaults unless explicitly selected.')
+        ],
+
+        'user_debug' => [
+            xl('Display Window Console Errors'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Console errors')
         ],
 
         'enable_auditlog' => [
@@ -2902,13 +2916,6 @@ $GLOBALS_METADATA = [
             'text',                           // data type
             '',                               // default
             xl('CA Certificate for verifying the RFC 5425 TLS syslog server.')
-        ],
-
-        'enable_auditlog_encryption' => [
-            xl('Enable Audit Log Encryption'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable Audit Log Encryption')
         ],
 
         'api_log_option' => [

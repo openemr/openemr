@@ -42,7 +42,7 @@ abstract class AppDispatch
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies;
-    private readonly SessionInterface $_session;
+    private ?SessionInterface $_session = null;
     protected $authUser;
 
     /**
@@ -55,11 +55,11 @@ abstract class AppDispatch
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->_session ??= SessionWrapperFactory::getInstance()->getActiveSession();
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = ServiceContainer::getCrypto();
         // Background-service workers (bin/console background:services run,
@@ -90,7 +90,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $serviceType = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
+            $serviceType = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -155,11 +155,24 @@ abstract class AppDispatch
      */
     public function getSession(?string $param = null, mixed $default = null): mixed
     {
+        $session = $this->session();
         if ($param) {
-            return $this->_session->get($param) ?? $default;
+            return $session->get($param) ?? $default;
         }
 
-        return $this->_session;
+        return $session;
+    }
+
+    /**
+     * Lazily resolve the active session wrapper.
+     *
+     * Service clients reach this method via the static factory path
+     * (AppDispatch::getApiService → new RCFaxClient → getCredentials → getSession)
+     * *before* parent::__construct() has run, so the property is not yet set.
+     */
+    private function session(): SessionInterface
+    {
+        return $this->_session ??= SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
     /**
@@ -282,6 +295,9 @@ abstract class AppDispatch
             'email' => [
                 ServiceType::EMAIL->value => fn(): EmailClient => new EmailClient(),
             ],
+            'voice' => [
+                ServiceType::VOICE->value => fn(): VoiceClient => new VoiceClient(),
+            ],
         ];
 
         $factory = $factoryMap[$type][$s] ?? null;
@@ -315,6 +331,9 @@ abstract class AppDispatch
         }
         if (self::$_apiModule === 'email') {
             return OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null;
+        }
+        if (self::$_apiModule === 'voice') {
+            return OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null;
         }
 
         throw new \RuntimeException(
@@ -443,7 +462,7 @@ abstract class AppDispatch
 
         // encrypt for safety.
         $jsonSetup = json_encode($setup);
-        $content = $this->crypto->encryptStandard($jsonSetup !== false ? $jsonSetup : null);
+        $content = $this->crypto->encryptForDatabase($jsonSetup !== false ? $jsonSetup : null);
         if (empty($vendor) || empty($setup)) {
             return xlt('Error: Missing vendor, user or credential items');
         }
@@ -508,7 +527,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
+        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $credentials = json_decode($decrypt, true);
         if (empty($credentials['email_message'] ?? '')) {
             $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -524,7 +543,7 @@ abstract class AppDispatch
             $this->authUser = 0;
         }
         $encoded = json_encode($credentials);
-        $encrypted = $this->crypto->encryptStandard($encoded !== false ? $encoded : null);
+        $encrypted = $this->crypto->encryptForDatabase($encoded !== false ? $encoded : null);
         sqlStatement(
             "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
@@ -583,7 +602,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
+        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $decode = json_decode($decrypt, true);
         if (empty($decode['smsMessage'])) {
             $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";

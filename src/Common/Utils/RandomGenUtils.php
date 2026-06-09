@@ -14,6 +14,7 @@ namespace OpenEMR\Common\Utils;
 
 class RandomGenUtils
 {
+    public const DEFAULT_TOKEN_LENGTH = 32;
     /**
      * @deprecated Use random_bytes() directly
      */
