@@ -4,7 +4,7 @@
  *  Lab Requisition Form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -13,14 +13,22 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
+
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lab.inc.php");
 
-use OpenEMR\Core\Header;
-
 formHeader("Form:Lab Requisition");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 
@@ -29,7 +37,7 @@ $obj = $formid ? formFetch("form_requisition", $formid) : [];
 
 global $pid ;
 
-$encounter = $_SESSION['encounter'];
+$encounter = $session->get('encounter');
 
 $oid = fetchProcedureId($pid, $encounter);
 
@@ -39,46 +47,21 @@ $oid = fetchProcedureId($pid, $encounter);
     $pdata      = getPatientData($pid);
     $facility   = getFacility();
     $ins        = getAllinsurances($pid);
-    $order      = getProceduresInfo($oid, $encounter);
+    $orders     = getProceduresInfo($oid, $encounter);
+    // Order-level fields are identical across rows; read from the first row.
+    $firstRow  = $orders[0] ?? [];
 
-    $prov_id   = $order[5];
-    $lab       = $order[7];
+    $prov_id   = $firstRow['provider_id'] ?? '';
+    $lab       = $firstRow['lab_id'] ?? '';
     $provider  = getLabProviders($prov_id);
     $npi       = getNPI($prov_id);
     $pp        = getProcedureProvider($lab);
-    $provLabId = getLabconfig();
+    $provLabId = $lab ? getLabconfig((int) $lab) : false;
 
     // Determine responsible party from the procedure order billing_type.
     // 'C' = Client/Clinic, 'P' = Patient, 'T' = Third Party/Insurance
     $billingType      = $oid ? getProcedureBillingType((int) $oid) : '';
-    $responsibleParty = [];
-
-    if ($billingType === 'C') {
-        // Bill Clinic: responsible party is the practice facility
-        $responsibleParty = [
-            'name'         => $facility['name'] ?? '',
-            'address'      => $facility['street'] ?? '',
-            'city_st_zip'  => trim(($facility['city'] ?? '') . ', ' . ($facility['state'] ?? '') . ' ' . ($facility['postal_code'] ?? '')),
-            'relationship' => xlt('Client Billing'),
-        ];
-    } elseif ($billingType === 'P') {
-        // Bill Patient: responsible party is the patient
-        $responsibleParty = [
-            'name'         => trim(($pdata['fname'] ?? '') . ' ' . ($pdata['lname'] ?? '')),
-            'address'      => $pdata['street'] ?? '',
-            'city_st_zip'  => trim(($pdata['city'] ?? '') . ', ' . ($pdata['state'] ?? '') . ' ' . ($pdata['postal_code'] ?? '')),
-            'relationship' => xlt('Self'),
-        ];
-    } elseif ($billingType === 'T' && !empty($ins[0])) {
-        // Bill Third Party/Insurance: responsible party is the primary subscriber
-        $subName = trim(($ins[0]['subscriber_fname'] ?? '') . ' ' . ($ins[0]['subscriber_lname'] ?? ''));
-        $responsibleParty = [
-            'name'         => $subName,
-            'address'      => $ins[0]['line1'] ?? '',
-            'city_st_zip'  => trim(($ins[0]['city'] ?? '') . ', ' . ($ins[0]['state'] ?? '') . ' ' . ($ins[0]['zip'] ?? '')),
-            'relationship' => getListItemTitle('sub_relation', $ins[0]['subscriber_relationship'] ?? ''),
-        ];
-    }
+    $responsibleParty = buildResponsibleParty($billingType, $facility, $pdata, $ins[0] ?? []);
 ?>
 
 <!DOCTYPE html>
@@ -155,13 +138,13 @@ table, th, td {
   }
 
 </style>
-    <title><?php echo xlt('Lab Requisition') . ' ' . text($lab); ?></title>
+    <title><?php echo xlt('Lab Requisition') . ' ' . text($lab ?? ''); ?></title>
 </head>
 
 <body>
 <div class="container">
     <?php
-    if (empty($order)) {
+    if (empty($orders)) {
             echo "<div class='text-center mt-5'><span>" .
                 xlt('procedure order not found in database contact tech support') . "</span></div></div></body></html>";
             exit;
@@ -178,14 +161,14 @@ table, th, td {
                  *  This is to store the requisition bar code number to use again if the form needs to be printed or viewed again
                  *  But save it the first time through.
                  */
-                   $lab_id = $order[0];
+                   $lab_id = $firstRow['procedure_order_id'];
                    $storeBar = getBarId($lab_id, $pid);
 
                 if (!empty($storeBar)) {
                     $bar = $storeBar['req_id'];
                 } else {
                     $bar = random_int(1000, 999999);
-                    saveBarCode($bar, $pid, $order[0]);
+                    saveBarCode($bar, $pid, $firstRow['procedure_order_id']);
                 }
 
                 ?>
@@ -221,8 +204,8 @@ table, th, td {
                        <b><?php echo xlt('Hours')?>:</b><br />
                      </div>
                     <div class="pFill">
-                        <?php echo text($order[6]);?> <br />
-                        <?php echo text($order[0]);?>
+                        <?php echo text($firstRow['date_collected'] ?? ''); ?> <br />
+                        <?php echo text($firstRow['procedure_order_id'] ?? ''); ?>
                     </div>
                    </td>
                    <td style="vertical-align:top width: 800px">
@@ -267,7 +250,15 @@ table, th, td {
                         <?php echo !empty($responsibleParty['name'])        ? text($responsibleParty['name'])        : '/'; ?><br />
                         <?php echo !empty($responsibleParty['address'])     ? text($responsibleParty['address'])     : '/'; ?><br />
                         <?php echo !empty($responsibleParty['city_st_zip']) ? text($responsibleParty['city_st_zip']) : '/'; ?><br />
-                        <?php echo !empty($responsibleParty['relationship']) ? text($responsibleParty['relationship']) : '/'; ?><br />
+                        <?php
+                        if (!empty($responsibleParty['relationship'])) {
+                            echo ($responsibleParty['relationship_is_list'] ?? false)
+                                ? text(getListItemTitle('sub_relation', $responsibleParty['relationship']))
+                                : xlt($responsibleParty['relationship']);
+                        } else {
+                            echo '/';
+                        }
+                        ?><br />
                        </div>
                    </td>
 
@@ -342,33 +333,33 @@ table, th, td {
                    <td style="vertical-align:top; width:400px;">
                        <div class="notes">
                          <span class="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span><br />
-                            <?php echo text($order[2]) . ' ' . text($order[3]); ?><br />
-                            <?php echo isset($order[16]) ? text($order[16]) . ' ' . text($order[17] ?? '') : ''; ?><br />
-                            <?php echo isset($order[30]) ? text($order[30]) . ' ' . text($order[31] ?? '') : ''; ?><br />
+                            <?php foreach ($orders as $codeRow): ?>
+                            <?php echo text($codeRow['procedure_code'] ?? '') . ' ' . text($codeRow['procedure_name'] ?? ''); ?><br />
+                            <?php endforeach; ?>
                        </div>
                    </td>
                    <td style="vertical-align:top">
                     <div class="notes">
                      <span class="fs-4"><strong><?php echo xlt('Order Notes') ?>:</strong></span><br />
-                        <?php echo text($order[8]); ?>
+                        <?php echo text($firstRow['clinical_hx'] ?? ''); ?>
                      </div>
                    <div class="dx">
                      <span class="fs-4"><strong><?php echo xlt('Dx Codes') ?>:</strong></span><br />
-                        <?php echo text($order[4]); ?><br />
-                        <?php echo isset($order[18]) ? text($order[18]) : ''; ?><br />
-                        <?php echo isset($order[32]) ? text($order[32]) : ''; ?><br />
+                        <?php foreach ($orders as $codeRow): ?>
+                        <?php echo text($codeRow['diagnoses'] ?? ''); ?><br />
+                        <?php endforeach; ?>
                    </div>
                    </td>
                </tr>
 
             </table>
-            <?php if (!empty($order['question_text'])) { // display this table only if there are questions ?>
+            <?php if (!empty($firstRow['question_text'])) { // display this table only if there are questions ?>
             <table style="width:800px; border=1">
                <tr style="height:125px">
                   <td style="vertical-align:top">
                        <span class="fs-4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></span><br />
-                       <b>Question:</b> <?php print text($order['question_text']); ?><br />
-                       <b>Answer:</b> <?php print text($order['answer']); ?>
+                       <b>Question:</b> <?php print text($firstRow['question_text']); ?><br />
+                       <b>Answer:</b> <?php print text($firstRow['answer']); ?>
                   </td>
                </tr>
             </table>

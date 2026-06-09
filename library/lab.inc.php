@@ -4,7 +4,7 @@
  * lab.inc
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
@@ -28,18 +28,15 @@ function fetchProcedureId($pid, $encounter): mixed
 }
 
 /**
- * Returns a flat numeric array of procedure order fields.
- * Each code row contributes 14 elements, appended in order:
- * [0]  procedure_order_id   [1]  procedure_order_seq  [2]  procedure_code
- * [3]  procedure_name       [4]  diagnoses            [5]  provider_id
- * [6]  date_collected       [7]  lab_id               [8]  clinical_hx
- * [9]  date_ordered         [10] patient_instructions [11] specimen_type
- * [12] specimen_location    [13] specimen_volume
- * Subsequent rows start at index 14, 28, etc.
+ * Returns an array of associative rows for the given procedure order.
+ * Each row contains the full set of columns from procedure_order_code
+ * joined with procedure_order. Order-level fields (provider_id, lab_id,
+ * clinical_hx, date_collected, date_ordered, etc.) are identical across
+ * rows and can be read from the first element.
  *
  * @param int|string $oid
  * @param int|string $encounter
- * @return array
+ * @return array<int, array<string, mixed>>
  */
 function getProceduresInfo($oid, $encounter): array
 {
@@ -52,25 +49,7 @@ function getProceduresInfo($oid, $encounter): array
        AND po.encounter_id = ?
        AND po.procedure_order_id = ?";
 
-    $rows   = QueryUtils::fetchRecords($sql, [$oid, $encounter, $oid]);
-    $orders = [];
-    foreach ($rows as $row) {
-        $orders[] = $row['procedure_order_id'];
-        $orders[] = $row['procedure_order_seq'];
-        $orders[] = $row['procedure_code'];
-        $orders[] = $row['procedure_name'];
-        $orders[] = $row['diagnoses'];
-        $orders[] = $row['provider_id'];
-        $orders[] = $row['date_collected'];
-        $orders[] = $row['lab_id'];            // procedure_order.ppid
-        $orders[] = $row['clinical_hx'];
-        $orders[] = $row['date_ordered'];
-        $orders[] = $row['patient_instructions'];
-        $orders[] = $row['specimen_type'];
-        $orders[] = $row['specimen_location'];
-        $orders[] = $row['specimen_volume'];
-    }
-    return $orders;
+    return QueryUtils::fetchRecords($sql, [$oid, $encounter, $oid]);
 }
 
 /**
@@ -129,13 +108,16 @@ function getLabProviders($prov_id): ?array
 }
 
 /**
- * Returns the Quest lab provider configuration row.
+ * Returns the lab provider configuration row for the given procedure provider.
+ *
+ * @param int $ppid procedure_providers.ppid
+ * @return array|false
  */
-function getLabconfig(): array|false
+function getLabconfig(int $ppid): array|false
 {
     return QueryUtils::querySingleRow(
-        "SELECT recv_app_id, recv_fac_id FROM procedure_providers WHERE name = 'Quest'",
-        []
+        "SELECT recv_app_id, recv_fac_id FROM procedure_providers WHERE ppid = ?",
+        [$ppid]
     );
 }
 
@@ -186,6 +168,51 @@ function getBarId($lab_id, $pid): array|string|false
 }
 
 /**
+ * Builds the responsible party array from billing type and context data.
+ * Pure function — no database access — suitable for unit testing.
+ *
+ * @param string $billingType  'C' = Clinic, 'P' = Patient, 'T' = Third Party/Insurance
+ * @param array  $facility     Facility data (name, street, city, state, postal_code)
+ * @param array  $pdata        Patient data (fname, lname, street, city, state, postal_code)
+ * @param array  $primaryIns   Primary insurance data (subscriber_fname, subscriber_lname, line1, city, state, zip, subscriber_relationship)
+ * @return array{name: string, address: string, city_st_zip: string, relationship: string, relationship_is_list: bool}|array{}
+ */
+function buildResponsibleParty(string $billingType, array $facility, array $pdata, array $primaryIns): array
+{
+    if ($billingType === 'C') {
+        return [
+            'name'            => $facility['name'] ?? '',
+            'address'         => $facility['street'] ?? '',
+            'city_st_zip'     => trim(($facility['city'] ?? '') . ', ' . ($facility['state'] ?? '') . ' ' . ($facility['postal_code'] ?? '')),
+            'relationship'    => 'Client Billing',
+            'relationship_is_list' => false,
+        ];
+    }
+
+    if ($billingType === 'P') {
+        return [
+            'name'            => trim(($pdata['fname'] ?? '') . ' ' . ($pdata['lname'] ?? '')),
+            'address'         => $pdata['street'] ?? '',
+            'city_st_zip'     => trim(($pdata['city'] ?? '') . ', ' . ($pdata['state'] ?? '') . ' ' . ($pdata['postal_code'] ?? '')),
+            'relationship'    => 'Self',
+            'relationship_is_list' => false,
+        ];
+    }
+
+    if ($billingType === 'T' && !empty($primaryIns)) {
+        return [
+            'name'            => trim(($primaryIns['subscriber_fname'] ?? '') . ' ' . ($primaryIns['subscriber_lname'] ?? '')),
+            'address'         => $primaryIns['line1'] ?? '',
+            'city_st_zip'     => trim(($primaryIns['city'] ?? '') . ', ' . ($primaryIns['state'] ?? '') . ' ' . ($primaryIns['zip'] ?? '')),
+            'relationship'    => $primaryIns['subscriber_relationship'] ?? '',
+            'relationship_is_list' => true,
+        ];
+    }
+
+    return [];
+}
+
+/**
  * @param string $facilityID Format: XX_YY where YY is the users.id for the facility
  * @return array|false
  */
@@ -202,14 +229,3 @@ function getFacilityInfo($facilityID): array|false
     );
 }
 
-function formatPhone($phone): string
-{
-    $phone = preg_replace('/[^0-9]/', '', (string) $phone);
-    if (strlen($phone) === 7) {
-        return preg_replace('/([0-9]{3})([0-9]{4})/', '$1-$2', $phone);
-    }
-    if (strlen($phone) === 10) {
-        return preg_replace('/([0-9]{3})([0-9]{3})([0-9]{4})/', '($1) $2-$3', $phone);
-    }
-    return $phone;
-}
