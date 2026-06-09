@@ -363,6 +363,21 @@ $side-calendar-date-padding: 0.3rem !default;
       padding: 0.0625rem 0.125rem;
       text-align: $right;
       width: 95%;
+
+      // The day-number link inherited theme-level a:hover styling that
+      // washes it out against the white .month_daylink background once
+      // it actually navigates (gotoUrl was '#' before — non-functional
+      // and unnoticed). Mirrors the .week_dateheader pattern.
+      a,
+      a:link,
+      a:visited,
+      a:active {
+        color: $body-color;
+      }
+
+      a:hover {
+        color: $dark;
+      }
     }
 
     &_dateheader {
