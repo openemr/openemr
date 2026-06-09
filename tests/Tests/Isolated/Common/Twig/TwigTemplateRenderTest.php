@@ -254,6 +254,76 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/calendar-day-print-empty.html',
         ];
 
+        // Screen views share a large set of chrome variables (nav URLs,
+        // chevron icons, monthSelectorHtml, facility picker, provider
+        // picker). Empty providersGrid / dayColumns + empty facilities
+        // / provinfo render the page chrome only — the per-event paths
+        // are covered by CalendarRenderDataBuilderTest.
+        $screenCommon = [
+            'dowList'                 => $defaultDowList,
+            'A_SHORT_DAY_NAMES'       => $defaultDayNames,
+            'prevMonth'               => '20260201',
+            'nextMonth'               => '20260401',
+            'prevMonthName'           => 'February',
+            'nextMonthName'           => 'April',
+            'currentMiniCal'          => $emptyMini,
+            'monthSelectorHtml'       => '<select id="monthPicker"></select>',
+            'showFacilitySelect'      => false,
+            'showAllFacilitiesOption' => true,
+            'pc_facility'             => 0,
+            'facilities'              => [],
+            'provinfo'                => [],
+            'selectedUsernames'       => [],
+            'chevron_icon_left'       => 'fa-chevron-left',
+            'chevron_icon_right'      => 'fa-chevron-right',
+            'isToday'                 => false,
+            'webroot'                 => '',
+            'body_class'              => '',
+        ];
+
+        yield 'calendar month-screen empty' => [
+            'calendar/default/views/month/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'           => 'month',
+                'Date'               => '20260315',
+                'currentMonthLabel'  => 'March 2026',
+                'PREV_MONTH_URL'     => '?prev',
+                'NEXT_MONTH_URL'     => '?next',
+                'providersGrid'      => [],
+            ]),
+            $fixtureDir . '/calendar-month-screen-empty.html',
+        ];
+
+        yield 'calendar day-screen empty' => [
+            'calendar/default/views/day/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'day',
+                'Date'            => '20260315',
+                'dayHeaderLabel'  => 'Sunday March 15 2026',
+                'PREV_DAY_URL'    => '?prev',
+                'NEXT_DAY_URL'    => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [],
+            ]),
+            $fixtureDir . '/calendar-day-screen-empty.html',
+        ];
+
+        yield 'calendar week-screen empty' => [
+            'calendar/default/views/week/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'week',
+                'Date'            => '20260315',
+                'weekHeaderLabel' => 'Mar 15 - Mar 21 2026',
+                'PREV_WEEK_URL'   => '?prev',
+                'NEXT_WEEK_URL'   => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [],
+            ]),
+            $fixtureDir . '/calendar-week-screen-empty.html',
+        ];
+
         yield 'patient/card/appointments with future appointments' => [
             'patient/card/appointments.html.twig',
             [
