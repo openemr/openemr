@@ -713,10 +713,14 @@ capture_coredumps() {
         [[ -n "${core}" ]] || continue
         base=$(basename "${core}")
         echo "Backtracing ${base} (exe=${exe:-auto})..."
+        # `bt` (not `bt full`): a stack-only trace names the faulting frames
+        # and `info sharedlibrary` the faulting .so without printing locals or
+        # function arguments, which can hold request data / credentials. This
+        # keeps the backtrace safe to publish in a public artifact.
         local -a gdb_args=(
             exec -T openemr gdb --batch --nx
             -ex 'set pagination off'
-            -ex 'thread apply all bt full'
+            -ex 'thread apply all bt'
             -ex 'info sharedlibrary'
         )
         [[ -n "${exe}" ]] && gdb_args+=("${exe}")
@@ -733,10 +737,17 @@ capture_coredumps() {
                 > "${dest_dir}/${base}.gz.skipped.txt"
             continue
         fi
-        local size_mb
-        # shellcheck disable=SC2310  # du failure falls back to 0 (treat as under cap)
-        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=0
+        # If size can't be determined, skip the raw-core upload rather than
+        # risk streaming an oversized core past the cap; backtrace is retained.
+        local size_mb=''
+        # shellcheck disable=SC2310  # du failure handled explicitly below
+        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=''
         size_mb=${size_mb%$'\r'}
+        if [[ -z "${size_mb}" ]]; then
+            echo "Could not determine size of ${base}; raw core omitted (cap cannot be enforced), backtrace retained." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+            continue
+        fi
         if (( size_mb > max_core_mb )); then
             echo "Core ${base} is ${size_mb}MB (> ${max_core_mb}MB cap); raw core omitted, backtrace retained." \
                 > "${dest_dir}/${base}.gz.skipped.txt"
