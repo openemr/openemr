@@ -672,12 +672,15 @@ enable_coredumps() {
 ##
 # Backtrace every coredump collected in the openemr container and write the
 # results into the diagnostics directory passed as $1 (a host path). For each
-# core: a gdb text backtrace (naming the faulting shared object — the whole
-# point of #12439) plus the gzip'd raw core, capped so a multi-hundred-MB
-# core does not blow the artifact budget. No-op when no core was produced.
+# core we always write a gdb text backtrace (naming the faulting shared
+# object — the whole point of #12439). The raw core is NOT uploaded by
+# default: it can hold in-memory secrets (session tokens, the sqlconf.php DB
+# password) and the artifact is downloadable on a public PR. Set
+# COREDUMP_MAX_MB > 0 to also stream out the gzip'd core when it is under that
+# size. No-op when no core was produced.
 capture_coredumps() {
     local dest_dir=$1
-    local max_core_mb=${COREDUMP_MAX_MB:-300}
+    local max_core_mb=${COREDUMP_MAX_MB:-0}
     mkdir -p "${dest_dir}"
 
     local cores
@@ -718,7 +721,14 @@ capture_coredumps() {
         dc "${gdb_args[@]}" \
             > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
             || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
-        # Stream the core out as gzip, but only if it is under the cap.
+        # Raw core upload is opt-in (COREDUMP_MAX_MB > 0) and size-gated, since
+        # a core can contain in-memory secrets. The backtrace above is the
+        # default deliverable and is safe to publish.
+        if (( max_core_mb <= 0 )); then
+            echo "Raw core retained in the container only (COREDUMP_MAX_MB=0); backtrace uploaded. Set COREDUMP_MAX_MB > 0 to include the gzip'd core." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+            continue
+        fi
         local size_mb
         # shellcheck disable=SC2310  # du failure falls back to 0 (treat as under cap)
         size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=0
