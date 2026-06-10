@@ -12,7 +12,12 @@ parameters:
     - ../vendor/phpunit/phpunit/src/Framework/TestCase.php
   excludePaths:
     - ../tests/Rector
+  ignoreErrors:
+    # Doctrine entities have properties set via reflection, not constructors
+    - identifier: property.uninitializedReadonly
+      path: ../src/Entities/*
     # Fixture files for SqlReservedWordRuleTest deliberately contain SQL
     # patterns the rule should flag; excluding them keeps full-codebase
     # PHPStan runs from reporting those intentional bugs.
     - ../tests/Tests/Isolated/PHPStan/Sql/data
+# vim: ft=yaml
