@@ -151,24 +151,28 @@ class FhirMedicationDispenseLocalDispensaryService extends FhirServiceBase imple
                     $dosageText = $fhirDosage->getText();
                     if ($dosageText !== null) {
                         $dosageText = 'Dose: ';
-                        $doseQuantity = $fhirDosage->getDoseAndRate()[0]->getDoseQuantity();
+                        $doseAndRate = $fhirDosage->getDoseAndRate();
+                        $doseQuantity = !empty($doseAndRate) ? $doseAndRate[0]->getDoseQuantity() : null;
                         if ($doseQuantity) {
                             $dosageText .= $doseQuantity->getValue() . ' ' . $doseQuantity->getUnit() . ' ';
                         }
                         $timing = $fhirDosage->getTiming();
-                        if ($timing !== null) {
+                        if ($timing !== null && $timing->getCode() !== null) {
                             $dosageText .= ' ' . $timing->getCode()->getText() . ' ';
                         }
                         $route = $fhirDosage->getRoute();
                         if ($route) {
-                            $dosageText .= ' via ' . $route->getCoding()[0]->getDisplay() . ' ';
+                            $routeCoding = $route->getCoding();
+                            if (!empty($routeCoding)) {
+                                $dosageText .= ' via ' . $routeCoding[0]->getDisplay() . ' ';
+                            }
                         }
                         $additionalInstructions = $fhirDosage->getAdditionalInstruction();
-                        if ($additionalInstructions) {
+                        if (!empty($additionalInstructions)) {
                             $dosageText .= ' ' . $additionalInstructions[0]->getText() . ' ';
                         }
                     }
-                    $instructions[] = trim($dosageText);
+                    $instructions[] = trim((string)$dosageText);
                 }
 
                 $medicationName = $fhirResource->getMedicationCodeableConcept()->getText() ?? xl("Unknown Medication");

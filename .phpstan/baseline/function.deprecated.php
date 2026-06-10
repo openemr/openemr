@@ -50,12 +50,6 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sellDrug\\(\\)\\:
-Use DrugSalesService\\:\\:sellDrug instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
@@ -554,28 +548,10 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sellDrug\\(\\)\\:
-Use DrugSalesService\\:\\:sellDrug instead\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/FeeSheet.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sellDrug\\(\\)\\:
-Use DrugSalesService\\:\\:sellDrug instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function checkUserSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:checkUserSetting$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sellDrug\\(\\)\\:
-Use DrugSalesService\\:\\:sellDrug instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function setUserSetting\\(\\)\\:
