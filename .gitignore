@@ -13,6 +13,11 @@ node_modules
 # the oe-module-installer-plugin during `composer install`. Never commit the
 # installed copy.
 /interface/modules/custom_modules/oe-module-claimrev-connect/*
+# oe-module-dorn is installed as a Composer dependency
+# (claimrevolution/oe-module-dorn) and relocated into this path by the
+# oe-module-installer-plugin during `composer install`. Never commit the
+# installed copy.
+/interface/modules/custom_modules/oe-module-dorn/*
 /public/assets/*
 /public/themes/*
 !/public/assets/modified
