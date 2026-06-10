@@ -644,7 +644,11 @@ dump_error_log() {
 # crashing process's mount namespace, so this is a container path. It is not
 # on the bind mount; cores are streamed out with `dc exec` in
 # capture_coredumps, so they never touch the repo working tree.
-readonly COREDUMP_DIR='/var/www/coredumps'
+# Assign-if-unset before marking readonly: ci/inferno/run.sh sources this
+# library several times in one shell, and a bare `readonly VAR=...` errors on
+# the second source.
+: "${COREDUMP_DIR:=/var/www/coredumps}"
+readonly COREDUMP_DIR
 
 ##
 # Enable coredumps so a segfaulting Apache worker leaves a usable core
@@ -733,10 +737,18 @@ capture_coredumps() {
         # shellcheck disable=SC2310  # du failure falls back to 0 (treat as under cap)
         size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=0
         size_mb=${size_mb%$'\r'}
-        if (( size_mb <= max_core_mb )); then
-            dc exec -T openemr gzip -c "${core}" > "${dest_dir}/${base}.gz"
-        else
+        if (( size_mb > max_core_mb )); then
             echo "Core ${base} is ${size_mb}MB (> ${max_core_mb}MB cap); raw core omitted, backtrace retained." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+            continue
+        fi
+        # Best-effort like the gdb/du calls: a gzip/stream failure (missing
+        # gzip, permissions, disk) must not abort the loop and skip the
+        # remaining cores' backtraces.
+        # shellcheck disable=SC2310  # gzip failure is logged, not fatal — keep processing cores
+        if ! dc exec -T openemr gzip -c "${core}" > "${dest_dir}/${base}.gz"; then
+            rm -f "${dest_dir}/${base}.gz"
+            echo "gzip stream failed for ${base}; raw core omitted, backtrace retained." \
                 > "${dest_dir}/${base}.gz.skipped.txt"
         fi
     done <<< "${cores}"
