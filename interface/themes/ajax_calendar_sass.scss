@@ -364,19 +364,23 @@ $side-calendar-date-padding: 0.3rem !default;
       text-align: $right;
       width: 95%;
 
-      // The day-number link inherited theme-level a:hover styling that
-      // washes it out against the white .month_daylink background once
-      // it actually navigates (gotoUrl was '#' before — non-functional
-      // and unnoticed). Mirrors the .week_dateheader pattern.
+      // .month_daylink has a hardcoded white background, so the
+      // day-number link inside needs a hardcoded dark text color
+      // independent of the active theme — themes that set
+      // $body-color to a light value (dark / cobalt / etc.) would
+      // otherwise leave the link invisible on the always-white
+      // .month_daylink background. $gray-900 is a deep gray that
+      // contrasts on white across every theme.
       a,
       a:link,
       a:visited,
       a:active {
-        color: $body-color;
+        color: $gray-900;
       }
 
       a:hover {
-        color: $dark;
+        color: $primary;
+        text-decoration: underline;
       }
     }
 

@@ -333,15 +333,17 @@ final readonly class CalendarViewModel
      *     $evtTop         = $eStartInterval * $timeslotHeightVal . $timeslotHeightUnit;
      *
      *     $eEndMin       = $eStartMin + ($duration / 60);
-     *     $eEndInterval  = ceil(($eEndMin - $calStartMin) / $interval);
+     *     $eEndInterval  = ($eEndMin - $calStartMin) / $interval;
      *     $evtHeight     = ($eEndInterval - $eStartInterval) * $timeslotHeightVal . $timeslotHeightUnit;
      *
      * `top` and `height` come back as CSS strings with the unit suffix
      * baked in (matches what the legacy templates wrote into `style=""`
      * attributes). `startInterval` / `endInterval` are surfaced too
-     * because the overlap detector needs them.
+     * because the overlap detector needs them. Both intervals are
+     * float so off-grid event times position mid-slot rather than
+     * snapping to the slot boundary above.
      *
-     * @return array{startInterval: int, endInterval: int, top: string, height: string}
+     * @return array{startInterval: float, endInterval: float, top: string, height: string}
      */
     public function computeEventGeometry(
         int $startMinFromMidnight,
@@ -351,10 +353,16 @@ final readonly class CalendarViewModel
         int $timeslotHeightVal,
         string $timeslotHeightUnit
     ): array {
-        $startInterval = (int) floor(($startMinFromMidnight - $clinicStartMin) / $intervalMinutes);
+        // Legacy used float division (no floor / ceil), so an event
+        // starting 15 min into a 30-min interval renders at 1.5 *
+        // timeslotHeightVal (positions mid-slot). Snapping with floor
+        // makes the event box float a fraction of a slot upward from
+        // its real time, so the mouse-hover detection lands a slot
+        // below where the user expects. Mirror the legacy float math.
+        $startInterval = ($startMinFromMidnight - $clinicStartMin) / $intervalMinutes;
 
         $endMin = $startMinFromMidnight + $durationMinutes;
-        $endInterval = (int) ceil(($endMin - $clinicStartMin) / $intervalMinutes);
+        $endInterval = ($endMin - $clinicStartMin) / $intervalMinutes;
 
         return [
             'startInterval' => $startInterval,

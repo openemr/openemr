@@ -346,8 +346,8 @@ final class CalendarViewModelTest extends TestCase
             timeslotHeightUnit: 'px',
         );
 
-        self::assertSame(0, $geo['startInterval']);
-        self::assertSame(1, $geo['endInterval']);
+        self::assertEqualsWithDelta(0.0, $geo['startInterval'], 0.0001);
+        self::assertEqualsWithDelta(1.0, $geo['endInterval'], 0.0001);
         self::assertSame('0px',  $geo['top']);
         self::assertSame('20px', $geo['height']);
     }
@@ -360,25 +360,25 @@ final class CalendarViewModelTest extends TestCase
 
         $geo = $vm->computeEventGeometry(600, 90, 540, 30, 20, 'px');
 
-        self::assertSame(2, $geo['startInterval']);
-        self::assertSame(5, $geo['endInterval']);
+        self::assertEqualsWithDelta(2.0, $geo['startInterval'], 0.0001);
+        self::assertEqualsWithDelta(5.0, $geo['endInterval'], 0.0001);
         self::assertSame('40px', $geo['top']);
         self::assertSame('60px', $geo['height']);
     }
 
-    public function testComputeEventGeometryRoundsStartDownAndEndUp(): void
+    public function testComputeEventGeometryPositionsOffGridEventsMidSlot(): void
     {
-        // 30-min slots. Event at 9:15 for 30 min should snap to start at
-        // slot 0 (floor of 0.5) and end at slot 2 (ceil of 1.5) — height
-        // grows when start straddles a boundary.
+        // 30-min slots. Event at 9:15 for 30 min — legacy used float
+        // math so the event lands mid-slot rather than snapping to a
+        // slot boundary. start = 0.5, end = 1.5; top = 10px, height = 20px.
         $vm = new CalendarViewModel(viewType: ViewType::Day, firstDayOfWeek: 0);
 
         $geo = $vm->computeEventGeometry(555, 30, 540, 30, 20, 'px');
 
-        self::assertSame(0, $geo['startInterval']);
-        self::assertSame(2, $geo['endInterval']);
-        self::assertSame('0px',  $geo['top']);
-        self::assertSame('40px', $geo['height']);
+        self::assertEqualsWithDelta(0.5, $geo['startInterval'], 0.0001);
+        self::assertEqualsWithDelta(1.5, $geo['endInterval'], 0.0001);
+        self::assertSame('10px', $geo['top']);
+        self::assertSame('20px', $geo['height']);
     }
 
     public function testComputeEventGeometryPropagatesUnitString(): void
