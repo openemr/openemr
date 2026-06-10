@@ -25,6 +25,7 @@ use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\Panther\PantherTestCase;
 
 #[Group('bootstrap5')]
@@ -32,6 +33,8 @@ class Bootstrap5ComponentTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
+
+    private ?Crawler $crawler = null;
 
     /**
      * Test that Bootstrap 5 is loaded and the version is correct.

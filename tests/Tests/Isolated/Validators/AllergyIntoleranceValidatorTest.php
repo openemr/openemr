@@ -96,9 +96,9 @@ class AllergyIntoleranceValidatorTest extends TestCase
         $validData = [
             'title' => 'Penicillin Allergy',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000',
-            'begdate' => '2026-01-01 10:00:00',
+            'begdate' => '2026-01-01',
             'diagnosis' => 'Drug allergy',
-            'enddate' => '2026-12-31 23:59:59',
+            'enddate' => '2026-12-31',
             'comments' => 'Patient reported mild rash'
         ];
 
