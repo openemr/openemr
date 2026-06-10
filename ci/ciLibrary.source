@@ -691,8 +691,8 @@ capture_coredumps() {
         return 0
     fi
 
-    # gdb + binutils give us `bt` and `info sharedlibrary`. Install inside the
-    # container so symbol resolution uses the container's own libraries.
+    # gdb gives us `bt` and `info sharedlibrary`. Install inside the container
+    # so symbol resolution uses the container's own libraries.
     # shellcheck disable=SC2310  # install failure is non-fatal; backtrace is just skipped
     dc exec -T openemr sh -c \
         'command -v gdb >/dev/null 2>&1 || { (apk add --no-cache gdb 2>/dev/null) || { apt-get update -qq && apt-get install -y -qq gdb; }; }' \
