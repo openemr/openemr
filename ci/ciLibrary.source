@@ -693,10 +693,10 @@ capture_coredumps() {
 
     # gdb + binutils give us `bt` and `info sharedlibrary`. Install inside the
     # container so symbol resolution uses the container's own libraries.
-    # shellcheck disable=SC2310  # install failure is non-fatal; we still upload raw cores
+    # shellcheck disable=SC2310  # install failure is non-fatal; backtrace is just skipped
     dc exec -T openemr sh -c \
         'command -v gdb >/dev/null 2>&1 || { (apk add --no-cache gdb 2>/dev/null) || { apt-get update -qq && apt-get install -y -qq gdb; }; }' \
-        || echo 'WARNING: gdb install failed; raw cores will still be uploaded.' >&2
+        || echo 'WARNING: gdb install failed; no backtrace will be produced. The raw core is retained in the container; set COREDUMP_MAX_MB > 0 to upload it for offline analysis.' >&2
 
     # The faulting process is an Apache worker (AH00051 in the job log).
     local exe
