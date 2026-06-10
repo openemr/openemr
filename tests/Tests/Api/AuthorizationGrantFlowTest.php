@@ -114,6 +114,45 @@ class AuthorizationGrantFlowTest extends TestCase
         );
     }
 
+    public function testScopeAuthorizeConfirmWithMissingClientIdRendersErrorPage(): void
+    {
+        $dispatcher = new EventDispatcher();
+        $controller = $this->createMock(ControllerResolverInterface::class);
+        $kernel = new OEHttpKernel($dispatcher, $controller);
+        $kernel->getGlobalsBag()->set('site_addr_oath', $this->getBaseUrlApi());
+        $projectDir = $GLOBALS['webserver_root'] ?? dirname(__DIR__, 3);
+        $webRoot = $GLOBALS['webroot'] ?? '';
+        if (!is_string($projectDir) || !is_string($webRoot)) {
+            $this->fail('Expected $GLOBALS[webserver_root] and $GLOBALS[webroot] to be strings');
+        }
+        $kernel->getGlobalsBag()->set('kernel', new Kernel(
+            $projectDir,
+            $webRoot,
+            $dispatcher,
+        ));
+
+        $session = $this->getMockSession();
+        $session->set('scopes', 'openid profile');
+        $session->set('user_id', '');
+        // intentionally do NOT set 'client_id' — this is the reproduction
+
+        $authController = $this->getAuthorizationController($session, $kernel);
+        $request = HttpRestRequest::create('/oauth2/default' . AuthorizationController::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM);
+        $response = $authController->scopeAuthorizeConfirm($request);
+
+        $this->assertEquals(
+            Response::HTTP_OK,
+            $response->getStatusCode(),
+            'Error template is rendered with HTTP 200 by renderTwigPage; statusCode is conveyed via the page body'
+        );
+        $body = (string) $response->getBody();
+        $this->assertStringNotContainsStringIgnoringCase(
+            'bulkBind',
+            $body,
+            'Response must not surface the ADOdb bulkBind error from passing a non-string client_id'
+        );
+    }
+
     /**
      * @param string $redirectUri
      * @param string $scopesString
