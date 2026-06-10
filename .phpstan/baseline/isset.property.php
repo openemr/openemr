@@ -5147,11 +5147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$dataAbsentReason \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$device \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRReference\\) in isset\\(\\) is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
@@ -5203,61 +5198,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$subject \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRReference\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueBoolean \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRBoolean\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueCodeableConcept \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueDateTime \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueInteger \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInteger\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valuePeriod \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueQuantity \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRQuantity\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueRange \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRRange\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueRatio \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRRatio\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueSampledData \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRSampledData\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueString \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRObservation\\:\\:\\$valueTime \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRTime\\) in isset\\(\\) is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
 ];
@@ -15633,66 +15573,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$code \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$dataAbsentReason \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueBoolean \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRBoolean\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueCodeableConcept \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRCodeableConcept\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueDateTime \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRDateTime\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueInteger \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRInteger\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valuePeriod \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRPeriod\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueQuantity \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRQuantity\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueRange \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRRange\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueRatio \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRRatio\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueSampledData \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRSampledData\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueString \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRString\\) in isset\\(\\) is not nullable\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRObservation\\\\FHIRObservationComponent\\:\\:\\$valueTime \\(OpenEMR\\\\FHIR\\\\R4\\\\FHIRElement\\\\FHIRTime\\) in isset\\(\\) is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRResource/FHIRObservation/FHIRObservationComponent.php',
 ];

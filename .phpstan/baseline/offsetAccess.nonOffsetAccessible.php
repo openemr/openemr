@@ -40439,11 +40439,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIRObservation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access an offset on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/R4/FHIRDomainResource/FHIROperationDefinition.php',
 ];
 $ignoreErrors[] = [
