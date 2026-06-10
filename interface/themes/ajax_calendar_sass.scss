@@ -366,20 +366,20 @@ $side-calendar-date-padding: 0.3rem !default;
 
       // .month_daylink has a hardcoded white background, so the
       // day-number link inside needs a hardcoded dark text color
-      // independent of the active theme — themes that set
-      // $body-color to a light value (dark / cobalt / etc.) would
-      // otherwise leave the link invisible on the always-white
-      // .month_daylink background. $gray-900 is a deep gray that
-      // contrasts on white across every theme.
+      // independent of the active theme. Note that even SCSS-level
+      // grays ($gray-900, $dark, etc.) get redefined by the dark /
+      // cobalt theme cascades to be light colors against a dark
+      // background — so we use literal hex values here that no
+      // theme can override.
       a,
       a:link,
       a:visited,
       a:active {
-        color: $gray-900;
+        color: #111827;
       }
 
       a:hover {
-        color: $primary;
+        color: #0056b3;
         text-decoration: underline;
       }
     }
