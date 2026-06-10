@@ -639,6 +639,100 @@ dump_error_log() {
 }
 
 ##
+# Directory inside the openemr container where coredumps are collected. The
+# kernel core_pattern (set by enable_coredumps) is interpreted within the
+# crashing process's mount namespace, so this is a container path. It is not
+# on the bind mount; cores are streamed out with `dc exec` in
+# capture_coredumps, so they never touch the repo working tree.
+readonly COREDUMP_DIR='/var/www/coredumps'
+
+##
+# Enable coredumps so a segfaulting Apache worker leaves a usable core
+# (issue #12438/#12439). Three things must line up:
+#   1. The container's core ulimit must be non-zero — set in
+#      ci/compose-shared-apache.yml (ulimits.core).
+#   2. kernel.core_pattern must be a plain path, not a pipe. The GitHub
+#      runner ships `|/usr/share/apport/apport ...`, which the kernel runs
+#      in the host namespace; the core never reaches the container. An
+#      absolute path pattern is instead resolved inside the crashing
+#      process's mount namespace, landing the core in the container.
+#   3. fs.suid_dumpable=2 — Apache children drop privileges from root to
+#      the web user, which clears the dumpable flag; mode 2 restores it
+#      (core owned by root, readable by root).
+# core_pattern is a kernel global shared with the container.
+enable_coredumps() {
+    # Create the in-container target up front so the kernel has somewhere to
+    # write the core. World-writable + sticky: Apache workers run as the
+    # unprivileged web user once privileges are dropped.
+    dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
+    sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
+    sudo sysctl -w 'fs.suid_dumpable=2'
+}
+
+##
+# Backtrace every coredump collected in the openemr container and write the
+# results into the diagnostics directory passed as $1 (a host path). For each
+# core: a gdb text backtrace (naming the faulting shared object — the whole
+# point of #12439) plus the gzip'd raw core, capped so a multi-hundred-MB
+# core does not blow the artifact budget. No-op when no core was produced.
+capture_coredumps() {
+    local dest_dir=$1
+    local max_core_mb=${COREDUMP_MAX_MB:-300}
+    mkdir -p "${dest_dir}"
+
+    local cores
+    # shellcheck disable=SC2310  # missing-core is expected; || true drives the no-op branch
+    cores=$(dc exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.* 2>/dev/null") || true
+    if [[ -z "${cores}" ]]; then
+        echo "No coredumps found in ${COREDUMP_DIR}." > "${dest_dir}/coredumps.none.txt"
+        return 0
+    fi
+
+    # gdb + binutils give us `bt` and `info sharedlibrary`. Install inside the
+    # container so symbol resolution uses the container's own libraries.
+    # shellcheck disable=SC2310  # install failure is non-fatal; we still upload raw cores
+    dc exec -T openemr sh -c \
+        'command -v gdb >/dev/null 2>&1 || { (apk add --no-cache gdb 2>/dev/null) || { apt-get update -qq && apt-get install -y -qq gdb; }; }' \
+        || echo 'WARNING: gdb install failed; raw cores will still be uploaded.' >&2
+
+    # The faulting process is an Apache worker (AH00051 in the job log).
+    local exe
+    # shellcheck disable=SC2310  # missing binary is tolerated; gdb auto-detects from the core
+    exe=$(dc exec -T openemr sh -c 'command -v apache2 httpd 2>/dev/null | head -n1') || true
+    exe=${exe%$'\r'}
+
+    local core base
+    while IFS= read -r core; do
+        [[ -n "${core}" ]] || continue
+        base=$(basename "${core}")
+        echo "Backtracing ${base} (exe=${exe:-auto})..."
+        local -a gdb_args=(
+            exec -T openemr gdb --batch --nx
+            -ex 'set pagination off'
+            -ex 'thread apply all bt full'
+            -ex 'info sharedlibrary'
+        )
+        [[ -n "${exe}" ]] && gdb_args+=("${exe}")
+        gdb_args+=("${core}")
+        # shellcheck disable=SC2310  # a gdb failure is logged, not fatal — keep processing cores
+        dc "${gdb_args[@]}" \
+            > "${dest_dir}/${base}.backtrace.txt" 2>&1 \
+            || echo "gdb failed for ${base}; see ${base}.backtrace.txt" >&2
+        # Stream the core out as gzip, but only if it is under the cap.
+        local size_mb
+        # shellcheck disable=SC2310  # du failure falls back to 0 (treat as under cap)
+        size_mb=$(dc exec -T openemr sh -c "du -m '${core}' | cut -f1") || size_mb=0
+        size_mb=${size_mb%$'\r'}
+        if (( size_mb <= max_core_mb )); then
+            dc exec -T openemr gzip -c "${core}" > "${dest_dir}/${base}.gz"
+        else
+            echo "Core ${base} is ${size_mb}MB (> ${max_core_mb}MB cap); raw core omitted, backtrace retained." \
+                > "${dest_dir}/${base}.gz.skipped.txt"
+        fi
+    done <<< "${cores}"
+}
+
+##
 # Use the testsuite to figure out which junit filename to use.
 # This could get ugly if there's a long comma-delimited list of testsuites,
 # but we usually have only one.
