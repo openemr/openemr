@@ -143,6 +143,7 @@ services:
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
+    - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
@@ -304,6 +305,7 @@ volumes:
   nodemodules: {}
   vendordir: {}
   phpstanvolume: {}
+  webpackcachevolume: {}
   ccdanodemodules: {}
   ccdanodemodules2: {}
   logvolume: {}
