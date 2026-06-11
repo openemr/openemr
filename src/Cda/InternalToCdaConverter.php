@@ -663,7 +663,268 @@ class InternalToCdaConverter
 
     private function renderBody(DOMElement $root): void
     {
-        // TODO: Implement body rendering
+        $component = $this->createElement('component');
+        $structuredBody = $this->createElement('structuredBody');
+
+        $this->renderCareTeamSection($structuredBody);
+        $this->renderAllergiesSection($structuredBody);
+        $this->renderMedicationsSection($structuredBody);
+        $this->renderProblemsSection($structuredBody);
+        $this->renderProceduresSection($structuredBody);
+        $this->renderResultsSection($structuredBody);
+        $this->renderEncountersSection($structuredBody);
+        $this->renderImmunizationsSection($structuredBody);
+        $this->renderVitalSignsSection($structuredBody);
+        $this->renderSocialHistorySection($structuredBody);
+        $this->renderPayersSection($structuredBody);
+        $this->renderMedicalEquipmentSection($structuredBody);
+        $this->renderFunctionalStatusSection($structuredBody);
+        $this->renderMentalStatusSection($structuredBody);
+        $this->renderPlanOfCareSection($structuredBody);
+        $this->renderGoalsSection($structuredBody);
+        $this->renderHealthConcernsSection($structuredBody);
+        $this->renderAssessmentSection($structuredBody);
+
+        $component->appendChild($structuredBody);
+        $root->appendChild($component);
+    }
+
+    private function renderCareTeamSection(DOMElement $structuredBody): void
+    {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $careTeam = $this->xpath('/CCDA/care_team/team');
+        if ($careTeam->length === 0) {
+            $section->setAttribute('nullFlavor', 'NI');
+        }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.500', '2019-07-01');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '85847-2');
+        $code->setAttribute('displayName', 'Patient Care Teams');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Patient Care Teams'));
+
+        if ($careTeam->length === 0) {
+            $section->appendChild($this->createElement('text', 'A Care Team is not assigned.'));
+        } else {
+            // TODO: Implement care team entries
+            $section->appendChild($this->createElement('text', 'Care Team information'));
+        }
+
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
+    }
+
+    private function renderAllergiesSection(DOMElement $structuredBody): void
+    {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1', '2015-08-01');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '48765-2');
+        $code->setAttribute('displayName', 'Allergies, adverse reactions, alerts');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Allergies, adverse reactions, alerts'));
+
+        $allergies = $this->xpath('/CCDA/allergies/allergy');
+        if ($allergies->length === 0) {
+            $section->appendChild($this->createElement('text', 'No known Allergies and Intolerances'));
+            $this->appendNoKnownAllergiesEntry($section);
+        } else {
+            // TODO: Implement allergy entries with data
+        }
+
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
+    }
+
+    private function appendNoKnownAllergiesEntry(DOMElement $section): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30', '2015-08-01');
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('nullFlavor', 'UNK');
+        $act->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'CONC');
+        $code->setAttribute('displayName', 'Concerns');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
+        $act->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $act->appendChild($statusCode);
+
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', date('Ymd'));
+        $effectiveTime->appendChild($low);
+        $act->appendChild($effectiveTime);
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+        $obs->setAttribute('negationInd', 'true');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7');
+
+        $obsId = $this->createElement('id');
+        $obsId->setAttribute('nullFlavor', 'UNK');
+        $obs->appendChild($obsId);
+
+        $obsCode = $this->createElement('code');
+        $obsCode->setAttribute('code', 'ASSERTION');
+        $obsCode->setAttribute('displayName', 'Assertion');
+        $obsCode->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $obsCode->setAttribute('codeSystemName', 'ActCode');
+        $obs->appendChild($obsCode);
+
+        $obsStatus = $this->createElement('statusCode');
+        $obsStatus->setAttribute('code', 'completed');
+        $obs->appendChild($obsStatus);
+
+        $obsEffTime = $this->createElement('effectiveTime');
+        $obsLow = $this->createElement('low');
+        $obsLow->setAttribute('value', date('Ymd'));
+        $obsEffTime->appendChild($obsLow);
+        $obs->appendChild($obsEffTime);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', '419199007');
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED-CT');
+        $value->setAttribute('displayName', 'Allergy to substance (disorder)');
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#reaction1');
+        $origText->appendChild($ref);
+        $value->appendChild($origText);
+        $obs->appendChild($value);
+
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'CSM');
+        $partRole = $this->createElement('participantRole');
+        $partRole->setAttribute('classCode', 'MANU');
+        $playingEntity = $this->createElement('playingEntity');
+        $playingEntity->setAttribute('classCode', 'MMAT');
+        $peCode = $this->createElement('code');
+        $peCode->setAttribute('nullFlavor', 'NA');
+        $playingEntity->appendChild($peCode);
+        $partRole->appendChild($playingEntity);
+        $participant->appendChild($partRole);
+        $obs->appendChild($participant);
+
+        $entryRel->appendChild($obs);
+        $act->appendChild($entryRel);
+        $entry->appendChild($act);
+        $section->appendChild($entry);
+    }
+
+    private function renderMedicationsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderProblemsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderProceduresSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderResultsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderEncountersSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderImmunizationsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderVitalSignsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderSocialHistorySection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderPayersSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderMedicalEquipmentSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderFunctionalStatusSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderMentalStatusSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderPlanOfCareSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderGoalsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderHealthConcernsSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
+    }
+
+    private function renderAssessmentSection(DOMElement $structuredBody): void
+    {
+        // TODO: Implement
     }
 
     /**
