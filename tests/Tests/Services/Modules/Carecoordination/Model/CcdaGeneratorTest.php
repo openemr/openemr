@@ -54,7 +54,6 @@ class CcdaGeneratorTest extends TestCase
 
     public function testSocketGetProducesValidCda(): void
     {
-        $this->fail('tests should fail');
         $inputData = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
         self::assertNotFalse($inputData, 'Failed to read input fixture');
         $inputData = trim($inputData);
