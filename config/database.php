@@ -72,11 +72,28 @@ return [
     // Doctrine Migrations
     ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
     ConnectionLoader::class => fn (TC $c) => new ExistingConnection($c->get(Connection::class)),
-    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromConnection(
-        $c->get(ConfigurationLoader::class),
-        $c->get(ConnectionLoader::class),
-        $c->get(LoggerInterface::class),
-    ),
+    DependencyFactory::class => function (TC $c) {
+        $df = DependencyFactory::fromEntityManager(
+            $c->get(ConfigurationLoader::class),
+            new \Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager($c->get(EntityManagerInterface::class)),
+            $c->get(LoggerInterface::class),
+        );
+        $c->get(EntityManagerInterface::class)
+            ->getEventManager()
+        ->addEventSubscriber(new \OpenEMR\MigEvent());
+        return $df;
+    },
+    // DependencyFactory::class => function (TC $c) {
+    //     $df = DependencyFactory::fromConnection(
+    //         $c->get(ConfigurationLoader::class),
+    //         $c->get(ConnectionLoader::class),
+    //         $c->get(LoggerInterface::class),
+    //     );
+    //     $df->getEventDispatcher()
+    //         ->a
+    //     // $df->setDefinition();
+    //     return $df;
+    // },
 
     // ORM
     Configuration::class => function (TC $c) {
