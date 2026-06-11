@@ -127,8 +127,7 @@ class CcdaGenerator
             $send,
             $date_options
         );
-        $content = $this->socket_get($data);
-        $content = trim($content);
+        $content = $this->normalize($data);
         // split content if unstructured is included from service.
         // service will send back a CDA and an auto created unstructured document
         // if CCM sends the documents(patient_files object) with data array.
@@ -169,10 +168,10 @@ class CcdaGenerator
         return $generatedResult;
     }
 
-    private function socket_get(string $data): string
+    public function normalize(string $data): string
     {
         $converter = new InternalToCdaConverter();
-        return $converter->convert($data);
+        return trim($converter->convert($data));
     }
 
     public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = []): string
