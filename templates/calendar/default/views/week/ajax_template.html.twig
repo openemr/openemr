@@ -159,6 +159,24 @@
                     {{ provider.fname|text }} {{ provider.lname|text }}
                 </td>
             </tr>
+            {# Day-header row — separate from the schedule row so each
+               td.schedule's top edge coincides with its calendar_day's
+               top edge. calendarDirectSelect.js's displayApptTime()
+               computes the cursor offset relative to td.schedule and
+               then positions the marker inside calendar_day; if the
+               two don't share a top edge (i.e. there's a dayheader
+               div inside the schedule td) the marker lands one slot
+               below the cursor. #}
+            <tr>
+                <td>&nbsp;</td>
+                {% for column in provider.dayColumns %}
+                    {% set headerClass = 'text-center week_dateheader' %}
+                    {% if column.isCurrentDay %}{% set headerClass = headerClass ~ ' week_currday' %}{% endif %}
+                    <td class="{{ headerClass|attr }}">
+                        <a href="{{ column.gotoUrl|safe_href }}" title="{{ column.dateAttrTitle|attr }}">{{ column.dayHeaderLabel|xlt }}</a>
+                    </td>
+                {% endfor %}
+            </tr>
             <tr>
                 <td id="times" style="width:2em;">
                     <div>
@@ -179,11 +197,7 @@
 
                 {% for column in provider.dayColumns %}
                     {% set columnClass = 'schedule ' ~ column.classForWeekend %}
-                    {% if column.isCurrentDay %}{% set columnClass = columnClass ~ ' week_currday' %}{% endif %}
                     <td class="{{ columnClass|attr }}" date="{{ column.dateYmd|attr }}" provider="{{ provider.id|attr }}">
-                        <div class="dayheader">
-                            <a href="{{ column.gotoUrl|safe_href }}" title="{{ column.dateAttrTitle|attr }}">{{ column.dayHeaderLabel|xlt }}</a>
-                        </div>
                         <div class="calendar_day">
                             {% for event in column.events %}
                                 {% if event.catid == 2 %}
