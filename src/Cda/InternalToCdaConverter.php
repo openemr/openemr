@@ -849,7 +849,240 @@ class InternalToCdaConverter
 
     private function renderMedicationsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.1.1', '2014-06-09');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.1.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '10160-0');
+        $code->setAttribute('displayName', 'History of medication use');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'History of medication use'));
+
+        $medications = $this->xpath('/CCDA/medications/medication');
+        $this->appendMedicationsNarrative($section, $medications);
+
+        $index = 1;
+        foreach ($medications as $med) {
+            $this->appendMedicationEntry($section, $med, $index);
+            $index++;
+        }
+
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $medications
+     */
+    private function appendMedicationsNarrative(DOMElement $section, \DOMNodeList $medications): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createElement('table');
+        $table->setAttribute('width', '100%');
+        $table->setAttribute('border', '1');
+
+        $thead = $this->createElement('thead');
+        $headerRow = $this->createElement('tr');
+        $headerRow->appendChild($this->createElement('th', 'Medication Class'));
+        $headerRow->appendChild($this->createElement('th', '# fills'));
+        $headerRow->appendChild($this->createElement('th', 'Last fill date'));
+        $thead->appendChild($headerRow);
+        $table->appendChild($thead);
+
+        $index = 1;
+        foreach ($medications as $med) {
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $drugCell = $this->createElement('td', $this->xpathValue('drug', $med));
+            $drugCell->setAttribute('ID', 'medinfo' . $index);
+            $row->appendChild($drugCell);
+
+            $row->appendChild($this->createElement('td', '0'));
+            $row->appendChild($this->createElement('td', date('Y-m-d')));
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendMedicationEntry(DOMElement $section, DOMElement $med, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $subAdmin = $this->createElement('substanceAdministration');
+        $subAdmin->setAttribute('classCode', 'SBADM');
+        $subAdmin->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16', '2014-06-09');
+        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16');
+
+        $shaExt = $this->xpathValue('sha_extension', $med);
+        $ext = $this->xpathValue('extension', $med);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $subAdmin->appendChild($id);
+
+        $direction = $this->xpathValue('direction', $med);
+        $subAdmin->appendChild($this->createElement('text', $direction));
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $subAdmin->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('start_date', $med);
+        $endDate = $this->xpathValue('end_date', $med);
+        $effTime1 = $this->output->createElement('effectiveTime');
+        $effTime1->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_TS');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effTime1->appendChild($low);
+        $high = $this->createElement('high');
+        $high->setAttribute('value', $this->formatDateOnly($endDate));
+        $effTime1->appendChild($high);
+        $subAdmin->appendChild($effTime1);
+
+        $dosage = $this->xpathValue('dosage', $med);
+        $effTime2 = $this->output->createElement('effectiveTime');
+        $effTime2->setAttributeNS(self::NS_XSI, 'xsi:type', 'PIVL_TS');
+        $effTime2->setAttribute('institutionSpecified', 'true');
+        $effTime2->setAttribute('operator', 'A');
+        $period = $this->createElement('period');
+        $period->setAttribute('value', $dosage !== '' ? (string) (int) floatval($dosage) : '1');
+        $effTime2->appendChild($period);
+        $subAdmin->appendChild($effTime2);
+
+        $routeCode = $this->createElement('routeCode');
+        $route = $this->xpathValue('route_code', $med);
+        if ($route !== '') {
+            $routeCode->setAttribute('code', $route);
+            $routeCode->setAttribute('codeSystem', '2.16.840.1.113883.3.26.1.1');
+        } else {
+            $routeCode->setAttribute('nullFlavor', 'UNK');
+        }
+        $subAdmin->appendChild($routeCode);
+
+        $subAdmin->appendChild($this->createElement('doseQuantity'));
+
+        $this->appendMedicationConsumable($subAdmin, $med, $index);
+        $this->appendMedicationAuthor($subAdmin, $med);
+
+        $entry->appendChild($subAdmin);
+        $section->appendChild($entry);
+    }
+
+    private function appendMedicationConsumable(DOMElement $subAdmin, DOMElement $med, int $index): void
+    {
+        $consumable = $this->createElement('consumable');
+        $mfgProduct = $this->createElement('manufacturedProduct');
+        $mfgProduct->setAttribute('classCode', 'MANU');
+
+        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.23', '2014-06-09');
+        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.23');
+
+        $shaExt = $this->xpathValue('sha_extension', $med);
+        $ext = $this->xpathValue('extension', $med);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext . '1');
+        $mfgProduct->appendChild($id);
+
+        $mfgMaterial = $this->createElement('manufacturedMaterial');
+        $drug = $this->xpathValue('drug', $med);
+        $rxnorm = $this->xpathValue('rxnorm', $med);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $this->cleanCode($rxnorm));
+        $code->setAttribute('displayName', $drug);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.88');
+        $code->setAttribute('codeSystemName', 'RXNORM');
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#medinfo' . $index);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+        $mfgMaterial->appendChild($code);
+
+        $mfgProduct->appendChild($mfgMaterial);
+        $consumable->appendChild($mfgProduct);
+        $subAdmin->appendChild($consumable);
+    }
+
+    private function appendMedicationAuthor(DOMElement $subAdmin, DOMElement $med): void
+    {
+        $author = $this->createElement('author');
+        $author->setAttribute('typeCode', 'AUT');
+
+        $this->appendTemplateId($author, '2.16.840.1.113883.10.20.22.4.119');
+
+        $time = $this->xpathValue('author/time', $med);
+        $timeEl = $this->createElement('time');
+        $timeEl->setAttribute('value', $this->formatTimestamp($time));
+        $author->appendChild($timeEl);
+
+        $assignedAuthor = $this->createElement('assignedAuthor');
+
+        $authorId = $this->xpathValue('author/id', $med);
+        $authorNpi = $this->xpathValue('author/npi', $med);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $authorId !== '' ? $authorId : '2.16.840.1.113883.4.6');
+        $id->setAttribute('extension', $authorNpi !== '' ? $authorNpi : 'NI');
+        $assignedAuthor->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $this->xpathValue('author/physician_type_code', $med));
+        $code->setAttribute('displayName', $this->xpathValue('author/physician_type', $med));
+        $code->setAttribute('codeSystem', $this->xpathValue('author/physician_type_system', $med));
+        $code->setAttribute('codeSystemName', $this->xpathValue('author/physician_type_system_name', $med));
+        $assignedAuthor->appendChild($code);
+
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        $lname = $this->xpathValue('author/lname', $med);
+        $fname = $this->xpathValue('author/fname', $med);
+        if ($lname !== '') {
+            $name->appendChild($this->createElement('family', $lname));
+        }
+        if ($fname !== '') {
+            $name->appendChild($this->createElement('given', $fname));
+        }
+        $assignedPerson->appendChild($name);
+        $assignedAuthor->appendChild($assignedPerson);
+
+        $repOrg = $this->createElement('representedOrganization');
+        $orgId = $this->createElement('id');
+        $facilityOid = $this->xpathValue('author/facility_oid', $med);
+        $facilityNpi = $this->xpathValue('author/facility_npi', $med);
+        $orgId->setAttribute('root', $facilityOid !== '' ? $facilityOid : '2.16.840.1.113883.4.6');
+        $orgId->setAttribute('extension', $facilityNpi !== '' ? $facilityNpi : 'NI');
+        $repOrg->appendChild($orgId);
+        $facilityName = $this->xpathValue('author/facility_name', $med);
+        $repOrg->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
+        $assignedAuthor->appendChild($repOrg);
+
+        $author->appendChild($assignedAuthor);
+        $subAdmin->appendChild($author);
+    }
+
+    private function formatDateOnly(string $input): string
+    {
+        $input = trim($input);
+        if ($input === '' || $input === '0000-00-00') {
+            return date('Ymd');
+        }
+        $input = str_replace(['-', ' ', ':'], '', $input);
+        return substr($input, 0, 8);
     }
 
     private function renderProblemsSection(DOMElement $structuredBody): void
