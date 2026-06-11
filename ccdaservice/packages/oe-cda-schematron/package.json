@@ -4,7 +4,8 @@
   "description": "A javascript implementation of schematron testing for XML documents. This specifically resolves a need for a package that allows a quick, reliable install for validating HL7 clinical documents, such as C-CDA.",
   "main": "validator.js",
   "scripts": {
-    "test": "grunt"
+    "lint": "eslint .",
+    "test": "mocha test/tests.js"
   },
   "repository": {
     "type": "git",
@@ -18,9 +19,8 @@
   "homepage": "https://github.com/openemr/cda-schematron#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "grunt": "^1.6.2",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-mocha-test": "^0.13.2",
+    "eslint": "^10.4.1",
+    "globals": "^17.6.0",
     "mocha": "^11.7.6"
   },
   "dependencies": {
