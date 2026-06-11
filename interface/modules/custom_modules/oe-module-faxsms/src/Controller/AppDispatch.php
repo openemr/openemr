@@ -276,8 +276,7 @@ abstract class AppDispatch
      */
     static function setModuleType($type): void
     {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $session->set('oefax_current_module_type', $type);
+        SessionUtil::setSession('oefax_current_module_type', $type);
         self::$_apiModule = $type;
     }
 

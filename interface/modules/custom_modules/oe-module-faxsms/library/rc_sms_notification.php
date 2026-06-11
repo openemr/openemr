@@ -45,6 +45,7 @@
  *     lives in `AppointmentNotificationRunner` and is covered there.
  */
 
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -123,7 +124,7 @@ $cronIntervalHours = $taskManager->getTaskHours(strtolower($TYPE));
 // here: this path is always invoked by an interactive admin, so a
 // visible "Not Authorised!" page is the expected response.
 if ($channel === NotificationChannel::SMS) {
-    $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
+    SessionUtil::setSession('authUser', $runtime['user'] ?? $session->get('authUser'));
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
 
@@ -131,7 +132,7 @@ if ($channel === NotificationChannel::SMS) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
 } else {
-    $session->set('authUser', $runtime['user'] ?? $session->get('authUser'));
+    SessionUtil::setSession('authUser', $runtime['user'] ?? $session->get('authUser'));
     $clientApp = AppDispatch::getApiService('email');
     $cred = $clientApp->getEmailSetup();
 

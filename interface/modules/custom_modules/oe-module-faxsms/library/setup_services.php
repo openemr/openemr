@@ -14,6 +14,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
@@ -67,7 +68,7 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 
 if ($_POST['form_save'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
-    $session->set('editingUser', ($_POST['editingUser'] ?? 0));
+    SessionUtil::setSession('editingUser', ($_POST['editingUser'] ?? 0));
     $boot->saveVendorGlobals($_POST);
 }
 
