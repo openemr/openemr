@@ -1354,42 +1354,216 @@ class InternalToCdaConverter
 
     private function renderPayersSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $payers = $this->xpath('/CCDA/payers/payer');
+        if ($payers->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18', '2015-08-01');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '48768-6');
+            $code->setAttribute('displayName', 'Payers');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Payers'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement payers with data
+        }
     }
 
     private function renderMedicalEquipmentSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $devices = $this->xpath('/CCDA/medical_devices/device');
+        if ($devices->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23', '2014-06-09');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '46264-8');
+            $code->setAttribute('displayName', 'Medical Equipment');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Medical Equipment'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement medical equipment with data
+        }
     }
 
     private function renderFunctionalStatusSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $functionalStatus = $this->xpath('/CCDA/functional_status/functional_status');
+        if ($functionalStatus->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14', '2014-06-09');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '47420-5');
+            $code->setAttribute('displayName', 'Functional Status');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Functional Status'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement functional status with data
+        }
     }
 
     private function renderMentalStatusSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $mentalStatus = $this->xpath('/CCDA/mental_status/status');
+        if ($mentalStatus->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.56', '2015-08-01');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '10190-7');
+            $code->setAttribute('displayName', 'Mental Status');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Mental Status'));
+            $section->appendChild($this->createElement('text', 'Mental Status Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement mental status with data
+        }
     }
 
     private function renderPlanOfCareSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $planOfCare = $this->xpath('/CCDA/planofcare/item');
+        if ($planOfCare->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10', '2014-06-09');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '18776-5');
+            $code->setAttribute('displayName', 'Treatment Plan');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Treatment Plan'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement plan of care with data
+        }
     }
 
     private function renderGoalsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $goals = $this->xpath('/CCDA/goals/goal');
+        if ($goals->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60', '2015-08-01');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '61146-7');
+            $code->setAttribute('displayName', 'Goals');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Goals'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement goals with data
+        }
     }
 
     private function renderHealthConcernsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $concerns = $this->xpath('/CCDA/health_concerns/concern');
+        if ($concerns->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58', '2015-08-01');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '75310-3');
+            $code->setAttribute('displayName', 'Health Concerns Document');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Health Concerns Document'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement health concerns with data
+        }
     }
 
     private function renderAssessmentSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $assessments = $this->xpath('/CCDA/clinical_notes/evaluation_note');
+        if ($assessments->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.8');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '51848-0');
+            $code->setAttribute('displayName', 'Assessments');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Assessments'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement assessments with data
+        }
     }
 
     /**
@@ -1519,6 +1693,41 @@ class InternalToCdaConverter
     {
         $component->appendChild($section);
         $structuredBody->appendChild($component);
+    }
+
+    /**
+     * Creates an empty section with nullFlavor="NI"
+     */
+    private function createEmptySection(
+        DOMElement $structuredBody,
+        string $templateId,
+        ?string $templateExtension,
+        string $loincCode,
+        string $title,
+        string $emptyText = 'Not Available',
+    ): void {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+        $section->setAttribute('nullFlavor', 'NI');
+
+        if ($templateExtension !== null) {
+            $this->appendTemplateId($section, $templateId, $templateExtension);
+            $this->appendTemplateId($section, $templateId);
+        } else {
+            $this->appendTemplateId($section, $templateId);
+        }
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $loincCode);
+        $code->setAttribute('displayName', $title);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', $title));
+        $section->appendChild($this->createElement('text', $emptyText));
+
+        $this->appendSection($structuredBody, $component, $section);
     }
 
     /**
