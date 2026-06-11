@@ -80,7 +80,6 @@
     }
 
     $(function () {
-        if (typeof setupDirectTime === 'function') { setupDirectTime(); }
         $("#pc_username").change(function() { ChangeProviders(this); });
         $("#pc_facility").change(function() { ChangeProviders(this); });
         $("#dayview").click(function() { ChangeView(this); });

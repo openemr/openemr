@@ -220,3 +220,12 @@
 </div><!-- end #wrapper -->
 
 {% include 'calendar/default/views/_calendar_screen_js.html.twig' %}
+
+{# Direct-select wires mousemove on `td.schedule` to drop an in-cell
+   `.apptMarker` for click-to-create-appointment. Only day and week
+   views want this — on month view each `td.schedule` is a whole day,
+   not a time slot, so the marker paints over the day-link and
+   prevents navigation. #}
+<script>
+    $(function () { if (typeof setupDirectTime === 'function') { setupDirectTime(); } });
+</script>
