@@ -14,6 +14,7 @@
 namespace Carecoordination\Model;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -168,14 +169,13 @@ class CcdaGenerator
         return $generatedResult;
     }
 
-    public function socket_get($data): string
+    private function socket_get(string $data): string
     {
-        $serviceRequestor = new CcdaServiceDocumentRequestor();
-        $content = $serviceRequestor->socket_get($data);
-        return $content;
+        $converter = new InternalToCdaConverter();
+        return $converter->convert($data);
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = []): string
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
         $modelGenerator->create_data(
