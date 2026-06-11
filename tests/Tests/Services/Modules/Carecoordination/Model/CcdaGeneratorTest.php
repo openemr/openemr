@@ -110,10 +110,11 @@ class CcdaGeneratorTest extends TestCase
 
         $expr = '//*[@value="' . $currentTimestamp . '"]';
         $timestampValues = $xpath->query($expr);
-        assert($timestampValues !== false);
-        foreach ($timestampValues as $timestamp) {
-            if ($timestamp instanceof \DOMElement) {
-                $timestamp->setAttribute('value', $newTimestamp);
+        if ($timestampValues !== false) {
+            foreach ($timestampValues as $timestamp) {
+                if ($timestamp instanceof \DOMElement) {
+                    $timestamp->setAttribute('value', $newTimestamp);
+                }
             }
         }
 
@@ -122,9 +123,10 @@ class CcdaGeneratorTest extends TestCase
         if ($dateTime !== false && $dateTimeNew !== false) {
             $expr = "//hl7:tr/hl7:td/text()[normalize-space(.) = '" . $dateTime->format('Y-m-d') . "']";
             $timestampTextNodes = $xpath->query($expr);
-            assert($timestampTextNodes !== false);
-            foreach ($timestampTextNodes as $textNode) {
-                $textNode->nodeValue = $dateTimeNew->format('Y-m-d');
+            if ($timestampTextNodes !== false) {
+                foreach ($timestampTextNodes as $textNode) {
+                    $textNode->nodeValue = $dateTimeNew->format('Y-m-d');
+                }
             }
         }
 
@@ -169,8 +171,15 @@ class CcdaGeneratorTest extends TestCase
                 continue;
             }
 
-            $actualId = $actual->query('.//hl7:id', $actualNode)->item(0);
-            $expectedId = $expected->query('.//hl7:id', $expectedNode)->item(0);
+            $actualIdList = $actual->query('.//hl7:id', $actualNode);
+            $expectedIdList = $expected->query('.//hl7:id', $expectedNode);
+
+            if ($actualIdList === false || $expectedIdList === false) {
+                continue;
+            }
+
+            $actualId = $actualIdList->item(0);
+            $expectedId = $expectedIdList->item(0);
 
             if ($actualId instanceof \DOMElement && $expectedId instanceof \DOMElement) {
                 $actualId->setAttribute('root', $expectedId->getAttribute('root'));
