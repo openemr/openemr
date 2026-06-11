@@ -110,6 +110,7 @@ class CcdaGeneratorTest extends TestCase
 
         $expr = '//*[@value="' . $currentTimestamp . '"]';
         $timestampValues = $xpath->query($expr);
+        assert($timestampValues !== false);
         foreach ($timestampValues as $timestamp) {
             if ($timestamp instanceof \DOMElement) {
                 $timestamp->setAttribute('value', $newTimestamp);
@@ -121,6 +122,7 @@ class CcdaGeneratorTest extends TestCase
         if ($dateTime !== false && $dateTimeNew !== false) {
             $expr = "//hl7:tr/hl7:td/text()[normalize-space(.) = '" . $dateTime->format('Y-m-d') . "']";
             $timestampTextNodes = $xpath->query($expr);
+            assert($timestampTextNodes !== false);
             foreach ($timestampTextNodes as $textNode) {
                 $textNode->nodeValue = $dateTimeNew->format('Y-m-d');
             }
