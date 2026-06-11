@@ -51,8 +51,8 @@ curl -s -L -b "${COOKIES}" -c "${COOKIES}" -o /dev/null -w "  login HTTP %{http_
 normalise() {
     # Reads from stdin (no file arg) — script pipes curl output through.
     sed -E '
-        s/\?v=[0-9]+/?v=NORMALISED/g
-        s/\?t=[0-9]+/?t=NORMALISED/g
+        s/\?v=[0-9a-f]+/?v=NORMALISED/g
+        s/\?t=[0-9a-f]+/?t=NORMALISED/g
         s/csrf_token_form" value="[a-f0-9]+"/csrf_token_form" value="NORMALISED"/g
         s/nonce-[a-f0-9-]+/nonce-NORMALISED/g
     '
