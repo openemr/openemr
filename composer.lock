@@ -1971,21 +1971,21 @@
         },
         {
             "name": "firehed/container",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Firehed/container.git",
-                "reference": "0b77cbfcd0396aca149625dc83030c3b9f383486"
+                "reference": "7d170d89a399e896ec1821f236b0e0b552855ee4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Firehed/container/zipball/0b77cbfcd0396aca149625dc83030c3b9f383486",
-                "reference": "0b77cbfcd0396aca149625dc83030c3b9f383486",
+                "url": "https://api.github.com/repos/Firehed/container/zipball/7d170d89a399e896ec1821f236b0e0b552855ee4",
+                "reference": "7d170d89a399e896ec1821f236b0e0b552855ee4",
                 "shasum": ""
             },
             "require": {
-                "nikic/php-parser": "^4.7.0 || ^5.0",
-                "php": "^8.1",
+                "nikic/php-parser": "^5.0",
+                "php": "^8.2",
                 "psr/container": "^1.0 || ^2.0",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
             },
@@ -1996,8 +1996,8 @@
                 "phpstan/phpstan": "^2.0",
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-strict-rules": "^2.0",
-                "phpunit/phpunit": "^10.5.27",
-                "squizlabs/php_codesniffer": "^3.5",
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0",
+                "squizlabs/php_codesniffer": "^4.0",
                 "vlucas/phpdotenv": "^5.6"
             },
             "type": "library",
@@ -2032,9 +2032,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Firehed/container/issues",
-                "source": "https://github.com/Firehed/container/tree/1.0.0"
+                "source": "https://github.com/Firehed/container/tree/1.1.0"
             },
-            "time": "2026-03-07T00:08:33+00:00"
+            "time": "2026-06-10T00:00:27+00:00"
         },
         {
             "name": "giggsey/libphonenumber-for-php",
