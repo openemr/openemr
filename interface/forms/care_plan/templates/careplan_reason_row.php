@@ -13,7 +13,7 @@
 /** @var array<string, array{code: string, description: string}> $reasonCodeStatii (set in including file) */
 
 ?>
-<div class="row gx-2 reasonCodeContainer reason_code <?php echo !empty($obj['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr($key); ?>">
+<div class="row gx-2 reasonCodeContainer reason_code <?php echo !empty($obj['reason_code']) ? "" : "d-none"; ?>" id="reason_code_<?php echo attr((string) $key); ?>">
     <div class="card mt-2 mb-4">
         <div class="card-header">
             <?php echo xlt("Care Plan Reason Information"); ?>
