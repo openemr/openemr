@@ -34,8 +34,29 @@ $secondary-color: $gray-100;
 $input-color: $gray-300;
 $modal-content-bg: $body-bg;
 
-/* All variables are imported by bootswatch */
-@import "../../../public/assets/bootswatch/dist/solar/variables";
+/* Solarized accent palette (previously provided by the bootswatch solar theme,
+   which has been removed). The grays above are intentionally inverted by this
+   theme; only the accent colors are needed from the original Solar palette. */
+$blue: #b58900;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #d33682;
+$orange: #fd7e14;
+$yellow: #cb4b16;
+$green: #2aa198;
+$teal: #20c997;
+$cyan: #268bd2;
+
+$primary: $blue;
+$secondary: #839496;
+$success: $green;
+$info: $cyan;
+$warning: $yellow;
+$danger: $red;
+
+$min-contrast-ratio: 2.5;
+
 @import "../default-variables";
 
 // Login form bg change
