@@ -29,7 +29,7 @@ function validate(xml, schematron, options) {
     var resourceDir = options.resourceDir || './';
     var xmlSnippetMaxLength = options.xmlSnippetMaxLength === undefined ? 200 : options.xmlSnippetMaxLength;
 
-    if (xml.trim().indexOf('<')) {
+    if (!xml.trim().startsWith('<')) {
         try {
             xml = fs.readFileSync(xml, 'utf-8').toString();
         } catch (err) {
@@ -37,7 +37,7 @@ function validate(xml, schematron, options) {
         }
     }
 
-    if (schematron.trim().indexOf('<')) {
+    if (!schematron.trim().startsWith('<')) {
         try {
             schematron = fs.readFileSync(schematron, 'utf-8').toString();
         } catch (err) {
