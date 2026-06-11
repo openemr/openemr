@@ -5,6 +5,14 @@ services:
     - 443:443
     volumes:
     - ../:/var/www/localhost/htdocs/openemr
+    # Allow the container to write coredumps when an Apache worker segfaults
+    # (issue #12438/#12439): the kernel will not dump a process whose core
+    # ulimit is 0. The on-failure CI diagnostics step extracts and backtraces
+    # any core found here to identify the faulting native extension.
+    ulimits:
+      core:
+        soft: -1
+        hard: -1
     environment:
       EMPTY: yes
       FORCE_NO_BUILD_MODE: yes
