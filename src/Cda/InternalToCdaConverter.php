@@ -1349,7 +1349,29 @@ class InternalToCdaConverter
 
     private function renderSocialHistorySection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $socialHistory = $this->xpath('/CCDA/history_physical/social_history/*');
+        if ($socialHistory->length === 0) {
+            $component = $this->createElement('component');
+            $section = $this->createElement('section');
+            $section->setAttribute('nullFlavor', 'NI');
+
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17', '2015-08-01');
+            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17');
+
+            $code = $this->createElement('code');
+            $code->setAttribute('code', '29762-2');
+            $code->setAttribute('displayName', 'Social History');
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $code->setAttribute('codeSystemName', 'LOINC');
+            $section->appendChild($code);
+
+            $section->appendChild($this->createElement('title', 'Social History'));
+            $section->appendChild($this->createElement('text', 'Not Available'));
+
+            $this->appendSection($structuredBody, $component, $section);
+        } else {
+            // TODO: Implement social history with data
+        }
     }
 
     private function renderPayersSection(DOMElement $structuredBody): void
