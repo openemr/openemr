@@ -160,6 +160,7 @@ class EmailClient extends AppDispatch
             throw new EmailSendFailedException($mail->ErrorInfo);
         }
     }
+
     /**
      * @return false|string
      */
@@ -209,5 +210,13 @@ class EmailClient extends AppDispatch
     public function fetchEmailList($uiDateRangeFlag = true): false|string|null
     {
         return "[]"; // Caller expects JSON result, not HTML;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallLogs()
+    {
+        return xlt('Not Implemented');
     }
 }

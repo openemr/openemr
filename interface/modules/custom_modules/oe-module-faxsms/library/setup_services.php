@@ -35,7 +35,6 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
 
     $selectedService = $_POST['selected_service'] ?? null;
     $selectedAction = $_POST['action'] ?? null;
-    $status = $taskManager->getServiceStatus($selectedService);
 
     $period = $_POST['period'] ?? null;
     if (empty($period)) {
@@ -65,8 +64,6 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
         }
     }
 }
-
-$currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
 
 if ($_POST['form_save'] ?? null) {
     CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
@@ -199,9 +196,11 @@ $vendors = $boot->getVendorGlobals();
         $boot->createVendorGlobals();
         $vendors = $boot->getVendorGlobals();
     }
+    $selectedService ??= '';
     $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
     $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
+    $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : false;
 
     $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
     $faxVendor = ServiceType::fromValue($vendors['oefax_enable_fax']);
@@ -430,7 +429,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="clearfix"></div>
                     <div class="row form-group">
                         <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
-                        <div class="col-sm-6" title=<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?> >
+                        <div class="col-sm-6" title=<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?>>
                             <input type="checkbox" class="checkbox persist" name="oeenable_users_permissions" id="oeenable_users_permissions" value="1" <?php echo $vendors['oeenable_users_permissions'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
@@ -524,8 +523,8 @@ $vendors = $boot->getVendorGlobals();
                                 <button type="button" class="btn btn-info" onclick="toggleHelpCard()"><?php echo xlt('Help'); ?></button>
                             </span>
                             </div>
-                            <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
-                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string) $selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
+                            <?php if ($currentStatus && ($currentStatus[$selectedService]) !== false) { ?>
+                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string)$selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
                                     <li><strong><?php echo xlt('Execution Run Interval'); ?>: </strong><?php echo text($currentStatus[$selectedService]['execute_interval']) . ' ' . xlt('Minutes'); ?></li>

@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Background\BackgroundServiceDefinition;
 use OpenEMR\Services\Background\BackgroundServiceRegistry;
 
@@ -96,7 +97,7 @@ class NotificationTaskManager
         // Callers treat $hours as an integer number of hours, but legacy
         // code paths pass strings from $_POST. Normalize to int and fall
         // back to the stored DB interval when no explicit value is given.
-        $hoursInt = is_numeric($hours) ? (int) $hours : 0;
+        $hoursInt = is_numeric($hours) ? (int)$hours : 0;
         $intervalHours = $hoursInt > 0 ? $hoursInt : $this->getTaskHours($type);
         $total_minutes = $intervalHours * 60;
 
@@ -167,7 +168,7 @@ class NotificationTaskManager
         sqlStatementNoLog($sql, [$name]);
     }
 
-    public function getServiceStatus($type): false|array|string
+    public function getServiceStatus($type): false|array
     {
         if ($type == 'sms') {
             $name = 'Notification_SMS_Task';
@@ -178,7 +179,7 @@ class NotificationTaskManager
         }
 
         $sql = "SELECT * FROM `background_services` WHERE `name` = ?";
-        $result[$type] = sqlQueryNoLog($sql, [$name]);
+        $result[$type] = QueryUtils::querySingleRow($sql, [$name]);
 
         return $result;
     }
