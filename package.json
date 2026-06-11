@@ -51,7 +51,7 @@
     "eslint-plugin-jest": "28.14.0",
     "jest": "29.7.0",
     "jest-environment-jsdom": "30.4.1",
-    "mini-css-extract-plugin": "2.10.1",
+    "mini-css-extract-plugin": "2.10.2",
     "napa": "3.0.0",
     "postcss": "8.5.15",
     "postcss-loader": "7.3.4",
