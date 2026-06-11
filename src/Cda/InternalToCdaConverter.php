@@ -1013,7 +1013,313 @@ class InternalToCdaConverter
 
     private function renderProblemsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        [$component, $section] = $this->createSection(
+            '2.16.840.1.113883.10.20.22.2.5.1',
+            '2015-08-01',
+            '11450-4',
+            'Problem List',
+        );
+
+        $problems = $this->xpath('/CCDA/problem_lists/problem');
+        $this->appendProblemsNarrative($section, $problems);
+
+        $index = 1;
+        foreach ($problems as $problem) {
+            $this->appendProblemEntry($section, $problem, $index);
+            $index++;
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $problems
+     */
+    private function appendProblemsNarrative(DOMElement $section, \DOMNodeList $problems): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Concern', 'Last Observation', 'Reported']);
+
+        $index = 1;
+        foreach ($problems as $problem) {
+            $title = $this->xpathValue('title', $problem);
+            $startDate = $this->xpathValue('start_date_table', $problem);
+            $dateOnly = $startDate !== '' ? substr(str_replace(['-', ' ', ':'], '', $startDate), 0, 10) : '';
+            $formattedDate = $dateOnly !== '' ? substr($dateOnly, 0, 4) . '-' . substr($dateOnly, 4, 2) . '-' . substr($dateOnly, 6, 2) : '';
+
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $cell1 = $this->createElement('td', $title);
+            $cell1->setAttribute('ID', 'problem' . $index);
+            $row->appendChild($cell1);
+
+            $cell2 = $this->createElement('td', 'No Data Available');
+            $cell2->setAttribute('ID', 'healthStatus' . $index);
+            $row->appendChild($cell2);
+
+            $row->appendChild($this->createElement('td', $formattedDate));
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendProblemEntry(DOMElement $section, DOMElement $problem, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.3', '2015-08-01');
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.3');
+
+        $shaExt = $this->xpathValue('sha_extension', $problem);
+        $ext = $this->xpathValue('extension', $problem);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $act->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'CONC');
+        $code->setAttribute('displayName', 'Concern');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
+        $code->setAttribute('codeSystemName', 'HL7ActClass');
+        $act->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $act->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('start_date', $problem);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effectiveTime->appendChild($low);
+        $act->appendChild($effectiveTime);
+
+        $authorEl = $this->xpath('author', $problem)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($act, $authorEl);
+        }
+
+        $this->appendProblemObservation($act, $problem, $index);
+
+        $entry->appendChild($act);
+        $section->appendChild($entry);
+    }
+
+    private function appendProblemObservation(DOMElement $act, DOMElement $problem, int $index): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4', '2015-08-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4');
+
+        $shaExt = $this->xpathValue('sha_extension', $problem);
+        $ext = $this->xpathValue('extension', $problem);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $obs->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '64572001');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('displayName', 'Condition');
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '75323-6');
+        $translation->setAttribute('displayName', 'Condition');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $code->appendChild($translation);
+        $obs->appendChild($code);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#problem' . $index);
+        $text->appendChild($ref);
+        $obs->appendChild($text);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('start_date', $problem);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effectiveTime->appendChild($low);
+        $obs->appendChild($effectiveTime);
+
+        $title = $this->xpathValue('title', $problem);
+        $problemCode = $this->xpathValue('code', $problem);
+        $codeType = $this->xpathValue('code_type', $problem);
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $problemCode);
+        $value->setAttribute('displayName', $title);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', $codeType);
+        $obs->appendChild($value);
+
+        $authorEl = $this->xpath('author', $problem)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $this->appendProblemStatus($obs, $problem);
+        $this->appendAgeAtOnset($obs, $problem);
+        $this->appendHealthStatus($obs, $index);
+
+        $entryRel->appendChild($obs);
+        $act->appendChild($entryRel);
+    }
+
+    private function appendProblemStatus(DOMElement $obs, DOMElement $problem): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'REFR');
+
+        $statusObs = $this->createElement('observation');
+        $statusObs->setAttribute('classCode', 'OBS');
+        $statusObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($statusObs, '2.16.840.1.113883.10.20.22.4.6');
+
+        $shaExt = $this->xpathValue('sha_extension', $problem);
+        $ext = $this->xpathValue('extension', $problem);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $statusObs->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '33999-4');
+        $code->setAttribute('displayName', 'Status');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $statusObs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $statusObs->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('start_date', $problem);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effectiveTime->appendChild($low);
+        $statusObs->appendChild($effectiveTime);
+
+        $statusTable = $this->xpathValue('status_table', $problem);
+        $statusCode = $this->xpathValue('status_code', $problem);
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        if ($statusTable === 'Resolved') {
+            $value->setAttribute('code', '413322009');
+            $value->setAttribute('displayName', 'Resolved');
+        } else {
+            $value->setAttribute('code', $statusCode !== '' ? $statusCode : '55561003');
+            $value->setAttribute('displayName', $statusTable !== '' ? $statusTable : 'Active');
+        }
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $statusObs->appendChild($value);
+
+        $entryRel->appendChild($statusObs);
+        $obs->appendChild($entryRel);
+    }
+
+    private function appendHealthStatus(DOMElement $obs, int $index): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'REFR');
+
+        $healthObs = $this->createElement('observation');
+        $healthObs->setAttribute('classCode', 'OBS');
+        $healthObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($healthObs, '2.16.840.1.113883.10.20.22.4.5');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '11323-3');
+        $code->setAttribute('displayName', 'Health status');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $healthObs->appendChild($code);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#healthStatus' . $index);
+        $text->appendChild($ref);
+        $healthObs->appendChild($text);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $healthObs->appendChild($statusCode);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', '81323004');
+        $value->setAttribute('displayName', '');
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $healthObs->appendChild($value);
+
+        $entryRel->appendChild($healthObs);
+        $obs->appendChild($entryRel);
+    }
+
+    private function appendAgeAtOnset(DOMElement $obs, DOMElement $problem): void
+    {
+        $age = $this->xpathValue('age', $problem);
+        if ($age === '') {
+            return;
+        }
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $ageObs = $this->createElement('observation');
+        $ageObs->setAttribute('classCode', 'OBS');
+        $ageObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($ageObs, '2.16.840.1.113883.10.20.22.4.31');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '445518008');
+        $code->setAttribute('displayName', 'Age At Onset');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED-CT');
+        $ageObs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $ageObs->appendChild($statusCode);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
+        $value->setAttribute('value', $age);
+        $value->setAttribute('unit', 'a');
+        $ageObs->appendChild($value);
+
+        $entryRel->appendChild($ageObs);
+        $obs->appendChild($entryRel);
     }
 
     private function renderProceduresSection(DOMElement $structuredBody): void
