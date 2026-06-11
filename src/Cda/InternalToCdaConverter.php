@@ -849,20 +849,12 @@ class InternalToCdaConverter
 
     private function renderMedicationsSection(DOMElement $structuredBody): void
     {
-        $component = $this->createElement('component');
-        $section = $this->createElement('section');
-
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.1.1', '2014-06-09');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.1.1');
-
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '10160-0');
-        $code->setAttribute('displayName', 'History of medication use');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
-        $section->appendChild($this->createElement('title', 'History of medication use'));
+        [$component, $section] = $this->createSection(
+            '2.16.840.1.113883.10.20.22.2.1.1',
+            '2014-06-09',
+            '10160-0',
+            'History of medication use',
+        );
 
         $medications = $this->xpath('/CCDA/medications/medication');
         $this->appendMedicationsNarrative($section, $medications);
@@ -873,8 +865,7 @@ class InternalToCdaConverter
             $index++;
         }
 
-        $component->appendChild($section);
-        $structuredBody->appendChild($component);
+        $this->appendSection($structuredBody, $component, $section);
     }
 
     /**
@@ -883,32 +874,15 @@ class InternalToCdaConverter
     private function appendMedicationsNarrative(DOMElement $section, \DOMNodeList $medications): void
     {
         $text = $this->createElement('text');
-        $table = $this->createElement('table');
-        $table->setAttribute('width', '100%');
-        $table->setAttribute('border', '1');
-
-        $thead = $this->createElement('thead');
-        $headerRow = $this->createElement('tr');
-        $headerRow->appendChild($this->createElement('th', 'Medication Class'));
-        $headerRow->appendChild($this->createElement('th', '# fills'));
-        $headerRow->appendChild($this->createElement('th', 'Last fill date'));
-        $thead->appendChild($headerRow);
-        $table->appendChild($thead);
+        $table = $this->createNarrativeTable(['Medication Class', '# fills', 'Last fill date']);
 
         $index = 1;
         foreach ($medications as $med) {
-            $tbody = $this->createElement('tbody');
-            $row = $this->createElement('tr');
-
-            $drugCell = $this->createElement('td', $this->xpathValue('drug', $med));
-            $drugCell->setAttribute('ID', 'medinfo' . $index);
-            $row->appendChild($drugCell);
-
-            $row->appendChild($this->createElement('td', '0'));
-            $row->appendChild($this->createElement('td', date('Y-m-d')));
-
-            $tbody->appendChild($row);
-            $table->appendChild($tbody);
+            $this->appendTableRow(
+                $table,
+                [$this->xpathValue('drug', $med), '0', date('Y-m-d')],
+                'medinfo' . $index,
+            );
             $index++;
         }
 
@@ -1021,58 +995,10 @@ class InternalToCdaConverter
 
     private function appendMedicationAuthor(DOMElement $subAdmin, DOMElement $med): void
     {
-        $author = $this->createElement('author');
-        $author->setAttribute('typeCode', 'AUT');
-
-        $this->appendTemplateId($author, '2.16.840.1.113883.10.20.22.4.119');
-
-        $time = $this->xpathValue('author/time', $med);
-        $timeEl = $this->createElement('time');
-        $timeEl->setAttribute('value', $this->formatTimestamp($time));
-        $author->appendChild($timeEl);
-
-        $assignedAuthor = $this->createElement('assignedAuthor');
-
-        $authorId = $this->xpathValue('author/id', $med);
-        $authorNpi = $this->xpathValue('author/npi', $med);
-        $id = $this->createElement('id');
-        $id->setAttribute('root', $authorId !== '' ? $authorId : '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $authorNpi !== '' ? $authorNpi : 'NI');
-        $assignedAuthor->appendChild($id);
-
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $this->xpathValue('author/physician_type_code', $med));
-        $code->setAttribute('displayName', $this->xpathValue('author/physician_type', $med));
-        $code->setAttribute('codeSystem', $this->xpathValue('author/physician_type_system', $med));
-        $code->setAttribute('codeSystemName', $this->xpathValue('author/physician_type_system_name', $med));
-        $assignedAuthor->appendChild($code);
-
-        $assignedPerson = $this->createElement('assignedPerson');
-        $name = $this->createElement('name');
-        $lname = $this->xpathValue('author/lname', $med);
-        $fname = $this->xpathValue('author/fname', $med);
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
+        $authorEl = $this->xpath('author', $med)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($subAdmin, $authorEl);
         }
-        if ($fname !== '') {
-            $name->appendChild($this->createElement('given', $fname));
-        }
-        $assignedPerson->appendChild($name);
-        $assignedAuthor->appendChild($assignedPerson);
-
-        $repOrg = $this->createElement('representedOrganization');
-        $orgId = $this->createElement('id');
-        $facilityOid = $this->xpathValue('author/facility_oid', $med);
-        $facilityNpi = $this->xpathValue('author/facility_npi', $med);
-        $orgId->setAttribute('root', $facilityOid !== '' ? $facilityOid : '2.16.840.1.113883.4.6');
-        $orgId->setAttribute('extension', $facilityNpi !== '' ? $facilityNpi : 'NI');
-        $repOrg->appendChild($orgId);
-        $facilityName = $this->xpathValue('author/facility_name', $med);
-        $repOrg->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
-        $assignedAuthor->appendChild($repOrg);
-
-        $author->appendChild($assignedAuthor);
-        $subAdmin->appendChild($author);
     }
 
     private function formatDateOnly(string $input): string
@@ -1245,5 +1171,154 @@ class InternalToCdaConverter
             return 'null_flavor';
         }
         return (string) preg_replace('/[.#]/', '', $code);
+    }
+
+    /**
+     * Creates a section with standard structure: component > section > templateIds > code > title
+     *
+     * @param string $templateId The primary template ID (will add both with and without extension)
+     * @param string $templateExtension The extension for the primary template ID
+     * @param string $loincCode The LOINC code for the section
+     * @param string $title The section title and code displayName
+     * @return array{DOMElement, DOMElement} [$component, $section]
+     */
+    private function createSection(
+        string $templateId,
+        string $templateExtension,
+        string $loincCode,
+        string $title,
+    ): array {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, $templateId, $templateExtension);
+        $this->appendTemplateId($section, $templateId);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $loincCode);
+        $code->setAttribute('displayName', $title);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', $title));
+
+        return [$component, $section];
+    }
+
+    /**
+     * Finishes a section by appending section to component and component to structuredBody
+     */
+    private function appendSection(DOMElement $structuredBody, DOMElement $component, DOMElement $section): void
+    {
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
+    }
+
+    /**
+     * Creates a standard entry author block from input author element
+     */
+    private function appendEntryAuthor(DOMElement $parent, DOMElement $sourceAuthor): void
+    {
+        $author = $this->createElement('author');
+        $author->setAttribute('typeCode', 'AUT');
+
+        $this->appendTemplateId($author, '2.16.840.1.113883.10.20.22.4.119');
+
+        $time = $this->xpathValue('time', $sourceAuthor);
+        $timeEl = $this->createElement('time');
+        $timeEl->setAttribute('value', $this->formatTimestamp($time));
+        $author->appendChild($timeEl);
+
+        $assignedAuthor = $this->createElement('assignedAuthor');
+
+        $authorId = $this->xpathValue('id', $sourceAuthor);
+        $authorNpi = $this->xpathValue('npi', $sourceAuthor);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $authorNpi !== '' ? '2.16.840.1.113883.4.6' : $authorId);
+        $id->setAttribute('extension', $authorNpi !== '' ? $authorNpi : 'NI');
+        $assignedAuthor->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $this->xpathValue('physician_type_code', $sourceAuthor));
+        $code->setAttribute('displayName', $this->xpathValue('physician_type', $sourceAuthor));
+        $code->setAttribute('codeSystem', $this->xpathValue('physician_type_system', $sourceAuthor));
+        $code->setAttribute('codeSystemName', $this->xpathValue('physician_type_system_name', $sourceAuthor));
+        $assignedAuthor->appendChild($code);
+
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        $lname = $this->xpathValue('lname', $sourceAuthor);
+        $fname = $this->xpathValue('fname', $sourceAuthor);
+        if ($lname !== '') {
+            $name->appendChild($this->createElement('family', $lname));
+        }
+        if ($fname !== '') {
+            $name->appendChild($this->createElement('given', $fname));
+        }
+        $assignedPerson->appendChild($name);
+        $assignedAuthor->appendChild($assignedPerson);
+
+        $repOrg = $this->createElement('representedOrganization');
+        $orgId = $this->createElement('id');
+        $facilityOid = $this->xpathValue('facility_oid', $sourceAuthor);
+        $facilityNpi = $this->xpathValue('facility_npi', $sourceAuthor);
+        $orgId->setAttribute('root', $facilityOid !== '' ? $facilityOid : '2.16.840.1.113883.4.6');
+        $orgId->setAttribute('extension', $facilityNpi !== '' ? $facilityNpi : 'NI');
+        $repOrg->appendChild($orgId);
+        $facilityName = $this->xpathValue('facility_name', $sourceAuthor);
+        $repOrg->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
+        $assignedAuthor->appendChild($repOrg);
+
+        $author->appendChild($assignedAuthor);
+        $parent->appendChild($author);
+    }
+
+    /**
+     * Creates a standard narrative table for sections
+     *
+     * @param array<string> $headers Column headers
+     * @return DOMElement The table element (caller adds tbody rows)
+     */
+    private function createNarrativeTable(array $headers): DOMElement
+    {
+        $table = $this->createElement('table');
+        $table->setAttribute('width', '100%');
+        $table->setAttribute('border', '1');
+
+        $thead = $this->createElement('thead');
+        $headerRow = $this->createElement('tr');
+        foreach ($headers as $header) {
+            $headerRow->appendChild($this->createElement('th', $header));
+        }
+        $thead->appendChild($headerRow);
+        $table->appendChild($thead);
+
+        return $table;
+    }
+
+    /**
+     * Adds a tbody row to a narrative table
+     *
+     * @param array<string> $cells Cell values
+     * @param string|null $firstCellId Optional ID attribute for first cell
+     */
+    private function appendTableRow(DOMElement $table, array $cells, ?string $firstCellId = null): void
+    {
+        $tbody = $this->createElement('tbody');
+        $row = $this->createElement('tr');
+
+        $isFirst = true;
+        foreach ($cells as $cellValue) {
+            $cell = $this->createElement('td', $cellValue);
+            if ($isFirst && $firstCellId !== null) {
+                $cell->setAttribute('ID', $firstCellId);
+            }
+            $row->appendChild($cell);
+            $isFirst = false;
+        }
+
+        $tbody->appendChild($row);
+        $table->appendChild($tbody);
     }
 }
