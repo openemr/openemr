@@ -2671,36 +2671,6 @@ class InternalToCdaConverter
         $parent->appendChild($el);
     }
 
-    private function appendCode(
-        DOMElement $parent,
-        string $elementName,
-        string $code,
-        string $codeSystem,
-        string $displayName = '',
-        string $codeSystemName = '',
-    ): void {
-        $el = $this->createElement($elementName);
-        $el->setAttribute('code', $code);
-        $el->setAttribute('codeSystem', $codeSystem);
-        if ($displayName !== '') {
-            $el->setAttribute('displayName', $displayName);
-        }
-        if ($codeSystemName !== '') {
-            $el->setAttribute('codeSystemName', $codeSystemName);
-        }
-        $parent->appendChild($el);
-    }
-
-    private function formatDate(string $input): string
-    {
-        $input = trim($input);
-        if ($input === '' || $input === '0000-00-00') {
-            return '';
-        }
-        // TODO: Port date formatting logic from Node
-        return $input;
-    }
-
     private function cleanCode(string $code): string
     {
         $code = trim($code);
@@ -2750,41 +2720,6 @@ class InternalToCdaConverter
     {
         $component->appendChild($section);
         $structuredBody->appendChild($component);
-    }
-
-    /**
-     * Creates an empty section with nullFlavor="NI"
-     */
-    private function createEmptySection(
-        DOMElement $structuredBody,
-        string $templateId,
-        ?string $templateExtension,
-        string $loincCode,
-        string $title,
-        string $emptyText = 'Not Available',
-    ): void {
-        $component = $this->createElement('component');
-        $section = $this->createElement('section');
-        $section->setAttribute('nullFlavor', 'NI');
-
-        if ($templateExtension !== null) {
-            $this->appendTemplateId($section, $templateId, $templateExtension);
-            $this->appendTemplateId($section, $templateId);
-        } else {
-            $this->appendTemplateId($section, $templateId);
-        }
-
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $loincCode);
-        $code->setAttribute('displayName', $title);
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
-        $section->appendChild($this->createElement('title', $title));
-        $section->appendChild($this->createElement('text', $emptyText));
-
-        $this->appendSection($structuredBody, $component, $section);
     }
 
     /**
