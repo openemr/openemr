@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCarePlan;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -23,7 +25,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanActivity;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCarePlan\FHIRCarePlanDetail;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CarePlanService;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -699,6 +703,263 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         return $this->service->search($openEMRSearchParameters, true);
+    }
+
+    /**
+     * Parses a FHIR CarePlan resource into an OpenEMR-shaped payload.
+     *
+     * One FHIR CarePlan maps to one form_care_plan form, with each FHIR `activity.detail` entry
+     * becoming one form_care_plan row. The patient (subject) and encounter references are kept
+     * as opaque uuid strings here; they are resolved to numeric ids inside
+     * insertOpenEMRRecord/updateOpenEMRRecord.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed> {
+     *   uuid?: surrogate-key (encounter-uuid + "-SK-" + form_id) for updates,
+     *   puuid?: patient uuid,
+     *   euuid?: encounter uuid (REQUIRED for inserts — there is no encounter-less CarePlan),
+     *   plan_status: string,
+     *   items: array<int, array<string, mixed>> activity rows
+     * }
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRCarePlan)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRCarePlan resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id']) && is_string($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // subject -> puuid
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // encounter -> euuid (REQUIRED for new CarePlans; care_plan forms live on an encounter)
+        $encounterRef = $json['encounter']['reference'] ?? null;
+        if (is_string($encounterRef) && $encounterRef !== '') {
+            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['euuid'] = $parsed['uuid'];
+            }
+        }
+
+        // status -> plan_status (mapping mirrors mapCarePlanStatus inverse used in setStatus)
+        if (!empty($json['status']) && is_string($json['status'])) {
+            $data['plan_status'] = $json['status'];
+        }
+
+        // period -> first activity defaults if items don't specify their own dates
+        $periodStart = $json['period']['start'] ?? null;
+        $periodEnd = $json['period']['end'] ?? null;
+        $defaultStart = is_string($periodStart) ? $this->normalizeDate($periodStart) : null;
+        $defaultEnd = is_string($periodEnd) ? $this->normalizeDate($periodEnd) : null;
+
+        // activity[] -> items (one row per activity)
+        $items = [];
+        foreach (($json['activity'] ?? []) as $activity) {
+            $detail = $activity['detail'] ?? [];
+            if (!is_array($detail)) {
+                continue;
+            }
+
+            $item = [
+                'plan_status' => $data['plan_status'] ?? null,
+                'date' => $defaultStart,
+                'date_end' => $defaultEnd,
+            ];
+
+            // code -> code + codetext
+            $coding = $detail['code']['coding'][0] ?? null;
+            if (is_array($coding)) {
+                $codeValue = $coding['code'] ?? null;
+                if (is_string($codeValue) && $codeValue !== '') {
+                    $system = $coding['system'] ?? '';
+                    $item['code'] = $this->prefixCodeForStorage($system, $codeValue);
+                }
+                $display = $coding['display'] ?? ($detail['code']['text'] ?? null);
+                if (is_string($display)) {
+                    $item['codetext'] = $display;
+                }
+            } elseif (!empty($detail['code']['text']) && is_string($detail['code']['text'])) {
+                $item['codetext'] = $detail['code']['text'];
+            }
+
+            // description
+            if (!empty($detail['description']) && is_string($detail['description'])) {
+                $item['description'] = $detail['description'];
+            }
+
+            // status (FHIR activity status) -> plan_status on this row
+            if (!empty($detail['status']) && is_string($detail['status'])) {
+                $item['plan_status'] = $detail['status'];
+            }
+
+            // scheduledPeriod -> per-item date / date_end
+            $itemStart = $detail['scheduledPeriod']['start'] ?? null;
+            $itemEnd = $detail['scheduledPeriod']['end'] ?? null;
+            if (is_string($itemStart)) {
+                $item['date'] = $this->normalizeDate($itemStart);
+            }
+            if (is_string($itemEnd)) {
+                $item['date_end'] = $this->normalizeDate($itemEnd);
+            }
+
+            // scheduledString -> proposed_date (target)
+            if (!empty($detail['scheduledString']) && is_string($detail['scheduledString'])) {
+                $item['proposed_date'] = $detail['scheduledString'];
+            }
+
+            $items[] = $item;
+        }
+
+        $data['items'] = $items;
+
+        return $data;
+    }
+
+    /**
+     * Inserts a new care_plan form from a parsed FHIR CarePlan.
+     *
+     * Requires an encounter context — there is no encounter-less form_care_plan. If FHIR omits
+     * encounter, returns a 422-style ProcessingResult.
+     *
+     * @param array<string, mixed> $openEmrRecord
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        $patientId = $this->resolvePatientId($openEmrRecord);
+        if ($patientId instanceof ProcessingResult) {
+            return $patientId;
+        }
+        $encounterId = $this->resolveEncounterId($openEmrRecord);
+        if ($encounterId instanceof ProcessingResult) {
+            return $encounterId;
+        }
+
+        $items = $openEmrRecord['items'] ?? [];
+        if (!is_array($items)) {
+            $items = [];
+        }
+
+        return $this->service->create($patientId, $encounterId, $items);
+    }
+
+    /**
+     * Replaces an existing care_plan form's items from a parsed FHIR CarePlan.
+     *
+     * @param string $fhirResourceId The surrogate key (encounter-uuid + "-SK-" + form_id).
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
+        $encounterUuid = $parts['euuid'] ?? '';
+        $formId = (int) ($parts['form_id'] ?? 0);
+
+        if ($encounterUuid === '' || $formId <= 0 || !UuidRegistry::isValidStringUUID($encounterUuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Invalid CarePlan id; expected encounter-uuid + "-SK-" + form-id']);
+            return $result;
+        }
+
+        $encounterId = QueryUtils::fetchSingleValue(
+            "SELECT encounter FROM form_encounter WHERE uuid = ?",
+            'encounter',
+            [UuidRegistry::uuidToBytes($encounterUuid)]
+        );
+        if ($encounterId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Encounter not found for given CarePlan id']);
+            return $result;
+        }
+
+        $items = $updatedOpenEMRRecord['items'] ?? [];
+        if (!is_array($items)) {
+            $items = [];
+        }
+
+        return $this->service->replace((int) $encounterId, $formId, $items);
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     * @return int|ProcessingResult Numeric pid on success, ProcessingResult on resolution failure.
+     */
+    private function resolvePatientId(array $record): int|ProcessingResult
+    {
+        $puuid = $record['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference is required for CarePlan']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            "SELECT pid FROM patient_data WHERE uuid = ?",
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if ($pid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => ['Patient reference could not be resolved' => $puuid]]);
+            return $result;
+        }
+        return (int) $pid;
+    }
+
+    /**
+     * @param array<string, mixed> $record
+     * @return int|ProcessingResult
+     */
+    private function resolveEncounterId(array $record): int|ProcessingResult
+    {
+        $euuid = $record['euuid'] ?? null;
+        if (!is_string($euuid) || $euuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['encounter' => 'Encounter reference is required for CarePlan']);
+            return $result;
+        }
+        $encounterId = QueryUtils::fetchSingleValue(
+            "SELECT encounter FROM form_encounter WHERE uuid = ?",
+            'encounter',
+            [UuidRegistry::uuidToBytes($euuid)]
+        );
+        if ($encounterId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['encounter' => ['Encounter reference could not be resolved' => $euuid]]);
+            return $result;
+        }
+        return (int) $encounterId;
+    }
+
+    private function normalizeDate(string $value): ?string
+    {
+        $dt = date_create_immutable($value);
+        return $dt === false ? null : $dt->format('Y-m-d');
+    }
+
+    /**
+     * OpenEMR's form_care_plan.code column stores codes prefixed by code-type
+     * (e.g. "SNOMED-CT:182840001"). The read side splits this via CodeTypesService,
+     * so the write side resolves the system URL through the same service to stay
+     * in sync with the supported code systems.
+     */
+    private function prefixCodeForStorage(string $system, string $code): string
+    {
+        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
     }
 
     /**

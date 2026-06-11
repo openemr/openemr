@@ -3,6 +3,8 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\BC\Utilities;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
@@ -14,6 +16,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage\FHIRDosageDoseAndRate;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedicationRequest\FHIRMedicationRequestDispenseRequest;
 use OpenEMR\Services\CodeTypesService;
@@ -210,6 +213,238 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->getPrescriptionService()->getAll($openEMRSearchParameters);
+    }
+
+    /**
+     * Parses a FHIR MedicationRequest, returning the equivalent prescriptions-table row.
+     *
+     * FHIR MedicationRequest is much richer than the prescriptions table (timing, dispense
+     * request, dosage instructions, adherence extensions). For write paths we map a
+     * deliberate subset matched to the columns that PrescriptionService::insert/update
+     * actually persist; ignored fields round-trip via FHIR but do not survive.
+     *
+     * Subject/encounter/requester references are left as uuid strings here; they are
+     * resolved to numeric ids inside insertOpenEMRRecord/updateOpenEMRRecord.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRMedicationRequest)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRMedicationRequest resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // status (FHIR enum) -> active flag. The read-side recovers FHIR status via a CASE
+        // on (active, end_date) — see PrescriptionService::getBaseSql — so the only column
+        // we write here is `active`. completed/stopped/cancelled -> inactive (0); everything
+        // else maps to active (1).
+        if (!empty($json['status']) && is_string($json['status'])) {
+            $data['active'] = in_array($json['status'], ['completed', 'stopped', 'cancelled'], true) ? 0 : 1;
+        }
+
+        // intent -> request_intent + request_intent_title
+        // request_intent_title is NOT NULL in the schema; default to 'Order' (matches the
+        // SQL COALESCE on the read side).
+        $intent = is_string($json['intent'] ?? null) ? $json['intent'] : 'order';
+        $data['request_intent'] = $intent;
+        $data['request_intent_title'] = ucfirst($intent);
+
+        // category[0] -> usage_category. usage_category_title is NOT NULL; default to
+        // 'community'/'Home/Community' (matches the read-side COALESCE).
+        $categoryCode = $json['category'][0]['coding'][0]['code'] ?? null;
+        $categoryDisplay = $json['category'][0]['coding'][0]['display'] ?? null;
+        if (is_string($categoryCode) && $categoryCode !== '') {
+            $data['usage_category'] = $categoryCode;
+            $data['usage_category_title'] = is_string($categoryDisplay) && $categoryDisplay !== ''
+                ? $categoryDisplay
+                : ucfirst($categoryCode);
+        } else {
+            $data['usage_category'] = self::MEDICATION_REQUEST_CATEGORY_COMMUNITY;
+            $data['usage_category_title'] = self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE;
+        }
+
+        // medicationCodeableConcept -> drug + rxnorm_drugcode
+        $medCoding = $json['medicationCodeableConcept']['coding'][0] ?? null;
+        if (is_array($medCoding)) {
+            if (!empty($medCoding['display']) && is_string($medCoding['display'])) {
+                $data['drug'] = $medCoding['display'];
+            }
+            $system = $medCoding['system'] ?? '';
+            if ($system === FhirCodeSystemConstants::RXNORM && !empty($medCoding['code'])) {
+                $data['rxnorm_drugcode'] = $medCoding['code'];
+            }
+        }
+        if (empty($data['drug']) && !empty($json['medicationCodeableConcept']['text'])) {
+            $data['drug'] = $json['medicationCodeableConcept']['text'];
+        }
+
+        // subject -> puuid (resolved to patient_id downstream)
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // encounter -> euuid (resolved to form_encounter.encounter downstream)
+        $encounterRef = $json['encounter']['reference'] ?? null;
+        if (is_string($encounterRef) && $encounterRef !== '') {
+            $parsed = UtilsService::parseReferenceString($encounterRef, 'Encounter');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['euuid'] = $parsed['uuid'];
+            }
+        }
+
+        // requester -> pruuid (resolved to users.id downstream)
+        $requesterRef = $json['requester']['reference'] ?? null;
+        if (is_string($requesterRef) && $requesterRef !== '') {
+            $parsed = UtilsService::parseReferenceString($requesterRef, 'Practitioner');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['pruuid'] = $parsed['uuid'];
+            }
+        }
+
+        // authoredOn -> date_added (normalized for MySQL DATETIME)
+        if (!empty($json['authoredOn']) && is_string($json['authoredOn'])) {
+            $authoredDt = date_create_immutable($json['authoredOn']);
+            if ($authoredDt !== false) {
+                $data['date_added'] = $authoredDt->format('Y-m-d H:i:s');
+            }
+        }
+
+        // dosageInstruction[0].text -> drug_dosage_instructions
+        if (!empty($json['dosageInstruction'][0]['text']) && is_string($json['dosageInstruction'][0]['text'])) {
+            $data['drug_dosage_instructions'] = $json['dosageInstruction'][0]['text'];
+        }
+
+        // dispenseRequest.quantity.value -> quantity
+        $dispenseQuantity = $json['dispenseRequest']['quantity']['value'] ?? null;
+        if (is_numeric($dispenseQuantity)) {
+            $data['quantity'] = (string) $dispenseQuantity;
+        }
+
+        // note[0].text -> note
+        if (!empty($json['note'][0]['text']) && is_string($json['note'][0]['text'])) {
+            $data['note'] = $json['note'][0]['text'];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts a prescriptions row from a parsed FHIR MedicationRequest.
+     *
+     * @param array<string, mixed> $openEmrRecord
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        $resolveResult = $this->resolveReferences($openEmrRecord);
+        if ($resolveResult !== null) {
+            return $resolveResult;
+        }
+
+        // txDate is NOT NULL with no default; populate from authoredOn if available,
+        // else today.
+        if (empty($openEmrRecord['txDate'])) {
+            $authored = $openEmrRecord['date_added'] ?? null;
+            if (is_string($authored) && $authored !== '') {
+                $authoredDt = date_create_immutable($authored);
+                $openEmrRecord['txDate'] = $authoredDt !== false
+                    ? $authoredDt->format('Y-m-d')
+                    : date('Y-m-d');
+            } else {
+                $openEmrRecord['txDate'] = date('Y-m-d');
+            }
+        }
+
+        return $this->getPrescriptionService()->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates a prescriptions row from a parsed FHIR MedicationRequest.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        $resolveResult = $this->resolveReferences($updatedOpenEMRRecord);
+        if ($resolveResult !== null) {
+            return $resolveResult;
+        }
+
+        return $this->getPrescriptionService()->update($fhirResourceId, $updatedOpenEMRRecord);
+    }
+
+    /**
+     * Resolves opaque FHIR uuids (puuid, euuid, pruuid) into the numeric ids that the
+     * prescriptions table requires (patient_id, encounter, provider_id). Returns a
+     * ProcessingResult with a 422-style error if a required reference is unresolvable;
+     * null on success.
+     *
+     * @param array<string, mixed> $record (mutated in place)
+     * @return ProcessingResult|null
+     */
+    private function resolveReferences(array &$record): ?ProcessingResult
+    {
+        if (!empty($record['puuid'])) {
+            $puuidBytes = UuidRegistry::uuidToBytes($record['puuid']);
+            $pid = QueryUtils::fetchSingleValue(
+                "SELECT pid FROM patient_data WHERE uuid = ?",
+                'pid',
+                [$puuidBytes]
+            );
+            if ($pid === null) {
+                $result = new ProcessingResult();
+                $result->setValidationMessages([
+                    'subject' => ['Patient reference could not be resolved' => $record['puuid']],
+                ]);
+                return $result;
+            }
+            $record['patient_id'] = (int) $pid;
+            unset($record['puuid']);
+        }
+
+        if (!empty($record['euuid'])) {
+            $euuidBytes = UuidRegistry::uuidToBytes($record['euuid']);
+            $encounterId = QueryUtils::fetchSingleValue(
+                "SELECT encounter FROM form_encounter WHERE uuid = ?",
+                'encounter',
+                [$euuidBytes]
+            );
+            if ($encounterId !== null) {
+                $record['encounter'] = (int) $encounterId;
+            }
+            unset($record['euuid']);
+        }
+
+        if (!empty($record['pruuid'])) {
+            $pruuidBytes = UuidRegistry::uuidToBytes($record['pruuid']);
+            $providerId = QueryUtils::fetchSingleValue(
+                "SELECT id FROM users WHERE uuid = ?",
+                'id',
+                [$pruuidBytes]
+            );
+            if ($providerId !== null) {
+                $record['provider_id'] = (int) $providerId;
+            }
+            unset($record['pruuid']);
+        }
+
+        return null;
     }
 
     public function createProvenanceResource($dataRecord = [], $encode = false): FHIRProvenance|string

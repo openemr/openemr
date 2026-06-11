@@ -469,7 +469,12 @@ foreach ($pid_list as $pid) {
 
             // Note: You would think that pc_comments would have the Appt. comments,
             // but it is actually stored in pc_hometext in DB table (openemr_postcalendar_events).
-            $html .= $appointment['pc_hometext'] ?? '';
+            // Output-escape — the FHIR Appointment write path persists
+            // Appointment.comment into this column verbatim, so without
+            // escaping any API client with patients/appt could store HTML
+            // (including <script>) that would execute when staff print a
+            // fee sheet (CWE-79 stored XSS).
+            $html .= text($appointment['pc_hometext'] ?? '');
 
             $html .= "</td>
 </tr>

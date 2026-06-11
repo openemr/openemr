@@ -57,6 +57,12 @@ class FhirCodeSystemConstants
 
     const HL7_ICD10 = "http://hl7.org/fhir/sid/icd-10";
 
+    // US Core uses the -cm variants for diagnosis codings; OpenEMR stores both
+    // under its ICD10 / ICD9 code types.
+    const HL7_ICD10_CM = "http://hl7.org/fhir/sid/icd-10-cm";
+
+    const HL7_ICD9_CM = "http://hl7.org/fhir/sid/icd-9-cm";
+
     public const HL7_V3_ACT_CODE = "http://terminology.hl7.org/CodeSystem/v3-ActCode";
 
     public const HL7_PARTICIPATION_TYPE = "http://terminology.hl7.org/CodeSystem/v3-ParticipationType";

@@ -8,6 +8,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -36,7 +37,7 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-medication';
 
     /**
-     * @var MedicationService
+     * @var DrugService
      */
     private $medicationService;
 
@@ -149,6 +150,122 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
         } else {
             return $medicationResource;
         }
+    }
+
+    /**
+     * Parses a FHIR Medication resource into the OpenEMR drugs-table shape.
+     *
+     * Medication is master data — there are no references to resolve. Mapping:
+     *  - status -> active (1|0)
+     *  - code.coding (prefer RxNorm, else first coding with a code value) -> drug_code
+     *  - code.coding[0].display or code.text -> name
+     *  - form.coding[0].code (NCI Thesaurus) -> form (integer string keyed into the read map)
+     *
+     * Batch (lot/expiration) is read-only at this layer — those columns live on drug_inventory,
+     * not drugs — so we ignore them on write.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRMedication)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRMedication resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id']) && is_string($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // status -> active
+        if (!empty($json['status']) && is_string($json['status'])) {
+            $data['active'] = $json['status'] === 'active' ? 1 : 0;
+        }
+
+        // code.coding[] -> drug_code (prefer RxNorm) + name (display)
+        $codings = $json['code']['coding'] ?? [];
+        $primaryDisplay = null;
+        if (is_array($codings)) {
+            foreach ($codings as $coding) {
+                if (!is_array($coding)) {
+                    continue;
+                }
+                $system = $coding['system'] ?? '';
+                $code = $coding['code'] ?? '';
+                $display = $coding['display'] ?? '';
+                if ($primaryDisplay === null && is_string($display) && $display !== '') {
+                    $primaryDisplay = $display;
+                }
+                if (
+                    $system === 'http://www.nlm.nih.gov/research/umls/rxnorm'
+                    && is_string($code)
+                    && $code !== ''
+                    && empty($data['drug_code'])
+                ) {
+                    $data['drug_code'] = $code;
+                }
+            }
+            // Fall back: first coding with any code value if no RxNorm found
+            if (empty($data['drug_code'])) {
+                foreach ($codings as $coding) {
+                    if (is_array($coding) && !empty($coding['code']) && is_string($coding['code'])) {
+                        $data['drug_code'] = $coding['code'];
+                        break;
+                    }
+                }
+            }
+        }
+        $codeText = $json['code']['text'] ?? null;
+        if (is_string($primaryDisplay) && $primaryDisplay !== '') {
+            $data['name'] = $primaryDisplay;
+        } elseif (is_string($codeText) && $codeText !== '') {
+            $data['name'] = $codeText;
+        }
+
+        // form.coding[0].code -> form (NCI -> integer reverse map mirroring parseOpenEMRRecord)
+        $formCode = $json['form']['coding'][0]['code'] ?? null;
+        if (is_string($formCode) && $formCode !== '') {
+            $reverseFormMap = [
+                'C60928' => '1',  // suspension
+                'C42998' => '2',  // tablet
+                'C25158' => '3',  // capsule
+                'C42986' => '4',  // solution
+                'C48544' => '5',  // tsp
+                'C28254' => '6',  // ml
+                'C44278' => '7',  // units
+                'C42944' => '8',  // inhalation (collides with puff=12 on read; we pick inhalation)
+                'C48491' => '9',  // gtts/drops
+                'C28944' => '10', // cream
+                'C42966' => '11', // ointment
+            ];
+            if (isset($reverseFormMap[$formCode])) {
+                $data['form'] = $reverseFormMap[$formCode];
+            }
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        return $this->medicationService->insert($openEmrRecord);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        return $this->medicationService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**

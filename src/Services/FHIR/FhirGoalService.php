@@ -11,6 +11,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRGoal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -18,6 +20,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDate;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRGoalLifecycleStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRGoal\FHIRGoalTarget;
 use OpenEMR\Services\CarePlanService;
 use OpenEMR\Services\CodeTypesService;
@@ -360,6 +363,235 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
     {
         return $this->service->search($openEMRSearchParameters, true);
+    }
+
+    /**
+     * Parses a FHIR Goal into the OpenEMR shape consumed by
+     * CarePlanService::create / replace. Goal storage uses the same form_care_plan
+     * table as CarePlan, scoped to care_plan_type='goal' (this service's
+     * CarePlanService is constructed with TYPE_GOAL).
+     *
+     * One FHIR Goal becomes one row in form_care_plan: description -> description,
+     * lifecycleStatus -> plan_status, target.dueDate -> proposed_date,
+     * description.coding -> code+codetext.
+     *
+     * @param FHIRDomainResource $fhirResource
+     * @return array<string, mixed>
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRGoal)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRGoal resource, got ' . $fhirResource::class
+            );
+        }
+
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id']) && is_string($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // subject.reference -> puuid
+        $subjectRef = $json['subject']['reference'] ?? null;
+        if (is_string($subjectRef) && $subjectRef !== '') {
+            $parsed = UtilsService::parseReferenceString($subjectRef, 'Patient');
+            if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // FHIR Goal has no encounter field. To anchor the goal to a form_care_plan
+        // row we require an encounter via the `encounter-associatedEncounter`
+        // extension on the resource.
+        foreach (($json['extension'] ?? []) as $ext) {
+            if (!is_array($ext)) {
+                continue;
+            }
+            if (($ext['url'] ?? null) !== 'http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter') {
+                continue;
+            }
+            $ref = $ext['valueReference']['reference'] ?? null;
+            if (is_string($ref) && $ref !== '') {
+                $parsed = UtilsService::parseReferenceString($ref, 'Encounter');
+                if (!empty($parsed['uuid']) && UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                    $data['euuid'] = $parsed['uuid'];
+                }
+            }
+            break;
+        }
+
+        // lifecycleStatus -> plan_status. R4 marks lifecycleStatus as 1..1; we require it
+        // on write rather than silently defaulting. OpenEMR plan_status values are a free
+        // string at storage; the read side maps via mapPlanStatusToLifecycleStatus.
+        if (empty($json['lifecycleStatus']) || !is_string($json['lifecycleStatus'])) {
+            $data['__validation_error__'] = 'Goal.lifecycleStatus is required (FHIR R4 1..1)';
+            return $data;
+        }
+        $planStatus = $json['lifecycleStatus'];
+
+        // Build the single item row
+        $item = ['plan_status' => $planStatus];
+
+        // description.text -> description; description.coding[0] -> code+codetext
+        $descriptionText = $json['description']['text'] ?? null;
+        if (is_string($descriptionText) && $descriptionText !== '') {
+            $item['description'] = $descriptionText;
+            $item['codetext'] = $descriptionText;
+        }
+        $coding = $json['description']['coding'][0] ?? null;
+        if (is_array($coding)) {
+            $codeValue = $coding['code'] ?? null;
+            if (is_string($codeValue) && $codeValue !== '') {
+                $system = $coding['system'] ?? '';
+                $item['code'] = $this->prefixCodeForStorage($system, $codeValue);
+            }
+            $display = $coding['display'] ?? null;
+            if (is_string($display) && !isset($item['codetext'])) {
+                $item['codetext'] = $display;
+            }
+        }
+
+        // startDate -> date
+        if (!empty($json['startDate']) && is_string($json['startDate'])) {
+            $dt = date_create_immutable($json['startDate']);
+            if ($dt !== false) {
+                $item['date'] = $dt->format('Y-m-d');
+            }
+        }
+
+        // target[0].dueDate -> proposed_date
+        $dueDate = $json['target'][0]['dueDate'] ?? null;
+        if (is_string($dueDate) && $dueDate !== '') {
+            $item['proposed_date'] = $dueDate;
+        }
+
+        $data['items'] = [$item];
+
+        return $data;
+    }
+
+    /**
+     * @param array<string, mixed> $openEmrRecord
+     */
+    protected function insertOpenEMRRecord($openEmrRecord): ProcessingResult
+    {
+        if (isset($openEmrRecord['__validation_error__'])) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['lifecycleStatus' => $openEmrRecord['__validation_error__']]);
+            return $result;
+        }
+        $puuid = $openEmrRecord['puuid'] ?? null;
+        if (!is_string($puuid) || $puuid === '') {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'FHIR Goal requires a Patient reference']);
+            return $result;
+        }
+        $pid = QueryUtils::fetchSingleValue(
+            'SELECT pid FROM patient_data WHERE uuid = ?',
+            'pid',
+            [UuidRegistry::uuidToBytes($puuid)]
+        );
+        if ($pid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['subject' => 'Patient reference could not be resolved: ' . $puuid]);
+            return $result;
+        }
+
+        // Goal also needs an encounter to anchor the form. FHIR Goal has no encounter
+        // field directly; we look at extension['encounter'] for explicit binding, otherwise
+        // require it via a custom field on the OpenEMR record. The simplest robust path:
+        // require the FHIR resource to include encounter context via an extension URL.
+        // Without that, we cannot create a form_care_plan row.
+        $encounterUuid = $this->resolveGoalEncounterUuid($openEmrRecord);
+        if ($encounterUuid === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages([
+                'encounter' => 'FHIR Goal create requires an encounter; supply via extension url '
+                    . 'http://hl7.org/fhir/StructureDefinition/encounter-associatedEncounter',
+            ]);
+            return $result;
+        }
+        $encounterId = QueryUtils::fetchSingleValue(
+            'SELECT encounter FROM form_encounter WHERE uuid = ?',
+            'encounter',
+            [UuidRegistry::uuidToBytes($encounterUuid)]
+        );
+        if ($encounterId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['encounter' => 'Encounter reference could not be resolved: ' . $encounterUuid]);
+            return $result;
+        }
+
+        $itemsRaw = $openEmrRecord['items'] ?? [];
+        $items = is_array($itemsRaw) ? $itemsRaw : [];
+
+        return $this->service->create((int) $pid, (int) $encounterId, $items);
+    }
+
+    /**
+     * @param string $fhirResourceId
+     * @param array<string, mixed> $updatedOpenEMRRecord
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord): ProcessingResult
+    {
+        if (isset($updatedOpenEMRRecord['__validation_error__'])) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['lifecycleStatus' => $updatedOpenEMRRecord['__validation_error__']]);
+            return $result;
+        }
+        $parts = $this->service->splitSurrogateKeyIntoParts($fhirResourceId);
+        $encounterUuid = $parts['euuid'] ?? '';
+        $formId = (int) ($parts['form_id'] ?? 0);
+        if ($encounterUuid === '' || $formId <= 0 || !UuidRegistry::isValidStringUUID($encounterUuid)) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Invalid Goal id; expected encounter-uuid + "-SK-" + form-id']);
+            return $result;
+        }
+        $encounterId = QueryUtils::fetchSingleValue(
+            'SELECT encounter FROM form_encounter WHERE uuid = ?',
+            'encounter',
+            [UuidRegistry::uuidToBytes($encounterUuid)]
+        );
+        if ($encounterId === null) {
+            $result = new ProcessingResult();
+            $result->setValidationMessages(['uuid' => 'Encounter not found for given Goal id']);
+            return $result;
+        }
+
+        $itemsRaw = $updatedOpenEMRRecord['items'] ?? [];
+        $items = is_array($itemsRaw) ? $itemsRaw : [];
+
+        return $this->service->replace((int) $encounterId, $formId, $items);
+    }
+
+    /**
+     * Looks for an encounter uuid on the parsed Goal — either via the
+     * `encounter-associatedEncounter` extension placed on the FHIR resource, or as
+     * a sibling `euuid` field already extracted by some caller. Returns null if
+     * neither is present.
+     *
+     * @param array<string, mixed> $record
+     */
+    private function resolveGoalEncounterUuid(array $record): ?string
+    {
+        $euuid = $record['euuid'] ?? null;
+        if (is_string($euuid) && UuidRegistry::isValidStringUUID($euuid)) {
+            return $euuid;
+        }
+        return null;
+    }
+
+    /**
+     * Mirrors the CarePlan write-side helper for code-system prefixing into the
+     * form_care_plan.code "PREFIX:value" convention used by the read side.
+     * Resolves the system URL through CodeTypesService so the supported code
+     * systems stay in sync with the read side.
+     */
+    private function prefixCodeForStorage(string $system, string $code): string
+    {
+        return (new CodeTypesService())->getOpenEMRCodeForSystemAndCode($system, $code);
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)

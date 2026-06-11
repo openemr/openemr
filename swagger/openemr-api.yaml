@@ -4474,6 +4474,26 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new AllergyIntolerance resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'AllergyIntolerance resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/AllergyIntolerance/{uuid}':
     get:
       tags:
@@ -4549,6 +4569,34 @@ paths:
       security:
         -
           openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an AllergyIntolerance resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the AllergyIntolerance resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'AllergyIntolerance resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   /fhir/Appointment:
     get:
       tags:
@@ -4597,6 +4645,26 @@ paths:
                     -
                       relation: self
                       url: 'https://localhost:9300/apis/default/fhir/AllergyIntolerance'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Appointment resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Appointment resource created'
         400:
           $ref: '#/components/responses/badrequest'
         401:
@@ -4970,6 +5038,26 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Condition resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Condition resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Condition/{uuid}':
     get:
       tags:
@@ -5033,6 +5121,34 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies a Condition resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Condition resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Condition resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: {  }
@@ -5657,6 +5773,26 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Encounter resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Encounter resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Encounter/{uuid}':
     get:
       tags:
@@ -5728,6 +5864,34 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an Encounter resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Encounter resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Encounter resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: {  }
@@ -6005,6 +6169,26 @@ paths:
       security:
         -
           openemr_auth: {  }
+    post:
+      tags:
+        - fhir
+      description: 'Creates a new Immunization resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        201:
+          description: 'Immunization resource created'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
   '/fhir/Immunization/{uuid}':
     get:
       tags:
@@ -6053,6 +6237,34 @@ paths:
           $ref: '#/components/responses/unauthorized'
         404:
           $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - fhir
+      description: 'Modifies an Immunization resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Immunization resource.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        200:
+          description: 'Immunization resource updated'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
       security:
         -
           openemr_auth: {  }

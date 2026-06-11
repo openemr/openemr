@@ -177,6 +177,617 @@ class FixtureManager
     }
 
     /**
+     * @return array of FHIR AllergyIntolerance fixtures.
+     */
+    public function getFhirAllergyIntoleranceFixtures()
+    {
+        return $this->loadJsonFile("FHIR/allergy-intolerance.json");
+    }
+
+    /**
+     * @return mixed single/random fhir allergy intolerance fixture
+     */
+    public function getSingleFhirAllergyIntoleranceFixture()
+    {
+        return $this->getSingleEntry($this->getFhirAllergyIntoleranceFixtures());
+    }
+
+    /**
+     * @return array of FHIR Immunization fixtures.
+     */
+    public function getFhirImmunizationFixtures()
+    {
+        return $this->loadJsonFile("FHIR/immunization.json");
+    }
+
+    /**
+     * @return mixed single/random fhir immunization fixture
+     */
+    public function getSingleFhirImmunizationFixture()
+    {
+        return $this->getSingleEntry($this->getFhirImmunizationFixtures());
+    }
+
+    /**
+     * @return array of FHIR Appointment fixtures.
+     */
+    public function getFhirAppointmentFixtures()
+    {
+        return $this->loadJsonFile("FHIR/appointment.json");
+    }
+
+    /**
+     * @return mixed single/random fhir appointment fixture
+     */
+    public function getSingleFhirAppointmentFixture()
+    {
+        return $this->getSingleEntry($this->getFhirAppointmentFixtures());
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR ServiceRequest fixtures.
+     */
+    public function getFhirServiceRequestFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/service-request.json");
+    }
+
+    /**
+     * @return mixed single/random fhir ServiceRequest fixture
+     */
+    public function getSingleFhirServiceRequestFixture()
+    {
+        return $this->getSingleEntry($this->getFhirServiceRequestFixtures());
+    }
+
+    /**
+     * Removes procedure_order + procedure_order_code rows for test-fixture patients.
+     */
+    public function removeServiceRequestFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $orderIds = QueryUtils::fetchTableColumn(
+            "SELECT procedure_order_id FROM procedure_order WHERE patient_id IN ($placeholders)",
+            'procedure_order_id',
+            $pids
+        );
+        if ($orderIds !== []) {
+            $oplaceholders = implode(',', array_fill(0, count($orderIds), '?'));
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM procedure_order_code WHERE procedure_order_id IN ($oplaceholders)",
+                $orderIds
+            );
+        }
+        $orderUuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM procedure_order WHERE patient_id IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($orderUuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'procedure_order' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM procedure_order WHERE patient_id IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR PractitionerRole fixtures.
+     */
+    public function getFhirPractitionerRoleFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/practitioner-role.json");
+    }
+
+    /**
+     * @return mixed single/random fhir PractitionerRole fixture
+     */
+    public function getSingleFhirPractitionerRoleFixture()
+    {
+        return $this->getSingleEntry($this->getFhirPractitionerRoleFixtures());
+    }
+
+    /**
+     * Removes facility_user_ids rows referencing test-fixture users. The Practitioner
+     * fixture cleanup (PractitionerFixtureManager::removePractitionerFixtures) DELETEs
+     * the users rows; we delete the role rows here before that to avoid orphans.
+     */
+    public function removePractitionerRoleFixtures(): void
+    {
+        $userIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM users WHERE fname LIKE 'test-fixture-%'",
+            'id',
+            []
+        );
+        if ($userIds === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($userIds), '?'));
+        $roleUuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM facility_user_ids WHERE uid IN ($placeholders)",
+            'uuid',
+            $userIds
+        );
+        foreach ($roleUuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'facility_user_ids' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM facility_user_ids WHERE uid IN ($placeholders)",
+            $userIds
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR RelatedPerson fixtures.
+     */
+    public function getFhirRelatedPersonFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/related-person.json");
+    }
+
+    /**
+     * @return mixed single/random fhir RelatedPerson fixture
+     */
+    public function getSingleFhirRelatedPersonFixture()
+    {
+        return $this->getSingleEntry($this->getFhirRelatedPersonFixtures());
+    }
+
+    /**
+     * Removes the multi-table footprint of RelatedPerson test fixtures: contact_relation
+     * rows pointing at the test-fixture persons, those persons' contact rows + telecoms +
+     * addresses, the addresses themselves, and finally the person rows.
+     */
+    public function removeRelatedPersonFixtures(): void
+    {
+        $personIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM person WHERE first_name LIKE 'test-fixture-%' OR last_name LIKE 'test-fixture-%'",
+            'id',
+            []
+        );
+        if ($personIds === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($personIds), '?'));
+
+        $contactIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM contact WHERE foreign_table_name = 'person' AND foreign_id IN ($placeholders)",
+            'id',
+            $personIds
+        );
+
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM contact_relation WHERE target_table = 'person' AND target_id IN ($placeholders)",
+            $personIds
+        );
+
+        if ($contactIds !== []) {
+            $cplaceholders = implode(',', array_fill(0, count($contactIds), '?'));
+            $addressIds = QueryUtils::fetchTableColumn(
+                "SELECT address_id FROM contact_address WHERE contact_id IN ($cplaceholders)",
+                'address_id',
+                $contactIds
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact_telecom WHERE contact_id IN ($cplaceholders)",
+                $contactIds
+            );
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact_address WHERE contact_id IN ($cplaceholders)",
+                $contactIds
+            );
+            if ($addressIds !== []) {
+                $aplaceholders = implode(',', array_fill(0, count($addressIds), '?'));
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM addresses WHERE id IN ($aplaceholders)",
+                    $addressIds
+                );
+            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact WHERE id IN ($cplaceholders)",
+                $contactIds
+            );
+        }
+
+        $personUuidBytes = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM person WHERE id IN ($placeholders)",
+            'uuid',
+            $personIds
+        );
+        foreach ($personUuidBytes as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'person' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM person WHERE id IN ($placeholders)",
+            $personIds
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR Device fixtures.
+     */
+    public function getFhirDeviceFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/device.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Device fixture
+     */
+    public function getSingleFhirDeviceFixture()
+    {
+        return $this->getSingleEntry($this->getFhirDeviceFixtures());
+    }
+
+    /**
+     * Removes medical_device rows in `lists` for test-fixture patients. Scoped to
+     * type='medical_device' so this doesn't affect other list types (allergies,
+     * problems, medications) that share the table.
+     */
+    public function removeDeviceFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $uuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM lists WHERE type = 'medical_device' AND pid IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($uuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'lists' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM lists WHERE type = 'medical_device' AND pid IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR Medication fixtures.
+     */
+    public function getFhirMedicationFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/medication.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Medication fixture
+     */
+    public function getSingleFhirMedicationFixture()
+    {
+        return $this->getSingleEntry($this->getFhirMedicationFixtures());
+    }
+
+    /**
+     * Removes any `drugs` row whose name matches the test-fixture prefix. Drug uuid
+     * rows in uuid_registry are removed first.
+     */
+    public function removeMedicationFixtures(): void
+    {
+        $bytesList = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM drugs WHERE name LIKE ?",
+            'uuid',
+            ['test-fixture-%']
+        );
+        foreach ($bytesList as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'drugs' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM drugs WHERE name LIKE ?",
+            ['test-fixture-%']
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR Person fixtures.
+     */
+    public function getFhirPersonFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/persons.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Person fixture
+     */
+    public function getSingleFhirPersonFixture()
+    {
+        return $this->getSingleEntry($this->getFhirPersonFixtures());
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR CareTeam fixtures.
+     */
+    public function getFhirCareTeamFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/care-team.json");
+    }
+
+    /**
+     * @return mixed single/random fhir CareTeam fixture
+     */
+    public function getSingleFhirCareTeamFixture()
+    {
+        return $this->getSingleEntry($this->getFhirCareTeamFixtures());
+    }
+
+    /**
+     * Removes care_teams + care_team_member rows for test-fixture patients,
+     * plus uuid_registry entries on care_teams.
+     */
+    public function removeCareTeamFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT pid FROM patient_data WHERE pubpid LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if ($pids === []) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $teamIds = QueryUtils::fetchTableColumn(
+            "SELECT id FROM care_teams WHERE pid IN ($placeholders)",
+            'id',
+            $pids
+        );
+        if ($teamIds !== []) {
+            $tplaceholders = implode(',', array_fill(0, count($teamIds), '?'));
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM care_team_member WHERE care_team_id IN ($tplaceholders)",
+                $teamIds
+            );
+        }
+        $teamUuids = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM care_teams WHERE pid IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($teamUuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'care_teams' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM care_teams WHERE pid IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR Goal fixtures.
+     */
+    public function getFhirGoalFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/goal.json");
+    }
+
+    /**
+     * @return mixed single/random fhir Goal fixture
+     */
+    public function getSingleFhirGoalFixture()
+    {
+        return $this->getSingleEntry($this->getFhirGoalFixtures());
+    }
+
+    /**
+     * Goal cleanup piggybacks on removeCarePlanFixtures since both are stored in
+     * form_care_plan keyed by patient. Provided as a named alias for symmetry with
+     * other resource-specific helpers.
+     */
+    public function removeGoalFixtures(): void
+    {
+        $this->removeCarePlanFixtures();
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR CarePlan fixtures.
+     */
+    public function getFhirCarePlanFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/care-plan.json");
+    }
+
+    /**
+     * @return mixed single/random fhir care plan fixture
+     */
+    public function getSingleFhirCarePlanFixture()
+    {
+        return $this->getSingleEntry($this->getFhirCarePlanFixtures());
+    }
+
+    /**
+     * Removes care_plan forms and their form_care_plan rows for test-fixture patients.
+     * Encounter rows are cleaned up by FhirEncounterServiceCrudTest's tearDown convention
+     * (DELETE FROM form_encounter WHERE reason LIKE 'test-fixture%').
+     */
+    public function removeCarePlanFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if (empty($pids)) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM form_care_plan WHERE pid IN ($placeholders)",
+            $pids
+        );
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM forms WHERE pid IN ($placeholders) AND formdir = 'care_plan'",
+            $pids
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR MedicationRequest fixtures.
+     */
+    public function getFhirMedicationRequestFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/medication-request.json");
+    }
+
+    /**
+     * @return mixed single/random fhir medication request fixture
+     */
+    public function getSingleFhirMedicationRequestFixture()
+    {
+        return $this->getSingleEntry($this->getFhirMedicationRequestFixtures());
+    }
+
+    /**
+     * Removes prescription rows (and their uuid_registry entries) for any patient_data
+     * row whose pubpid carries the test-fixture prefix. Scoped via the pubpid filter so
+     * unrelated prescriptions are left untouched.
+     */
+    public function removeMedicationRequestFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if (empty($pids)) {
+            return;
+        }
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $uuids = QueryUtils::fetchTableColumn(
+            "SELECT `uuid` FROM `prescriptions` WHERE `patient_id` IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($uuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'prescriptions' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM prescriptions WHERE patient_id IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
+     * @return array<int, array<string, mixed>> FHIR Coverage fixtures.
+     */
+    public function getFhirCoverageFixtures(): array
+    {
+        return $this->loadJsonFile("FHIR/coverage.json");
+    }
+
+    /**
+     * @return mixed single/random fhir coverage fixture
+     */
+    public function getSingleFhirCoverageFixture()
+    {
+        return $this->getSingleEntry($this->getFhirCoverageFixtures());
+    }
+
+    /**
+     * Insert a synthetic insurance company row so that Coverage write tests have a
+     * payor reference to dereference. Returns the uuid string.
+     */
+    public function installInsuranceCompanyFixture(): string
+    {
+        $uuid = (new UuidRegistry(['table_name' => 'insurance_companies']))->createUuid();
+        sqlInsert(
+            "INSERT INTO insurance_companies (uuid, name, attn, cms_id, ins_type_code) "
+            . "VALUES (?, ?, ?, ?, ?)",
+            [$uuid, 'test-fixture-insurer', null, null, 3]
+        );
+        return UuidRegistry::uuidToString($uuid);
+    }
+
+    public function removeInsuranceCompanyFixtures(): void
+    {
+        $bytesList = QueryUtils::fetchTableColumn(
+            "SELECT uuid FROM insurance_companies WHERE name LIKE ?",
+            'uuid',
+            ['test-fixture-%']
+        );
+        foreach ($bytesList as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'insurance_companies' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM insurance_companies WHERE name LIKE ?",
+            ['test-fixture-%']
+        );
+    }
+
+    public function removeCoverageFixtures(): void
+    {
+        $pubpid = self::PATIENT_FIXTURE_PUBPID_PREFIX . "%";
+        $pids = QueryUtils::fetchTableColumn(
+            "SELECT `pid` FROM `patient_data` WHERE `pubpid` LIKE ?",
+            'pid',
+            [$pubpid]
+        );
+        if (empty($pids)) {
+            return;
+        }
+        // delete uuid_registry rows for insurance_data referenced by these pids
+        $placeholders = implode(',', array_fill(0, count($pids), '?'));
+        $uuids = QueryUtils::fetchTableColumn(
+            "SELECT `uuid` FROM `insurance_data` WHERE `pid` IN ($placeholders)",
+            'uuid',
+            $pids
+        );
+        foreach ($uuids as $bytes) {
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM uuid_registry WHERE table_name = 'insurance_data' AND uuid = ?",
+                [$bytes]
+            );
+        }
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM insurance_data WHERE pid IN ($placeholders)",
+            $pids
+        );
+    }
+
+    /**
      * @template T
      * @param T[] $array
      * @return T

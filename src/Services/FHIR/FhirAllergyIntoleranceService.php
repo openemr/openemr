@@ -11,8 +11,9 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\AllergyIntoleranceService;
-use OpenEMR\Services\FHIR\FhirServiceBase;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
@@ -241,6 +242,151 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         } else {
             return $allergyIntoleranceResource;
         }
+    }
+
+    /**
+     * Parses a FHIR AllergyIntolerance resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!($fhirResource instanceof FHIRAllergyIntolerance)) {
+            throw new \InvalidArgumentException(
+                'Expected FHIRAllergyIntolerance resource, got ' . $fhirResource::class
+            );
+        }
+
+        // Use jsonSerialize() to get a normalized array representation since
+        // the FHIR R4 library does not deeply hydrate nested objects
+        $json = $fhirResource->jsonSerialize();
+        $data = [];
+
+        if (!empty($json['id'])) {
+            $data['uuid'] = $json['id'];
+        }
+
+        // Patient reference -> puuid (required in US Core)
+        $patientRef = $json['patient']['reference'] ?? null;
+        if (is_string($patientRef) && $patientRef !== '') {
+            $parsed = UtilsService::parseReferenceString($patientRef, 'Patient');
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['puuid'] = $parsed['uuid'];
+            }
+        }
+
+        // Code -> title and diagnosis
+        if (!empty($json['code']['coding'])) {
+            $codeTypesService = new CodeTypesService();
+            $diagnosisParts = [];
+            foreach ($json['code']['coding'] as $coding) {
+                $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
+                $display = $coding['display'] ?? '';
+                if ($codeValue !== '' && $codeValue !== false) {
+                    $diagnosisParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+                if (!empty($display) && empty($data['title'])) {
+                    $data['title'] = $display;
+                }
+            }
+            if (!empty($diagnosisParts)) {
+                $data['diagnosis'] = implode(';', $diagnosisParts);
+            }
+        }
+        if (empty($data['title']) && !empty($json['code']['text'])) {
+            $data['title'] = $json['code']['text'];
+        }
+
+        // ClinicalStatus -> outcome
+        if (!empty($json['clinicalStatus']['coding'][0]['code'])) {
+            $statusCode = $json['clinicalStatus']['coding'][0]['code'];
+            $data['outcome'] = ($statusCode === 'resolved') ? '1' : '0';
+        }
+
+        // Criticality -> severity_al
+        if (!empty($json['criticality'])) {
+            $data['severity_al'] = match ($json['criticality']) {
+                'low' => 'mild',
+                'high' => 'severe',
+                'unable-to-assess' => 'unassigned',
+                default => 'unassigned',
+            };
+        }
+
+        // VerificationStatus -> verification
+        if (!empty($json['verificationStatus']['coding'][0]['code'])) {
+            $data['verification'] = $json['verificationStatus']['coding'][0]['code'];
+        }
+
+        // Recorder -> practitioner reference
+        $recorderRef = $json['recorder']['reference'] ?? null;
+        if (is_string($recorderRef) && $recorderRef !== '') {
+            $parsed = UtilsService::parseReferenceString($recorderRef, 'Practitioner');
+            if (!empty($parsed['uuid']) && \OpenEMR\Common\Uuid\UuidRegistry::isValidStringUUID($parsed['uuid'])) {
+                $data['practitioner_uuid'] = $parsed['uuid'];
+            }
+        }
+
+        // OnsetDateTime -> begdate (validator expects Y-m-d H:i:s)
+        if (!empty($json['onsetDateTime']) && is_string($json['onsetDateTime'])) {
+            $onsetDt = date_create_immutable($json['onsetDateTime']);
+            if ($onsetDt !== false) {
+                $data['begdate'] = $onsetDt->format('Y-m-d H:i:s');
+            }
+        }
+
+        // Note -> comments
+        if (!empty($json['note'][0]['text'])) {
+            $data['comments'] = $json['note'][0]['text'];
+        }
+
+        // Reaction -> reaction code
+        if (!empty($json['reaction'][0]['manifestation'][0]['coding'])) {
+            $codeTypesService = new CodeTypesService();
+            $reactionParts = [];
+            foreach ($json['reaction'][0]['manifestation'][0]['coding'] as $coding) {
+                $codeValue = is_scalar($coding['code'] ?? null) ? $coding['code'] : '';
+                if ($codeValue !== '' && $codeValue !== false) {
+                    $system = is_string($coding['system'] ?? null) ? $coding['system'] : '';
+                    $reactionParts[] = $codeTypesService->getOpenEMRCodeForSystemAndCode($system, $codeValue);
+                }
+            }
+            if (!empty($reactionParts)) {
+                $data['reaction'] = implode(';', $reactionParts);
+            }
+        }
+
+        // Final title fallback from narrative text
+        if (empty($data['title']) && !empty($json['text']['div'])) {
+            $data['title'] = strip_tags((string) $json['text']['div']);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record into the system.
+     *
+     * @param array $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->allergyIntoleranceService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param string $fhirResourceId The OpenEMR record's FHIR Resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    protected function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        return $this->allergyIntoleranceService->update($fhirResourceId, $updatedOpenEMRRecord);
     }
 
     /**

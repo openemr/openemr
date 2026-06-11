@@ -47,6 +47,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'pc_billing_location\' on array\\{pc_apptstatus\\: string, pc_catid\\?\\: int, pc_title\\: mixed, pc_facility\\?\\: string, pc_aid\\?\\: string, puuid\\?\\: non\\-falsy\\-string, pid\\?\\: string, pc_duration\\?\\: int, \\.\\.\\.\\}\\|array\\{pc_apptstatus\\: string, pc_catid\\?\\: int, pc_title\\: mixed, pc_facility\\?\\: string, pc_aid\\?\\: string, puuid\\?\\: non\\-falsy\\-string, pid\\?\\: string, pc_eventDate\\: non\\-falsy\\-string, \\.\\.\\.\\} in isset\\(\\) does not exist\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/FhirAppointmentService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'expiration\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationService.php',

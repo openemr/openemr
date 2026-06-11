@@ -449,6 +449,56 @@ class PrescriptionService extends BaseService
     }
 
     /**
+     * Updates an existing prescription record by uuid.
+     *
+     * Only records that live in the `prescriptions` table can be updated. `lists`-source
+     * medications (legacy free-text entries surfaced through the read UNION) are not
+     * writable here — passing one of those uuids returns a validation error.
+     *
+     * @param string $uuid The prescription uuid in string format.
+     * @param array<string, mixed> $data Column => value pairs to update. The `uuid` key,
+     *                                   if present, is ignored.
+     * @return ProcessingResult The refreshed record on success, or validation errors.
+     */
+    public function update(string $uuid, array $data): ProcessingResult
+    {
+        $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        if ($data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'No update fields supplied']);
+            return $processingResult;
+        }
+
+        // The update payload should never carry the uuid itself; buildUpdateColumns
+        // ignores it but stripping here keeps callers honest.
+        unset($data['uuid']);
+
+        $data['date_modified'] = date('Y-m-d H:i:s');
+        $query = $this->buildUpdateColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<int, mixed> $binds */
+        $binds = $query['bind'];
+
+        if ($setClause === '') {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['data' => 'No recognized fields to update']);
+            return $processingResult;
+        }
+
+        $sql = "UPDATE " . self::PRESCRIPTION_TABLE . " SET " . $setClause . " WHERE uuid = ?";
+        $binds[] = UuidRegistry::uuidToBytes($uuid);
+        QueryUtils::sqlStatementThrowException($sql, $binds);
+
+        return $this->getOne($uuid);
+    }
+
+    /**
      * Soft-deletes a prescription record by setting active = 0.
      *
      * @param string $uuid The prescription uuid in string format.
