@@ -647,8 +647,8 @@ class InternalToCdaConverter
     private function formatTimestamp(string $input): string
     {
         $input = trim($input);
-        if ($input === '') {
-            return '';
+        if ($input === '' || $input === '0000-00-00 00:00:00') {
+            return 'Invalid date';
         }
         $input = str_replace([' ', '-', ':'], '', $input);
         if (strlen($input) >= 14 && str_contains($input, '+')) {
@@ -672,18 +672,20 @@ class InternalToCdaConverter
         $this->renderProblemsSection($structuredBody);
         $this->renderProceduresSection($structuredBody);
         $this->renderResultsSection($structuredBody);
+        $this->renderAdvanceDirectivesSection($structuredBody);
+        $this->renderFunctionalStatusSection($structuredBody);
         $this->renderEncountersSection($structuredBody);
         $this->renderImmunizationsSection($structuredBody);
-        $this->renderVitalSignsSection($structuredBody);
-        $this->renderSocialHistorySection($structuredBody);
         $this->renderPayersSection($structuredBody);
-        $this->renderMedicalEquipmentSection($structuredBody);
-        $this->renderFunctionalStatusSection($structuredBody);
-        $this->renderMentalStatusSection($structuredBody);
+        $this->renderAssessmentSection($structuredBody);
         $this->renderPlanOfCareSection($structuredBody);
         $this->renderGoalsSection($structuredBody);
         $this->renderHealthConcernsSection($structuredBody);
-        $this->renderAssessmentSection($structuredBody);
+        $this->renderReasonForReferralSection($structuredBody);
+        $this->renderMentalStatusSection($structuredBody);
+        $this->renderSocialHistorySection($structuredBody);
+        $this->renderVitalSignsSection($structuredBody);
+        $this->renderMedicalEquipmentSection($structuredBody);
 
         $component->appendChild($structuredBody);
         $root->appendChild($component);
@@ -1324,27 +1326,1014 @@ class InternalToCdaConverter
 
     private function renderProceduresSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.7');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.7.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '47519-4');
+        $code->setAttribute('displayName', 'History of Procedures');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'History of Procedures'));
+
+        $procedures = $this->xpath('/CCDA/procedures/procedure');
+        $this->appendProceduresNarrative($section, $procedures);
+
+        $index = 1;
+        foreach ($procedures as $proc) {
+            $this->appendProcedureEntry($section, $proc, $index);
+            $index++;
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $procedures
+     */
+    private function appendProceduresNarrative(DOMElement $section, \DOMNodeList $procedures): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Service', 'Procedure code', 'Service date', 'Servicing provider', 'Phone#']);
+
+        $index = 1;
+        foreach ($procedures as $proc) {
+            $description = $this->xpathValue('description', $proc);
+            $code = $this->xpathValue('code', $proc);
+            $date = $this->xpathValue('date', $proc);
+            $fname = $this->xpathValue('fname', $proc);
+            $lname = $this->xpathValue('lname', $proc);
+            $provider = ($fname !== '' || $lname !== '') ? trim("$fname $lname") : 'No Data Available';
+
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $cell1 = $this->createElement('td', $description);
+            $cell1->setAttribute('ID', 'procedure' . $index);
+            $row->appendChild($cell1);
+
+            $row->appendChild($this->createElement('td', $code));
+            $row->appendChild($this->createElement('td', $date));
+            $row->appendChild($this->createElement('td', $provider));
+            $row->appendChild($this->createElement('td', 'No Data Available'));
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendProcedureEntry(DOMElement $section, DOMElement $proc, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $procedure = $this->createElement('procedure');
+        $procedure->setAttribute('classCode', 'PROC');
+        $procedure->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($procedure, '2.16.840.1.113883.10.20.22.4.14');
+
+        $shaExt = $this->xpathValue('sha_extension', $proc);
+        $ext = $this->xpathValue('extension', $proc);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $procedure->appendChild($id);
+
+        $codeVal = $this->xpathValue('code', $proc);
+        $description = $this->xpathValue('description', $proc);
+        $codeType = $this->xpathValue('code_type', $proc);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $codeVal);
+        $code->setAttribute('displayName', $description);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', $codeType);
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#procedure' . $index);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+        $procedure->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $procedure->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $proc);
+        $dateFormatted = str_replace('-', '', $date);
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('value', $dateFormatted);
+        $procedure->appendChild($effTime);
+
+        $authorEl = $this->xpath('author', $proc)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($procedure, $authorEl);
+        }
+
+        $entry->appendChild($procedure);
+        $section->appendChild($entry);
     }
 
     private function renderResultsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1', '2015-08-01');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '30954-2');
+        $code->setAttribute('displayName', 'Relevant Dx tests/lab data');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Relevant Dx tests/lab data'));
+
+        $results = $this->xpath('/CCDA/results/result');
+        $this->appendResultsNarrative($section, $results);
+        $this->appendResultsEntry($section, $results);
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $results
+     */
+    private function appendResultsNarrative(DOMElement $section, \DOMNodeList $results): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Test/Result', 'Value', 'Units', 'Reference Range', 'Interpretation', 'Date']);
+
+        $tbody = $this->createElement('tbody');
+
+        // Header row with colspan (using first result's test name)
+        $firstResult = $results->item(0);
+        if ($firstResult instanceof DOMElement) {
+            $testName = $this->xpathValue('test_name', $firstResult);
+            $headerRow = $this->createElement('tr');
+            $headerCell = $this->createElement('td', $testName);
+            $headerCell->setAttribute('colspan', '7');
+            $headerRow->appendChild($headerCell);
+            $tbody->appendChild($headerRow);
+        }
+
+        $index = 1;
+        foreach ($results as $result) {
+            $dateOrdered = $this->xpathValue('date_ordered_table', $result);
+            $dateDisplay = substr($dateOrdered, 0, 10); // Format: 2018-06-16
+
+            $subtests = $this->xpath('subtest', $result);
+            foreach ($subtests as $subtest) {
+                $desc = $this->xpathValue('result_desc', $subtest);
+                $value = $this->xpathValue('result_value', $subtest);
+                $unit = $this->xpathValue('unit', $subtest);
+
+                $row = $this->createElement('tr');
+
+                $row->appendChild($this->createElement('td', $desc));
+
+                $valueCell = $this->createElement('td', $value);
+                $valueCell->setAttribute('ID', 'result' . $index);
+                $row->appendChild($valueCell);
+
+                $row->appendChild($this->createElement('td', $unit));
+                $row->appendChild($this->createElement('td', 'No Data Available'));
+                $row->appendChild($this->createElement('td', 'No Data Available'));
+                $row->appendChild($this->createElement('td', $dateDisplay));
+
+                $tbody->appendChild($row);
+                $index++;
+            }
+        }
+
+        $table->appendChild($tbody);
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $results
+     */
+    private function appendResultsEntry(DOMElement $section, \DOMNodeList $results): void
+    {
+        $firstResult = $results->item(0);
+        if (!$firstResult instanceof DOMElement) {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $organizer = $this->createElement('organizer');
+        $organizer->setAttribute('classCode', 'BATTERY');
+        $organizer->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1', '2015-08-01');
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1');
+
+        $root = $this->xpathValue('root', $firstResult);
+        $ext = $this->xpathValue('extension', $firstResult);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $root);
+        $id->setAttribute('extension', $ext);
+        $organizer->appendChild($id);
+
+        $testCode = $this->xpathValue('test_code', $firstResult);
+        $testName = $this->xpathValue('test_name', $firstResult);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $testCode);
+        $code->setAttribute('displayName', $testName);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $organizer->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $organizer->appendChild($statusCode);
+
+        $authorEl = $this->xpath('author', $firstResult)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($organizer, $authorEl);
+        }
+
+        // Add all subtests from all results as components
+        $index = 1;
+        foreach ($results as $result) {
+            $subtests = $this->xpath('subtest', $result);
+            $dateOrdered = $this->xpathValue('date_ordered', $result);
+            foreach ($subtests as $subtest) {
+                $this->appendResultComponent($organizer, $subtest, $dateOrdered, $index);
+                $index++;
+            }
+        }
+
+        $entry->appendChild($organizer);
+        $section->appendChild($entry);
+    }
+
+    private function appendResultComponent(DOMElement $organizer, DOMElement $subtest, string $dateOrdered, int $index): void
+    {
+        $component = $this->createElement('component');
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.2', '2015-08-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.2');
+
+        $root = $this->xpathValue('root', $subtest);
+        $ext = $this->xpathValue('extension', $subtest);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $root);
+        $id->setAttribute('extension', $ext);
+        $obs->appendChild($id);
+
+        $code = $this->xpathValue('result_code', $subtest);
+        $desc = $this->xpathValue('result_desc', $subtest);
+        $codeEl = $this->createElement('code');
+        $codeEl->setAttribute('code', $code);
+        $codeEl->setAttribute('displayName', $desc);
+        $codeEl->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $codeEl->setAttribute('codeSystemName', 'LOINC');
+        $obs->appendChild($codeEl);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#result' . $index);
+        $text->appendChild($ref);
+        $obs->appendChild($text);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('value', $dateOrdered);
+        $obs->appendChild($effTime);
+
+        $resultValue = $this->xpathValue('result_value', $subtest);
+        $unit = $this->xpathValue('unit', $subtest);
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
+        $value->setAttribute('value', $resultValue);
+        $value->setAttribute('unit', $unit);
+        $obs->appendChild($value);
+
+        $refRange = $this->createElement('referenceRange');
+        $obsRange = $this->createElement('observationRange');
+        $rangeValue = $this->output->createElement('value');
+        $rangeValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_PQ');
+        $obsRange->appendChild($rangeValue);
+        $refRange->appendChild($obsRange);
+        $obs->appendChild($refRange);
+
+        $component->appendChild($obs);
+        $organizer->appendChild($component);
     }
 
     private function renderEncountersSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1', '2015-08-01');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '46240-8');
+        $code->setAttribute('displayName', 'Encounters');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Encounters'));
+
+        $encounters = $this->xpath('/CCDA/encounter_list/encounter');
+        $this->appendEncountersNarrative($section, $encounters);
+
+        $index = 1;
+        foreach ($encounters as $encounter) {
+            $this->appendEncounterEntry($section, $encounter, $index);
+            $index++;
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $encounters
+     */
+    private function appendEncountersNarrative(DOMElement $section, \DOMNodeList $encounters): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Type', 'Facility', 'Date of Service', 'Diagnosis/Complaint']);
+
+        $index = 1;
+        foreach ($encounters as $enc) {
+            $description = $this->xpathValue('code_description', $enc);
+            $reason = $this->xpathValue('encounter_reason', $enc);
+            $displayText = "$description | $reason";
+            $date = $this->xpathValue('date', $enc);
+            // Format date as MM/DD/YYYY
+            $dateFormatted = $this->formatEncounterDate($date);
+
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $cell1 = $this->createElement('td', $displayText);
+            $cell1->setAttribute('ID', 'Encounter' . $index);
+            $row->appendChild($cell1);
+
+            $row->appendChild($this->createElement('td', 'No Data Available'));
+            $row->appendChild($this->createElement('td', $dateFormatted));
+            $row->appendChild($this->createElement('td', 'No Data Available'));
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function formatEncounterDate(string $date): string
+    {
+        // Input: "2001-06-06 21:30:39+0000"
+        // Output: "06/06/2001"
+        $parts = explode(' ', $date);
+        if (count($parts) < 1) {
+            return '';
+        }
+        $dateParts = explode('-', $parts[0]);
+        if (count($dateParts) !== 3) {
+            return '';
+        }
+        return sprintf('%s/%s/%s', $dateParts[1], $dateParts[2], $dateParts[0]);
+    }
+
+    private function appendEncounterEntry(DOMElement $section, DOMElement $enc, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $encounter = $this->createElement('encounter');
+        $encounter->setAttribute('classCode', 'ENC');
+        $encounter->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($encounter, '2.16.840.1.113883.10.20.22.4.49', '2015-08-01');
+        $this->appendTemplateId($encounter, '2.16.840.1.113883.10.20.22.4.49');
+
+        $shaExt = $this->xpathValue('sha_extension', $enc);
+        $ext = $this->xpathValue('extension', $enc);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $encounter->appendChild($id);
+
+        $codeVal = $this->xpathValue('code', $enc);
+        $description = $this->xpathValue('code_description', $enc);
+        $reason = $this->xpathValue('encounter_reason', $enc);
+        $codeType = $this->xpathValue('code_type', $enc);
+        $displayText = "$description | $reason";
+
+        $code = $this->createElement('code');
+        // Node.js service uses hardcoded code 185347001
+        $code->setAttribute('code', '185347001');
+        $code->setAttribute('displayName', $displayText);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
+
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#Encounter' . $index);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', 'AMB');
+        $translation->setAttribute('displayName', 'Ambulatory');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $translation->setAttribute('codeSystemName', 'ActCode');
+        $code->appendChild($translation);
+
+        $encounter->appendChild($code);
+
+        $date = $this->xpathValue('date', $enc);
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('value', $this->formatTimestamp($date));
+        $encounter->appendChild($effTime);
+
+        $this->appendEncounterPerformer($encounter, $enc);
+        $this->appendEncounterLocation($encounter, $enc);
+
+        $entry->appendChild($encounter);
+        $section->appendChild($entry);
+    }
+
+    private function appendEncounterPerformer(DOMElement $encounter, DOMElement $enc): void
+    {
+        $performer = $this->createElement('performer');
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $npi = $this->xpathValue('npi', $enc);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '2.16.840.1.113883.4.6');
+        $id->setAttribute('extension', $npi);
+        $assignedEntity->appendChild($id);
+
+        $code = $this->createElement('code');
+        $physicianTypeCode = $this->xpathValue('physician_type_code', $enc);
+        if ($physicianTypeCode !== '') {
+            $code->setAttribute('code', $physicianTypeCode);
+            $code->setAttribute('displayName', $this->xpathValue('physician_type', $enc));
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $code->setAttribute('codeSystemName', $this->xpathValue('physician_code_type', $enc));
+        } else {
+            $code->setAttribute('nullFlavor', 'UNK');
+        }
+        $assignedEntity->appendChild($code);
+
+        $fname = $this->xpathValue('fname', $enc);
+        $lname = $this->xpathValue('lname', $enc);
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        if ($lname !== '') {
+            $name->appendChild($this->createElement('family', $lname));
+        }
+        if ($fname !== '') {
+            $name->appendChild($this->createElement('given', $fname));
+        }
+        $assignedPerson->appendChild($name);
+        $assignedEntity->appendChild($assignedPerson);
+
+        $performer->appendChild($assignedEntity);
+        $encounter->appendChild($performer);
+    }
+
+    private function appendEncounterLocation(DOMElement $encounter, DOMElement $enc): void
+    {
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'LOC');
+
+        $role = $this->createElement('participantRole');
+        $role->setAttribute('classCode', 'SDLOC');
+
+        $this->appendTemplateId($role, '2.16.840.1.113883.10.20.22.4.32');
+
+        $locationDetails = $this->xpathValue('location_details', $enc);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '1160-1');
+        // Node.js service includes trailing space in location display
+        $code->setAttribute('displayName', $locationDetails . ' ');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.259');
+        $code->setAttribute('codeSystemName', 'HealthcareServiceLocation');
+        $role->appendChild($code);
+
+        $addr = $this->createElement('addr');
+        $addr->appendChild($this->createElement('country', 'US'));
+        $role->appendChild($addr);
+
+        $playingEntity = $this->createElement('playingEntity');
+        $playingEntity->setAttribute('classCode', 'PLC');
+        $facilityName = $this->xpathValue('facility_name', $enc);
+        $playingEntity->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
+        $role->appendChild($playingEntity);
+
+        $participant->appendChild($role);
+        $encounter->appendChild($participant);
     }
 
     private function renderImmunizationsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.2');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.2.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '11369-6');
+        $code->setAttribute('displayName', 'Immunizations');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Immunizations'));
+
+        $immunizations = $this->xpath('/CCDA/immunizations/immunization');
+        $this->appendImmunizationsNarrative($section, $immunizations);
+
+        $index = 1;
+        foreach ($immunizations as $imm) {
+            $this->appendImmunizationEntry($section, $imm, $index);
+            $index++;
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $immunizations
+     */
+    private function appendImmunizationsNarrative(DOMElement $section, \DOMNodeList $immunizations): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Vaccine', 'Date', 'Status']);
+
+        $index = 1;
+        foreach ($immunizations as $imm) {
+            $codeText = $this->xpathValue('code_text', $imm);
+            $administeredOn = $this->xpathValue('administered_on', $imm);
+            $status = $this->xpathValue('status', $imm);
+            // Node.js service displays "completed" as "complete"
+            if ($status === 'completed') {
+                $status = 'complete';
+            }
+
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $cell1 = $this->createElement('td', $codeText);
+            $cell1->setAttribute('ID', 'immunization' . $index);
+            $row->appendChild($cell1);
+
+            $row->appendChild($this->createElement('td', $administeredOn));
+            $row->appendChild($this->createElement('td', $status));
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendImmunizationEntry(DOMElement $section, DOMElement $imm, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $subAdmin = $this->createElement('substanceAdministration');
+        $subAdmin->setAttribute('classCode', 'SBADM');
+        $subAdmin->setAttribute('moodCode', 'EVN');
+        $subAdmin->setAttribute('negationInd', 'false');
+
+        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.52', '2015-08-01');
+        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.52');
+
+        $shaExt = $this->xpathValue('sha_extension', $imm);
+        $ext = $this->xpathValue('extension', $imm);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $subAdmin->appendChild($id);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#immunization' . $index);
+        $text->appendChild($ref);
+        $subAdmin->appendChild($text);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $subAdmin->appendChild($statusCode);
+
+        $administeredFormatted = $this->xpathValue('administered_formatted', $imm);
+        $effTime = $this->output->createElement('effectiveTime');
+        $effTime->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_TS');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $administeredFormatted);
+        $effTime->appendChild($low);
+        $subAdmin->appendChild($effTime);
+
+        $routeCode = $this->createElement('routeCode');
+        $route = $this->xpathValue('route_code', $imm);
+        if ($route !== '') {
+            $routeCode->setAttribute('code', $route);
+            $routeCode->setAttribute('codeSystem', '2.16.840.1.113883.3.26.1.1');
+        } else {
+            $routeCode->setAttribute('nullFlavor', 'UNK');
+        }
+        $subAdmin->appendChild($routeCode);
+
+        $this->appendImmunizationConsumable($subAdmin, $imm, $index);
+        $this->appendImmunizationPerformer($subAdmin, $imm);
+
+        $authorEl = $this->xpath('author', $imm)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($subAdmin, $authorEl);
+        }
+
+        $this->appendImmunizationEducation($subAdmin);
+
+        $entry->appendChild($subAdmin);
+        $section->appendChild($entry);
+    }
+
+    private function appendImmunizationEducation(DOMElement $subAdmin): void
+    {
+        $entryRelationship = $this->createElement('entryRelationship');
+        $entryRelationship->setAttribute('typeCode', 'SUBJ');
+        $entryRelationship->setAttribute('inversionInd', 'true');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'INT');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.20');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '171044003');
+        $code->setAttribute('displayName', 'immunization education');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED CT');
+        $act->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $act->appendChild($statusCode);
+
+        $entryRelationship->appendChild($act);
+        $subAdmin->appendChild($entryRelationship);
+    }
+
+    private function appendImmunizationConsumable(DOMElement $subAdmin, DOMElement $imm, int $index): void
+    {
+        $consumable = $this->createElement('consumable');
+        $mfgProduct = $this->createElement('manufacturedProduct');
+        $mfgProduct->setAttribute('classCode', 'MANU');
+
+        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.54', '2014-06-09');
+        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.54');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('nullFlavor', 'UNK');
+        $mfgProduct->appendChild($id);
+
+        $mfgMaterial = $this->createElement('manufacturedMaterial');
+        $cvxCode = $this->xpathValue('cvx_code', $imm);
+        $codeText = $this->xpathValue('code_text', $imm);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $cvxCode);
+        $code->setAttribute('displayName', $codeText);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.12.292');
+        $code->setAttribute('codeSystemName', 'CVX');
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#imminfo' . $index);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+        $mfgMaterial->appendChild($code);
+
+        $mfgProduct->appendChild($mfgMaterial);
+        $consumable->appendChild($mfgProduct);
+        $subAdmin->appendChild($consumable);
+    }
+
+    private function appendImmunizationPerformer(DOMElement $subAdmin, DOMElement $imm): void
+    {
+        $performer = $this->createElement('performer');
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $npi = $this->xpathValue('npi', $imm);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '2.16.840.1.113883.4.6');
+        $id->setAttribute('extension', $npi);
+        $assignedEntity->appendChild($id);
+
+        $addr = $this->createElement('addr');
+        $addr->appendChild($this->createElement('country', 'US'));
+        $assignedEntity->appendChild($addr);
+
+        $fname = $this->xpathValue('fname', $imm);
+        $lname = $this->xpathValue('lname', $imm);
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        if ($lname !== '') {
+            $name->appendChild($this->createElement('family', $lname));
+        }
+        if ($fname !== '') {
+            $name->appendChild($this->createElement('given', $fname));
+        }
+        $assignedPerson->appendChild($name);
+        $assignedEntity->appendChild($assignedPerson);
+
+        $repOrg = $this->createElement('representedOrganization');
+        $facilityName = $this->xpathValue('facility_name', $imm);
+        $repOrg->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
+        $assignedEntity->appendChild($repOrg);
+
+        $performer->appendChild($assignedEntity);
+        $subAdmin->appendChild($performer);
     }
 
     private function renderVitalSignsSection(DOMElement $structuredBody): void
     {
-        // TODO: Implement
+        [$component, $section] = $this->createSection(
+            '2.16.840.1.113883.10.20.22.2.4.1',
+            '2015-08-01',
+            '8716-3',
+            'Vital Signs',
+        );
+
+        $vitals = $this->xpath('/CCDA/history_physical/vitals_list/vitals');
+        $this->appendVitalsNarrative($section, $vitals);
+
+        $index = 1;
+        foreach ($vitals as $vital) {
+            $this->appendVitalOrganizer($section, $vital, $index);
+            $index++;
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $vitals
+     */
+    private function appendVitalsNarrative(DOMElement $section, \DOMNodeList $vitals): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable([
+            'Date',
+            'Body Temperature',
+            'Systolic[90-140 mmHg]',
+            'Diastolic[60-90 mmHg]',
+            'Heart Rate',
+            'Height',
+            'Weight Measured',
+            'BMI (Body Mass Index)',
+        ]);
+
+        $vitalIndex = 1;
+        foreach ($vitals as $vital) {
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $date = $this->xpathValue('date', $vital);
+            $row->appendChild($this->createElement('td', $date));
+
+            // Node.js service outputs BMI in Body Temperature column
+            $bmi = $this->xpathValue('BMI', $vital);
+            $cell1 = $this->createElement('td', $bmi !== '' ? "$bmi kg/m2" : 'No Data Available');
+            $cell1->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell1);
+
+            // Systolic (bps)
+            $bps = $this->xpathValue('bps', $vital);
+            $cell2 = $this->createElement('td', $bps !== '' ? $bps : 'No Data Available');
+            $cell2->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell2);
+
+            // Diastolic (bpd)
+            $bpd = $this->xpathValue('bpd', $vital);
+            $cell3 = $this->createElement('td', $bpd !== '' ? $bpd : 'No Data Available');
+            $cell3->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell3);
+
+            // Node.js service outputs Height in Heart Rate column
+            $height = $this->xpathValue('height', $vital);
+            $heightUnit = $this->xpathValue('unit_height', $vital);
+            $cell4 = $this->createElement('td', $height !== '' ? "$height $heightUnit" : 'No Data Available');
+            $cell4->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell4);
+
+            // Height column (usually empty due to above mismatch)
+            $cell5 = $this->createElement('td', 'No Data Available');
+            $cell5->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell5);
+
+            // Weight
+            $weight = $this->xpathValue('weight', $vital);
+            $weightUnit = $this->xpathValue('unit_weight', $vital);
+            $cell6 = $this->createElement('td', $weight !== '' ? "$weight $weightUnit" : 'No Data Available');
+            $cell6->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell6);
+
+            // BMI column (empty due to Node.js quirk putting it in Body Temp column)
+            $cell7 = $this->createElement('td', 'No Data Available');
+            $cell7->setAttribute('ID', 'vital' . $vitalIndex++);
+            $row->appendChild($cell7);
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendVitalOrganizer(DOMElement $section, DOMElement $vital, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $organizer = $this->createElement('organizer');
+        $organizer->setAttribute('classCode', 'CLUSTER');
+        $organizer->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.26', '2015-08-01');
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.26');
+
+        $shaExt = $this->xpathValue('sha_extension', $vital);
+        $ext = $this->xpathValue('extension', $vital);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        $id->setAttribute('extension', $ext);
+        $organizer->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '46680005');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED-CT');
+        $code->setAttribute('displayName', 'Vital signs');
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '74728-7');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $translation->setAttribute('displayName', 'Vital signs');
+        $code->appendChild($translation);
+        $organizer->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $organizer->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $vital);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $organizer->appendChild($effectiveTime);
+
+        // Node.js service uses specific entry order and vital references
+        $refIndex = 1;
+        $shaExt = $this->xpathValue('sha_extension', $vital);
+
+        // Height (vital1)
+        $height = $this->xpathValue('height', $vital);
+        if ($height !== '') {
+            $heightUnit = $this->xpathValue('unit_height', $vital);
+            $heightExt = $this->xpathValue('extension_height', $vital);
+            $this->appendVitalObservation($organizer, $vital, $height, $heightUnit, $heightExt, $shaExt, '8302-2', 'Height', $refIndex);
+        }
+        $refIndex++;
+
+        // BMI (vital2)
+        $bmi = $this->xpathValue('BMI', $vital);
+        if ($bmi !== '') {
+            $bmiExt = $this->xpathValue('extension_BMI', $vital);
+            $this->appendVitalObservation($organizer, $vital, $bmi, 'kg/m2', $bmiExt, $shaExt, '39156-5', 'BMI (Body Mass Index)', $refIndex);
+        }
+        $refIndex++;
+
+        // Heart Rate (vital3)
+        $pulse = $this->xpathValue('pulse', $vital);
+        if ($pulse !== '') {
+            $pulseExt = $this->xpathValue('extension_pulse', $vital);
+            $this->appendVitalObservation($organizer, $vital, $pulse, '/min', $pulseExt, $shaExt, '8867-4', 'Heart Rate', $refIndex);
+        }
+        $refIndex++;
+
+        // Respiratory Rate (vital4) - Node.js outputs fixed values
+        $breathExt = $this->xpathValue('extension_breath', $vital);
+        if ($breathExt === '') {
+            $breathExt = 'ZGVmYXVsdDFicmVhdGg=';
+        }
+        $this->appendVitalObservation($organizer, $vital, '15', '/min', $breathExt, '2.16.840.1.113883.3.140.1.0.6.10.14.2', '9279-1', 'Respiratory Rate', $refIndex);
+        $refIndex++;
+
+        // Temperature (vital5)
+        $temp = $this->xpathValue('temperature', $vital);
+        if ($temp !== '') {
+            $tempUnit = $this->xpathValue('unit_temperature', $vital);
+            $tempExt = $this->xpathValue('extension_temperature', $vital);
+            // Node.js uses hardcoded root and rounds temperature to 38
+            $this->appendVitalObservation($organizer, $vital, '38', $tempUnit, $tempExt, '2.16.840.1.113883.3.140.1.0.6.10.14.3', '8310-5', 'Body Temperature', $refIndex);
+        }
+
+        $entry->appendChild($organizer);
+        $section->appendChild($entry);
+    }
+
+    private function appendVitalObservation(
+        DOMElement $organizer,
+        DOMElement $vital,
+        string $value,
+        string $unit,
+        string $extension,
+        string $root,
+        string $loincCode,
+        string $displayName,
+        int $refIndex,
+    ): void {
+        $component = $this->createElement('component');
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.27', '2014-06-09');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.27');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $root);
+        $id->setAttribute('extension', $extension);
+        $obs->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $loincCode);
+        $code->setAttribute('displayName', $displayName);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#vital' . $refIndex);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+        $obs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $vital);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $obs->appendChild($effectiveTime);
+
+        $valueEl = $this->output->createElement('value');
+        $valueEl->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
+        $valueEl->setAttribute('value', $value);
+        if ($unit !== '') {
+            $valueEl->setAttribute('unit', $unit);
+        }
+        $obs->appendChild($valueEl);
+
+        $interp = $this->createElement('interpretationCode');
+        $interp->setAttribute('displayName', 'Normal');
+        $interp->setAttribute('code', 'N');
+        $interp->setAttribute('codeSystem', '2.16.840.1.113883.5.83');
+        $interp->setAttribute('codeSystemName', 'HL7 Result Interpretation');
+        $obs->appendChild($interp);
+
+        $authorEl = $this->xpath('author', $vital)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $component->appendChild($obs);
+        $organizer->appendChild($component);
     }
 
     private function renderSocialHistorySection(DOMElement $structuredBody): void
@@ -1560,6 +2549,52 @@ class InternalToCdaConverter
         } else {
             // TODO: Implement health concerns with data
         }
+    }
+
+    private function renderAdvanceDirectivesSection(DOMElement $structuredBody): void
+    {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+        $section->setAttribute('nullFlavor', 'NI');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1', '2015-08-01');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '42348-3');
+        $code->setAttribute('displayName', 'Advance Directives');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Advance Directives'));
+        $section->appendChild($this->createElement('text', 'Not Available'));
+
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
+    }
+
+    private function renderReasonForReferralSection(DOMElement $structuredBody): void
+    {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+        $section->setAttribute('nullFlavor', 'NI');
+
+        $this->appendTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1', '2014-06-09');
+        $this->appendTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '42349-1');
+        $code->setAttribute('displayName', 'Reason for Referral');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Reason for Referral'));
+        $section->appendChild($this->createElement('text', 'Not Available'));
+
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
     }
 
     private function renderAssessmentSection(DOMElement $structuredBody): void
