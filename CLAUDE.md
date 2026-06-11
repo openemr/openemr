@@ -196,6 +196,56 @@ composer update-layout-field-fixtures       # on host
 
 Review the diff before committing.
 
+### Browser debugging via Selenium
+
+The dev stack's Selenium container (what `tests/Tests/E2e/Base/BaseTrait.php`
+connects to) is a real Chrome session against the running app — and Claude
+Code can drive it directly. Anything a logged-in user can do in their
+browser is in scope: reproducing user-reported flows, navigating to deep
+server-rendered state, exercising JS-heavy interactions, inspecting DOM /
+cookies / storage, running arbitrary JS in the page context, screenshotting
+what a user actually sees. This lets Claude Code investigate live behaviour
+by hand rather than inferring from static source.
+
+Drive it via `symfony/panther` from inside the openemr container. Panther
+is already a project dep — the same WebDriver client the E2E suite uses.
+Inside the container, the grid is at `http://selenium:4444/wd/hub` and the
+app is at `http://openemr` (docker-network aliases — no host ports, no
+host packages, no path translation).
+
+**Cross-branch comparison.** From the primary repo's master, run
+`openemr-cmd worktree add <new-worktree> -b --start` to spin up a fresh
+worktree branching off master, with its own stack on a different port
+offset. Then drive Selenium against both stacks from the same
+conversation, running the identical flow on each and diffing rendered
+HTML, screenshots, or computed state directly. Answers "regression in
+my branch or pre-existing in master?" much faster than guessing from
+git blame.
+
+Boilerplate — drop into the bind-mounted dir at `tmp/debug.php`, then run
+via openemr-cmd, quoting the command as a single string so `sh -c` sees it
+intact:
+
+```bash
+openemr-cmd worktree exec <worktree> e 'php /var/www/localhost/htdocs/openemr/tmp/debug.php'
+# or, against the primary clone's stack (non-worktree mode):
+openemr-cmd e 'php /var/www/localhost/htdocs/openemr/tmp/debug.php'
+```
+
+```php
+<?php
+use Symfony\Component\Panther\Client;
+require '/var/www/localhost/htdocs/openemr/vendor/autoload.php';
+$c = Client::createSeleniumClient('http://selenium:4444/wd/hub', null, 'http://openemr');
+// ... drive the session — see Panther / WebDriver docs for the full API ...
+$c->quit();
+```
+
+Files written under `/var/www/localhost/htdocs/openemr/tmp/` inside the
+container appear on host at `<bind-mounted-dir>/tmp/` — handy for
+`takeScreenshot()` output that Claude Code can `Read` directly to render
+the PNG inline.
+
 ## Code Quality
 
 The same composer scripts back every PHP code-quality check, whether
