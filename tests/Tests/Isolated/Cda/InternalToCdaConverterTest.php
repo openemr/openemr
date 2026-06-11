@@ -141,7 +141,15 @@ class InternalToCdaConverterTest extends TestCase
         $xpath = new DOMXPath($dom);
         $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
         $section = $xpath->query("//hl7:section[hl7:templateId[@root='$templateId']]")->item(0);
-        return $section !== null ? $dom->saveXML($section) : '';
+        if ($section === null) {
+            return '';
+        }
+
+        $newDoc = new DOMDocument();
+        $newDoc->preserveWhiteSpace = false;
+        $imported = $newDoc->importNode($section, true);
+        $newDoc->appendChild($imported);
+        return $newDoc->saveXML() ?: '';
     }
 
     private function loadDom(string $xml): DOMDocument
