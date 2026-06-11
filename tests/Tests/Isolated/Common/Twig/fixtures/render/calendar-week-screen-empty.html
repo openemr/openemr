@@ -155,8 +155,11 @@
  }
 </script>
 <script>
-    var tsHeight="20px";
+        var tsHeight="20px";
     var tsHeightNum=20;
+    var pcWebroot="";
+    var pcViewtype="week";
+    var pcDate="20260315";
 
     function providerXclick(e) {
         var username=$(this).data('username');
@@ -210,13 +213,13 @@
     }
 
     var ChangeDate = function(eObj) {
-        baseURL = "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=week&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
+        baseURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
         newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
         document.location.href=newURL;
     }
 
     var PrintView = function (eventObject) {
-        printURL = "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=week&Date=20260315&print=1&pc_username=&pc_category=&pc_topic=";
+        printURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=" + encodeURIComponent(pcDate) + "&print=1&pc_username=&pc_category=&pc_topic=";
         window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
         return false;
     }

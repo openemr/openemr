@@ -10,7 +10,7 @@
     {% if HEADER_SCRIPTS is defined and HEADER_SCRIPTS %}
         <!-- Module Scripts Started -->
         {% for script in HEADER_SCRIPTS %}
-            <script src="{{ script }}" type="text/javascript"></script>
+            <script src="{{ script|safe_href }}" type="text/javascript"></script>
         {% endfor %}
         <!-- Module Scripts Ended -->
     {% endif %}

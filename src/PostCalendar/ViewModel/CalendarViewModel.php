@@ -32,6 +32,48 @@ namespace OpenEMR\PostCalendar\ViewModel;
  * lookups) lands in subsequent commits — this initial commit covers
  * just the constructor + the day-of-week list, which is the same
  * across all six views.
+ *
+ * Escape audit trail (for `buildMonthScreenEventContent`,
+ * `buildDayScreenEventContent`, `buildWeekScreenEventContent`):
+ *
+ * The general project preference is to escape as far downstream as
+ * possible — ideally at the template sink with `|text` / `|attr` /
+ * `|safe_href` etc. — because escape-at-sink keeps templates self-
+ * documenting and avoids the cross-file audit burden of verifying
+ * each PHP producer escapes correctly for the consumer's HTML
+ * context. The three event-content builders here are a deliberate
+ * exception: they assemble per-event HTML strings (link anchors,
+ * picture-hover icons, group-session controls, multi-line tooltip
+ * text) that the templates splat with `|raw`. Building those as raw
+ * HTML in PHP is the only practical option — Twig can't conditionally
+ * compose a Bootstrap-styled anchor with an embedded patient-pic
+ * icon and inline JS handler inside a `{{ event.displayContentHtml }}`
+ * substitution without orders of magnitude more template branching
+ * than the legacy ever had.
+ *
+ * Because escape happens at the source rather than the sink, every
+ * variable interpolated into those HTML strings is wrapped at the
+ * production site with the OpenEMR escape function matching the
+ * destination context: `text()` for HTML text, `attr()` for HTML
+ * attribute values, `attr_js()` for JS strings embedded in HTML
+ * `onclick=` attributes, `attr_url()` for URL fragments in `href=`.
+ * `xlt()` / `xla()` / `xlj()` are used in place of `xl()` whenever a
+ * translated literal is interpolated. CSS color values flow through
+ * `CalendarRenderDataBuilder::sanitizeCssColor()` (allowlist
+ * validator) before reaching the builders. The templates then render
+ * the returned `displayContentHtml` / `tooltip` / `inLabelContent`
+ * with `|raw`, which is correct single-escape: re-escaping at the
+ * template would double-escape the entities the builder already
+ * produced.
+ *
+ * When editing these builders, audit each new interpolation against
+ * its sink context and apply the matching escape function at the
+ * concatenation point. Do not assume an input is pre-escaped without
+ * tracing it back to its source — the per-event `array<string,
+ * mixed>` input shape carries some pre-escaped values (e.g.
+ * `hometext` from `pcVarPrepHTMLDisplay`) and some raw ones; the
+ * existing per-method `@param` documentation calls out which is
+ * which.
  */
 final readonly class CalendarViewModel
 {

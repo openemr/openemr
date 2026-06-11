@@ -66,8 +66,17 @@
  }
 </script>
 <script>
-    var tsHeight="{{ timeslotCss|default('20px') }}";
+    {# Server-supplied values are extracted to JS vars here so each is
+       single-escaped for the JS-string context via |js_escape (text)
+       or left bare for type-narrowed ints (timeslotHeightVal is
+       int-typed in CalendarRenderDataBuilder). Subsequent URL
+       construction uses string concatenation + encodeURIComponent so
+       each value is escaped exactly once for its sink. #}
+    var tsHeight={{ timeslotCss|default('20px')|js_escape }};
     var tsHeightNum={{ timeslotHeightVal|default(20) }};
+    var pcWebroot={{ webroot|js_escape }};
+    var pcViewtype={{ viewtype|default('day')|js_escape }};
+    var pcDate={{ Date|default('')|js_escape }};
 
     function providerXclick(e) {
         var username=$(this).data('username');
@@ -121,13 +130,13 @@
     }
 
     var ChangeDate = function(eObj) {
-        baseURL = "{{ webroot }}/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype={{ viewtype|default('day') }}&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
+        baseURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
         newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
         document.location.href=newURL;
     }
 
     var PrintView = function (eventObject) {
-        printURL = "{{ webroot }}/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype={{ viewtype|default('day') }}&Date={{ Date|default('') }}&print=1&pc_username=&pc_category=&pc_topic=";
+        printURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=" + encodeURIComponent(pcDate) + "&print=1&pc_username=&pc_category=&pc_topic=";
         window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
         return false;
     }
