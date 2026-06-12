@@ -828,7 +828,7 @@ $site_id = $session->get('site_id');
     <div class="sticky-top">
         <nav class="navbar navbar-expand-xl navbar-light bg-light">
             <div class="container">
-                <a class="navbar-brand" href="#"><h4><?php echo $title; ?><i class="brand ms-1" id="brand-top"></i></h4></a>
+                <a class="navbar-brand" href="#"><h4><?php echo text($title); ?><i class="brand ms-1" id="brand-top"></i></h4></a>
                 <button type="button" class="bg-primary navbar-toggler me-auto" data-bs-toggle="collapse" data-bs-target="#nav-header-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
