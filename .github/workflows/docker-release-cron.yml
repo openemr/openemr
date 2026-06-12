@@ -1,0 +1,83 @@
+# Daily orchestrator for production docker image rebuilds.
+#
+# Single inline matrix is the source of truth for which branches build and
+# which logical tags they push. On a scheduled run, every entry fires. On
+# manual dispatch, the include / exclude string inputs filter the set.
+#
+# Each entry fans out via `gh workflow run docker-build-release.yml --ref <branch>`
+# which dispatches that branch's own docker-build-release.yml against that
+# branch's docker/release/Dockerfile -- per-branch isolation validated in
+# the throwaway fork experiment described in
+# openemr/openemr-devops#790.
+#
+# Tag-list semantics:
+#   - The orchestrator carries logical tags only (e.g. "8.1.0,latest").
+#   - docker-build-release.yml expands version-number tags (digits and dots
+#     only) into a sibling "<tag>-YYYY-MM-DD" dated variant.
+#   - Floating tags (dev, next, latest, manual-test) don't get dated variants.
+#
+# Adding a new rel branch: append one matrix row. Rotating "latest" between
+# rel branches: edit one matrix row's tag string. No other coordination
+# needed.
+#
+# This file is the foundation skeleton landed in phase 1a of the docker
+# migration. The fan-out steps will start dispatching real builds in phase
+# 1c once docker-build-release.yml is in place on master, and additional
+# rel branches will be wired in during phase 2.
+
+name: Docker release cron
+
+on:
+  schedule:
+  - cron: '0 6 * * *'    # 06:00 UTC daily
+  workflow_dispatch:
+    inputs:
+      include:
+        description: 'Branches to build (comma-separated, or "all"). Examples: "all", "rel-810", "rel-810,master"'
+        type: string
+        default: 'all'
+      exclude:
+        description: 'Branches to skip (comma-separated). Useful with include=all.'
+        type: string
+        default: ''
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  fan-out:
+    name: fan-out
+    # Only run from master in the upstream repository -- this workflow lives
+    # only on master (downstream forks shouldn't trigger production builds).
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - branch: master
+          tags: 'dev,next'
+        - branch: rel-810
+          tags: '8.1.0,latest'
+        - branch: rel-800
+          tags: '8.0.0'
+        - branch: rel-704
+          tags: '7.0.4'
+    steps:
+    - name: Dispatch ${{ matrix.branch }} with tags ${{ matrix.tags }}
+      if: >-
+        ${{
+          (github.event_name == 'schedule'
+            || inputs.include == 'all'
+            || contains(format(',{0},', inputs.include), format(',{0},', matrix.branch)))
+          && !contains(format(',{0},', inputs.exclude), format(',{0},', matrix.branch))
+        }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh workflow run docker-build-release.yml \
+          --repo "${{ github.repository }}" \
+          --ref "${{ matrix.branch }}" \
+          -f tags="${{ matrix.tags }}"
+        echo "Dispatched ${{ matrix.branch }} with tags=${{ matrix.tags }}"
