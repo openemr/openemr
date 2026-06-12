@@ -459,49 +459,47 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMREthnicityRecord(FHIRPatient $patientResource, $ethnicity)
     {
+        // Initialize defaults for missing/unknown data (US Core Missing Data guidance)
+        $code = 'UNK';
+        $display = xl("Unknown");
+        $system = FhirCodeSystemConstants::HL7_NULL_FLAVOR;
+
         $ethnicityExtension = new FHIRExtension();
         $ethnicityExtension->setUrl("http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
 
+        $ombCategoryExtension = new FHIRExtension();
+        $ombCategoryExtension->setUrl("ombCategory");
+        $ombCategoryCoding = new FHIRCoding();
+
         if (!empty($ethnicity)) {
-            $ombCategoryExtension = new FHIRExtension();
-            $ombCategoryExtension->setUrl("ombCategory");
-
-            $textExtension = new FHIRExtension();
-            $textExtension->setUrl("text");
-
             $record = $this->getCachedListOption('ethnicity', $ethnicity);
-            if (!empty($record)) {
-                $textExtension->setValueString($record['title']);
-                // the only possible options for ombCategory are hispanic or not hispanic
-                if ($record['option_id'] != 'decline_to_specify' && $record['option_id'] != 'declne_to_specfy') {
-                    $coding = new FHIRCoding();
-                    $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
-                    $coding->setCode($record['notes']);
-                    $coding->setDisplay($record['title']);
-                    $coding->setSystem("urn:oid:2.16.840.1.113883.6.238");
-                    $ombCategoryExtension->setValueCoding($coding);
-                    $ethnicityExtension->addExtension($ombCategoryExtension);
-                }
+            if ($ethnicity === 'decline_to_specify' || $ethnicity === 'declne_to_specfy') {
+                // Asked but declined to answer - use ASKU per US Core guidance
+                // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-ethnicity-category.html
+                $code = "ASKU";
+                $display = xl("Asked but no answer");
+            } elseif (!empty($record)) {
+                // Valid ethnicity data present
+                $code = $record['notes'];
+                $title = is_string($record['title']) ? $record['title'] : '';
+                // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
+                $display = xl($title);
+                $system = "urn:oid:2.16.840.1.113883.6.238"; // v3-Ethnicity OID
             }
-
-            $ethnicityExtension->addExtension($textExtension);
-        } else {
-            // US Core requires ethnicity extension even when data is missing.
-            // Use Data Absent Reason per http://hl7.org/fhir/us/core/general-guidance.html#missing-data
-            $ombCategoryExtension = new FHIRExtension();
-            $ombCategoryExtension->setUrl("ombCategory");
-            $coding = new FHIRCoding();
-            $coding->setSystem(new FHIRUri(FhirCodeSystemConstants::HL7_NULL_FLAVOR));
-            $coding->setCode(new FHIRCode('UNK'));
-            $coding->setDisplay(new FHIRString('Unknown'));
-            $ombCategoryExtension->setValueCoding($coding);
-            $ethnicityExtension->addExtension($ombCategoryExtension);
-
-            $textExtension = new FHIRExtension();
-            $textExtension->setUrl("text");
-            $textExtension->setValueString(new FHIRString('Unknown'));
-            $ethnicityExtension->addExtension($textExtension);
         }
+
+        // Build ombCategory extension unconditionally (always required by US Core)
+        $ombCategoryCoding->setSystem(new FHIRUri($system));
+        $ombCategoryCoding->setCode(new FHIRCode($code));
+        $ombCategoryCoding->setDisplay(new FHIRString($display));
+        $ombCategoryExtension->setValueCoding($ombCategoryCoding);
+        $ethnicityExtension->addExtension($ombCategoryExtension);
+
+        // Build text extension unconditionally (always required by US Core)
+        $textExtension = new FHIRExtension();
+        $textExtension->setUrl("text");
+        $textExtension->setValueString(new FHIRString($ombCategoryCoding->getDisplay()));
+        $ethnicityExtension->addExtension($textExtension);
 
         $patientResource->addExtension($ethnicityExtension);
     }
