@@ -1288,12 +1288,16 @@ class InternalToCdaConverter
         $subAdmin->appendChild($effTime1);
 
         $dosage = $this->xpathValue('dosage', $med);
+        $interval = $this->xpathValue('interval', $med);
         $effTime2 = $this->output->createElement('effectiveTime');
         $effTime2->setAttributeNS(self::NS_XSI, 'xsi:type', 'PIVL_TS');
         $effTime2->setAttribute('institutionSpecified', 'true');
         $effTime2->setAttribute('operator', 'A');
         $period = $this->createElement('period');
         $period->setAttribute('value', $dosage !== '' ? (string) (int) floatval($dosage) : '1');
+        if ($interval !== '') {
+            $period->setAttribute('unit', $interval);
+        }
         $effTime2->appendChild($period);
         $subAdmin->appendChild($effTime2);
 
@@ -1307,7 +1311,17 @@ class InternalToCdaConverter
         }
         $subAdmin->appendChild($routeCode);
 
-        $subAdmin->appendChild($this->createElement('doseQuantity'));
+        $size = $this->xpathValue('size', $med);
+        $unit = $this->xpathValue('unit', $med);
+        $doseQuantity = $this->createElement('doseQuantity');
+        $sizeFloat = floatval($size);
+        if ($sizeFloat > 0) {
+            $doseQuantity->setAttribute('value', (string) $sizeFloat);
+        }
+        if ($unit !== '') {
+            $doseQuantity->setAttribute('unit', $unit);
+        }
+        $subAdmin->appendChild($doseQuantity);
 
         $this->appendMedicationConsumable($subAdmin, $med, $index);
         $this->appendMedicationAuthor($subAdmin, $med);
