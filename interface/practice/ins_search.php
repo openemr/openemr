@@ -326,8 +326,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                     value='<?php echo attr(($ins_co_address?->zip ?? '') . ($ins_co_address?->plusFour ?? '')); ?>' />
                             </div>
                             <div class="col">
-                                <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name'
-                                    value='<?php echo attr($ins_co_address?->country ?? ''); ?>' />
+                                <input type='text' size='20' class="form-control form-control-sm" name='form_country' maxlength='35' title='Country name'
+                                    value='<?php echo attr($ins_co_address?->country ?? 'USA'); ?>' />
                             </div>
                         </td>
                     </tr>
