@@ -30,7 +30,10 @@ class InternalToCdaConverter
     public function convert(string $internalXml): string
     {
         $this->input = new DOMDocument();
-        $this->input->loadXML($internalXml);
+        $result = $this->input->loadXML($internalXml, LIBXML_NONET);
+        if ($result === false) {
+            throw new \InvalidArgumentException('Failed to parse input XML');
+        }
         $this->inputXpath = new DOMXPath($this->input);
 
         $this->output = new DOMDocument('1.0', 'UTF-8');
