@@ -83,7 +83,7 @@ class Bootstrap5ComponentTest extends PantherTestCase
             $this->login(LoginTestData::username, LoginTestData::password);
 
             // Navigate to a page with a modal (e.g., About OpenEMR)
-            $this->goToUserMenuLink('fa-info-circle');
+            $this->goToUserMenuLink('fa-info');
 
             // Wait for modal to appear
             $this->client->wait(10)->until(
@@ -133,9 +133,10 @@ class Bootstrap5ComponentTest extends PantherTestCase
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
 
-            // Find user dropdown (top-right menu)
+            // Find user dropdown (top-right menu). The toggle is a div with the
+            // BS5 data-bs-toggle attribute (see user_data_template.html.twig).
             $userDropdown = $this->client->findElement(
-                WebDriverBy::xpath('//div[contains(@class, "dropdown")]//a[contains(@class, "dropdown-toggle")]')
+                WebDriverBy::xpath('//div[@id="username" and @data-bs-toggle="dropdown"]')
             );
             $userDropdown->click();
 
