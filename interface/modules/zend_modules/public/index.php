@@ -16,7 +16,13 @@
  * to the application root now.
  */
 
+use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Routing\ZendModuleApplication;
+use OpenEMR\Core\Routing\ZendModuleRouteLoader;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\HttpFoundation\Request;
 
 require_once(__DIR__ . "/../../../globals.php");
 require_once(__DIR__ . "/../../../../library/forms.inc.php");
@@ -24,14 +30,38 @@ require_once(__DIR__ . "/../../../../library/options.inc.php");
 
 chdir(dirname(__DIR__));
 
-// Run the application!
-/** @var \OpenEMR\Core\ModulesApplication Defined in globals.php */
-if (!empty(OEGlobalsBag::getInstance()->get('modules_application'))) {
-    // $time_start = microtime(true);
-    // run the request lifecycle.  The application has already inited in the globals.php
-    OEGlobalsBag::getInstance()->get('modules_application')->run();
-    // $time_end = microtime(true);
-    // echo "App runtime: " . ($time_end - $time_start) . "<br />";
-} else {
+// Run the application! ModulesApplication is created in globals.php and stashed
+// in the globals bag, which is untyped, so narrow it here.
+$modulesApplication = OEGlobalsBag::getInstance()->get('modules_application');
+if (!$modulesApplication instanceof ModulesApplication) {
     die("global modules_application is not defined.  Cannot run zend module request");
 }
+
+// Strangler seam (PHP 8.5 migration off laminas-mvc): when the feature flag is
+// on and the request resolves to a zend module route, serve it through the new
+// Symfony-routing + OEHttpKernel runtime instead of the legacy Laminas runtime.
+// Default is off, so every request takes the legacy path unless explicitly
+// opted in.
+if (OEEnvBag::getInstance()->getBoolean('OPENEMR__ZEND_SYMFONY_SEAM')) {
+    $eventDispatcher = $modulesApplication->getServiceManager()->get(EventDispatcherInterface::class);
+    if (!$eventDispatcher instanceof EventDispatcherInterface) {
+        throw new \RuntimeException('Module ServiceManager did not provide an EventDispatcher');
+    }
+    $seam = new ZendModuleApplication(
+        $modulesApplication->getServiceManager(),
+        $eventDispatcher,
+        new ZendModuleRouteLoader(__DIR__ . '/..'),
+    );
+
+    $request = Request::createFromGlobals();
+    if ($seam->matches($request->getPathInfo())) {
+        $seam->handle($request)->send();
+        return;
+    }
+}
+
+// $time_start = microtime(true);
+// run the request lifecycle.  The application has already inited in the globals.php
+$modulesApplication->run();
+// $time_end = microtime(true);
+// echo "App runtime: " . ($time_end - $time_start) . "<br />";
