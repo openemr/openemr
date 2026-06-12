@@ -2102,11 +2102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method addSubscriber\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/Module.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method attach\\(\\) on Laminas\\\\EventManager\\\\SharedEventManagerInterface\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/Module.php',

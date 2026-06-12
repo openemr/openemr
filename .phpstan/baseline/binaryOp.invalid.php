@@ -5222,26 +5222,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'CPT4\\:\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SNOMED\\-CT\\:\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Skipping Section …\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Updating \' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'attachment;…\'\\|\'inline; filename\\="\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php',
@@ -15695,6 +15675,21 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'LOINC\\:\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'CPT4\\:\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/CodeTypes/CodeTypeEventsSubscriber.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'Skipping Section …\' and mixed results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/CodeTypes/CodeTypeEventsSubscriber.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between \'Updating \' and mixed results in an error\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/CodeTypes/CodeTypeEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'\\:\' results in an error\\.$#',

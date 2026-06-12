@@ -11572,51 +11572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:isSnomedCodeType\\(\\) has parameter \\$codeType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:is_code_type_active\\(\\) has parameter \\$codeType with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:shouldUpdateListWithSnomedCodes\\(\\) has parameter \\$list_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:shouldUpdateListWithSnomedCodes\\(\\) has parameter \\$mappings with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:updateCPT4Mappings\\(\\) has parameter \\$logger with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:updateSNOMEDCTMappingsForList\\(\\) has parameter \\$list_id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:updateSNOMEDCTMappingsForList\\(\\) has parameter \\$logger with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:updateSNOMEDCTMappingsForList\\(\\) has parameter \\$mappings with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ZendModules\\\\CodeTypes\\\\Listener\\\\CodeTypeEventsSubscriber\\:\\:updateSNOMEDCTMappings\\(\\) has parameter \\$logger with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Documents\\\\Controller\\\\DocumentsController\\:\\:isZipUpload\\(\\) has parameter \\$request with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Controller/DocumentsController.php',
@@ -36070,6 +36025,16 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ClinicalNotesService\\:\\:setActivityForClinicalRecord\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ClinicalNotesService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\CodeTypes\\\\CodeTypeEventsSubscriber\\:\\:isSnomedCodeType\\(\\) has parameter \\$codeType with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/CodeTypes/CodeTypeEventsSubscriber.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\CodeTypes\\\\CodeTypeEventsSubscriber\\:\\:is_code_type_active\\(\\) has parameter \\$codeType with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/CodeTypes/CodeTypeEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\CodeTypesService\\:\\:dischargeCodeFromOptionId\\(\\) has parameter \\$option_id with no type specified\\.$#',

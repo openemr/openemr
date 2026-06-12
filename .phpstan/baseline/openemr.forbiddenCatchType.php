@@ -288,11 +288,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/CodeTypes/src/CodeTypes/Listener/CodeTypeEventsSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/FHIR/src/FHIR/Listener/CalculatedObservationEventsSubscriber.php',
 ];
@@ -740,6 +735,11 @@ $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/CodeTypes/CodeTypeEventsSubscriber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
