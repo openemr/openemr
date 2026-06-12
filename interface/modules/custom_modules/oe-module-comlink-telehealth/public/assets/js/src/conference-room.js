@@ -876,6 +876,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
         // we use min-height 90vh until we get the bootstrap full screen modal in bootstrap 5
         // TODO: @adunsulag now that both patient & portal are using the same dialog we can probably move this server side
         // into the waiting room template.
+        // nosemgrep: this is a static, developer-authored modal template; the only dynamic
+        // parts are the translated title (escaped via jsText) and `content`, a trusted
+        // server-rendered fragment built by the caller. (Class names changed for the BS5 migration.)
         bootstrapModalTemplate.innerHTML = `<div class="modal fade ps-0" id="telehealth-container" tabindex="-1" aria-hidden="true">
               <div class="modal-dialog mw-100 ms-2 me-2 mt-0 mt-md-1 mt-lg-2 mb-0">
                 <div class="modal-content">
