@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\ZendModules\CodeTypes\Listener;
+namespace OpenEMR\Services\CodeTypes;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
@@ -19,6 +19,9 @@ use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * @phpstan-type InternalLogger callable(string): void
+ */
 class CodeTypeEventsSubscriber implements EventSubscriberInterface
 {
     private const SNOMED_ENCOUNTER_TYPE_MAPPINGS = [
@@ -87,7 +90,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     private const LIST_ID_ENCOUNTER_TYPES = 'encounter-types';
     private const LIST_ID_IMMUNIZATION_REFUSAL = 'immunization_refusal_reason';
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             SQLUpgradeEvent::EVENT_UPGRADE_POST => 'onSqlUpgradeEvent'
@@ -95,7 +98,22 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         ];
     }
 
-    public function onSqlUpgradeEvent(SQLUpgradeEvent $event)
+    public function onSqlUpgradeEvent(SQLUpgradeEvent $event): void
+    {
+        // we want to push out to the system that we are making changes...
+        $logger = function ($message) use ($event): void {
+            // make sure we escape this here.
+            $event->getSqlUpgradeService()->flush_echo(text($message) . "<br />");
+        };
+
+        $this->updateActivatedMappings($logger);
+
+    }
+
+    /**
+     * @param InternalLogger $logger
+     */
+    public function updateActivatedMappings($logger): void
     {
         // grab our currently installed code types, check for SNOMED-CT AND CPT4 and then update accordingly.
         // SELECT * FROM code_types WHERE ct_active=1 ORDER BY ct_seq, ct_key
@@ -103,11 +121,6 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         if (empty($activatedCodeTypes)) {
             return;
         }
-        // we want to push out to the system that we are making changes...
-        $logger = function ($message) use ($event): void {
-            // make sure we escape this here.
-            $event->getSqlUpgradeService()->flush_echo(text($message) . "<br />");
-        };
 
         foreach ($activatedCodeTypes as $record) {
             if ($record['ct_key'] == self::CODE_TYPE_CPT4) {
@@ -128,7 +141,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         }
     }
 
-    public function onCodeTypeInstalledEvent(CodeTypeInstalledEvent $event)
+    public function onCodeTypeInstalledEvent(CodeTypeInstalledEvent $event): void
     {
         if ($event->getCodeType() == "SNOMED") {
             // check if we have SNOMED codes installed and update our list options
@@ -139,12 +152,12 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function isSnomedCodeType($codeType)
+    private function isSnomedCodeType($codeType): bool
     {
         return in_array($codeType, [self::CODE_TYPE_SNOMED, self::CODE_TYPE_SNOMED_CT, self::CODE_TYPE_SNOMED_PR]);
     }
 
-    private function is_code_type_active($codeType)
+    private function is_code_type_active($codeType): bool
     {
         // make sure our table is installed
         $table_records = QueryUtils::fetchRecords("select * from code_types WHERE `ct_active`=1 AND ct_key = ? ", [$codeType]);
@@ -154,7 +167,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return !empty($table_records);
     }
 
-    private function shouldUpdateCPT4Mappings()
+    private function shouldUpdateCPT4Mappings(): bool
     {
         if (!$this->is_code_type_active('CPT4')) {
             // no codes installed so we aren't updating anything.
@@ -181,7 +194,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function shouldUpdateSNOMEDMappings()
+    private function shouldUpdateSNOMEDMappings(): bool
     {
         if ($this->shouldUpdateListWithSnomedCodes(self::SNOMED_ENCOUNTER_TYPE_MAPPINGS, self::LIST_ID_ENCOUNTER_TYPES)) {
             return true;
@@ -199,7 +212,10 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function shouldUpdateListWithSnomedCodes($mappings, $list_id)
+    /**
+     * @param array<string, string> $mappings
+     */
+    private function shouldUpdateListWithSnomedCodes(array $mappings, string $list_id): bool
     {
         foreach ($mappings as $option_id => $code_id) {
             $sql = "SELECT codes FROM list_options WHERE list_id=? AND option_id=?";
@@ -211,7 +227,10 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         return false;
     }
 
-    private function updateSNOMEDCTMappings($logger = null)
+    /**
+     * @param InternalLogger|null $logger
+     */
+    private function updateSNOMEDCTMappings($logger = null): void
     {
         $this->updateSNOMEDCTMappingsForList(
             self::SNOMED_ENCOUNTER_TYPE_MAPPINGS,
@@ -225,7 +244,11 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         );
     }
 
-    private function updateSNOMEDCTMappingsForList($mappings, $list_id, $logger = null)
+    /**
+     * @param array<string, string> $mappings
+     * @param InternalLogger|null $logger
+     */
+    private function updateSNOMEDCTMappingsForList(array $mappings, string $list_id, $logger = null): void
     {
         // update our list options
         $sql = null;
@@ -251,7 +274,10 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         }
     }
 
-    private function updateCPT4Mappings($logger = null)
+    /**
+     * @param InternalLogger|null $logger
+     */
+    private function updateCPT4Mappings($logger = null): void
     {
         // update our list options
         try {

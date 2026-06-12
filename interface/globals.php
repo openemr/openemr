@@ -372,6 +372,11 @@ try {
     // TODO: @adunsulag is there a better way to do this?
     /** @var Kernel */
     $globalsBag->set("kernel", new Kernel($webserver_root, $web_root, $globalsBag->get('eventDispatcher')));
+
+    // Register core event subscribers
+    $globalsBag->getKernel()->getEventDispatcher()->addSubscriber(
+        new \OpenEMR\Services\CodeTypes\CodeTypeEventsSubscriber()
+    );
 } catch (\Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
     http_response_code(500);
