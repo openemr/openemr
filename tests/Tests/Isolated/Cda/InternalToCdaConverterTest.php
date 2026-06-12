@@ -75,12 +75,14 @@ class InternalToCdaConverterTest extends TestCase
         if ($this->actualOutput === null) {
             $input = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
             self::assertNotFalse($input, 'Failed to read input fixture');
-            $this->expectedOutput = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
-            self::assertNotFalse($this->expectedOutput, 'Failed to read expected fixture');
+            $expected = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
+            self::assertNotFalse($expected, 'Failed to read expected fixture');
+            $this->expectedOutput = $expected;
 
             $converter = new InternalToCdaConverter();
             $this->actualOutput = $converter->convert(trim($input));
         }
+        self::assertNotNull($this->expectedOutput, 'Expected output not initialized');
         return [$this->actualOutput, $this->expectedOutput];
     }
 
@@ -140,8 +142,12 @@ class InternalToCdaConverterTest extends TestCase
     {
         $xpath = new DOMXPath($dom);
         $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
-        $section = $xpath->query("//hl7:section[hl7:templateId[@root='$templateId']]")->item(0);
-        if ($section === null) {
+        $result = $xpath->query("//hl7:section[hl7:templateId[@root='$templateId']]");
+        if ($result === false) {
+            return '';
+        }
+        $section = $result->item(0);
+        if (!$section instanceof \DOMElement) {
             return '';
         }
 
@@ -171,9 +177,11 @@ class InternalToCdaConverterTest extends TestCase
 
         $expr = '//*[@value="' . $currentTimestamp . '"]';
         $timestampValues = $xpath->query($expr);
-        foreach ($timestampValues as $timestamp) {
-            if ($timestamp instanceof \DOMElement) {
-                $timestamp->setAttribute('value', $newTimestamp);
+        if ($timestampValues !== false) {
+            foreach ($timestampValues as $timestamp) {
+                if ($timestamp instanceof \DOMElement) {
+                    $timestamp->setAttribute('value', $newTimestamp);
+                }
             }
         }
 
@@ -182,8 +190,10 @@ class InternalToCdaConverterTest extends TestCase
         if ($dateTime !== false && $dateTimeNew !== false) {
             $expr = "//hl7:tr/hl7:td/text()[normalize-space(.) = '" . $dateTime->format('Y-m-d') . "']";
             $timestampTextNodes = $xpath->query($expr);
-            foreach ($timestampTextNodes as $textNode) {
-                $textNode->nodeValue = $dateTimeNew->format('Y-m-d');
+            if ($timestampTextNodes !== false) {
+                foreach ($timestampTextNodes as $textNode) {
+                    $textNode->nodeValue = $dateTimeNew->format('Y-m-d');
+                }
             }
         }
 
@@ -228,9 +238,14 @@ class InternalToCdaConverterTest extends TestCase
                 continue;
             }
 
-            $actualId = $actual->query('.//hl7:id', $actualNode)->item(0);
-            $expectedId = $expected->query('.//hl7:id', $expectedNode)->item(0);
+            $actualIdList = $actual->query('.//hl7:id', $actualNode);
+            $expectedIdList = $expected->query('.//hl7:id', $expectedNode);
+            if ($actualIdList === false || $expectedIdList === false) {
+                continue;
+            }
 
+            $actualId = $actualIdList->item(0);
+            $expectedId = $expectedIdList->item(0);
             if ($actualId instanceof \DOMElement && $expectedId instanceof \DOMElement) {
                 $actualId->setAttribute('root', $expectedId->getAttribute('root'));
             }
