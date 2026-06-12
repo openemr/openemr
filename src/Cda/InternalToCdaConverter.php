@@ -1713,9 +1713,6 @@ class InternalToCdaConverter
         // Input: "2001-06-06 21:30:39+0000"
         // Output: "06/06/2001"
         $parts = explode(' ', $date);
-        if (count($parts) < 1) {
-            return '';
-        }
         $dateParts = explode('-', $parts[0]);
         if (count($dateParts) !== 3) {
             return '';
