@@ -1,7 +1,0 @@
-# Captured HTML snapshots are AI working artifacts: regenerated locally via
-# capture.sh, used for behavioural-equivalence diffing during the Smarty→Twig
-# migration. Not committed because they're large, point-in-time, and contain
-# upstream HTML (including upstream typos that trip codespell). The script
-# itself is the durable reference.
-baseline/
-post-migration/
