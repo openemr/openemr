@@ -25,7 +25,7 @@
 # 1c once docker-build-release.yml is in place on master, and additional
 # rel branches will be wired in during phase 2.
 
-name: Docker release cron
+name: Docker release orchestrator
 
 on:
   schedule:
