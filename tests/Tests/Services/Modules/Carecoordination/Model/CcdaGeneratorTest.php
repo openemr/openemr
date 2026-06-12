@@ -21,8 +21,8 @@ use PHPUnit\Framework\TestCase;
 /**
  * Integration test for CcdaGenerator::normalize().
  *
- * This test exercises the Node.js CCDA service path through CcdaGenerator
- * to ensure the full pipeline produces expected output.
+ * This test exercises the PHP CCDA converter (InternalToCdaConverter) through
+ * CcdaGenerator to ensure the full pipeline produces expected output.
  */
 class CcdaGeneratorTest extends TestCase
 {
