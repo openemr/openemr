@@ -650,13 +650,19 @@ class InternalToCdaConverter
         if ($input === '' || $input === '0000-00-00 00:00:00') {
             return 'Invalid date';
         }
-        $input = str_replace([' ', '-', ':'], '', $input);
-        if (strlen($input) >= 14 && str_contains($input, '+')) {
-            $parts = explode('+', $input);
-            return substr($parts[0], 0, 12) . '+' . $parts[1];
+
+        // Extract timezone offset before stripping characters (handles both + and -)
+        $offset = '+0000';
+        if (preg_match('/([+-]\d{4})$/', $input, $matches) === 1) {
+            $offset = $matches[1];
+            $input = substr($input, 0, -5);
         }
+
+        // Strip formatting characters from date/time portion
+        $input = str_replace([' ', '-', ':'], '', $input);
+
         if (strlen($input) >= 12) {
-            return substr($input, 0, 12) . '+0000';
+            return substr($input, 0, 12) . $offset;
         }
         return $input;
     }
@@ -941,7 +947,7 @@ class InternalToCdaConverter
         $subAdmin->appendChild($effTime2);
 
         $routeCode = $this->createElement('routeCode');
-        $route = $this->xpathValue('route_code', $med);
+        $route = $this->mapRouteCode($this->xpathValue('route_code', $med));
         if ($route !== '') {
             $routeCode->setAttribute('code', $route);
             $routeCode->setAttribute('codeSystem', '2.16.840.1.113883.3.26.1.1');
@@ -1746,8 +1752,8 @@ class InternalToCdaConverter
         $displayText = "$description | $reason";
 
         $code = $this->createElement('code');
-        // Node.js service uses hardcoded code 185347001
-        $code->setAttribute('code', '185347001');
+        // Node.js uses encounter procedure code with fallback to 185347001
+        $code->setAttribute('code', $codeVal !== '' ? $codeVal : '185347001');
         $code->setAttribute('displayName', $displayText);
         $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $code->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
@@ -1957,7 +1963,7 @@ class InternalToCdaConverter
         $subAdmin->appendChild($effTime);
 
         $routeCode = $this->createElement('routeCode');
-        $route = $this->xpathValue('route_code', $imm);
+        $route = $this->mapRouteCode($this->xpathValue('route_code', $imm));
         if ($route !== '') {
             $routeCode->setAttribute('code', $route);
             $routeCode->setAttribute('codeSystem', '2.16.840.1.113883.3.26.1.1');
@@ -2256,8 +2262,9 @@ class InternalToCdaConverter
         if ($temp !== '') {
             $tempUnit = $this->xpathValue('unit_temperature', $vital);
             $tempExt = $this->xpathValue('extension_temperature', $vital);
-            // Node.js uses hardcoded root and rounds temperature to 38
-            $this->appendVitalObservation($organizer, $vital, '38', $tempUnit, $tempExt, '2.16.840.1.113883.3.140.1.0.6.10.14.3', '8310-5', 'Body Temperature', $refIndex);
+            // Node.js rounds temperature up via Math.ceil
+            $tempRounded = (string) (int) ceil((float) $temp);
+            $this->appendVitalObservation($organizer, $vital, $tempRounded, $tempUnit, $tempExt, '2.16.840.1.113883.3.140.1.0.6.10.14.3', '8310-5', 'Body Temperature', $refIndex);
         }
 
         $entry->appendChild($organizer);
@@ -2675,6 +2682,43 @@ class InternalToCdaConverter
             return 'null_flavor';
         }
         return (string) preg_replace('/[.#]/', '', $code);
+    }
+
+    private function mapRouteCode(string $routeCode): string
+    {
+        $cleaned = $this->cleanCode($routeCode);
+        if ($cleaned === 'null_flavor') {
+            return '';
+        }
+
+        // Already a valid NCI code (C followed by digits)
+        if (preg_match('/^C\d+$/', $cleaned) === 1) {
+            return $cleaned;
+        }
+
+        // Common route abbreviation to NCI Thesaurus code mapping
+        $routeMap = [
+            'PO' => 'C38288',
+            'ORAL' => 'C38288',
+            'IV' => 'C38276',
+            'IM' => 'C28161',
+            'SC' => 'C38299',
+            'SUBCUT' => 'C38299',
+            'SQ' => 'C38299',
+            'TOP' => 'C38304',
+            'TOPICAL' => 'C38304',
+            'INH' => 'C38216',
+            'NASAL' => 'C38284',
+            'OPTH' => 'C38287',
+            'OTIC' => 'C38192',
+            'RECTAL' => 'C38295',
+            'VAGINAL' => 'C38313',
+            'SL' => 'C38300',
+            'BUCCAL' => 'C38193',
+            'TD' => 'C38305',
+        ];
+
+        return $routeMap[strtoupper($cleaned)] ?? $cleaned;
     }
 
     /**
