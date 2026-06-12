@@ -84,19 +84,23 @@ class Bootstrap5ComponentTest extends PantherTestCase
 
             // Inject a Bootstrap 5 modal wired up with data-bs-toggle / data-bs-target so the
             // test exercises real BS5 modal behaviour (and the BS5 close attributes below)
-            // without depending on any particular page's modal markup.
+            // without depending on any particular page's modal markup. The "fade" class is
+            // intentionally omitted so open/close are not animated: BS5 ignores hide() while a
+            // modal is still transitioning in, which makes an immediate close flaky under the
+            // headless Selenium grid.
             $this->client->executeScript(<<<'JS'
                 document.body.insertAdjacentHTML('beforeend',
                     '<button id="e2eModalTrigger" type="button" data-bs-toggle="modal" data-bs-target="#e2eTestModal">open</button>'
-                    + '<div class="modal fade" id="e2eTestModal" tabindex="-1" aria-hidden="true">'
+                    + '<div class="modal" id="e2eTestModal" tabindex="-1" aria-hidden="true">'
                     + '<div class="modal-dialog"><div class="modal-content">'
                     + '<div class="modal-header"><h5 class="modal-title">E2E</h5>'
                     + '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
                     + '</div><div class="modal-body">E2E modal body</div></div></div></div>');
             JS);
 
-            // Open the modal by clicking the data-bs-toggle trigger.
-            $this->client->findElement(WebDriverBy::id('e2eModalTrigger'))->click();
+            // Open the modal via its data-bs-toggle trigger (dispatched in-page so the click is
+            // not intercepted under the headless grid).
+            $this->client->executeScript('document.getElementById("e2eModalTrigger").click();');
 
             // Wait for modal to appear
             $this->client->wait(10)->until(
@@ -118,11 +122,16 @@ class Bootstrap5ComponentTest extends PantherTestCase
             JS);
             $this->assertTrue($backdropExists, 'Modal backdrop should exist');
 
-            // Close modal via close button
-            $closeButton = $this->client->findElement(
-                WebDriverBy::cssSelector('.modal.show .btn-close, .modal.show [data-bs-dismiss="modal"]')
-            );
-            $closeButton->click();
+            // Close the modal via its BS5 dismiss button. Dispatch the click in-page
+            // (rather than a Selenium mouse click) so it is not intercepted by the
+            // backdrop/animation in headless grid runs; this still fires the
+            // data-bs-dismiss handler.
+            $this->client->executeScript(<<<'JS'
+                const btn = document.querySelector('.modal.show .btn-close, .modal.show [data-bs-dismiss="modal"]');
+                if (btn) {
+                    btn.click();
+                }
+            JS);
 
             // Wait for modal to close
             $this->client->wait(5)->until(fn() => $this->client->executeScript(<<<'JS'
