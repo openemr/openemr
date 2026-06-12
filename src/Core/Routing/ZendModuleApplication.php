@@ -42,6 +42,26 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 final readonly class ZendModuleApplication
 {
+    /**
+     * Routes the new runtime is allowed to serve. The resolver shim dispatches
+     * controllers by calling the action method directly, which does NOT set up
+     * the Laminas MVC request/route-match/MvcEvent context that most legacy
+     * controllers depend on (e.g. AclController's $this->params() /
+     * $this->getRequest()). Until that context bridge exists, only controllers
+     * that don't touch it are safe — so the seam serves an explicit allowlist of
+     * proven canary routes and lets everything else fall through to the legacy
+     * Laminas runtime, even when the feature flag is on.
+     *
+     * The canary (Application IndexController::indexAction -> JsonModel([])) uses
+     * none of that context. Routes graduate onto this list as each controller is
+     * migrated (Plan 3).
+     *
+     * @var list<string>
+     */
+    private const CANARY_PATHS = [
+        '/application',
+    ];
+
     private RouteCollection $routes;
 
     public function __construct(
@@ -53,12 +73,16 @@ final readonly class ZendModuleApplication
     }
 
     /**
-     * True if the given path resolves to a known zend module route, i.e. the new
-     * runtime is able to serve it. Lets the front controller choose this path
-     * over the legacy Laminas runtime without dispatching.
+     * True if the new runtime should serve this path: it must resolve to a known
+     * zend module route AND be on the canary allowlist. Non-canary routes return
+     * false so the front controller leaves them on the legacy Laminas runtime.
      */
     public function matches(string $pathInfo): bool
     {
+        if (!in_array($pathInfo, self::CANARY_PATHS, true)) {
+            return false;
+        }
+
         $matcher = new UrlMatcher($this->routes, new RequestContext());
         try {
             $matcher->match($pathInfo);

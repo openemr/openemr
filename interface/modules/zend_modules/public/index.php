@@ -38,10 +38,12 @@ if (!$modulesApplication instanceof ModulesApplication) {
 }
 
 // Strangler seam (PHP 8.5 migration off laminas-mvc): when the feature flag is
-// on and the request resolves to a zend module route, serve it through the new
+// on and the request is on the seam's canary allowlist, serve it through the new
 // Symfony-routing + OEHttpKernel runtime instead of the legacy Laminas runtime.
-// Default is off, so every request takes the legacy path unless explicitly
-// opted in.
+// Default is off; even when on, only proven canary routes divert — every other
+// route falls through to the legacy runtime, because the resolver shim does not
+// yet set up the Laminas MVC controller context that most controllers need.
+// See ZendModuleApplication::CANARY_PATHS.
 if (OEEnvBag::getInstance()->getBoolean('OPENEMR__ZEND_SYMFONY_SEAM')) {
     $eventDispatcher = $modulesApplication->getServiceManager()->get(EventDispatcherInterface::class);
     if (!$eventDispatcher instanceof EventDispatcherInterface) {

@@ -39,12 +39,20 @@ class ZendModuleApplicationIsolatedTest extends TestCase
         );
     }
 
-    public function testMatchesKnownModuleRoute(): void
+    public function testMatchesCanaryRoute(): void
     {
+        // The canary (/application) is on the allowlist and resolves to a route.
+        $this->assertTrue($this->application()->matches('/application'));
+    }
+
+    public function testDoesNotMatchNonCanaryModuleRoute(): void
+    {
+        // /acl resolves to a real route but is intentionally NOT on the canary
+        // allowlist: its controller needs the Laminas MVC context the resolver
+        // shim does not set up, so it must stay on the legacy runtime.
         $app = $this->application();
-        $this->assertTrue($app->matches('/application'));
-        $this->assertTrue($app->matches('/acl'));
-        $this->assertTrue($app->matches('/acl/edit/7'));
+        $this->assertFalse($app->matches('/acl'));
+        $this->assertFalse($app->matches('/acl/edit/7'));
     }
 
     public function testDoesNotMatchUnknownRoute(): void
