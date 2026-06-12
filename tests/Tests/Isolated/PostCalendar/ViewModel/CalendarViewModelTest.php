@@ -195,7 +195,7 @@ final class CalendarViewModelTest extends TestCase
 
         self::assertSame(2026, $cal['year']);
         self::assertSame(3, $cal['month']);
-        self::assertSame('March 2026', $cal['monthLabel']);
+        self::assertSame('March', $cal['monthLabel']);
 
         // March 2026: starts Sunday March 1, ends Tuesday March 31.
         // With Sunday-first dowList, the grid pads to start Sun Mar 1 and

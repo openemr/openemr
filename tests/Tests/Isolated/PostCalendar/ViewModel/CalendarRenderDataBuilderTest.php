@@ -183,7 +183,8 @@ final class CalendarRenderDataBuilderTest extends TestCase
 
         // nextMonthMini should wrap to January (2027).
         $nextMini = $this->arrayAt($result, 'nextMonthMini');
-        self::assertSame('January 2027', $nextMini['monthLabel']);
+        self::assertSame('January', $nextMini['monthLabel']);
+        self::assertSame(2027, $nextMini['year']);
     }
 
     public function testBuildWeekPrintRenderDataReturnsExpectedTopLevelKeys(): void

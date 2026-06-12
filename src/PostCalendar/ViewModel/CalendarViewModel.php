@@ -294,7 +294,13 @@ final readonly class CalendarViewModel
         }
 
         return [
-            'monthLabel' => date('F Y', $anchor),
+            // English month name only (e.g. 'March') so it lines up with
+            // the translation-table keys xl()/xlt() looks up. Templates
+            // combine this with `year` to render "<translated-month> <year>"
+            // — matches the legacy mini-cal that did
+            // `xl(date('F', $caldate))` then appended `date('Y')`
+            // separately.
+            'monthLabel' => date('F', $anchor),
             'year'       => $year,
             'month'      => $month,
             'weeks'      => $weeks,
