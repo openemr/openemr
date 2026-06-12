@@ -2252,12 +2252,12 @@ class InternalToCdaConverter
         }
         $refIndex++;
 
-        // Respiratory Rate (vital4) - Node.js outputs fixed values
-        $breathExt = $this->xpathValue('extension_breath', $vital);
-        if ($breathExt === '') {
-            $breathExt = 'ZGVmYXVsdDFicmVhdGg=';
+        // Respiratory Rate (vital4)
+        $breath = $this->xpathValue('breath', $vital);
+        if ($breath !== '') {
+            $breathExt = $this->xpathValue('extension_breath', $vital);
+            $this->appendVitalObservation($organizer, $vital, $breath, '/min', $breathExt, '2.16.840.1.113883.3.140.1.0.6.10.14.2', '9279-1', 'Respiratory Rate', $refIndex);
         }
-        $this->appendVitalObservation($organizer, $vital, '15', '/min', $breathExt, '2.16.840.1.113883.3.140.1.0.6.10.14.2', '9279-1', 'Respiratory Rate', $refIndex);
         $refIndex++;
 
         // Temperature (vital5)
