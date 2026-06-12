@@ -1748,15 +1748,15 @@ class InternalToCdaConverter
         $id->setAttribute('extension', $ext);
         $encounter->appendChild($id);
 
-        $codeVal = $this->xpathValue('code', $enc);
+        $procedureCode = $this->xpathValue('encounter_procedures/procedures/code', $enc);
         $description = $this->xpathValue('code_description', $enc);
         $reason = $this->xpathValue('encounter_reason', $enc);
-        $codeType = $this->xpathValue('code_type', $enc);
+        $codeType = $this->xpathValue('encounter_procedures/procedures/code_type', $enc);
         $displayText = "$description | $reason";
 
         $code = $this->createElement('code');
-        // Node.js uses encounter procedure code with fallback to 185347001
-        $code->setAttribute('code', $codeVal !== '' ? $codeVal : '185347001');
+        // Node.js uses encounter_procedures.procedures.code with fallback to 185347001
+        $code->setAttribute('code', $procedureCode !== '' ? $procedureCode : '185347001');
         $code->setAttribute('displayName', $displayText);
         $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $code->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
