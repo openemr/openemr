@@ -754,11 +754,359 @@ class InternalToCdaConverter
             $section->appendChild($this->createElement('text', 'No known Allergies and Intolerances'));
             $this->appendNoKnownAllergiesEntry($section);
         } else {
-            // TODO: Implement allergy entries with data
+            $this->appendAllergiesNarrative($section, $allergies);
+            $index = 1;
+            foreach ($allergies as $allergy) {
+                $this->appendAllergyEntry($section, $allergy, $index);
+                $index++;
+            }
         }
 
         $component->appendChild($section);
         $structuredBody->appendChild($component);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $allergies
+     */
+    private function appendAllergiesNarrative(DOMElement $section, \DOMNodeList $allergies): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Substance', 'Reaction', 'Severity', 'Status']);
+
+        $index = 1;
+        foreach ($allergies as $allergy) {
+            $title = $this->xpathValue('title', $allergy);
+            $reaction = $this->xpathValue('reaction_text', $allergy);
+            $outcome = $this->xpathValue('outcome', $allergy);
+            $status = $this->xpathValue('status_table', $allergy);
+
+            $tbody = $this->createElement('tbody');
+            $row = $this->createElement('tr');
+
+            $cell1 = $this->createElement('td', $title);
+            $cell1->setAttribute('ID', 'allergy' . $index);
+            $row->appendChild($cell1);
+
+            $cell2 = $this->createElement('td', $reaction !== '' ? $reaction : 'No Data Available');
+            $cell2->setAttribute('ID', 'reaction' . $index);
+            $row->appendChild($cell2);
+
+            $row->appendChild($this->createElement('td', $outcome !== '' ? $outcome : 'No Data Available'));
+            $row->appendChild($this->createElement('td', $status !== '' ? $status : 'No Data Available'));
+
+            $tbody->appendChild($row);
+            $table->appendChild($tbody);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendAllergyEntry(DOMElement $section, DOMElement $allergy, int $index): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30', '2015-08-01');
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30');
+
+        $shaId = $this->xpathValue('sha_id', $allergy);
+        $id = $this->xpathValue('id', $allergy);
+        $idEl = $this->createElement('id');
+        $idEl->setAttribute('root', $shaId !== '' ? $shaId : 'NI');
+        $idEl->setAttribute('extension', $id);
+        $act->appendChild($idEl);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'CONC');
+        $code->setAttribute('displayName', 'Concern');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
+        $act->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $act->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('startdate', $allergy);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effectiveTime->appendChild($low);
+        $act->appendChild($effectiveTime);
+
+        $authorEl = $this->xpath('author', $allergy)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($act, $authorEl);
+        }
+
+        $this->appendAllergyObservation($act, $allergy, $index);
+
+        $entry->appendChild($act);
+        $section->appendChild($entry);
+    }
+
+    private function appendAllergyObservation(DOMElement $act, DOMElement $allergy, int $index): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7');
+
+        $shaExt = $this->xpathValue('sha_extension', $allergy);
+        $id = $this->xpathValue('id', $allergy);
+        $obsId = $this->createElement('id');
+        $obsId->setAttribute('root', $shaExt !== '' ? $shaExt : '2a620155-9d11-439e-92b3-5d9815ff4ee8');
+        $obsId->setAttribute('extension', $id !== '' ? $id . '1' : '');
+        $obs->appendChild($obsId);
+
+        $obsCode = $this->createElement('code');
+        $obsCode->setAttribute('code', 'ASSERTION');
+        $obsCode->setAttribute('displayName', 'Assertion');
+        $obsCode->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $obsCode->setAttribute('codeSystemName', 'ActCode');
+        $obs->appendChild($obsCode);
+
+        $obsStatus = $this->createElement('statusCode');
+        $obsStatus->setAttribute('code', 'completed');
+        $obs->appendChild($obsStatus);
+
+        $startDate = $this->xpathValue('startdate', $allergy);
+        $obsEffTime = $this->createElement('effectiveTime');
+        $obsLow = $this->createElement('low');
+        $obsLow->setAttribute('value', $this->formatDateOnly($startDate));
+        $obsEffTime->appendChild($obsLow);
+        $obs->appendChild($obsEffTime);
+
+        // Intolerance value
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', '420134006');
+        $value->setAttribute('displayName', 'Propensity to adverse reactions to drug');
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#reaction' . $index);
+        $origText->appendChild($ref);
+        $value->appendChild($origText);
+        $obs->appendChild($value);
+
+        $authorEl = $this->xpath('author', $allergy)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        // Allergen participant
+        $this->appendAllergenParticipant($obs, $allergy, $index);
+
+        // Status observation
+        $this->appendAllergyStatusObservation($obs, $allergy);
+
+        // Reaction observation
+        $this->appendAllergyReactionObservation($obs, $allergy);
+
+        // Severity observation
+        $this->appendAllergySeverityObservation($obs, $allergy);
+
+        $entryRel->appendChild($obs);
+        $act->appendChild($entryRel);
+    }
+
+    private function appendAllergenParticipant(DOMElement $obs, DOMElement $allergy, int $index): void
+    {
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'CSM');
+
+        $partRole = $this->createElement('participantRole');
+        $partRole->setAttribute('classCode', 'MANU');
+
+        $playingEntity = $this->createElement('playingEntity');
+        $playingEntity->setAttribute('classCode', 'MMAT');
+
+        $title = $this->xpathValue('title', $allergy);
+        $rxnormCode = $this->xpathValue('rxnorm_code', $allergy);
+        $rxnormText = $this->xpathValue('rxnorm_code_text', $allergy);
+        $snomedCode = $this->xpathValue('snomed_code', $allergy);
+        $snomedText = $this->xpathValue('snomed_code_text', $allergy);
+
+        $code = $this->createElement('code');
+        if ($rxnormText !== '') {
+            $code->setAttribute('code', $this->cleanCode($rxnormCode));
+            $code->setAttribute('displayName', $title);
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.88');
+            $code->setAttribute('codeSystemName', 'RXNORM');
+        } elseif ($snomedText !== '') {
+            $code->setAttribute('code', $this->cleanCode($snomedCode));
+            $code->setAttribute('displayName', $title);
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $code->setAttribute('codeSystemName', 'SNOMED CT');
+        } else {
+            $code->setAttribute('nullFlavor', 'UNK');
+        }
+
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#allergy' . $index);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+
+        $playingEntity->appendChild($code);
+        $partRole->appendChild($playingEntity);
+        $participant->appendChild($partRole);
+        $obs->appendChild($participant);
+    }
+
+    private function appendAllergyStatusObservation(DOMElement $obs, DOMElement $allergy): void
+    {
+        $statusTable = $this->xpathValue('status_table', $allergy);
+        $statusCode = $this->xpathValue('status_code', $allergy);
+        if ($statusTable === '' && $statusCode === '') {
+            return;
+        }
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $statusObs = $this->createElement('observation');
+        $statusObs->setAttribute('classCode', 'OBS');
+        $statusObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($statusObs, '2.16.840.1.113883.10.20.22.4.28');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '33999-4');
+        $code->setAttribute('displayName', 'Status');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $statusObs->appendChild($code);
+
+        $statusCodeEl = $this->createElement('statusCode');
+        $statusCodeEl->setAttribute('code', 'completed');
+        $statusObs->appendChild($statusCodeEl);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CE');
+        $value->setAttribute('code', $this->cleanCode($statusCode));
+        $value->setAttribute('displayName', $statusTable);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $statusObs->appendChild($value);
+
+        $entryRel->appendChild($statusObs);
+        $obs->appendChild($entryRel);
+    }
+
+    private function appendAllergyReactionObservation(DOMElement $obs, DOMElement $allergy): void
+    {
+        $reactionText = $this->xpathValue('reaction_text', $allergy);
+        $reactionCode = $this->xpathValue('reaction_code', $allergy);
+        if ($reactionText === '' && $reactionCode === '') {
+            return;
+        }
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'MFST');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $reactionObs = $this->createElement('observation');
+        $reactionObs->setAttribute('classCode', 'OBS');
+        $reactionObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($reactionObs, '2.16.840.1.113883.10.20.22.4.9', '2014-06-09');
+        $this->appendTemplateId($reactionObs, '2.16.840.1.113883.10.20.22.4.9');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '4adc1020-7b14-11db-9fe1-0800200c9a64');
+        $reactionObs->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'ASSERTION');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $reactionObs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $reactionObs->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('startdate', $allergy);
+        $endDate = $this->xpathValue('enddate', $allergy);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effectiveTime->appendChild($low);
+        if ($endDate !== '') {
+            $high = $this->createElement('high');
+            $high->setAttribute('value', $this->formatDateOnly($endDate));
+            $effectiveTime->appendChild($high);
+        }
+        $reactionObs->appendChild($effectiveTime);
+
+        $codeType = $this->xpathValue('reaction_code_type', $allergy);
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $this->cleanCode($reactionCode));
+        $value->setAttribute('displayName', $reactionText);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
+        $reactionObs->appendChild($value);
+
+        $entryRel->appendChild($reactionObs);
+        $obs->appendChild($entryRel);
+    }
+
+    private function appendAllergySeverityObservation(DOMElement $obs, DOMElement $allergy): void
+    {
+        $outcome = $this->xpathValue('outcome', $allergy);
+        $outcomeCode = $this->xpathValue('outcome_code', $allergy);
+        if ($outcome === '' && $outcomeCode === '') {
+            return;
+        }
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $sevObs = $this->createElement('observation');
+        $sevObs->setAttribute('classCode', 'OBS');
+        $sevObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($sevObs, '2.16.840.1.113883.10.20.22.4.8', '2014-06-09');
+        $this->appendTemplateId($sevObs, '2.16.840.1.113883.10.20.22.4.8');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'SEV');
+        $code->setAttribute('displayName', 'Severity');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $code->setAttribute('codeSystemName', 'ActCode');
+        $sevObs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $sevObs->appendChild($statusCode);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $this->cleanCode($outcomeCode));
+        $value->setAttribute('displayName', $outcome);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $sevObs->appendChild($value);
+
+        $entryRel->appendChild($sevObs);
+        $obs->appendChild($entryRel);
     }
 
     private function appendNoKnownAllergiesEntry(DOMElement $section): void
