@@ -1,0 +1,160 @@
+{# Shared JS for the three on-screen calendar templates (day, week, month).
+   Pulled from the legacy template's inline [-php-] echo blocks. Defines
+   newEvt / oldEvt / oldGroupEvt for the appointment dialogs,
+   providerXclick for the provider-column close button, plus the
+   document.ready jQuery handler that wires UI clicks to these.
+
+   The legacy code embedded webroot + Date into ChangeDate and PrintView
+   URLs at render time; preserved here via Twig substitution. #}
+<script>
+    function event_time_click(elem) {
+        EditEvent($(elem).parents("div.event_appointment").get(0));
+    }
+</script>
+<script>
+
+ // This is called from the event editor popup.
+ function refreshme() {
+  top.restoreSession();
+  document.forms[0].submit();
+ }
+
+ function newEvt(startampm, starttimeh, starttimem, eventdate, providerid, catid) {
+  dlgopen('add_edit_event.php?startampm=' + encodeURIComponent(startampm) +
+   '&starttimeh=' + encodeURIComponent(starttimeh) + '&userid=' + encodeURIComponent(providerid) + '&starttimem=' + encodeURIComponent(starttimem) +
+   '&date=' + encodeURIComponent(eventdate) + '&catid=' + encodeURIComponent(catid)
+   ,'_blank', 780, 675, '', '', {onClosed: 'refreshme'});
+ }
+
+ function oldEvt(eventdate, eventid, pccattype) {
+  dlgopen('add_edit_event.php?date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 650);
+ }
+
+ function oldGroupEvt(eventdate, eventid, pccattype){
+  top.restoreSession();
+  dlgopen('add_edit_event.php?group=true&date=' + encodeURIComponent(eventdate) + '&eid=' + encodeURIComponent(eventid) + '&prov=' + encodeURIComponent(pccattype), '_blank', 780, 675);
+ }
+
+ function goPid(pid) {
+  top.restoreSession();
+  top.RTop.location = '../../patient_file/summary/demographics.php' + '?set_pid=' + encodeURIComponent(pid);
+ }
+
+ function goGid(gid) {
+  top.restoreSession();
+  top.RTop.location = '{{ webroot }}/therapy_groups/index.php' + '?method=groupDetails&group_id=' + encodeURIComponent(gid);
+ }
+
+ function GoToToday(theForm){
+  var todays_date = new Date();
+  var theMonth = todays_date.getMonth() + 1;
+  theMonth = theMonth < 10 ? "0" + theMonth : theMonth;
+  theForm.jumpdate.value = todays_date.getFullYear() + "-" + theMonth + "-" + todays_date.getDate();
+  top.restoreSession();
+  theForm.submit();
+ }
+
+ function ShowImage(src) {
+     var img = document.getElementById('popupImage');
+     var div = document.getElementById('popup');
+     img.src = src;
+     div.style.display = "block";
+ }
+
+ function HideImage() {
+     document.getElementById('popup').style.display = "none";
+ }
+</script>
+<script>
+    {# Server-supplied values are extracted to JS vars here so each is
+       single-escaped for the JS-string context via |js_escape (text)
+       or left bare for type-narrowed ints (timeslotHeightVal is
+       int-typed in CalendarRenderDataBuilder). Subsequent URL
+       construction uses string concatenation + encodeURIComponent so
+       each value is escaped exactly once for its sink. #}
+    var tsHeight={{ timeslotCss|default('20px')|js_escape }};
+    var tsHeightNum={{ timeslotHeightVal|default(20) }};
+    var pcWebroot={{ webroot|js_escape }};
+    var pcViewtype={{ viewtype|default('day')|js_escape }};
+    var pcDate={{ Date|default('')|js_escape }};
+
+    function providerXclick(e) {
+        var username=$(this).data('username');
+        if (username=='__PC_ALL__') {
+            $("#pc_username option:gt(0)").prop("selected", true);
+        } else {
+            $("#pc_username option[value="+username+"]").prop("selected", false);
+        }
+        ChangeProviders($("#pc_username"));
+    }
+
+    $(function () {
+        $("#pc_username").change(function() { ChangeProviders(this); });
+        $("#pc_facility").change(function() { ChangeProviders(this); });
+        $("#dayview").click(function() { ChangeView(this); });
+        $("#weekview").click(function() { ChangeView(this); });
+        $("#monthview").click(function() { ChangeView(this); });
+        $(".tdDatePicker").click(function() { ChangeDate(this); });
+        $("#datePicker .tdDatePicker").mouseover(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#datePicker .tdDatePicker").mouseout(function() {
+          $(this).toggleClass("tdDatePickerHighlightCurrent");
+        });
+        $("#printview").click(function() { PrintView(this); });
+        $(".event").dblclick(function() { EditEvent(this); });
+        $(".event").mouseover(function() { $(this).toggleClass("event_highlight"); });
+        $(".event").mouseout(function() { $(this).toggleClass("event_highlight"); });
+        $(".tdMonthName-small").click(function() {
+            dpCal = $("#datePicker > table");
+            mp = $("#monthPicker");
+            mp.width(dpCal.width());
+            mp.toggle();
+        });
+
+        $('.providerXbtn').on('click', providerXclick);
+    });
+
+    /* edit an existing event */
+    var EditEvent = function(eObj) {
+        objID = eObj.id;
+        var parts = new Array();
+        parts = objID.split("-");
+        editing_group = $(eObj).hasClass("groups");
+        if(editing_group){
+            oldGroupEvt(parts[0], parts[1], parts[2]);
+            return true;
+        }
+        oldEvt(parts[0], parts[1], parts[2]);
+        return true;
+    }
+
+    var ChangeDate = function(eObj) {
+        baseURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=~REPLACEME~&pc_username=&pc_category=&pc_topic=";
+        newURL = baseURL.replace(/~REPLACEME~/, eObj.id);
+        document.location.href=newURL;
+    }
+
+    var PrintView = function (eventObject) {
+        printURL = pcWebroot + "/interface/main/calendar/index.php?module=PostCalendar&func=view&viewtype=" + encodeURIComponent(pcViewtype) + "&Date=" + encodeURIComponent(pcDate) + "&print=1&pc_username=&pc_category=&pc_topic=";
+        window.open(printURL,'printwindow','width=740,height=480,toolbar=no,location=no,directories=no,status=no,menubar=yes,scrollbars=yes,copyhistory=no,resizable=yes');
+        return false;
+    }
+
+    var ChangeProviders = function (eventObject) {
+        $('#theform').submit();
+    };
+
+    var ChangeView = function (eventObject) {
+        if (eventObject.id == "dayview") { $("#viewtype").val('day'); }
+        else if (eventObject.id == "weekview") { $("#viewtype").val('week'); }
+        else if (eventObject.id == "monthview") { $("#viewtype").val('month'); }
+        else if (eventObject.id == "yearview") { $("#viewtype").val('year'); }
+        $('#theform').submit();
+    };
+
+    $("#menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
+</script>
