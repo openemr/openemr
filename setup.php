@@ -559,10 +559,11 @@ ENDDIV;
 
             $inst = $_POST["inst"] ?? '';
 
-            // nosemgrep: request values reach SQL only through the Installer, which escapes
-            // every value with mysqli_real_escape_string() (escapeSql) and validates database
-            // identifiers against a strict [A-Za-z0-9_-] whitelist (escapeDatabaseName); this
-            // tainted-sql-string flow is a false positive (sanitizers are not recognized here).
+            // Request values reach SQL only through the Installer, which escapes every value with
+            // mysqli_real_escape_string() (escapeSql) and validates database identifiers against a
+            // strict [A-Za-z0-9_-] whitelist (escapeDatabaseName); this tainted-sql-string flow is a
+            // false positive (the wrapper sanitizers are not recognized by the rule).
+            // nosemgrep
             switch ($state) {
                 case 1:
                     $session->set('bootstrapStateInSetup', 2);

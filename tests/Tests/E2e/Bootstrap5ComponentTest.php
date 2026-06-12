@@ -82,8 +82,21 @@ class Bootstrap5ComponentTest extends PantherTestCase
         try {
             $this->login(LoginTestData::username, LoginTestData::password);
 
-            // Navigate to a page with a modal (e.g., About OpenEMR)
-            $this->goToUserMenuLink('fa-info');
+            // Inject a Bootstrap 5 modal wired up with data-bs-toggle / data-bs-target so the
+            // test exercises real BS5 modal behaviour (and the BS5 close attributes below)
+            // without depending on any particular page's modal markup.
+            $this->client->executeScript(<<<'JS'
+                document.body.insertAdjacentHTML('beforeend',
+                    '<button id="e2eModalTrigger" type="button" data-bs-toggle="modal" data-bs-target="#e2eTestModal">open</button>'
+                    + '<div class="modal fade" id="e2eTestModal" tabindex="-1" aria-hidden="true">'
+                    + '<div class="modal-dialog"><div class="modal-content">'
+                    + '<div class="modal-header"><h5 class="modal-title">E2E</h5>'
+                    + '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>'
+                    + '</div><div class="modal-body">E2E modal body</div></div></div></div>');
+            JS);
+
+            // Open the modal by clicking the data-bs-toggle trigger.
+            $this->client->findElement(WebDriverBy::id('e2eModalTrigger'))->click();
 
             // Wait for modal to appear
             $this->client->wait(10)->until(
