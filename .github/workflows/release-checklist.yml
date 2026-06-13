@@ -1,0 +1,91 @@
+name: Release Checklist
+
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  create-checklist:
+    # Only run for release-please PRs
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+    - name: Extract version from PR title
+      id: version
+      run: |
+        # PR title format: "chore: release X.Y.Z"
+        TITLE="${{ github.event.pull_request.title }}"
+        VERSION=$(echo "$TITLE" | grep -oP '\d+\.\d+\.\d+' || echo "unknown")
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Create release checklist issue
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const version = '${{ steps.version.outputs.version }}';
+          const prNumber = ${{ github.event.pull_request.number }};
+          const prUrl = '${{ github.event.pull_request.html_url }}';
+
+          const issueBody = `## Release ${version} Checklist
+
+          This checklist tracks the release process for OpenEMR ${version}.
+
+          **Release PR:** ${prUrl}
+
+          ### Pre-Release Tasks
+
+          - [ ] Review all version file changes in the Release PR
+          - [ ] Verify CHANGELOG.md has been updated (manually add milestone-based changelog)
+          - [ ] Run full test suite on release branch
+          - [ ] Complete Inferno FHIR testing (if applicable)
+          - [ ] Finalize translations
+          - [ ] Update ONC documentation (if applicable)
+
+          ### Verification Tasks
+
+          - [ ] Test fresh installation from source
+          - [ ] Test upgrade from previous version (${version.split('.').slice(0, 2).join('.')}.0)
+          - [ ] Verify Docker development environment works
+          - [ ] Verify API endpoints are functional
+          - [ ] Verify CCDA generation works
+
+          ### Release Tasks
+
+          - [ ] Merge Release PR
+          - [ ] Verify GitHub Release is created with correct tag
+          - [ ] Verify release artifacts are uploaded (tar.gz, zip, checksums)
+          - [ ] Verify Docker image is published to Docker Hub
+
+          ### Post-Release Tasks
+
+          - [ ] Update wiki documentation
+          - [ ] Post release announcement to community forum
+          - [ ] Post to social media (Twitter/X, LinkedIn)
+          - [ ] Upload to SourceForge (optional)
+          - [ ] Close the release milestone on GitHub
+
+          ---
+          *This issue was automatically created by the release-please workflow.*
+          `;
+
+          const issue = await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: `Release Checklist: OpenEMR ${version}`,
+            body: issueBody,
+            labels: ['release', 'checklist']
+          });
+
+          console.log(`Created issue #${issue.data.number}`);
+
+          // Add comment to the Release PR linking to the checklist
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: prNumber,
+            body: `A release checklist has been created: #${issue.data.number}\n\nPlease complete the checklist items before merging this PR.`
+          });
