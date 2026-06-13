@@ -429,8 +429,8 @@ $vendors = $boot->getVendorGlobals();
                     <hr>
                     <div class="clearfix"></div>
                     <div class="row form-group">
-                        <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules."); ?>>"
+                        <label for="oeenable_users_permissions" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
+                        <div class="col-sm-6" title="<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?>">
                             <input type="checkbox" class="checkbox persist" name="oeenable_users_permissions" id="oeenable_users_permissions" value="1" <?php echo $vendors['oeenable_users_permissions'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
