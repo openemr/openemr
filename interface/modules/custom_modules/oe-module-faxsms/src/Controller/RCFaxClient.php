@@ -69,15 +69,28 @@ class RCFaxClient extends AppDispatch
             return '';
         }
 
-        $name = basename((string)$_FILES['fax']['name']);
-        $tmpName = $_FILES['fax']['tmp_name'];
         $targetDir = $this->baseDir . '/send';
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
             error_log('Error: Failed to create directory.');
             return '';
         }
+        chmod($targetDir, 0700);
 
-        $filepath = $targetDir . "/" . $name;
+        // Random 128-bit hex basename so the staged path is unguessable;
+        // the extension is sniffed from the upload's content type and
+        // coerced to a fax-safe whitelist (anything else, including
+        // attacker-chosen .php / .phtml, becomes .pdf) so the staged
+        // file can never be interpreted as a PHP script and downstream
+        // consumers still see a recognizable MIME type.
+        $tmpName = $_FILES['fax']['tmp_name'];
+        $mime = is_string($tmpName) ? mime_content_type($tmpName) : false;
+        $ext = match ($mime) {
+            'application/pdf' => '.pdf',
+            'image/tiff' => '.tiff',
+            'text/plain' => '.txt',
+            default => '.pdf',
+        };
+        $filepath = $targetDir . '/' . bin2hex(random_bytes(16)) . $ext;
         if (!move_uploaded_file($tmpName, $filepath)) {
             error_log('Error: Failed to move uploaded file.');
             return '';
