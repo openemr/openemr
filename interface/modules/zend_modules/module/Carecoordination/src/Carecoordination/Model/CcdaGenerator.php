@@ -14,6 +14,7 @@
 namespace Carecoordination\Model;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Cda\InternalToCdaConverter;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -126,8 +127,7 @@ class CcdaGenerator
             $send,
             $date_options
         );
-        $content = $this->socket_get($data);
-        $content = trim($content);
+        $content = $this->normalize($data);
         // split content if unstructured is included from service.
         // service will send back a CDA and an auto created unstructured document
         // if CCM sends the documents(patient_files object) with data array.
@@ -168,14 +168,13 @@ class CcdaGenerator
         return $generatedResult;
     }
 
-    public function socket_get($data): string
+    public function normalize(string $data): string
     {
-        $serviceRequestor = new CcdaServiceDocumentRequestor();
-        $content = $serviceRequestor->socket_get($data);
-        return $content;
+        $converter = new InternalToCdaConverter();
+        return trim($converter->convert($data));
     }
 
-    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = [])
+    public function create_data($pid, $encounter, $sections, $components, $recipients, $params, $document_type, $referral_reason = null, $send = null, $date_options = []): string
     {
         $modelGenerator = new CcdaServiceRequestModelGenerator($this->getEncounterccdadispatchTable());
         $modelGenerator->create_data(

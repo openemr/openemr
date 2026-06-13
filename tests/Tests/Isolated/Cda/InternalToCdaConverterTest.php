@@ -10,65 +10,80 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Services\Modules\CareCoordination\Model;
+namespace OpenEMR\Tests\Isolated\Cda;
 
-use Carecoordination\Model\CcdaGenerator;
-use Carecoordination\Model\EncounterccdadispatchTable;
 use DOMDocument;
 use DOMXPath;
+use OpenEMR\Cda\InternalToCdaConverter;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Integration test for CcdaGenerator::normalize().
- *
- * This test exercises the PHP CCDA converter (InternalToCdaConverter) through
- * CcdaGenerator to ensure the full pipeline produces expected output.
- */
-class CcdaGeneratorTest extends TestCase
+class InternalToCdaConverterTest extends TestCase
 {
-    private const FIXTURE_DIR = __DIR__ . '/../../../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/';
+    private const FIXTURE_DIR = __DIR__ . '/../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/';
 
-    public static function setUpBeforeClass(): void
+    private ?string $actualOutput = null;
+    private ?string $expectedOutput = null;
+
+    public function testConvertProducesValidCda(): void
     {
-        parent::setUpBeforeClass();
+        [$actual, $expected] = $this->getConvertedAndExpected();
+        $this->assertCdaEquals($expected, $actual);
+    }
 
-        if (!defined('IS_PORTAL')) {
-            define('IS_PORTAL', false);
+    #[DataProvider('sectionTemplateIdProvider')]
+    public function testSection(string $name, string $templateId): void
+    {
+        [$actual, $expected] = $this->getConvertedAndExpected();
+        $this->assertSectionMatches($actual, $expected, $templateId, $name);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function sectionTemplateIdProvider(): array
+    {
+        return [
+            'Care Team' => ['Care Team', '2.16.840.1.113883.10.20.22.2.500'],
+            'Allergies' => ['Allergies', '2.16.840.1.113883.10.20.22.2.6.1'],
+            'Medications' => ['Medications', '2.16.840.1.113883.10.20.22.2.1.1'],
+            'Problems' => ['Problems', '2.16.840.1.113883.10.20.22.2.5.1'],
+            'Procedures' => ['Procedures', '2.16.840.1.113883.10.20.22.2.7.1'],
+            'Results' => ['Results', '2.16.840.1.113883.10.20.22.2.3.1'],
+            'Encounters' => ['Encounters', '2.16.840.1.113883.10.20.22.2.22.1'],
+            'Immunizations' => ['Immunizations', '2.16.840.1.113883.10.20.22.2.2.1'],
+            'Vital Signs' => ['Vital Signs', '2.16.840.1.113883.10.20.22.2.4.1'],
+            'Social History' => ['Social History', '2.16.840.1.113883.10.20.22.2.17'],
+            'Payers' => ['Payers', '2.16.840.1.113883.10.20.22.2.18'],
+            'Medical Equipment' => ['Medical Equipment', '2.16.840.1.113883.10.20.22.2.23'],
+            'Functional Status' => ['Functional Status', '2.16.840.1.113883.10.20.22.2.14'],
+            'Mental Status' => ['Mental Status', '2.16.840.1.113883.10.20.22.2.56'],
+            'Plan of Care' => ['Plan of Care', '2.16.840.1.113883.10.20.22.2.10'],
+            'Goals' => ['Goals', '2.16.840.1.113883.10.20.22.2.60'],
+            'Health Concerns' => ['Health Concerns', '2.16.840.1.113883.10.20.22.2.58'],
+            'Assessment' => ['Assessment', '2.16.840.1.113883.10.20.22.2.8'],
+        ];
+    }
+
+    /**
+     * @return array{string, string}
+     */
+    private function getConvertedAndExpected(): array
+    {
+        if ($this->actualOutput === null) {
+            $input = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
+            self::assertNotFalse($input, 'Failed to read input fixture');
+            $expected = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
+            self::assertNotFalse($expected, 'Failed to read expected fixture');
+            $this->expectedOutput = $expected;
+
+            $converter = new InternalToCdaConverter();
+            $this->actualOutput = $converter->convert(trim($input));
         }
-        if (!defined('IS_DASHBOARD')) {
-            define('IS_DASHBOARD', true);
-        }
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $GLOBALS['ccda_alt_service_enable'] = 3;
-    }
-
-    protected function tearDown(): void
-    {
-        unset($GLOBALS['ccda_alt_service_enable']);
-        parent::tearDown();
-    }
-
-    public function testNormalizeProducesValidCda(): void
-    {
-        $inputData = file_get_contents(self::FIXTURE_DIR . 'ccda-example-input1.xml');
-        self::assertNotFalse($inputData, 'Failed to read input fixture');
-        $inputData = trim($inputData);
-
-        $expectedOutput = file_get_contents(self::FIXTURE_DIR . 'ccda-example-response1.xml');
-        self::assertNotFalse($expectedOutput, 'Failed to read expected fixture');
-
-        $dispatchTable = $this->createMock(EncounterccdadispatchTable::class);
-        $generator = new CcdaGenerator($dispatchTable);
-
-        $actualOutput = $generator->normalize($inputData);
-
-        self::assertNotEmpty($actualOutput, 'normalize returned empty response');
-
-        $this->assertCdaEquals($expectedOutput, $actualOutput);
+        self::assertNotNull($this->expectedOutput, 'Expected output not initialized');
+        return [$this->actualOutput, $this->expectedOutput];
     }
 
     private function assertCdaEquals(string $expected, string $actual): void
@@ -89,6 +104,58 @@ class CcdaGeneratorTest extends TestCase
             $actualDom->C14N(),
             'Generated CDA does not match expected output'
         );
+    }
+
+    private function assertSectionMatches(string $actual, string $expected, string $templateId, string $name = ''): void
+    {
+        $actualDom = $this->loadDom($actual);
+        $expectedDom = $this->loadDom($expected);
+
+        $actualSection = $this->extractSection($actualDom, $templateId);
+        $expectedSection = $this->extractSection($expectedDom, $templateId);
+
+        $label = $name !== '' ? "$name ($templateId)" : $templateId;
+
+        if ($expectedSection === '') {
+            self::markTestSkipped("Section $label not found in expected output");
+        }
+
+        self::assertNotSame('', $actualSection, "Section $label missing from actual output");
+
+        $actualDom = $this->loadDom($actualSection);
+        $expectedDom = $this->loadDom($expectedSection);
+
+        $fixtureDate = '20251215';
+        $currentDate = date('Ymd');
+        $actualDom = $this->replaceTimestamps($actualDom, $currentDate, $fixtureDate);
+        $actualDom = $this->cleanWhitespace($actualDom);
+        $expectedDom = $this->cleanWhitespace($expectedDom);
+
+        self::assertXmlStringEqualsXmlString(
+            $expectedDom->C14N(),
+            $actualDom->C14N(),
+            "Section $label mismatch"
+        );
+    }
+
+    private function extractSection(DOMDocument $dom, string $templateId): string
+    {
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+        $result = $xpath->query("//hl7:section[hl7:templateId[@root='$templateId']]");
+        if ($result === false) {
+            return '';
+        }
+        $section = $result->item(0);
+        if (!$section instanceof \DOMElement) {
+            return '';
+        }
+
+        $newDoc = new DOMDocument();
+        $newDoc->preserveWhiteSpace = false;
+        $imported = $newDoc->importNode($section, true);
+        $newDoc->appendChild($imported);
+        return $newDoc->saveXML() ?: '';
     }
 
     private function loadDom(string $xml): DOMDocument
@@ -173,14 +240,12 @@ class CcdaGeneratorTest extends TestCase
 
             $actualIdList = $actual->query('.//hl7:id', $actualNode);
             $expectedIdList = $expected->query('.//hl7:id', $expectedNode);
-
             if ($actualIdList === false || $expectedIdList === false) {
                 continue;
             }
 
             $actualId = $actualIdList->item(0);
             $expectedId = $expectedIdList->item(0);
-
             if ($actualId instanceof \DOMElement && $expectedId instanceof \DOMElement) {
                 $actualId->setAttribute('root', $expectedId->getAttribute('root'));
             }
