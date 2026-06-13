@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenEMR PHPStan Baseline Trends</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+            color: #333;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .stat {
+            text-align: center;
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-value { font-size: 2em; font-weight: bold; color: #2563eb; }
+        .stat-value.positive { color: #16a34a; }
+        .stat-value.negative { color: #dc2626; }
+        .stat-label { color: #666; margin-top: 5px; }
+        .chart-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .chart-title { font-size: 1.2em; font-weight: 600; margin-bottom: 5px; }
+        .chart-subtitle { font-size: 0.9em; color: #666; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .chart-subtitle a { color: #2563eb; }
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 10px;
+        }
+        .category-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .category-name { font-family: monospace; font-size: 0.9em; }
+        .category-count { font-weight: bold; }
+        .loading, .error { text-align: center; padding: 40px; }
+        .error { color: #dc2626; background: #fef2f2; border-radius: 8px; }
+        footer { text-align: center; color: #666; margin-top: 30px; font-size: 0.9em; }
+        footer a { color: #2563eb; }
+        body.embed { padding: 10px; background: white; }
+        body.embed h1, body.embed .subtitle, body.embed footer { display: none; }
+        body.embed .stats { margin-bottom: 15px; }
+        body.embed .stat { padding: 10px 15px; box-shadow: none; border: 1px solid #eee; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>OpenEMR PHPStan Baseline Trends</h1>
+        <p class="subtitle">Tracking type safety improvements over time</p>
+        <div id="content"><div class="loading">Loading data...</div></div>
+        <footer>
+            Data from <a href="https://github.com/openemr/openemr">OpenEMR</a> |
+            Updated automatically on each merge to master
+        </footer>
+    </div>
+
+    <script>
+        const GITHUB_BASE = 'https://github.com/openemr/openemr';
+
+        if (new URLSearchParams(window.location.search).has('embed')) {
+            document.body.classList.add('embed');
+        }
+
+        const params = new URLSearchParams(window.location.search);
+        const historyUrl = params.get('data') || 'phpstan-baseline-history.json';
+        const annotationsUrl = 'phpstan-baseline-annotations.json';
+
+        function linkifySubject(subject) {
+            // Convert (#1234) to GitHub PR link
+            return subject.replace(/\(#(\d+)\)/, `(<a href="${GITHUB_BASE}/pull/$1">#$1</a>)`);
+        }
+
+        async function loadData() {
+            try {
+                const [historyRes, annotationsRes] = await Promise.all([
+                    fetch(historyUrl),
+                    fetch(annotationsUrl),
+                ]);
+                if (!historyRes.ok) throw new Error(`HTTP ${historyRes.status}`);
+                const history = await historyRes.json();
+                const annotations = annotationsRes.ok ? await annotationsRes.json() : [];
+                renderDashboard(history, annotations);
+            } catch (error) {
+                document.getElementById('content').innerHTML = `
+                    <div class="error">
+                        <strong>Failed to load data</strong><br>${error.message}
+                    </div>`;
+            }
+        }
+
+        function renderDashboard(history, annotations) {
+            if (!history?.length) {
+                document.getElementById('content').innerHTML = '<div class="error">No data available</div>';
+                return;
+            }
+
+            const latest = history[history.length - 1];
+            const first = history[0];
+            const countChange = latest.total_count - first.total_count;
+
+            document.getElementById('content').innerHTML = `
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">${latest.total_count.toLocaleString()}</div>
+                        <div class="stat-label">Total Errors</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">${latest.total_entries.toLocaleString()}</div>
+                        <div class="stat-label">Baseline Entries</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value ${countChange <= 0 ? 'positive' : 'negative'}">
+                            ${countChange <= 0 ? '' : '+'}${countChange.toLocaleString()}
+                        </div>
+                        <div class="stat-label">Change (${history.length} commits)</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Total Error Count Over Time</div>
+                    <div class="chart-subtitle">
+                        Latest: <a href="${GITHUB_BASE}/commit/${latest.commit}">${latest.commit}</a>
+                        &mdash; ${linkifySubject(latest.subject)}
+                    </div>
+                    <canvas id="totalChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-title">Current Error Breakdown</div>
+                    <div class="chart-subtitle">
+                        As of <a href="${GITHUB_BASE}/commit/${latest.commit}">${latest.commit}</a>
+                        (${latest.date.split('T')[0]})
+                    </div>
+                    <div class="categories-grid" id="categoriesGrid"></div>
+                </div>
+            `;
+
+            // Build chart annotations
+            const chartAnnotations = {};
+            (annotations || []).forEach((ann, i) => {
+                const idx = history.findIndex(h => h.commit.startsWith(ann.commit));
+                if (idx === -1) return;
+                chartAnnotations[`line${i}`] = {
+                    type: 'line',
+                    xMin: idx,
+                    xMax: idx,
+                    borderColor: ann.color || '#dc2626',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    label: {
+                        display: true,
+                        content: ann.label,
+                        position: ann.position || 'start',
+                        backgroundColor: ann.color || '#dc2626',
+                        color: '#fff',
+                        font: { size: 11 },
+                    }
+                };
+            });
+
+            new Chart(document.getElementById('totalChart'), {
+                type: 'line',
+                data: {
+                    labels: history.map((_, i) => i + 1),
+                    datasets: [{
+                        label: 'Total Errors',
+                        data: history.map(h => h.total_count),
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        fill: true,
+                        tension: 0.1,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => {
+                                    const h = history[items[0].dataIndex];
+                                    return `${h.commit} (${h.date.split('T')[0]})`;
+                                },
+                                afterTitle: (items) => history[items[0].dataIndex].subject.substring(0, 70)
+                            }
+                        },
+                        annotation: { annotations: chartAnnotations }
+                    },
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Commits' },
+                            ticks: { maxTicksLimit: 15 }
+                        },
+                        y: { beginAtZero: false }
+                    }
+                }
+            });
+
+            // Render categories grid (only available for latest)
+            if (latest.categories) {
+                const grid = document.getElementById('categoriesGrid');
+                const sorted = Object.entries(latest.categories).sort((a, b) => b[1] - a[1]);
+                grid.innerHTML = sorted.map(([name, count]) => `
+                    <div class="category-item">
+                        <span class="category-name">${name}</span>
+                        <span class="category-count">${count.toLocaleString()}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        loadData();
+    </script>
+</body>
+</html>
