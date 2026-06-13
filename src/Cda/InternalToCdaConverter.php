@@ -2585,51 +2585,130 @@ class InternalToCdaConverter
         $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
         $organizer->appendChild($effectiveTime);
 
-        // Node.js service uses specific entry order and vital references
+        // Node.js service uses specific entry order matching populateVital vital_list
+        // Only increment refIndex when a vital is actually added
         $refIndex = 1;
-        $shaExt = $this->xpathValue('sha_extension', $vital);
 
-        // Height (vital1)
+        // Blood Pressure Systolic
+        $bps = $this->xpathValue('bps', $vital);
+        if ($bps !== '') {
+            $bpsExt = $this->xpathValue('extension_bps', $vital);
+            $this->appendVitalObservation($organizer, $vital, $bps, 'mm[Hg]', $bpsExt, $shaExt, '8480-6', 'Blood Pressure Systolic', $refIndex++);
+        }
+
+        // Blood Pressure Diastolic
+        $bpd = $this->xpathValue('bpd', $vital);
+        if ($bpd !== '') {
+            $bpdExt = $this->xpathValue('extension_bpd', $vital);
+            $this->appendVitalObservation($organizer, $vital, $bpd, 'mm[Hg]', $bpdExt, $shaExt, '8462-4', 'Blood Pressure Diastolic', $refIndex++);
+        }
+
+        // Average Blood Pressure
+        $bpAvg = $this->xpathValue('bp_avg', $vital);
+        if ($bpAvg !== '') {
+            $bpAvgExt = $this->xpathValue('extension_bp_avg', $vital);
+            $this->appendVitalObservation($organizer, $vital, $bpAvg, 'mm[Hg]', $bpAvgExt, $shaExt, '96607-7', 'Average Blood Pressure', $refIndex++);
+        }
+
+        // Average Systolic Blood Pressure
+        $avgSystolic = $this->xpathValue('avg_systolic', $vital);
+        if ($avgSystolic !== '') {
+            $avgSystolicExt = $this->xpathValue('extension_avg_systolic', $vital);
+            $this->appendVitalObservation($organizer, $vital, $avgSystolic, 'mm[Hg]', $avgSystolicExt, $shaExt, '96608-5', 'Average Systolic Blood Pressure', $refIndex++);
+        }
+
+        // Average Diastolic Blood Pressure
+        $avgDiastolic = $this->xpathValue('avg_diastolic', $vital);
+        if ($avgDiastolic !== '') {
+            $avgDiastolicExt = $this->xpathValue('extension_avg_diastolic', $vital);
+            $this->appendVitalObservation($organizer, $vital, $avgDiastolic, 'mm[Hg]', $avgDiastolicExt, $shaExt, '96609-3', 'Average Diastolic Blood Pressure', $refIndex++);
+        }
+
+        // Height
         $height = $this->xpathValue('height', $vital);
         if ($height !== '') {
             $heightUnit = $this->xpathValue('unit_height', $vital);
             $heightExt = $this->xpathValue('extension_height', $vital);
-            $this->appendVitalObservation($organizer, $vital, $height, $heightUnit, $heightExt, $shaExt, '8302-2', 'Height', $refIndex);
+            $this->appendVitalObservation($organizer, $vital, $height, $heightUnit, $heightExt, $shaExt, '8302-2', 'Height', $refIndex++);
         }
-        $refIndex++;
 
-        // BMI (vital2)
+        // Weight Measured
+        $weight = $this->xpathValue('weight', $vital);
+        if ($weight !== '') {
+            $weightUnit = $this->xpathValue('unit_weight', $vital);
+            $weightExt = $this->xpathValue('extension_weight', $vital);
+            $this->appendVitalObservation($organizer, $vital, $weight, $weightUnit, $weightExt, $shaExt, '29463-7', 'Weight Measured', $refIndex++);
+        }
+
+        // BMI
         $bmi = $this->xpathValue('BMI', $vital);
         if ($bmi !== '') {
             $bmiExt = $this->xpathValue('extension_BMI', $vital);
-            $this->appendVitalObservation($organizer, $vital, $bmi, 'kg/m2', $bmiExt, $shaExt, '39156-5', 'BMI (Body Mass Index)', $refIndex);
+            $bmiStatus = $this->xpathValue('BMI_status', $vital);
+            $bmiInterp = match ($bmiStatus) {
+                'Overweight' => 'High',
+                'Underweight' => 'Low',
+                default => 'Normal',
+            };
+            $this->appendVitalObservation($organizer, $vital, $bmi, 'kg/m2', $bmiExt, $shaExt, '39156-5', 'BMI (Body Mass Index)', $refIndex++, $bmiInterp);
         }
-        $refIndex++;
 
-        // Heart Rate (vital3)
+        // Heart Rate
         $pulse = $this->xpathValue('pulse', $vital);
         if ($pulse !== '') {
             $pulseExt = $this->xpathValue('extension_pulse', $vital);
-            $this->appendVitalObservation($organizer, $vital, $pulse, '/min', $pulseExt, $shaExt, '8867-4', 'Heart Rate', $refIndex);
+            $this->appendVitalObservation($organizer, $vital, $pulse, '/min', $pulseExt, $shaExt, '8867-4', 'Heart Rate', $refIndex++);
         }
-        $refIndex++;
 
-        // Respiratory Rate (vital4)
+        // Respiratory Rate
         $breath = $this->xpathValue('breath', $vital);
         if ($breath !== '') {
             $breathExt = $this->xpathValue('extension_breath', $vital);
-            $this->appendVitalObservation($organizer, $vital, $breath, '/min', $breathExt, '2.16.840.1.113883.3.140.1.0.6.10.14.2', '9279-1', 'Respiratory Rate', $refIndex);
+            $this->appendVitalObservation($organizer, $vital, $breath, '/min', $breathExt, '2.16.840.1.113883.3.140.1.0.6.10.14.2', '9279-1', 'Respiratory Rate', $refIndex++);
         }
-        $refIndex++;
 
-        // Temperature (vital5)
+        // Temperature
         $temp = $this->xpathValue('temperature', $vital);
         if ($temp !== '') {
             $tempUnit = $this->xpathValue('unit_temperature', $vital);
             $tempExt = $this->xpathValue('extension_temperature', $vital);
-            // Node.js rounds temperature up via Math.ceil
             $tempRounded = (string) (int) ceil((float) $temp);
-            $this->appendVitalObservation($organizer, $vital, $tempRounded, $tempUnit, $tempExt, '2.16.840.1.113883.3.140.1.0.6.10.14.3', '8310-5', 'Body Temperature', $refIndex);
+            $this->appendVitalObservation($organizer, $vital, $tempRounded, $tempUnit, $tempExt, '2.16.840.1.113883.3.140.1.0.6.10.14.3', '8310-5', 'Body Temperature', $refIndex++);
+        }
+
+        // O2 Saturation
+        $o2Sat = $this->xpathValue('oxygen_saturation', $vital);
+        if ($o2Sat !== '') {
+            $o2SatExt = $this->xpathValue('extension_oxygen_saturation', $vital);
+            $this->appendVitalObservation($organizer, $vital, $o2Sat, '%', $o2SatExt, $shaExt, '59408-5', 'O2 % BldC Oximetry', $refIndex++);
+        }
+
+        // Weight for Height Percentile
+        $pedWeightHeight = $this->xpathValue('ped_weight_height', $vital);
+        if ($pedWeightHeight !== '') {
+            $pedWeightHeightExt = $this->xpathValue('extension_ped_weight_height', $vital);
+            $this->appendVitalObservation($organizer, $vital, $pedWeightHeight, '%', $pedWeightHeightExt, $shaExt, '77606-2', 'Weight for Height Percentile', $refIndex++);
+        }
+
+        // Inhaled Oxygen Concentration
+        $inhaledO2 = $this->xpathValue('inhaled_oxygen_concentration', $vital);
+        if ($inhaledO2 !== '') {
+            $inhaledO2Ext = $this->xpathValue('extension_inhaled_oxygen_concentration', $vital);
+            $this->appendVitalObservation($organizer, $vital, $inhaledO2, '%', $inhaledO2Ext, $shaExt, '3150-0', 'Inhaled Oxygen Concentration', $refIndex++);
+        }
+
+        // BMI Percentile
+        $pedBmi = $this->xpathValue('ped_bmi', $vital);
+        if ($pedBmi !== '') {
+            $pedBmiExt = $this->xpathValue('extension_ped_bmi', $vital);
+            $this->appendVitalObservation($organizer, $vital, $pedBmi, '%', $pedBmiExt, $shaExt, '59576-9', 'BMI Percentile', $refIndex++);
+        }
+
+        // Head Circumference Percentile
+        $pedHeadCirc = $this->xpathValue('ped_head_circ', $vital);
+        if ($pedHeadCirc !== '') {
+            $pedHeadCircExt = $this->xpathValue('extension_ped_head_circ', $vital);
+            $this->appendVitalObservation($organizer, $vital, $pedHeadCirc, '%', $pedHeadCircExt, $shaExt, '8289-1', 'Head Occipital-frontal Circumference Percentile', $refIndex++);
         }
 
         $entry->appendChild($organizer);
@@ -2646,6 +2725,7 @@ class InternalToCdaConverter
         string $loincCode,
         string $displayName,
         int $refIndex,
+        string $interpretation = 'Normal',
     ): void {
         $component = $this->createElement('component');
         $obs = $this->createElement('observation');
@@ -2689,9 +2769,14 @@ class InternalToCdaConverter
         }
         $obs->appendChild($valueEl);
 
+        $interpCode = match ($interpretation) {
+            'High' => 'H',
+            'Low' => 'L',
+            default => 'N',
+        };
         $interp = $this->createElement('interpretationCode');
-        $interp->setAttribute('displayName', 'Normal');
-        $interp->setAttribute('code', 'N');
+        $interp->setAttribute('displayName', $interpretation);
+        $interp->setAttribute('code', $interpCode);
         $interp->setAttribute('codeSystem', '2.16.840.1.113883.5.83');
         $interp->setAttribute('codeSystemName', 'HL7 Result Interpretation');
         $obs->appendChild($interp);
