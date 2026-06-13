@@ -1995,17 +1995,79 @@ class InternalToCdaConverter
 
         $resultValue = $this->xpathValue('result_value', $subtest);
         $unit = $this->xpathValue('unit', $subtest);
+        $range = $this->xpathValue('range', $subtest);
+
+        // Determine value type: PQ for numeric with unit, ST for string, CO for "NEGATIVE"
+        $valueType = 'PQ';
+        if (!is_numeric($resultValue) || $unit === '') {
+            $valueType = 'ST';
+        }
+        if (strtoupper($resultValue) === 'NEGATIVE' || strtoupper($range) === 'NEGATIVE') {
+            $valueType = 'CO';
+        }
+
         $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
-        $value->setAttribute('value', $resultValue);
-        $value->setAttribute('unit', $unit);
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', $valueType);
+        if ($valueType === 'PQ') {
+            $value->setAttribute('value', $resultValue);
+            $value->setAttribute('unit', $unit);
+        } elseif ($valueType === 'CO') {
+            $origText = $this->createElement('originalText', strtoupper($resultValue));
+            $value->appendChild($origText);
+        } else {
+            $value->nodeValue = $resultValue;
+        }
         $obs->appendChild($value);
 
+        // Interpretation code based on abnormal_flag
+        $abnormalFlag = strtoupper($this->xpathValue('abnormal_flag', $subtest));
+        if ($abnormalFlag !== '') {
+            $interp = $this->createElement('interpretationCode');
+            if ($abnormalFlag === 'NO') {
+                $interp->setAttribute('code', 'N');
+                $interp->setAttribute('displayName', 'Normal');
+            } elseif ($abnormalFlag === 'YES') {
+                $interp->setAttribute('code', 'A');
+                $interp->setAttribute('displayName', 'Abnormal');
+            }
+            $interp->setAttribute('codeSystem', '2.16.840.1.113883.5.83');
+            $obs->appendChild($interp);
+        }
+
+        // Reference range
+        $low = $this->xpathValue('low', $subtest);
+        $high = $this->xpathValue('high', $subtest);
         $refRange = $this->createElement('referenceRange');
         $obsRange = $this->createElement('observationRange');
-        $rangeValue = $this->output->createElement('value');
-        $rangeValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_PQ');
-        $obsRange->appendChild($rangeValue);
+
+        if ($low !== '' || $high !== '') {
+            $rangeValue = $this->output->createElement('value');
+            $rangeValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_PQ');
+            if ($low !== '') {
+                $lowEl = $this->createElement('low');
+                $lowEl->setAttribute('value', $low);
+                if ($unit !== '') {
+                    $lowEl->setAttribute('unit', $unit);
+                }
+                $rangeValue->appendChild($lowEl);
+            }
+            if ($high !== '') {
+                $highEl = $this->createElement('high');
+                $highEl->setAttribute('value', $high);
+                if ($unit !== '') {
+                    $highEl->setAttribute('unit', $unit);
+                }
+                $rangeValue->appendChild($highEl);
+            }
+            $obsRange->appendChild($rangeValue);
+        } elseif ($range !== '') {
+            $rangeText = $this->createElement('text', $range);
+            $obsRange->appendChild($rangeText);
+        } else {
+            $rangeValue = $this->output->createElement('value');
+            $rangeValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'IVL_PQ');
+            $obsRange->appendChild($rangeValue);
+        }
         $refRange->appendChild($obsRange);
         $obs->appendChild($refRange);
 
