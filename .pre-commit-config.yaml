@@ -63,6 +63,13 @@ repos:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-yaml
+    args:
+    # Docker Compose's !override tag (used in docker/compose.yml's
+    # service-extension blocks to explicitly replace inherited profiles)
+    # is a non-standard YAML tag that PyYAML rejects by default. The
+    # --unsafe flag relaxes tag enforcement and treats the file as
+    # syntactically OK as long as it parses.
+    - --unsafe
   - id: check-added-large-files
   - id: check-merge-conflict
   - id: check-json
