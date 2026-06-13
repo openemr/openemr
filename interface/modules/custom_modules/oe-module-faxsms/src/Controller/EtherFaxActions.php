@@ -146,15 +146,28 @@ class EtherFaxActions extends AppDispatch
         }
 
         $targetDir = $this->baseDir . '/send';
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0700, true)) {
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
             error_log('Error: Failed to create directory.');
             return '';
         }
+        chmod($targetDir, 0700);
 
-        // UUID basename with no extension so the staged path is
-        // unguessable and cannot be interpreted as a PHP script.
-        $filepath = $targetDir . '/' . bin2hex(random_bytes(16));
-        if (!move_uploaded_file($_FILES['fax']['tmp_name'], $filepath)) {
+        // Random 128-bit hex basename so the staged path is unguessable;
+        // the extension is sniffed from the upload's content type and
+        // coerced to a fax-safe whitelist (anything else, including
+        // attacker-chosen .php / .phtml, becomes .pdf) so the staged
+        // file can never be interpreted as a PHP script and downstream
+        // consumers still see a recognizable MIME type.
+        $tmpName = $_FILES['fax']['tmp_name'];
+        $mime = is_string($tmpName) ? mime_content_type($tmpName) : false;
+        $ext = match ($mime) {
+            'application/pdf' => '.pdf',
+            'image/tiff' => '.tiff',
+            'text/plain' => '.txt',
+            default => '.pdf',
+        };
+        $filepath = $targetDir . '/' . bin2hex(random_bytes(16)) . $ext;
+        if (!move_uploaded_file($tmpName, $filepath)) {
             error_log('Error: Failed to move uploaded file.');
             return '';
         }
