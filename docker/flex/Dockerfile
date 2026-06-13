@@ -270,7 +270,7 @@ RUN mkdir -p /snapshots /certs /couchdb/original
 # path). Checksum verified to detect any mid-flight corruption or URL drift.
 ARG DEMO_SQL_REPO_SHA=441d7b3db5b8033822e0e3da462e7553a2330477
 ARG DEMO_SQL_SHA256=5d418c838446f3bdd4aa17d1276578106928a3ebcb27b40f4ab421694cc013d7
-RUN wget -O /root/demo_5_0_0_5.sql \
+RUN curl -fsSL -o /root/demo_5_0_0_5.sql \
     "https://raw.githubusercontent.com/openemr/openemr-devops/${DEMO_SQL_REPO_SHA}/docker/openemr/flex/utilities/demo_5_0_0_5.sql" \
     && echo "${DEMO_SQL_SHA256}  /root/demo_5_0_0_5.sql" | sha256sum -c -
 

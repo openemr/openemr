@@ -74,7 +74,7 @@ services:
   # This container uses the image built from the local Dockerfile
   openemr-image-a:
     build:
-      context: ${IMAGE_A_CONTEXT:-../../docker/openemr/8.1.0}
+      context: ${IMAGE_A_CONTEXT:-../../docker/release}
       dockerfile: Dockerfile
     container_name: benchmark-image-a
     depends_on:
