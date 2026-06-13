@@ -699,7 +699,7 @@ importRandomPatients() {
 #   - InstallerAuto.php must be available
 #
 # Process:
-#   For each multisite (run1 through run<N>):
+#   For each multisite (run1, run2, run3, ...):
 #   1. Drops existing database, user, and directory if they exist
 #   2. Creates new database and user
 #   3. Clones the default site using InstallerAuto.php
