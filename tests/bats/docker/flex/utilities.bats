@@ -22,6 +22,13 @@ setup() {
     assert_file_exists "${UTILS}/devtools"
 }
 
-@test "flex utilities: demo_5_0_0_5.sql exists" {
-    assert_file_exists "${UTILS}/demo_5_0_0_5.sql"
+@test "flex Dockerfile: demo_5_0_0_5.sql fetch is wired up" {
+    # The 50 MB demo SQL is no longer committed to the repo; it's fetched at
+    # build time from openemr-devops pinned to a specific commit SHA, with
+    # checksum verification. Verify the Dockerfile carries the right plumbing
+    # so a build will actually retrieve and verify it.
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'DEMO_SQL_REPO_SHA='
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'DEMO_SQL_SHA256='
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'demo_5_0_0_5.sql'
+    assert_file_contains "${SCRIPT_DIR}/Dockerfile" 'sha256sum -c -'
 }
