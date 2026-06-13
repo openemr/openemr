@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -23,6 +24,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 use OpenEMR\Services\PhoneNumberService;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 class FaxDocumentService
 {
@@ -176,9 +179,13 @@ class FaxDocumentService
             // legacy plaintext files left on disk before this change.
             $raw = file_get_contents($mediaPath);
             if ($raw === false) {
-                throw new FaxDocumentException("Failed to read fax media file: {$mediaPath}");
+                throw new FaxDocumentException("Failed to read fax media file");
             }
-            $mediaContent = $this->crypto->decryptFromFilesystem($raw);
+            try {
+                $mediaContent = $this->crypto->decryptFromFilesystem($raw);
+            } catch (CryptoGenException $e) {
+                throw new FaxDocumentException("Failed to decrypt fax media file", 0, $e);
+            }
             $details = json_decode($fax['details_json'] ?? '{}', true);
             $fromNumber = $details['from'] ?? $fax['calling_number'] ?? 'Unknown';
 
@@ -200,9 +207,18 @@ class FaxDocumentService
                 [$patientId, $result['document_id'], $result['media_path'], $faxSid, $this->siteId]
             );
 
-            // Delete old unassigned file; existence was verified above and
-            // nothing on this branch touches the path between.
-            unlink($mediaPath);
+            // Delete old unassigned file. Symfony Filesystem swallows the
+            // benign race where another process unlinked it first; a real
+            // permission failure still surfaces as IOException, which we log
+            // and continue from since the patient document is already saved.
+            try {
+                (new Filesystem())->remove($mediaPath);
+            } catch (IOException $e) {
+                ServiceContainer::getLogger()->warning(
+                    'Failed to remove unassigned fax file after patient assignment',
+                    ['exception' => $e, 'media_path' => $mediaPath]
+                );
+            }
 
             error_log("FaxDocumentService: Assigned fax {$faxSid} to patient {$patientId}");
 

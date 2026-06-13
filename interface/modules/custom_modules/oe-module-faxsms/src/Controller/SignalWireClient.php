@@ -16,6 +16,7 @@ use Document;
 use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -515,7 +516,19 @@ class SignalWireClient extends AppDispatch
             http_response_code(500);
             die(xlt('Failed to read fax file'));
         }
-        $payload  = $this->crypto->decryptFromFilesystem($raw);
+        $payload = null;
+        try {
+            $payload = $this->crypto->decryptFromFilesystem($raw);
+        } catch (CryptoGenException $e) {
+            ServiceContainer::getLogger()->error(
+                'SignalWire viewFaxPdf decrypt failed',
+                ['exception' => $e]
+            );
+        }
+        if ($payload === null) {
+            http_response_code(500);
+            die(xlt('Failed to decrypt fax file'));
+        }
         $filename = basename($mediaPath);
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="' . $filename . '"');
@@ -571,7 +584,19 @@ class SignalWireClient extends AppDispatch
             http_response_code(500);
             die(xlt('Failed to read fax file'));
         }
-        $payload  = $this->crypto->decryptFromFilesystem($raw);
+        $payload = null;
+        try {
+            $payload = $this->crypto->decryptFromFilesystem($raw);
+        } catch (CryptoGenException $e) {
+            ServiceContainer::getLogger()->error(
+                'SignalWire download decrypt failed',
+                ['exception' => $e]
+            );
+        }
+        if ($payload === null) {
+            http_response_code(500);
+            die(xlt('Failed to decrypt fax file'));
+        }
         $filename = basename($mediaPath);
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
