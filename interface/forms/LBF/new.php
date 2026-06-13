@@ -1175,6 +1175,7 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
+                                // nosemgrep: echoed-request -- all interpolations are sanitized: attr($BS_COL_CLASS), attr($bs_cols), text($subtitle).
                                 echo "<div class='" . attr($BS_COL_CLASS) . "-" . attr((string) $bs_cols) . " fw-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }

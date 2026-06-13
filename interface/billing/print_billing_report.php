@@ -131,6 +131,7 @@ if ($ret = BillingReport::getBillsBetweenReport($code_type)) {
                 $first_time = 0;
             }
 
+            // nosemgrep: printed-request -- patient name fields are escaped via text().
             print "<tr><td colspan='5'><hr /><span class='fw-bold'>" . text($name["fname"]) . " " . text($name["lname"]) . "</span><br /><br />\n";
             //==================================
 
