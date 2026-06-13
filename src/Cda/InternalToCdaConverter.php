@@ -329,7 +329,7 @@ class InternalToCdaConverter
         $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
         $telecom = $this->createElement('telecom');
         $telecom->setAttribute('use', 'WP');
-        $telecom->setAttribute('value', $phone);
+        $telecom->setAttribute('value', $phone !== '' ? 'tel:' . $phone : '');
         $provOrg->appendChild($telecom);
 
         $addr = $this->createElement('addr');
