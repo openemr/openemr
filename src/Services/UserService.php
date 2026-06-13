@@ -67,6 +67,26 @@ class UserService
     }
 
     /**
+     * Returns the SELECT column list for user queries.
+     * Subclasses can override to include additional columns (e.g., username, authorized).
+     *
+     * @return string SQL column list fragment
+     */
+    protected function getSelectColumns(): string
+    {
+        $columns = "id, uuid, users.title as title, fname, lname, mname,
+                    federaltaxid, federaldrugid, upin, facility_id, facility,
+                    npi, email, active, specialty, billname, url, assistant,
+                    organization, valedictory, street, streetb, city, state,
+                    zip, phone, fax, phonew1, phonecell, users.notes,
+                    state_license_number, abook.title as abook_title";
+        if ($this->_includeUsername) {
+            $columns .= ", username";
+        }
+        return $columns;
+    }
+
+    /**
      * Given a username, check to ensure user is in a group (and collect the group name)
      * Returns the group name if successful, or false if failure
      *
@@ -239,42 +259,7 @@ class UserService
 
     public function search(array $search, $isAndCondition = true)
     {
-        $sql = "SELECT  id,
-                        uuid,
-                        users.title as title,
-                        fname,
-                        lname,
-                        mname,
-                        federaltaxid,
-                        federaldrugid,
-                        upin,
-                        facility_id,
-                        facility,
-                        npi,
-                        email,
-                        active,
-                        specialty,
-                        billname,
-                        url,
-                        assistant,
-                        organization,
-                        valedictory,
-                        street,
-                        streetb,
-                        city,
-                        state,
-                        zip,
-                        phone,
-                        fax,
-                        phonew1,
-                        phonecell,
-                        users.notes,
-                        state_license_number,
-                        abook.title as abook_title,
-                        last_updated ";
-        if ($this->_includeUsername) {
-            $sql .= ", username";
-        }
+        $sql = "SELECT  " . $this->getSelectColumns() . ", last_updated";
         // grab our address book type, make sure to use the index w/ list_id and option_id
         $sql .= "
                 FROM  users
@@ -308,41 +293,7 @@ class UserService
     {
         $sqlBindArray = [];
 
-        $sql = "SELECT  id,
-                        uuid,
-                        users.title as title,
-                        fname,
-                        lname,
-                        mname,
-                        federaltaxid,
-                        federaldrugid,
-                        upin,
-                        facility_id,
-                        facility,
-                        npi,
-                        email,
-                        active,
-                        specialty,
-                        billname,
-                        url,
-                        assistant,
-                        organization,
-                        valedictory,
-                        street,
-                        streetb,
-                        city,
-                        state,
-                        zip,
-                        phone,
-                        fax,
-                        phonew1,
-                        phonecell,
-                        users.notes,
-                        state_license_number,
-                        abook.title as abook_title";
-        if ($this->_includeUsername) {
-            $sql .= ", username";
-        }
+        $sql = "SELECT  " . $this->getSelectColumns();
         $sql .= "
                 FROM  users
                 LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
