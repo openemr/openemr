@@ -483,11 +483,13 @@ abstract class AppDispatch
      */
     public function apiFetchPatientDetails(): bool|string
     {
-        $id = $this->getRequest('pid');
-        $service = new PatientPortalService();
-        $result = $service->getPatientDetails($id);
 
-        return json_encode($result);
+        $idRaw = $this->getRequest('pid');
+        $id = is_numeric($idRaw) ? (int)$idRaw : 0;
+        $service = new PatientPortalService();
+        $result = $id > 0 ? $service->getPatientDetails($id) : false;
+
+        return json_encode($result ?: new \stdClass());
     }
 
     /**

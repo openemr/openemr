@@ -131,7 +131,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             if (!(save_clicked || update_clicked)) return dosearch();
             save_clicked = false;
 
-            msg = '';
+            let msg = '';
             if (update_clicked && !f.form_id.value.length) msg += 'Id is missing for Update \n';
             if (!f.form_name.value.length) msg += 'Company name is missing. ';
             if (!f.form_addr1.value.length) msg += 'Address is missing. ';

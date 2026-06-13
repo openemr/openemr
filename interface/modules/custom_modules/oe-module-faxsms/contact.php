@@ -214,8 +214,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $("#wait").remove()
             }, 'json').done(
                 function (data) {
-                    if (recipient && !data['phone_cell']) {
-                        data['phone_cell'] = recipient;
+                    if (recipient && !data['phone']) {
+                        data['phone'] = recipient;
                     }
                     $("#form_pid").val(pid);
                     $("#form_name").val(data['fname']);

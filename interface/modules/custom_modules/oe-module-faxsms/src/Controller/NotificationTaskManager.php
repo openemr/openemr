@@ -170,16 +170,18 @@ class NotificationTaskManager
 
     public function getServiceStatus($type): false|array
     {
-        if ($type == 'sms') {
-            $name = 'Notification_SMS_Task';
-        } elseif ($type == 'email') {
-            $name = 'Notification_Email_Task';
-        } else {
+        $name = match ($type) {
+            'sms' => 'Notification_SMS_Task',
+            'email' => 'Notification_Email_Task',
+            default => null,
+        };
+
+        if ($name === null) {
             return false;
         }
 
-        $sql = "SELECT * FROM `background_services` WHERE `name` = ?";
-        $result[$type] = QueryUtils::querySingleRow($sql, [$name]);
+        $sql = "SELECT * FROM `background_services` WHERE `name` = ? LIMIT 1";
+        $result[$type] = QueryUtils::fetchRecordsNoLog($sql, [$name])[0] ?? false;
 
         return $result;
     }
