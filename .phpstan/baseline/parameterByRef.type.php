@@ -27,31 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter &\\$compiled_content by\\-ref type of method Smarty_Compiler_Legacy\\:\\:_compile_file\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$compiled_content by\\-ref type of method Smarty_Compiler_Legacy\\:\\:_compile_file\\(\\) expects string, string\\|null given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$indexes by\\-ref type of method Smarty_Compiler_Legacy\\:\\:_compile_smarty_ref\\(\\) expects string, array given\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$indexes by\\-ref type of method Smarty_Compiler_Legacy\\:\\:_compile_smarty_ref\\(\\) expects string, mixed given\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$output by\\-ref type of method Smarty_Compiler_Legacy\\:\\:_compile_compiler_tag\\(\\) expects string, mixed given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter &\\$input by\\-ref type of method PortalController\\:\\:UTF8Encode\\(\\) expects VARIANT, array\\|string given\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',

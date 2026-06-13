@@ -19,16 +19,11 @@ use PHPUnit\Framework\TestCase;
 require_once __DIR__ . '/../../../../gacl/Cache_Lite/Lite.php';
 require_once __DIR__ . '/../../../../portal/patient/fwk/libs/verysimple/Phreeze/ConnectionSetting.php';
 
-if (!defined('SMARTY_DIR')) {
-    define('SMARTY_DIR', __DIR__ . '/../../../../library/smarty_legacy/smarty/');
-}
-
-if (!defined('SMARTY_CORE_DIR')) {
-    define('SMARTY_CORE_DIR', SMARTY_DIR . 'internals/');
-}
-
-require_once SMARTY_CORE_DIR . 'core.process_cached_inserts.php';
-require_once SMARTY_CORE_DIR . 'core.read_cache_file.php';
+// Legacy require_once + SMARTY_DIR setup for library/smarty_legacy/smarty/
+// internals removed — the PostCalendar migration deleted that directory.
+// The Cache_Lite tests below don't actually exercise those Smarty
+// internal helpers; they were loaded reflexively because the test file
+// originated in a Smarty-aware context.
 
 /**
  * Cache_Lite subclass that declares the undeclared dynamic property
@@ -180,142 +175,4 @@ class UnserializeAllowedClassesTest extends TestCase
         $this->assertSame('mysql', $setting->Type);
     }
 
-    // ---- Smarty: core.process_cached_inserts (line 28) ----
-
-    public function testSmartyProcessCachedInsertsDeserializesArgs(): void
-    {
-        $smarty = new \stdClass();
-        $smarty->_smarty_md5 = 'f8d698aea36fcbead2b9d5359ffca76f';
-        $smarty->debugging = false;
-        $smarty->_plugins = [
-            'insert' => [
-                'testfunc' => [
-                    static fn(array $args, object $smarty): string => 'REPLACED',
-                ],
-            ],
-        ];
-
-        $args = ['name' => 'testfunc'];
-        $serialized = serialize($args);
-        $results = $smarty->_smarty_md5
-            . '{insert_cache ' . $serialized . '}'
-            . $smarty->_smarty_md5;
-
-        $output = smarty_core_process_cached_inserts(
-            ['results' => $results],
-            $smarty
-        );
-
-        $this->assertSame('REPLACED', $output);
-    }
-
-    public function testSmartyProcessCachedInsertsBlocksObjectInjection(): void
-    {
-        $smarty = new \stdClass();
-        $smarty->_smarty_md5 = 'f8d698aea36fcbead2b9d5359ffca76f';
-        $smarty->debugging = false;
-
-        // The insert function checks whether the 'extra' key survived as an
-        // object or was converted to __PHP_Incomplete_Class.
-        $smarty->_plugins = [
-            'insert' => [
-                'testfunc' => [
-                    static fn(array $args, object $smarty): string => ($args['extra'] instanceof \__PHP_Incomplete_Class)
-                        ? 'BLOCKED'
-                        : 'INJECTED',
-                ],
-            ],
-        ];
-
-        $args = ['name' => 'testfunc', 'extra' => new \stdClass()];
-        $serialized = serialize($args);
-        $results = $smarty->_smarty_md5
-            . '{insert_cache ' . $serialized . '}'
-            . $smarty->_smarty_md5;
-
-        $output = smarty_core_process_cached_inserts(
-            ['results' => $results],
-            $smarty
-        );
-
-        $this->assertSame('BLOCKED', $output);
-    }
-
-    // ---- Smarty: core.read_cache_file (line 55) ----
-
-    public function testSmartyReadCacheFileDeserializesCacheInfo(): void
-    {
-        $cacheInfo = [
-            'expires' => -1,
-            'timestamp' => time(),
-            'template' => [],
-        ];
-        $serializedInfo = serialize($cacheInfo);
-        $content = strlen($serializedInfo) . "\n" . $serializedInfo . '<html>cached</html>';
-
-        $smarty = new \stdClass();
-        $smarty->force_compile = false;
-        $smarty->cache_handler_func = static function (
-            string $action,
-            object $smarty,
-            ?string &$results,
-            mixed ...$unused,
-        ) use ($content): void {
-            $results = $content;
-        };
-        $smarty->caching = 2;
-        $smarty->compile_check = false;
-        $smarty->_cache_info = [];
-
-        $params = [
-            'tpl_file' => 'read-cache-test.tpl',
-            'cache_id' => 'c1',
-            'compile_id' => 'co1',
-            'results' => '',
-        ];
-
-        $result = smarty_core_read_cache_file($params, $smarty);
-
-        $this->assertTrue($result);
-        $this->assertSame($cacheInfo, $smarty->_cache_info); // @phpstan-ignore property.nonObject (by-reference parameter loses type)
-        $this->assertSame('<html>cached</html>', $params['results']); // @phpstan-ignore offsetAccess.nonOffsetAccessible
-    }
-
-    public function testSmartyReadCacheFileBlocksObjectInjection(): void
-    {
-        $cacheInfo = [
-            'expires' => -1,
-            'timestamp' => time(),
-            'template' => [],
-            'evil' => new \stdClass(),
-        ];
-        $serializedInfo = serialize($cacheInfo);
-        $content = strlen($serializedInfo) . "\n" . $serializedInfo . '<html>cached</html>';
-
-        $smarty = new \stdClass();
-        $smarty->force_compile = false;
-        $smarty->cache_handler_func = static function (
-            string $action,
-            object $smarty,
-            ?string &$results,
-            mixed ...$unused,
-        ) use ($content): void {
-            $results = $content;
-        };
-        $smarty->caching = 2;
-        $smarty->compile_check = false;
-        $smarty->_cache_info = [];
-
-        $params = [
-            'tpl_file' => 'read-cache-inject.tpl',
-            'cache_id' => 'c2',
-            'compile_id' => 'co2',
-            'results' => '',
-        ];
-
-        $result = smarty_core_read_cache_file($params, $smarty);
-
-        $this->assertTrue($result);
-        $this->assertInstanceOf(\__PHP_Incomplete_Class::class, $smarty->_cache_info['evil']); // @phpstan-ignore property.nonObject, offsetAccess.nonOffsetAccessible
-    }
 }

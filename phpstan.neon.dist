@@ -10,6 +10,8 @@ parameters:
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
   excludePaths:
+  # excluding for easy dev setups since ccdaservice is a path below
+  - ccdaservice/node_modules/*
   # oe-module-claimrev-connect is a Composer dependency
   # (claimrevolution/oe-module-claimrev-connect), relocated into this path by the
   # oe-module-installer-plugin during `composer install`. It is third-party code,

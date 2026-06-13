@@ -8,7 +8,7 @@ module.exports = {
 
 var fs = require('fs');
 var xpath = require('xpath');
-const { DOMParser, XMLSerializer } = require('@xmldom/xmldom');
+const { DOMParser } = require('@xmldom/xmldom');
 var crypto = require('crypto');
 
 var parseSchematron = require('./parseSchematron');
@@ -29,7 +29,7 @@ function validate(xml, schematron, options) {
     var resourceDir = options.resourceDir || './';
     var xmlSnippetMaxLength = options.xmlSnippetMaxLength === undefined ? 200 : options.xmlSnippetMaxLength;
 
-    if (xml.trim().indexOf('<')) {
+    if (!xml.trim().startsWith('<')) {
         try {
             xml = fs.readFileSync(xml, 'utf-8').toString();
         } catch (err) {
@@ -37,12 +37,9 @@ function validate(xml, schematron, options) {
         }
     }
 
-    var schematronPath = null;
-    if (schematron.trim().indexOf('<')) {
+    if (!schematron.trim().startsWith('<')) {
         try {
-            var temp = schematron;
             schematron = fs.readFileSync(schematron, 'utf-8').toString();
-            schematronPath = temp;
         } catch (err) {
             // intentionally empty
         }
@@ -121,7 +118,7 @@ function validate(xml, schematron, options) {
                             }
                         } else {
                             ignored.push({
-                                errorMessage: resultObj.errorMessage || "Assertion skipped or malformed.",
+                                errorMessage: resultObj.errorMessage || 'Assertion skipped or malformed.',
                                 type: type,
                                 test: test,
                                 simplifiedTest: simplifiedTest,

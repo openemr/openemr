@@ -1722,6 +1722,9 @@ function are_days_checked(){
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,value){
     let allDay = document.getElementById('rballday1').checked;
+    let catValue = document.forms[0].form_category.value;
+    let isInOffice = catValue == IN_OFFICE_CAT_ID;
+    let isOutOfOffice = catValue == OUT_OF_OFFICE_CAT_ID;
     collectvalidation.form_hour = {
         numericality: {
             onlyInteger: true,
@@ -1748,7 +1751,7 @@ function validateform(event,value){
         }
     };
 
-    if ( allDay == true) {
+    if (allDay == true || isInOffice == true || isOutOfOffice == true) {
         collectvalidation.form_duration ={};
     } else {
     collectvalidation.form_duration = {

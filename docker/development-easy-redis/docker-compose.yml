@@ -1,21 +1,21 @@
 services:
   redis-master:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
     container_name: redis-master
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replica-announce-ip
-      - redis-master
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replica-announce-ip
+    - redis-master
     ports:
     - "${WT_REDIS_PORT:-6379}:6379"
     healthcheck:
@@ -24,82 +24,82 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
     container_name: redis-replica-1
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --replica-announce-ip
-      - redis-replica-1
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-1
   redis-replica-2:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
     container_name: redis-replica-2
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --replica-announce-ip
-      - redis-replica-2
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-2
   sentinel-1:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
     container_name: sentinel-1
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 26379' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.8.0@sha256:aa049e689e141a4358ad1d4562dc49c88a89fbab711fd8fcc33f684c80b26301
+    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
     container_name: sentinel-2
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 26379' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
@@ -130,7 +130,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:227bcf2e7181a3d786f3109b56fdbd7d26c0dacd6ddcf359328a64b5b9ec3ffc
+    image: openemr/openemr:flex@sha256:61b5bf02ccc276bc2e54ab01a7248f955d8efeeb1414d8d3fbaf24a16f93687b
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -143,6 +143,7 @@ services:
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
+    - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
@@ -246,7 +247,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:7dfd52c452049bf077f5ae6d46324f5f33ea0130c16b958d9821aff5c6f812ef
+    image: phpmyadmin:5.2.3@sha256:c9f2c3790e7bc7b18ca9a978b137d3cc446b996f9f977b5d9b2d7100386d9310
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -256,7 +257,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.2@sha256:9a84b943671e9587a690e0c4418e0bd89984b5045db84532add2e560e6b76127
+    image: couchdb:3.5.2@sha256:3d084addff475d306e649594c0c160e15061288ea7cebf7aee7423201ccd1137
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
@@ -304,6 +305,7 @@ volumes:
   nodemodules: {}
   vendordir: {}
   phpstanvolume: {}
+  webpackcachevolume: {}
   ccdanodemodules: {}
   ccdanodemodules2: {}
   logvolume: {}

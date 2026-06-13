@@ -34,6 +34,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 //=========================================================================
 //  Load the API Functions
@@ -431,15 +433,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
-    // set up Smarty
-    $tpl = new pcSmarty();
-    $tpl->caching = false;
+    // set up Twig renderer (replaces legacy pcSmarty)
+    $tpl = CalendarRenderer::create();
 
-    $template_name = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
-
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
+    $template_nameRaw = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
+    $template_name = is_string($template_nameRaw) && $template_nameRaw !== ''
+        ? $template_nameRaw
+        : 'default';
 
     $body = $output->generateText(postcalendar_adminmenu("category"));
 
@@ -464,7 +464,8 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
     //print_r($all_categories);
     unset($modinfo);
-    $tpl->config_dir = "modules/$modir/pntemplates/$template_name/config/";
+    // (legacy `$tpl->config_dir = ...` removed — Twig conversion dropped
+    //  the config_load directives that depended on it.)
 
     //=================================================================
     //  PARSE MAIN
@@ -489,10 +490,16 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $styleFilterEvent->setContextArgument('viewtype', 'admin');
     $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
-    $tpl->assign('globals', $GLOBALS);
+    // Templates need a small fixed subset of globals; avoid dumping
+    // the whole $GLOBALS into template scope (it exposes secrets,
+    // paths, DB handles, etc.). submit_category.html.twig reads
+    // translate_appt_categories.
+    $tpl->assign('globals', [
+        'translate_appt_categories' => OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories'),
+    ]);
     $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
     $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
-    $tpl->assign_by_ref('TPL_NAME', $template_name);
+    $tpl->assign('TPL_NAME', $template_name);
     $tpl->assign('FUNCTION', pnVarCleanFromInput('func'));
     $tpl->assign_by_ref('ModuleName', $modname);
     $tpl->assign_by_ref('ModuleDirectory', $modir);
@@ -678,7 +685,11 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
-    $body .= $output->generateText($tpl->fetch($template_name . '/admin/submit_category.html'));
+    // Only the 'default' PostCalendar template set ships with the
+    // codebase (per 2f84202232's tplview removal); hardcoding the
+    // path matches what pnuserapi.php does and avoids letting the
+    // admin-set pcTemplate value reach Twig's FilesystemLoader.
+    $body .= $output->generateText($tpl->render('calendar/default/admin/submit_category.html.twig'));
     $body .= $output->generateText(postcalendar_footer());
     return $output->GetOutput($body);
 }
@@ -764,21 +775,19 @@ EOF;
 
 function postcalendar_admin_clearCache()
 {
-    $tpl = new pcSmarty();
-    //fmg: check that both subdirs to be cleared first exist and are writeable
-    $spec_err = '';
+    // Calendar Twig templates have no on-disk cache (TwigContainer does
+    // not set a cache option, so Twig recompiles per request). Modern
+    // Smarty (vendor/smarty/smarty, used by library/classes/Controller
+    // and other admin pages) does have a compiled-template cache under
+    // CacheDirectory's openemr-smarty scope; clear that here so an
+    // admin clicking this button gets the work the legacy button used
+    // to do against the now-deleted pcSmarty.
+    $smarty = new Smarty();
+    $smarty->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
+    $smarty->clearAllCache();
+    $smarty->clearCompiledTemplate();
 
-    if (!file_exists($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' doesn't exist!<br />";
-    } elseif (!is_writable($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br />";
-    }
-
-    //note: we don't abort on error... like before.
-    $tpl->clear_all_cache();
-    $tpl->clear_compiled_tpl();
-
-    return postcalendar_admin_modifyconfig('<div class="text-center">' . $spec_err . text(_PC_CACHE_CLEARED) . '</div>');
+    return postcalendar_admin_modifyconfig('<div class="text-center">' . text(_PC_CACHE_CLEARED) . '</div>');
 }
 
 function postcalendar_admin_testSystem()
@@ -788,7 +797,6 @@ function postcalendar_admin_testSystem()
     $version = $modinfo['version'];
     unset($modinfo);
 
-    $tpl = new pcSmarty();
     $infos = [];
 
     $__SERVER =& $_SERVER;
@@ -823,24 +831,24 @@ function postcalendar_admin_testSystem()
         $error .= '</div>';
     }
     array_push($infos, ['Module version', $version . " $error"]);
-    array_push($infos, ['smarty version', $tpl->_version]);
-    array_push($infos, ['smarty location',  SMARTY_DIR]);
-    array_push($infos, ['smarty template dir', $tpl->template_dir]);
 
-    $info = $tpl->compile_dir;
-    $error = '';
-    if (!file_exists($tpl->compile_dir)) {
-        $error .= " compile dir doesn't exist! [" . text($tpl->compile_dir) . "]<br />";
-    } else {
-        // dir exists -> check if it's writeable
-        if (!is_writable($tpl->compile_dir)) {
-            $error .= " compile dir not writeable! [" . text($tpl->compile_dir) . "]<br />";
-        }
+    // Modern Smarty (vendor/smarty/smarty) is still in OpenEMR for the
+    // non-calendar pages that extend Controller. Surface its version
+    // and compile-dir status here the way the legacy diagnostic did
+    // for pcSmarty.
+    $smartyCompileDir = (new CacheDirectory())->for('openemr-smarty');
+    $smartyCompileDirError = '';
+    if (!file_exists($smartyCompileDir)) {
+        $smartyCompileDirError = ' <span class="text-danger">' . xlt('compile dir does not exist') . '</span>';
+    } elseif (!is_writable($smartyCompileDir)) {
+        $smartyCompileDirError = ' <span class="text-danger">' . xlt('compile dir not writeable') . '</span>';
     }
-    if (strlen($error) > 0) {
-        $info .= "<br /><div class='text-danger'>$error</div>";
-    }
-    array_push($infos, ['smarty compile dir',  $info]);
+    array_push($infos, ['Smarty version', Smarty::SMARTY_VERSION]);
+    array_push($infos, ['Smarty compile dir', $smartyCompileDir . $smartyCompileDirError]);
+
+    // Twig has no on-disk cache configured by TwigContainer, so there's
+    // no equivalent compile-dir to report. Note the version for parity.
+    array_push($infos, ['Twig version', \Twig\Environment::VERSION]);
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";
