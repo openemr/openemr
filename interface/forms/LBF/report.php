@@ -36,6 +36,16 @@ function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): 
     }
     if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
         if (!AclMain::aclCheckCore($LBF_ACO[0], $LBF_ACO[1])) {
+            // When rendering from the patient portal the ACL check cannot call
+            // AccessDeniedHelper::deny() because that terminates the entire
+            // request, which would prevent subsequent (non-sensitive) notes from
+            // appearing in the same Customized Medical History Report.
+            // Instead, silently skip this restricted form and let the report
+            // continue rendering the remaining items.
+            if (!empty(OEGlobalsBag::getInstance()->get('patient_portal_onsite_two'))) {
+                return;
+            }
+
             AccessDeniedHelper::deny('Unauthorized access to LBF report');
         }
     }

@@ -35,12 +35,26 @@ $pid = $session->get('pid');
 
 // Process each selected document
 foreach ($documentIds as $documentId) {
-    $sql = "SELECT url, id, mimetype, `name`, `foreign_id` FROM `documents` WHERE `id` = ? AND `deleted` = 0";
+    // Verify the document belongs to this patient, is not deleted, and does not
+    // belong to any restricted category.  Using NOT EXISTS with aco_spec check
+    // ensures the portal cannot serve high-sensitivity or admin-only content
+    // even when document IDs are submitted directly (bypass of the listing UI).
+    $sql = "SELECT d.url, d.id, d.mimetype, d.`name`, d.`foreign_id`
+            FROM `documents` AS d
+            WHERE d.`id` = ?
+              AND d.`deleted` = 0
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM `categories_to_documents` AS ctd
+                  INNER JOIN `categories` AS c ON c.id = ctd.category_id
+                  WHERE ctd.document_id = d.id
+                    AND c.`aco_spec` != 'patients|docs'
+              )";
     $file = sqlQuery($sql, [$documentId]);
-    if ($file['foreign_id'] != $pid && $file['foreign_id'] != $pid) {
+    if (empty($file) || $file['foreign_id'] != $pid) {
         die(xlt("Invalid document selected."));
     }
-    // Find the document category
+    // Find the document category (confirmed to be patients|docs above)
     $sql = "SELECT name, lft, rght FROM `categories`, `categories_to_documents`
             WHERE `categories_to_documents`.`category_id` = `categories`.`id`
             AND `categories_to_documents`.`document_id` = ?";
