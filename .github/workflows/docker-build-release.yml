@@ -1,0 +1,113 @@
+# Builds and pushes the production OpenEMR docker image for the current
+# branch (master's "next" build, or any rel-X.Y.Z's pinned version build).
+#
+# This workflow file is BYTE-IDENTICAL across master and every rel-X.Y.Z
+# branch -- the only per-branch differences are the docker/release/Dockerfile
+# contents and the tag list passed in by the orchestrator. Adding a new rel
+# branch doesn't require editing this file at all; just add a one-row matrix
+# entry on master's docker-release-orchestrator.yml with the new branch's
+# tag list.
+#
+# Tag-list semantics:
+#   * The `tags` input is a comma-separated list of logical docker tags
+#     (e.g. "8.1.0,latest" or "dev,next").
+#   * Version-number tags (digits and dots only, like "8.1.0") additionally
+#     get a "<tag>-YYYY-MM-DD" dated sibling pushed alongside them.
+#   * Floating tags (dev, next, latest, manual-test) don't get dated variants.
+#   * Default `manual-test` is a safe sentinel for ad-hoc dispatches that
+#     won't clobber production tags.
+#
+# Triggered by:
+#   * workflow_dispatch with `tags` input -- driven by the master orchestrator
+#     on its scheduled tick (dispatching against this branch's --ref) or by
+#     a maintainer in the Actions UI.
+#   * push: tags: ['v*'] -- a git tag push fires the build directly with the
+#     tag value driving the docker tag (e.g. pushing v8.1.0 pushes
+#     openemr/openemr:8.1.0 plus the dated sibling).
+
+name: Docker build release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Comma-separated tags to push (e.g. "8.1.0,latest"; leave default for an ad-hoc test build that won''t clobber production tags)'
+        required: true
+        type: string
+        default: 'manual-test'
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    # Only run from the upstream openemr/openemr repository (not downstream forks).
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Compute build date
+      id: build_date
+      run: echo "date=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
+
+    - name: Resolve tag input (workflow_dispatch input or git tag)
+      id: resolve_tags
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        DISPATCH_TAGS: ${{ inputs.tags }}
+        REF_NAME: ${{ github.ref_name }}
+      run: |
+        if [ "$EVENT_NAME" = 'workflow_dispatch' ]; then
+          echo "raw=${DISPATCH_TAGS}" >> "$GITHUB_OUTPUT"
+        else
+          # push: tags: ['v*'] -- strip leading "v" from the git tag and use
+          # as the single docker tag. Push v8.1.0 -> docker tag 8.1.0.
+          echo "raw=${REF_NAME#v}" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Expand tag list (add dated variant for version-number tags)
+      id: tags
+      env:
+        INPUT_TAGS: ${{ steps.resolve_tags.outputs.raw }}
+        BUILD_DATE: ${{ steps.build_date.outputs.date }}
+      run: |
+        {
+          echo 'list<<EOF'
+          IFS=',' read -ra TAGS <<< "$INPUT_TAGS"
+          for t in "${TAGS[@]}"; do
+            t="${t// /}"   # strip whitespace
+            [ -z "$t" ] && continue
+            echo "openemr/openemr:${t}"
+            # Rule: version-number tags (digits and dots only) also get a dated sibling.
+            # "8.1.0" -> push "8.1.0" + "8.1.0-2026-06-13"
+            # "next" / "dev" / "latest" / "manual-test" -> no dated variant.
+            if [[ "$t" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+              echo "openemr/openemr:${t}-${BUILD_DATE}"
+            fi
+          done
+          echo EOF
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        context: ./docker/release
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.tags.outputs.list }}
