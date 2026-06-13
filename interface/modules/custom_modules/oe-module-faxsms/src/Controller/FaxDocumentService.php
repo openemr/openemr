@@ -14,6 +14,8 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
@@ -27,6 +29,7 @@ class FaxDocumentService
     private readonly string $siteId;
     private readonly string $sitePath;
     private readonly string $receivedFaxesPath;
+    private readonly CryptoInterface $crypto;
 
     public function __construct(?string $siteId = null)
     {
@@ -35,6 +38,7 @@ class FaxDocumentService
         $this->siteId = $siteId ?? $session->get('site_id');
         $this->sitePath = $globals->get('OE_SITE_DIR') ?? ($globals->get('OE_SITES_BASE') . '/' . $this->siteId);
         $this->receivedFaxesPath = $this->sitePath . '/documents/received_faxes';
+        $this->crypto = ServiceContainer::getCrypto();
 
         // Ensure received faxes directory exists
         if (!file_exists($this->receivedFaxesPath)) {
@@ -113,9 +117,12 @@ class FaxDocumentService
                     'patient_id' => $patientId
                 ];
             } else {
-                // Store in unassigned directory
+                // Store in unassigned directory, honoring the drive_encryption
+                // global the same way Document::createDocument does for the
+                // patient-matched branch above. encryptForFilesystem is a
+                // no-op when drive_encryption is off.
                 $mediaPath = $this->receivedFaxesPath . '/unassigned/' . $filename;
-                file_put_contents($mediaPath, $mediaContent);
+                file_put_contents($mediaPath, $this->crypto->encryptForFilesystem($mediaContent));
 
                 error_log("FaxDocumentService: Stored unassigned fax {$faxSid} at {$mediaPath}");
 
@@ -159,19 +166,28 @@ class FaxDocumentService
             }
 
             // Read the file from unassigned directory
-            $mediaPath = $fax['media_path'];
-            if (empty($mediaPath) || !file_exists($mediaPath)) {
+            $mediaPath = $fax['media_path'] ?? '';
+            if (!is_string($mediaPath) || $mediaPath === '' || !file_exists($mediaPath)) {
                 throw new FaxDocumentException("Fax media file not found: {$mediaPath}");
             }
 
-            $mediaContent = file_get_contents($mediaPath);
+            // decryptFromFilesystem checks for an encryption-version prefix
+            // and returns the value unchanged if absent, so this is safe for
+            // legacy plaintext files left on disk before this change.
+            $raw = file_get_contents($mediaPath);
+            if ($raw === false) {
+                throw new FaxDocumentException("Failed to read fax media file: {$mediaPath}");
+            }
+            $mediaContent = $this->crypto->decryptFromFilesystem($raw);
             $details = json_decode($fax['details_json'] ?? '{}', true);
             $fromNumber = $details['from'] ?? $fax['calling_number'] ?? 'Unknown';
 
-            // Determine mime type from file
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            $mimeType = finfo_file($finfo, $mediaPath);
-            finfo_close($finfo);
+            // Determine mime type from the decrypted bytes — finfo on the
+            // file path would inspect the encrypted blob.
+            $mimeType = (new \finfo(FILEINFO_MIME_TYPE))->buffer($mediaContent);
+            if ($mimeType === false) {
+                throw new FaxDocumentException("Failed to detect MIME type for fax media");
+            }
 
             // Store as patient document
             $result = $this->storeFaxDocument($faxSid, $mediaContent, $fromNumber, $patientId, $mimeType);
@@ -184,10 +200,9 @@ class FaxDocumentService
                 [$patientId, $result['document_id'], $result['media_path'], $faxSid, $this->siteId]
             );
 
-            // Delete old unassigned file
-            if (file_exists($mediaPath)) {
-                unlink($mediaPath);
-            }
+            // Delete old unassigned file; existence was verified above and
+            // nothing on this branch touches the path between.
+            unlink($mediaPath);
 
             error_log("FaxDocumentService: Assigned fax {$faxSid} to patient {$patientId}");
 

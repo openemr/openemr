@@ -502,19 +502,27 @@ class SignalWireClient extends AppDispatch
         }
 
         $mediaPath = $fax['media_path'] ?? '';
-        if (empty($mediaPath) || !file_exists($mediaPath)) {
+        if (!is_string($mediaPath) || $mediaPath === '' || !file_exists($mediaPath)) {
             http_response_code(404);
             die(xlt('Fax file not found'));
         }
 
-        // Send file for inline viewing
-        $filename = basename((string) $mediaPath);
+        // Decrypt the staged unassigned fax. decryptFromFilesystem returns
+        // legacy plaintext files unchanged via its version-prefix check, so
+        // this is safe for files written before drive-encrypted staging.
+        $raw = file_get_contents($mediaPath);
+        if ($raw === false) {
+            http_response_code(500);
+            die(xlt('Failed to read fax file'));
+        }
+        $payload  = $this->crypto->decryptFromFilesystem($raw);
+        $filename = basename($mediaPath);
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="' . $filename . '"');
-        header('Content-Length: ' . filesize($mediaPath));
+        header('Content-Length: ' . strlen($payload));
         header('Cache-Control: no-cache, must-revalidate');
         header('Pragma: public');
-        readfile($mediaPath);
+        echo $payload;
         exit;
     }
 
@@ -550,19 +558,27 @@ class SignalWireClient extends AppDispatch
         }
 
         $mediaPath = $fax['media_path'] ?? '';
-        if (empty($mediaPath) || !file_exists($mediaPath)) {
+        if (!is_string($mediaPath) || $mediaPath === '' || !file_exists($mediaPath)) {
             http_response_code(404);
             die(xlt('Fax file not found'));
         }
 
-        // Send file as download
-        $filename = basename((string) $mediaPath);
+        // Decrypt the staged unassigned fax. decryptFromFilesystem returns
+        // legacy plaintext files unchanged via its version-prefix check, so
+        // this is safe for files written before drive-encrypted staging.
+        $raw = file_get_contents($mediaPath);
+        if ($raw === false) {
+            http_response_code(500);
+            die(xlt('Failed to read fax file'));
+        }
+        $payload  = $this->crypto->decryptFromFilesystem($raw);
+        $filename = basename($mediaPath);
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Content-Length: ' . filesize($mediaPath));
+        header('Content-Length: ' . strlen($payload));
         header('Cache-Control: no-cache, must-revalidate');
         header('Pragma: public');
-        readfile($mediaPath);
+        echo $payload;
         exit;
     }
 
