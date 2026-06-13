@@ -3026,28 +3026,150 @@ class InternalToCdaConverter
     private function renderGoalsSection(DOMElement $structuredBody): void
     {
         $goals = $this->xpath('/CCDA/goals/goal');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($goals->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60', '2015-08-01');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '61146-7');
-            $code->setAttribute('displayName', 'Goals');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Goals'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement goals with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60', '2015-08-01');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '61146-7');
+        $code->setAttribute('displayName', 'Goals');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Goals'));
+
+        if ($goals->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendGoalsNarrative($section, $goals);
+            foreach ($goals as $goal) {
+                $this->appendGoalEntry($section, $goal);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $goals
+     */
+    private function appendGoalsNarrative(DOMElement $section, \DOMNodeList $goals): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Goal', 'Date']);
+
+        $index = 1;
+        foreach ($goals as $goal) {
+            $description = $this->xpathValue('description', $goal);
+            $codeText = $this->xpathValue('code_text', $goal);
+            $date = $this->xpathValue('date', $goal);
+
+            $displayText = $description !== '' ? $description : ($codeText !== '' && $codeText !== 'NULL' ? $codeText : '');
+            $this->appendTableRow($table, [$displayText, $date], 'goal' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendGoalEntry(DOMElement $section, DOMElement $goal): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'GOL');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.121');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.121', '2022-06-01');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        // Regular id
+        $shaExt = $this->xpathValue('sha_extension', $goal);
+        $ext = $this->xpathValue('extension', $goal);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt !== '' ? $shaExt : 'NI');
+        $id->setAttribute('extension', $ext);
+        $obs->appendChild($id);
+
+        // Code
+        $goalCode = $this->xpathValue('code', $goal);
+        $codeText = $this->xpathValue('code_text', $goal);
+        $codeType = $this->xpathValue('code_type', $goal);
+        $code = $this->createElement('code');
+        if ($goalCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($goalCode));
+            if ($codeText !== '' && $codeText !== 'NULL') {
+                $code->setAttribute('displayName', $codeText);
+            }
+            if ($codeType !== '') {
+                $code->setAttribute('codeSystemName', $codeType);
+            }
+        } else {
+            $code->setAttribute('nullFlavor', 'UNK');
+        }
+        $obs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $obs->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $goal);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $obs->appendChild($effectiveTime);
+
+        // Value - ST or CD based on sdoh_code presence
+        $sdohCode = $this->xpathValue('sdoh_code', $goal);
+        $value = $this->output->createElement('value');
+        if ($sdohCode !== '') {
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $value->setAttribute('code', $sdohCode);
+            $sdohCodeSystem = $this->xpathValue('sdoh_code_system', $goal);
+            if ($sdohCodeSystem !== '') {
+                $value->setAttribute('codeSystem', $sdohCodeSystem);
+            }
+            $sdohCodeType = $this->xpathValue('sdoh_code_type', $goal);
+            if ($sdohCodeType !== '') {
+                $value->setAttribute('codeSystemName', $sdohCodeType);
+            }
+            $sdohCodeText = $this->xpathValue('sdoh_code_text', $goal);
+            if ($sdohCodeText !== '') {
+                $value->setAttribute('displayName', $sdohCodeText);
+            }
+        } else {
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'ST');
+            $description = $this->xpathValue('description', $goal);
+            if ($description !== '') {
+                $value->nodeValue = $description;
+            }
+        }
+        $obs->appendChild($value);
+
+        $authorEl = $this->xpath('author', $goal)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
     }
 
     private function renderHealthConcernsSection(DOMElement $structuredBody): void
