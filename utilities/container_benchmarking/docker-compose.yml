@@ -1,0 +1,137 @@
+# ============================================================================
+# Container Benchmarking Docker Compose Configuration
+# ============================================================================
+# This compose file sets up the benchmarking environment with:
+#   - Two MySQL databases (one for each OpenEMR container to avoid conflicts)
+#   - Two OpenEMR containers to compare (Image A and Image B)
+#   - Load generator container (for performance testing)
+#
+# Usage: See README.md for instructions
+# ============================================================================
+
+name: container-benchmark
+
+services:
+  # Load Generator
+  # Uses Apache Bench (ab) to generate load for performance testing
+  load-generator:
+    image: httpd:alpine
+    container_name: benchmark-load-generator
+    command: sh -c "apk add --no-cache apache2-utils curl && tail -f /dev/null"
+    depends_on:
+      openemr-image-a:
+        condition: service_healthy
+      openemr-image-b:
+        condition: service_healthy
+    networks:
+    - benchmark-network
+
+  # MySQL Database for Image A
+  mysql-a:
+    image: mariadb:11.4
+    command:
+    - mariadbd
+    - --character-set-server=utf8mb4
+    - --innodb-buffer-pool-size=256M
+    - --max-connections=100
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+    - mysql_a_data:/var/lib/mysql
+    networks:
+    - benchmark-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # MySQL Database for Image B
+  mysql-b:
+    image: mariadb:11.4
+    command:
+    - mariadbd
+    - --character-set-server=utf8mb4
+    - --innodb-buffer-pool-size=256M
+    - --max-connections=100
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+    - mysql_b_data:/var/lib/mysql
+    networks:
+    - benchmark-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Image A: Local build from repository
+  # This container uses the image built from the local Dockerfile
+  openemr-image-a:
+    build:
+      context: ${IMAGE_A_CONTEXT:-../../docker/openemr/8.1.0}
+      dockerfile: Dockerfile
+    container_name: benchmark-image-a
+    depends_on:
+      mysql-a:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql-a
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      MYSQL_DATABASE: openemr
+      OE_USER: admin
+      OE_PASS: pass
+    ports:
+    - "${IMAGE_A_PORT:-8080}:80"
+    networks:
+    - benchmark-network
+    healthcheck:
+      test: ["CMD", "curl", "-fsSLo", "/dev/null", "http://localhost/"]
+      start_period: 10m
+      start_interval: 2s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+
+  # Image B: Public Docker Hub image
+  # This container uses the image from Docker Hub
+  openemr-image-b:
+    image: ${IMAGE_B_IMAGE:-openemr/openemr:8.1.0}
+    container_name: benchmark-image-b
+    depends_on:
+      mysql-b:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql-b
+      MYSQL_ROOT_PASS: root
+      MYSQL_USER: openemr
+      MYSQL_PASS: openemr
+      MYSQL_DATABASE: openemr
+      OE_USER: admin
+      OE_PASS: pass
+    ports:
+    - "${IMAGE_B_PORT:-8081}:80"
+    networks:
+    - benchmark-network
+    healthcheck:
+      test: ["CMD", "curl", "-fsSLo", "/dev/null", "http://localhost/"]
+      start_period: 10m
+      start_interval: 2s
+      interval: 1m
+      timeout: 5s
+      retries: 3
+
+networks:
+  benchmark-network:
+    driver: bridge
+
+volumes:
+  mysql_a_data:
+  mysql_b_data:
