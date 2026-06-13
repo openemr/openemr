@@ -16,6 +16,7 @@ use DOMDocument;
 use DOMElement;
 use DOMNodeList;
 use DOMXPath;
+use Ramsey\Uuid\Uuid;
 
 class InternalToCdaConverter
 {
@@ -1913,6 +1914,15 @@ class InternalToCdaConverter
         $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1', '2015-08-01');
         $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1');
 
+        // uniqueId element (comes before regular id per Node.js blue-button-generate)
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $organizer->appendChild($uniqueId);
+        }
+
         $root = $this->xpathValue('root', $firstResult);
         $ext = $this->xpathValue('extension', $firstResult);
         $id = $this->createElement('id');
@@ -3380,5 +3390,10 @@ class InternalToCdaConverter
 
         $tbody->appendChild($row);
         $table->appendChild($tbody);
+    }
+
+    private function generateUuid(): string
+    {
+        return Uuid::uuid4()->toString();
     }
 }
