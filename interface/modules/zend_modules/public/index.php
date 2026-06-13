@@ -16,6 +16,7 @@
  * to the application root now.
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
@@ -44,21 +45,38 @@ if (!$modulesApplication instanceof ModulesApplication) {
 // route falls through to the legacy runtime, because the resolver shim does not
 // yet set up the Laminas MVC controller context that most controllers need.
 // See ZendModuleApplication::CANARY_PATHS.
+//
+// The seam is experimental and opt-in, so any failure during its setup or
+// dispatch is treated as non-fatal: log it and fall through to the legacy
+// runtime rather than aborting the request. handle() builds the full Response
+// before sending, so a throw cannot leave a partially-sent response behind.
 if (OEEnvBag::getInstance()->getBoolean('OPENEMR__ZEND_SYMFONY_SEAM')) {
-    $eventDispatcher = $modulesApplication->getServiceManager()->get(EventDispatcherInterface::class);
-    if (!$eventDispatcher instanceof EventDispatcherInterface) {
-        throw new \RuntimeException('Module ServiceManager did not provide an EventDispatcher');
-    }
-    $seam = new ZendModuleApplication(
-        $modulesApplication->getServiceManager(),
-        $eventDispatcher,
-        new ZendModuleRouteLoader(__DIR__ . '/..'),
-    );
+    try {
+        $eventDispatcher = $modulesApplication->getServiceManager()->get(EventDispatcherInterface::class);
+        if (!$eventDispatcher instanceof EventDispatcherInterface) {
+            throw new \RuntimeException('Module ServiceManager did not provide an EventDispatcher');
+        }
+        $seam = new ZendModuleApplication(
+            $modulesApplication->getServiceManager(),
+            $eventDispatcher,
+            new ZendModuleRouteLoader(__DIR__ . '/..'),
+        );
 
-    $request = Request::createFromGlobals();
-    if ($seam->matches($request->getPathInfo())) {
-        $seam->handle($request)->send();
-        return;
+        $request = Request::createFromGlobals();
+        if ($seam->matches($request->getPathInfo())) {
+            $seam->handle($request)->send();
+            return;
+        }
+    } catch (\RuntimeException $seamException) {
+        // Recoverable seam failures fall back to the legacy runtime. The seam's
+        // own guards plus the Symfony routing / HttpKernel exceptions all extend
+        // \RuntimeException; \Error and \ErrorException are intentionally NOT
+        // caught — those are programmer bugs that should propagate to the global
+        // handler, not be masked by a fallback.
+        ServiceContainer::getLogger()->error(
+            'zend_modules Symfony seam failed; falling back to legacy runtime',
+            ['exception' => $seamException],
+        );
     }
 }
 
