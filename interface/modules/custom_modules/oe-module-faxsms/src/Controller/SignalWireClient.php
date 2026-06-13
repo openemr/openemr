@@ -1002,18 +1002,16 @@ class SignalWireClient extends AppDispatch
             return '';
         }
 
-        $name = basename((string) $_FILES['fax']['name']);
-        $tmp_name = $_FILES['fax']['tmp_name'];
         $targetDir = $this->baseDir . '/send';
-
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
+        if (!file_exists($targetDir) && !mkdir($targetDir, 0700, true)) {
             error_log('Error: Failed to create directory.');
             return '';
         }
 
-        $filepath = $targetDir . "/" . $name;
-
-        if (!move_uploaded_file($tmp_name, $filepath)) {
+        // UUID basename with no extension so the staged path is
+        // unguessable and cannot be interpreted as a PHP script.
+        $filepath = $targetDir . '/' . bin2hex(random_bytes(16));
+        if (!move_uploaded_file($_FILES['fax']['tmp_name'], $filepath)) {
             error_log('Error: Failed to move uploaded file.');
             return '';
         }
