@@ -73,7 +73,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="btn-group btn-group-sm mt-3">
                     <button type='submit' class='btn btn-primary btn-save btn-sm' name='form_submit' value='<?php echo xla('Save'); ?>'>
                         <?php echo xlt('Save'); ?>

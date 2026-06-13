@@ -100,7 +100,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 <table>
  <tr>
   <td width='470px'>
-    <div class="float-left">
+    <div class="float-start">
 
     <table class='text'>
 
@@ -157,7 +157,7 @@ $form_end_date = DateTimeToYYYYMMDDHHMMSS($_POST['form_end_date'] ?? '');
 <div id="report_results">
 <table class='table'>
 
- <thead class='thead-light'>
+ <thead class='table-light'>
   <th class='text-center'>
     <?php echo xlt('Title'); ?>
   </th>

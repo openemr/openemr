@@ -43,7 +43,7 @@ use OpenEMR\Core\OEGlobalsBag;
     </div>
     <div class="col-md-5">
         <?php if ($edit) { ?>
-        <button id="addEvent" class="float-right"><?php echo xlt('Adding')?></button>
+        <button id="addEvent" class="float-end"><?php echo xlt('Adding')?></button>
       <?php }?>
     </div>
 </div>
@@ -71,7 +71,7 @@ use OpenEMR\Core\OEGlobalsBag;
                         <?php if ($edit) { ?>
                             <a onclick="goToEvent(<?php echo attr_js(OEGlobalsBag::getInstance()->getKernel()->getRootDir() . "/main/calendar/add_edit_event.php?group=true&groupid=" . urlencode((string) $groupId) . "&date=" . urlencode((string) $date_for_url) . "&eid=" . urlencode((string) $event['pc_eid'])); ?>)">
                         <?php } ?>
-                        <span class="font-weight-bold"><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></span>
+                        <span class="fw-bold"><?php echo text($event['pc_eventDate']) . " (" . xlt($dayname) . ")" ;?></span>
                         <br />
                         <span>
                             <?php echo text($disphour) . ":" . text($dispmin) . " " . text($dispampm);

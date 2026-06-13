@@ -162,23 +162,8 @@ if ($_POST['form_save_permissions'] ?? null) {
 }
 
 // Get all active users for the form
-$usersQuery = <<<'SQL'
-    SELECT
-        id,
-        username,
-        fname,
-        lname,
-        authorized
-    FROM users
-    WHERE active = 1
-      AND username IS NOT NULL AND username <> ''
-      AND fname IS NOT NULL AND fname <> ''
-      AND abook_type = ''
-    ORDER BY
-        lname,
-        fname
-SQL;
-$users_result = sqlStatement($usersQuery);
+$users_query = "SELECT id, username, fname, lname, authorized FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL ORDER BY lname, fname";
+$users_result = sqlStatement($users_query);
 $active_users = [];
 while ($user = sqlFetchArray($users_result)) {
     $active_users[] = $user;
@@ -336,24 +321,24 @@ $vendors = $boot->getVendorGlobals();
 </head>
 <body>
     <div class="w-100 container-xl">
-        <div class="form-group m-2 p-2 bg-dark">
+        <div class="mb-3 m-2 p-2 bg-dark">
             <button class="btn btn-outline-light" onclick="toggleSetup('set-service')"><?php echo xlt("Enable Accounts"); ?><i class="fa fa-caret"></i></button>
             <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
                 <?php if (empty($current_primary_user) || $current_primary_user == $session->get('authUserID')) { ?>
-                    <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?><span class="caret"></span></button>
+                    <button class="btn btn-outline-light" onclick="toggleUserPermissions()"><?php echo xlt("User Permissions"); ?></button>
                 <?php } ?>
             <?php } ?>
             <?php if (!empty($vendors['oefax_enable_sms'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-sms')"><?php echo xlt("Setup SMS"); ?></button>
             <?php }
             if (!empty($vendors['oefax_enable_fax'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-fax')"><?php echo xlt("Setup Fax"); ?></button>
             <?php }
             if (!empty($vendors['oe_enable_voice'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-voice')"><?php echo xlt("Setup Voice"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-voice')"><?php echo xlt("Setup Voice"); ?></button>
             <?php }
             if (!empty($vendors['oe_enable_email'])) { ?>
-                <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email"); ?><span class="caret"></span></button>
+                <button class="btn btn-outline-light" onclick="toggleSetup('set-email')"><?php echo xlt("Setup Email"); ?></button>
             <?php } ?>
             <span class="checkbox text-light br-dark" title="Use Dialog or Panels">
                 <label for="dialog"><?php echo xlt("Use Dialog"); ?></label>
@@ -374,7 +359,7 @@ $vendors = $boot->getVendorGlobals();
                                 <?php } ?>
                             </strong>
                             <?php echo text($permissions_message ?? xlt("User permissions have been saved successfully!")); ?>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
@@ -385,23 +370,16 @@ $vendors = $boot->getVendorGlobals();
                                 <div class="alert alert-success text-center" role="alert">
                                     <i class="fa fa-user-check"></i>
                                     <?php echo xlt("You are the current primary user. You can manage all settings."); ?>
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
                                         <span aria-hidden="true">&times;</span>
                                     </button>
                                 </div>
                             <?php } else { ?>
-                                <div class="alert alert-warning text-center" role="alert">
-                                    <i class="fa fa-user-times"></i>
-                                    <?php echo xlt("No primary user set. Any authorized user can manage settings."); ?>
-                                    <br><small><?php echo xlt("Consider setting a primary user for better security control."); ?></small>
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
+                                <i class="fa fa-check-circle"></i>
                             <?php } ?>
-                            <div class="row col form-group">
-                                <label for="editingUser" class="form-inline"><?php echo xlt("Editing Service Credentials for User"); ?></label>
-                                <div class="ml-2" title="User to setup credentials.">
+                            <div class="row col mb-3">
+                                <label for="editingUser" class="d-flex flex-wrap align-items-center gap-2"><?php echo xlt("Editing Service Credentials for User"); ?></label>
+                                <div class="ms-2" title="User to setup credentials.">
                                     <select class="form-control persist" name="editingUser" id="editingUser">
                                         <option value="0"><?php echo xlt("Default (You)"); ?></option>
                                         <?php foreach ($active_users as $user) {
@@ -428,13 +406,7 @@ $vendors = $boot->getVendorGlobals();
                     <div class="small text-center mb-2"><span><?php echo xlt("This form auto saves."); ?></span></div>
                     <hr>
                     <div class="clearfix"></div>
-                    <div class="row form-group">
-                        <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
-                        <div class="col-sm-6" title=<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?> >
-                            <input type="checkbox" class="checkbox persist" name="oeenable_users_permissions" id="oeenable_users_permissions" value="1" <?php echo $vendors['oeenable_users_permissions'] == '1' ? 'checked' : ''; ?>>
-                        </div>
-                    </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="sms_vendor" class="col-sm-6"><?php echo xlt("Enable SMS Module"); ?></label>
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
                             <select class="form-control persist" name="sms_vendor" id="sms_vendor">
@@ -442,7 +414,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
@@ -450,7 +422,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
@@ -458,7 +430,7 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="voice_vendor" class="col-sm-6"><?php echo xlt("Enable Voice Widgets") ?></label>
                         <div class="col-sm-6" title="Enable Voice Widgets Support.">
                             <select class="form-control persist" name="voice_vendor" id="voice_vendor">
@@ -466,20 +438,20 @@ $vendors = $boot->getVendorGlobals();
                             </select>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable Send SMS Dialog"); ?></label>
                         <div class="col-sm-6" title="Enable Send SMS Dialog Support. Various opportunities in UI.">
                             <input type="checkbox" class="checkbox persist" name="allow_dialog" id="allow_dialog" value="1" <?php echo $vendors['oesms_send'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
-                    <div class="row form-group">
+                    <div class="row mb-3">
                         <label for="restrict" class="col-sm-6"><?php echo xlt("Individual User Accounts"); ?></label>
                         <div class="col-sm-6" title="Restrict Users to their own account credentials. Usage accounting is tagged to username.">
                             <input type="checkbox" class="checkbox persist" name="restrict" id="restrict" value="1" <?php echo $vendors['oerestrict_users'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
                     <div class="btn-group">
-                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right d-none" value="Save"><?php echo xlt("Save"); ?></button>
+                        <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-end d-none" value="Save"><?php echo xlt("Save"); ?></button>
                     </div>
                 </div>
             </form>
@@ -499,7 +471,7 @@ $vendors = $boot->getVendorGlobals();
                         Whichever one is used, Create or Enable, and the task already exists, it will be updated with the execute interval input value and enabled if Enable or the task last state if Create.
                         Whenever a new service task is created and enabled, the task will run initial notifications within 2 minutes so, be prepared.')); ?></div>
                     </div>
-                    <div class="pl-2 form-group clearfix">
+                    <div class="ps-2 mb-3 clearfix">
                         <?php foreach ($services as $service) {
                             if (empty($service)) {
                                 continue;
@@ -512,7 +484,7 @@ $vendors = $boot->getVendorGlobals();
                             </label>
                         <?php }
                         if ($showFlag) { ?>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <button type="submit" class="btn btn-primary" name="action" value="create"><?php echo xlt('Create and Run'); ?></button>
                                 <?php echo xlt('Every'); ?> <input type="text" name="period" id="period_input" class="" style="display:inline-block; max-width: 125px;" maxlength="4"
                                     placeholder="<?php echo xla('Execute Interval'); ?>"
@@ -537,7 +509,6 @@ $vendors = $boot->getVendorGlobals();
                         <?php } ?>
                     </div>
                 </fieldset>
-            </form>
         </div>
         <!-- iframes to hold setup account scripts. Dialogs replace these if requested in UI -->
         <?php if (!empty($vendors['oefax_enable_fax'])) { ?>
@@ -578,140 +549,138 @@ $vendors = $boot->getVendorGlobals();
                             <span><?php echo xlt("Set individual user permissions for Fax, SMS, Email, and Voice services."); ?></span>
                         </div>
 
-                        <?php if (isset($permissions_saved) && $permissions_saved) { ?>
-                            <div class="alert alert-success text-center" role="alert">
-                                <?php echo xlt("User permissions have been saved successfully!"); ?>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                        <?php } ?>
-                        <hr>
-                        <!-- User Permissions Table Section -->
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover table-sm">
-                                <thead class="thead-dark">
+                    <?php if (isset($permissions_saved) && $permissions_saved) { ?>
+                        <div class="alert alert-success text-center" role="alert">
+                            <?php echo xlt("User permissions have been saved successfully!"); ?>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    <?php } ?>
+                    <hr>
+                    <!-- User Permissions Table Section -->
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover table-sm">
+                            <thead class="table-dark">
+                            <tr>
+                                <th><?php echo xlt("User"); ?></th>
+                                <th><?php echo xlt("Username"); ?></th>
+                                <th class="text-center">
+                                    <?php echo xlt("Fax"); ?>
+                                    <br>
+                                    <input type="checkbox" onchange="toggleAllPermissions('fax', this.checked)" title="<?php echo xla('Toggle all Fax permissions'); ?>">
+                                </th>
+                                <th class="text-center">
+                                    <?php echo xlt("SMS"); ?>
+                                    <br>
+                                    <input type="checkbox" onchange="toggleAllPermissions('sms', this.checked)" title="<?php echo xla('Toggle all SMS permissions'); ?>">
+                                </th>
+                                <th class="text-center">
+                                    <?php echo xlt("Email"); ?>
+                                    <br>
+                                    <input type="checkbox" onchange="toggleAllPermissions('email', this.checked)" title="<?php echo xla('Toggle all Email permissions'); ?>">
+                                </th>
+                                <th class="text-center">
+                                    <?php echo xlt("Voice"); ?>
+                                    <br>
+                                    <input type="checkbox" onchange="toggleAllPermissions('voice', this.checked)" title="<?php echo xla('Toggle all Voice permissions'); ?>">
+                                </th>
+                                <th class="text-center">
+                                    <?php echo xlt("Use Primary"); ?>
+                                    <br>
+                                    <input type="checkbox" onchange="toggleAllUsePrimary(this.checked)" title="<?php echo xla('Toggle all Use Primary settings'); ?>">
+                                </th>
+                                <th class="text-center">
+                                    <?php echo xlt("Primary User"); ?>
+                                    <br>
+                                    <small class="text-body-secondary"><?php echo xlt("(One Only)"); ?></small>
+                                    <br>
+                                    <input type="radio"
+                                        name="primary_user"
+                                        value="0"
+                                        id="reset_primary_user"
+                                        title="<?php echo xla('Clear primary user selection'); ?>"
+                                        style="accent-color: #dc3545;">
+                                    <label for="reset_primary_user" class="small text-danger" title="<?php echo xla('Clear primary user selection'); ?>">
+                                        <?php echo xlt("Reset"); ?>
+                                    </label>
+                                </th>
+                                <th class="text-center">
+                                    <?php echo xlt("All Services"); ?>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach ($active_users as $user) {
+                                $user_id = $user['id'];
+                                $display_name = trim($user['fname'] . ' ' . $user['lname']);
+                                if (empty($display_name)) {
+                                    $display_name = $user['username'];
+                                }
+                                ?>
                                 <tr>
-                                    <th><?php echo xlt("User"); ?></th>
-                                    <th><?php echo xlt("Username"); ?></th>
-                                    <th class="text-center">
-                                        <?php echo xlt("Fax"); ?>
-                                        <br>
-                                        <input type="checkbox" onchange="toggleAllPermissions('fax', this.checked)" title="<?php echo xla('Toggle all Fax permissions'); ?>">
-                                    </th>
-                                    <th class="text-center">
-                                        <?php echo xlt("SMS"); ?>
-                                        <br>
-                                        <input type="checkbox" onchange="toggleAllPermissions('sms', this.checked)" title="<?php echo xla('Toggle all SMS permissions'); ?>">
-                                    </th>
-                                    <th class="text-center">
-                                        <?php echo xlt("Email"); ?>
-                                        <br>
-                                        <input type="checkbox" onchange="toggleAllPermissions('email', this.checked)" title="<?php echo xla('Toggle all Email permissions'); ?>">
-                                    </th>
-                                    <th class="text-center">
-                                        <?php echo xlt("Voice"); ?>
-                                        <br>
-                                        <input type="checkbox" onchange="toggleAllPermissions('voice', this.checked)" title="<?php echo xla('Toggle all Voice permissions'); ?>">
-                                    </th>
-                                    <th class="text-center">
-                                        <?php echo xlt("Use Primary"); ?>
-                                        <br>
-                                        <input type="checkbox" onchange="toggleAllUsePrimary(this.checked)" title="<?php echo xla('Toggle all Use Primary settings'); ?>">
-                                    </th>
-                                    <th class="text-center">
-                                        <?php echo xlt("Primary User"); ?>
-                                        <br>
-                                        <small class="text-muted"><?php echo xlt("(One Only)"); ?></small>
-                                        <br>
+                                    <td><?php echo text($display_name); ?></td>
+                                    <td><?php echo text($user['username']); ?></td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                            name="user_<?php echo attr($user_id); ?>_fax"
+                                            id="user_<?php echo attr($user_id); ?>_fax"
+                                            value="1"
+                                            <?php echo BootstrapService::getUserPermission($user_id, 'fax') == '1' ? 'checked' : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                            name="user_<?php echo attr($user_id); ?>_sms"
+                                            id="user_<?php echo attr($user_id); ?>_sms"
+                                            value="1"
+                                            <?php echo BootstrapService::getUserPermission($user_id, 'sms') == '1' ? 'checked' : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                            name="user_<?php echo attr($user_id); ?>_email"
+                                            id="user_<?php echo attr($user_id); ?>_email"
+                                            value="1"
+                                            <?php echo BootstrapService::getUserPermission($user_id, 'email') == '1' ? 'checked' : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                            name="user_<?php echo attr($user_id); ?>_voice"
+                                            id="user_<?php echo attr($user_id); ?>_voice"
+                                            value="1"
+                                            <?php echo BootstrapService::getUserPermission($user_id, 'voice') == '1' ? 'checked' : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                            name="user_<?php echo attr($user_id); ?>_use_primary"
+                                            id="user_<?php echo attr($user_id); ?>_use_primary"
+                                            value="1"
+                                            <?php echo BootstrapService::usePrimaryAccount($user_id) == '1' ? 'checked' : ''; ?>
+                                            title="<?php echo xla('Allow this user to use primary account credentials'); ?>">
+                                    </td>
+                                    <td class="text-center">
                                         <input type="radio"
                                             name="primary_user"
-                                            value="0"
-                                            id="reset_primary_user"
-                                            title="<?php echo xla('Clear primary user selection'); ?>"
-                                            style="accent-color: #dc3545;">
-                                        <label for="reset_primary_user" class="small text-danger" title="<?php echo xla('Clear primary user selection'); ?>">
-                                            <?php echo xlt("Reset"); ?>
-                                        </label>
-                                    </th>
-                                    <th class="text-center">
-                                        <?php echo xlt("All Services"); ?>
-                                    </th>
+                                            value="<?php echo attr($user_id); ?>"
+                                            <?php echo ($current_primary_user == $user_id) ? 'checked' : ''; ?>
+                                            title="<?php echo xla('Set as primary user for all services'); ?>">
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox"
+                                            onchange="toggleUserAllServices(<?php echo attr($user_id); ?>, this.checked)"
+                                            title="<?php echo xla('Toggle all services for this user'); ?>">
+                                    </td>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($active_users as $user) {
-                                    $user_id = $user['id'];
-                                    $display_name = trim($user['fname'] . ' ' . $user['lname']);
-                                    if (empty($display_name)) {
-                                        $display_name = $user['username'];
-                                    }
-                                    ?>
-                                    <tr>
-                                        <td><?php echo text($display_name); ?></td>
-                                        <td><?php echo text($user['username']); ?></td>
-                                        <td class="text-center">
-                                            <input type="checkbox"
-                                                name="user_<?php echo attr($user_id); ?>_fax"
-                                                id="user_<?php echo attr($user_id); ?>_fax"
-                                                value="1"
-                                                <?php echo BootstrapService::getUserPermission($user_id, 'fax') == '1' ? 'checked' : ''; ?>>
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="checkbox"
-                                                name="user_<?php echo attr($user_id); ?>_sms"
-                                                id="user_<?php echo attr($user_id); ?>_sms"
-                                                value="1"
-                                                <?php echo BootstrapService::getUserPermission($user_id, 'sms') == '1' ? 'checked' : ''; ?>>
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="checkbox"
-                                                name="user_<?php echo attr($user_id); ?>_email"
-                                                id="user_<?php echo attr($user_id); ?>_email"
-                                                value="1"
-                                                <?php echo BootstrapService::getUserPermission($user_id, 'email') == '1' ? 'checked' : ''; ?>>
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="checkbox"
-                                                name="user_<?php echo attr($user_id); ?>_voice"
-                                                id="user_<?php echo attr($user_id); ?>_voice"
-                                                value="1"
-                                                <?php echo BootstrapService::getUserPermission($user_id, 'voice') == '1' ? 'checked' : ''; ?>>
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="checkbox"
-                                                name="user_<?php echo attr($user_id); ?>_use_primary"
-                                                id="user_<?php echo attr($user_id); ?>_use_primary"
-                                                value="1"
-                                                <?php echo BootstrapService::usePrimaryAccount($user_id) == '1' ? 'checked' : ''; ?>
-                                                title="<?php echo xla('Allow this user to use primary account credentials'); ?>">
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="radio"
-                                                name="primary_user"
-                                                value="<?php echo attr($user_id); ?>"
-                                                <?php echo ($current_primary_user == $user_id) ? 'checked' : ''; ?>
-                                                title="<?php echo xla('Set as primary user for all services'); ?>">
-                                        </td>
-                                        <td class="text-center">
-                                            <input type="checkbox"
-                                                onchange="toggleUserAllServices(<?php echo attr($user_id); ?>, this.checked)"
-                                                title="<?php echo xla('Toggle all services for this user'); ?>">
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="text-center mt-3">
-                            <button type="submit" name="form_save_permissions" class="btn btn-primary btn-save" value="1">
-                                <?php echo xlt("Save User Permissions"); ?>
-                            </button>
-                        </div>
+                            <?php } ?>
+                            </tbody>
+                        </table>
                     </div>
-                </form>
-            </div>
+
+                    <div class="text-center mt-3">
+                        <button type="submit" name="form_save_permissions" class="btn btn-primary btn-save" value="1">
+                            <?php echo xlt("Save User Permissions"); ?>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
         <?php } ?>
     </div>
 </body>

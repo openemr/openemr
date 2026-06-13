@@ -17,9 +17,9 @@
     }
 </style>
 
-<div id="{{ table_id|attr }}" class="form-row mt-3">
+<div id="{{ table_id|attr }}" class="row g-2 mt-3">
     <div class="table_edit_addresses col-12">
-        <div class="display_addresses_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+        <div class="display_addresses_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
                     {% if foreign_table == 'patient_data' %}
@@ -28,9 +28,9 @@
                         {{ 'Addresses'|xlt }}
                     {% endif %}
                 </div>
-                <div id="btn_add_addresses_{{ table_id|attr }}" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+                <div id="btn_add_addresses_{{ table_id|attr }}" class="fas fa-plus-square text-primary ps-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_addresses_{{ table_id|attr }}">
                 <label class="form-check-label" for="show_inactive_addresses_{{ table_id|attr }}" style="font-size: 0.9em;">
                     {{ 'Show Inactive'|xlt }}
@@ -40,7 +40,7 @@
 
         {% if addresses|length == 0 %}
         <div class="no_addresses">
-            <span class="label_custom pl-1" style="line-height: 2.0;">{{ 'NONE'|xlt }}</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">{{ 'NONE'|xlt }}</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
         {% endif %}
@@ -49,7 +49,7 @@
         {% for address in addresses %}
         {% set is_inactive = address.status != 'A' %}
         {% set address_index = loop.index0 %}
-        <div class="addresses_group col-12 pl-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}" data-index="{{ address_index }}">
+        <div class="addresses_group col-12 ps-0 {{ is_inactive ? 'address-inactive d-none' : '' }}" data-status="{{ address.status|attr }}" data-index="{{ address_index }}">
 
             {# CRITICAL: Hidden fields OUTSIDE hideable sections - always submitted #}
             <input type="hidden" class="form_addresses_data_action"
@@ -63,13 +63,13 @@
             <input type="hidden" class="form_addresses_status"
                 name="{{ name_field_id|attr }}[{{ address_index }}][status]" value="{{ address.status|attr }}" />
 
-            <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+            <div class="display_addresses row g-0 justify-content-between ps-1">
                 <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                     <i class="fas fa-solid fa-caret-right fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
                     <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;">
                         {{ list_address_uses[address.use]|text }}
                         {% if is_inactive %}
-                            <span class="badge badge-secondary text-white ml-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
+                            <span class="badge bg-secondary text-white ms-1" style="font-size: 0.7em;">{{ 'Inactive'|xlt }}</span>
                         {% endif %}
                     </span>
                 </div>
@@ -114,7 +114,7 @@
                 {% endif %}
             </div>
 
-            <div class='d-none form_addresses form-row mx-3 my-2'>
+            <div class='d-none form_addresses row g-2 mx-3 my-2'>
                 {# Only editable fields here - hidden fields are above #}
                 {% include 'patient/demographics/address_form_fields.html.twig' with {
                     'address': address,
@@ -132,7 +132,7 @@
 
 {# Template for adding new addresses #}
 <template class="template_add_address">
-    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__A-INDEX__">
+    <div class="addresses_group col-12 ps-0" data-status="A" data-index="__A-INDEX__">
 
         {# CRITICAL: Hidden fields OUTSIDE hideable sections #}
         <input type="hidden" class="form_addresses_data_action"
@@ -146,7 +146,7 @@
         <input type="hidden" class="form_addresses_status"
             name="{{ name_field_id|attr }}[__A-INDEX__][status]" value="A" />
 
-        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+        <div class="display_addresses row g-0 justify-content-between ps-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                 <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
                 <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>
@@ -164,7 +164,7 @@
 
         </div>
 
-        <div class='form_addresses form-row mx-3 my-2'>
+        <div class='form_addresses row g-2 mx-3 my-2'>
             {# Only editable fields here - hidden fields are above #}
             {% include 'patient/demographics/address_form_fields.html.twig' with {
                 'address': {
@@ -520,7 +520,7 @@
                     var useSpan = row_display_addresses.querySelector('.display_addresses_use');
                     if (!useSpan.querySelector('.badge')) {
                         var badge = document.createElement('span');
-                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.className = 'badge bg-secondary text-white ms-1';
                         badge.style.fontSize = '0.7em';
                         badge.textContent = window.xl('Inactive');
                         useSpan.appendChild(badge);

@@ -28,13 +28,13 @@
 
 <div id="table_edit_relations___UNIQ__" class="row mt-3">
     <div class="table_edit_relations col-12">
-        <div class="display_relations_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
+        <div class="display_relations_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background: var(--gray300)">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">Related Persons</div>
-                <div class="fas fa-plus-square text-primary pl-3" id="btn_add_relation_table_edit_relations___UNIQ__"
+                <div class="fas fa-plus-square text-primary ps-3" id="btn_add_relation_table_edit_relations___UNIQ__"
                     style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_relations_table_edit_relations___UNIQ__">
                 <label class="form-check-label" for="show_inactive_relations_table_edit_relations___UNIQ__" style="font-size: 0.9em;">
                     Show Inactive
@@ -205,8 +205,8 @@
         display: block;
     }
 
-    .person-form-section .form-group {
-        margin-bottom: 0.1rem;
+    .person-form-section .mb-3 {
+        margin-bottom: 0.1rem !important;
     }
 
     .person-form-section label {
@@ -238,7 +238,7 @@
         <div class="card-header text-white bg-primary">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="mb-0">
-                    <i class="fas fa-user-plus mr-2"></i>Add Related Person
+                    <i class="fas fa-user-plus me-2"></i>Add Related Person
                 </div>
                 <button type="button" class="btn btn-sm btn-light" onclick="closeAddPersonSection()" aria-label="Close">
                     <i class="fas fa-times"></i> Close
@@ -250,20 +250,20 @@
                 <form id="personForm">
                     <div class="row">
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="required-field pr-1">First Name:</label>
+                            <div class="mb-3">
+                                <label class="required-field pe-1">First Name:</label>
                                 <input type="text" id="person_first_name" class="form-control form-control-sm mb-1" size=11 required autocomplete="given-name" placeholder="Enter first name">
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">Middle Name:</label>
+                            <div class="mb-3">
+                                <label class="pe-1">Middle Name:</label>
                                 <input type="text" id="person_middle_name" class="form-control form-control-sm mb-1" size=11 autocomplete="additional-name">
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="required-field pr-1">Last Name:</label>
+                            <div class="mb-3">
+                                <label class="required-field pe-1">Last Name:</label>
                                 <input type="text" id="person_last_name" class="form-control form-control-sm mb-1" size=12 required autocomplete="family-name" placeholder="Enter last name">
                             </div>
                         </div>
@@ -271,36 +271,34 @@
 
                     <div class="row">
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">Phone:</label>
+                            <div class="mb-3">
+                                <label class="pe-1">Phone:</label>
                                 <input type="tel" id="person_phone" class="form-control form-control-sm mb-1" size=12 placeholder="(xxx) xxx-xxxx" autocomplete="tel">
                         	</div>
                         </div>
                          <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">Date of Birth:</label>
+                            <div class="mb-3">
+                                <label class="pe-1">Date of Birth:</label>
                                 <input type="text" id="person_dob" class="form-control form-control-sm mb-1 datepicker" size=10 autocomplete="bday">
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">Gender:</label>
-                                <select name="form_person_gender"
-id="form_person_gender"
-class="form-control form-control form-control-sm mb-1"
-title="Select Gender"><option value="" selected>Unassigned</option>
-<option value="Male" >Male</option>
-<option value="Female" >Female</option>
-<option value="nonbinary" >Identifies as nonbinary gender (finding)</option>
-<option value="asked-declined" >Asked But Declined</option>
-<option value="UNK" >unknown</option></select>
+                            <div class="mb-3">
+                                <label class="pe-1">Gender:</label>
+                                <select id="person_gender" class="form-control form-control-sm mb-1">
+                                    <option value="">Select</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Unknown">Unknown</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-sm-12">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Notes:</label>
                                 <textarea id="person_notes" class="form-control form-control-sm mb-1 mw-100" rows="1" placeholder="Optional notes about this person"></textarea>
                             </div>
@@ -308,14 +306,14 @@ title="Select Gender"><option value="" selected>Unassigned</option>
                     </div>
 
                     <div class="live-search-indicator" id="liveSearchIndicator">
-                        <i class="fas fa-spinner fa-spin mr-1"></i>Searching...
+                        <i class="fas fa-spinner fa-spin me-1"></i>Searching...
                     </div>
 
                     <div id="personSearchResults"></div>
 
                     <div class="action-buttons">
                         <button type="button" class="btn btn-success btn-sm" onclick="createNewPerson()">
-                            <i class="fas fa-plus-circle mr-2"></i>Create New Person and Add Relationship
+                            <i class="fas fa-plus-circle me-2"></i>Create New Person and Add Relationship
                         </button>
                     </div>
                 </form>
@@ -423,7 +421,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         document.getElementById('person_last_name').value = '';
         document.getElementById('person_middle_name').value = '';
         document.getElementById('person_dob').value = '';
-        document.getElementById('form_person_gender').value = '';
+        document.getElementById('person_gender').value = '';
         document.getElementById('person_phone').value = '';
          document.getElementById('person_notes').value = '';
     }
@@ -535,7 +533,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                 console.error('JSON parse error:', e);
                 console.error('Response text:', text);
                 resultsContainer.innerHTML = '<div class="alert alert-danger">' +
-                    '<i class="fas fa-times-circle mr-2"></i>' +
+                    '<i class="fas fa-times-circle me-2"></i>' +
                     '<strong>Server Error:</strong><br>' +
                     '<pre style="max-height: 300px; overflow: auto; font-size: 11px;">' +
                     escapeHtml(text) +
@@ -548,7 +546,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                 displaySearchResults(data.persons);
             } else {
                 resultsContainer.innerHTML = '<div class="alert alert-warning">' +
-                    '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                    '<i class="fas fa-exclamation-triangle me-2"></i>' +
                     escapeHtml(data.message || window.xl('Search failed')) +
                     '</div>';
             }
@@ -557,7 +555,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
             console.error('Search error:', error);
             hideLiveSearchIndicator();
             resultsContainer.innerHTML = '<div class="alert alert-danger">' +
-                '<i class="fas fa-times-circle mr-2"></i>' +
+                '<i class="fas fa-times-circle me-2"></i>' +
                 window.xl('Error performing search. Please try again.') +
                 '<br><small>' + escapeHtml(error.message) + '</small>' +
                 '</div>';
@@ -582,7 +580,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
 
         const header = document.createElement('div');
         header.className = 'search-results-header';
-        header.innerHTML = '<i class="fas fa-users mr-2"></i>' +
+        header.innerHTML = '<i class="fas fa-users me-2"></i>' +
             window.xl('Found') + ' ' + persons.length + ' ' +
             (persons.length === 1 ? window.xl('existing person') : window.xl('existing persons')) + ':';
         container.appendChild(header);
@@ -595,18 +593,18 @@ function DateToYYYYMMDDHHMMSS_js(value){
             let badges = '';
 
             if (person.is_patient && !person.is_linked) {
-                badges += '<span class="badge badge-info ml-2">' +
+                badges += '<span class="badge bg-info text-dark ms-2">' +
                          (person.patient_label || window.xl('Patient')) + '</span>';
             }
 
             if (person.is_also_patient) {
-                badges += '<span class="badge badge-success ml-2">' +
+                badges += '<span class="badge bg-success ms-2">' +
                          '<i class="fas fa-link"></i> ' + window.xl('Also Patient') +
                          ' ' + escapeHtml(person.linked_patient_pid) + '</span>';
             }
 
             if (person.is_linked && person.target_table === 'patient_data') {
-                badges += '<span class="badge badge-secondary text-white ml-2">' +
+                badges += '<span class="badge bg-secondary text-white ms-2">' +
                          '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
             }
 
@@ -622,8 +620,8 @@ function DateToYYYYMMDDHHMMSS_js(value){
                             ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}
                         </small>
                     </div>
-                    <button class="btn btn-primary btn-sm ml-2">
-                        <i class="fas fa-check mr-1"></i>${window.xl('Select')}
+                    <button class="btn btn-primary btn-sm ms-2">
+                        <i class="fas fa-check me-1"></i>${window.xl('Select')}
                     </button>
                 </div>
             `;
@@ -652,7 +650,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         const last_name = document.getElementById('person_last_name').value.trim();
         const middle_name = document.getElementById('person_middle_name').value.trim();
         const dob = document.getElementById('person_dob').value;
-        const gender = document.getElementById('form_person_gender').value;
+        const gender = document.getElementById('person_gender').value;
         const phone = document.getElementById('person_phone').value.trim();
         const notes = document.getElementById('person_notes').value.trim();
 
@@ -674,7 +672,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         const createBtn = event.target;
         const originalBtnText = createBtn.innerHTML;
         createBtn.disabled = true;
-        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + window.xl('Creating...');
 
         // Create person via AJAX
         fetch(webroot + '/library/ajax/person_search_ajax.php', {
@@ -761,10 +759,8 @@ function DateToYYYYMMDDHHMMSS_js(value){
         alertDiv.style.zIndex = '9999';
         alertDiv.style.minWidth = '300px';
         alertDiv.innerHTML = `
-            <i class="fas fa-check-circle mr-2"></i>${escapeHtml(message)}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <i class="fas fa-check-circle me-2"></i>${escapeHtml(message)}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
         document.body.appendChild(alertDiv);
 
@@ -777,7 +773,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
 </script>
 
                 <div class="no_relations">
-            <span class="label_custom pl-1" style="line-height: 2.0;">NO RELATED PERSONS</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">NO RELATED PERSONS</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
 
@@ -785,7 +781,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
 </div>
 
 <template class="template_add_relation">
-    <div class="relations_group col-12 pl-0" data-active="1" data-index="__RP-INDEX__">
+    <div class="relations_group col-12 ps-0" data-active="1" data-index="__RP-INDEX__">
 
 
         <input type="hidden" class="form_relations_data_action"
@@ -809,25 +805,25 @@ function DateToYYYYMMDDHHMMSS_js(value){
         <div class="relation-card">
             <div class="relation-card-header">
                 <div class="d-flex justify-content-between align-items-center">
-                    <div class="display_related_person form-row">
+                    <div class="display_related_person row g-2">
 
                             <div class="col-2;">
-                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation mr-2" style="width:10px; line-height: 1.2;"></i>
+                                <i class="fas fa-caret-down  fa-lg text-primary btn-edit-relation me-2" style="width:10px; line-height: 1.2;"></i>
                                 <span class="display_relations_name label_custom px-0" style="vertical-align: 0.1rem;"></span>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ml-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-muted ms-4 display_relations_relationship" style="vertical-align: 0.1rem;"></small>
                             </div>
 
                             <div class="col-2;">
-                                <small class="text-muted ml-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
+                                <small class="text-muted ms-4 display_relations_dob" style="vertical-align: 0.1rem;"></small>
                             </div>
                         </div>
 
                     <div>
                         <span class="display_relations_badges"></span>
-                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ml-2">
+                        <button type="button" class="btn btn-sm btn-danger btn-inactivate-relation ms-2">
                             <i class="fas fa-times"></i> Inactivate
                         </button>
                     </div>
@@ -850,8 +846,8 @@ function DateToYYYYMMDDHHMMSS_js(value){
         color: #007bff;
     }
 
-    .form_relations .form-group {
-        margin-bottom: 0.3rem;
+    .form_relations .mb-3 {
+        margin-bottom: 0.3rem !important;
     }
 
     .form_relations .label_custom {
@@ -869,7 +865,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         border-radius: 0.25rem;
     }
 
-    .form_relations .text-danger.font-weight-bold {
+    .form_relations .text-danger.fw-bold {
         animation: pulse 1s infinite;
     }
 
@@ -886,10 +882,10 @@ function DateToYYYYMMDDHHMMSS_js(value){
 
 
 <div class="col-12">
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     First Name:
                 </label>
                 <input type='text'
@@ -904,8 +900,8 @@ function DateToYYYYMMDDHHMMSS_js(value){
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     Middle Name:
                 </label>
                 <input type='text'
@@ -920,8 +916,8 @@ function DateToYYYYMMDDHHMMSS_js(value){
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     Last Name:
                 </label>
                 <input type='text'
@@ -937,10 +933,10 @@ function DateToYYYYMMDDHHMMSS_js(value){
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-md-6">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     Gender:
                 </label>
                 <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][gender]"
@@ -955,8 +951,8 @@ title="Select Gender"><option value="" selected>Unassigned</option>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     Birth Date:
                 </label>
                 <input type='text' size='10' class='datepicker form-control form_relations_birth_date datepicker' name='form_test_related_person_list[__RP-INDEX__][birth_date]' id='form_test_related_person_list[__RP-INDEX__][birth_date]' value='' title='Birth Date'    />
@@ -964,9 +960,9 @@ title="Select Gender"><option value="" selected>Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-md-6">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="label_custom">Relationship:  <span class="text-danger">*</span></label>
                 <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][relationship]"
 id="form_test_related_person_list[__RP-INDEX__][relationship]"
@@ -1080,7 +1076,7 @@ title="How this person is related (e.g., spouse, parent, sibling)"><option value
             </div>
         </div>
         <div class="col-md-6">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="label_custom">Role: </label>
                 <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][role]"
 id="form_test_related_person_list[__RP-INDEX__][role]"
@@ -1110,10 +1106,10 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">
+            <div class="mb-3">
+                <label class="label_custom me-1">
                     Contact Priority:
                 </label>
                 <input type='text'
@@ -1128,23 +1124,23 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">Relationship Start Date:</label>
+            <div class="mb-3">
+                <label class="label_custom me-1">Relationship Start Date:</label>
                 <input type='text' size='10' class='datepicker form-control form_relations_start_date datepicker' name='form_test_related_person_list[__RP-INDEX__][start_date]' id='form_test_related_person_list[__RP-INDEX__][start_date]' value='__TODAY__' title='When this relationship began'    />
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
-                <label class="label_custom mr-1">Relationship End Date:</label>
+            <div class="mb-3">
+                <label class="label_custom me-1">Relationship End Date:</label>
                 <input type='text' size='10' class='datepicker form-control form_relations_end_date datepicker' name='form_test_related_person_list[__RP-INDEX__][end_date]' id='form_test_related_person_list[__RP-INDEX__][end_date]' value='' title='Leave blank if relationship is ongoing'    />
             </div>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-md-2">
             <div class="mb-2">
-                <label class="label_custom mr-1">Contact Permissions: </label>
+                <label class="label_custom me-1">Contact Permissions: </label>
             </div>
         </div>
         <div class="col-md-2">
@@ -1200,7 +1196,7 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
             </div>
         </div>
     </div>
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-12">
 
 <style>
@@ -1213,16 +1209,16 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
     }
 </style>
 
-<div id="table_edit_telecoms___UNIQ__" class="form-row mt-3">
+<div id="table_edit_telecoms___UNIQ__" class="row g-2 mt-3">
     <div class="table_edit_telecoms col-12">
-        <div class="display_telecoms_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+        <div class="display_telecoms_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
                                             Telecom Contacts
                                     </div>
-                <div id="btn_add_telecom_table_edit_telecoms___UNIQ__" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+                <div id="btn_add_telecom_table_edit_telecoms___UNIQ__" class="fas fa-plus-square text-primary ps-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_telecoms_table_edit_telecoms___UNIQ__">
                 <label class="form-check-label" for="show_inactive_telecoms_table_edit_telecoms___UNIQ__" style="font-size: 0.9em;">
                     Show Inactive
@@ -1231,7 +1227,7 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
         </div>
 
                 <div class="no_telecoms">
-            <span class="label_custom pl-1" style="line-height: 2.0;">NONE</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">NONE</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
 
@@ -1239,7 +1235,7 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
 </div>
 
 <template class="template_add_telecom">
-    <div class="telecoms_group col-12 pl-0" data-status="A" data-index="__T-INDEX__">
+    <div class="telecoms_group col-12 ps-0" data-status="A" data-index="__T-INDEX__">
 
                 <input type="hidden" class="form_telecoms_data_action"
             name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][data_action]" value="ADD" />
@@ -1250,10 +1246,10 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
         <input type="hidden" class="form_telecoms_status"
             name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][status]" value="A" />
 
-        <div class="display_telecoms form-row no-gutters justify-content-between pl-1">
+        <div class="display_telecoms row g-0 justify-content-between ps-1">
             <div class="display_telecoms_system_column px-1" style="flex: 0 0 9em;">
                 <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-telecom" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
-                <i class="fas fa-phone mr-1"></i>
+                <i class="fas fa-phone me-1"></i>
                 <span class="display_telecoms_system label_custom px-0" style="vertical-align: 0.1rem;"></span>
             </div>
 
@@ -1268,10 +1264,10 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
             <div class="fas fa-fw fa-solid fa-phone-slash text-danger btn-inactivate-telecom text-center" role="button" style="flex: 0 0 2em; line-height: 1.5; cursor: pointer; font-size: 0.7em; margin-top: 0.3em;"></div>
         </div>
 
-        <div class='form_telecoms form-row mx-3 my-2'>
+        <div class='form_telecoms row g-2 mx-3 my-2'>
 
 <div class="col-12">
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             Type
         </div>
@@ -1286,7 +1282,7 @@ title="Their role in care (e.g., emergency contact, guarantor)"><option value=""
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][system]"
 id="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][system]"
@@ -1333,7 +1329,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-9 label_custom">
             Value
         </div>
@@ -1342,7 +1338,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-9">
             <input type='text'
             class='form-controlform-control form-control-sm form_telecoms_value'
@@ -1359,12 +1355,12 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-12 label_custom">
             Notes
         </div>
     </div>
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
             <textarea class="form-control form_telecoms_notes"
                       name="form_test_related_person_list[__RP-INDEX__][telecoms][__T-INDEX__][notes]"
@@ -1750,7 +1746,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                         iconElement.className = 'fas fa-' +
                             (record.system === 'phone' || record.system === 'mobile' ? 'phone' :
                                 record.system === 'email' ? 'envelope' :
-                                record.system === 'fax' ? 'fax' : 'link') + ' mr-1';
+                                record.system === 'fax' ? 'fax' : 'link') + ' me-1';
                     }
                 }
             }
@@ -1814,7 +1810,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                     systemSpan = row_display_telecoms.querySelector('.display_telecoms_system');
                     if (!systemSpan.querySelector('.badge')) {
                         badge = document.createElement('span');
-                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.className = 'badge bg-secondary text-white ms-1';
                         badge.style.fontSize = '0.7em';
                         badge.textContent = window.xl('Inactive');
                         systemSpan.appendChild(badge);
@@ -1961,7 +1957,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-12">
 
 <style>
@@ -1977,16 +1973,16 @@ function DateToYYYYMMDDHHMMSS_js(value){
     }
 </style>
 
-<div id="table_edit_addresses___UNIQ__" class="form-row mt-3">
+<div id="table_edit_addresses___UNIQ__" class="row g-2 mt-3">
     <div class="table_edit_addresses col-12">
-        <div class="display_addresses_header pl-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
+        <div class="display_addresses_header ps-1" style="display: flex; justify-content: space-between; align-items: center; line-height: 1.5; padding-top: 0.1rem; background-color: var(--gray300);">
             <div style="display: flex; align-items: center;">
                 <div class="label_custom mb-0">
                                             Addresses
                                     </div>
-                <div id="btn_add_addresses_table_edit_addresses___UNIQ__" class="fas fa-plus-square text-primary pl-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
+                <div id="btn_add_addresses_table_edit_addresses___UNIQ__" class="fas fa-plus-square text-primary ps-3" style="display: inline-block; line-height: 1.5; cursor: pointer;"></div>
             </div>
-            <div class="form-check mr-3" style="margin-bottom: 0;">
+            <div class="form-check me-3" style="margin-bottom: 0;">
                 <input type="checkbox" class="form-check-input" id="show_inactive_addresses_table_edit_addresses___UNIQ__">
                 <label class="form-check-label" for="show_inactive_addresses_table_edit_addresses___UNIQ__" style="font-size: 0.9em;">
                     Show Inactive
@@ -1995,7 +1991,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         </div>
 
                 <div class="no_addresses">
-            <span class="label_custom pl-1" style="line-height: 2.0;">NONE</span>
+            <span class="label_custom ps-1" style="line-height: 2.0;">NONE</span>
             <hr class="m-0 p-0" style="border-top-width: 2px; border-color: var(--gray300)" />
         </div>
 
@@ -2003,7 +1999,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
 </div>
 
 <template class="template_add_address">
-    <div class="addresses_group col-12 pl-0" data-status="A" data-index="__A-INDEX__">
+    <div class="addresses_group col-12 ps-0" data-status="A" data-index="__A-INDEX__">
 
                 <input type="hidden" class="form_addresses_data_action"
             name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][data_action]" value="ADD" />
@@ -2016,7 +2012,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         <input type="hidden" class="form_addresses_status"
             name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][status]" value="A" />
 
-        <div class="display_addresses form-row no-gutters justify-content-between pl-1">
+        <div class="display_addresses row g-0 justify-content-between ps-1">
             <div class="display_addresses_use_column px-1" style="flex: 0 0 7em;">
                 <i class="fas fa-solid fa-caret-down fa-lg text-primary btn-edit-address" style="width:10px; line-height: 1.2; cursor: pointer;"></i>
                 <span class="display_addresses_use label_custom px-0" style="vertical-align: 0.1rem;"></span>
@@ -2034,11 +2030,11 @@ function DateToYYYYMMDDHHMMSS_js(value){
 
         </div>
 
-        <div class='form_addresses form-row mx-3 my-2'>
+        <div class='form_addresses row g-2 mx-3 my-2'>
 
 
 <div class="col-12">
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             Address Use
         </div>
@@ -2053,7 +2049,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][use]"
 id="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][use]"
@@ -2082,7 +2078,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             Address
         </div>
@@ -2097,7 +2093,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <input type='text'
             class='form-controlform-control form-control-sm form_addresses_line1'
@@ -2144,7 +2140,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3 label_custom">
             State
         </div>
@@ -2159,7 +2155,7 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-3">
             <div class='input-group'><select name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][state]"
 id="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][state]"
@@ -2249,12 +2245,12 @@ title=""><option value="" >Unassigned</option>
         </div>
     </div>
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-12 label_custom">
             Notes
         </div>
     </div>
-    <div class="form-row">
+    <div class="row g-2">
         <div class="col-12">
             <textarea class="form-control form_addresses_notes"
                       name="form_test_related_person_list[__RP-INDEX__][addresses][__A-INDEX__][notes]"
@@ -2643,7 +2639,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                     var useSpan = row_display_addresses.querySelector('.display_addresses_use');
                     if (!useSpan.querySelector('.badge')) {
                         var badge = document.createElement('span');
-                        badge.className = 'badge badge-secondary text-white ml-1';
+                        badge.className = 'badge bg-secondary text-white ms-1';
                         badge.style.fontSize = '0.7em';
                         badge.textContent = window.xl('Inactive');
                         useSpan.appendChild(badge);
@@ -2840,9 +2836,9 @@ function DateToYYYYMMDDHHMMSS_js(value){
     </div>
 
 
-        <div class="form-row">
+        <div class="row g-2">
         <div class="col-12">
-            <div class="form-group mb-2 mt-3">
+            <div class="mb-3 mb-2 mt-3">
                 <label class="label_custom">Notes: </label>
                 <textarea class="form-control form_relations_notes"
                           name="form_test_related_person_list[__RP-INDEX__][notes]"
@@ -2878,12 +2874,12 @@ function DateToYYYYMMDDHHMMSS_js(value){
 
                     // Visual warning at 950 characters
                     if (this.value.length > 950) {
-                        countSpan.classList.add('text-danger', 'font-weight-bold');
+                        countSpan.classList.add('text-danger', 'fw-bold');
                     } else if (this.value.length > 900) {
-                        countSpan.classList.add('text-warning', 'font-weight-bold');
+                        countSpan.classList.add('text-warning', 'fw-bold');
                         countSpan.classList.remove('text-danger');
                     } else {
-                        countSpan.classList.remove('text-danger', 'text-warning', 'font-weight-bold');
+                        countSpan.classList.remove('text-danger', 'text-warning', 'fw-bold');
                     }
                 });
             }
@@ -2916,7 +2912,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                     warningDiv.setAttribute('role', 'alert');
                     warningDiv.innerHTML = `
                         <div class="d-flex align-items-start">
-                            <i class="fas fa-exclamation-triangle mt-1 mr-2"></i>
+                            <i class="fas fa-exclamation-triangle mt-1 me-2"></i>
                             <div>
                                 <strong>${window.xl('HIPAA Notice')}</strong><br>
                                 <small>
@@ -3323,7 +3319,7 @@ function DateToYYYYMMDDHHMMSS_js(value){
                     const isInactive = relationsGroup.getAttribute('data-active') === '0';
                     let nameHtml = nameParts.join(' ');
                     if (isInactive) {
-                        nameHtml += ' <span class="badge text-white ml-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
+                        nameHtml += ' <span class="badge text-white ms-2" style="font-size: 0.7em;">' + window.xl('Inactive') + '</span>';
                     }
                     displayName.innerHTML = nameHtml;
                 }
@@ -3348,10 +3344,10 @@ function DateToYYYYMMDDHHMMSS_js(value){
                 if (displayBadges) {
                     let badgesHtml = '';
                     if (emergencyCheckbox && emergencyCheckbox.checked) {
-                        badgesHtml += '<span class="badge badge-danger mr-1">' + window.xl('Emergency') + '</span>';
+                        badgesHtml += '<span class="badge bg-danger me-1">' + window.xl('Emergency') + '</span>';
                     }
                     if (primaryCheckbox && primaryCheckbox.checked) {
-                        badgesHtml += '<span class="badge badge-primary mr-1">' + window.xl('Primary') + '</span>';
+                        badgesHtml += '<span class="badge bg-primary me-1">' + window.xl('Primary') + '</span>';
                     }
                     displayBadges.innerHTML = badgesHtml;
                 }

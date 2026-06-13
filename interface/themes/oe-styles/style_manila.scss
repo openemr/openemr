@@ -7,7 +7,7 @@ $manilla-gray: #c0c0c0;
 
 //$font-family-sans-serif: "source_sans_pro", "FontAwesome", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 $close-color: $black;
-$close-text-shadow: 0 1 0 $black;
+// BS5: $close-text-shadow removed - was: 0 1 0 $black
 
 // Import Bootstrap 4 SCSS Files before doing anything
 // This gets replaced in gulp now -- do not touch

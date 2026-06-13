@@ -84,7 +84,7 @@ $form_diagnosis = $_POST['form_diagnosis'] ?? '';
                             </select>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for='form_diagnosis' class='control-label col-sm-2'><?php echo xlt('Search'); ?></label>
                         <div class='col-sm-12'>
                             <input type='text' name='form_diagnosis' id='form_diagnosis' class='form-control' aria-describedby='searchHelpBox'
@@ -94,7 +94,7 @@ $form_diagnosis = $_POST['form_diagnosis'] ?? '';
                             </span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class='col-sm-12'>
                             <div class="btn-group" role="group">
                                 <button type='submit' class='btn btn-secondary btn-search'><?php echo xlt("Submit"); ?></button>

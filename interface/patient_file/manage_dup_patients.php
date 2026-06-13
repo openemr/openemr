@@ -304,7 +304,7 @@ if ($is_csv) {
 } else {
     ?>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
-                <thead class="thead-dark text-center">
+                <thead class="table-dark text-center">
                 <tr>
                     <th>
                         <?php echo xlt('Actions'); ?>

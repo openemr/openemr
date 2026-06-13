@@ -14,10 +14,10 @@ Render the facility list, label and selectbox
 #}
 {% if displayFacilities %}
 {% block facilities %}
-<div class="{{ facilities_container_class_list|default(['form-group', 'row'])|join(' ') }}">
+<div class="{{ facilities_container_class_list|default(['mb-3', 'row'])|join(' ') }}">
     <label for="facility" class="{{ srOnly }} {{ facilities_label_class_list|default(['col-form-label', 'col-sm-4'])|join(' ') }}">{{ "Facility"|xlt }}</label>
     <div class="{{ facilities_select_container_class_list|default(['col'])|join(' ') }}">
-        <select class="{{ facilities_select_class_list|default(['form-control'])|join(' ') }}" name="facility" size="1">
+        <select class="{{ facilities_select_class_list|default(['form-select'])|join(' ') }}" name="facility" size="1">
             <option value="user_default">{{ "My default facility"|xlt }}</option>
             {% for f in facilityList %}
                 <option value="{{ f.id|attr }}" {{ facilitySelected == f.id ? "selected" : "" }}>{{ f.name|text }}</option>

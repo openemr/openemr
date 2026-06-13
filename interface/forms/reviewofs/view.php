@@ -54,7 +54,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="fever" <?php echo ($obj["fever"] == "on") ? "checked" : ""; ?>><?php echo xlt('Fever');?>
@@ -73,7 +73,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="weight_loss" <?php echo ($obj["weight_loss"] == "on") ? "checked" : ""; ?>><?php echo xlt('Weight Loss');?>
@@ -92,7 +92,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="fatigued" <?php echo ($obj["fatigued"] == "on") ? "checked" : ""; ?>><?php echo xlt('Fatigued');?>
@@ -106,7 +106,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="hyperactive" <?php echo ($obj["hyperactive"] == "on") ? "checked" : ""; ?>><?php echo xlt('Hyperactive');?>
@@ -127,7 +127,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="rashes" <?php echo ($obj["rashes"] == "on") ? "checked" : ""; ?>><?php echo xlt('Rashes');?>
@@ -141,7 +141,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="ulcerations" <?php echo ($obj["ulcerations"] == "on") ? "checked" : ""; ?>><?php echo xlt('Ulcerations');?>
@@ -150,7 +150,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="pemphigus" <?php echo ($obj["pemphigus"] == "on") ? "checked" : ""; ?>><?php echo xlt('Pemphigus');?>
@@ -159,7 +159,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="herpes" <?php echo ($obj["herpes"] == "on") ? "checked" : ""; ?>><?php echo xlt('Herpes');?>
@@ -175,7 +175,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="cataracts" <?php echo ($obj["cataracts"] == "on") ? "checked" : ""; ?>><?php echo xlt('Cataracts');?>
@@ -204,7 +204,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="poor_hearing" <?php echo ($obj["poor_hearing"] == "on") ? "checked" : ""; ?>><?php echo xlt('Poor Hearing');?>
@@ -228,7 +228,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="sinusitis" <?php echo ($obj["sinusitis"] == "on") ? "checked" : ""; ?>><?php echo xlt('Sinusitis');?>
@@ -252,7 +252,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="tonsillectomy" <?php echo ($obj["tonsillectomy"] == "on") ? "checked" : ""; ?>><?php echo xlt('Tonsillectomy');?>
@@ -283,7 +283,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="emphysema" <?php echo ($obj["emphysema"] == "on") ? "checked" : ""; ?>><?php echo xlt('Emphysema');?>
@@ -297,7 +297,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="interstitial_lung_disease" <?php echo ($obj["interstitial_lung_disease"] == "on") ? "checked" : ""; ?>><?php echo xlt('Interstitial Lung Disease');?>
@@ -311,7 +311,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="lung_cancer" <?php echo ($obj["lung_cancer"] == "on") ? "checked" : ""; ?>><?php echo xlt('Lung Cancer');?>
@@ -325,7 +325,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="pheumothorax" <?php echo ($obj["pheumothorax"] == "on") ? "checked" : ""; ?>><?php echo xlt('Pheumothorax');?>
@@ -341,7 +341,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="heart_attack" <?php echo ($obj["heart_attack"] == "on") ? "checked" : ""; ?>><?php echo xlt('Heart Attack');?>
@@ -360,7 +360,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="shortness_of_breath" <?php echo ($obj["shortness_of_breath"] == "on") ? "checked" : ""; ?>><?php echo xlt('Shortness of Breath');?>
@@ -379,7 +379,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="poor_circulation" <?php echo ($obj["poor_circulation"] == "on") ? "checked" : ""; ?>><?php echo xlt('Poor Circulation');?>
@@ -398,7 +398,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="heart_transplant" <?php echo ($obj["heart_transplant"] == "on") ? "checked" : ""; ?>><?php echo xlt('Heart Transplant');?>
@@ -424,7 +424,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="stomach_pains" <?php echo ($obj["stomach_pains"] == "on") ? "checked" : ""; ?>><?php echo xlt('Stomach Pains');?>
@@ -453,7 +453,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="colonoscopy" <?php echo ($obj["colonoscopy"] == "on") ? "checked" : ""; ?>><?php echo xlt('Colonoscopy');?>
@@ -482,7 +482,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="appendectomy" <?php echo ($obj["appendectomy"] == "on") ? "checked" : ""; ?>><?php echo xlt('Appendectomy');?>
@@ -506,7 +506,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="cholecystectomy" <?php echo ($obj["cholecystectomy"] == "on") ? "checked" : ""; ?>><?php echo xlt('Cholecystectomy');?>
@@ -537,7 +537,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="kidney_failure" <?php echo ($obj["kidney_failure"] == "on") ? "checked" : ""; ?>><?php echo xlt('Kidney Failure');?>
@@ -556,7 +556,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="kidney_infections" <?php echo ($obj["kidney_infections"] == "on") ? "checked" : ""; ?>><?php echo xlt('Kidney Infections');?>
@@ -575,7 +575,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="prostate_problems" <?php echo ($obj["prostate_problems"] == "on") ? "checked" : ""; ?>><?php echo xlt('Prostate Problems');?>
@@ -594,7 +594,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="sexually_transmitted_disease" <?php echo ($obj["sexually_transmitted_disease"] == "on") ? "checked" : ""; ?>><?php echo xlt('Sexually Transmitted Disease');?>
@@ -620,7 +620,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="osetoarthritis" <?php echo ($obj["osetoarthritis"] == "on") ? "checked" : ""; ?>><?php echo xlt('Osetoarthritis');?>
@@ -649,7 +649,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="stiff_joints" <?php echo ($obj["stiff_joints"] == "on") ? "checked" : ""; ?>><?php echo xlt('Stiff Joints');?>
@@ -678,7 +678,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="scoliosis" <?php echo ($obj["scoliosis"] == "on") ? "checked" : ""; ?>><?php echo xlt('Scoliosis');?>
@@ -707,7 +707,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="hand_problems" <?php echo ($obj["hand_problems"] == "on") ? "checked" : ""; ?>><?php echo xlt('Hand Problems');?>
@@ -743,7 +743,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                     <div class="row">
                         <div class="col-12">
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="insulin_dependent_diabetes" <?php echo ($obj["insulin_dependent_diabetes"] == "on") ? "checked" : ""; ?>><?php echo xlt('Insulin Dependent Diabetes');?>
@@ -757,7 +757,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="hypothyroidism" <?php echo ($obj["hypothyroidism"] == "on") ? "checked" : ""; ?>><?php echo xlt('Hypothyroidism');?>
@@ -771,7 +771,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="cushing_syndrom" <?php echo ($obj["cushing_syndrom"] == "on") ? "checked" : ""; ?>><?php echo xlt('Cushing Syndrome');?>
@@ -780,7 +780,7 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                                 </div>
                             </div>
                             <div class="col-sm-3">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <div class="checkbox">
                                         <label>
                                             <input type="checkbox" name="addison_syndrom" <?php echo ($obj["addison_syndrom"] == "on") ? "checked" : ""; ?>><?php echo xlt('Addison Syndrome');?>
@@ -793,13 +793,13 @@ $obj = formFetch("form_reviewofs", $_GET["id"]);
                 </fieldset>
                 <fieldset>
                         <legend class=""><?php echo xlt('Additional Notes');?></legend>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="col-sm-10 offset-sm-1">
                                     <textarea name="additional_notes" class="form-control" cols="80" rows="5" ><?php echo text($obj["additional_notes"]); ?></textarea>
                                 </div>
                             </div>
                 </fieldset>
-                    <div class="form-group clearfix">
+                    <div class="mb-3 clearfix">
                         <div class="col-sm-12 offset-sm-1 position-override">
                             <div class="btn-group" role="group">
                             <button type="submit" onclick="top.restoreSession()" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>

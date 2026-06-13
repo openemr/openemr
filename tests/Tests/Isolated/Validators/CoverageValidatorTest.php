@@ -82,7 +82,7 @@ class CoverageValidatorTest extends TestCase
             'subscriber_state' => 'CA',
             'subscriber_sex' => 'Male',
             'accept_assignment' => 'TRUE',
-            'date' => '2024-01-01',
+            'date' => '2026-01-01',
             'subscriber_ss' => '123-45-6789'
         ];
 
@@ -127,7 +127,7 @@ class CoverageValidatorTest extends TestCase
             'subscriber_state' => 'CA',
             'subscriber_sex' => 'Male',
             'accept_assignment' => 'TRUE',
-            'date' => '2024-01-01'
+            'date' => '2026-01-01'
         ];
 
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
@@ -155,7 +155,7 @@ class CoverageValidatorTest extends TestCase
             'subscriber_state' => 'CA',
             'subscriber_sex' => 'Male',
             'accept_assignment' => 'TRUE',
-            'date' => '2024-01-01'
+            'date' => '2026-01-01'
         ];
 
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
@@ -245,7 +245,7 @@ class CoverageValidatorTest extends TestCase
             'subscriber_state' => 'CA',
             'subscriber_sex' => 'Male',
             'accept_assignment' => 'TRUE',
-            'date' => '2024-01-01',
+            'date' => '2026-01-01',
             // Optional fields
             'plan_name' => 'Test Plan',
             'group_number' => 'GRP123',
@@ -255,7 +255,7 @@ class CoverageValidatorTest extends TestCase
             'policy_type' => 'HMO',
             'subscriber_employer' => 'Test Corp',
             'copay' => '20.00',
-            'date_end' => '2024-12-31'
+            'date_end' => '2026-12-31'
         ];
 
         $result = $this->validator->validate($dataWithOptionals, BaseValidator::DATABASE_INSERT_CONTEXT);
