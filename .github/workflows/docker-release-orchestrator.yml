@@ -1,29 +1,29 @@
 # Daily orchestrator for production docker image rebuilds.
 #
-# Single inline matrix is the source of truth for which branches build and
-# which logical tags they push. On a scheduled run, every entry fires. On
-# manual dispatch, the include / exclude string inputs filter the set.
+# Reads .github/release-targets.yml as the source of truth for which
+# branches to build, which docker tags to push, and which openemr source
+# ref to bake in. Applies the include/exclude inputs to filter that list,
+# then fans out one docker-build-release.yml dispatch per remaining row.
 #
-# Each entry fans out via `gh workflow run docker-build-release.yml --ref <branch>`
-# which dispatches that branch's own docker-build-release.yml against that
+# Each fan-out call goes via `gh workflow run docker-build-release.yml
+# --ref <branch> -f docker_tags=<...> -f openemr_version_ref=<...>` which
+# dispatches that branch's own docker-build-release.yml against that
 # branch's docker/release/Dockerfile -- per-branch isolation validated in
 # the throwaway fork experiment described in
 # openemr/openemr-devops#790.
 #
-# Tag-list semantics:
-#   - The orchestrator carries logical tags only (e.g. "8.1.0,latest").
-#   - docker-build-release.yml expands version-number tags (digits and dots
-#     only) into a sibling "<tag>-YYYY-MM-DD" dated variant.
-#   - Floating tags (dev, next, latest, manual-test) don't get dated variants.
+# The docker-build-release.yml workflow:
+#   * is byte-identical across master and every rel branch (it reads
+#     docker_tags + openemr_version_ref purely from inputs)
+#   * applies the version-number -> dated-sibling rule to docker_tags
+#     (e.g. "8.1.0" gets a "8.1.0-YYYY-MM-DD" sibling pushed alongside)
+#   * passes openemr_version_ref to docker build as OPENEMR_VERSION ARG
 #
-# Adding a new rel branch: append one matrix row. Rotating "latest" between
-# rel branches: edit one matrix row's tag string. No other coordination
-# needed.
-#
-# This file is the foundation skeleton landed in phase 1a of the docker
-# migration. The fan-out steps will start dispatching real builds in phase
-# 1c once docker-build-release.yml is in place on master, and additional
-# rel branches will be wired in during phase 2.
+# Adding a rel branch: append a row to .github/release-targets.yml.
+# Rotating `latest` between rel branches: edit one (or two) row(s)'s
+# docker_tags in that same file. Promoting rel-810 to a v8_1_0 release:
+# edit one row's openemr_version_ref from rel-810 to v8_1_0. None of
+# these changes require editing this workflow file.
 
 name: Docker release orchestrator
 
@@ -46,38 +46,72 @@ permissions:
   contents: read
 
 jobs:
-  fan-out:
-    name: fan-out
+  compute-matrix:
+    name: compute-matrix
     # Only run from master in the upstream repository -- this workflow lives
     # only on master (downstream forks shouldn't trigger production builds).
     if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.gen.outputs.matrix }}
+    steps:
+    - name: Sparse checkout of release-targets.yml
+      uses: actions/checkout@v6
+      with:
+        sparse-checkout: |
+          .github/release-targets.yml
+
+    - name: Build fan-out matrix from release-targets.yml
+      id: gen
+      env:
+        INCLUDE: ${{ inputs.include || 'all' }}
+        EXCLUDE: ${{ inputs.exclude || '' }}
+        EVENT: ${{ github.event_name }}
+      run: |
+        # yq is pre-installed on github-hosted ubuntu runners.
+        # Read the YAML data, filter by include/exclude inputs, emit JSON.
+        # On `schedule` events the inputs are empty -- treat as include=all.
+        FILTERED=$(yq -o=json -I=0 . .github/release-targets.yml | jq -c \
+          --arg inc "$INCLUDE" --arg exc "$EXCLUDE" --arg ev "$EVENT" '
+          [ .[] |
+            . as $row |
+            select(
+              ($ev == "schedule") or
+              ($inc == "all") or
+              ($inc | split(",") | map(. == $row.branch) | any)
+            ) |
+            select(
+              ($exc | split(",") | map(. == $row.branch) | any) | not
+            )
+          ]
+        ')
+
+        if [ "$FILTERED" = '[]' ] || [ -z "$FILTERED" ]; then
+          echo "::error::No targets matched include='${INCLUDE}' exclude='${EXCLUDE}'." \
+               "Nothing to dispatch."
+          exit 1
+        fi
+
+        echo "Resolved fan-out targets:"
+        echo "$FILTERED" | jq .
+
+        echo "matrix={\"include\":$FILTERED}" >> "$GITHUB_OUTPUT"
+
+  fan-out:
+    name: fan-out
+    needs: compute-matrix
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
-      matrix:
-        include:
-        - branch: master
-          tags: 'dev,next'
-        - branch: rel-810
-          tags: '8.1.0,latest'
-        - branch: rel-800
-          tags: '8.0.0'
-        - branch: rel-704
-          tags: '7.0.4'
+      matrix: ${{ fromJSON(needs.compute-matrix.outputs.matrix) }}
     steps:
-    - name: Dispatch ${{ matrix.branch }} with tags ${{ matrix.tags }}
-      if: >-
-        ${{
-          (github.event_name == 'schedule'
-            || inputs.include == 'all'
-            || contains(format(',{0},', inputs.include), format(',{0},', matrix.branch)))
-          && !contains(format(',{0},', inputs.exclude), format(',{0},', matrix.branch))
-        }}
+    - name: Dispatch ${{ matrix.branch }} (docker_tags=${{ matrix.docker_tags }} openemr_version_ref=${{ matrix.openemr_version_ref }})
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         gh workflow run docker-build-release.yml \
           --repo "${{ github.repository }}" \
           --ref "${{ matrix.branch }}" \
-          -f tags="${{ matrix.tags }}"
-        echo "Dispatched ${{ matrix.branch }} with tags=${{ matrix.tags }}"
+          -f docker_tags="${{ matrix.docker_tags }}" \
+          -f openemr_version_ref="${{ matrix.openemr_version_ref }}"
+        echo "Dispatched ${{ matrix.branch }} with docker_tags=${{ matrix.docker_tags }} openemr_version_ref=${{ matrix.openemr_version_ref }}"

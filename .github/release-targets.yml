@@ -1,0 +1,62 @@
+# Source of truth for Docker release builds.
+#
+# Consumed by .github/workflows/docker-release-orchestrator.yml on each
+# scheduled tick (or manual dispatch). The orchestrator reads this file,
+# applies its include/exclude filter, and fans out one
+# docker-build-release.yml dispatch per remaining row -- each one against
+# its own `branch`, with `docker_tags` and `openemr_version_ref` passed in
+# as workflow_dispatch inputs.
+#
+# Per-row fields:
+#
+#   branch
+#     The rel-X.Y.Z (or master) ref the build runs against. The dispatched
+#     docker-build-release.yml workflow runs from this branch's checkout
+#     and uses this branch's docker/release/Dockerfile -- which is byte-
+#     identical across every branch because openemr_version_ref (below)
+#     gets passed in as a --build-arg instead of being baked into the
+#     Dockerfile.
+#
+#   docker_tags
+#     Comma-separated Docker Hub tags to push (e.g. "8.1.0,latest" or
+#     "dev,next"). Version-number tags (digits and dots only, like
+#     "8.1.0") additionally get a "<tag>-YYYY-MM-DD" sibling pushed
+#     alongside; floating tags (dev, next, latest, manual-test) don't.
+#     The build workflow applies this dated-sibling rule, so the data
+#     here stays clean of date strings.
+#
+#   openemr_version_ref
+#     Git ref (branch name, tag, or SHA) to bake into the image as the
+#     OPENEMR_VERSION ARG. Decouples "what we're tagging" from "what
+#     source we're shipping" so a rel branch can stage post-release
+#     patches without affecting the published image until you bump this
+#     field to a new tag like v8_1_0_1.
+#
+# Editing:
+#
+# * Branch-cut for rel-X.Y.Z: append a new row. No edit to the new
+#   branch's Dockerfile needed.
+# * Promote rel branch to a version tag: edit the row's
+#   openemr_version_ref (e.g., rel-810 -> v8_1_0).
+# * Rotate `latest`: edit two rows' docker_tags (drop from the outgoing
+#   row, add to the incoming row).
+#
+# All of these are 1-line YAML edits. Tooling and bots can parse and
+# edit this file with any YAML library; no need to understand workflow
+# YAML structure.
+
+- branch: master
+  docker_tags: dev,next
+  openemr_version_ref: master
+
+- branch: rel-810
+  docker_tags: 8.1.0,latest
+  openemr_version_ref: v8_1_0
+
+- branch: rel-800
+  docker_tags: 8.0.0
+  openemr_version_ref: v8_0_0
+
+- branch: rel-704
+  docker_tags: 7.0.4
+  openemr_version_ref: v7_0_4
