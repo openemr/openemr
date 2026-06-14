@@ -138,6 +138,38 @@ jobs:
           echo "ref=$REF_NAME" >> "$GITHUB_OUTPUT"
         fi
 
+    - name: Extract IMAGE_VERSION from openemr version.php at the resolved ref
+      id: image_version
+      env:
+        REF: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+      run: |
+        # Fetch version.php at the resolved ref via raw.githubusercontent.com.
+        # No git checkout needed; works for branches, tags, and SHAs alike.
+        URL="https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php"
+        if ! curl -fsSL "$URL" -o /tmp/version.php; then
+          echo "::error::Couldn't fetch version.php at openemr@${REF}. The ref likely doesn't exist; check release-targets.yml."
+          exit 1
+        fi
+
+        V_MAJOR=$(awk -F"'" '/^\$v_major[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_MINOR=$(awk -F"'" '/^\$v_minor[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_PATCH=$(awk -F"'" '/^\$v_patch[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_TAG=$(awk -F"'" '/^\$v_tag[[:space:]]*=/ {print $2}' /tmp/version.php)
+        V_REALPATCH=$(awk -F"'" '/^\$v_realpatch[[:space:]]*=/ {print $2}' /tmp/version.php)
+
+        # Compose the human-facing version:
+        #   "8.1.1-dev"  -- in-progress (v_tag non-empty)
+        #   "8.1.0"      -- initial GA   (v_tag='', v_realpatch='0')
+        #   "8.1.0.1"    -- GA + patch   (v_tag='', v_realpatch>='1')
+        VERSION="${V_MAJOR}.${V_MINOR}.${V_PATCH}"
+        if [ -n "$V_TAG" ]; then
+          VERSION="${VERSION}${V_TAG}"
+        elif [ "$V_REALPATCH" != "0" ]; then
+          VERSION="${VERSION}.${V_REALPATCH}"
+        fi
+        echo "value=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "✓ Extracted IMAGE_VERSION=$VERSION from openemr@${REF}/version.php"
+
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
@@ -147,3 +179,32 @@ jobs:
         tags: ${{ steps.expand_docker_tags.outputs.list }}
         build-args: |
           OPENEMR_VERSION=${{ steps.resolve_openemr_version_ref.outputs.ref }}
+          IMAGE_VERSION=${{ steps.image_version.outputs.value }}
+          BUILD_DATE=${{ steps.build_date.outputs.date }}
+
+    - name: Verify pushed image labels match orchestrator inputs
+      env:
+        EXPECTED_REVISION: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
+        EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
+        TAGS_LIST: ${{ steps.expand_docker_tags.outputs.list }}
+      run: |
+        # Pull the first pushed tag back and inspect its labels.
+        REF_TAG=$(echo "$TAGS_LIST" | head -1)
+        docker pull "$REF_TAG"
+
+        ACTUAL_REVISION=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$REF_TAG")
+        ACTUAL_VERSION=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$REF_TAG")
+
+        FAIL=0
+        if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
+          echo "::error::Image revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
+          echo "  This means docker/release/Dockerfile either ignored or overrode the OPENEMR_VERSION build-arg."
+          FAIL=1
+        fi
+        if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+          echo "::error::Image version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION' (parsed from openemr@${EXPECTED_REVISION}/version.php)"
+          echo "  This means docker/release/Dockerfile either ignored or overrode the IMAGE_VERSION build-arg."
+          FAIL=1
+        fi
+        [ "$FAIL" -eq 0 ] || exit 1
+        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION"

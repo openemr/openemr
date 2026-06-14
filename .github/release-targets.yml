@@ -46,7 +46,12 @@
 # YAML structure.
 
 - branch: master
-  docker_tags: dev,next
+  # 8.1.1 is the version master is currently developing (see version.php's
+  # $v_major.$v_minor.$v_patch). Bump this when master moves to the next
+  # release cycle (e.g., when version.php switches to 8.1.2-dev or 8.2.0-dev).
+  # The docker_tag <-> version.php alignment guard in
+  # docker-validate-release-targets.yml catches drift on PRs.
+  docker_tags: 8.1.1,dev,next
   openemr_version_ref: master
 
 - branch: rel-810

@@ -426,3 +426,24 @@ CMD [ "./kcov-wrapper.sh" ]
 # This target is an alias for the production target
 # Placed last to ensure kcov is not included in default builds
 FROM production AS final
+
+# Standard OCI image labels so the published image self-documents what source
+# went in. All three values are supplied at build time by the CI workflow
+# (docker-build-release.yml), which derives:
+#   OPENEMR_VERSION  = the openemr_version_ref from release-targets.yml
+#                      (e.g., "master", "v8_1_0", "rel-810")
+#   IMAGE_VERSION    = the human-facing openemr release version, composed
+#                      from version.php's $v_major/$v_minor/$v_patch/$v_tag/
+#                      $v_realpatch at the openemr_version_ref
+#                      (e.g., "8.1.1-dev" for master, "8.1.0" for v8_1_0,
+#                      "8.1.0.1" for v8_1_0_1)
+#   BUILD_DATE       = ISO-8601 date the image was built
+ARG IMAGE_VERSION=
+ARG BUILD_DATE=unknown
+LABEL org.opencontainers.image.title="OpenEMR"
+LABEL org.opencontainers.image.source="https://github.com/openemr/openemr"
+LABEL org.opencontainers.image.url="https://www.open-emr.org"
+LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
+LABEL org.opencontainers.image.revision="${OPENEMR_VERSION}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"
