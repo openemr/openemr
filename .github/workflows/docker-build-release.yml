@@ -182,29 +182,60 @@ jobs:
           IMAGE_VERSION=${{ steps.image_version.outputs.value }}
           BUILD_DATE=${{ steps.build_date.outputs.date }}
 
-    - name: Verify pushed image labels match orchestrator inputs
+    - name: Verify pushed image OCI labels
       env:
         EXPECTED_REVISION: ${{ steps.resolve_openemr_version_ref.outputs.ref }}
         EXPECTED_VERSION: ${{ steps.image_version.outputs.value }}
+        EXPECTED_BUILD_DATE: ${{ steps.build_date.outputs.date }}
         TAGS_LIST: ${{ steps.expand_docker_tags.outputs.list }}
       run: |
         # Pull the first pushed tag back and inspect its labels.
         REF_TAG=$(echo "$TAGS_LIST" | head -1)
         docker pull "$REF_TAG"
 
-        ACTUAL_REVISION=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$REF_TAG")
-        ACTUAL_VERSION=$(docker inspect --format '{{ index .Config.Labels "org.opencontainers.image.version" }}' "$REF_TAG")
+        inspect_label() {
+          docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG"
+        }
 
         FAIL=0
+
+        # Value checks: the two labels that vary per build and have a
+        # computable expected value.
+        ACTUAL_REVISION=$(inspect_label revision)
         if [ "$ACTUAL_REVISION" != "$EXPECTED_REVISION" ]; then
-          echo "::error::Image revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
-          echo "  This means docker/release/Dockerfile either ignored or overrode the OPENEMR_VERSION build-arg."
+          echo "::error::revision label '$ACTUAL_REVISION' doesn't match expected '$EXPECTED_REVISION'"
+          echo "  This means docker/release/Dockerfile either dropped the OPENEMR_VERSION ARG or hardcoded the LABEL value."
           FAIL=1
         fi
+
+        ACTUAL_VERSION=$(inspect_label version)
         if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
-          echo "::error::Image version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION' (parsed from openemr@${EXPECTED_REVISION}/version.php)"
-          echo "  This means docker/release/Dockerfile either ignored or overrode the IMAGE_VERSION build-arg."
+          echo "::error::version label '$ACTUAL_VERSION' doesn't match expected '$EXPECTED_VERSION' (parsed from openemr@${EXPECTED_REVISION}/version.php)"
+          echo "  This means docker/release/Dockerfile either dropped the IMAGE_VERSION ARG or hardcoded the LABEL value."
           FAIL=1
         fi
+
+        ACTUAL_CREATED=$(inspect_label created)
+        if [ "$ACTUAL_CREATED" != "$EXPECTED_BUILD_DATE" ]; then
+          echo "::error::created label '$ACTUAL_CREATED' doesn't match expected '$EXPECTED_BUILD_DATE'"
+          echo "  This means docker/release/Dockerfile either dropped the BUILD_DATE ARG or hardcoded the LABEL value."
+          FAIL=1
+        fi
+
+        # Presence checks: the four static labels that don't vary per build.
+        # Catches the "someone truncated the Dockerfile and the whole LABEL
+        # block disappeared" failure mode that the value checks above wouldn't
+        # see if those three ARGs were also gone.
+        for STATIC_LABEL in title source url licenses; do
+          VALUE=$(inspect_label "$STATIC_LABEL")
+          if [ -z "$VALUE" ]; then
+            echo "::error::Image is missing org.opencontainers.image.${STATIC_LABEL} label entirely"
+            echo "  Check that docker/release/Dockerfile's LABEL block at the final stage is intact."
+            FAIL=1
+          else
+            echo "✓ ${STATIC_LABEL}=${VALUE}"
+          fi
+        done
+
         [ "$FAIL" -eq 0 ] || exit 1
-        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION"
+        echo "✓ revision=$ACTUAL_REVISION version=$ACTUAL_VERSION created=$ACTUAL_CREATED"
