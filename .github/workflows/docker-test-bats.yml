@@ -1,0 +1,77 @@
+# Run BATS tests for bash scripts in the release, binary, and flex Docker contexts.
+# Ensures all scripts have valid syntax and expected structure.
+
+name: BATS Tests (release, binary, flex)
+
+on:
+  push:
+    branches: [master]
+    paths:
+    - '.github/workflows/docker-test-bats.yml'
+    - 'tests/bats/docker/**'
+    - 'docker/release/**'
+    - 'docker/binary/**'
+    - 'docker/flex/**'
+  pull_request:
+    branches: [master]
+    paths:
+    - '.github/workflows/docker-test-bats.yml'
+    - 'tests/bats/docker/**'
+    - 'docker/release/**'
+    - 'docker/binary/**'
+    - 'docker/flex/**'
+
+jobs:
+  bats-release:
+    name: BATS release
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install Bats
+      run: |
+        git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        /tmp/bats-core/install.sh "$HOME/bats"
+        echo "$HOME/bats/bin" >> "$GITHUB_PATH"
+        echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
+    - name: Install Bats assertion libraries
+      run: |
+        git clone --depth 1 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+    - name: Run BATS tests (release)
+      run: bats tests/bats/docker/release/
+
+  bats-binary:
+    name: BATS binary
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install Bats
+      run: |
+        git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        /tmp/bats-core/install.sh "$HOME/bats"
+        echo "$HOME/bats/bin" >> "$GITHUB_PATH"
+        echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
+    - name: Install Bats assertion libraries
+      run: |
+        git clone --depth 1 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+    - name: Run BATS tests (binary)
+      run: bats tests/bats/docker/binary/
+
+  bats-flex:
+    name: BATS flex
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install Bats
+      run: |
+        git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        /tmp/bats-core/install.sh "$HOME/bats"
+        echo "$HOME/bats/bin" >> "$GITHUB_PATH"
+        echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
+    - name: Install Bats assertion libraries
+      run: |
+        git clone --depth 1 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+    - name: Run BATS tests (flex)
+      run: bats tests/bats/docker/flex/
