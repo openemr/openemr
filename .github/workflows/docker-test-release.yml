@@ -12,7 +12,7 @@
 #  - is_production_docker: true  -- triggers the production-mode test path
 #    inside docker-test-core.yml (vs the dev-mode path used by the
 #    docker-test-flex-*.yml callers).
-#  - production_coverage_openemr_version: '7.0.5' -- variant to enable
+#  - production_coverage_openemr_version: 'release' -- variant to enable
 #    coverage instrumentation on; only one variant gets kcov per run.
 
 name: Docker release test
@@ -40,4 +40,4 @@ jobs:
     uses: ./.github/workflows/docker-test-core.yml
     with:
       is_production_docker: true
-      production_coverage_openemr_version: '7.0.5'
+      production_coverage_openemr_version: 'release'
