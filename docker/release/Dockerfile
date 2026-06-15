@@ -89,8 +89,14 @@ RUN ln -sf /usr/bin/php${PHP_VERSION_ABBR} /usr/bin/php
 # Install composer for openemr package building
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
 
+# OPENEMR_VERSION selects the git ref (branch, tag, or SHA) that gets cloned
+# and baked into the image. Defaults to v7_0_4 so a manual `docker build`
+# without a build-arg still produces this branch's intended production
+# image. CI builds via docker-build-release.yml override this with the
+# openemr_version_ref from master's .github/release-targets.yml.
+ARG OPENEMR_VERSION=v7_0_4
 RUN apk add --no-cache build-base \
-    && git clone https://github.com/openemr/openemr.git --branch v7_0_4 --depth 1 \
+    && git clone https://github.com/openemr/openemr.git --branch "${OPENEMR_VERSION}" --depth 1 \
     && rm -rf openemr/.git \
     && cd openemr \
     && composer install --no-dev \
@@ -203,3 +209,22 @@ CMD [ "./kcov-wrapper.sh" ]
 
 # Put this last because we don't want kcov in the default.
 FROM base AS final
+
+# Standard OCI image labels so the published image self-documents what source
+# went in. All three values are supplied at build time by the CI workflow
+# (docker-build-release.yml), which derives:
+#   OPENEMR_VERSION  = the openemr_version_ref from release-targets.yml
+#                      (e.g., "v7_0_4" or a patch ref like "v7_0_5")
+#   IMAGE_VERSION    = the human-facing openemr release version, composed
+#                      from version.php's $v_major/$v_minor/$v_patch/$v_tag/
+#                      $v_realpatch at the openemr_version_ref
+#   BUILD_DATE       = ISO-8601 date the image was built
+ARG IMAGE_VERSION=
+ARG BUILD_DATE=unknown
+LABEL org.opencontainers.image.title="OpenEMR"
+LABEL org.opencontainers.image.source="https://github.com/openemr/openemr"
+LABEL org.opencontainers.image.url="https://www.open-emr.org"
+LABEL org.opencontainers.image.licenses="GPL-3.0-or-later"
+LABEL org.opencontainers.image.revision="${OPENEMR_VERSION}"
+LABEL org.opencontainers.image.version="${IMAGE_VERSION}"
+LABEL org.opencontainers.image.created="${BUILD_DATE}"

@@ -20,7 +20,7 @@ set -e
 # source-follower without ever running it — BusyBox ash treats `.` as a
 # special builtin and exits the shell on file-not-found even with `|| true`.
 if false; then
-    # shellcheck source=docker/openemr/7.0.4/env.stub
+    # shellcheck source=docker/release/env.stub
     . /root/env.stub
 fi
 
