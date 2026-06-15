@@ -1415,7 +1415,11 @@ class InternalToCdaConverter
 
         $subAdmin = $this->createElement('substanceAdministration');
         $subAdmin->setAttribute('classCode', 'SBADM');
-        $subAdmin->setAttribute('moodCode', 'EVN');
+
+        // Set moodCode based on status: active=INT (intent), completed=EVN (event)
+        $status = strtolower($this->xpathValue('status', $med));
+        $moodCode = $status === 'active' ? 'INT' : 'EVN';
+        $subAdmin->setAttribute('moodCode', $moodCode);
 
         $this->appendVersionedTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16', '2014-06-09');
 
