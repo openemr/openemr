@@ -5564,15 +5564,29 @@ class InternalToCdaConverter
 
     private function renderReasonForReferralSection(DOMElement $structuredBody): void
     {
+        $reasonText = trim($this->xpathValue('/CCDA/referral_reason/text'));
+        $authorEl = $this->xpath('/CCDA/referral_reason/author')->item(0);
+
         $component = $this->createElement('component');
         $section = $this->createElement('section');
-        $section->setAttribute('nullFlavor', 'NI');
+
+        if ($reasonText === '') {
+            $section->setAttribute('nullFlavor', 'NI');
+        }
 
         $this->appendVersionedTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1', '2014-06-09');
 
         $section->appendChild($this->createLoincCode('42349-1', 'Reason for Referral'));
         $section->appendChild($this->createElement('title', 'Reason for Referral'));
-        $section->appendChild($this->createElement('text', 'Not Available'));
+
+        if ($reasonText !== '') {
+            $section->appendChild($this->createElement('text', $reasonText));
+            if ($authorEl instanceof DOMElement) {
+                $this->appendEntryAuthor($section, $authorEl);
+            }
+        } else {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        }
 
         $component->appendChild($section);
         $structuredBody->appendChild($component);
