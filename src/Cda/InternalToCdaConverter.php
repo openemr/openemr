@@ -706,8 +706,11 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
-        $careTeam = $this->xpath('/CCDA/care_team/team');
-        if ($careTeam->length === 0) {
+        $providers = $this->xpath('/CCDA/care_team/provider');
+        $isActive = $this->xpathValue('/CCDA/care_team/is_active');
+        $hasActiveTeam = $isActive === 'active' && $providers->length > 0;
+
+        if (!$hasActiveTeam) {
             $section->setAttribute('nullFlavor', 'NI');
         }
 
@@ -722,15 +725,225 @@ class InternalToCdaConverter
 
         $section->appendChild($this->createElement('title', 'Patient Care Teams'));
 
-        if ($careTeam->length === 0) {
+        if (!$hasActiveTeam) {
             $section->appendChild($this->createElement('text', 'A Care Team is not assigned.'));
         } else {
-            // TODO: Implement care team entries
-            $section->appendChild($this->createElement('text', 'Care Team information'));
+            $this->appendCareTeamNarrative($section, $providers);
+            $this->appendCareTeamEntry($section, $providers);
         }
 
         $component->appendChild($section);
         $structuredBody->appendChild($component);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $providers
+     */
+    private function appendCareTeamNarrative(DOMElement $section, \DOMNodeList $providers): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Name', 'Role', 'Phone']);
+
+        $index = 1;
+        foreach ($providers as $provider) {
+            $fname = $this->xpathValue('fname', $provider);
+            $lname = $this->xpathValue('lname', $provider);
+            $name = trim($fname . ' ' . $lname);
+            $role = $this->xpathValue('role_display', $provider);
+            $phone = $this->xpathValue('telecom', $provider);
+
+            $this->appendTableRow($table, [$name, $role, $phone], 'teamMember' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $providers
+     */
+    private function appendCareTeamEntry(DOMElement $section, \DOMNodeList $providers): void
+    {
+        $entry = $this->createElement('entry');
+
+        $organizer = $this->createElement('organizer');
+        $organizer->setAttribute('classCode', 'CLUSTER');
+        $organizer->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.500', '2019-07-01');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $id = $this->createElement('id');
+            $id->setAttribute('root', $facilityOid);
+            $organizer->appendChild($id);
+        }
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '86744-0');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $code->setAttribute('displayName', 'Care Team Information');
+        $organizer->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $organizer->appendChild($statusCode);
+
+        // effectiveTime from first provider's since date
+        $providerSince = '';
+        foreach ($providers as $provider) {
+            $since = $this->xpathValue('provider_since', $provider);
+            if ($since !== '') {
+                $providerSince = $since;
+                break;
+            }
+        }
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $providerSince !== '' ? $this->formatDateTime($providerSince) : '');
+        $effectiveTime->appendChild($low);
+        $organizer->appendChild($effectiveTime);
+
+        // Author
+        $authorEl = $this->xpath('/CCDA/care_team/author')->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($organizer, $authorEl);
+        }
+
+        // Provider components
+        $index = 1;
+        foreach ($providers as $provider) {
+            $this->appendCareTeamProviderComponent($organizer, $provider, $index);
+            $index++;
+        }
+
+        $entry->appendChild($organizer);
+        $section->appendChild($entry);
+    }
+
+    private function appendCareTeamProviderComponent(DOMElement $organizer, DOMElement $provider, int $index): void
+    {
+        $component = $this->createElement('component');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'PCPR');
+        $act->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.500.1', '2019-07-01');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $id = $this->createElement('id');
+            $id->setAttribute('root', $facilityOid);
+            $act->appendChild($id);
+        }
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '85847-2');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $code->setAttribute('displayName', 'Patient Care team information');
+        $act->appendChild($code);
+
+        $status = $this->xpathValue('status', $provider);
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', $status !== '' ? $status : 'active');
+        $act->appendChild($statusCode);
+
+        $since = $this->xpathValue('provider_since', $provider);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $since !== '' ? $this->formatDateTime($since) : '');
+        $effectiveTime->appendChild($low);
+        $act->appendChild($effectiveTime);
+
+        // Performer
+        $performer = $this->createElement('performer');
+        $performer->setAttribute('typeCode', 'PRF');
+
+        // Function code
+        $roleCode = $this->xpathValue('role_code', $provider);
+        $roleDisplay = $this->xpathValue('role_display', $provider);
+        if ($roleCode !== '' || $roleDisplay !== '') {
+            $functionCode = $this->output->createElement('functionCode');
+            $functionCode->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns', 'urn:hl7-org:sdtc');
+            if ($roleCode !== '') {
+                $functionCode->setAttribute('code', $this->cleanCode($roleCode));
+            }
+            if ($roleDisplay !== '') {
+                $functionCode->setAttribute('displayName', $roleDisplay);
+            }
+            $functionCode->setAttribute('codeSystem', '2.16.840.1.113883.6.101');
+            $functionCode->setAttribute('codeSystemName', 'SNOMED CT');
+
+            $origText = $this->createElement('originalText');
+            $ref = $this->createElement('reference');
+            $ref->setAttribute('value', '#teamMember' . $index);
+            $origText->appendChild($ref);
+            $functionCode->appendChild($origText);
+
+            $performer->appendChild($functionCode);
+        }
+
+        // Assigned entity
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $npi = $this->xpathValue('npi', $provider);
+        $tableId = $this->xpathValue('table_id', $provider);
+        $idEl = $this->createElement('id');
+        $idEl->setAttribute('root', $npi !== '' ? '2.16.840.1.113883.4.6' : ($facilityOid !== '' ? $facilityOid : 'NI'));
+        $idEl->setAttribute('extension', $npi !== '' ? $npi : $tableId);
+        $assignedEntity->appendChild($idEl);
+
+        // Address
+        $addr = $this->createElement('addr');
+        $street = $this->xpathValue('street', $provider);
+        $city = $this->xpathValue('city', $provider);
+        $state = $this->xpathValue('state', $provider);
+        $zip = $this->xpathValue('zip', $provider);
+        $addr->appendChild($this->createElement('streetAddressLine', $street !== '' ? $street : null));
+        $addr->appendChild($this->createElement('city', $city !== '' ? $city : null));
+        $addr->appendChild($this->createElement('state', $state !== '' ? $state : null));
+        $addr->appendChild($this->createElement('postalCode', $zip !== '' ? $zip : null));
+        $addr->appendChild($this->createElement('country', 'US'));
+        $assignedEntity->appendChild($addr);
+
+        // Telecom
+        $phone = $this->xpathValue('telecom', $provider);
+        $telecom = $this->createElement('telecom');
+        $telecom->setAttribute('use', 'WP');
+        $telecom->setAttribute('value', $phone !== '' ? 'tel:' . $phone : '');
+        $assignedEntity->appendChild($telecom);
+
+        // Assigned person
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        $fname = $this->xpathValue('fname', $provider);
+        $lname = $this->xpathValue('lname', $provider);
+        $name->appendChild($this->createElement('given', $fname !== '' ? $fname : null));
+        $name->appendChild($this->createElement('family', $lname !== '' ? $lname : null));
+        $assignedPerson->appendChild($name);
+        $assignedEntity->appendChild($assignedPerson);
+
+        $performer->appendChild($assignedEntity);
+        $act->appendChild($performer);
+
+        $component->appendChild($act);
+        $organizer->appendChild($component);
+    }
+
+    private function formatDateTime(string $input): string
+    {
+        $input = trim($input);
+        if ($input === '' || $input === '0000-00-00') {
+            return '';
+        }
+        $input = str_replace(['-', ' ', ':'], '', $input);
+        return $input;
     }
 
     private function renderAllergiesSection(DOMElement $structuredBody): void
