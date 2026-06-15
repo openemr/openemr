@@ -27,6 +27,12 @@ on:
     paths:
     - '.github/release-targets.yml'
     - '.github/workflows/docker-validate-release-targets.yml'
+    # version.php is the source of truth for the master row's IMAGE_VERSION
+    # derivation. A bump to $v_major/$v_minor/$v_patch/$v_tag/$v_realpatch
+    # can invalidate assumptions in release-targets.yml (e.g. docker_tags
+    # that hardcode an old version segment), so fire validation on master
+    # version bumps too.
+    - 'version.php'
 
 permissions:
   contents: read

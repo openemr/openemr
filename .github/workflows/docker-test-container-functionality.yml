@@ -40,18 +40,23 @@ jobs:
     - uses: actions/checkout@v6
     - name: Set test args
       id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
       run: |
-        if [[ -n "${{ github.event.inputs.test_name }}" ]]; then
-          echo "args=--test ${{ github.event.inputs.test_name }}" >> "$GITHUB_OUTPUT"
-        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+        if [[ -n "$TEST_NAME" ]]; then
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "args=" >> "$GITHUB_OUTPUT"
         else
-          echo "args=${{ env.TEST_SUITE_ARGS }}" >> "$GITHUB_OUTPUT"
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
         fi
     - name: Run container functionality tests (release)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
         cd utilities/container_benchmarking
-        ./test_functionality.sh release ${{ steps.args.outputs.args }}
+        ./test_functionality.sh release $TEST_ARGS
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v7
@@ -67,18 +72,23 @@ jobs:
     - uses: actions/checkout@v6
     - name: Set test args
       id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
       run: |
-        if [[ -n "${{ github.event.inputs.test_name }}" ]]; then
-          echo "args=--test ${{ github.event.inputs.test_name }}" >> "$GITHUB_OUTPUT"
-        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+        if [[ -n "$TEST_NAME" ]]; then
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "args=" >> "$GITHUB_OUTPUT"
         else
-          echo "args=${{ env.TEST_SUITE_ARGS }}" >> "$GITHUB_OUTPUT"
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
         fi
     - name: Run container functionality tests (binary)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
         cd utilities/container_benchmarking
-        ./test_functionality.sh binary ${{ steps.args.outputs.args }}
+        ./test_functionality.sh binary $TEST_ARGS
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v7
@@ -94,18 +104,23 @@ jobs:
     - uses: actions/checkout@v6
     - name: Set test args
       id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
       run: |
-        if [[ -n "${{ github.event.inputs.test_name }}" ]]; then
-          echo "args=--test ${{ github.event.inputs.test_name }}" >> "$GITHUB_OUTPUT"
-        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+        if [[ -n "$TEST_NAME" ]]; then
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "args=" >> "$GITHUB_OUTPUT"
         else
-          echo "args=${{ env.TEST_SUITE_ARGS }}" >> "$GITHUB_OUTPUT"
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
         fi
     - name: Run container functionality tests (flex)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
         cd utilities/container_benchmarking
-        ./test_functionality.sh flex ${{ steps.args.outputs.args }}
+        ./test_functionality.sh flex $TEST_ARGS
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v7

@@ -29,14 +29,14 @@ jobs:
     - uses: actions/checkout@v6
     - name: Install Bats
       run: |
-        git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats-core
         /tmp/bats-core/install.sh "$HOME/bats"
         echo "$HOME/bats/bin" >> "$GITHUB_PATH"
         echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
     - name: Install Bats assertion libraries
       run: |
-        git clone --depth 1 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
-        git clone --depth 1 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+        git clone --depth 1 --branch v0.3.0 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 --branch v2.2.4 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
     - name: Run BATS tests (release)
       run: bats tests/bats/docker/release/
 
@@ -47,14 +47,14 @@ jobs:
     - uses: actions/checkout@v6
     - name: Install Bats
       run: |
-        git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats-core
         /tmp/bats-core/install.sh "$HOME/bats"
         echo "$HOME/bats/bin" >> "$GITHUB_PATH"
         echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
     - name: Install Bats assertion libraries
       run: |
-        git clone --depth 1 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
-        git clone --depth 1 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+        git clone --depth 1 --branch v0.3.0 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 --branch v2.2.4 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
     - name: Run BATS tests (binary)
       run: bats tests/bats/docker/binary/
 
@@ -65,13 +65,13 @@ jobs:
     - uses: actions/checkout@v6
     - name: Install Bats
       run: |
-        git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats-core
         /tmp/bats-core/install.sh "$HOME/bats"
         echo "$HOME/bats/bin" >> "$GITHUB_PATH"
         echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
     - name: Install Bats assertion libraries
       run: |
-        git clone --depth 1 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
-        git clone --depth 1 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+        git clone --depth 1 --branch v0.3.0 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 --branch v2.2.4 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
     - name: Run BATS tests (flex)
       run: bats tests/bats/docker/flex/

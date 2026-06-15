@@ -35,11 +35,16 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build tags
       id: build_tags
+      env:
+        ALPINE_VERSION: ${{ inputs.alpine_version }}
+        PHP_VERSION: ${{ matrix.php_version }}
+        PHP_DEFAULT: ${{ inputs.php_default }}
+        IS_DEFAULT_FLEX: ${{ inputs.is_default_flex }}
       run: |
-        TAGS="openemr/openemr:flex-${{ inputs.alpine_version }}-php-${{ matrix.php_version }}"
-        if [ "${{ matrix.php_version }}" == "${{ inputs.php_default }}" ]; then
-          TAGS="$TAGS,openemr/openemr:flex-${{ inputs.alpine_version }}"
-          if [ "${{ inputs.is_default_flex }}" == "true" ]; then
+        TAGS="openemr/openemr:flex-${ALPINE_VERSION}-php-${PHP_VERSION}"
+        if [ "$PHP_VERSION" == "$PHP_DEFAULT" ]; then
+          TAGS="$TAGS,openemr/openemr:flex-${ALPINE_VERSION}"
+          if [ "$IS_DEFAULT_FLEX" == "true" ]; then
             TAGS="$TAGS,openemr/openemr:flex"
           fi
         fi

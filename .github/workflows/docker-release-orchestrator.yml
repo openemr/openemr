@@ -108,10 +108,14 @@ jobs:
     - name: Dispatch ${{ matrix.branch }} (docker_tags=${{ matrix.docker_tags }} openemr_version_ref=${{ matrix.openemr_version_ref }})
       env:
         GH_TOKEN: ${{ github.token }}
+        REPO: ${{ github.repository }}
+        BRANCH: ${{ matrix.branch }}
+        DOCKER_TAGS: ${{ matrix.docker_tags }}
+        OPENEMR_VERSION_REF: ${{ matrix.openemr_version_ref }}
       run: |
         gh workflow run docker-build-release.yml \
-          --repo "${{ github.repository }}" \
-          --ref "${{ matrix.branch }}" \
-          -f docker_tags="${{ matrix.docker_tags }}" \
-          -f openemr_version_ref="${{ matrix.openemr_version_ref }}"
-        echo "Dispatched ${{ matrix.branch }} with docker_tags=${{ matrix.docker_tags }} openemr_version_ref=${{ matrix.openemr_version_ref }}"
+          --repo "$REPO" \
+          --ref "$BRANCH" \
+          -f docker_tags="$DOCKER_TAGS" \
+          -f openemr_version_ref="$OPENEMR_VERSION_REF"
+        echo "Dispatched $BRANCH with docker_tags=$DOCKER_TAGS openemr_version_ref=$OPENEMR_VERSION_REF"
