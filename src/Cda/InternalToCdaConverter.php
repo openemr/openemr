@@ -5366,6 +5366,7 @@ class InternalToCdaConverter
             }
             $codeSystemName = match (strtoupper(str_replace(' ', '', $codeType))) {
                 'SNOMEDCT', 'SNOMED-CT', 'SNOMED' => 'SNOMED CT',
+                'ICD10' => 'ICD-10-CM',
                 default => $codeType,
             };
             if ($codeSystemName !== '') {
