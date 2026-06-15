@@ -13,7 +13,7 @@ runs:
   steps:
   - name: Checkout OpenEMR
     if: ${{ env.OPENEMR_SERVICE_NAME == 'openemr-dev' || env.OPENEMR_SERVICE_NAME == 'openemr-kcov-dev' }}
-    uses: actions/checkout@v4
+    uses: actions/checkout@v6
     with:
       repository: openemr/openemr
       path: openemr
