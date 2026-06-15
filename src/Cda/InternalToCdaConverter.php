@@ -3132,28 +3132,171 @@ class InternalToCdaConverter
     private function renderMedicalEquipmentSection(DOMElement $structuredBody): void
     {
         $devices = $this->xpath('/CCDA/medical_devices/device');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($devices->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23', '2014-06-09');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '46264-8');
-            $code->setAttribute('displayName', 'Medical Equipment');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Medical Equipment'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement medical equipment with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23', '2014-06-09');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '46264-8');
+        $code->setAttribute('displayName', 'Medical Equipment');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Medical Equipment'));
+
+        if ($devices->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendMedicalEquipmentNarrative($section, $devices);
+            $index = 1;
+            foreach ($devices as $device) {
+                $this->appendMedicalEquipmentEntry($section, $device, $index);
+                $index++;
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $devices
+     */
+    private function appendMedicalEquipmentNarrative(DOMElement $section, \DOMNodeList $devices): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Device', 'UDI', 'Start Date']);
+
+        $index = 1;
+        foreach ($devices as $device) {
+            $codeText = $this->xpathValue('code_text', $device);
+            $udi = $this->xpathValue('udi', $device);
+            $startDate = $this->xpathValue('start_date', $device);
+
+            $this->appendTableRow($table, [$codeText, $udi, $startDate], 'device' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendMedicalEquipmentEntry(DOMElement $section, DOMElement $device, int $index): void
+    {
+        $entry = $this->createElement('entry');
+
+        $procedure = $this->createElement('procedure');
+        $procedure->setAttribute('classCode', 'PROC');
+        $procedure->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($procedure, '2.16.840.1.113883.10.20.22.4.14', '2014-06-09');
+        $this->appendTemplateId($procedure, '2.16.840.1.113883.10.20.22.4.14');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $procedure->appendChild($uniqueId);
+        }
+
+        // id
+        $shaExt = $this->xpathValue('sha_extension', $device);
+        $ext = $this->xpathValue('extension', $device);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt !== '' ? $shaExt : 'NI');
+        $id->setAttribute('extension', $ext);
+        $procedure->appendChild($id);
+
+        // Code
+        $deviceCode = $this->xpathValue('code', $device);
+        $codeText = $this->xpathValue('code_text', $device);
+        $code = $this->createElement('code');
+        if ($deviceCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($deviceCode));
+        }
+        if ($codeText !== '') {
+            $code->setAttribute('displayName', $codeText);
+        }
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED CT');
+        $origText = $this->createElement('originalText');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#device' . $index);
+        $origText->appendChild($ref);
+        $code->appendChild($origText);
+        $procedure->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $procedure->appendChild($statusCode);
+
+        $startDate = $this->xpathValue('start_date', $device);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($startDate));
+        $effectiveTime->appendChild($low);
+        $procedure->appendChild($effectiveTime);
+
+        // Author
+        $authorEl = $this->xpath('author', $device)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($procedure, $authorEl);
+        }
+
+        // Participant (device)
+        $this->appendDeviceParticipant($procedure, $device);
+
+        $entry->appendChild($procedure);
+        $section->appendChild($entry);
+    }
+
+    private function appendDeviceParticipant(DOMElement $procedure, DOMElement $device): void
+    {
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'DEV');
+
+        $participantRole = $this->createElement('participantRole');
+        $participantRole->setAttribute('classCode', 'MANU');
+
+        $this->appendTemplateId($participantRole, '2.16.840.1.113883.10.20.22.4.37');
+
+        $udi = $this->xpathValue('udi', $device);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '2.16.840.1.113883.3.3719');
+        $id->setAttribute('extension', $udi);
+        $participantRole->appendChild($id);
+
+        $playingDevice = $this->createElement('playingDevice');
+        $deviceCode = $this->xpathValue('code', $device);
+        $codeText = $this->xpathValue('code_text', $device);
+        $code = $this->createElement('code');
+        if ($deviceCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($deviceCode));
+        }
+        if ($codeText !== '') {
+            $code->setAttribute('displayName', $codeText);
+        }
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED CT');
+        $playingDevice->appendChild($code);
+        $participantRole->appendChild($playingDevice);
+
+        $scopingEntity = $this->createElement('scopingEntity');
+        $scopingId = $this->createElement('id');
+        $scopingId->setAttribute('root', '2.16.840.1.113883.3.3719');
+        $scopingEntity->appendChild($scopingId);
+        $participantRole->appendChild($scopingEntity);
+
+        $participant->appendChild($participantRole);
+        $procedure->appendChild($participant);
     }
 
     private function renderFunctionalStatusSection(DOMElement $structuredBody): void
