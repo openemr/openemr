@@ -364,7 +364,7 @@ For CI and consistent validation of 8.1.0, binary, and flex containers, use the 
 Examples:
 
 ```bash
-./test_functionality.sh 8.1.0
+./test_functionality.sh release
 ./test_functionality.sh binary --test fresh_installation
 ./test_functionality.sh flex --verbose
 ```
