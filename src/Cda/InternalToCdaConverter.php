@@ -106,12 +106,9 @@ class InternalToCdaConverter
         $typeId->setAttribute('extension', 'POCD_HD000040');
         $root->appendChild($typeId);
 
-        $this->appendTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2023-05-01');
-        $this->appendTemplateId($root, '2.16.840.1.113883.10.20.22.1.1');
-        $this->appendTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2015-08-01');
-        $this->appendTemplateId($root, '2.16.840.1.113883.10.20.22.1.1');
-        $this->appendTemplateId($root, $docOid, '2015-08-01');
-        $this->appendTemplateId($root, $docOid);
+        $this->appendVersionedTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2023-05-01');
+        $this->appendVersionedTemplateId($root, '2.16.840.1.113883.10.20.22.1.1', '2015-08-01');
+        $this->appendVersionedTemplateId($root, $docOid, '2015-08-01');
 
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
         if ($facilityOid === '') {
@@ -932,8 +929,7 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1', '2015-08-01');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('48765-2', 'Allergies, adverse reactions, alerts'));
         $section->appendChild($this->createElement('title', 'Allergies, adverse reactions, alerts'));
@@ -1002,8 +998,7 @@ class InternalToCdaConverter
         $act->setAttribute('classCode', 'ACT');
         $act->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30', '2015-08-01');
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30');
+        $this->appendVersionedTemplateId($act, '2.16.840.1.113883.10.20.22.4.30', '2015-08-01');
 
         $shaId = $this->xpathValue('sha_id', $allergy);
         $id = $this->xpathValue('id', $allergy);
@@ -1048,8 +1043,7 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
 
         $shaExt = $this->xpathValue('sha_extension', $allergy);
         $id = $this->xpathValue('id', $allergy);
@@ -1202,8 +1196,7 @@ class InternalToCdaConverter
         $reactionObs->setAttribute('classCode', 'OBS');
         $reactionObs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($reactionObs, '2.16.840.1.113883.10.20.22.4.9', '2014-06-09');
-        $this->appendTemplateId($reactionObs, '2.16.840.1.113883.10.20.22.4.9');
+        $this->appendVersionedTemplateId($reactionObs, '2.16.840.1.113883.10.20.22.4.9', '2014-06-09');
 
         $id = $this->createElement('id');
         $id->setAttribute('root', '4adc1020-7b14-11db-9fe1-0800200c9a64');
@@ -1258,8 +1251,7 @@ class InternalToCdaConverter
         $sevObs->setAttribute('classCode', 'OBS');
         $sevObs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($sevObs, '2.16.840.1.113883.10.20.22.4.8', '2014-06-09');
-        $this->appendTemplateId($sevObs, '2.16.840.1.113883.10.20.22.4.8');
+        $this->appendVersionedTemplateId($sevObs, '2.16.840.1.113883.10.20.22.4.8', '2014-06-09');
 
         $code = $this->createElement('code');
         $code->setAttribute('code', 'SEV');
@@ -1291,8 +1283,7 @@ class InternalToCdaConverter
         $act->setAttribute('classCode', 'ACT');
         $act->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30', '2015-08-01');
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.30');
+        $this->appendVersionedTemplateId($act, '2.16.840.1.113883.10.20.22.4.30', '2015-08-01');
 
         $id = $this->createElement('id');
         $id->setAttribute('nullFlavor', 'UNK');
@@ -1321,8 +1312,7 @@ class InternalToCdaConverter
         $obs->setAttribute('moodCode', 'EVN');
         $obs->setAttribute('negationInd', 'true');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
 
         $obsId = $this->createElement('id');
         $obsId->setAttribute('nullFlavor', 'UNK');
@@ -1427,8 +1417,7 @@ class InternalToCdaConverter
         $subAdmin->setAttribute('classCode', 'SBADM');
         $subAdmin->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16', '2014-06-09');
-        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16');
+        $this->appendVersionedTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16', '2014-06-09');
 
         $shaExt = $this->xpathValue('sha_extension', $med);
         $ext = $this->xpathValue('extension', $med);
@@ -1503,8 +1492,7 @@ class InternalToCdaConverter
         $mfgProduct = $this->createElement('manufacturedProduct');
         $mfgProduct->setAttribute('classCode', 'MANU');
 
-        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.23', '2014-06-09');
-        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.23');
+        $this->appendVersionedTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.23', '2014-06-09');
 
         $shaExt = $this->xpathValue('sha_extension', $med);
         $ext = $this->xpathValue('extension', $med);
@@ -1618,8 +1606,7 @@ class InternalToCdaConverter
         $act->setAttribute('classCode', 'ACT');
         $act->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.3', '2015-08-01');
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.3');
+        $this->appendVersionedTemplateId($act, '2.16.840.1.113883.10.20.22.4.3', '2015-08-01');
 
         $shaExt = $this->xpathValue('sha_extension', $problem);
         $ext = $this->xpathValue('extension', $problem);
@@ -1664,8 +1651,7 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4', '2015-08-01');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4', '2015-08-01');
 
         $shaExt = $this->xpathValue('sha_extension', $problem);
         $ext = $this->xpathValue('extension', $problem);
@@ -1957,8 +1943,7 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1', '2015-08-01');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('30954-2', 'Relevant Dx tests/lab data'));
         $section->appendChild($this->createElement('title', 'Relevant Dx tests/lab data'));
@@ -2042,8 +2027,7 @@ class InternalToCdaConverter
         $organizer->setAttribute('classCode', 'BATTERY');
         $organizer->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1', '2015-08-01');
-        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1');
+        $this->appendVersionedTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.1', '2015-08-01');
 
         // uniqueId element (comes before regular id per Node.js blue-button-generate)
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
@@ -2099,8 +2083,7 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.2', '2015-08-01');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.2');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.2', '2015-08-01');
 
         $root = $this->xpathValue('root', $subtest);
         $ext = $this->xpathValue('extension', $subtest);
@@ -2217,8 +2200,7 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1', '2015-08-01');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('46240-8', 'Encounters'));
         $section->appendChild($this->createElement('title', 'Encounters'));
@@ -2293,8 +2275,7 @@ class InternalToCdaConverter
         $encounter->setAttribute('classCode', 'ENC');
         $encounter->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($encounter, '2.16.840.1.113883.10.20.22.4.49', '2015-08-01');
-        $this->appendTemplateId($encounter, '2.16.840.1.113883.10.20.22.4.49');
+        $this->appendVersionedTemplateId($encounter, '2.16.840.1.113883.10.20.22.4.49', '2015-08-01');
 
         $shaExt = $this->xpathValue('sha_extension', $enc);
         $ext = $this->xpathValue('extension', $enc);
@@ -2486,8 +2467,7 @@ class InternalToCdaConverter
         $subAdmin->setAttribute('moodCode', 'EVN');
         $subAdmin->setAttribute('negationInd', 'false');
 
-        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.52', '2015-08-01');
-        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.52');
+        $this->appendVersionedTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.52', '2015-08-01');
 
         $shaExt = $this->xpathValue('sha_extension', $imm);
         $ext = $this->xpathValue('extension', $imm);
@@ -2567,8 +2547,7 @@ class InternalToCdaConverter
         $mfgProduct = $this->createElement('manufacturedProduct');
         $mfgProduct->setAttribute('classCode', 'MANU');
 
-        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.54', '2014-06-09');
-        $this->appendTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.54');
+        $this->appendVersionedTemplateId($mfgProduct, '2.16.840.1.113883.10.20.22.4.54', '2014-06-09');
 
         $id = $this->createElement('id');
         $id->setAttribute('nullFlavor', 'UNK');
@@ -2736,8 +2715,7 @@ class InternalToCdaConverter
         $organizer->setAttribute('classCode', 'CLUSTER');
         $organizer->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.26', '2015-08-01');
-        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.26');
+        $this->appendVersionedTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.26', '2015-08-01');
 
         $shaExt = $this->xpathValue('sha_extension', $vital);
         $ext = $this->xpathValue('extension', $vital);
@@ -2913,8 +2891,7 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.27', '2014-06-09');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.27');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.27', '2014-06-09');
 
         $id = $this->createElement('id');
         $id->setAttribute('root', $root);
@@ -2979,8 +2956,7 @@ class InternalToCdaConverter
             $section->setAttribute('nullFlavor', 'NI');
         }
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17', '2015-08-01');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.17', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('29762-2', 'Social History'));
         $section->appendChild($this->createElement('title', 'Social History'));
@@ -3234,8 +3210,7 @@ class InternalToCdaConverter
         $act->setAttribute('classCode', 'ACT');
         $act->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.60', '2015-08-01');
-        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.60');
+        $this->appendVersionedTemplateId($act, '2.16.840.1.113883.10.20.22.4.60', '2015-08-01');
 
         // uniqueId
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
@@ -3272,8 +3247,7 @@ class InternalToCdaConverter
         $policyAct->setAttribute('classCode', 'ACT');
         $policyAct->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($policyAct, '2.16.840.1.113883.10.20.22.4.61', '2015-08-01');
-        $this->appendTemplateId($policyAct, '2.16.840.1.113883.10.20.22.4.61');
+        $this->appendVersionedTemplateId($policyAct, '2.16.840.1.113883.10.20.22.4.61', '2015-08-01');
 
         // id
         $policyId = $this->xpathValue('policy/identifiers/identifier', $payer);
@@ -3413,8 +3387,7 @@ class InternalToCdaConverter
             $section->setAttribute('nullFlavor', 'NI');
         }
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23', '2014-06-09');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.23', '2014-06-09');
 
         $section->appendChild($this->createLoincCode('46264-8', 'Medical Equipment'));
         $section->appendChild($this->createElement('title', 'Medical Equipment'));
@@ -3463,8 +3436,7 @@ class InternalToCdaConverter
         $procedure->setAttribute('classCode', 'PROC');
         $procedure->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($procedure, '2.16.840.1.113883.10.20.22.4.14', '2014-06-09');
-        $this->appendTemplateId($procedure, '2.16.840.1.113883.10.20.22.4.14');
+        $this->appendVersionedTemplateId($procedure, '2.16.840.1.113883.10.20.22.4.14', '2014-06-09');
 
         // uniqueId
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
@@ -3575,8 +3547,7 @@ class InternalToCdaConverter
             $section->setAttribute('nullFlavor', 'NI');
         }
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14', '2014-06-09');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.14', '2014-06-09');
 
         $section->appendChild($this->createLoincCode('47420-5', 'Functional Status'));
         $section->appendChild($this->createElement('title', 'Functional Status'));
@@ -3623,8 +3594,7 @@ class InternalToCdaConverter
         $organizer->setAttribute('classCode', 'CLUSTER');
         $organizer->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.66', '2014-06-09');
-        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.66');
+        $this->appendVersionedTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.66', '2014-06-09');
 
         // uniqueId
         $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
@@ -3673,8 +3643,7 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67', '2014-06-09');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67', '2014-06-09');
 
         $ext = $this->xpathValue('extension', $item);
         $id = $this->createElement('id');
@@ -3983,8 +3952,7 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.74', '2015-08-01');
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.74');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.74', '2015-08-01');
 
         $id = $this->createElement('id');
         $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809ccc');
@@ -4053,8 +4021,7 @@ class InternalToCdaConverter
             $section->setAttribute('nullFlavor', 'NI');
         }
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10', '2014-06-09');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.10', '2014-06-09');
 
         $section->appendChild($this->createLoincCode('18776-5', 'Treatment Plan'));
         $section->appendChild($this->createElement('title', 'Treatment Plan'));
@@ -4309,8 +4276,7 @@ class InternalToCdaConverter
         $subAdmin->setAttribute('classCode', 'SBADM');
         $subAdmin->setAttribute('moodCode', 'RQO');
 
-        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.42', '2014-06-09');
-        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.42');
+        $this->appendVersionedTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.42', '2014-06-09');
 
         // ID
         $shaExt = $this->xpathValue('sha_extension', $item);
@@ -4343,8 +4309,7 @@ class InternalToCdaConverter
         $manuProd = $this->createElement('manufacturedProduct');
         $manuProd->setAttribute('classCode', 'MANU');
 
-        $this->appendTemplateId($manuProd, '2.16.840.1.113883.10.20.22.4.23', '2014-06-09');
-        $this->appendTemplateId($manuProd, '2.16.840.1.113883.10.20.22.4.23');
+        $this->appendVersionedTemplateId($manuProd, '2.16.840.1.113883.10.20.22.4.23', '2014-06-09');
 
         $manuMaterial = $this->createElement('manufacturedMaterial');
         $code = $this->createElement('code');
@@ -4568,8 +4533,7 @@ class InternalToCdaConverter
             $section->setAttribute('nullFlavor', 'NI');
         }
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58', '2015-08-01');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.58', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('75310-3', 'Health Concerns Document'));
         $section->appendChild($this->createElement('title', 'Health Concerns Document'));
@@ -4769,8 +4733,7 @@ class InternalToCdaConverter
         $section = $this->createElement('section');
         $section->setAttribute('nullFlavor', 'NI');
 
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1', '2015-08-01');
-        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1');
+        $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('42348-3', 'Advance Directives'));
         $section->appendChild($this->createElement('title', 'Advance Directives'));
@@ -4786,8 +4749,7 @@ class InternalToCdaConverter
         $section = $this->createElement('section');
         $section->setAttribute('nullFlavor', 'NI');
 
-        $this->appendTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1', '2014-06-09');
-        $this->appendTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1');
+        $this->appendVersionedTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1', '2014-06-09');
 
         $section->appendChild($this->createLoincCode('42349-1', 'Reason for Referral'));
         $section->appendChild($this->createElement('title', 'Reason for Referral'));
@@ -4872,6 +4834,12 @@ class InternalToCdaConverter
             $el->setAttribute('extension', $extension);
         }
         $parent->appendChild($el);
+    }
+
+    private function appendVersionedTemplateId(DOMElement $parent, string $root, string $extension): void
+    {
+        $this->appendTemplateId($parent, $root, $extension);
+        $this->appendTemplateId($parent, $root);
     }
 
     private function appendId(DOMElement $parent, string $root, string $extension = ''): void
