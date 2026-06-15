@@ -59,6 +59,23 @@ jobs:
           printf 'docker_dirs='
           printf '"%s"\n' "${dirs[@]}" | jq -sc '.'
         } >> "$GITHUB_OUTPUT"
+    - name: Validate production_coverage_openemr_version is a discovered target
+      # Fail fast if the caller asked for kcov instrumentation on a variant
+      # the matrix never builds. Without this, the kcov profile is silently
+      # disabled (every docker_dir != coverage_variant) and the whole run
+      # passes with zero coverage uploaded -- the exact silent regression
+      # the cross-branch review caught when the value drifted to a tag that
+      # doesn't exist under the openemr core layout.
+      if: ${{ inputs.production_coverage_openemr_version != '' }}
+      env:
+        COVERAGE_VARIANT: ${{ inputs.production_coverage_openemr_version }}
+        DOCKER_DIRS: ${{ steps.docker-dirs.outputs.docker_dirs }}
+      run: |
+        if ! printf '%s\n' "$DOCKER_DIRS" | jq -e --arg t "$COVERAGE_VARIANT" 'index($t)' >/dev/null; then
+          echo "::error::production_coverage_openemr_version='${COVERAGE_VARIANT}' is not in the discovered docker_dirs: ${DOCKER_DIRS}"
+          exit 1
+        fi
+        echo "✓ production_coverage_openemr_version='${COVERAGE_VARIANT}' is in the discovered docker_dirs"
     outputs:
       docker_dirs: ${{ steps.docker-dirs.outputs.docker_dirs }}
 
