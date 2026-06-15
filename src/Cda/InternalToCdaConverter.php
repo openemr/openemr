@@ -2947,7 +2947,14 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
-        if ($socialHistory->length === 0) {
+        // Check for USCDI data
+        $sexObservation = $this->xpathValue('/CCDA/patient/sex_observation');
+        $occupationCode = $this->xpathValue('/CCDA/patient/occupation/occupation_code');
+        $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
+        $pregnancyCode = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_code');
+        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '';
+
+        if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->setAttribute('nullFlavor', 'NI');
         }
 
@@ -2956,13 +2963,21 @@ class InternalToCdaConverter
         $section->appendChild($this->createLoincCode('29762-2', 'Social History'));
         $section->appendChild($this->createElement('title', 'Social History'));
 
-        if ($socialHistory->length === 0) {
+        if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->appendChild($this->createElement('text', 'Not Available'));
         } else {
             $this->appendSocialHistoryNarrative($section, $socialHistory);
             foreach ($socialHistory as $item) {
                 $this->appendSocialHistoryEntry($section, $item);
             }
+
+            // USCDI Social History Observations
+            $this->appendSexObservationEntry($section, $sexObservation);
+            $this->appendSexualOrientationObservationEntry($section);
+            $this->appendGenderIdentityObservationEntry($section);
+            $this->appendOccupationObservationEntry($section, $occupationCode);
+            $this->appendTribalAffiliationObservationEntry($section, $tribalCode);
+            $this->appendPregnancyStatusObservationEntry($section, $pregnancyCode);
         }
 
         $this->appendSection($structuredBody, $component, $section);
@@ -3143,6 +3158,364 @@ class InternalToCdaConverter
                 'displayName' => 'Smoker',
             ],
         };
+    }
+
+    private function appendSexObservationEntry(DOMElement $section, string $sexObservation): void
+    {
+        if ($sexObservation === '') {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.507', '2023-06-28');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $id = $this->createElement('id');
+            $id->setAttribute('root', $facilityOid);
+            $obs->appendChild($id);
+        }
+
+        $obs->appendChild($this->createLoincCode('46098-0', 'Sex'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('nullFlavor', 'NI');
+        $obs->appendChild($effTime);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+
+        $sexCode = $this->mapSexObservationCode($sexObservation);
+        $value->setAttribute('code', $sexCode['code']);
+        $value->setAttribute('codeSystem', $sexCode['codeSystem']);
+        $value->setAttribute('displayName', $sexCode['displayName']);
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    /**
+     * @return array{code: string, codeSystem: string, displayName: string}
+     */
+    private function mapSexObservationCode(string $sex): array
+    {
+        $sex = strtolower(trim($sex));
+
+        return match ($sex) {
+            'male', 'm' => [
+                'code' => '248153007',
+                'codeSystem' => '2.16.840.1.113883.6.96',
+                'displayName' => 'Male',
+            ],
+            'female', 'f' => [
+                'code' => '248152002',
+                'codeSystem' => '2.16.840.1.113883.6.96',
+                'displayName' => 'Female',
+            ],
+            'nonbinary' => [
+                'code' => '33791000087105',
+                'codeSystem' => '2.16.840.1.113883.6.96',
+                'displayName' => 'Identifies as nonbinary gender (finding)',
+            ],
+            'asked-declined' => [
+                'code' => 'asked-declined',
+                'codeSystem' => '2.16.840.1.113883.4.642.4.1048',
+                'displayName' => 'Asked But Declined',
+            ],
+            default => [
+                'code' => 'unknown',
+                'codeSystem' => '2.16.840.1.113883.4.642.4.1048',
+                'displayName' => 'Unknown',
+            ],
+        };
+    }
+
+    private function appendSexualOrientationObservationEntry(DOMElement $section): void
+    {
+        // Sexual orientation is always included per Node.js behavior
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.501', '2022-06-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $id = $this->createElement('id');
+            $id->setAttribute('root', $facilityOid);
+            $obs->appendChild($id);
+        }
+
+        $obs->appendChild($this->createLoincCode('76690-7', 'Sexual Orientation'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('nullFlavor', 'NI');
+        $obs->appendChild($effTime);
+
+        // Value with nullFlavor if no data
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('nullFlavor', 'UNK');
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    private function appendGenderIdentityObservationEntry(DOMElement $section): void
+    {
+        // Gender identity is always included per Node.js behavior
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.34.3.45', '2022-06-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $id = $this->createElement('id');
+            $id->setAttribute('root', $facilityOid);
+            $obs->appendChild($id);
+        }
+
+        $obs->appendChild($this->createLoincCode('76691-5', 'Gender Identity'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('nullFlavor', 'NI');
+        $obs->appendChild($effTime);
+
+        // Value with nullFlavor if no data
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('nullFlavor', 'ASKU');
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    private function appendOccupationObservationEntry(DOMElement $section, string $occupationCode): void
+    {
+        if ($occupationCode === '') {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.503', '2023-05-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $this->generateUuid());
+        $obs->appendChild($id);
+
+        $obs->appendChild($this->createLoincCode('11341-5', 'History of occupation'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        // Effective time with low/high
+        $startDate = $this->xpathValue('/CCDA/patient/occupation/start_date');
+        if ($startDate !== '') {
+            $effTime = $this->createElement('effectiveTime');
+            $low = $this->createElement('low');
+            $low->setAttribute('value', $this->formatDateOnly($startDate));
+            $effTime->appendChild($low);
+            $obs->appendChild($effTime);
+        }
+
+        // Value
+        $occupationTitle = $this->xpathValue('/CCDA/patient/occupation/occupation_title');
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $occupationCode);
+        $value->setAttribute('displayName', $occupationTitle);
+        $value->setAttribute('codeSystem', '2.16.840.1.114222.4.5.327');
+        $value->setAttribute('codeSystemName', 'Occupational Data for Health (ODH)');
+        $obs->appendChild($value);
+
+        // Industry entryRelationship
+        $industryCode = $this->xpathValue('/CCDA/patient/occupation/industry/industry_code');
+        if ($industryCode !== '') {
+            $this->appendOccupationIndustryObservation($obs);
+        }
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    private function appendOccupationIndustryObservation(DOMElement $parentObs): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'REFR');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.504', '2023-05-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $this->generateUuid());
+        $obs->appendChild($id);
+
+        $obs->appendChild($this->createLoincCode('86188-0', 'History of occupation industry'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $industryStartDate = $this->xpathValue('/CCDA/patient/occupation/industry/industry_start_date');
+        if ($industryStartDate !== '') {
+            $effTime = $this->createElement('effectiveTime');
+            $low = $this->createElement('low');
+            $low->setAttribute('value', $this->formatDateOnly($industryStartDate));
+            $effTime->appendChild($low);
+            $obs->appendChild($effTime);
+        }
+
+        $industryCode = $this->xpathValue('/CCDA/patient/occupation/industry/industry_code');
+        $industryTitle = $this->xpathValue('/CCDA/patient/occupation/industry/industry_title');
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $industryCode);
+        $value->setAttribute('displayName', $industryTitle);
+        $value->setAttribute('codeSystem', '2.16.840.1.114222.4.5.327');
+        $value->setAttribute('codeSystemName', 'Occupational Data for Health (ODH)');
+        $obs->appendChild($value);
+
+        $entryRel->appendChild($obs);
+        $parentObs->appendChild($entryRel);
+    }
+
+    private function appendTribalAffiliationObservationEntry(DOMElement $section, string $tribalCode): void
+    {
+        if ($tribalCode === '') {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.506', '2023-05-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $this->generateUuid());
+        $obs->appendChild($id);
+
+        $obs->appendChild($this->createLoincCode('95370-3', 'Tribal affiliation'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('nullFlavor', 'NI');
+        $obs->appendChild($effTime);
+
+        // Value - tribal code is the title/name, not a coded value in the current implementation
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $tribalCode);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.5.140');
+        $value->setAttribute('codeSystemName', 'Tribal TribalEntityUS');
+        $value->setAttribute('displayName', $tribalCode);
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    private function appendPregnancyStatusObservationEntry(DOMElement $section, string $pregnancyCode): void
+    {
+        if ($pregnancyCode === '') {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.15.3.8', '2023-05-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $this->generateUuid());
+        $obs->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'ASSERTION');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $obs->appendChild($code);
+
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $effTime = $this->createElement('effectiveTime');
+        $effTime->setAttribute('nullFlavor', 'NI');
+        $obs->appendChild($effTime);
+
+        $pregnancyTitle = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_title');
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $pregnancyCode);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED-CT');
+        $value->setAttribute('displayName', $pregnancyTitle);
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
     }
 
     private function renderPayersSection(DOMElement $structuredBody): void
