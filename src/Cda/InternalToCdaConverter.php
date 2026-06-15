@@ -3166,13 +3166,17 @@ class InternalToCdaConverter
                 'code' => '428061000124105',
                 'displayName' => 'Light tobacco smoker',
             ],
-            str_contains($description, 'unknown') => [
+            str_contains($description, 'unknown if ever') => [
                 'code' => '266927001',
-                'displayName' => 'Tobacco smoking consumption unknown',
+                'displayName' => 'Unknown if ever smoked',
+            ],
+            str_contains($description, 'current status unknown') || str_contains($description, 'smoker') => [
+                'code' => '77176002',
+                'displayName' => 'Smoker, current status unknown',
             ],
             default => [
                 'code' => '77176002',
-                'displayName' => 'Smoker',
+                'displayName' => 'Smoker, current status unknown',
             ],
         };
     }
