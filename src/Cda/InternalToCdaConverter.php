@@ -1950,7 +1950,14 @@ class InternalToCdaConverter
 
         $results = $this->xpath('/CCDA/results/result');
         $this->appendResultsNarrative($section, $results);
-        $this->appendResultsEntry($section, $results);
+
+        // Create separate organizer entry for each result panel
+        $index = 1;
+        foreach ($results as $result) {
+            $subtests = $this->xpath('subtest', $result);
+            $this->appendResultsEntry($section, $result, $subtests, $index);
+            $index += $subtests->length;
+        }
 
         $this->appendSection($structuredBody, $component, $section);
     }
@@ -1965,19 +1972,16 @@ class InternalToCdaConverter
 
         $tbody = $this->createElement('tbody');
 
-        // Header row with colspan (using first result's test name)
-        $firstResult = $results->item(0);
-        if ($firstResult instanceof DOMElement) {
-            $testName = $this->xpathValue('test_name', $firstResult);
+        $index = 1;
+        foreach ($results as $result) {
+            // Header row for each result panel
+            $testName = $this->xpathValue('test_name', $result);
             $headerRow = $this->createElement('tr');
             $headerCell = $this->createElement('td', $testName);
             $headerCell->setAttribute('colspan', '7');
             $headerRow->appendChild($headerCell);
             $tbody->appendChild($headerRow);
-        }
 
-        $index = 1;
-        foreach ($results as $result) {
             $dateOrdered = $this->xpathValue('date_ordered_table', $result);
             $dateDisplay = substr($dateOrdered, 0, 10); // Format: 2018-06-16
 
@@ -2011,15 +2015,10 @@ class InternalToCdaConverter
     }
 
     /**
-     * @param \DOMNodeList<\DOMElement> $results
+     * @param \DOMNodeList<\DOMElement> $subtests
      */
-    private function appendResultsEntry(DOMElement $section, \DOMNodeList $results): void
+    private function appendResultsEntry(DOMElement $section, DOMElement $result, \DOMNodeList $subtests, int $startIndex): void
     {
-        $firstResult = $results->item(0);
-        if (!$firstResult instanceof DOMElement) {
-            return;
-        }
-
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
 
@@ -2038,15 +2037,15 @@ class InternalToCdaConverter
             $organizer->appendChild($uniqueId);
         }
 
-        $root = $this->xpathValue('root', $firstResult);
-        $ext = $this->xpathValue('extension', $firstResult);
+        $root = $this->xpathValue('root', $result);
+        $ext = $this->xpathValue('extension', $result);
         $id = $this->createElement('id');
         $id->setAttribute('root', $root);
         $id->setAttribute('extension', $ext);
         $organizer->appendChild($id);
 
-        $testCode = $this->xpathValue('test_code', $firstResult);
-        $testName = $this->xpathValue('test_name', $firstResult);
+        $testCode = $this->xpathValue('test_code', $result);
+        $testName = $this->xpathValue('test_name', $result);
         $code = $this->createElement('code');
         $code->setAttribute('code', $testCode);
         $code->setAttribute('displayName', $testName);
@@ -2056,20 +2055,16 @@ class InternalToCdaConverter
 
         $this->appendStatusCode($organizer, ActStatus::Completed);
 
-        $authorEl = $this->xpath('author', $firstResult)->item(0);
+        $authorEl = $this->xpath('author', $result)->item(0);
         if ($authorEl instanceof DOMElement) {
             $this->appendEntryAuthor($organizer, $authorEl);
         }
 
-        // Add all subtests from all results as components
-        $index = 1;
-        foreach ($results as $result) {
-            $subtests = $this->xpath('subtest', $result);
-            $dateOrdered = $this->xpathValue('date_ordered', $result);
-            foreach ($subtests as $subtest) {
-                $this->appendResultComponent($organizer, $subtest, $dateOrdered, $index);
-                $index++;
-            }
+        $dateOrdered = $this->xpathValue('date_ordered', $result);
+        $index = $startIndex;
+        foreach ($subtests as $subtest) {
+            $this->appendResultComponent($organizer, $subtest, $dateOrdered, $index);
+            $index++;
         }
 
         $entry->appendChild($organizer);
