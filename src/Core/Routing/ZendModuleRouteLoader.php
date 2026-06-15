@@ -52,14 +52,27 @@ final readonly class ZendModuleRouteLoader
     }
 
     /**
-     * Scan every `module/<Name>/config/module.config.php` and build the
-     * combined RouteCollection for all modules that declare routes.
+     * Build the combined RouteCollection for the enabled modules that declare
+     * routes.
+     *
+     * Only modules in $enabledModules are considered — these are the modules the
+     * legacy ModulesApplication actually loads (core_modules plus DB-enabled
+     * plugins, from application.config.php's `modules` list). Disabled modules
+     * are skipped entirely: their `module.config.php` is never required, so a
+     * broken or side-effectful config in a module Laminas would never load
+     * cannot break the seam, and route loading matches production enablement.
+     *
+     * @param list<string> $enabledModules module names (directory names) to load
      */
-    public function load(): RouteCollection
+    public function load(array $enabledModules): RouteCollection
     {
+        $enabled = array_flip($enabledModules);
         $collection = new RouteCollection();
 
         foreach ($this->moduleConfigFiles() as $moduleName => $configFile) {
+            if (!isset($enabled[$moduleName])) {
+                continue;
+            }
             $config = require $configFile;
             if (!is_array($config)) {
                 continue;

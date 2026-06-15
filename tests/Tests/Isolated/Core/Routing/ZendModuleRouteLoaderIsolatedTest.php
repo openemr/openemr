@@ -35,9 +35,21 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
         );
     }
 
+    /**
+     * The modules these tests assert routes for. In production this list comes
+     * from ModulesApplication's ApplicationConfig (core_modules + DB-enabled
+     * plugins); the loader only requires configs for modules on it.
+     *
+     * @return list<string>
+     */
+    private function enabledModules(): array
+    {
+        return ['Acl', 'Application', 'Documents', 'Carecoordination'];
+    }
+
     public function testLoadsRealModuleRoutes(): void
     {
-        $collection = $this->loader()->load();
+        $collection = $this->loader()->load($this->enabledModules());
 
         // A representative sample of modules that declare routes.
         $this->assertNotNull($collection->get('zend_module.Acl.acl'));
@@ -48,7 +60,7 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
 
     public function testSegmentRouteTranslatesPlaceholdersAndConstraints(): void
     {
-        $route = $this->loader()->load()->get('zend_module.Acl.acl');
+        $route = $this->loader()->load($this->enabledModules())->get('zend_module.Acl.acl');
         self::assertNotNull($route);
 
         $this->assertSame('/acl/{action}/{id}', $route->getPath());
@@ -63,7 +75,7 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
 
     public function testAclRouteMatchesWithAndWithoutOptionalSegments(): void
     {
-        $matcher = new UrlMatcher($this->loader()->load(), new RequestContext());
+        $matcher = new UrlMatcher($this->loader()->load($this->enabledModules()), new RequestContext());
 
         $bare = $matcher->match('/acl');
         $this->assertSame('Acl', $bare[ZendModuleRouteLoader::ATTR_MODULE]);
@@ -80,7 +92,7 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
 
     public function testCanaryApplicationIndexRoute(): void
     {
-        $matcher = new UrlMatcher($this->loader()->load(), new RequestContext());
+        $matcher = new UrlMatcher($this->loader()->load($this->enabledModules()), new RequestContext());
 
         // The canary: GET /application -> Application\Controller\IndexController::index
         $match = $matcher->match('/application');
@@ -93,7 +105,7 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
 
     public function testChildRoutesAreLoadedUnderParentPattern(): void
     {
-        $collection = $this->loader()->load();
+        $collection = $this->loader()->load($this->enabledModules());
 
         $sendto = $collection->get('zend_module.Application.application/sendto');
         self::assertNotNull($sendto);
@@ -105,7 +117,7 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
         // Carecoordination's encounterccdadispatch has a malformed Laminas
         // pattern with repeated :id and :val. The translation must produce a
         // valid Symfony path (no duplicate placeholder names).
-        $route = $this->loader()->load()->get('zend_module.Carecoordination.encounterccdadispatch');
+        $route = $this->loader()->load($this->enabledModules())->get('zend_module.Carecoordination.encounterccdadispatch');
         self::assertNotNull($route);
 
         $this->assertSame('/encounterccdadispatch/{action}/{id}/{val}', $route->getPath());
@@ -113,9 +125,20 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
 
     public function testLiteralRootRoute(): void
     {
-        $route = $this->loader()->load()->get('zend_module.Application.home');
+        $route = $this->loader()->load($this->enabledModules())->get('zend_module.Application.home');
         self::assertNotNull($route);
         $this->assertSame('/', $route->getPath());
+    }
+
+    public function testDisabledModulesAreNotLoaded(): void
+    {
+        // Acl ships routes and a config on disk, but is absent from the enabled
+        // list, so the loader must not require its config or emit its routes.
+        $collection = $this->loader()->load(['Application']);
+
+        $this->assertNotNull($collection->get('zend_module.Application.application'));
+        $this->assertNull($collection->get('zend_module.Acl.acl'));
+        $this->assertNull($collection->get('zend_module.Documents.documents'));
     }
 
     public function testLoadModuleConfigWithLiteralAndSegmentTypes(): void

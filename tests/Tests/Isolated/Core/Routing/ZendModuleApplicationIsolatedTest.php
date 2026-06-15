@@ -26,12 +26,19 @@ class ZendModuleApplicationIsolatedTest extends TestCase
 {
     private function application(): ZendModuleApplication
     {
-        // matches() only consults the route collection, so an empty
-        // ServiceManager and a stub dispatcher are sufficient here. Dispatch
-        // (which uses both) is covered by the resolver test against the seam
-        // pieces.
+        // matches() only consults the route collection, so a stub dispatcher is
+        // sufficient here. The ServiceManager only needs ApplicationConfig: the
+        // app reads its `modules` list to decide which module configs the loader
+        // may require (mirroring the legacy ModulesApplication enablement).
+        // Dispatch (which uses the full ServiceManager) is covered by the
+        // resolver test against the seam pieces.
+        $serviceManager = new ServiceManager();
+        $serviceManager->setService('ApplicationConfig', [
+            'modules' => ['Application', 'Acl'],
+        ]);
+
         return new ZendModuleApplication(
-            new ServiceManager(),
+            $serviceManager,
             $this->createStub(EventDispatcherInterface::class),
             new ZendModuleRouteLoader(
                 dirname(__DIR__, 5) . '/interface/modules/zend_modules',

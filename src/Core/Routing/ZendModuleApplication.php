@@ -69,7 +69,36 @@ final readonly class ZendModuleApplication
         private EventDispatcherInterface $eventDispatcher,
         ZendModuleRouteLoader $routeLoader,
     ) {
-        $this->routes = $routeLoader->load();
+        $this->routes = $routeLoader->load($this->enabledModuleNames());
+    }
+
+    /**
+     * The module names the legacy ModulesApplication has loaded: core_modules
+     * plus DB-enabled plugins, taken from the ServiceManager's ApplicationConfig
+     * (set in ModulesApplication from application.config.php's `modules` list).
+     * Only these modules' route configs are loaded by the seam, so it never
+     * requires a disabled module's config. Falls back to an empty list when the
+     * config is unavailable or malformed.
+     *
+     * @return list<string>
+     */
+    private function enabledModuleNames(): array
+    {
+        if (!$this->serviceManager->has('ApplicationConfig')) {
+            return [];
+        }
+
+        $config = $this->serviceManager->get('ApplicationConfig');
+        if (!is_array($config)) {
+            return [];
+        }
+
+        $modules = $config['modules'] ?? null;
+        if (!is_array($modules)) {
+            return [];
+        }
+
+        return array_values(array_filter($modules, is_string(...)));
     }
 
     /**
