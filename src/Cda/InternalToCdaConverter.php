@@ -1748,6 +1748,9 @@ class InternalToCdaConverter
         if ($statusTable === 'Resolved') {
             $value->setAttribute('code', '413322009');
             $value->setAttribute('displayName', 'Resolved');
+        } elseif ($statusTable === 'Inactive') {
+            $value->setAttribute('code', '73425007');
+            $value->setAttribute('displayName', 'Inactive');
         } else {
             $value->setAttribute('code', $statusCode !== '' ? $statusCode : '55561003');
             $value->setAttribute('displayName', $statusTable !== '' ? $statusTable : 'Active');
