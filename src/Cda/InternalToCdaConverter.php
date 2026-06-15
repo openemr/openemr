@@ -1415,11 +1415,9 @@ class InternalToCdaConverter
 
         $subAdmin = $this->createElement('substanceAdministration');
         $subAdmin->setAttribute('classCode', 'SBADM');
-
-        // Set moodCode based on status: active=INT (intent), completed=EVN (event)
-        $status = strtolower($this->xpathValue('status', $med));
-        $moodCode = $status === 'active' ? 'INT' : 'EVN';
-        $subAdmin->setAttribute('moodCode', $moodCode);
+        // moodCode should probably be INT for active/prescribed, EVN for completed,
+        // but Node.js hardcodes status to 'Completed' (serveccda.js:287) so we match that.
+        $subAdmin->setAttribute('moodCode', 'EVN');
 
         $this->appendVersionedTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.16', '2014-06-09');
 
@@ -1954,14 +1952,7 @@ class InternalToCdaConverter
 
         $results = $this->xpath('/CCDA/results/result');
         $this->appendResultsNarrative($section, $results);
-
-        // Create separate organizer entry for each result panel
-        $index = 1;
-        foreach ($results as $result) {
-            $subtests = $this->xpath('subtest', $result);
-            $this->appendResultsEntry($section, $result, $subtests, $index);
-            $index += $subtests->length;
-        }
+        $this->appendResultsEntry($section, $results);
 
         $this->appendSection($structuredBody, $component, $section);
     }
@@ -1976,16 +1967,19 @@ class InternalToCdaConverter
 
         $tbody = $this->createElement('tbody');
 
-        $index = 1;
-        foreach ($results as $result) {
-            // Header row for each result panel
-            $testName = $this->xpathValue('test_name', $result);
+        // Single header row using first result's test name (matches Node.js behavior)
+        $firstResult = $results->item(0);
+        if ($firstResult instanceof DOMElement) {
+            $testName = $this->xpathValue('test_name', $firstResult);
             $headerRow = $this->createElement('tr');
             $headerCell = $this->createElement('td', $testName);
             $headerCell->setAttribute('colspan', '7');
             $headerRow->appendChild($headerCell);
             $tbody->appendChild($headerRow);
+        }
 
+        $index = 1;
+        foreach ($results as $result) {
             $dateOrdered = $this->xpathValue('date_ordered_table', $result);
             $dateDisplay = substr($dateOrdered, 0, 10); // Format: 2018-06-16
 
@@ -2019,10 +2013,15 @@ class InternalToCdaConverter
     }
 
     /**
-     * @param \DOMNodeList<\DOMElement> $subtests
+     * @param \DOMNodeList<\DOMElement> $results
      */
-    private function appendResultsEntry(DOMElement $section, DOMElement $result, \DOMNodeList $subtests, int $startIndex): void
+    private function appendResultsEntry(DOMElement $section, \DOMNodeList $results): void
     {
+        $firstResult = $results->item(0);
+        if (!$firstResult instanceof DOMElement) {
+            return;
+        }
+
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
 
@@ -2041,15 +2040,15 @@ class InternalToCdaConverter
             $organizer->appendChild($uniqueId);
         }
 
-        $root = $this->xpathValue('root', $result);
-        $ext = $this->xpathValue('extension', $result);
+        $root = $this->xpathValue('root', $firstResult);
+        $ext = $this->xpathValue('extension', $firstResult);
         $id = $this->createElement('id');
         $id->setAttribute('root', $root);
         $id->setAttribute('extension', $ext);
         $organizer->appendChild($id);
 
-        $testCode = $this->xpathValue('test_code', $result);
-        $testName = $this->xpathValue('test_name', $result);
+        $testCode = $this->xpathValue('test_code', $firstResult);
+        $testName = $this->xpathValue('test_name', $firstResult);
         $code = $this->createElement('code');
         $code->setAttribute('code', $testCode);
         $code->setAttribute('displayName', $testName);
@@ -2059,16 +2058,20 @@ class InternalToCdaConverter
 
         $this->appendStatusCode($organizer, ActStatus::Completed);
 
-        $authorEl = $this->xpath('author', $result)->item(0);
+        $authorEl = $this->xpath('author', $firstResult)->item(0);
         if ($authorEl instanceof DOMElement) {
             $this->appendEntryAuthor($organizer, $authorEl);
         }
 
-        $dateOrdered = $this->xpathValue('date_ordered', $result);
-        $index = $startIndex;
-        foreach ($subtests as $subtest) {
-            $this->appendResultComponent($organizer, $subtest, $dateOrdered, $index);
-            $index++;
+        // Add all subtests from all results as components
+        $index = 1;
+        foreach ($results as $result) {
+            $subtests = $this->xpath('subtest', $result);
+            $dateOrdered = $this->xpathValue('date_ordered', $result);
+            foreach ($subtests as $subtest) {
+                $this->appendResultComponent($organizer, $subtest, $dateOrdered, $index);
+                $index++;
+            }
         }
 
         $entry->appendChild($organizer);
