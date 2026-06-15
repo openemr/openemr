@@ -2134,8 +2134,10 @@ class InternalToCdaConverter
             $value->setAttribute('value', $resultValue);
             $value->setAttribute('unit', $unit);
         } elseif ($valueType === 'CO') {
-            $origText = $this->createElement('originalText', strtoupper($resultValue));
-            $value->appendChild($origText);
+            $value->setAttribute('code', '260385009');
+            $value->setAttribute('codeSystemName', 'SNOMED-CT');
+            $value->setAttribute('displayName', 'Negative');
+            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         } else {
             $value->nodeValue = $resultValue;
         }
