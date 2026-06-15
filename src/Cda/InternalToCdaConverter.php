@@ -2509,7 +2509,11 @@ class InternalToCdaConverter
             $this->appendEntryAuthor($subAdmin, $authorEl);
         }
 
-        $this->appendImmunizationEducation($subAdmin);
+        // Only add education entry if there's instruction/note data
+        $note = $this->xpathValue('note', $imm);
+        if ($note !== '') {
+            $this->appendImmunizationEducation($subAdmin);
+        }
 
         $entry->appendChild($subAdmin);
         $section->appendChild($entry);
