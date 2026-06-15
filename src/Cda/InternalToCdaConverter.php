@@ -3251,6 +3251,11 @@ class InternalToCdaConverter
                 'codeSystem' => '2.16.840.1.113883.4.642.4.1048',
                 'displayName' => 'Asked But Declined',
             ],
+            'unk', 'unknown' => [
+                'code' => 'unknown',
+                'codeSystem' => '2.16.840.1.113883.4.642.4.1048',
+                'displayName' => 'Unknown',
+            ],
             default => [
                 'code' => 'unknown',
                 'codeSystem' => '2.16.840.1.113883.4.642.4.1048',
