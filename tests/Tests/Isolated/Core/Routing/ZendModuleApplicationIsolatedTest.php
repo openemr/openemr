@@ -33,7 +33,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Group('core')]
 class ZendModuleApplicationIsolatedTest extends TestCase
 {
-    private const CANARY = 'Application\\Controller\\IndexController';
+    private const CANARY = \Application\Controller\IndexController::class;
 
     private function routeLoader(): ZendModuleRouteLoader
     {

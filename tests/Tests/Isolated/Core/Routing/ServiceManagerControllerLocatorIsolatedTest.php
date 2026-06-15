@@ -30,7 +30,7 @@ use PHPUnit\Framework\TestCase;
 #[Group('core')]
 class ServiceManagerControllerLocatorIsolatedTest extends TestCase
 {
-    private const CANARY = 'Application\\Controller\\IndexController';
+    private const CANARY = \Application\Controller\IndexController::class;
 
     /**
      * A ControllerManager with the minimal collaborators it injects on get():
