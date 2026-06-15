@@ -3158,29 +3158,179 @@ class InternalToCdaConverter
 
     private function renderFunctionalStatusSection(DOMElement $structuredBody): void
     {
-        $functionalStatus = $this->xpath('/CCDA/functional_status/functional_status');
+        $functionalStatus = $this->xpath('/CCDA/functional_status/item');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($functionalStatus->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14', '2014-06-09');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '47420-5');
-            $code->setAttribute('displayName', 'Functional Status');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Functional Status'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement functional status with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14', '2014-06-09');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '47420-5');
+        $code->setAttribute('displayName', 'Functional Status');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Functional Status'));
+
+        if ($functionalStatus->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendFunctionalStatusNarrative($section, $functionalStatus);
+            foreach ($functionalStatus as $item) {
+                $this->appendFunctionalStatusEntry($section, $item);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $items
+     */
+    private function appendFunctionalStatusNarrative(DOMElement $section, \DOMNodeList $items): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Functional Status', 'Date']);
+
+        $index = 1;
+        foreach ($items as $item) {
+            $codeText = $this->xpathValue('code_text', $item);
+            $date = $this->xpathValue('date', $item);
+            $displayText = $codeText !== '' && $codeText !== 'NULL' ? $codeText : '';
+            $this->appendTableRow($table, [$displayText, $date], 'functional_status' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendFunctionalStatusEntry(DOMElement $section, DOMElement $item): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $organizer = $this->createElement('organizer');
+        $organizer->setAttribute('classCode', 'CLUSTER');
+        $organizer->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.66', '2014-06-09');
+        $this->appendTemplateId($organizer, '2.16.840.1.113883.10.20.22.4.66');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $organizer->appendChild($uniqueId);
+        }
+
+        // id
+        $ext = $this->xpathValue('extension', $item);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809000');
+        $id->setAttribute('extension', $ext);
+        $organizer->appendChild($id);
+
+        // Code - Self-Care from ICF
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'd5');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.254');
+        $code->setAttribute('codeSystemName', 'ICF');
+        $code->setAttribute('displayName', 'Self-Care');
+        $organizer->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $organizer->appendChild($statusCode);
+
+        // Author from global author
+        $authorEl = $this->xpath('/CCDA/author')->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($organizer, $authorEl);
+        }
+
+        // Observation component
+        $this->appendFunctionalStatusObservation($organizer, $item);
+
+        $entry->appendChild($organizer);
+        $section->appendChild($entry);
+    }
+
+    private function appendFunctionalStatusObservation(DOMElement $organizer, DOMElement $item): void
+    {
+        $component = $this->createElement('component');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67', '2014-06-09');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.67');
+
+        $ext = $this->xpathValue('extension', $item);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
+        $id->setAttribute('extension', $ext);
+        $obs->appendChild($id);
+
+        // Code
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '54522-8');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $code->setAttribute('displayName', 'Functional status');
+        $obs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $item);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+        $obs->appendChild($effectiveTime);
+
+        // Value
+        $itemCode = $this->xpathValue('code', $item);
+        $codeText = $this->xpathValue('code_text', $item);
+        $codeType = $this->xpathValue('code_type', $item);
+
+        if ($itemCode !== '' || ($codeText !== '' && $codeText !== 'NULL')) {
+            $value = $this->output->createElement('value');
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            if ($itemCode !== '') {
+                $value->setAttribute('code', $this->cleanCode($itemCode));
+            }
+            if ($codeText !== '' && $codeText !== 'NULL') {
+                $value->setAttribute('displayName', $codeText);
+            }
+            $codeSystemName = $codeType !== '' ? $codeType : 'SNOMED CT';
+            if ($codeSystemName === 'SNOMED-CT') {
+                $codeSystemName = 'SNOMED CT';
+            }
+            $value->setAttribute('codeSystemName', $codeSystemName);
+            if ($codeSystemName === 'SNOMED CT') {
+                $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            }
+            $obs->appendChild($value);
+        }
+
+        // Author
+        $authorEl = $this->xpath('/CCDA/author')->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $component->appendChild($obs);
+        $organizer->appendChild($component);
     }
 
     private function renderMentalStatusSection(DOMElement $structuredBody): void
