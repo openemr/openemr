@@ -717,13 +717,7 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.500', '2019-07-01');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '85847-2');
-        $code->setAttribute('displayName', 'Patient Care Teams');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('85847-2', 'Patient Care Teams'));
         $section->appendChild($this->createElement('title', 'Patient Care Teams'));
 
         if (!$hasActiveTeam) {
@@ -782,12 +776,7 @@ class InternalToCdaConverter
             $organizer->appendChild($id);
         }
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '86744-0');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $code->setAttribute('displayName', 'Care Team Information');
-        $organizer->appendChild($code);
+        $organizer->appendChild($this->createLoincCode('86744-0', 'Care Team Information'));
 
         $this->appendStatusCode($organizer, ActStatus::Active);
 
@@ -841,12 +830,7 @@ class InternalToCdaConverter
             $act->appendChild($id);
         }
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '85847-2');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $code->setAttribute('displayName', 'Patient Care team information');
-        $act->appendChild($code);
+        $act->appendChild($this->createLoincCode('85847-2', 'Patient Care team information'));
 
         $status = $this->xpathValue('status', $provider);
         $this->appendStatusCode($act, ActStatus::tryFrom($status) ?? ActStatus::Active);
@@ -951,13 +935,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1', '2015-08-01');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.6.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '48765-2');
-        $code->setAttribute('displayName', 'Allergies, adverse reactions, alerts');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('48765-2', 'Allergies, adverse reactions, alerts'));
         $section->appendChild($this->createElement('title', 'Allergies, adverse reactions, alerts'));
 
         $allergies = $this->xpath('/CCDA/allergies/allergy');
@@ -1193,13 +1171,7 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($statusObs, '2.16.840.1.113883.10.20.22.4.28');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '33999-4');
-        $code->setAttribute('displayName', 'Status');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $statusObs->appendChild($code);
-
+        $statusObs->appendChild($this->createLoincCode('33999-4', 'Status'));
         $this->appendStatusCode($statusObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
@@ -1771,13 +1743,7 @@ class InternalToCdaConverter
         $id->setAttribute('extension', $ext);
         $statusObs->appendChild($id);
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '33999-4');
-        $code->setAttribute('displayName', 'Status');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $statusObs->appendChild($code);
-
+        $statusObs->appendChild($this->createLoincCode('33999-4', 'Status'));
         $this->appendStatusCode($statusObs, ActStatus::Completed);
 
         $startDate = $this->xpathValue('start_date', $problem);
@@ -5102,13 +5068,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, $templateId, $templateExtension);
         $this->appendTemplateId($section, $templateId);
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', $loincCode);
-        $code->setAttribute('displayName', $title);
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode($loincCode, $title));
         $section->appendChild($this->createElement('title', $title));
 
         return [$component, $section];
@@ -5233,6 +5193,19 @@ class InternalToCdaConverter
     private function generateUuid(): string
     {
         return Uuid::uuid4()->toString();
+    }
+
+    /**
+     * Creates a code element with LOINC code system
+     */
+    private function createLoincCode(string $code, string $displayName): DOMElement
+    {
+        $codeEl = $this->createElement('code');
+        $codeEl->setAttribute('code', $code);
+        $codeEl->setAttribute('displayName', $displayName);
+        $codeEl->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $codeEl->setAttribute('codeSystemName', 'LOINC');
+        return $codeEl;
     }
 
     /**
