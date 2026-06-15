@@ -3175,28 +3175,222 @@ class InternalToCdaConverter
     private function renderHealthConcernsSection(DOMElement $structuredBody): void
     {
         $concerns = $this->xpath('/CCDA/health_concerns/concern');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($concerns->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58', '2015-08-01');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '75310-3');
-            $code->setAttribute('displayName', 'Health Concerns Document');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Health Concerns Document'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement health concerns with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58', '2015-08-01');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '75310-3');
+        $code->setAttribute('displayName', 'Health Concerns Document');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Health Concerns Document'));
+
+        if ($concerns->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendHealthConcernsNarrative($section, $concerns);
+            foreach ($concerns as $concern) {
+                $this->appendHealthConcernEntry($section, $concern);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $concerns
+     */
+    private function appendHealthConcernsNarrative(DOMElement $section, \DOMNodeList $concerns): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Concern', 'Date']);
+
+        $index = 1;
+        foreach ($concerns as $concern) {
+            $concernText = $this->xpathValue('text', $concern);
+            $codeText = $this->xpathValue('code_text', $concern);
+            $date = $this->xpathValue('date', $concern);
+
+            $displayText = $concernText !== '' ? $concernText : $codeText;
+            $this->appendTableRow($table, [$displayText, $date], 'concern' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendHealthConcernEntry(DOMElement $section, DOMElement $concern): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'EVN');
+
+        // Health Concern Act template IDs
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.132');
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.132', '2015-08-01');
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.132', '2022-06-01');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $act->appendChild($uniqueId);
+        }
+
+        // Regular id
+        $shaExt = $this->xpathValue('sha_extension', $concern);
+        $ext = $this->xpathValue('extension', $concern);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt !== '' ? $shaExt : 'NI');
+        $id->setAttribute('extension', $ext);
+        $act->appendChild($id);
+
+        // Code
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '75310-3');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $code->setAttribute('displayName', 'Health Concern');
+        $act->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $act->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $concern);
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $low = $this->createElement('low');
+            $low->setAttribute('value', $this->formatDateOnly($date));
+            $effectiveTime->appendChild($low);
+            $act->appendChild($effectiveTime);
+        }
+
+        $authorEl = $this->xpath('author', $concern)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($act, $authorEl);
+        }
+
+        // Nested Problem Observation
+        $this->appendHealthConcernObservation($act, $concern);
+
+        $entry->appendChild($act);
+        $section->appendChild($entry);
+    }
+
+    private function appendHealthConcernObservation(DOMElement $act, DOMElement $concern): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'REFR');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        // Problem Observation V3 template IDs
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4', '2015-08-01');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        // id
+        $shaExt = $this->xpathValue('sha_extension', $concern);
+        $ext = $this->xpathValue('extension', $concern);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt !== '' ? $shaExt : 'NI');
+        $id->setAttribute('extension', $ext . '-obs');
+        $obs->appendChild($id);
+
+        // code - Clinical finding with LOINC translation
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '404684003');
+        $code->setAttribute('displayName', 'Clinical finding (finding)');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED CT');
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '75321-0');
+        $translation->setAttribute('displayName', 'Clinical Finding');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $code->appendChild($translation);
+        $obs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $concern);
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $low = $this->createElement('low');
+            $low->setAttribute('value', $this->formatDateOnly($date));
+            $effectiveTime->appendChild($low);
+            $obs->appendChild($effectiveTime);
+        }
+
+        // value - CD type with concern code
+        $concernCode = $this->xpathValue('code', $concern);
+        $codeText = $this->xpathValue('code_text', $concern);
+        $codeType = $this->xpathValue('code_type', $concern);
+
+        if ($concernCode !== '' || $codeText !== '') {
+            $value = $this->output->createElement('value');
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            if ($concernCode !== '') {
+                $value->setAttribute('code', $this->cleanCode($concernCode));
+            }
+            if ($codeText !== '') {
+                $value->setAttribute('displayName', $codeText);
+            }
+            // Determine code system
+            $codeSystem = match (strtoupper(str_replace(' ', '', $codeType))) {
+                'SNOMEDCT', 'SNOMED-CT', 'SNOMED' => '2.16.840.1.113883.6.96',
+                'LOINC' => '2.16.840.1.113883.6.1',
+                'ICD10' => '2.16.840.1.113883.6.90',
+                default => '',
+            };
+            if ($codeSystem !== '') {
+                $value->setAttribute('codeSystem', $codeSystem);
+            }
+            $codeSystemName = match (strtoupper(str_replace(' ', '', $codeType))) {
+                'SNOMEDCT', 'SNOMED-CT', 'SNOMED' => 'SNOMED CT',
+                default => $codeType,
+            };
+            if ($codeSystemName !== '') {
+                $value->setAttribute('codeSystemName', $codeSystemName);
+            }
+            $obs->appendChild($value);
+        }
+
+        $authorEl = $this->xpath('author', $concern)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $entryRel->appendChild($obs);
+        $act->appendChild($entryRel);
     }
 
     private function renderAdvanceDirectivesSection(DOMElement $structuredBody): void
