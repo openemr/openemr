@@ -21,20 +21,20 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
-use Symfony\Component\Filesystem\Exception\IOException;
-use Symfony\Component\Filesystem\Filesystem;
 
 class EtherFaxActions extends AppDispatch
 {
     public static $timeZone;
-    protected $baseDir;
+    protected string $baseDir = '';
     protected $uriDir;
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
     protected CryptoInterface $crypto;
     private readonly EtherFaxClient $client;
+    private readonly FaxUploadStaging $uploadStaging;
     private mixed $appSecret;
     private mixed $sid;
     private mixed $appKey;
@@ -46,6 +46,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         $this->crypto = ServiceContainer::getCrypto();
+        $this->uploadStaging = FaxUploadStaging::create();
         $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
@@ -142,85 +143,10 @@ class EtherFaxActions extends AppDispatch
      */
     public function faxProcessUploads(): string
     {
-        if (empty($_FILES['fax']) || $_FILES['fax']['error'] !== UPLOAD_ERR_OK) {
-            error_log('Error: No file uploaded or upload error.');
-            return '';
-        }
-
-        $tmpName = $_FILES['fax']['tmp_name'];
-        if (!is_string($tmpName)) {
-            return '';
-        }
-
-        // MIME filter on the actual upload bytes — reject anything that
-        // isn't a fax-safe content type so an attacker-chosen extension
-        // (e.g. .php, .phtml, .htaccess) can never land on disk under
-        // the staged path.
-        $mime = mime_content_type($tmpName);
-        $ext = match ($mime) {
-            'application/pdf' => '.pdf',
-            'image/tiff' => '.tiff',
-            'image/jpeg' => '.jpg',
-            'image/png' => '.png',
-            'text/plain' => '.txt',
-            default => null,
-        };
-        if ($ext === null) {
-            ServiceContainer::getLogger()->warning(
-                'Unsupported fax upload content type',
-                ['mime' => $mime]
-            );
-            return '';
-        }
-
-        $targetDir = $this->baseDir . '/send';
-        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
-            error_log('Error: Failed to create directory.');
-            return '';
-        }
-        chmod($targetDir, 0700);
-
-        // Sanitized basename + short random hex suffix + server-determined
-        // extension. Preserves the human-readable label for vendor metadata
-        // while guaranteeing the on-disk filename is unguessable and the
-        // extension matches the actual content type.
-        $origName = basename((string)($_FILES['fax']['name'] ?? 'fax'));
-        $base = convert_safe_file_dir_name(pathinfo($origName, PATHINFO_FILENAME)) ?: 'fax';
-        $filepath = $targetDir . '/' . $base . '_' . bin2hex(random_bytes(4)) . $ext;
-
-        // Encrypt at rest. encryptForFilesystem is a no-op when the
-        // drive_encryption global is off, matching the rest of the
-        // document store. The send path decrypts before consumption.
-        $content = file_get_contents($tmpName);
-        if ($content === false) {
-            return '';
-        }
-        if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($content)) === false) {
-            ServiceContainer::getLogger()->error(
-                'Failed to store uploaded fax',
-                ['filepath' => $filepath]
-            );
-            return '';
-        }
-
-        return $filepath;
-    }
-
-    /**
-     * True if a path matches the on-disk shape faxProcessUploads creates
-     * (sanitized basename, 8-char hex suffix, fax-safe extension). Used to
-     * scope cleanup to files this controller staged rather than files
-     * caller code wrote into the same directory.
-     *
-     * @param string $path
-     * @return bool
-     */
-    private static function isStagedUploadPath(string $path): bool
-    {
-        return preg_match(
-            '/^[A-Za-z0-9_.-]+_[a-f0-9]{8}\\.(pdf|tiff|jpg|png|txt)$/',
-            basename($path)
-        ) === 1;
+        $upload = $_FILES['fax'] ?? null;
+        return is_array($upload)
+            ? $this->uploadStaging->processUpload($this->baseDir, $upload)
+            : '';
     }
 
     /**
@@ -276,40 +202,40 @@ class EtherFaxActions extends AppDispatch
             }
         }
 
-        // faxProcessUploads stores the staged file via encryptForFilesystem.
-        // Read it once, decrypt to memory, and hand off content (not the
-        // encrypted path) to downstream consumers. The pattern guard
-        // scopes cleanup to files this PR's faxProcessUploads created so
-        // callers that manage their own temp files aren't disrupted.
-        // decryptFromFilesystem returns legacy plaintext unchanged via its
-        // version-prefix check, so files staged before this change remain
-        // readable.
+        // Decrypt the staged upload to a per-request plaintext tempnam
+        // and continue with that as $file. Pattern guard scopes the
+        // cleanup we'll do below to files this controller staged via
+        // FaxUploadStaging, leaving caller-managed temp files alone.
         $stagedPath = null;
+        $plainStagePath = null;
         if (
             empty($isContent)
             && !$isDocuments
             && is_string($file)
             && is_file($file)
-            && self::isStagedUploadPath($file)
+            && $this->uploadStaging->isStagedUploadPath($file)
         ) {
-            $raw = file_get_contents($file);
-            if ($raw === false) {
+            $plainStagePath = $this->uploadStaging->decryptStagedToTemp($file);
+            if ($plainStagePath === null) {
                 return xlt('Error: Failed to read fax content');
             }
             $stagedPath = $file;
-            $file = $this->crypto->decryptFromFilesystem($raw);
-            $isDocuments = true;
+            $file = $plainStagePath;
+            $fileName = pathinfo($file, PATHINFO_BASENAME);
         }
 
         // If document mode, load from Document table instead
-        if ($isDocuments && $stagedPath === null) {
+        if ($isDocuments) {
             $doc = new Document($docId);
             $file = $doc->get_data();
             $fileName = $doc->get_name() ?? 'document';
         }
 
-        // Optional email copy. When we have content (not a real path), write
-        // a per-request plaintext scratch file so AddAttachment can read it.
+        // Optional email copy. The patient-document branch above hands us
+        // raw bytes rather than a path, so write a per-request plaintext
+        // scratch file in that case so AddAttachment sees a real path.
+        // The staged-upload branch already left $file pointing at a
+        // plaintext tempnam.
         $emailPath = null;
         if ($hasEmail && $smtpEnabled && is_string($email)) {
             if ($isDocuments) {
@@ -385,23 +311,11 @@ class EtherFaxActions extends AppDispatch
         } catch (\Throwable $e) {
             return 'Error: ' . json_encode($e->getMessage());
         } finally {
-            // Best-effort cleanup of the staged encrypted upload and the
-            // plaintext email-attachment scratch file. Filesystem::remove
-            // swallows the benign already-gone case; a real permission
-            // failure surfaces as IOException, which we log.
-            try {
-                if ($stagedPath !== null) {
-                    (new Filesystem())->remove($stagedPath);
-                }
-                if ($emailPath !== null) {
-                    (new Filesystem())->remove($emailPath);
-                }
-            } catch (IOException $cleanupError) {
-                ServiceContainer::getLogger()->warning(
-                    'Failed to remove staged fax upload artifacts after send',
-                    ['exception' => $cleanupError]
-                );
-            }
+            $this->uploadStaging->removeStagedArtifacts(
+                $stagedPath,
+                $plainStagePath,
+                $emailPath
+            );
         }
         $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
         // Treat InProgress as non-error (queued for tracking)
