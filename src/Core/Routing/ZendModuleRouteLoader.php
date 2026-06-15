@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Routing;
 
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
@@ -323,23 +324,25 @@ final readonly class ZendModuleRouteLoader
     private function moduleConfigFiles(): iterable
     {
         $moduleRoot = $this->zendModulesDir . '/module';
+        // Guard before handing the path to Finder: Finder throws
+        // DirectoryNotFoundException (a \LogicException) on a missing root,
+        // which would escape the front controller's \RuntimeException fallback
+        // and abort the request instead of falling through to legacy.
         if (!is_dir($moduleRoot)) {
             return;
         }
 
-        $entries = scandir($moduleRoot);
-        if ($entries === false) {
-            return;
-        }
+        $finder = (new Finder())
+            ->files()
+            ->depth('== 2')
+            ->name('module.config.php')
+            ->sortByName()
+            ->in($moduleRoot);
 
-        foreach ($entries as $entry) {
-            if ($entry === '.' || $entry === '..') {
-                continue;
-            }
-            $configFile = $moduleRoot . '/' . $entry . '/config/module.config.php';
-            if (is_file($configFile)) {
-                yield $entry => $configFile;
-            }
+        foreach ($finder as $file) {
+            // getRelativePath() is "<ModuleName>/config"; dirname strips the
+            // trailing "config" leaving the module directory name.
+            yield basename(dirname($file->getRelativePath())) => $file->getPathname();
         }
     }
 }
