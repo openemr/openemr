@@ -3077,29 +3077,222 @@ class InternalToCdaConverter
 
     private function renderSocialHistorySection(DOMElement $structuredBody): void
     {
-        $socialHistory = $this->xpath('/CCDA/history_physical/social_history/*');
+        $socialHistory = $this->xpath('/CCDA/history_physical/social_history/history_element');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($socialHistory->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17', '2015-08-01');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '29762-2');
-            $code->setAttribute('displayName', 'Social History');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Social History'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement social history with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17', '2015-08-01');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '29762-2');
+        $code->setAttribute('displayName', 'Social History');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Social History'));
+
+        if ($socialHistory->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendSocialHistoryNarrative($section, $socialHistory);
+            foreach ($socialHistory as $item) {
+                $this->appendSocialHistoryEntry($section, $item);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $items
+     */
+    private function appendSocialHistoryNarrative(DOMElement $section, \DOMNodeList $items): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Social History Element', 'Description', 'Date']);
+
+        $index = 1;
+        foreach ($items as $item) {
+            $element = $this->xpathValue('element', $item);
+            $description = $this->xpathValue('description', $item);
+            $date = $this->xpathValue('date', $item);
+
+            $this->appendTableRow($table, [$element, $description, $this->formatDateForDisplay($date)], 'social' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendSocialHistoryEntry(DOMElement $section, DOMElement $item): void
+    {
+        $description = strtolower($this->xpathValue('description', $item));
+        $isSmokingStatus = str_contains($description, 'smoke') || str_contains($description, 'tobacco');
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        if ($isSmokingStatus) {
+            $this->appendSmokingStatusObservation($entry, $item);
+        } else {
+            $this->appendSocialHistoryObservation($entry, $item);
+        }
+
+        $section->appendChild($entry);
+    }
+
+    private function appendSmokingStatusObservation(DOMElement $entry, DOMElement $item): void
+    {
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.78');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($obs, $shaExt, $ext);
+
+        // Code (LOINC for smoking status)
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '72166-2');
+        $code->setAttribute('displayName', 'Tobacco smoking status');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $obs->appendChild($code);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('date', $item);
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $obs->appendChild($effectiveTime);
+        }
+
+        // Value (smoking status code)
+        $description = $this->xpathValue('description', $item);
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $smokingCode = $this->mapSmokingStatusCode($description);
+        $value->setAttribute('code', $smokingCode['code']);
+        $value->setAttribute('displayName', $smokingCode['displayName']);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+    }
+
+    private function appendSocialHistoryObservation(DOMElement $entry, DOMElement $item): void
+    {
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($obs, $shaExt, $ext);
+
+        // Code
+        $elementCode = $this->xpathValue('code', $item);
+        $element = $this->xpathValue('element', $item);
+
+        $code = $this->createElement('code');
+        if ($elementCode !== '') {
+            $code->setAttribute('code', $elementCode);
+            $code->setAttribute('displayName', $element);
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $code->setAttribute('codeSystemName', 'SNOMED CT');
+        } else {
+            $code->setAttribute('nullFlavor', 'UNK');
+        }
+        $obs->appendChild($code);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('date', $item);
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $low = $this->createElement('low');
+            $low->setAttribute('value', $this->formatDateOnly($date));
+            $effectiveTime->appendChild($low);
+            $obs->appendChild($effectiveTime);
+        }
+
+        // Value (description as ST)
+        $description = $this->xpathValue('description', $item);
+        if ($description !== '') {
+            $value = $this->output->createElement('value');
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'ST');
+            $value->appendChild($this->output->createTextNode($description));
+            $obs->appendChild($value);
+        }
+
+        $entry->appendChild($obs);
+    }
+
+    /**
+     * Maps smoking status description to SNOMED CT code
+     * @return array{code: string, displayName: string}
+     */
+    private function mapSmokingStatusCode(string $description): array
+    {
+        $description = strtolower($description);
+
+        return match (true) {
+            str_contains($description, 'current') && str_contains($description, 'every day') => [
+                'code' => '449868002',
+                'displayName' => 'Current every day smoker',
+            ],
+            str_contains($description, 'current') && str_contains($description, 'some day') => [
+                'code' => '428041000124106',
+                'displayName' => 'Current some day smoker',
+            ],
+            str_contains($description, 'former') => [
+                'code' => '8517006',
+                'displayName' => 'Former smoker',
+            ],
+            str_contains($description, 'never') => [
+                'code' => '266919005',
+                'displayName' => 'Never smoker',
+            ],
+            str_contains($description, 'heavy') => [
+                'code' => '428071000124103',
+                'displayName' => 'Heavy tobacco smoker',
+            ],
+            str_contains($description, 'light') => [
+                'code' => '428061000124105',
+                'displayName' => 'Light tobacco smoker',
+            ],
+            str_contains($description, 'unknown') => [
+                'code' => '266927001',
+                'displayName' => 'Tobacco smoking consumption unknown',
+            ],
+            default => [
+                'code' => '77176002',
+                'displayName' => 'Smoker',
+            ],
+        };
     }
 
     private function renderPayersSection(DOMElement $structuredBody): void
