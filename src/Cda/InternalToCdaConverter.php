@@ -3806,27 +3806,390 @@ class InternalToCdaConverter
     private function renderPlanOfCareSection(DOMElement $structuredBody): void
     {
         $planOfCare = $this->xpath('/CCDA/planofcare/item');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($planOfCare->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
+        }
 
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10', '2014-06-09');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10', '2014-06-09');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10');
 
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '18776-5');
-            $code->setAttribute('displayName', 'Treatment Plan');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '18776-5');
+        $code->setAttribute('displayName', 'Treatment Plan');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
 
-            $section->appendChild($this->createElement('title', 'Treatment Plan'));
+        $section->appendChild($this->createElement('title', 'Treatment Plan'));
+
+        if ($planOfCare->length === 0) {
             $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
         } else {
-            // TODO: Implement plan of care with data
+            $this->appendPlanOfCareNarrative($section, $planOfCare);
+            foreach ($planOfCare as $item) {
+                $this->appendPlanOfCareEntry($section, $item);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $items
+     */
+    private function appendPlanOfCareNarrative(DOMElement $section, \DOMNodeList $items): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Plan', 'Date']);
+
+        foreach ($items as $item) {
+            $description = $this->xpathValue('description', $item);
+            $date = $this->xpathValue('date', $item);
+            $proposedDate = $this->xpathValue('proposed_date', $item);
+            $displayDate = $proposedDate !== '' ? $proposedDate : $date;
+
+            $this->appendTableRow($table, [$description, $this->formatDateForDisplay($displayDate)]);
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendPlanOfCareEntry(DOMElement $section, DOMElement $item): void
+    {
+        $carePlanType = $this->xpathValue('care_plan_type', $item);
+        $codeType = $this->xpathValue('code_type', $item);
+
+        // Normalize RXCUI to RXNORM
+        if ($codeType === 'RXCUI') {
+            $codeType = 'RXNORM';
+        }
+
+        // Determine entry type based on care_plan_type and code_type
+        $entryType = match ($carePlanType) {
+            'plan_of_care' => 'observation',
+            'test_or_order' => 'observation',
+            'procedure' => 'procedure',
+            'planned_procedure' => 'planned_procedure',
+            'appointments' => 'encounter',
+            'instructions' => 'instructions',
+            'referral' => '', // Excluded
+            default => 'observation',
+        };
+
+        // RXNORM codes use substanceAdministration
+        if ($codeType === 'RXNORM') {
+            $entryType = 'substanceAdministration';
+        }
+
+        if ($entryType === '') {
+            return;
+        }
+
+        // Determine moodCode for observations
+        $moodCode = match ($carePlanType) {
+            'test_or_order' => 'RQO',
+            default => 'INT',
+        };
+
+        $entry = $this->createElement('entry');
+        if ($entryType === 'observation') {
+            $entry->setAttribute('typeCode', 'DRIV');
+        }
+
+        match ($entryType) {
+            'observation' => $this->appendPlanOfCareObservation($entry, $item, $moodCode),
+            'procedure' => $this->appendPlanOfCareProcedure($entry, $item, false),
+            'planned_procedure' => $this->appendPlanOfCareProcedure($entry, $item, true),
+            'encounter' => $this->appendPlanOfCareEncounter($entry, $item),
+            'substanceAdministration' => $this->appendPlanOfCareSubstanceAdministration($entry, $item),
+            'instructions' => $this->appendPlanOfCareInstructions($entry, $item),
+        };
+
+        $section->appendChild($entry);
+    }
+
+    private function appendPlanOfCareObservation(DOMElement $entry, DOMElement $item, string $moodCode): void
+    {
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', $moodCode);
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.44');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($obs, $shaExt, $ext);
+
+        // Code (plan)
+        $code = $this->createElement('code');
+        $planCode = $this->xpathValue('code', $item);
+        $planText = $this->xpathValue('code_text', $item);
+        $planCodeType = $this->xpathValue('code_type', $item);
+        if ($planCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($planCode));
+        }
+        if ($planText !== '') {
+            $code->setAttribute('displayName', $planText);
+        }
+        $this->setCodeSystemAttributes($code, $planCodeType !== '' ? $planCodeType : 'SNOMED CT');
+        $obs->appendChild($code);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $obs->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('proposed_date', $item);
+        if ($date === '') {
+            $date = $this->xpathValue('date', $item);
+        }
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $obs->appendChild($effectiveTime);
+        }
+
+        // Value (plan name as ST)
+        $description = $this->xpathValue('description', $item);
+        if ($description !== '') {
+            $value = $this->output->createElement('value');
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'ST');
+            $value->appendChild($this->output->createTextNode($description));
+            $obs->appendChild($value);
+        }
+
+        // Author
+        $authorEl = $this->xpath('author', $item)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $entry->appendChild($obs);
+    }
+
+    private function appendPlanOfCareProcedure(DOMElement $entry, DOMElement $item, bool $isPlanned): void
+    {
+        $proc = $this->createElement('procedure');
+        $proc->setAttribute('classCode', 'PROC');
+        $proc->setAttribute('moodCode', 'RQO');
+
+        $this->appendTemplateId($proc, '2.16.840.1.113883.10.20.22.4.41');
+        if ($isPlanned) {
+            $this->appendTemplateId($proc, '2.16.840.1.113883.10.20.22.4.41', '2014-06-09');
+            $this->appendTemplateId($proc, '2.16.840.1.113883.10.20.22.4.41', '2022-06-01');
+        }
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($proc, $shaExt, $ext);
+
+        // Code
+        $code = $this->createElement('code');
+        $planCode = $this->xpathValue('code', $item);
+        $planText = $this->xpathValue('code_text', $item);
+        $planCodeType = $this->xpathValue('code_type', $item);
+        if ($planCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($planCode));
+        }
+        if ($planText !== '') {
+            $code->setAttribute('displayName', $planText);
+        }
+        $this->setCodeSystemAttributes($code, $planCodeType !== '' ? $planCodeType : 'SNOMED CT');
+        $proc->appendChild($code);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $proc->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('proposed_date', $item);
+        if ($date === '') {
+            $date = $this->xpathValue('date', $item);
+        }
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $proc->appendChild($effectiveTime);
+        }
+
+        // Author
+        $authorEl = $this->xpath('author', $item)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($proc, $authorEl);
+        }
+
+        $entry->appendChild($proc);
+    }
+
+    private function appendPlanOfCareEncounter(DOMElement $entry, DOMElement $item): void
+    {
+        $enc = $this->createElement('encounter');
+        $enc->setAttribute('classCode', 'ENC');
+        $enc->setAttribute('moodCode', 'INT');
+
+        $this->appendTemplateId($enc, '2.16.840.1.113883.10.20.22.4.40');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($enc, $shaExt, $ext);
+
+        // Code
+        $code = $this->createElement('code');
+        $planCode = $this->xpathValue('code', $item);
+        $planText = $this->xpathValue('code_text', $item);
+        $planCodeType = $this->xpathValue('code_type', $item);
+        if ($planCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($planCode));
+        }
+        if ($planText !== '') {
+            $code->setAttribute('displayName', $planText);
+        }
+        $this->setCodeSystemAttributes($code, $planCodeType !== '' ? $planCodeType : 'SNOMED CT');
+        $enc->appendChild($code);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $enc->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('proposed_date', $item);
+        if ($date === '') {
+            $date = $this->xpathValue('date', $item);
+        }
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $enc->appendChild($effectiveTime);
+        }
+
+        $entry->appendChild($enc);
+    }
+
+    private function appendPlanOfCareSubstanceAdministration(DOMElement $entry, DOMElement $item): void
+    {
+        $subAdmin = $this->createElement('substanceAdministration');
+        $subAdmin->setAttribute('classCode', 'SBADM');
+        $subAdmin->setAttribute('moodCode', 'RQO');
+
+        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.42', '2014-06-09');
+        $this->appendTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.42');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($subAdmin, $shaExt, $ext);
+
+        // Text (description/name)
+        $description = $this->xpathValue('description', $item);
+        if ($description !== '') {
+            $text = $this->createElement('text', $description);
+            $subAdmin->appendChild($text);
+        }
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $subAdmin->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('proposed_date', $item);
+        if ($date === '') {
+            $date = $this->xpathValue('date', $item);
+        }
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $subAdmin->appendChild($effectiveTime);
+        }
+
+        // Consumable with medication information
+        $consumable = $this->createElement('consumable');
+        $manuProd = $this->createElement('manufacturedProduct');
+        $manuProd->setAttribute('classCode', 'MANU');
+
+        $this->appendTemplateId($manuProd, '2.16.840.1.113883.10.20.22.4.23', '2014-06-09');
+        $this->appendTemplateId($manuProd, '2.16.840.1.113883.10.20.22.4.23');
+
+        $manuMaterial = $this->createElement('manufacturedMaterial');
+        $code = $this->createElement('code');
+        $planCode = $this->xpathValue('code', $item);
+        $planText = $this->xpathValue('code_text', $item);
+        if ($planCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($planCode));
+        }
+        if ($planText !== '') {
+            $code->setAttribute('displayName', $planText);
+        }
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.88');
+        $code->setAttribute('codeSystemName', 'RXNORM');
+        $manuMaterial->appendChild($code);
+        $manuProd->appendChild($manuMaterial);
+        $consumable->appendChild($manuProd);
+        $subAdmin->appendChild($consumable);
+
+        $entry->appendChild($subAdmin);
+    }
+
+    private function appendPlanOfCareInstructions(DOMElement $entry, DOMElement $item): void
+    {
+        $inst = $this->createElement('instructions');
+        $inst->setAttribute('classCode', 'ACT');
+        $inst->setAttribute('moodCode', 'INT');
+
+        $this->appendTemplateId($inst, '2.16.840.1.113883.10.20.22.4.20');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $item);
+        $ext = $this->xpathValue('extension', $item);
+        $this->appendIds($inst, $shaExt, $ext);
+
+        // Code
+        $code = $this->createElement('code');
+        $planCode = $this->xpathValue('code', $item);
+        $planText = $this->xpathValue('code_text', $item);
+        $planCodeType = $this->xpathValue('code_type', $item);
+        if ($planCode !== '') {
+            $code->setAttribute('code', $this->cleanCode($planCode));
+        }
+        if ($planText !== '') {
+            $code->setAttribute('displayName', $planText);
+        }
+        $this->setCodeSystemAttributes($code, $planCodeType !== '' ? $planCodeType : 'SNOMED CT');
+        $inst->appendChild($code);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'active');
+        $inst->appendChild($statusCode);
+
+        $entry->appendChild($inst);
+    }
+
+    private function appendIds(DOMElement $parent, string $shaExt, string $ext): void
+    {
+        // UniqueId
+        if ($shaExt !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $shaExt);
+            $parent->appendChild($uniqueId);
+        }
+
+        // Extension ID
+        if ($ext !== '') {
+            $id = $this->createElement('id');
+            $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc8090ab');
+            $id->setAttribute('extension', $ext);
+            $parent->appendChild($id);
         }
     }
 
@@ -4537,5 +4900,56 @@ class InternalToCdaConverter
     private function generateUuid(): string
     {
         return Uuid::uuid4()->toString();
+    }
+
+    /**
+     * Sets codeSystem and codeSystemName attributes based on code system name
+     */
+    private function setCodeSystemAttributes(DOMElement $element, string $codeSystemName): void
+    {
+        $normalizedName = strtolower(str_replace(['-', ' '], '', $codeSystemName));
+        $oid = match (true) {
+            str_contains($normalizedName, 'snomed') => '2.16.840.1.113883.6.96',
+            str_contains($normalizedName, 'loinc') => '2.16.840.1.113883.6.1',
+            str_contains($normalizedName, 'rxnorm') || str_contains($normalizedName, 'rxcui') => '2.16.840.1.113883.6.88',
+            str_contains($normalizedName, 'icd10') => '2.16.840.1.113883.6.90',
+            str_contains($normalizedName, 'icd9') => '2.16.840.1.113883.6.103',
+            str_contains($normalizedName, 'cpt') || str_contains($normalizedName, 'cpt4') => '2.16.840.1.113883.6.12',
+            str_contains($normalizedName, 'cvx') => '2.16.840.1.113883.12.292',
+            default => '2.16.840.1.113883.6.96', // Default to SNOMED CT
+        };
+
+        $displayName = match (true) {
+            str_contains($normalizedName, 'snomed') => 'SNOMED CT',
+            str_contains($normalizedName, 'loinc') => 'LOINC',
+            str_contains($normalizedName, 'rxnorm') || str_contains($normalizedName, 'rxcui') => 'RXNORM',
+            str_contains($normalizedName, 'icd10') => 'ICD-10-CM',
+            str_contains($normalizedName, 'icd9') => 'ICD-9-CM',
+            str_contains($normalizedName, 'cpt') || str_contains($normalizedName, 'cpt4') => 'CPT4',
+            str_contains($normalizedName, 'cvx') => 'CVX',
+            default => 'SNOMED CT',
+        };
+
+        $element->setAttribute('codeSystem', $oid);
+        $element->setAttribute('codeSystemName', $displayName);
+    }
+
+    /**
+     * Format date for display in narrative tables (Y-m-d format)
+     */
+    private function formatDateForDisplay(string $input): string
+    {
+        if ($input === '') {
+            return '';
+        }
+
+        $datetime = \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $input);
+        if ($datetime === false) {
+            $datetime = \DateTimeImmutable::createFromFormat('Y-m-d', $input);
+        }
+        if ($datetime === false) {
+            return $input;
+        }
+        return $datetime->format('Y-m-d');
     }
 }
