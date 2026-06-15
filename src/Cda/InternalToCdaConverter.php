@@ -3335,28 +3335,112 @@ class InternalToCdaConverter
 
     private function renderMentalStatusSection(DOMElement $structuredBody): void
     {
-        $mentalStatus = $this->xpath('/CCDA/mental_status/status');
+        $mentalStatus = $this->xpath('/CCDA/mental_status/item');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($mentalStatus->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.56', '2015-08-01');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '10190-7');
-            $code->setAttribute('displayName', 'Mental Status');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Mental Status'));
-            $section->appendChild($this->createElement('text', 'Mental Status Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement mental status with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.56', '2015-08-01');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '10190-7');
+        $code->setAttribute('displayName', 'Mental Status');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Mental Status'));
+
+        if ($mentalStatus->length === 0) {
+            $section->appendChild($this->createElement('text', 'Mental Status Not Available'));
+        } else {
+            // Text from first item's description/note
+            $firstItem = $mentalStatus->item(0);
+            $note = '';
+            if ($firstItem instanceof DOMElement) {
+                $note = trim($this->xpathValue('description', $firstItem));
+            }
+            $section->appendChild($this->createElement('text', $note !== '' ? $note : 'Mental Status'));
+
+            foreach ($mentalStatus as $item) {
+                $this->appendMentalStatusEntry($section, $item);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    private function appendMentalStatusEntry(DOMElement $section, DOMElement $item): void
+    {
+        $entry = $this->createElement('entry');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.74', '2015-08-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.74');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '9a6d1bac-17d3-4195-89a4-1121bc809ccc');
+        $obs->appendChild($id);
+
+        // Code - Cognitive function with LOINC translation
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '373930000');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED CT');
+        $code->setAttribute('displayName', 'Cognitive function');
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '75275-8');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $translation->setAttribute('displayName', 'Cognitive function');
+        $code->appendChild($translation);
+        $obs->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $item);
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($date));
+        $effectiveTime->appendChild($low);
+        $obs->appendChild($effectiveTime);
+
+        // Value
+        $itemCode = $this->xpathValue('code', $item);
+        $codeText = $this->xpathValue('code_text', $item);
+        $codeType = $this->xpathValue('code_type', $item);
+
+        if ($itemCode !== '' || ($codeText !== '' && $codeText !== 'NULL')) {
+            $value = $this->output->createElement('value');
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            if ($itemCode !== '') {
+                $value->setAttribute('code', $this->cleanCode($itemCode));
+            }
+            if ($codeText !== '' && $codeText !== 'NULL') {
+                $value->setAttribute('displayName', $codeText);
+            }
+            if ($codeType !== '') {
+                $value->setAttribute('codeSystemName', $codeType);
+            }
+            $obs->appendChild($value);
+        }
+
+        // Author
+        $authorEl = $this->xpath('/CCDA/author')->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
     }
 
     private function renderPlanOfCareSection(DOMElement $structuredBody): void
