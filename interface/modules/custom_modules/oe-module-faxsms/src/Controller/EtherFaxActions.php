@@ -22,6 +22,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 class EtherFaxActions extends AppDispatch
 {
@@ -145,19 +147,53 @@ class EtherFaxActions extends AppDispatch
             return '';
         }
 
-        $name = basename((string)$_FILES['fax']['name']);
-        $tmp_name = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
+        $tmpName = $_FILES['fax']['tmp_name'];
+        if (!is_string($tmpName)) {
             return '';
         }
 
-        $filepath = $targetDir . "/" . $name;
+        // MIME filter on the actual upload bytes — reject anything that
+        // isn't a fax-safe content type so an attacker-chosen extension
+        // (e.g. .php, .phtml, .htaccess) can never land on disk under
+        // the staged path.
+        $mime = mime_content_type($tmpName);
+        $ext = match ($mime) {
+            'application/pdf' => '.pdf',
+            'image/tiff' => '.tiff',
+            'image/jpeg' => '.jpg',
+            'image/png' => '.png',
+            'text/plain' => '.txt',
+            default => null,
+        };
+        if ($ext === null) {
+            error_log('Error: unsupported fax upload content type.');
+            return '';
+        }
 
-        if (!move_uploaded_file($tmp_name, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
+        $targetDir = $this->baseDir . '/send';
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
+            error_log('Error: Failed to create directory.');
+            return '';
+        }
+        chmod($targetDir, 0700);
+
+        // Sanitized basename + short random hex suffix + server-determined
+        // extension. Preserves the human-readable label for vendor metadata
+        // while guaranteeing the on-disk filename is unguessable and the
+        // extension matches the actual content type.
+        $origName = basename((string)($_FILES['fax']['name'] ?? 'fax'));
+        $base = convert_safe_file_dir_name(pathinfo($origName, PATHINFO_FILENAME)) ?: 'fax';
+        $filepath = $targetDir . '/' . $base . '_' . bin2hex(random_bytes(4)) . $ext;
+
+        // Encrypt at rest. encryptForFilesystem is a no-op when the
+        // drive_encryption global is off, matching the rest of the
+        // document store. The send path decrypts before consumption.
+        $content = file_get_contents($tmpName);
+        if ($content === false) {
+            return '';
+        }
+        if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($content)) === false) {
+            error_log('Error: Failed to store uploaded fax.');
             return '';
         }
 
@@ -217,16 +253,43 @@ class EtherFaxActions extends AppDispatch
             }
         }
 
+        // faxProcessUploads stores the staged file via encryptForFilesystem.
+        // Read it once, decrypt to memory, and hand off content (not the
+        // encrypted path) to downstream consumers. decryptFromFilesystem
+        // returns legacy plaintext unchanged via its version-prefix check,
+        // so files staged before this change remain readable.
+        $stagedPath = null;
+        if (empty($isContent) && !$isDocuments && is_string($file) && is_file($file)) {
+            $raw = file_get_contents($file);
+            if ($raw === false) {
+                return xlt('Error: Failed to read fax content');
+            }
+            $stagedPath = $file;
+            $file = $this->crypto->decryptFromFilesystem($raw);
+            $isDocuments = true;
+        }
+
         // If document mode, load from Document table instead
-        if ($isDocuments) {
+        if ($isDocuments && $stagedPath === null) {
             $doc = new Document($docId);
             $file = $doc->get_data();
             $fileName = $doc->get_name() ?? 'document';
         }
 
-        // Optional email copy
-        if ($hasEmail && $smtpEnabled) {
-            self::emailDocument($email, '', $file, $user);
+        // Optional email copy. When we have content (not a real path), write
+        // a per-request plaintext scratch file so AddAttachment can read it.
+        $emailPath = null;
+        if ($hasEmail && $smtpEnabled && is_string($email)) {
+            if ($isDocuments) {
+                $tmp = tempnam(sys_get_temp_dir(), 'fax_');
+                if ($tmp !== false) {
+                    $emailPath = $tmp;
+                    file_put_contents($emailPath, (string)$file);
+                    self::emailDocument($email, '', $emailPath, $user);
+                }
+            } else {
+                self::emailDocument($email, '', (string)$file, $user);
+            }
         }
 
         try {
@@ -289,6 +352,24 @@ class EtherFaxActions extends AppDispatch
             }
         } catch (\Throwable $e) {
             return 'Error: ' . json_encode($e->getMessage());
+        } finally {
+            // Best-effort cleanup of the staged encrypted upload and the
+            // plaintext email-attachment scratch file. Filesystem::remove
+            // swallows the benign already-gone case; a real permission
+            // failure surfaces as IOException, which we log.
+            try {
+                if ($stagedPath !== null) {
+                    (new Filesystem())->remove($stagedPath);
+                }
+                if ($emailPath !== null) {
+                    (new Filesystem())->remove($emailPath);
+                }
+            } catch (IOException $cleanupError) {
+                ServiceContainer::getLogger()->warning(
+                    'Failed to remove staged fax upload artifacts after send',
+                    ['exception' => $cleanupError]
+                );
+            }
         }
         $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
         // Treat InProgress as non-error (queued for tracking)

@@ -20,6 +20,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
+use Symfony\Component\Filesystem\Exception\IOException;
+use Symfony\Component\Filesystem\Filesystem;
 
 class RCFaxClient extends AppDispatch
 {
@@ -69,17 +71,53 @@ class RCFaxClient extends AppDispatch
             return '';
         }
 
-        $name = basename((string)$_FILES['fax']['name']);
         $tmpName = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
+        if (!is_string($tmpName)) {
             return '';
         }
 
-        $filepath = $targetDir . "/" . $name;
-        if (!move_uploaded_file($tmpName, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
+        // MIME filter on the actual upload bytes — reject anything that
+        // isn't a fax-safe content type so an attacker-chosen extension
+        // (e.g. .php, .phtml, .htaccess) can never land on disk under
+        // the staged path.
+        $mime = mime_content_type($tmpName);
+        $ext = match ($mime) {
+            'application/pdf' => '.pdf',
+            'image/tiff' => '.tiff',
+            'image/jpeg' => '.jpg',
+            'image/png' => '.png',
+            'text/plain' => '.txt',
+            default => null,
+        };
+        if ($ext === null) {
+            error_log('Error: unsupported fax upload content type.');
+            return '';
+        }
+
+        $targetDir = $this->baseDir . '/send';
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
+            error_log('Error: Failed to create directory.');
+            return '';
+        }
+        chmod($targetDir, 0700);
+
+        // Sanitized basename + short random hex suffix + server-determined
+        // extension. Preserves the human-readable label for vendor metadata
+        // while guaranteeing the on-disk filename is unguessable and the
+        // extension matches the actual content type.
+        $origName = basename((string)($_FILES['fax']['name'] ?? 'fax'));
+        $base = convert_safe_file_dir_name(pathinfo($origName, PATHINFO_FILENAME)) ?: 'fax';
+        $filepath = $targetDir . '/' . $base . '_' . bin2hex(random_bytes(4)) . $ext;
+
+        // Encrypt at rest. encryptForFilesystem is a no-op when the
+        // drive_encryption global is off, matching the rest of the
+        // document store. The send path decrypts before consumption.
+        $content = file_get_contents($tmpName);
+        if ($content === false) {
+            return '';
+        }
+        if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($content)) === false) {
+            error_log('Error: Failed to store uploaded fax.');
             return '';
         }
 
@@ -280,45 +318,82 @@ class RCFaxClient extends AppDispatch
                 return xlt('Error: No Fax content');
             }
         }
-        // Check if the content is from patient report
-        if ($isContent) {
-            $content = $file;
-            $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
-        } else {
-            // Is it from patient documents
-            if ($isDocuments) {
-                $content = (new Document($docId))->get_data();
-            } else {
-                // Get the content of the file or the file path
-                $content = (is_file($file) && empty($content)) ? file_get_contents($file) : $file;
-            }
-            if (empty($content)) {
-                return xlt('Error: No content to send.');
-            }
-        }
-
-        // Decrypt content if needed
-        $content = $this->crypto->decryptFromFilesystem($content);
-
-        // Email the document if email is provided and SMTP is enabled.
-        // TODO: need check to ensure not from forward fax
-        $error = false;
-        if ($hasEmail && $smtpEnabled) {
-            try {
-                self::emailDocument($email, $comments, $file, $user);
-                $error = false;
-            } catch (\PHPMailer\PHPMailer\Exception) {
-                $error = true;
-            }
-        }
-        // Request to send the fax
+        // Build $content (plaintext bytes for the vendor). The staged
+        // upload path stores the file via encryptForFilesystem, so the
+        // read here is paired with a decryptFromFilesystem. The version
+        // -prefix short-circuit in decryptFromFilesystem makes that safe
+        // for legacy plaintext files staged before this change.
+        $stagedPath = null;
+        $emailPath = null;
         try {
-            $this->sendFaxRequest($phone, $content, $fileName, $comments, $name);
-            // debug error log
-            error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
-            return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
-        } catch (\Throwable $e) {
-            return 'Error: ' . text(js_escape($e->getMessage()));
+            if ($isContent) {
+                $content = $file;
+                $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
+            } else {
+                if ($isDocuments) {
+                    $content = (new Document($docId))->get_data();
+                } elseif (is_file($file)) {
+                    $raw = file_get_contents($file);
+                    if ($raw === false) {
+                        return xlt('Error: No content to send.');
+                    }
+                    $stagedPath = $file;
+                    $content = $this->crypto->decryptFromFilesystem($raw);
+                } else {
+                    $content = $file;
+                }
+                if (empty($content)) {
+                    return xlt('Error: No content to send.');
+                }
+            }
+
+            // Defensive decrypt: a no-op on plaintext via cryptCheckStandard,
+            // covers any caller that supplied already-ciphertext content.
+            $content = $this->crypto->decryptFromFilesystem($content);
+
+            // Email: write plaintext content to a per-request scratch file
+            // so AddAttachment can read it. Cleaned up in finally.
+            $error = false;
+            if ($hasEmail && $smtpEnabled && is_string($email)) {
+                try {
+                    $tmp = tempnam(sys_get_temp_dir(), 'fax_');
+                    if ($tmp !== false) {
+                        $emailPath = $tmp;
+                        file_put_contents($emailPath, $content);
+                        self::emailDocument($email, $comments, $emailPath, $user);
+                    }
+                } catch (\PHPMailer\PHPMailer\Exception) {
+                    $error = true;
+                }
+            }
+
+            // Request to send the fax
+            try {
+                $this->sendFaxRequest($phone, $content, $fileName, $comments, $name);
+                // debug error log
+                error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
+                return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
+            } catch (\Throwable $e) {
+                return 'Error: ' . text(js_escape($e->getMessage()));
+            }
+        } finally {
+            // Best-effort cleanup of the staged encrypted upload and the
+            // plaintext email-attachment scratch file. Filesystem::remove
+            // swallows the benign already-gone case; a real permission
+            // failure surfaces as IOException, which we log.
+            try {
+                if ($stagedPath !== null) {
+                    (new Filesystem())->remove($stagedPath);
+                }
+                if ($emailPath !== null) {
+                    (new Filesystem())->remove($emailPath);
+                }
+            } catch (IOException $cleanupError) {
+                ServiceContainer::getLogger()->warning(
+                    'Failed to remove staged fax upload artifacts after send',
+                    ['exception' => $cleanupError]
+                );
+            }
         }
     }
 
