@@ -5104,18 +5104,190 @@ class InternalToCdaConverter
 
     private function renderAdvanceDirectivesSection(DOMElement $structuredBody): void
     {
+        $directives = $this->xpath('/CCDA/advance_directives/directive');
         $component = $this->createElement('component');
         $section = $this->createElement('section');
-        $section->setAttribute('nullFlavor', 'NI');
+
+        if ($directives->length === 0) {
+            $section->setAttribute('nullFlavor', 'NI');
+        }
 
         $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('42348-3', 'Advance Directives'));
         $section->appendChild($this->createElement('title', 'Advance Directives'));
-        $section->appendChild($this->createElement('text', 'Not Available'));
+
+        if ($directives->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendAdvanceDirectivesNarrative($section, $directives);
+            foreach ($directives as $directive) {
+                $this->appendAdvanceDirectiveEntry($section, $directive);
+            }
+        }
 
         $component->appendChild($section);
         $structuredBody->appendChild($component);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $directives
+     */
+    private function appendAdvanceDirectivesNarrative(DOMElement $section, \DOMNodeList $directives): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Directive', 'Status', 'Effective Date']);
+
+        $index = 1;
+        foreach ($directives as $directive) {
+            $type = $this->xpathValue('type', $directive);
+            $status = $this->xpathValue('status', $directive);
+            $effectiveDate = $this->xpathValue('effective_date', $directive);
+
+            $this->appendTableRow($table, [$type, $status, $this->formatDateForDisplay($effectiveDate)], 'directive' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendAdvanceDirectiveEntry(DOMElement $section, DOMElement $directive): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.48', '2015-08-01');
+
+        // ID
+        $shaExt = $this->xpathValue('sha_extension', $directive);
+        $ext = $this->xpathValue('extension', $directive);
+        $this->appendIds($obs, $shaExt, $ext);
+
+        // Code with translation
+        $obsCode = $this->xpathValue('observation/code', $directive);
+        $obsCodeSystem = $this->xpathValue('observation/code_system', $directive);
+        $obsDisplay = $this->xpathValue('observation/display', $directive);
+
+        $code = $this->createElement('code');
+        if ($obsCode !== '') {
+            $code->setAttribute('code', $obsCode);
+            $code->setAttribute('codeSystem', $obsCodeSystem !== '' ? $obsCodeSystem : '2.16.840.1.113883.6.1');
+            $codeSystemName = $obsCodeSystem === '2.16.840.1.113883.6.96' ? 'SNOMED CT' : 'LOINC';
+            $code->setAttribute('codeSystemName', $codeSystemName);
+            $code->setAttribute('displayName', $obsDisplay);
+        } else {
+            $code->setAttribute('nullFlavor', 'UNK');
+        }
+
+        // Translation
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '75320-2');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $translation->setAttribute('displayName', 'Advance directive');
+        $code->appendChild($translation);
+        $obs->appendChild($code);
+
+        // Status
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        // Effective time
+        $effectiveDate = $this->xpathValue('observation/effective_date', $directive);
+        if ($effectiveDate === '') {
+            $effectiveDate = $this->xpathValue('effective_date', $directive);
+        }
+        $effTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatDateOnly($effectiveDate));
+        $effTime->appendChild($low);
+        $high = $this->createElement('high');
+        $high->setAttribute('nullFlavor', 'NA');
+        $effTime->appendChild($high);
+        $obs->appendChild($effTime);
+
+        // Value
+        $valueCode = $this->xpathValue('observation/value_code', $directive);
+        $valueCodeSystem = $this->xpathValue('observation/value_code_system', $directive);
+        $valueDisplay = $this->xpathValue('observation/value_display', $directive);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $valueCode !== '' ? $valueCode : '373066001');
+        $value->setAttribute('codeSystem', $valueCodeSystem !== '' ? $valueCodeSystem : '2.16.840.1.113883.6.96');
+        $valueCodeSystemName = $valueCodeSystem === '2.16.840.1.113883.6.1' ? 'LOINC' : 'SNOMED CT';
+        $value->setAttribute('codeSystemName', $valueCodeSystemName);
+        $value->setAttribute('displayName', $valueDisplay !== '' ? $valueDisplay : 'Yes (qualifier value)');
+        $obs->appendChild($value);
+
+        // Author
+        $authorEl = $this->xpath('author', $directive)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($obs, $authorEl);
+        }
+
+        // Participant (custodian)
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'CST');
+        $participantRole = $this->createElement('participantRole');
+        $participantRole->setAttribute('classCode', 'AGNT');
+
+        $addr = $this->createElement('addr');
+        $addr->setAttribute('nullFlavor', 'UNK');
+        $participantRole->appendChild($addr);
+
+        $telecom = $this->createElement('telecom');
+        $telecom->setAttribute('nullFlavor', 'UNK');
+        $participantRole->appendChild($telecom);
+
+        $playingEntity = $this->createElement('playingEntity');
+        $playingEntity->setAttribute('classCode', 'PSN');
+        $name = $this->createElement('name');
+        $name->setAttribute('nullFlavor', 'UNK');
+        $playingEntity->appendChild($name);
+        $participantRole->appendChild($playingEntity);
+
+        $participant->appendChild($participantRole);
+        $obs->appendChild($participant);
+
+        // Reference to external document
+        $documentRef = $this->xpathValue('document_reference', $directive);
+        if ($documentRef !== '') {
+            $reference = $this->createElement('reference');
+            $reference->setAttribute('typeCode', 'REFR');
+
+            $externalDoc = $this->createElement('externalDocument');
+            $externalDoc->setAttribute('classCode', 'DOC');
+            $externalDoc->setAttribute('moodCode', 'EVN');
+
+            $docId = $this->createElement('id');
+            $docId->setAttribute('root', $documentRef);
+            $externalDoc->appendChild($docId);
+
+            $docCode = $this->createElement('code');
+            $docCode->setAttribute('nullFlavor', 'UNK');
+            $externalDoc->appendChild($docCode);
+
+            $location = $this->xpathValue('location', $directive);
+            if ($location !== '') {
+                $docText = $this->createElement('text');
+                $docText->setAttribute('mediaType', 'text/plain');
+                $docRef = $this->createElement('reference');
+                $docRef->setAttribute('value', $location);
+                $docText->appendChild($docRef);
+                $externalDoc->appendChild($docText);
+            }
+
+            $reference->appendChild($externalDoc);
+            $obs->appendChild($reference);
+        }
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
     }
 
     private function renderReasonForReferralSection(DOMElement $structuredBody): void
