@@ -1783,12 +1783,7 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($healthObs, '2.16.840.1.113883.10.20.22.4.5');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '11323-3');
-        $code->setAttribute('displayName', 'Health status');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $healthObs->appendChild($code);
+        $healthObs->appendChild($this->createLoincCode('11323-3', 'Health status'));
 
         $text = $this->createElement('text');
         $ref = $this->createElement('reference');
@@ -1854,13 +1849,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.7');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.7.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '47519-4');
-        $code->setAttribute('displayName', 'History of Procedures');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('47519-4', 'History of Procedures'));
         $section->appendChild($this->createElement('title', 'History of Procedures'));
 
         $procedures = $this->xpath('/CCDA/procedures/procedure');
@@ -1971,13 +1960,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1', '2015-08-01');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '30954-2');
-        $code->setAttribute('displayName', 'Relevant Dx tests/lab data');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('30954-2', 'Relevant Dx tests/lab data'));
         $section->appendChild($this->createElement('title', 'Relevant Dx tests/lab data'));
 
         $results = $this->xpath('/CCDA/results/result');
@@ -2237,13 +2220,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1', '2015-08-01');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.22.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '46240-8');
-        $code->setAttribute('displayName', 'Encounters');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('46240-8', 'Encounters'));
         $section->appendChild($this->createElement('title', 'Encounters'));
 
         $encounters = $this->xpath('/CCDA/encounter_list/encounter');
@@ -2447,13 +2424,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.2');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.2.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '11369-6');
-        $code->setAttribute('displayName', 'Immunizations');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('11369-6', 'Immunizations'));
         $section->appendChild($this->createElement('title', 'Immunizations'));
 
         $immunizations = $this->xpath('/CCDA/immunizations/immunization');
@@ -3011,13 +2982,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17', '2015-08-01');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.17');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '29762-2');
-        $code->setAttribute('displayName', 'Social History');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('29762-2', 'Social History'));
         $section->appendChild($this->createElement('title', 'Social History'));
 
         if ($socialHistory->length === 0) {
@@ -3085,12 +3050,7 @@ class InternalToCdaConverter
         $this->appendIds($obs, $shaExt, $ext);
 
         // Code (LOINC for smoking status)
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '72166-2');
-        $code->setAttribute('displayName', 'Tobacco smoking status');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $obs->appendChild($code);
+        $obs->appendChild($this->createLoincCode('72166-2', 'Tobacco smoking status'));
 
         // Status
         $this->appendStatusCode($obs, ActStatus::Completed);
@@ -3227,13 +3187,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18', '2015-08-01');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '48768-6');
-        $code->setAttribute('displayName', 'Payers');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('48768-6', 'Payers'));
         $section->appendChild($this->createElement('title', 'Payers'));
 
         if ($payers->length === 0) {
@@ -3298,12 +3252,7 @@ class InternalToCdaConverter
         $id->setAttribute('root', $payerId !== '' ? $payerId : 'NI');
         $act->appendChild($id);
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '48768-6');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $code->setAttribute('displayName', 'Payment sources');
-        $act->appendChild($code);
+        $act->appendChild($this->createLoincCode('48768-6', 'Payment sources'));
 
         $this->appendStatusCode($act, ActStatus::Completed);
 
@@ -3467,13 +3416,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23', '2014-06-09');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.23');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '46264-8');
-        $code->setAttribute('displayName', 'Medical Equipment');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('46264-8', 'Medical Equipment'));
         $section->appendChild($this->createElement('title', 'Medical Equipment'));
 
         if ($devices->length === 0) {
@@ -3635,13 +3578,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14', '2014-06-09');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.14');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '47420-5');
-        $code->setAttribute('displayName', 'Functional Status');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('47420-5', 'Functional Status'));
         $section->appendChild($this->createElement('title', 'Functional Status'));
 
         if ($functionalStatus->length === 0) {
@@ -3746,13 +3683,7 @@ class InternalToCdaConverter
         $obs->appendChild($id);
 
         // Code
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '54522-8');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $code->setAttribute('displayName', 'Functional status');
-        $obs->appendChild($code);
-
+        $obs->appendChild($this->createLoincCode('54522-8', 'Functional status'));
         $this->appendStatusCode($obs, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $item);
@@ -4022,13 +3953,7 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.56', '2015-08-01');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '10190-7');
-        $code->setAttribute('displayName', 'Mental Status');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('10190-7', 'Mental Status'));
         $section->appendChild($this->createElement('title', 'Mental Status'));
 
         if ($mentalStatus->length === 0) {
@@ -4131,13 +4056,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10', '2014-06-09');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.10');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '18776-5');
-        $code->setAttribute('displayName', 'Treatment Plan');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('18776-5', 'Treatment Plan'));
         $section->appendChild($this->createElement('title', 'Treatment Plan'));
 
         if ($planOfCare->length === 0) {
@@ -4511,13 +4430,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.60', '2015-08-01');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '61146-7');
-        $code->setAttribute('displayName', 'Goals');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('61146-7', 'Goals'));
         $section->appendChild($this->createElement('title', 'Goals'));
 
         if ($goals->length === 0) {
@@ -4658,13 +4571,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58', '2015-08-01');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.58');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '75310-3');
-        $code->setAttribute('displayName', 'Health Concerns Document');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('75310-3', 'Health Concerns Document'));
         $section->appendChild($this->createElement('title', 'Health Concerns Document'));
 
         if ($concerns->length === 0) {
@@ -4733,13 +4640,7 @@ class InternalToCdaConverter
         $id->setAttribute('extension', $ext);
         $act->appendChild($id);
 
-        // Code
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '75310-3');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $code->setAttribute('displayName', 'Health Concern');
-        $act->appendChild($code);
+        $act->appendChild($this->createLoincCode('75310-3', 'Health Concern'));
 
         $this->appendStatusCode($act, ActStatus::Active);
 
@@ -4871,13 +4772,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1', '2015-08-01');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.21.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '42348-3');
-        $code->setAttribute('displayName', 'Advance Directives');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('42348-3', 'Advance Directives'));
         $section->appendChild($this->createElement('title', 'Advance Directives'));
         $section->appendChild($this->createElement('text', 'Not Available'));
 
@@ -4894,13 +4789,7 @@ class InternalToCdaConverter
         $this->appendTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1', '2014-06-09');
         $this->appendTemplateId($section, '1.3.6.1.4.1.19376.1.5.3.1.3.1');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '42349-1');
-        $code->setAttribute('displayName', 'Reason for Referral');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('42349-1', 'Reason for Referral'));
         $section->appendChild($this->createElement('title', 'Reason for Referral'));
         $section->appendChild($this->createElement('text', 'Not Available'));
 
@@ -4931,13 +4820,7 @@ class InternalToCdaConverter
 
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.8');
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', '51848-0');
-        $code->setAttribute('displayName', 'Assessments');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-        $code->setAttribute('codeSystemName', 'LOINC');
-        $section->appendChild($code);
-
+        $section->appendChild($this->createLoincCode('51848-0', 'Assessments'));
         $section->appendChild($this->createElement('title', 'Assessments'));
 
         if ($description !== '') {
