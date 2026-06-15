@@ -90,7 +90,10 @@ class RCFaxClient extends AppDispatch
             default => null,
         };
         if ($ext === null) {
-            error_log('Error: unsupported fax upload content type.');
+            ServiceContainer::getLogger()->warning(
+                'Unsupported fax upload content type',
+                ['mime' => $mime]
+            );
             return '';
         }
 
@@ -117,11 +120,31 @@ class RCFaxClient extends AppDispatch
             return '';
         }
         if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($content)) === false) {
-            error_log('Error: Failed to store uploaded fax.');
+            ServiceContainer::getLogger()->error(
+                'Failed to store uploaded fax',
+                ['filepath' => $filepath]
+            );
             return '';
         }
 
         return $filepath;
+    }
+
+    /**
+     * True if a path matches the on-disk shape faxProcessUploads creates
+     * (sanitized basename, 8-char hex suffix, fax-safe extension). Used to
+     * scope cleanup to files this controller staged rather than files
+     * caller code wrote into the same directory.
+     *
+     * @param string $path
+     * @return bool
+     */
+    private static function isStagedUploadPath(string $path): bool
+    {
+        return preg_match(
+            '/^[A-Za-z0-9_.-]+_[a-f0-9]{8}\\.(pdf|tiff|jpg|png|txt)$/',
+            basename($path)
+        ) === 1;
     }
 
     /**
@@ -337,7 +360,13 @@ class RCFaxClient extends AppDispatch
                     if ($raw === false) {
                         return xlt('Error: No content to send.');
                     }
-                    $stagedPath = $file;
+                    // Only mark for cleanup when the path matches the on-disk
+                    // shape faxProcessUploads creates — callers that build
+                    // their own temp files (e.g. forwardFax) manage their
+                    // own lifecycle.
+                    if (self::isStagedUploadPath($file)) {
+                        $stagedPath = $file;
+                    }
                     $content = $this->crypto->decryptFromFilesystem($raw);
                 } else {
                     $content = $file;

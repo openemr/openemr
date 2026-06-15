@@ -166,7 +166,10 @@ class EtherFaxActions extends AppDispatch
             default => null,
         };
         if ($ext === null) {
-            error_log('Error: unsupported fax upload content type.');
+            ServiceContainer::getLogger()->warning(
+                'Unsupported fax upload content type',
+                ['mime' => $mime]
+            );
             return '';
         }
 
@@ -193,11 +196,31 @@ class EtherFaxActions extends AppDispatch
             return '';
         }
         if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($content)) === false) {
-            error_log('Error: Failed to store uploaded fax.');
+            ServiceContainer::getLogger()->error(
+                'Failed to store uploaded fax',
+                ['filepath' => $filepath]
+            );
             return '';
         }
 
         return $filepath;
+    }
+
+    /**
+     * True if a path matches the on-disk shape faxProcessUploads creates
+     * (sanitized basename, 8-char hex suffix, fax-safe extension). Used to
+     * scope cleanup to files this controller staged rather than files
+     * caller code wrote into the same directory.
+     *
+     * @param string $path
+     * @return bool
+     */
+    private static function isStagedUploadPath(string $path): bool
+    {
+        return preg_match(
+            '/^[A-Za-z0-9_.-]+_[a-f0-9]{8}\\.(pdf|tiff|jpg|png|txt)$/',
+            basename($path)
+        ) === 1;
     }
 
     /**
@@ -255,11 +278,20 @@ class EtherFaxActions extends AppDispatch
 
         // faxProcessUploads stores the staged file via encryptForFilesystem.
         // Read it once, decrypt to memory, and hand off content (not the
-        // encrypted path) to downstream consumers. decryptFromFilesystem
-        // returns legacy plaintext unchanged via its version-prefix check,
-        // so files staged before this change remain readable.
+        // encrypted path) to downstream consumers. The pattern guard
+        // scopes cleanup to files this PR's faxProcessUploads created so
+        // callers that manage their own temp files aren't disrupted.
+        // decryptFromFilesystem returns legacy plaintext unchanged via its
+        // version-prefix check, so files staged before this change remain
+        // readable.
         $stagedPath = null;
-        if (empty($isContent) && !$isDocuments && is_string($file) && is_file($file)) {
+        if (
+            empty($isContent)
+            && !$isDocuments
+            && is_string($file)
+            && is_file($file)
+            && self::isStagedUploadPath($file)
+        ) {
             $raw = file_get_contents($file);
             if ($raw === false) {
                 return xlt('Error: Failed to read fax content');

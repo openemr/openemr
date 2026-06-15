@@ -177,29 +177,46 @@ class SignalWireClient extends AppDispatch
         }
 
         // faxProcessUploads stores the staged file via encryptForFilesystem.
-        // Read it once, decrypt to memory, and hand off content (not the
-        // encrypted path) to downstream consumers. decryptFromFilesystem
+        // Read it once, decrypt to memory, and stage the plaintext bytes at
+        // a per-request scratch path so downstream consumers (email
+        // attachment, uploadFileForFax) get a real file path to work with.
+        // The cleanup pattern guard scopes the encrypted-stage removal to
+        // files this PR's faxProcessUploads created, so callers that manage
+        // their own temp files aren't disrupted. decryptFromFilesystem
         // returns legacy plaintext unchanged via its version-prefix check,
         // so files staged before this change remain readable.
         $stagedPath = null;
-        if (empty($isContent) && !$isDocuments && is_string($file) && is_file($file)) {
+        $plainStagePath = null;
+        if (
+            empty($isContent)
+            && !$isDocuments
+            && is_string($file)
+            && is_file($file)
+            && self::isStagedUploadPath($file)
+        ) {
             $raw = file_get_contents($file);
             if ($raw === false) {
                 return xlt('Error: Failed to read fax content');
             }
             $stagedPath = $file;
-            $file = $this->crypto->decryptFromFilesystem($raw);
-            $isDocuments = 1;
+            $decrypted = $this->crypto->decryptFromFilesystem($raw);
+            $tmp = tempnam(sys_get_temp_dir(), 'fax_');
+            if ($tmp === false) {
+                return xlt('Error: Failed to prepare fax content');
+            }
+            $plainStagePath = $tmp;
+            file_put_contents($plainStagePath, $decrypted);
+            $file = $plainStagePath;
         }
 
         // Handle document retrieval
-        if ($isDocuments && $stagedPath === null) {
+        if ($isDocuments) {
             $file = (new Document($docId))->get_data();
         }
 
-        // Send email if requested. When we have content (not a real path),
-        // write a per-request plaintext scratch file so AddAttachment can
-        // read it. Cleaned up in finally below.
+        // Send email if requested. When we're holding raw content rather
+        // than a path (isDocuments mode), write a per-request plaintext
+        // scratch file so AddAttachment can read it. Cleaned up in finally.
         $emailPath = null;
         if ($hasEmail && $smtpEnabled && is_string($email)) {
             if ($isDocuments) {
@@ -281,13 +298,17 @@ class SignalWireClient extends AppDispatch
                 'error' => xlt('Error sending fax') . ': ' . $e->getMessage()
             ]);
         } finally {
-            // Best-effort cleanup of the staged encrypted upload and the
-            // plaintext email-attachment scratch file. Filesystem::remove
+            // Best-effort cleanup of the staged encrypted upload, the
+            // plaintext-decrypted scratch handed to uploadFileForFax, and
+            // the plaintext email-attachment scratch. Filesystem::remove
             // swallows the benign already-gone case; a real permission
             // failure surfaces as IOException, which we log.
             try {
                 if ($stagedPath !== null) {
                     (new Filesystem())->remove($stagedPath);
+                }
+                if ($plainStagePath !== null) {
+                    (new Filesystem())->remove($plainStagePath);
                 }
                 if ($emailPath !== null) {
                     (new Filesystem())->remove($emailPath);
@@ -299,6 +320,23 @@ class SignalWireClient extends AppDispatch
                 );
             }
         }
+    }
+
+    /**
+     * True if a path matches the on-disk shape faxProcessUploads creates
+     * (sanitized basename, 8-char hex suffix, fax-safe extension). Used to
+     * scope cleanup to files this controller staged rather than files
+     * caller code wrote into the same directory.
+     *
+     * @param string $path
+     * @return bool
+     */
+    private static function isStagedUploadPath(string $path): bool
+    {
+        return preg_match(
+            '/^[A-Za-z0-9_.-]+_[a-f0-9]{8}\\.(pdf|tiff|jpg|png|txt)$/',
+            basename($path)
+        ) === 1;
     }
 
     /**
@@ -1110,7 +1148,10 @@ class SignalWireClient extends AppDispatch
             default => null,
         };
         if ($ext === null) {
-            error_log('Error: unsupported fax upload content type.');
+            ServiceContainer::getLogger()->warning(
+                'Unsupported fax upload content type',
+                ['mime' => $mime]
+            );
             return '';
         }
 
@@ -1137,7 +1178,10 @@ class SignalWireClient extends AppDispatch
             return '';
         }
         if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($content)) === false) {
-            error_log('Error: Failed to store uploaded fax.');
+            ServiceContainer::getLogger()->error(
+                'Failed to store uploaded fax',
+                ['filepath' => $filepath]
+            );
             return '';
         }
 
