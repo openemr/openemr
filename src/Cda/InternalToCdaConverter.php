@@ -2960,7 +2960,9 @@ class InternalToCdaConverter
         $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
         $pregnancyCode = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_code');
         $hungerRiskCode = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/risk_status/answer_code');
-        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '';
+        $disabilityStatusCode = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_code');
+        $disabilityQuestions = $this->xpath('/CCDA/patient/sdoh_data/disability_assessment/disability_questions/question');
+        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '' || $disabilityStatusCode !== '' || $disabilityQuestions->length > 0;
 
         if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->setAttribute('nullFlavor', 'NI');
@@ -2987,6 +2989,7 @@ class InternalToCdaConverter
             $this->appendTribalAffiliationObservationEntry($section, $tribalCode);
             $this->appendPregnancyStatusObservationEntry($section, $pregnancyCode);
             $this->appendHungerVitalSignsObservationEntry($section, $hungerRiskCode);
+            $this->appendDisabilityAssessmentEntry($section, $disabilityStatusCode, $disabilityQuestions);
         }
 
         $this->appendSection($structuredBody, $component, $section);
@@ -3696,6 +3699,102 @@ class InternalToCdaConverter
 
         $entryRel->appendChild($qObs);
         $panelObs->appendChild($entryRel);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $questions
+     */
+    private function appendDisabilityAssessmentEntry(DOMElement $section, string $statusCode, \DOMNodeList $questions): void
+    {
+        if ($statusCode === '' && $questions->length === 0) {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '89571-4');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $code->setAttribute('displayName', 'Overall disability status CUBS');
+        $obs->appendChild($code);
+
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        if ($statusCode !== '') {
+            $statusDisplay = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_display');
+            $value = $this->output->createElement('value');
+            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $value->setAttribute('code', $statusCode);
+            $value->setAttribute('displayName', $statusDisplay);
+            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $obs->appendChild($value);
+        }
+
+        // Component observations for individual disability questions
+        foreach ($questions as $question) {
+            $qCode = $this->xpathValue('code', $question);
+            $qDisplay = $this->xpathValue('display', $question);
+            $answerCode = $this->xpathValue('answer_code', $question);
+            $answerDisplay = $this->xpathValue('answer_display', $question);
+
+            if ($qCode === '' || $answerCode === '') {
+                continue;
+            }
+
+            $entryRel = $this->createElement('entryRelationship');
+            $entryRel->setAttribute('typeCode', 'COMP');
+
+            $qObs = $this->createElement('observation');
+            $qObs->setAttribute('classCode', 'OBS');
+            $qObs->setAttribute('moodCode', 'EVN');
+
+            $this->appendTemplateId($qObs, '2.16.840.1.113883.10.20.22.4.86');
+
+            if ($facilityOid !== '') {
+                $qUniqueId = $this->createElement('id');
+                $qUniqueId->setAttribute('root', $facilityOid);
+                $qUniqueId->setAttribute('extension', $this->generateUuid());
+                $qObs->appendChild($qUniqueId);
+            }
+
+            $qCodeEl = $this->createElement('code');
+            $qCodeEl->setAttribute('code', $qCode);
+            $qCodeEl->setAttribute('displayName', $qDisplay);
+            $qCodeEl->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $qCodeEl->setAttribute('codeSystemName', 'LOINC');
+            $qObs->appendChild($qCodeEl);
+
+            $this->appendStatusCode($qObs, ActStatus::Completed);
+
+            $qValue = $this->output->createElement('value');
+            $qValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+            $qValue->setAttribute('code', $answerCode);
+            $qValue->setAttribute('displayName', $answerDisplay);
+            $qValue->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $qObs->appendChild($qValue);
+
+            $entryRel->appendChild($qObs);
+            $obs->appendChild($entryRel);
+        }
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
     }
 
     private function renderPayersSection(DOMElement $structuredBody): void
