@@ -1009,7 +1009,7 @@ class InternalToCdaConverter
 
         $code = $this->createElement('code');
         $code->setAttribute('code', 'CONC');
-        $code->setAttribute('displayName', 'Concern');
+        $code->setAttribute('displayName', 'Concerns');
         $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
         $act->appendChild($code);
 
