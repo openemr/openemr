@@ -3442,27 +3442,46 @@ class InternalToCdaConverter
     private function renderAssessmentSection(DOMElement $structuredBody): void
     {
         $assessments = $this->xpath('/CCDA/clinical_notes/evaluation_note');
-        if ($assessments->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
-            $section->setAttribute('nullFlavor', 'NI');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
 
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.8');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '51848-0');
-            $code->setAttribute('displayName', 'Assessments');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Assessments'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement assessments with data
+        // Use first assessment's description for the section text
+        $description = '';
+        $authorEl = null;
+        if ($assessments->length > 0) {
+            $firstAssessment = $assessments->item(0);
+            if ($firstAssessment instanceof DOMElement) {
+                $description = trim($this->xpathValue('description', $firstAssessment));
+                $authorEl = $this->xpath('author', $firstAssessment)->item(0);
+            }
         }
+
+        if ($description === '') {
+            $section->setAttribute('nullFlavor', 'NI');
+        }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.8');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '51848-0');
+        $code->setAttribute('displayName', 'Assessments');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Assessments'));
+
+        if ($description !== '') {
+            $section->appendChild($this->createElement('text', $description));
+        } else {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        }
+
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($section, $authorEl);
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
     }
 
     /**
