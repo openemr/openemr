@@ -1,0 +1,43 @@
+# PR validation for the release Dockerfile.
+#
+# Calls docker-test-core.yml which discovers all docker/<variant>/Dockerfile
+# subdirectories and runs the production test path against each. Under
+# openemr core's flatter layout that means flex + binary + release; the
+# matrix is built dynamically inside docker-test-core.yml.
+#
+# Triggers on changes to docker/release/** since that's the Dockerfile this
+# workflow primarily exists to validate. Changes to flex / binary fire their
+# own targeted test-flex-*.yml and BATS workflows respectively.
+#
+#  - is_production_docker: true  -- triggers the production-mode test path
+#    inside docker-test-core.yml (vs the dev-mode path used by the
+#    docker-test-flex-*.yml callers).
+#  - production_coverage_openemr_version: '7.0.5' -- variant to enable
+#    coverage instrumentation on; only one variant gets kcov per run.
+
+name: Docker release test
+
+on:
+  push:
+    branches:
+    - rel-810
+    paths:
+    - '.github/workflows/docker-test-release.yml'
+    - 'docker/release/**'
+    - '.github/actions/test-actions-core/action.yml'
+    - '.github/workflows/docker-test-core.yml'
+  pull_request:
+    branches:
+    - rel-810
+    paths:
+    - '.github/workflows/docker-test-release.yml'
+    - 'docker/release/**'
+    - '.github/actions/test-actions-core/action.yml'
+    - '.github/workflows/docker-test-core.yml'
+
+jobs:
+  build:
+    uses: ./.github/workflows/docker-test-core.yml
+    with:
+      is_production_docker: true
+      production_coverage_openemr_version: '7.0.5'

@@ -1,0 +1,59 @@
+# Run container_benchmarking test_functionality.sh for the release docker image.
+# Uses the test_suite.sh inside container_benchmarking to verify the container
+# performs as expected.
+#
+# On rel branches this workflow has only the functionality-release job -- flex
+# and binary are master-only docker variants and aren't part of any rel branch.
+
+name: Container Functionality (release)
+
+on:
+  push:
+    branches: [rel-810]
+    paths:
+    - '.github/workflows/docker-test-container-functionality.yml'
+    - 'utilities/container_benchmarking/**'
+    - 'docker/release/**'
+  pull_request:
+    branches: [rel-810]
+    paths:
+    - '.github/workflows/docker-test-container-functionality.yml'
+    - 'utilities/container_benchmarking/**'
+    - 'docker/release/**'
+  workflow_dispatch:
+    inputs:
+      test_name:
+        description: 'Run only this test (e.g. fresh_installation). Leave empty for full suite.'
+        required: false
+        default: ''
+
+env:
+  TEST_SUITE_ARGS: ''
+
+jobs:
+  functionality-release:
+    name: Functionality release
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set test args
+      id: args
+      run: |
+        if [[ -n "${{ github.event.inputs.test_name }}" ]]; then
+          echo "args=--test ${{ github.event.inputs.test_name }}" >> "$GITHUB_OUTPUT"
+        elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "args=" >> "$GITHUB_OUTPUT"
+        else
+          echo "args=${{ env.TEST_SUITE_ARGS }}" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Run container functionality tests (release)
+      run: |
+        cd utilities/container_benchmarking
+        ./test_functionality.sh release ${{ steps.args.outputs.args }}
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-results-release
+        path: utilities/container_benchmarking/test_results/
+        retention-days: 7

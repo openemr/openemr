@@ -1,0 +1,109 @@
+name: OpenEMR Docker Test Core
+
+on:
+  workflow_call:
+    inputs:
+      is_production_docker:
+        required: true
+        type: boolean
+      alpine_version:
+        required: false
+        type: string
+      php_versions:
+        required: false
+        type: string
+      is_flex_coverage_docker:
+        required: false
+        type: boolean
+        default: false
+      flex_coverage_php_version:
+        required: false
+        type: string
+      production_coverage_openemr_version:
+        required: false
+        type: string
+      flex_timing:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  collect-production-targets:
+    name: "Discover Production Docker Targets"
+    if: ${{ inputs.is_production_docker }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+    - name: Collect OpenEMR Prod Dockerfiles
+      id: docker-dirs
+      ##
+      # Parse out the test parameters from subdirectories of docker/
+      # that hold a Dockerfile. Skips development-* dirs (those carry
+      # docker-compose.yml, not a top-level Dockerfile).
+      # Use that output as a test matrix in github actions.
+      run: |
+        shopt -s nullglob
+        dirs=()
+        for f in docker/*/Dockerfile; do
+          d=${f%/Dockerfile}
+          [ -L "$d" ] || dirs+=( "$d" )
+        done
+        if (( "${#dirs[@]}" == 0 )); then
+          echo 'No Dockerfiles found in docker/ subdirectories.' >&2
+          exit 1
+        fi
+        dirs=( "${dirs[@]#docker/}" )
+        # Use jq to ensure that the output is valid JSON or fail trying.
+        # The output (after '=') must be valid JSON for GitHub Actions to use it as a matrix.
+        {
+          printf 'docker_dirs='
+          printf '"%s"\n' "${dirs[@]}" | jq -sc '.'
+        } >> "$GITHUB_OUTPUT"
+    outputs:
+      docker_dirs: ${{ steps.docker-dirs.outputs.docker_dirs }}
+
+  production-test:
+    name: "Production Docker (${{ matrix.docker_dir }})"
+    needs: [collect-production-targets]
+    if: ${{ inputs.is_production_docker }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        docker_dir: ${{ fromJSON(needs.collect-production-targets.outputs.docker_dirs) }}
+    env:
+      COMPOSE_PROFILES: ${{ inputs.production_coverage_openemr_version && matrix.docker_dir == inputs.production_coverage_openemr_version && 'kcov' || 'prod' }}
+      DOCKER_CONTEXT_PATH: ${{ matrix.docker_dir }}
+      OPENEMR_SERVICE_NAME: ${{ inputs.production_coverage_openemr_version && matrix.docker_dir == inputs.production_coverage_openemr_version && 'openemr-kcov' || 'openemr' }}
+      COMPOSE_BAKE: "1"
+      DOCKER_BUILDKIT: "1"
+    steps:
+    - uses: actions/checkout@v6
+    - uses: ./.github/actions/test-actions-core
+      with:
+        is_production_docker: ${{ inputs.is_production_docker }}
+
+  development-test:
+    name: "Development Docker Alpine-${{ inputs.alpine_version }} (PHP ${{ matrix.php_version }}, ${{ matrix.mode }})"
+    if: ${{ !inputs.is_production_docker }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php_version: ${{ fromJSON(inputs.php_versions) }}
+        mode: ['prod', 'dev']
+    env:
+      COMPOSE_PROFILES: ${{ matrix.mode == 'dev' && (inputs.is_flex_coverage_docker && matrix.php_version == inputs.flex_coverage_php_version && 'kcov-dev' || 'dev') || (inputs.is_flex_coverage_docker && matrix.php_version == inputs.flex_coverage_php_version && 'kcov' || 'prod') }}
+      DOCKER_CONTEXT_PATH: "flex"
+      OPENEMR_SERVICE_NAME: ${{ matrix.mode == 'dev' && (inputs.is_flex_coverage_docker && matrix.php_version == inputs.flex_coverage_php_version && 'openemr-kcov-dev' || 'openemr-dev') || (inputs.is_flex_coverage_docker && matrix.php_version == inputs.flex_coverage_php_version && 'openemr-kcov' || 'openemr') }}
+      COMPOSE_BAKE: "1"
+      DOCKER_BUILDKIT: "1"
+      # Surfaces phase timing in openemr.sh — see openemr-devops#797.
+      OPENEMR_FLEX_TIMING: ${{ inputs.flex_timing && '1' || '' }}
+    steps:
+    - uses: actions/checkout@v6
+    - uses: ./.github/actions/test-actions-core
+      with:
+        is_production_docker: ${{ inputs.is_production_docker }}
+        alpine_version: ${{ inputs.alpine_version }}
+        php_version: ${{ matrix.php_version }}
