@@ -2959,7 +2959,8 @@ class InternalToCdaConverter
         $occupationCode = $this->xpathValue('/CCDA/patient/occupation/occupation_code');
         $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
         $pregnancyCode = $this->xpathValue('/CCDA/patient/sdoh_data/pregnancy_code');
-        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '';
+        $hungerRiskCode = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/risk_status/answer_code');
+        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '';
 
         if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->setAttribute('nullFlavor', 'NI');
@@ -2985,6 +2986,7 @@ class InternalToCdaConverter
             $this->appendOccupationObservationEntry($section, $occupationCode);
             $this->appendTribalAffiliationObservationEntry($section, $tribalCode);
             $this->appendPregnancyStatusObservationEntry($section, $pregnancyCode);
+            $this->appendHungerVitalSignsObservationEntry($section, $hungerRiskCode);
         }
 
         $this->appendSection($structuredBody, $component, $section);
@@ -3523,6 +3525,177 @@ class InternalToCdaConverter
 
         $entry->appendChild($obs);
         $section->appendChild($entry);
+    }
+
+    private function appendHungerVitalSignsObservationEntry(DOMElement $section, string $riskCode): void
+    {
+        if ($riskCode === '') {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        // Outer Social History Observation wrapper
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38', '2015-08-01');
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38', '2022-06-01');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $obs->appendChild($uniqueId);
+        }
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $this->generateUuid());
+        $obs->appendChild($id);
+
+        // Code for Social / personal history observable
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '160476009');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $code->setAttribute('codeSystemName', 'SNOMED CT');
+        $code->setAttribute('displayName', 'Social / personal history observable');
+
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '8689-2');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $translation->setAttribute('displayName', 'History of Social function');
+        $code->appendChild($translation);
+        $obs->appendChild($code);
+
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $assessDate = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/assessment_date');
+        if ($assessDate !== '') {
+            $effTime = $this->createElement('effectiveTime');
+            $effTime->setAttribute('value', $assessDate);
+            $obs->appendChild($effTime);
+        }
+
+        // Nested entryRelationship for Hunger Vital Signs panel
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SPRT');
+
+        $panelObs = $this->createElement('observation');
+        $panelObs->setAttribute('classCode', 'OBS');
+        $panelObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($panelObs, '2.16.840.1.113883.10.20.22.4.69', '2022-06-01');
+
+        if ($facilityOid !== '') {
+            $uniqueId2 = $this->createElement('id');
+            $uniqueId2->setAttribute('root', $facilityOid);
+            $uniqueId2->setAttribute('extension', $this->generateUuid());
+            $panelObs->appendChild($uniqueId2);
+        }
+
+        $id2 = $this->createElement('id');
+        $id2->setAttribute('root', $this->generateUuid());
+        $panelObs->appendChild($id2);
+
+        $panelCode = $this->createElement('code');
+        $panelCode->setAttribute('code', '88121-9');
+        $panelCode->setAttribute('displayName', 'Hunger Vital Signs');
+        $panelCode->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $panelCode->setAttribute('codeSystemName', 'LOINC');
+        $panelObs->appendChild($panelCode);
+
+        $derivExpr = $this->createElement('derivationExpr');
+        $derivExpr->appendChild($this->output->createTextNode('Sum of hunger screening responses'));
+        $panelObs->appendChild($derivExpr);
+
+        $this->appendStatusCode($panelObs, ActStatus::Completed);
+
+        if ($assessDate !== '') {
+            $panelEffTime = $this->createElement('effectiveTime');
+            $panelEffTime->setAttribute('value', $assessDate);
+            $panelObs->appendChild($panelEffTime);
+        }
+
+        $score = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/score');
+        $panelValue = $this->output->createElement('value');
+        $panelValue->setAttributeNS(self::NS_XSI, 'xsi:type', 'INT');
+        $panelValue->setAttribute('value', $score !== '' ? $score : '0');
+        $panelObs->appendChild($panelValue);
+
+        // Question 1
+        $q1Code = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/question1/code');
+        if ($q1Code !== '') {
+            $this->appendHungerVitalSignsQuestion($panelObs, 'question1');
+        }
+
+        // Question 2
+        $q2Code = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/question2/code');
+        if ($q2Code !== '') {
+            $this->appendHungerVitalSignsQuestion($panelObs, 'question2');
+        }
+
+        $entryRel->appendChild($panelObs);
+        $obs->appendChild($entryRel);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    private function appendHungerVitalSignsQuestion(DOMElement $panelObs, string $questionKey): void
+    {
+        $basePath = '/CCDA/social_history_sdoh/hunger_vital_signs/' . $questionKey;
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'COMP');
+
+        $qObs = $this->createElement('observation');
+        $qObs->setAttribute('classCode', 'OBS');
+        $qObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($qObs, '2.16.840.1.113883.10.20.22.4.86');
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $qObs->appendChild($uniqueId);
+        }
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $this->generateUuid());
+        $qObs->appendChild($id);
+
+        $qCode = $this->xpathValue($basePath . '/code');
+        $qCodeSystem = $this->xpathValue($basePath . '/code_system');
+        $qDisplay = $this->xpathValue($basePath . '/display');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $qCode);
+        $code->setAttribute('displayName', $qDisplay);
+        $code->setAttribute('codeSystem', $qCodeSystem !== '' ? $qCodeSystem : '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $qObs->appendChild($code);
+
+        $this->appendStatusCode($qObs, ActStatus::Completed);
+
+        $answerCode = $this->xpathValue($basePath . '/answer_code');
+        $answerDisplay = $this->xpathValue($basePath . '/answer_display');
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $answerCode);
+        $value->setAttribute('displayName', $answerDisplay);
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $qObs->appendChild($value);
+
+        $entryRel->appendChild($qObs);
+        $panelObs->appendChild($entryRel);
     }
 
     private function renderPayersSection(DOMElement $structuredBody): void
