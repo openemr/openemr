@@ -15,8 +15,10 @@ namespace OpenEMR\Tests\Isolated\Core\Routing;
 
 use OpenEMR\Core\Routing\ZendModelResponder;
 use OpenEMR\Tests\Isolated\Core\Routing\Fixture\FixtureActionController;
+use OpenEMR\Tests\Isolated\Core\Routing\Fixture\JsonModelStateFactory;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 #[Group('isolated')]
@@ -60,5 +62,31 @@ class ZendModelResponderIsolatedTest extends TestCase
 
         $this->expectException(\RuntimeException::class);
         $responder->toResponse(42);
+    }
+
+    public function testJsonModelWithTraversableVariablesIsSerialized(): void
+    {
+        // A JsonModel whose variables container is a Traversable (not a plain
+        // array): modelVariables() drains it via iterator_to_array so the keys
+        // survive into the JSON body.
+        $responder = new ZendModelResponder(fn($m): string => 'unused');
+
+        $response = $responder->toResponse(JsonModelStateFactory::withTraversableVariables());
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertSame('{"alpha":1,"beta":2}', $response->getContent());
+    }
+
+    public function testJsonModelWithArrayAccessOnlyVariablesYieldsEmptyJson(): void
+    {
+        // A JsonModel whose variables container is ArrayAccess but not
+        // Traversable carries no enumerable keys, so modelVariables() returns an
+        // empty array and the response serializes to "[]".
+        $responder = new ZendModelResponder(fn($m): string => 'unused');
+
+        $response = $responder->toResponse(JsonModelStateFactory::withArrayAccessOnlyVariables());
+
+        $this->assertInstanceOf(JsonResponse::class, $response);
+        $this->assertSame('[]', $response->getContent());
     }
 }

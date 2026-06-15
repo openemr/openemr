@@ -188,4 +188,196 @@ class ZendModuleRouteLoaderIsolatedTest extends TestCase
 
         $this->assertCount(0, $collection);
     }
+
+    public function testNonArrayRoutesProducesNothing(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        $loader->loadModuleConfig('Bad', ['router' => ['routes' => 'not-an-array']], $collection);
+
+        $this->assertCount(0, $collection);
+    }
+
+    public function testNonArrayRouteNodeIsSkipped(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        $config = [
+            'router' => [
+                'routes' => [
+                    'scalar' => 'not-a-node',
+                    'good' => [
+                        'options' => [
+                            'route' => '/good',
+                            'defaults' => ['controller' => 'GoodController', 'action' => 'index'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $loader->loadModuleConfig('Mixed', $config, $collection);
+
+        $this->assertNull($collection->get('zend_module.Mixed.scalar'));
+        $this->assertNotNull($collection->get('zend_module.Mixed.good'));
+    }
+
+    public function testNonArrayChildRouteIsSkipped(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        $config = [
+            'router' => [
+                'routes' => [
+                    'parent' => [
+                        'may_terminate' => true,
+                        'options' => [
+                            'route' => '/parent',
+                            'defaults' => ['controller' => 'ParentController', 'action' => 'index'],
+                        ],
+                        'child_routes' => [
+                            'scalarChild' => 'not-a-node',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $loader->loadModuleConfig('Parented', $config, $collection);
+
+        $this->assertNotNull($collection->get('zend_module.Parented.parent'));
+        $this->assertNull($collection->get('zend_module.Parented.parent/scalarChild'));
+    }
+
+    public function testRouteWithUntranslatablePatternIsSkipped(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        // A pattern that does not start with "/" has no usable Symfony path, so
+        // translatePattern() returns null and buildRoute() emits no route.
+        $config = [
+            'router' => [
+                'routes' => [
+                    'noslash' => [
+                        'options' => [
+                            'route' => 'novalidpath',
+                            'defaults' => ['controller' => 'X', 'action' => 'index'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $loader->loadModuleConfig('Slashless', $config, $collection);
+
+        $this->assertCount(0, $collection);
+    }
+
+    public function testBareColonIsTreatedAsLiteral(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        // A ":" not followed by a placeholder name is emitted literally rather
+        // than starting a placeholder.
+        $config = [
+            'router' => [
+                'routes' => [
+                    'colon' => [
+                        'options' => [
+                            'route' => '/ratio/:/value',
+                            'defaults' => ['controller' => 'X', 'action' => 'index'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $loader->loadModuleConfig('Colon', $config, $collection);
+
+        $route = $collection->get('zend_module.Colon.colon');
+        self::assertNotNull($route);
+        $this->assertSame('/ratio/:/value', $route->getPath());
+    }
+
+    public function testRouteWithoutDefaultsStillGetsModuleDefault(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        // No 'defaults' key -> normalizeDefaults(null) -> []. The module name
+        // default is still attached.
+        $config = [
+            'router' => [
+                'routes' => [
+                    'plain' => [
+                        'options' => ['route' => '/plain'],
+                    ],
+                ],
+            ],
+        ];
+
+        $loader->loadModuleConfig('Plain', $config, $collection);
+
+        $route = $collection->get('zend_module.Plain.plain');
+        self::assertNotNull($route);
+        $this->assertSame('Plain', $route->getDefault(ZendModuleRouteLoader::ATTR_MODULE));
+    }
+
+    public function testNonStringAndNonScalarDefaultsAreFiltered(): void
+    {
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+        $collection = new RouteCollection();
+
+        $config = [
+            'router' => [
+                'routes' => [
+                    'filtered' => [
+                        'options' => [
+                            'route' => '/filtered',
+                            'defaults' => [
+                                0 => 'dropped-int-key',
+                                'nested' => ['dropped-array-value'],
+                                'controller' => 'KeptController',
+                                'action' => 'index',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $loader->loadModuleConfig('Filtered', $config, $collection);
+
+        $route = $collection->get('zend_module.Filtered.filtered');
+        self::assertNotNull($route);
+        $defaults = $route->getDefaults();
+        $this->assertSame('KeptController', $defaults['controller']);
+        $this->assertArrayNotHasKey(0, $defaults);
+        $this->assertArrayNotHasKey('nested', $defaults);
+    }
+
+    public function testNonArrayModuleConfigFileIsSkipped(): void
+    {
+        // load() reads each module's module.config.php; the NonArrayConfig
+        // fixture returns a string, so the loader skips it without error.
+        $loader = new ZendModuleRouteLoader(__DIR__ . '/Fixture/modules');
+        $collection = $loader->load(['NonArrayConfig']);
+
+        $this->assertCount(0, $collection);
+    }
+
+    public function testMissingModuleRootProducesEmptyCollection(): void
+    {
+        // load() against a directory with no module/ subdir hits the is_dir
+        // guard in moduleConfigFiles() and yields nothing rather than letting
+        // Finder throw.
+        $loader = new ZendModuleRouteLoader('/nonexistent');
+
+        $this->assertCount(0, $loader->load(['Application']));
+    }
 }
