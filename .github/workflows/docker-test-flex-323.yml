@@ -3,6 +3,7 @@
 #  - is_production_docker is required and needs to be false.
 #  - alpine_versions is set to 3.23
 #  - php_versions are set to 8.3, 8.4 and 8.5
+#  - flex_timing is set to true to emit TIMING markers in openemr.sh (openemr-devops#797).
 #  - note not using the coverage settings (is_flex_coverage_docker, flex_coverage_php_version) in this workflow. see
 #    test-flex-edge.yml for use of these settings.
 
@@ -33,3 +34,4 @@ jobs:
       is_production_docker: false
       alpine_version: "3.23"
       php_versions: '["8.3", "8.4", "8.5"]'
+      flex_timing: true

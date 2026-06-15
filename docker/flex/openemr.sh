@@ -44,6 +44,24 @@
 set -euo pipefail
 
 # ============================================================================
+# OPTIONAL STARTUP PHASE TIMING
+# ============================================================================
+# When OPENEMR_FLEX_TIMING=1, emit "TIMING:" markers at each long-running
+# startup phase. Enabled in the flex test workflows so any future startup
+# slowdown can be localized to a specific phase (openemr-devops#797).
+# Silent when the env var is unset or anything other than "1".
+flex_timing() {
+    [[ "${OPENEMR_FLEX_TIMING:-}" = "1" ]] || return 0
+    local now
+    now=$(date +%s)
+    # Write to stderr: bash's stdout is fully-buffered when piped to docker,
+    # so small printf lines stay in the userspace buffer and get lost when
+    # the container is SIGKILLed at the healthcheck timeout. Stderr is
+    # line-buffered (or unbuffered) per C99, so the \n flushes immediately.
+    printf 'TIMING: %s %s\n' "${now}" "$1" >&2
+}
+
+# ============================================================================
 # SHELL LIBRARY SOURCING
 # ============================================================================
 # Load helper functions from devtoolsLibrary.source
@@ -724,11 +742,13 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
         fi
 
         # install php dependencies
+        flex_timing 'composer install start'
         if [[ "${DEVELOPER_TOOLS}" = "yes" ]]; then
             composer install
         else
             composer install --no-dev
         fi
+        flex_timing 'composer install done'
         RAN_ANY_BUILD=true
     fi
 
@@ -752,22 +772,29 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
         if [[ -d public ]]; then
             chown -R apache:1000 public
         fi
+        flex_timing 'npm install (root) start (includes napa postinstall)'
         npm install --unsafe-perm
+        flex_timing 'npm install (root) done'
         # build css
+        flex_timing 'npm run build (webpack) start'
         npm run build
+        flex_timing 'npm run build (webpack) done'
         RAN_ANY_BUILD=true
     fi
 
     if [[ "${NEED_NPM_BUILD}" = "true" ]] && [[ -f /var/www/localhost/htdocs/openemr/ccdaservice/package.json ]]; then
         # install ccdaservice
+        flex_timing 'npm install (ccdaservice) start'
         cd /var/www/localhost/htdocs/openemr/ccdaservice
         npm install --unsafe-perm
         cd /var/www/localhost/htdocs/openemr
+        flex_timing 'npm install (ccdaservice) done'
         RAN_ANY_BUILD=true
     fi
 
     # clean up and optimize (only if we ran any builds)
     if [[ "${RAN_ANY_BUILD}" = "true" ]]; then
+        flex_timing 'phing + dump-autoload start'
         composer global require phing/phing
         /root/.composer/vendor/bin/phing vendor-clean
         /root/.composer/vendor/bin/phing assets-clean
@@ -775,9 +802,27 @@ if [[ "${NEED_COMPOSER_BUILD}" = "true" ]] || [[ "${NEED_NPM_BUILD}" = "true" ]]
 
         # optimize
         composer dump-autoload --optimize --apcu
+        flex_timing 'phing + dump-autoload done'
     fi
 
     cd /var/www/localhost/htdocs
+fi
+
+# Two-pass kcov-wrapper.sh sets FLEX_BUILD_ONLY=yes on its first pass so the
+# heavy build (composer + npm + napa + webpack + phing) runs OUTSIDE kcov.
+# It then re-invokes openemr.sh under kcov with FORCE_NO_BUILD_MODE=yes so
+# the build block above short-circuits. Avoids kcov's ptrace following
+# webpack's worker tree (openemr-devops#797).
+if [[ "${FLEX_BUILD_ONLY:-}" = "yes" ]]; then
+    # ssl.sh was forked above (line ~575) and we'd normally wait on SSL_PID
+    # near the end of the script. Wait here so pass 1 doesn't leave a
+    # cert-generating subprocess running while pass 2 forks its own ssl.sh.
+    if [[ -n "${SSL_PID:-}" ]] && ! wait "${SSL_PID}" 2>/dev/null; then
+        echo "Warning: ssl.sh failed in FLEX_BUILD_ONLY mode (continuing)"
+    fi
+    unset SSL_PID
+    flex_timing 'build-only mode exit'
+    exit 0
 fi
 
 if [[ "${SWARM_WAIT_DEFERRED}" = "yes" ]]; then
@@ -1123,7 +1168,15 @@ echo " > https://opencollective.com/openemr/donate"
 echo
 
 if [[ "${OPERATOR}" = "yes" ]]; then
+    flex_timing 'apache exec'
     echo 'Starting apache!'
+    # FLEX_SKIP_APACHE_EXEC is set by kcov-wrapper.sh's pass 2 so kcov can
+    # see the script exit cleanly and finalize its coverage buffer; if we
+    # exec apache here, bash gets replaced and kcov never gets the exit
+    # signal (openemr-devops#797). Wrapper execs apache itself afterward.
+    if [[ "${FLEX_SKIP_APACHE_EXEC:-}" = "yes" ]]; then
+        exit 0
+    fi
     exec /usr/sbin/httpd -D FOREGROUND
 fi
 

@@ -22,6 +22,10 @@ on:
       production_coverage_openemr_version:
         required: false
         type: string
+      flex_timing:
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   collect-production-targets:
@@ -94,6 +98,8 @@ jobs:
       OPENEMR_SERVICE_NAME: ${{ matrix.mode == 'dev' && (inputs.is_flex_coverage_docker && matrix.php_version == inputs.flex_coverage_php_version && 'openemr-kcov-dev' || 'openemr-dev') || (inputs.is_flex_coverage_docker && matrix.php_version == inputs.flex_coverage_php_version && 'openemr-kcov' || 'openemr') }}
       COMPOSE_BAKE: "1"
       DOCKER_BUILDKIT: "1"
+      # Surfaces phase timing in openemr.sh — see openemr-devops#797.
+      OPENEMR_FLEX_TIMING: ${{ inputs.flex_timing && '1' || '' }}
     steps:
     - uses: actions/checkout@v6
     - uses: ./.github/actions/test-actions-core

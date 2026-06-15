@@ -50,6 +50,9 @@ services:
       MYSQL_USER: openemr
       OE_PASS: pass
       OE_USER: admin
+      # Pass-through default empty. Flex workflows set this to '1' to emit
+      # phase timing in openemr.sh (openemr-devops#797).
+      OPENEMR_FLEX_TIMING: ${OPENEMR_FLEX_TIMING:-}
     healthcheck:
       test:
       - CMD
