@@ -789,9 +789,7 @@ class InternalToCdaConverter
         $code->setAttribute('displayName', 'Care Team Information');
         $organizer->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $organizer->appendChild($statusCode);
+        $this->appendStatusCode($organizer, ActStatus::Active);
 
         // effectiveTime from first provider's since date
         $providerSince = '';
@@ -851,9 +849,7 @@ class InternalToCdaConverter
         $act->appendChild($code);
 
         $status = $this->xpathValue('status', $provider);
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', $status !== '' ? $status : 'active');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::tryFrom($status) ?? ActStatus::Active);
 
         $since = $this->xpathValue('provider_since', $provider);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -1044,9 +1040,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
         $act->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Active);
 
         $startDate = $this->xpathValue('startdate', $allergy);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -1093,9 +1087,7 @@ class InternalToCdaConverter
         $obsCode->setAttribute('codeSystemName', 'ActCode');
         $obs->appendChild($obsCode);
 
-        $obsStatus = $this->createElement('statusCode');
-        $obsStatus->setAttribute('code', 'completed');
-        $obs->appendChild($obsStatus);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $startDate = $this->xpathValue('startdate', $allergy);
         $obsEffTime = $this->createElement('effectiveTime');
@@ -1208,9 +1200,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'LOINC');
         $statusObs->appendChild($code);
 
-        $statusCodeEl = $this->createElement('statusCode');
-        $statusCodeEl->setAttribute('code', 'completed');
-        $statusObs->appendChild($statusCodeEl);
+        $this->appendStatusCode($statusObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CE');
@@ -1252,9 +1242,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
         $reactionObs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $reactionObs->appendChild($statusCode);
+        $this->appendStatusCode($reactionObs, ActStatus::Completed);
 
         $startDate = $this->xpathValue('startdate', $allergy);
         $endDate = $this->xpathValue('enddate', $allergy);
@@ -1308,9 +1296,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'ActCode');
         $sevObs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $sevObs->appendChild($statusCode);
+        $this->appendStatusCode($sevObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
@@ -1346,9 +1332,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
         $act->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Active);
 
         $effectiveTime = $this->createElement('effectiveTime');
         $low = $this->createElement('low');
@@ -1379,9 +1363,7 @@ class InternalToCdaConverter
         $obsCode->setAttribute('codeSystemName', 'ActCode');
         $obs->appendChild($obsCode);
 
-        $obsStatus = $this->createElement('statusCode');
-        $obsStatus->setAttribute('code', 'completed');
-        $obs->appendChild($obsStatus);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $obsEffTime = $this->createElement('effectiveTime');
         $obsLow = $this->createElement('low');
@@ -1486,9 +1468,7 @@ class InternalToCdaConverter
         $direction = $this->xpathValue('direction', $med);
         $subAdmin->appendChild($this->createElement('text', $direction));
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $subAdmin->appendChild($statusCode);
+        $this->appendStatusCode($subAdmin, ActStatus::Completed);
 
         $startDate = $this->xpathValue('start_date', $med);
         $endDate = $this->xpathValue('end_date', $med);
@@ -1683,9 +1663,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'HL7ActClass');
         $act->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Completed);
 
         $startDate = $this->xpathValue('start_date', $problem);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -1742,9 +1720,7 @@ class InternalToCdaConverter
         $text->appendChild($ref);
         $obs->appendChild($text);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $startDate = $this->xpathValue('start_date', $problem);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -1802,9 +1778,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'LOINC');
         $statusObs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $statusObs->appendChild($statusCode);
+        $this->appendStatusCode($statusObs, ActStatus::Completed);
 
         $startDate = $this->xpathValue('start_date', $problem);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -1856,9 +1830,7 @@ class InternalToCdaConverter
         $text->appendChild($ref);
         $healthObs->appendChild($text);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $healthObs->appendChild($statusCode);
+        $this->appendStatusCode($healthObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
@@ -1896,9 +1868,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'SNOMED-CT');
         $ageObs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $ageObs->appendChild($statusCode);
+        $this->appendStatusCode($ageObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'PQ');
@@ -2010,9 +1980,7 @@ class InternalToCdaConverter
         $code->appendChild($origText);
         $procedure->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $procedure->appendChild($statusCode);
+        $this->appendStatusCode($procedure, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $proc);
         $dateFormatted = str_replace('-', '', $date);
@@ -2153,9 +2121,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'LOINC');
         $organizer->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $organizer->appendChild($statusCode);
+        $this->appendStatusCode($organizer, ActStatus::Completed);
 
         $authorEl = $this->xpath('author', $firstResult)->item(0);
         if ($authorEl instanceof DOMElement) {
@@ -2209,9 +2175,7 @@ class InternalToCdaConverter
         $text->appendChild($ref);
         $obs->appendChild($text);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $effTime = $this->createElement('effectiveTime');
         $effTime->setAttribute('value', $dateOrdered);
@@ -2601,9 +2565,7 @@ class InternalToCdaConverter
         $text->appendChild($ref);
         $subAdmin->appendChild($text);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $subAdmin->appendChild($statusCode);
+        $this->appendStatusCode($subAdmin, ActStatus::Completed);
 
         $administeredFormatted = $this->xpathValue('administered_formatted', $imm);
         $effTime = $this->output->createElement('effectiveTime');
@@ -2656,9 +2618,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'SNOMED CT');
         $act->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Completed);
 
         $entryRelationship->appendChild($act);
         $subAdmin->appendChild($entryRelationship);
@@ -2862,9 +2822,7 @@ class InternalToCdaConverter
         $code->appendChild($translation);
         $organizer->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $organizer->appendChild($statusCode);
+        $this->appendStatusCode($organizer, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $vital);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -3038,9 +2996,7 @@ class InternalToCdaConverter
         $code->appendChild($origText);
         $obs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $vital);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -3171,9 +3127,7 @@ class InternalToCdaConverter
         $obs->appendChild($code);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         // Effective time
         $date = $this->xpathValue('date', $item);
@@ -3226,9 +3180,7 @@ class InternalToCdaConverter
         $obs->appendChild($code);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         // Effective time
         $date = $this->xpathValue('date', $item);
@@ -3387,9 +3339,7 @@ class InternalToCdaConverter
         $code->setAttribute('displayName', 'Payment sources');
         $act->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Completed);
 
         // Policy Activity entryRelationship
         $this->appendPolicyActivity($act, $payer);
@@ -3428,9 +3378,7 @@ class InternalToCdaConverter
         $code->setAttribute('codeSystemName', 'Source of Payment Typology');
         $policyAct->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $policyAct->appendChild($statusCode);
+        $this->appendStatusCode($policyAct, ActStatus::Completed);
 
         // Performer - Insurance
         $this->appendPayerPerformer($policyAct, $payer);
@@ -3645,9 +3593,7 @@ class InternalToCdaConverter
         $code->appendChild($origText);
         $procedure->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $procedure->appendChild($statusCode);
+        $this->appendStatusCode($procedure, ActStatus::Completed);
 
         $startDate = $this->xpathValue('start_date', $device);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -3801,9 +3747,7 @@ class InternalToCdaConverter
         $code->setAttribute('displayName', 'Self-Care');
         $organizer->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $organizer->appendChild($statusCode);
+        $this->appendStatusCode($organizer, ActStatus::Completed);
 
         // Author from global author
         $authorEl = $this->xpath('/CCDA/author')->item(0);
@@ -3843,9 +3787,7 @@ class InternalToCdaConverter
         $code->setAttribute('displayName', 'Functional status');
         $obs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $item);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -4082,9 +4024,7 @@ class InternalToCdaConverter
         $act->appendChild($text);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Completed);
 
         // Effective time
         $date = $this->xpathValue('date', $note);
@@ -4173,9 +4113,7 @@ class InternalToCdaConverter
         $code->appendChild($translation);
         $obs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $item);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -4351,9 +4289,7 @@ class InternalToCdaConverter
         $obs->appendChild($code);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Active);
 
         // Effective time
         $date = $this->xpathValue('proposed_date', $item);
@@ -4416,9 +4352,7 @@ class InternalToCdaConverter
         $proc->appendChild($code);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $proc->appendChild($statusCode);
+        $this->appendStatusCode($proc, ActStatus::Active);
 
         // Effective time
         $date = $this->xpathValue('proposed_date', $item);
@@ -4468,9 +4402,7 @@ class InternalToCdaConverter
         $enc->appendChild($code);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $enc->appendChild($statusCode);
+        $this->appendStatusCode($enc, ActStatus::Active);
 
         // Effective time
         $date = $this->xpathValue('proposed_date', $item);
@@ -4508,9 +4440,7 @@ class InternalToCdaConverter
         }
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $subAdmin->appendChild($statusCode);
+        $this->appendStatusCode($subAdmin, ActStatus::Active);
 
         // Effective time
         $date = $this->xpathValue('proposed_date', $item);
@@ -4579,9 +4509,7 @@ class InternalToCdaConverter
         $inst->appendChild($code);
 
         // Status
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $inst->appendChild($statusCode);
+        $this->appendStatusCode($inst, ActStatus::Active);
 
         $entry->appendChild($inst);
     }
@@ -4708,9 +4636,7 @@ class InternalToCdaConverter
         }
         $obs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Active);
 
         $date = $this->xpathValue('date', $goal);
         $effectiveTime = $this->createElement('effectiveTime');
@@ -4849,9 +4775,7 @@ class InternalToCdaConverter
         $code->setAttribute('displayName', 'Health Concern');
         $act->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'active');
-        $act->appendChild($statusCode);
+        $this->appendStatusCode($act, ActStatus::Active);
 
         $date = $this->xpathValue('date', $concern);
         if ($date !== '') {
@@ -4918,9 +4842,7 @@ class InternalToCdaConverter
         $code->appendChild($translation);
         $obs->appendChild($code);
 
-        $statusCode = $this->createElement('statusCode');
-        $statusCode->setAttribute('code', 'completed');
-        $obs->appendChild($statusCode);
+        $this->appendStatusCode($obs, ActStatus::Completed);
 
         $date = $this->xpathValue('date', $concern);
         if ($date !== '') {
@@ -5362,5 +5284,15 @@ class InternalToCdaConverter
             return $input;
         }
         return $datetime->format('Y-m-d');
+    }
+
+    /**
+     * Appends a statusCode element to the parent
+     */
+    private function appendStatusCode(DOMElement $parent, ActStatus $status = ActStatus::Completed): void
+    {
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', $status->value);
+        $parent->appendChild($statusCode);
     }
 }
