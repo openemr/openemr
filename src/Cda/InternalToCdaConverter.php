@@ -684,6 +684,7 @@ class InternalToCdaConverter
         $this->renderResultsSection($structuredBody);
         $this->renderAdvanceDirectivesSection($structuredBody);
         $this->renderFunctionalStatusSection($structuredBody);
+        $this->renderClinicalNoteSections($structuredBody);
         $this->renderEncountersSection($structuredBody);
         $this->renderImmunizationsSection($structuredBody);
         $this->renderPayersSection($structuredBody);
@@ -3884,6 +3885,223 @@ class InternalToCdaConverter
 
         $component->appendChild($obs);
         $organizer->appendChild($component);
+    }
+
+    private function renderClinicalNoteSections(DOMElement $structuredBody): void
+    {
+        // Map of clinical_notes_type to section metadata
+        $noteTypes = [
+            'history_physical' => [
+                'displayName' => 'History and Physical Note',
+                'title' => 'History and Physical Notes',
+            ],
+            'progress_note' => [
+                'displayName' => 'Progress Note',
+                'title' => 'Progress Notes',
+            ],
+            'procedure_note' => [
+                'displayName' => 'Procedure Note',
+                'title' => 'Procedure Notes',
+            ],
+            'nurse_note' => [
+                'displayName' => 'Nurse Notes',
+                'title' => 'Nurse Notes',
+            ],
+            'general_note' => [
+                'displayName' => 'General Note',
+                'title' => 'General Notes',
+            ],
+            'consultation_note' => [
+                'displayName' => 'Consultation Note',
+                'title' => 'Consultation Notes',
+            ],
+            'discharge_summary' => [
+                'displayName' => 'Discharge Summary',
+                'title' => 'Discharge Summary',
+            ],
+            'laboratory_report_narrative' => [
+                'displayName' => 'Laboratory Report Narrative',
+                'title' => 'Laboratory Report Narrative',
+            ],
+            'imaging_narrative' => [
+                'displayName' => 'Imaging Narrative',
+                'title' => 'Imaging Narrative',
+            ],
+            'pathology_report_narrative' => [
+                'displayName' => 'Pathology Report Narrative',
+                'title' => 'Pathology Report Narrative',
+            ],
+        ];
+
+        // Group notes by type
+        $notesByType = $this->groupClinicalNotesByType();
+
+        // Render each section that has notes
+        foreach ($noteTypes as $type => $metadata) {
+            if (array_key_exists($type, $notesByType) && count($notesByType[$type]) > 0) {
+                $this->renderClinicalNoteSection(
+                    $structuredBody,
+                    $notesByType[$type],
+                    $metadata['displayName'],
+                    $metadata['title']
+                );
+            }
+        }
+    }
+
+    /**
+     * @return array<string, list<DOMElement>>
+     */
+    private function groupClinicalNotesByType(): array
+    {
+        $notesByType = [];
+        $clinicalNotes = $this->xpath('/CCDA/clinical_notes/*');
+
+        foreach ($clinicalNotes as $note) {
+            $type = $this->xpathValue('clinical_notes_type', $note);
+            // Skip evaluation_note as it's handled by Assessment section
+            if ($type === '' || $type === 'evaluation_note') {
+                continue;
+            }
+            if (!array_key_exists($type, $notesByType)) {
+                $notesByType[$type] = [];
+            }
+            $notesByType[$type][] = $note;
+        }
+
+        return $notesByType;
+    }
+
+    /**
+     * @param list<DOMElement> $notes
+     */
+    private function renderClinicalNoteSection(
+        DOMElement $structuredBody,
+        array $notes,
+        string $displayName,
+        string $title
+    ): void {
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.65', '2016-11-01');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '16C8G888-10D9-23E6-H141-0080055B0002');
+        $section->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '34117-2');
+        $code->setAttribute('displayName', $displayName);
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', $title));
+
+        // Narrative table
+        $this->appendClinicalNoteNarrative($section, $notes);
+
+        // Entries
+        $refIndex = 1;
+        foreach ($notes as $note) {
+            $this->appendClinicalNoteEntry($section, $note, $refIndex);
+            $refIndex++;
+        }
+
+        $component->appendChild($section);
+        $structuredBody->appendChild($component);
+    }
+
+    /**
+     * @param list<DOMElement> $notes
+     */
+    private function appendClinicalNoteNarrative(DOMElement $section, array $notes): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Summary', 'Author', 'Date']);
+
+        $refIndex = 1;
+        foreach ($notes as $note) {
+            $description = $this->xpathValue('description', $note);
+            $authorFname = $this->xpathValue('author/fname', $note);
+            $authorLname = $this->xpathValue('author/lname', $note);
+            $authorName = trim($authorFname . ' ' . $authorLname);
+            $date = $this->xpathValue('date', $note);
+
+            $this->appendTableRow($table, [
+                $description,
+                $authorName,
+                $this->formatDateForDisplay($date),
+            ], 'note' . $refIndex);
+            $refIndex++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendClinicalNoteEntry(DOMElement $section, DOMElement $note, int $refIndex): void
+    {
+        $entry = $this->createElement('entry');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.202', '2016-11-01');
+
+        // Code with translation
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '34109-9');
+        $code->setAttribute('displayName', 'Note');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+
+        $noteCode = $this->xpathValue('code', $note);
+        $codeText = $this->xpathValue('code_text', $note);
+        if ($noteCode !== '' || $codeText !== '') {
+            $translation = $this->createElement('translation');
+            if ($noteCode !== '') {
+                $translation->setAttribute('code', $this->cleanCode($noteCode));
+            }
+            if ($codeText !== '') {
+                $translation->setAttribute('displayName', $codeText);
+            }
+            $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $translation->setAttribute('codeSystemName', 'LOINC');
+            $code->appendChild($translation);
+        }
+        $act->appendChild($code);
+
+        // Text reference
+        $text = $this->createElement('text');
+        $reference = $this->createElement('reference');
+        $reference->setAttribute('value', '#note' . $refIndex);
+        $text->appendChild($reference);
+        $act->appendChild($text);
+
+        // Status
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $act->appendChild($statusCode);
+
+        // Effective time
+        $date = $this->xpathValue('date', $note);
+        if ($date !== '') {
+            $effectiveTime = $this->createElement('effectiveTime');
+            $effectiveTime->setAttribute('value', $this->formatDateOnly($date));
+            $act->appendChild($effectiveTime);
+        }
+
+        // Author
+        $authorEl = $this->xpath('author', $note)->item(0);
+        if ($authorEl instanceof DOMElement) {
+            $this->appendEntryAuthor($act, $authorEl);
+        }
+
+        $entry->appendChild($act);
+        $section->appendChild($entry);
     }
 
     private function renderMentalStatusSection(DOMElement $structuredBody): void
