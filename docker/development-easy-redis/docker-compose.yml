@@ -1,6 +1,6 @@
 services:
   redis-master:
-    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
+    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
     container_name: redis-master
     command:
     - redis-server
@@ -24,7 +24,7 @@ services:
       timeout: 3s
       retries: 5
   redis-replica-1:
-    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
+    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
     container_name: redis-replica-1
     command:
     - redis-server
@@ -44,7 +44,7 @@ services:
     - --replica-announce-ip
     - redis-replica-1
   redis-replica-2:
-    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
+    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
     container_name: redis-replica-2
     command:
     - redis-server
@@ -64,7 +64,7 @@ services:
     - --replica-announce-ip
     - redis-replica-2
   sentinel-1:
-    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
+    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
     container_name: sentinel-1
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -84,7 +84,7 @@ services:
       redis-master:
         condition: service_healthy
   sentinel-2:
-    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
+    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
     container_name: sentinel-2
     entrypoint: ["/bin/sh", "-c"]
     command:
@@ -130,7 +130,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:61b5bf02ccc276bc2e54ab01a7248f955d8efeeb1414d8d3fbaf24a16f93687b
+    image: openemr/openemr:flex@sha256:4d26c25321924875a052b7f92801a673944a2b674470435070529d5801375488
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -247,7 +247,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:c9f2c3790e7bc7b18ca9a978b137d3cc446b996f9f977b5d9b2d7100386d9310
+    image: phpmyadmin:5.2.3@sha256:51b74806646fb15aa59df2a2e73573969a44f4b7d4729e4a5c4ba364bc20ec77
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
