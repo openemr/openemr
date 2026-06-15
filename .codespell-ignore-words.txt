@@ -38,6 +38,7 @@ exten
 fo
 formend
 grp
+idel
 inout
 inpt
 insid
@@ -51,6 +52,7 @@ oce
 ot
 parm
 parms
+plantext
 provid
 provids
 ptd
