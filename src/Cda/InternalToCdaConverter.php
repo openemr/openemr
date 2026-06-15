@@ -3105,28 +3105,245 @@ class InternalToCdaConverter
     private function renderPayersSection(DOMElement $structuredBody): void
     {
         $payers = $this->xpath('/CCDA/payers/payer');
+        $component = $this->createElement('component');
+        $section = $this->createElement('section');
+
         if ($payers->length === 0) {
-            $component = $this->createElement('component');
-            $section = $this->createElement('section');
             $section->setAttribute('nullFlavor', 'NI');
-
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18');
-            $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18', '2015-08-01');
-
-            $code = $this->createElement('code');
-            $code->setAttribute('code', '48768-6');
-            $code->setAttribute('displayName', 'Payers');
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
-            $code->setAttribute('codeSystemName', 'LOINC');
-            $section->appendChild($code);
-
-            $section->appendChild($this->createElement('title', 'Payers'));
-            $section->appendChild($this->createElement('text', 'Not Available'));
-
-            $this->appendSection($structuredBody, $component, $section);
-        } else {
-            // TODO: Implement payers with data
         }
+
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18');
+        $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.18', '2015-08-01');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '48768-6');
+        $code->setAttribute('displayName', 'Payers');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $section->appendChild($code);
+
+        $section->appendChild($this->createElement('title', 'Payers'));
+
+        if ($payers->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendPayersNarrative($section, $payers);
+            foreach ($payers as $payer) {
+                $this->appendPayerEntry($section, $payer);
+            }
+        }
+
+        $this->appendSection($structuredBody, $component, $section);
+    }
+
+    /**
+     * @param \DOMNodeList<\DOMElement> $payers
+     */
+    private function appendPayersNarrative(DOMElement $section, \DOMNodeList $payers): void
+    {
+        $text = $this->createElement('text');
+        $table = $this->createNarrativeTable(['Payer', 'Policy Type', 'Member ID']);
+
+        $index = 1;
+        foreach ($payers as $payer) {
+            $orgName = $this->xpathValue('policy/insurance/performer/organization/name', $payer);
+            $policyType = $this->xpathValue('policy/code/name', $payer);
+            $memberId = $this->xpathValue('participant/code/name', $payer);
+
+            $this->appendTableRow($table, [$orgName, $policyType, $memberId], 'payer' . $index);
+            $index++;
+        }
+
+        $text->appendChild($table);
+        $section->appendChild($text);
+    }
+
+    private function appendPayerEntry(DOMElement $section, DOMElement $payer): void
+    {
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        // Coverage Activity
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.60', '2015-08-01');
+        $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.60');
+
+        // uniqueId
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid !== '') {
+            $uniqueId = $this->createElement('id');
+            $uniqueId->setAttribute('root', $facilityOid);
+            $uniqueId->setAttribute('extension', $this->generateUuid());
+            $act->appendChild($uniqueId);
+        }
+
+        // id
+        $payerId = $this->xpathValue('identifiers/identifier', $payer);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $payerId !== '' ? $payerId : 'NI');
+        $act->appendChild($id);
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', '48768-6');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $code->setAttribute('codeSystemName', 'LOINC');
+        $code->setAttribute('displayName', 'Payment sources');
+        $act->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $act->appendChild($statusCode);
+
+        // Policy Activity entryRelationship
+        $this->appendPolicyActivity($act, $payer);
+
+        $entry->appendChild($act);
+        $section->appendChild($entry);
+    }
+
+    private function appendPolicyActivity(DOMElement $act, DOMElement $payer): void
+    {
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'COMP');
+
+        $policyAct = $this->createElement('act');
+        $policyAct->setAttribute('classCode', 'ACT');
+        $policyAct->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($policyAct, '2.16.840.1.113883.10.20.22.4.61', '2015-08-01');
+        $this->appendTemplateId($policyAct, '2.16.840.1.113883.10.20.22.4.61');
+
+        // id
+        $policyId = $this->xpathValue('policy/identifiers/identifier', $payer);
+        $policyExt = $this->xpathValue('policy/identifiers/extension', $payer);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $policyId !== '' ? $policyId : 'NI');
+        $id->setAttribute('extension', $policyExt);
+        $policyAct->appendChild($id);
+
+        // Code - policy type
+        $policyCode = $this->xpathValue('policy/code/code', $payer);
+        $policyName = $this->xpathValue('policy/code/name', $payer);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $policyCode !== '' ? $policyCode : '72');
+        $code->setAttribute('displayName', $policyName !== '' ? $policyName : 'Self');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.3.221.5');
+        $code->setAttribute('codeSystemName', 'Source of Payment Typology');
+        $policyAct->appendChild($code);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $policyAct->appendChild($statusCode);
+
+        // Performer - Insurance
+        $this->appendPayerPerformer($policyAct, $payer);
+
+        // Participant - Covered party
+        $this->appendPayerParticipant($policyAct, $payer);
+
+        $entryRel->appendChild($policyAct);
+        $act->appendChild($entryRel);
+    }
+
+    private function appendPayerPerformer(DOMElement $policyAct, DOMElement $payer): void
+    {
+        $performer = $this->createElement('performer');
+        $performer->setAttribute('typeCode', 'PRF');
+
+        // Template ID for Payer Performer
+        $this->appendTemplateId($performer, '2.16.840.1.113883.10.20.22.4.87');
+
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $performerId = $this->xpathValue('policy/insurance/performer/identifiers/identifier', $payer);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $performerId !== '' ? $performerId : 'NI');
+        $assignedEntity->appendChild($id);
+
+        // Code
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'PAYOR');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.110');
+        $code->setAttribute('codeSystemName', 'HL7 RoleCode');
+        $code->setAttribute('displayName', 'Payor');
+        $assignedEntity->appendChild($code);
+
+        // Address
+        $addr = $this->createElement('addr');
+        $street = $this->xpathValue('policy/insurance/performer/address/street_lines', $payer);
+        $city = $this->xpathValue('policy/insurance/performer/address/city', $payer);
+        $state = $this->xpathValue('policy/insurance/performer/address/state', $payer);
+        $zip = $this->xpathValue('policy/insurance/performer/address/zip', $payer);
+        $addr->appendChild($this->createElement('streetAddressLine', $street !== '' ? $street : null));
+        $addr->appendChild($this->createElement('city', $city !== '' ? $city : null));
+        $addr->appendChild($this->createElement('state', $state !== '' ? $state : null));
+        $addr->appendChild($this->createElement('postalCode', $zip !== '' ? $zip : null));
+        $assignedEntity->appendChild($addr);
+
+        // Phone
+        $phone = $this->xpathValue('policy/insurance/performer/phone/number', $payer);
+        $telecom = $this->createElement('telecom');
+        $telecom->setAttribute('value', $phone !== '' ? 'tel:' . $phone : '');
+        $assignedEntity->appendChild($telecom);
+
+        // Organization
+        $orgName = $this->xpathValue('policy/insurance/performer/organization/name', $payer);
+        $repOrg = $this->createElement('representedOrganization');
+        $repOrg->appendChild($this->createElement('name', $orgName !== '' ? $orgName : null));
+        $assignedEntity->appendChild($repOrg);
+
+        $performer->appendChild($assignedEntity);
+        $policyAct->appendChild($performer);
+    }
+
+    private function appendPayerParticipant(DOMElement $policyAct, DOMElement $payer): void
+    {
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'COV');
+
+        // Template ID for Coverage Target
+        $this->appendTemplateId($participant, '2.16.840.1.113883.10.20.22.4.89');
+
+        // Time
+        $timeLow = $this->xpathValue('participant/time_low', $payer);
+        $timeHigh = $this->xpathValue('participant/time_high', $payer);
+        if ($timeLow !== '' || $timeHigh !== '') {
+            $time = $this->createElement('time');
+            if ($timeLow !== '') {
+                $low = $this->createElement('low');
+                $low->setAttribute('value', $this->formatDateOnly($timeLow));
+                $time->appendChild($low);
+            }
+            if ($timeHigh !== '') {
+                $high = $this->createElement('high');
+                $high->setAttribute('value', $this->formatDateOnly($timeHigh));
+                $time->appendChild($high);
+            }
+            $participant->appendChild($time);
+        }
+
+        $participantRole = $this->createElement('participantRole');
+        $participantRole->setAttribute('classCode', 'PAT');
+
+        $participantId = $this->xpathValue('participant/code/code', $payer);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', '2.16.840.1.113883.4.3.6');
+        $id->setAttribute('extension', $participantId);
+        $participantRole->appendChild($id);
+
+        // Code
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'SELF');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.111');
+        $code->setAttribute('codeSystemName', 'HL7 RoleCode');
+        $code->setAttribute('displayName', 'Self');
+        $participantRole->appendChild($code);
+
+        $participant->appendChild($participantRole);
+        $policyAct->appendChild($participant);
     }
 
     private function renderMedicalEquipmentSection(DOMElement $structuredBody): void
