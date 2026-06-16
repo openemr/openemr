@@ -2952,45 +2952,45 @@ class InternalToCdaConverter
             $date = $this->xpathValue('date', $vital);
             $row->appendChild($this->createElement('td', $date));
 
-            // Node.js service outputs BMI in Body Temperature column
+            // Node.js mapping (matches htmlHeaders vital_list indices):
+            // Column 1 (Body Temp): BMI with kg/m2
             $bmi = $this->xpathValue('BMI', $vital);
             $cell1 = $this->createElement('td', $bmi !== '' ? "$bmi kg/m2" : 'No Data Available');
             $cell1->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell1);
 
-            // Systolic (bps)
+            // Column 2 (Systolic): bps with mm[Hg]
             $bps = $this->xpathValue('bps', $vital);
-            $cell2 = $this->createElement('td', $bps !== '' ? $bps : 'No Data Available');
+            $cell2 = $this->createElement('td', $bps !== '' ? "$bps mm[Hg]" : 'No Data Available');
             $cell2->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell2);
 
-            // Diastolic (bpd)
+            // Column 3 (Diastolic): bpd with mm[Hg]
             $bpd = $this->xpathValue('bpd', $vital);
-            $cell3 = $this->createElement('td', $bpd !== '' ? $bpd : 'No Data Available');
+            $cell3 = $this->createElement('td', $bpd !== '' ? "$bpd mm[Hg]" : 'No Data Available');
             $cell3->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell3);
 
-            // Node.js service outputs Height in Heart Rate column
+            // Column 4 (Heart Rate): height with unit_height
             $height = $this->xpathValue('height', $vital);
             $heightUnit = $this->xpathValue('unit_height', $vital);
             $cell4 = $this->createElement('td', $height !== '' ? "$height $heightUnit" : 'No Data Available');
             $cell4->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell4);
 
-            // Height column (usually empty due to above mismatch)
-            $cell5 = $this->createElement('td', 'No Data Available');
+            // Column 5 (Height): bp_avg with mm[Hg]
+            $bpAvg = $this->xpathValue('bp_avg', $vital);
+            $cell5 = $this->createElement('td', $bpAvg !== '' ? "$bpAvg mm[Hg]" : 'No Data Available');
             $cell5->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell5);
 
-            // Weight
-            $weight = $this->xpathValue('weight', $vital);
-            $weightUnit = $this->xpathValue('unit_weight', $vital);
-            $cell6 = $this->createElement('td', $weight !== '' ? "$weight $weightUnit" : 'No Data Available');
+            // Column 6 (Weight): bps again with mm[Hg]
+            $cell6 = $this->createElement('td', $bps !== '' ? "$bps mm[Hg]" : 'No Data Available');
             $cell6->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell6);
 
-            // BMI column (empty due to Node.js quirk putting it in Body Temp column)
-            $cell7 = $this->createElement('td', 'No Data Available');
+            // Column 7 (BMI): bpd again with mm[Hg]
+            $cell7 = $this->createElement('td', $bpd !== '' ? "$bpd mm[Hg]" : 'No Data Available');
             $cell7->setAttribute('ID', 'vital' . $vitalIndex++);
             $row->appendChild($cell7);
 
