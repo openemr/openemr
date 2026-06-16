@@ -1274,6 +1274,11 @@ class InternalToCdaConverter
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
 
+        $negationIndicator = $this->xpathValue('negation_indicator', $allergy);
+        if ($negationIndicator === 'true' || $negationIndicator === '1') {
+            $obs->setAttribute('negationInd', 'true');
+        }
+
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.7', '2014-06-09');
 
         $shaExt = $this->xpathValue('sha_extension', $allergy);
@@ -1950,6 +1955,11 @@ class InternalToCdaConverter
         $obs = $this->createElement('observation');
         $obs->setAttribute('classCode', 'OBS');
         $obs->setAttribute('moodCode', 'EVN');
+
+        $negationIndicator = $this->xpathValue('negation_indicator', $problem);
+        if ($negationIndicator === 'true' || $negationIndicator === '1') {
+            $obs->setAttribute('negationInd', 'true');
+        }
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4', '2015-08-01');
 
