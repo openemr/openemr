@@ -1181,7 +1181,7 @@ class InternalToCdaConverter
     private function appendAllergiesNarrative(DOMElement $section, \DOMNodeList $allergies): void
     {
         $text = $this->createElement('text');
-        $table = $this->createNarrativeTable(['Substance', 'Reaction', 'Severity', 'Status']);
+        $table = $this->createNarrativeTable(['Substance', 'Overall Severity', 'Reaction', 'Reaction Severity', 'Status']);
 
         $index = 1;
         foreach ($allergies as $allergy) {
@@ -1193,15 +1193,21 @@ class InternalToCdaConverter
             $tbody = $this->createElement('tbody');
             $row = $this->createElement('tr');
 
-            $cell1 = $this->createElement('td', $title);
-            $cell1->setAttribute('ID', 'allergy' . $index);
-            $row->appendChild($cell1);
+            $row->appendChild($this->createElement('td', $title));
 
-            $cell2 = $this->createElement('td', $reaction !== '' ? $reaction : 'No Data Available');
-            $cell2->setAttribute('ID', 'reaction' . $index);
-            $row->appendChild($cell2);
+            $severityIdx = ($index * 2) - 1;
+            $overallSeverity = $this->createElement('td', 'No Data Available');
+            $overallSeverity->setAttribute('ID', 'severity' . $severityIdx);
+            $row->appendChild($overallSeverity);
 
-            $row->appendChild($this->createElement('td', $outcome !== '' ? $outcome : 'No Data Available'));
+            $reactionCell = $this->createElement('td', $reaction !== '' ? $reaction : 'No Data Available');
+            $reactionCell->setAttribute('ID', 'reaction' . $index);
+            $row->appendChild($reactionCell);
+
+            $reactionSeverity = $this->createElement('td', $outcome !== '' ? $outcome : 'No Data Available');
+            $reactionSeverity->setAttribute('ID', 'severity' . ($severityIdx + 1));
+            $row->appendChild($reactionSeverity);
+
             $row->appendChild($this->createElement('td', $status !== '' ? $status : 'No Data Available'));
 
             $tbody->appendChild($row);
@@ -1313,11 +1319,11 @@ class InternalToCdaConverter
         // Status observation
         $this->appendAllergyStatusObservation($obs, $allergy);
 
-        // Reaction observation
-        $this->appendAllergyReactionObservation($obs, $allergy);
+        // Reaction observation with nested severity
+        $this->appendAllergyReactionObservation($obs, $allergy, $index);
 
-        // Severity observation
-        $this->appendAllergySeverityObservation($obs, $allergy);
+        // Overall severity observation
+        $this->appendAllergySeverityObservation($obs, $allergy, $index);
 
         $entryRel->appendChild($obs);
         $act->appendChild($entryRel);
@@ -1357,7 +1363,7 @@ class InternalToCdaConverter
 
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
-        $ref->setAttribute('value', '#allergy' . $index);
+        $ref->setAttribute('value', '#reaction' . $index);
         $origText->appendChild($ref);
         $code->appendChild($origText);
 
@@ -1400,14 +1406,8 @@ class InternalToCdaConverter
         $obs->appendChild($entryRel);
     }
 
-    private function appendAllergyReactionObservation(DOMElement $obs, DOMElement $allergy): void
+    private function appendAllergyReactionObservation(DOMElement $obs, DOMElement $allergy, int $index): void
     {
-        $reactionText = $this->xpathValue('reaction_text', $allergy);
-        $reactionCode = $this->xpathValue('reaction_code', $allergy);
-        if ($reactionText === '' && $reactionCode === '') {
-            return;
-        }
-
         $entryRel = $this->createElement('entryRelationship');
         $entryRel->setAttribute('typeCode', 'MFST');
         $entryRel->setAttribute('inversionInd', 'true');
@@ -1424,8 +1424,16 @@ class InternalToCdaConverter
 
         $code = $this->createElement('code');
         $code->setAttribute('code', 'ASSERTION');
+        $code->setAttribute('displayName', 'Assertion');
         $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $code->setAttribute('codeSystemName', 'ActCode');
         $reactionObs->appendChild($code);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#reaction' . $index);
+        $text->appendChild($ref);
+        $reactionObs->appendChild($text);
 
         $this->appendStatusCode($reactionObs, ActStatus::Completed);
 
@@ -1435,33 +1443,76 @@ class InternalToCdaConverter
         $low = $this->createElement('low');
         $low->setAttribute('value', $this->formatDateOnly($startDate));
         $effectiveTime->appendChild($low);
-        if ($endDate !== '') {
-            $high = $this->createElement('high');
-            $high->setAttribute('value', $this->formatDateOnly($endDate));
-            $effectiveTime->appendChild($high);
-        }
+        $high = $this->createElement('high');
+        $high->setAttribute('value', $this->formatDateOnly($endDate !== '' ? $endDate : $startDate));
+        $effectiveTime->appendChild($high);
         $reactionObs->appendChild($effectiveTime);
 
-        $codeType = $this->xpathValue('reaction_code_type', $allergy);
+        $reactionText = $this->xpathValue('reaction_text', $allergy);
+        $reactionCode = $this->xpathValue('reaction_code', $allergy);
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-        $value->setAttribute('code', $this->cleanCode($reactionCode));
-        $value->setAttribute('displayName', $reactionText);
-        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-        $value->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
+        if ($reactionCode !== '' || $reactionText !== '') {
+            $codeType = $this->xpathValue('reaction_code_type', $allergy);
+            $value->setAttribute('code', $this->cleanCode($reactionCode));
+            $value->setAttribute('displayName', $reactionText);
+            $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $value->setAttribute('codeSystemName', $codeType !== '' ? $codeType : 'SNOMED CT');
+        } else {
+            $value->setAttribute('nullFlavor', 'UNK');
+        }
         $reactionObs->appendChild($value);
+
+        $this->appendNestedSeverityObservation($reactionObs, $index);
 
         $entryRel->appendChild($reactionObs);
         $obs->appendChild($entryRel);
     }
 
-    private function appendAllergySeverityObservation(DOMElement $obs, DOMElement $allergy): void
+    private function appendNestedSeverityObservation(DOMElement $reactionObs, int $index): void
+    {
+        $severityIdx = ($index * 2) - 1;
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'SUBJ');
+        $entryRel->setAttribute('inversionInd', 'true');
+
+        $sevObs = $this->createElement('observation');
+        $sevObs->setAttribute('classCode', 'OBS');
+        $sevObs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($sevObs, '2.16.840.1.113883.10.20.22.4.8', '2014-06-09');
+
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'SEV');
+        $code->setAttribute('displayName', 'Severity Observation');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
+        $code->setAttribute('codeSystemName', 'ActCode');
+        $sevObs->appendChild($code);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#severity' . $severityIdx);
+        $text->appendChild($ref);
+        $sevObs->appendChild($text);
+
+        $this->appendStatusCode($sevObs, ActStatus::Completed);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', '0');
+        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $sevObs->appendChild($value);
+
+        $entryRel->appendChild($sevObs);
+        $reactionObs->appendChild($entryRel);
+    }
+
+    private function appendAllergySeverityObservation(DOMElement $obs, DOMElement $allergy, int $index): void
     {
         $outcome = $this->xpathValue('outcome', $allergy);
         $outcomeCode = $this->xpathValue('outcome_code', $allergy);
-        if ($outcome === '' && $outcomeCode === '') {
-            return;
-        }
+        $severityIdx = $index * 2;
 
         $entryRel = $this->createElement('entryRelationship');
         $entryRel->setAttribute('typeCode', 'SUBJ');
@@ -1475,17 +1526,22 @@ class InternalToCdaConverter
 
         $code = $this->createElement('code');
         $code->setAttribute('code', 'SEV');
-        $code->setAttribute('displayName', 'Severity');
+        $code->setAttribute('displayName', 'Severity Observation');
         $code->setAttribute('codeSystem', '2.16.840.1.113883.5.4');
         $code->setAttribute('codeSystemName', 'ActCode');
         $sevObs->appendChild($code);
+
+        $text = $this->createElement('text');
+        $ref = $this->createElement('reference');
+        $ref->setAttribute('value', '#severity' . $severityIdx);
+        $text->appendChild($ref);
+        $sevObs->appendChild($text);
 
         $this->appendStatusCode($sevObs, ActStatus::Completed);
 
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-        $value->setAttribute('code', $this->cleanCode($outcomeCode));
-        $value->setAttribute('displayName', $outcome);
+        $value->setAttribute('code', $outcomeCode !== '' ? $this->cleanCode($outcomeCode) : '0');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
         $sevObs->appendChild($value);
