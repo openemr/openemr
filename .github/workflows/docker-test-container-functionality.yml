@@ -56,6 +56,9 @@ jobs:
         TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
         cd utilities/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
         ./test_functionality.sh release $TEST_ARGS
     - name: Upload test results
       if: always()
@@ -88,6 +91,9 @@ jobs:
         TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
         cd utilities/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
         ./test_functionality.sh binary $TEST_ARGS
     - name: Upload test results
       if: always()
@@ -120,6 +126,9 @@ jobs:
         TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
         cd utilities/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
         ./test_functionality.sh flex $TEST_ARGS
     - name: Upload test results
       if: always()
