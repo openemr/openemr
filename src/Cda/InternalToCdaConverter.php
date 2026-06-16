@@ -409,9 +409,15 @@ class InternalToCdaConverter
         $assignedAuthor = $this->createElement('assignedAuthor');
 
         $npi = $this->xpathValue('/CCDA/author/npi');
+        $authorUuid = $this->xpathValue('/CCDA/author/id');
         $id = $this->createElement('id');
-        $id->setAttribute('root', '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $npi);
+        if ($npi !== '') {
+            $id->setAttribute('root', '2.16.840.1.113883.4.6');
+            $id->setAttribute('extension', $npi);
+        } else {
+            $id->setAttribute('root', $authorUuid);
+            $id->setAttribute('extension', 'NI');
+        }
         $assignedAuthor->appendChild($id);
 
         $code = $this->createElement('code');
@@ -663,15 +669,28 @@ class InternalToCdaConverter
 
         $assignedEntity = $this->createElement('assignedEntity');
 
-        $npi = $this->xpathValue('/CCDA/author/npi');
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid === '') {
+            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+        }
+
+        $providerNpi = $this->xpathValue('/CCDA/primary_care_provider/provider/npi');
+        $providerTableId = $this->xpathValue('/CCDA/primary_care_provider/provider/table_id');
         $id = $this->createElement('id');
-        $id->setAttribute('root', '2.16.840.1.113883.4.6');
-        $id->setAttribute('extension', $npi);
+        if ($providerNpi !== '') {
+            $id->setAttribute('root', '2.16.840.1.113883.4.6');
+            $id->setAttribute('extension', $providerNpi);
+        } else {
+            $id->setAttribute('root', $facilityOid);
+            $id->setAttribute('extension', $providerTableId !== '' ? $providerTableId : 'NI');
+        }
         $assignedEntity->appendChild($id);
 
+        $taxonomy = $this->xpathValue('/CCDA/primary_care_provider/provider/taxonomy');
+        $taxonomyDesc = $this->xpathValue('/CCDA/primary_care_provider/provider/taxonomy_description');
         $code = $this->createElement('code');
-        $code->setAttribute('code', $this->xpathValue('/CCDA/author/physician_type_code'));
-        $code->setAttribute('displayName', $this->xpathValue('/CCDA/author/physician_type'));
+        $code->setAttribute('code', $taxonomy !== '' ? $taxonomy : $this->xpathValue('/CCDA/author/physician_type_code'));
+        $code->setAttribute('displayName', $taxonomyDesc !== '' ? $taxonomyDesc : $this->xpathValue('/CCDA/author/physician_type'));
         $code->setAttribute('codeSystem', '2.16.840.1.113883.6.101');
         $code->setAttribute('codeSystemName', 'NUCC Health Care Provider Taxonomy');
         $originalText = $this->createElement('originalText', 'Care Team Member');
@@ -679,9 +698,32 @@ class InternalToCdaConverter
         $assignedEntity->appendChild($code);
 
         $addr = $this->createElement('addr');
-        $country = $this->xpathValue('/CCDA/author/country');
+        $street = $this->xpathValue('/CCDA/encounter_provider/facility_street');
+        if ($street !== '') {
+            $addr->appendChild($this->createElement('streetAddressLine', $street));
+        }
+        $city = $this->xpathValue('/CCDA/encounter_provider/facility_city');
+        if ($city !== '') {
+            $addr->appendChild($this->createElement('city', $city));
+        }
+        $state = $this->xpathValue('/CCDA/encounter_provider/facility_state');
+        if ($state !== '') {
+            $addr->appendChild($this->createElement('state', $state));
+        }
+        $postalCode = $this->xpathValue('/CCDA/encounter_provider/facility_postal_code');
+        if ($postalCode !== '') {
+            $addr->appendChild($this->createElement('postalCode', $postalCode));
+        }
+        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country_code');
         $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
         $assignedEntity->appendChild($addr);
+
+        $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $assignedEntity->appendChild($telecom);
+        }
 
         $assignedPerson = $this->createElement('assignedPerson');
         $name = $this->createElement('name');
