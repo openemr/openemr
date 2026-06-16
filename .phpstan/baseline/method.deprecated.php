@@ -109,6 +109,12 @@ read from the \\-\\>logger property$#',
     'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\FHIR\\\\SMART\\\\RequestConstraintFilterer\\:
+read from the \\-\\>logger property$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/FHIR/SMART/RequestConstraintFilterer.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\ApiApplication\\:
 read from the \\-\\>logger property$#',
     'count' => 1,
@@ -287,6 +293,12 @@ $ignoreErrors[] = [
 read from the \\-\\>logger property$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:
+read from the \\-\\>logger property$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getSystemLogger\\(\\) of class OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase\\:

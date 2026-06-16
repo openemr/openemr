@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @var with type Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface is not subtype of type Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcher\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/login/login.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type mixed is not subtype of type array\\<mixed\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',

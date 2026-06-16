@@ -102,6 +102,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_segments.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'2100\' and \'2110\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between null and \'email\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-falsy\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',

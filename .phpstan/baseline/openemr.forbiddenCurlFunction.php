@@ -311,5 +311,40 @@ $ignoreErrors[] = [
     'count' => 6,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_close\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_errno\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_error\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_exec\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_getinfo\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_init\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Raw curl_\\* function curl_setopt_array\\(\\) is forbidden\\. Use GuzzleHttp\\\\Client or OpenEMR\\\\Common\\\\Http\\\\oeHttp instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

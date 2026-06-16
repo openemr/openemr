@@ -637,6 +637,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/ModuleManagerListener.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function signalwireBuildPayload\\(\\) should return array\\<string, mixed\\>\\|null but returns array\\<mixed\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwireLoadCredentials\\(\\) should return array\\<string, mixed\\> but returns array\\<mixed\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwirePayloadFromJson\\(\\) should return array\\<string, mixed\\>\\|null but returns array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\BootstrapService\\:\\:fetchPersistedSetupSettings\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/BootstrapService.php',
@@ -1862,6 +1877,271 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method Config_File_Legacy\\:\\:get\\(\\) should return array\\|string but returns mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_custom_tag\\(\\) should return string but returns false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_custom_tag\\(\\) should return string but returns true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_foreach_start\\(\\) should return string but returns mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_insert_tag\\(\\) should return string but returns mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_plugin_call\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_smarty_ref\\(\\) should return string but returns null\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_compile_tag\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_expand_quoted_text\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_parse_var_props\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Compiler_Legacy\\:\\:_pop_tag\\(\\) should return string but returns mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_compile_source\\(\\) should return bool but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_fetch_resource_info\\(\\) should return bool but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_get_filter_name\\(\\) should return string but returns callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_process_compiled_include_callback\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_read_file\\(\\) should return string but returns false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_run_mod_handler\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:_smarty_cache_attrs\\(\\) should return array but returns mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:clear_cache\\(\\) should return bool but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:get_config_vars\\(\\) should return array but returns mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:get_config_vars\\(\\) should return array but returns null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:get_registered_object\\(\\) should return object but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:get_template_vars\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:get_template_vars\\(\\) should return array but returns null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Smarty_Legacy\\:\\:is_cached\\(\\) should return string\\|false but returns bool\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_assemble_plugin_filepath\\(\\) should return string\\|false but returns mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_is_secure\\(\\) should return bool but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_is_trusted\\(\\) should return bool but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_process_cached_inserts\\(\\) should return string but returns false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_process_cached_inserts\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_process_compiled_include\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_rm_auto\\(\\) should return bool but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_run_insert_handler\\(\\) should return string but returns false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_run_insert_handler\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_cache_file\\(\\) should return true\\|null but returns false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_compiled_resource\\(\\) should return true but returns false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_counter\\(\\) should return string\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_cycle\\(\\) should return string\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_debug\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_popup\\(\\) should return string but returns false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_capitalize\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_characters\\(\\) should return int but returns int\\<0, max\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_characters.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_paragraphs\\(\\) should return int but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_paragraphs.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_sentences\\(\\) should return int but returns int\\<0, max\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_sentences.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_words\\(\\) should return int but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_words.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_escape\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_escape\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_indent\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.indent.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_regex_replace\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_strip\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_strip_tags\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip_tags.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_escape_special_chars\\(\\) should return string but returns array\\<mixed, mixed\\>\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.escape_special_chars.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_make_timestamp\\(\\) should return string but returns int\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function get_db\\(\\) should return ADODB_mysqli_log but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
@@ -2647,6 +2927,91 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:getEncounterForPlanOfCare\\(\\) should return array\\|null but returns mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:getLanguageCode\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:getNpiFacility\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaTemplateEngine\\:\\:cleanCcdaXmlContent\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaTemplateEngine\\:\\:create\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaTemplateEngine\\:\\:generateCcd\\(\\) should return string but returns string\\|false\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaTemplateEngine\\:\\:newNode\\(\\) should return DOMElement but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaXmlBuilder\\:\\:toString\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaXmlBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CodeSystems\\\\CcdaTemplateCodes\\:\\:get\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CodeSystems/CcdaTemplateCodes.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\FieldLevel\\:\\:_uniqueIdRoot\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/FieldLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\LeafLevel\\:\\:_codeSystemNameValue\\(\\) should return string\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\LeafLevel\\:\\:_codeSystemValue\\(\\) should return string\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\LeafLevel\\:\\:_codeValue\\(\\) should return string\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\LeafLevel\\:\\:_displayNameValue\\(\\) should return string\\|null but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\LeafLevel\\:\\:acronymize\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\Translate\\:\\:codeFromName\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Core\\\\Translate\\:\\:name\\(\\) should return array\\|null but returns mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ActionRouter\\:\\:renderView\\(\\) should return string but returns string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
@@ -2655,6 +3020,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\BaseController\\:\\:getRuleManager\\(\\) should return OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\RuleManager but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/BaseController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:src_dir\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ControllerRouter\\:\\:route\\(\\) should return Symfony\\\\Component\\\\HttpFoundation\\\\Response but returns mixed\\.$#',
@@ -2827,6 +3197,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Command\\\\GenerateAccessTokenTestCommand\\:\\:generateRefreshToken\\(\\) should return League\\\\OAuth2\\\\Server\\\\Entities\\\\RefreshTokenEntityInterface but returns League\\\\OAuth2\\\\Server\\\\Entities\\\\RefreshTokenEntityInterface\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenTestCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Command\\\\SymfonyCommandRunner\\:\\:findCommands\\(\\) should return array\\<Symfony\\\\Component\\\\Console\\\\Command\\\\Command\\> but returns array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/SymfonyCommandRunner.php',
@@ -2855,6 +3230,26 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Crypto\\\\CryptoGen\\:\\:openSSLEncrypt\\(\\) should return string but returns string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:getLoggedInUser\\(\\) should return array but returns array\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\Header\\:\\:readConfigFile\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\Kernel\\:\\:getEventDispatcher\\(\\) should return Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcher but returns object\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Kernel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\OEHttpKernel\\:\\:getEventDispatcher\\(\\) should return Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\|null but returns Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/OEHttpKernel.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Database\\\\QueryUtils\\:\\:ediGenerateId\\(\\) should return int but returns bool\\|int\\|string\\.$#',
@@ -3272,6 +3667,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:getId\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\Predis\\\\PredisSessionHandler\\:\\:gc\\(\\) should return int\\|false but returns true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\Predis\\\\PredisSessionHandler\\:\\:read\\(\\) should return string\\|false but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:getAppCookie\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
@@ -3337,6 +3747,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Core/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getIncludeRoot\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getProjectDir\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getSrcDir\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getWebRoot\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\CqmClient\\:\\:calculate\\(\\) should return Psr\\\\Http\\\\Message\\\\StreamInterface but returns array\\<int, string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/CqmClient.php',
@@ -3370,6 +3800,46 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\QrdaControllers\\\\QrdaReportController\\:\\:getConsolidatedCategoryIIIReport\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getConfig\\(\\) should return int but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getDatabaseName\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getDisableUTF8\\(\\) should return int but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getEncoding\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getHost\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getPass\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getPort\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:getUser\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Appointments\\\\AppointmentRenderEvent\\:\\:getAppt\\(\\) should return array but returns mixed\\.$#',
@@ -8907,6 +9377,46 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:computeVerificationStatus\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:createProvenanceResource\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string but returns OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:createProvenanceResource\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:getConditionService\\(\\) should return OpenEMR\\\\Services\\\\ConditionService but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:getProfileURIs\\(\\) should return array\\<string\\> but returns array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:getServiceForCategory\\(\\) should return OpenEMR\\\\Services\\\\FHIR\\\\FhirServiceBase but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:loadSearchParameters\\(\\) should return array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\> but returns array\\<string, OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\|null\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemsHealthConcernService\\:\\:parseOpenEMRRecord\\(\\) should return OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRCondition but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\FhirDiagnosticReportClinicalNotesService\\:\\:createProvenanceResource\\(\\) should return OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\the but returns OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRProvenance\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
@@ -9917,6 +10427,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceCompanyService\\:\\:saveFromForm\\(\\) should return array\\{id\\: int\\|string, name\\: string\\}\\|string but returns array\\{id\\: \'\'\\|int, name\\: mixed\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\InsuranceService\\:\\:getPoliciesByPayerByEffectiveDate\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/InsuranceService.php',
@@ -10207,6 +10722,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\FileUtils\\:\\:getExtensionFromMimeType\\(\\) should return string but returns int\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Utils/FileUtils.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\FileUtils\\:\\:getMimeTypeFromExtension\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Utils/FileUtils.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:databaseName\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
@@ -10230,6 +10755,16 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:isThrowExceptionOnError\\(\\) should return bool but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:createMissingMappedUuids\\(\\) should return int but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:createUuid\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\VitalsService\\:\\:createResultRecordFromDatabaseResult\\(\\) should return array\\<string, mixed\\> but returns mixed\\.$#',
@@ -10285,6 +10820,36 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:getToken\\(\\) should return string but returns string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:doRequest\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:getXMLString\\(\\) should return string but returns string\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setErrorCode\\(\\) should return OpenEMR\\\\USPS\\\\facebookLib but returns \\$this\\(OpenEMR\\\\USPS\\\\USPSBase\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setErrorMessage\\(\\) should return OpenEMR\\\\USPS\\\\facebookLib but returns \\$this\\(OpenEMR\\\\USPS\\\\USPSBase\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setHeaders\\(\\) should return OpenEMR\\\\USPS\\\\facebookLib but returns \\$this\\(OpenEMR\\\\USPS\\\\USPSBase\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setResponse\\(\\) should return OpenEMR\\\\USPS\\\\facebookLib but returns \\$this\\(OpenEMR\\\\USPS\\\\USPSBase\\)\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\BaseValidator\\:\\:isValidContext\\(\\) should return true but returns bool\\.$#',

@@ -2282,7 +2282,37 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/run_notifications.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function downloadAndStoreFaxMedia may not be defined in the global namespace\\.$#',
+    'message' => '#^Function signalwireBuildPayload may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwireCredentialValue may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwireDownloadAndStoreFaxMedia may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwireLoadCredentials may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwirePayloadFromJson may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwireValidateRequestSignature may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function signalwireWebhookAck may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
 ];
@@ -4372,6 +4402,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/custom_template/personalize.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function dateformat may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/date_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function GetAllReminderCount may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
@@ -5067,6 +5102,31 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function edih_835_accounting may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_disp_sftp_upload may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function edih_upload_sftp may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function get_openemr_globals may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function sftp_status may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function emailServiceRun may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/email_service_run.php',
@@ -5152,6 +5212,116 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/encounter_events.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function DateFormatRead may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function DateTimeToYYYYMMDDHHMMSS may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function DateToYYYYMMDD may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function TimeToHHMMSS may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatAge may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatClientID may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatDateTime may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatMoney may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatPatientNote may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatSDFT may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatShortDate may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeFormatTime may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function oeTimestampFormatDateTime may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formatting.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function add_escape_custom may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function escape_identifier may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function escape_limit may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function escape_sort_order may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function escape_sql_column_name may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function escape_table_name may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function formData may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function formDataCore may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function process_cols_escape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function addForm may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/forms.inc.php',
@@ -5205,6 +5375,236 @@ $ignoreErrors[] = [
     'message' => '#^Function hasFormPermission may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/forms.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function CloseTag may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function Digits may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function OpenTag may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function PrintEncHeader may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function UrlIfImageExists may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function User_Id_Look may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function calcTaxes may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cbcell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cbinput may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cbvalue may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cron_GetNotificationSettings may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cron_getFacilitiesMap may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cron_getPhoneAlertpatientData may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function cron_updateentry may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function decorateString may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function display_desc may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function fixDate may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function formatMoneyNumber may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function genEndRow may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function genStartRow may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getAge may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getLayoutRes may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getLayoutUOR may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getListItem may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Date may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Phone may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Priority may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7RelationCode may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7RelationWord may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7SSN may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Sex may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Text may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Time may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hl7Zip may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function issueTypeIndex may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function markTaxes may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function myCellText may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function parse_note may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function rbcell may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function rbinput may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function rbvalue may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function report_basename may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function strterm may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function trimPost may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function ucname may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function zip_content may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function gblTimeZones may not be defined in the global namespace\\.$#',
@@ -5280,6 +5680,96 @@ $ignoreErrors[] = [
     'message' => '#^Function unsetGroup may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/group.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr_js may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr_url may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function csvEscape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function errorLogEscape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function hsc_private_xl_or_warn may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function javascriptStringCheck may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function javascriptStringRemove may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function js_escape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function js_url may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function safe_href may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function text may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function textArray may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xla may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlj may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlt may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlx may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xmlEscape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getImmunizationList may not be defined in the global namespace\\.$#',
@@ -6287,6 +6777,61 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function basename_international may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function check_file_dir_name may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function check_integer may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function collectIpAddresses may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function convert_safe_file_dir_name may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function convert_very_strict_label may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function dateEmptySql may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function isWhiteFile may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function json_sanitize may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function mb_is_string_equal_ci may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function sanitizeNumber may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/sanitize.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function smarty_function_amcCollect may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
@@ -6317,6 +6862,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.headerTemplate.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function smarty_function_xl may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.xl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function smarty_function_xla may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.xla.php',
@@ -6340,6 +6890,386 @@ $ignoreErrors[] = [
     'message' => '#^Function smarty_modifier_xlt may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/modifier.xlt.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function _smarty_sort_length may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_assemble_plugin_filepath may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_assign_smarty_interface may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_create_dir_structure may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.create_dir_structure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_display_debug_console may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_get_include_path may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_include_path.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_get_microtime may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_microtime.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_get_php_resource may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_is_secure may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_is_trusted may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_load_plugins may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_load_resource_plugin may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_process_cached_inserts may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_process_compiled_include may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_read_cache_file may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_rm_auto may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_rmdir may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_run_insert_handler may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_smarty_include_php may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_cache_file may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_compiled_include may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_compiled_resource may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_core_write_file may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_block_textformat may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_compiler_assign may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/compiler.assign.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_assign_debug_info may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_config_load may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_counter may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_cycle may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_debug may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.debug.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_eval may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_fetch may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_checkboxes may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_checkboxes_output may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_image may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_options may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_options_optgroup may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_options_optoutput may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_options.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_radios may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_radios_output may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_select_date may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_select_time may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_table may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_html_table_cycle may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_mailto may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_math may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_popup may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_popup_init may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.popup_init.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_capitalize may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_capitalize_ucfirst may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_cat may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.cat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_characters may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_characters.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_paragraphs may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_paragraphs.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_sentences may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_sentences.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_count_words may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.count_words.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_date_format may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_debug_print_var may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.debug_print_var.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_default may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.default.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_escape may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_indent may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.indent.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_lower may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.lower.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_nl2br may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.nl2br.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function _smarty_regex_replace_check may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_regex_replace may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.regex_replace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_replace may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.replace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_spacify may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.spacify.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_string_format may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.string_format.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_strip may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_strip_tags may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.strip_tags.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_truncate may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.truncate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_upper may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.upper.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_modifier_wordwrap may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.wordwrap.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_outputfilter_trimwhitespace may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_outputfilter_trimwhitespace_replace may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_function_escape_special_chars may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.escape_special_chars.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function smarty_make_timestamp may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/shared.make_timestamp.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function form2db may not be defined in the global namespace\\.$#',
@@ -6677,6 +7607,56 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/transactions.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function getLanguageDir may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function getLanguageTitle may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlWarmCache may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl_appt_category may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl_document_category may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl_form_title may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl_gacl_group may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl_layout_label may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl_list_label may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/translation.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function checkUserSetting may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
@@ -6720,6 +7700,16 @@ $ignoreErrors[] = [
     'message' => '#^Function autoPopulateAllMissingUuids may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/uuid.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function collectValidationPageRules may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/validation/validate_core.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function validateUsingPageRules may not be defined in the global namespace\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/validation/validate_core.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function cleanupRegistrationSession may not be defined in the global namespace\\.$#',

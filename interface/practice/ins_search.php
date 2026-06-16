@@ -25,7 +25,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
+require_once(__DIR__ . "/../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -49,17 +49,17 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     <?php Header::setupHeader(['opener', 'topdialog']); ?>
 
     <style>
-      td {
-        font-size: 0.8125rem;
-      }
+        td {
+            font-size: 0.8125rem;
+        }
 
-      #form_entry {
-        display: block;
-      }
+        #form_entry {
+            display: block;
+        }
 
-      #form_list {
-        display: none;
-      }
+        #form_list {
+            display: none;
+        }
 
     </style>
 
@@ -173,63 +173,45 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 <body class="body_top">
     <?php
+    $post = filter_input_array(INPUT_POST, [
+        'csrf_token_form' => FILTER_UNSAFE_RAW,
+        'form_save' => FILTER_UNSAFE_RAW,
+        'form_update' => FILTER_UNSAFE_RAW,
+        'form_id' => FILTER_UNSAFE_RAW,
+        'form_name' => FILTER_UNSAFE_RAW,
+        'form_attn' => FILTER_UNSAFE_RAW,
+        'form_addr1' => FILTER_UNSAFE_RAW,
+        'form_addr2' => FILTER_UNSAFE_RAW,
+        'form_city' => FILTER_UNSAFE_RAW,
+        'form_state' => FILTER_UNSAFE_RAW,
+        'form_country' => FILTER_UNSAFE_RAW,
+        'form_zip' => FILTER_UNSAFE_RAW,
+        'form_phone' => FILTER_UNSAFE_RAW,
+        'form_cms_id' => FILTER_UNSAFE_RAW,
+        'form_ins_type_code' => FILTER_UNSAFE_RAW,
+        'form_partner' => FILTER_UNSAFE_RAW,
+        'form_cqm_sop' => FILTER_UNSAFE_RAW,
+    ]);
+
     // If we are saving, then save and close the window.
     //
     if (
-        ($_POST['form_save'] ?? '')
-        || ($_POST['form_update'] ?? '')
+        ($post['form_save'] ?? '')
+        || ($post['form_update'] ?? '')
     ) {
         CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-        $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
-        $ins_name = $_POST['form_name'];
-
-        if ($ins_id) {
-            // sql for updating could go here if this script is enhanced to support
-            // editing of existing insurance companies.
-            $insuranceCompany->update(
-                [
-                    'name' => $ins_name,
-                    'attn' => $_POST['form_attn'],
-                    'cms_id' => $_POST['form_cms_id'],
-                    'ins_type_code' => $_POST['form_ins_type_code'],
-                    'x12_receiver_id' => $_POST['form_x12_receiver'] ?? null,
-                    'x12_default_partner_id' => $_POST['form_partner'],
-                    'alt_cms_id' => null,
-                    'line1' => $_POST['form_addr1'],
-                    'line2' => $_POST['form_addr2'],
-                    'city' => $_POST['form_city'],
-                    'state' => $_POST['form_state'],
-                    'zip' => $_POST['form_zip'],
-                    'country' => $_POST['form_country'],
-                    'phone' => $_POST['form_phone'],
-                    'foreign_id' => $ins_id,
-                    'cqm_sop' => $_POST['form_cqm_sop']
-                ],
-                $ins_id
-            );
-        } else {
-            $ins_id = $insuranceCompany->insert(
-                [
-                    'name' => $ins_name,
-                    'attn' => $_POST['form_attn'],
-                    'cms_id' => $_POST['form_cms_id'],
-                    'ins_type_code' => $_POST['form_ins_type_code'],
-                    'x12_receiver_id' => $_POST['form_receiver'] ?? null,
-                    'x12_default_partner_id' => $_POST['form_partner'],
-                    'alt_cms_id' => null,
-                    'line1' => $_POST['form_addr1'],
-                    'line2' => $_POST['form_addr2'],
-                    'city' => $_POST['form_city'],
-                    'state' => $_POST['form_state'],
-                    'zip' => $_POST['form_zip'],
-                    'country' => $_POST['form_country'],
-                    'phone' => $_POST['form_phone'],
-                    'foreign_id' => $ins_id,
-                    'cqm_sop' => $_POST['form_cqm_sop']
-                ]
-            );
+        // The insert-vs-update decision and the form-field mapping live in the
+        // service (saveFromForm/buildSaveDataFromForm) so they can be unit and
+        // integration tested. The view only owns the request boundary (the CSRF
+        // check above) and the response (the script below).
+        $saved = $insuranceCompany->saveFromForm($post);
+        if (!is_array($saved)) {
+            throw new RuntimeException($saved);
         }
+
+        $ins_id = (string) $saved['id'];
+        $ins_name = $saved['name'];
 
         // Close this window and tell our opener to select the new company.
         //
@@ -238,8 +220,6 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             echo " alert(" . js_escape($info_msg) . ");\n";
         }
 
-        // we need to follow the global settings for the display of this name so we will return the name in the set_insurance method
-        $ins_name = (new InsuranceCompanyService())->getInsuranceDisplayName($ins_id);
         // call the set_insurance method in our header
         echo " set_insurance(" . js_escape($ins_id) . "," . js_escape($ins_name) . ");\n";
         echo "</script></body></html>\n";
@@ -359,10 +339,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 <?php
                                 for ($i = 1; $i < count($ins_type_code_array); ++$i) {
                                     echo "   <option value='" . attr($i) . "'";
-                                    if (!empty($ins_co)) {
-                                        if ($i == $ins_co['ins_type_code']) {
-                                            echo " selected";
-                                        }
+                                    // Null-safe comparison to avoid PHPStan warning when $ins_co is null
+                                    if ($i == ($ins_co['ins_type_code'] ?? null)) {
+                                        echo " selected";
                                     }
                                     echo ">" . text($ins_type_code_array[$i]) . "\n";
                                 }
@@ -379,7 +358,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 <?php
                                 while ($xrow = sqlFetchArray($xres)) {
                                     echo "   <option value='" . attr($xrow['id']) . "'";
-                                    if ($xrow['id'] == $ins_co['x12_default_partner_id']) {
+                                    if ($xrow['id'] == ($ins_co['x12_default_partner_id'] ?? null)) {
                                         echo " selected";
                                     }
                                     echo ">" . text($xrow['name']) . "</option>\n";

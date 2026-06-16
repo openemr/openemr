@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:downloadFaxMediaContent\\(\\) is unused\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:storeInboundFax\\(\\) is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
@@ -70,6 +65,36 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Command\\\\CreateReleaseChangelogCommand\\:\\:getTestMilestoneNumberFromName\\(\\) is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:disable\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:enable\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:install\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:install_sql\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:unregister\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:upgrade_sql\\(\\) is unused\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationController\\:\\:getFormJumpHtml\\(\\) is unused\\.$#',

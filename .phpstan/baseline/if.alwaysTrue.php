@@ -288,6 +288,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/templates/address_display.php',
 ];
@@ -370,6 +380,11 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../setup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Kernel.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',

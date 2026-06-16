@@ -57,6 +57,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between 3 and 3 will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PhoneNumber.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'2100\' and \'2100\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
@@ -65,6 +70,16 @@ $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'claims\' and \'claims\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'down\' and \'down\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'right\' and \'right\' will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between 0 and 0 will always evaluate to true\\.$#',

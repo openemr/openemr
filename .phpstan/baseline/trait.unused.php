@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Trait OpenEMR\\\\Common\\\\Session\\\\Trait\\\\SessionToJwt is used zero times and is not analysed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Trait/SessionToJwt.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Trait OpenEMR\\\\Services\\\\Qrda\\\\Helpers\\\\AggregateObject is used zero times and is not analysed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Helpers/AggregateObject.php',

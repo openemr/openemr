@@ -1562,6 +1562,151 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/display_help_icon_inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$de$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$delimiter3$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$ds$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$bpr02 might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$check_amount might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$check_date might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$chk might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$ck might not be defined\\.$#',
+    'count' => 52,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$de might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$gs_date might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$i might not be defined\\.$#',
+    'count' => 27,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$loop might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$loopid might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$lx01 might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$out might not be defined\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$plbar might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$pmt_html might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$seg might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$segid might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$f_ct$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$uplkey$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$dir_to might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$fdir might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$host might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$p_ct might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$pass might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$pdir might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$port might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$sftp_hosts might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$current_state might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/expand_contract_inc.php',
@@ -1700,6 +1845,166 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$pass_sql might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/report_database.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_output might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$arg_list might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$attr_name might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$compiled_ref might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$expr might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$i might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$include_file might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$last_token might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$plugin_func might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$return might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$dummy$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_debug_start_time might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_included_tpls_idx might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_smarty_results might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$debug_start_time might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$included_tpls_idx might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_readable might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_template_source might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_message might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_plugin_func might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$debug_start_time might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_debug_start_time might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_config_vars might not be defined\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_debug_start_time might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$_var_compiled$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.eval.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$_id might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_radios.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$day_values might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$minutes might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$seconds might not be defined\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$loop$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$ord might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$smarty might not be defined\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.date_format.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
@@ -2475,6 +2780,11 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$type might not be defined\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Rx/RxList.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Undefined variable\\: \\$report$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportRadiologyService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$viewBean might not be defined\\.$#',

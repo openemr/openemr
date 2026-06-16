@@ -48,3 +48,5 @@ Documentation/EHI_Export/schemaspy/* export-ignore
 Documentation/EHI_Export/schemaspy/schemas -export-ignore
 Documentation/EHI_Export/schemaspy/schemas/* export-ignore
 Documentation/EHI_Export/schemaspy/schemas/openemr.meta.xml -export-ignore
+.phpstan/**/*.php text eol=lf
+.phpstan/*.php text eol=lf

@@ -92,11 +92,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$sid\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\FaxAccount\\:\\:\\$TimeZone\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
@@ -227,6 +222,151 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/thumbnail/Thumbnail.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_cache_include\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_cache_serial\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_config\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_plugins\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_plugins_code\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_reg_objects\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_tpl_vars\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$_version\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$caching\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$compile_dir\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$compile_id\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$config_dir\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$default_modifiers\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$force_compile\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$left_delimiter\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$php_handling\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$plugins_dir\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$request_use_auto_globals\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$right_delimiter\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$secure_dir\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$security\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$security_settings\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$template_dir\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$trusted_dir\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$use_sub_dirs\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$booleanize\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$fix_newlines\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$overwrite\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property object\\:\\:\\$read_hidden\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property CacheMemCache\\:\\:\\$LastServerError\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',
@@ -287,6 +427,261 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$AllowHealthInfoEx\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$AllowImmInfoShare\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$AllowImmRegUse\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$AllowPatientPortal\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$CareTeam\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$City\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$ContactRelationship\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$CountryCode\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$County\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Date\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Dob\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$DriversLicense\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Email\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Ethnicity\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Ethnoracial\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$FamilySize\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Financial\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Fname\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Guardiansname\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$HipaaAllowemail\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$HipaaAllowsms\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$HipaaMail\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$HipaaMessage\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$HipaaNotice\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$HipaaVoice\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Language\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Lname\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Mname\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Mothersname\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Occupation\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$PharmacyId\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$PhoneBiz\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$PhoneCell\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$PhoneContact\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$PhoneHome\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Pid\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$PostalCode\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Providerid\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Pubpid\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Race\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$RefProviderid\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Referrer\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Referrerid\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Regdate\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Religion\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Sex\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Ss\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$State\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Status\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Street\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property Patient\\:\\:\\$Title\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property Criteria\\:\\:\\$Pid_Equals\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
@@ -305,6 +700,11 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$use\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Access to an undefined property OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:\\$_session\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Core/AbstractModuleActionListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Gacl\\\\Gacl\\:\\:\\$Cache_Lite\\.$#',

@@ -39,6 +39,51 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
     'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke non\\-falsy\\-string but it might not be a callable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Trying to invoke mixed but it\'s not a callable\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3.php',
 ];
 $ignoreErrors[] = [

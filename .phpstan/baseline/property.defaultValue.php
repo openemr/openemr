@@ -7,6 +7,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property Smarty_Legacy\\:\\:\\$_cache_including \\(string\\) does not accept default value of type false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property Smarty_Legacy\\:\\:\\$default_resource_type \\(array\\) does not accept default value of type string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property Savant3_Plugin_date\\:\\:\\$default \\(array\\) does not accept default value of type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/savant/Savant3/resources/Savant3_Plugin_date.php',
@@ -60,6 +70,11 @@ $ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$notRestCall \\(OpenEMR\\\\RestControllers\\\\Config\\\\set\\) does not accept default value of type false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSBase\\:\\:\\$headers \\(array\\) does not accept default value of type string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

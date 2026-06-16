@@ -22,6 +22,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\!\\= between \'cols\' and \'cols\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_table.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\!\\= between 1 and 1 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',

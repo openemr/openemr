@@ -82,6 +82,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^PHPDoc tag @return with type void is incompatible with native type OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/FHIR/SMART/RequestConstraintFilterer.php',
+];
+$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type array is incompatible with native type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/CareTeamViewCard.php',

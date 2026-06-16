@@ -48,5 +48,17 @@ Please migrate to \\{@link https\\://uuid\\.ramsey\\.dev/en/stable/rfc4122/versi
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidRegistry.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Instantiation of deprecated class Ramsey\\\\Uuid\\\\Codec\\\\TimestampFirstCombCodec\\:
+Please migrate to \\{@link https\\://uuid\\.ramsey\\.dev/en/stable/rfc4122/version7\\.html Version 7, Unix Epoch Time UUIDs\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiation of deprecated class Ramsey\\\\Uuid\\\\Generator\\\\CombGenerator\\:
+Please migrate to \\{@link https\\://uuid\\.ramsey\\.dev/en/stable/rfc4122/version7\\.html Version 7, Unix Epoch Time UUIDs\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

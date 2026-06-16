@@ -169,6 +169,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^If condition is always false\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^If condition is always false\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/find_appt_popup_user.php',
 ];
 $ignoreErrors[] = [

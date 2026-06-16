@@ -13742,76 +13742,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'FaxSid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'Sid\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'api_token\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'call\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'call_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'from\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'project_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'receive_fax_document\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'receive_fax_pages\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'receive_fax_result\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'receive_fax_result_code\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'receive_fax_result_text\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'to\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'vars\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/openemr.bootstrap.php',
@@ -13853,7 +13783,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'production\' on mixed\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/setup.php',
 ];
 $ignoreErrors[] = [
@@ -14287,11 +14217,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'phone\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
@@ -14368,7 +14293,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'tmp_name\' on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
 ];
 $ignoreErrors[] = [
@@ -28937,6 +28862,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PhoneNumber.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/classes/Provider.class.php',
@@ -31787,6 +31717,301 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_uploads.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'adj\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'amount_approved\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'amount_charged\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'amount_patient\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'amt\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'check_amount\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'check_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'check_number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'claim_status_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'clmadj\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'clmpmt\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'clp\' on mixed\\.$#',
+    'count' => 11,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'crossover\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'fee\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'fye\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'gs_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'loopid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lx\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'our_claim_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_fname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_lname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_member_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_mname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'payer_claim_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'per\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'plb\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pmt\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider_fname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider_lname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider_member_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider_mname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'prvadj\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ptrsp\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ref\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'subscriber_fname\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'subscriber_lname\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'subscriber_member_id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'subscriber_mname\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'svc\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'warnings\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 3 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 4 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 20,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'login\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'orders_path\'\\|\'ppid\'\\|\'remote_host\'\\|\'results_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'orders_path\'\\|\'results_path\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'password\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'port\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'remote_host\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'date\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/encounter.inc.php',
@@ -32927,6 +33152,961 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'t\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.xl.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'sections\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'vars\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset non\\-empty\\-string on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Config_File_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 16,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 3 on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 4 on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 5 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset callable\\-string on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on array\\<int\\<0, max\\>, string\\>\\|false\\.$#',
+    'count' => 11,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on array\\<int\\<0, max\\>, string\\|null\\>\\|false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on list\\<string\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<1, max\\> on array\\<int\\<0, max\\>, string\\|null\\>\\|false\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'HTTP_IF_MODIFIED_SINCE\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'QUERY_STRING\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'SCRIPT_NAME\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'SMARTY_DEBUG\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'exec_time\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'get_source\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'new_file_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'quiet\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_base_path\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_name\' on mixed\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_timestamp\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'results\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'smarty_include_tpl_file\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'smarty_include_vars\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'source_content\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'vars\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 3 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<\\-1, max\\> on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 21,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string\\|null on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'new_file_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assemble_plugin_filepath.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'request\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.assign_smarty_interface.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'dir\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.create_dir_structure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.display_debug_console.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'file_path\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_include_path.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'new_file_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_include_path.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'new_file_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'php_resource\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_base_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_name\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.get_php_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'INCLUDE_ANY\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_base_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_secure.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 3 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.is_trusted.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'MODIFIER_FUNCS\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'plugins\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 3 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 4 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'assign\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'insert\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'php_resource\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'results\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'script\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_cached_inserts.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'cache_serials\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'results\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.process_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'cache_id\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'compile_id\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'config\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'expires\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'results\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'template\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'timestamp\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'tpl_file\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'auto_base\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'auto_id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'auto_source\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'exp_time\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'extensions\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rm_auto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'dirname\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'exp_time\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'level\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'args\' on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'assign\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'insert\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'insert_tags\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'php_resource\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'script\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 2 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.run_insert_handler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'php_resource\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'smarty_assign\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'smarty_file\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'smarty_include_vars\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'smarty_once\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.smarty_include_php.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'cache_id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'cache_serials\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'compile_id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'expires\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'results\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'timestamp\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'tpl_file\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_cache_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'cache_serial\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'compiled_content\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'include_file_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'plugins_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'resource_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_include.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'compile_path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'compiled_content\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_compiled_resource.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'contents\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'create_dirs\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'filename\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.write_file.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on list\\<string\\|null\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/block.textformat.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.assign_debug_info.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'config\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'files\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'vars\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<1, max\\> on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'assign\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'count\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'direction\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'skip\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'start\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.counter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'delimiter\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'index\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'values\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.cycle.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on list\\<string\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 1 on list\\<string\\>\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'DOCUMENT_ROOT\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'end_year\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'start_year\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_date.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_select_time.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.mailto.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset non\\-falsy\\-string on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.math.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.capitalize.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/modifier.escape.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/outputfilter.trimwhitespace.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'Phys\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
@@ -33165,6 +34345,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/templates/address_form.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'blank_form\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/templates/address_list_form.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset int on mixed\\.$#',
@@ -37752,6 +38937,1141 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'doc_type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'patient_files\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'xslUrl\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'abnormal_flag\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'address\' on mixed\\.$#',
+    'count' => 31,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'authorization\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'authorization_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'birth_fname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'birth_lname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'birth_mname\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 27,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system_name\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_text\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_type\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_type_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'concern\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'country\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'directive\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'dob\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'encounter\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'encounter_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'encounter_end_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'encounter_id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ethnicity\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'extension\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_city\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_country_code\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_npi\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_oid\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_phone\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_postal_code\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_state\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'facility_street\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'first\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'formatted_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'gender\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'guarantor\' on mixed\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'history_element\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifier\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifiers\' on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'insurance\' on mixed\\.$#',
+    'count' => 26,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'is_active\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'issue_uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'last\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'low\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'middle\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'mname\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 14,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'npi\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'number\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'organization\' on mixed\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'participant\' on mixed\\.$#',
+    'count' => 20,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'performer\' on mixed\\.$#',
+    'count' => 34,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'period_end\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'period_start\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'phone\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'phone_emergency\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'phone_home\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'phone_mobile\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'phone_work\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'physician_type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'physician_type_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'physician_type_system\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'physician_type_system_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'plan_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'policy\' on mixed\\.$#',
+    'count' => 33,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'policy_holder\' on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'postalCode\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'previous_name_first\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'previous_name_last\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'previous_name_middle\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'previous_name_prefix\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'previous_name_suffix\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'problem\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'procedures\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'provider_since\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'race\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'race_group\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'range\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'range_high\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'range_low\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'related_persons\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'result_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'result_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'result_text\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'result_unit\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'result_value\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'sex_observation\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'sha_extension\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'social_history\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'status\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'street\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'streetAddressLine\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'street_lines\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'suffix\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'telecom\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'text\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'time\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'time_high\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'time_low\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'use\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'vitals\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'vitals_list\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'ccda_header\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifier\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifiers\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'root\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'template\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'rootId\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/FieldLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/LeafLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'displayName\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'family\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'first\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'first_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'given\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'last\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'last_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'middle\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'middle_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'suffix\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Core/Translate.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'extension\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifier\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'root\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/DocumentLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'answer_code_system\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/FunctionalStatusEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'overall_status\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/FunctionalStatusEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/GoalEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lot_number\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ImmunizationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'product\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ImmunizationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'sequence_number\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ImmunizationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'status\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ImmunizationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'product\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/MedicationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'status\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/MedicationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'unencoded_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/MedicationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'unit\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/MedicationEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'address\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PayerEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifiers\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PayerEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'performer\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PayerEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'phone\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PayerEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system_name\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_text\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_type\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/PlanOfCareEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifiers\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ProblemEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'status\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ProblemEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ResultEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'range_type\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ResultEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'unit\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/ResultEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'codeSystem\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_spec\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code_system_name\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'display\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'gender\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pregnancy_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'pregnancy_status\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'sex_observation\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'tribal_affiliation\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'tribal_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/EntryLevel/SocialHistoryEntryLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'birthplace\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'city\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'code\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'country\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'extension\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'family\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'first\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'full\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'function_code\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'identifier\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'last\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'middle\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'number\' on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'point\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'providers\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'root\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'state\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'street_lines\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'suffix\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'typeCode\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'use\' on mixed\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'value\' on mixed\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'zip\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'allergies\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/SectionLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'no_know_allergies\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/SectionLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/SectionLevel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/SectionLevel.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'added_rules\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerAjax.php',
@@ -38522,9 +40842,94 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenTestCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'value\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'alreadyBuilt\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'assets\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'autoload\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'basePath\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'href\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'link\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'loadInFile\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'rel\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'rtl\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'script\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'src\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'listeners\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Database/ModulesApplication.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'path\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/ModulesApplication.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'service_manager\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'data\' on mixed\\.$#',
@@ -44232,6 +46637,66 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'begdate\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'comments\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'date\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'description\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'diagnosis\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'enddate\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'occurrence\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'outcome\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'puuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'system\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'title\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'verification\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
@@ -47552,6 +50017,51 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'count\' on array\\|false\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'expiry_date\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'fname\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lname\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'password\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'permissions\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'username\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SDOH/HistorySdohService.php',
@@ -47817,6 +50327,46 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'couchdb\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'disable_tracker\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'document_drive\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'mapped\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'table_id\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'table_name\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'table_vertical\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset int\\<0, max\\> on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'calculation_id\' on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/VitalsCalculatedService.php',
@@ -48002,6 +50552,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access an offset on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSAddressVerify.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'ZIPCode\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
@@ -48050,6 +50605,31 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'streetAddress\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'Description\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'Number\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 10002 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 10015 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 3 on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'option_id\' on array\\|false\\.$#',

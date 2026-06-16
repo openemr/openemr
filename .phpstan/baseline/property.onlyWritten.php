@@ -87,21 +87,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EtherFaxActions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$apiToken is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$projectId is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$spaceUrl is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\TwilioSMSClient\\:\\:\\$accountSID is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/TwilioSMSClient.php',
@@ -187,6 +172,36 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheNoCache.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaBuilder\\:\\:\\$stylesheetPath is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaBuilder\\:\\:\\$xmlBuilder is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$documentLocation is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$npiProvider is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$webRoot is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaTemplateEngine\\:\\:\\$preventNullFlavor is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:\\$otherAuth is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
@@ -210,6 +225,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:\\:\\$isAuthorizationGrant is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Core\\\\AbstractModuleActionListener\\:\\:\\$_cookies is never read, only written\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Database/AbstractModuleActionListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Forms\\\\FormReportRenderer\\:\\:\\$locator is never read, only written\\.$#',

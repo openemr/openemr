@@ -162,6 +162,51 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:_get_filter_name\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:register_outputfilter\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:register_postfilter\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:register_prefilter\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:unregister_outputfilter\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:unregister_postfilter\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:unregister_prefilter\\(\\) has invalid type callback\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property Smarty_Legacy\\:\\:\\$_conf_obj has unknown class Config_file as its type\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function prevSetting\\(\\) has invalid return type Prior\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
@@ -357,6 +402,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Exception not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Throwing object of an unknown class OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\Exception\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaTemplateEngine.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$groups has unknown class RuleTargetActionGroups as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Rule.php',
@@ -385,6 +440,36 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\ORDataObject\\\\ContactAddress\\:\\:\\$notes has unknown class OpenEMR\\\\Common\\\\ORDataObject\\\\Note as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method del\\(\\) on an unknown class Predis\\\\Client\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method get\\(\\) on an unknown class Predis\\\\Client\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method set\\(\\) on an unknown class Predis\\\\Client\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method setex\\(\\) on an unknown class Predis\\\\Client\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$redis of method OpenEMR\\\\Common\\\\Session\\\\Predis\\\\PredisSessionHandler\\:\\:__construct\\(\\) has invalid type Predis\\\\Client\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\PredisSessionHandler\\:\\:\\$redis has unknown class Predis\\\\Client as its type\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\$uuid of method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:getRegistryRecordForUuid\\(\\) has invalid type OpenEMR\\\\Common\\\\Uuid\\\\binary\\.$#',
@@ -500,6 +585,36 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$notRestCall has unknown class OpenEMR\\\\RestControllers\\\\Config\\\\set as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getCode\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\FHIR\\\\Exception\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FHIRQuestionnaireResponseController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method getMessage\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\FHIR\\\\Exception\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FHIRQuestionnaireResponseController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method error\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIRResponse\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FHIRQuestionnaireResponseController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method json\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIRResponse\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FHIRQuestionnaireResponseController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Caught class OpenEMR\\\\RestControllers\\\\FHIR\\\\Exception not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FHIRQuestionnaireResponseController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireResponseService not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FHIRQuestionnaireResponseController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -647,6 +762,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportClinicalNotesService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to constant DIAGNOSTIC_SERVICE_SECTION_ID on an unknown class FhirCodeSystemConstants\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportRadiologyService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method createCodeableConcept\\(\\) on an unknown class UtilsService\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/FHIR/DiagnosticReport/FhirDiagnosticReportRadiologyService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\FhirClinicalNotesService\\:\\:createProvenanceResource\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\DocumentReference\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/DocumentReference/FhirClinicalNotesService.php',
@@ -745,6 +870,31 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:getTablesList\\(\\) has invalid return type OpenEMR\\\\Services\\\\Utils\\\\SQLStatement\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Parameter \\$uuid of method OpenEMR\\\\Common\\\\Uuid\\\\UuidRegistry\\:\\:getRegistryRecordForUuid\\(\\) has invalid type OpenEMR\\\\Common\\\\Uuid\\\\binary\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setErrorCode\\(\\) has invalid return type OpenEMR\\\\USPS\\\\facebookLib\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setErrorMessage\\(\\) has invalid return type OpenEMR\\\\USPS\\\\facebookLib\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setHeaders\\(\\) has invalid return type OpenEMR\\\\USPS\\\\facebookLib\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\USPS\\\\USPSBase\\:\\:setResponse\\(\\) has invalid return type OpenEMR\\\\USPS\\\\facebookLib\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method clearTelemetryData\\(\\) on an unknown class OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\MockObject\\.$#',
