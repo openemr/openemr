@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Modules\FaxSMS\Service;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Filesystem\Exception\IOException;
@@ -43,6 +44,7 @@ final readonly class FaxUploadStaging
     private const ACCEPTED_MIME = [
         'application/pdf' => '.pdf',
         'image/tiff' => '.tiff',
+        'image/tif' => '.tiff',
         'image/jpeg' => '.jpg',
         'image/png' => '.png',
         'text/plain' => '.txt',
@@ -127,6 +129,85 @@ final readonly class FaxUploadStaging
         }
 
         return $filepath;
+    }
+
+    /**
+     * Stage raw fax bytes that the controller already has in memory (for
+     * example, content fetched from a provider API during a forward flow).
+     * Writes encrypted-at-rest under the same `<sanitized>_<8hex>.<ext>`
+     * shape as processUpload(), so the staging directory only ever holds
+     * encrypted fax content regardless of how it got there. Returns the
+     * on-disk path, or an empty string on failure.
+     */
+    public function stageInternalPayload(
+        string $baseDir,
+        string $content,
+        string $hint,
+        string $contentType
+    ): string {
+        // Strip RFC 7231 media-type parameters (e.g. "application/pdf; charset=...")
+        // so headers from a provider API map cleanly to our MIME whitelist.
+        $mediaType = strtolower(trim(strtok($contentType, ';') ?: ''));
+        $ext = self::ACCEPTED_MIME[$mediaType] ?? null;
+        if ($ext === null) {
+            $this->logger->warning(
+                'Unsupported fax content type for internal staging',
+                ['contentType' => $contentType, 'mediaType' => $mediaType]
+            );
+            return '';
+        }
+
+        $targetDir = $this->ensureStagingDir($baseDir);
+        if ($targetDir === null) {
+            return '';
+        }
+
+        $sanitized = convert_safe_file_dir_name(pathinfo($hint, PATHINFO_FILENAME));
+        $base = is_string($sanitized) && $sanitized !== '' ? $sanitized : 'fax';
+        $filepath = $targetDir . '/' . $base . '_' . bin2hex(random_bytes(4)) . $ext;
+
+        $written = file_put_contents(
+            $filepath,
+            $this->crypto->encryptForFilesystem($content)
+        );
+        if ($written === false) {
+            $this->logger->error(
+                'Failed to stage internal fax payload',
+                ['filepath' => $filepath]
+            );
+            return '';
+        }
+
+        return $filepath;
+    }
+
+    /**
+     * Read a fax file and return the decrypted plaintext bytes. Suitable
+     * for streaming straight to the response (echo $bytes) without
+     * round-tripping through another tempnam. Legacy plaintext files
+     * flow through unchanged because decryptFromFilesystem version-
+     * prefix-checks before decrypting. Returns null on read or decrypt
+     * failure so callers can render a generic error.
+     */
+    public function decryptFileBytes(string $path): ?string
+    {
+        $raw = file_get_contents($path);
+        if ($raw === false) {
+            $this->logger->warning(
+                'Failed to read fax file for decryption',
+                ['path' => $path]
+            );
+            return null;
+        }
+        try {
+            return $this->crypto->decryptFromFilesystem($raw);
+        } catch (CryptoGenException $e) {
+            $this->logger->error(
+                'Failed to decrypt fax file',
+                ['path' => $path, 'exception' => $e]
+            );
+            return null;
+        }
     }
 
     /**

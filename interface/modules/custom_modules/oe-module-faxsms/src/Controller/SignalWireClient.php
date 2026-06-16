@@ -930,11 +930,18 @@ class SignalWireClient extends AppDispatch
                 return null;
             }
 
-            // Create directory for fax media if it doesn't exist
+            // Create directory for fax media if it doesn't exist. Tighten
+            // perms on every call so installs whose dir was created earlier
+            // with 0777 get walked back to 0700 on the next inbound fax.
             $faxDir = $this->baseDir . '/received_faxes';
-            if (!file_exists($faxDir)) {
-                mkdir($faxDir, 0777, true);
+            if (!file_exists($faxDir) && !mkdir($faxDir, 0700, true)) {
+                ServiceContainer::getLogger()->error(
+                    'SignalWire downloadFaxMedia: failed to create received_faxes directory',
+                    ['directory' => $faxDir]
+                );
+                return null;
             }
+            chmod($faxDir, 0700);
 
             // Generate filename
             $filename = $fax->sid . '.pdf';
@@ -953,8 +960,11 @@ class SignalWireClient extends AppDispatch
                 return null;
             }
 
-            // Save the file
-            if (file_put_contents($filepath, $fileContent) === false) {
+            // Save the file encrypted-at-rest. Consumers (viewFaxPdf,
+            // download) already feed the bytes through decryptFromFilesystem,
+            // which version-prefix-checks so legacy plaintext files from
+            // before this change still flow through unchanged.
+            if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($fileContent)) === false) {
                 error_log("SignalWireClient.downloadFaxMedia(): Failed to save file to {$filepath}");
                 return null;
             }

@@ -359,42 +359,51 @@ class EtherFaxActions extends AppDispatch
         }
 
         $content = $fax->FaxImage;
-        $c_header = $fax->DocumentParams->Type;
-        $ext = $c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' || $c_header == 'image/tif' ? '.tiff' : '.txt');
-        $stagingDir = $this->uploadStaging->ensureStagingDir($this->baseDir);
-        if ($stagingDir === null) {
-            return js_escape('Error: ' . xlt('Failed to prepare fax staging directory'));
-        }
-        $filepath = $stagingDir . '/' . ($jobId . $ext);
-
-        file_put_contents($filepath, base64_decode((string)$content));
-
-        if ($hasEmail && $smtpEnabled && is_string($email)) {
-            $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $filepath, $user) . "<br />";
+        $c_header = (string)$fax->DocumentParams->Type;
+        $stagedPath = $this->uploadStaging->stageInternalPayload(
+            $this->baseDir,
+            base64_decode((string)$content),
+            (string)$jobId,
+            $c_header
+        );
+        if ($stagedPath === '') {
+            return js_escape('Error: ' . xlt('Failed to stage fax payload for forwarding'));
         }
 
-        if ($faxNumber) {
-            try {
-                $fax = $this->client->etherFaxSend($faxNumber, $filepath, null, $facility, $csid, $tag, false);
-                if (!$fax->FaxResult) {
-                    return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
-                }
-                if ($fax->FaxResult == FaxResult::InProgress) {
-                    while (true) {
-                        $status = $this->client->getFaxStatus($fax->JobId);
-                        if (!$status || $status->FaxResult != FaxResult::InProgress) {
-                            break;
-                        }
-                        sleep(5);
-                    }
-                }
-                $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-            } catch (\Throwable $e) {
-                return js_escape('Error: ' . $e->getMessage());
+        $plainPath = null;
+        try {
+            $plainPath = $this->uploadStaging->decryptStagedToTemp($stagedPath);
+            if ($plainPath === null) {
+                return js_escape('Error: ' . xlt('Failed to prepare fax payload for forwarding'));
             }
-        }
 
-        unlink($filepath);
+            if ($hasEmail && $smtpEnabled && is_string($email)) {
+                $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $plainPath, $user) . "<br />";
+            }
+
+            if ($faxNumber) {
+                try {
+                    $fax = $this->client->etherFaxSend($faxNumber, $plainPath, null, $facility, $csid, $tag, false);
+                    if (!$fax->FaxResult) {
+                        return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
+                    }
+                    if ($fax->FaxResult == FaxResult::InProgress) {
+                        while (true) {
+                            $status = $this->client->getFaxStatus($fax->JobId);
+                            if (!$status || $status->FaxResult != FaxResult::InProgress) {
+                                break;
+                            }
+                            sleep(5);
+                        }
+                    }
+                    $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
+                } catch (\Throwable $e) {
+                    return js_escape('Error: ' . $e->getMessage());
+                }
+            }
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts($stagedPath, $plainPath);
+        }
 
         return js_escape($statusMsg);
     }
@@ -590,12 +599,16 @@ class EtherFaxActions extends AppDispatch
 
         if ($isDownload) {
             $faxStoreDir = $this->baseDir;
-            if (!file_exists($faxStoreDir) && !mkdir($faxStoreDir, 0777, true)) {
+            if (!is_dir($faxStoreDir) && !mkdir($faxStoreDir, 0700, true)) {
                 throw new Exception(sprintf('Directory "%s" was not created', $faxStoreDir));
             }
+            chmod($faxStoreDir, 0700);
 
             $file_name = "{$faxStoreDir}/Fax_{$docId}" . ($c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' ? '.tiff' : '.txt'));
-            file_put_contents($file_name, base64_decode((string)$faxImage));
+            // Write encrypted-at-rest; disposeDocument's download branch
+            // decrypts via FaxUploadStaging::decryptFileBytes when streaming
+            // the file to the browser.
+            file_put_contents($file_name, $this->crypto->encryptForFilesystem(base64_decode((string)$faxImage)));
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
 
@@ -684,12 +697,14 @@ class EtherFaxActions extends AppDispatch
                 return json_encode(['success' => false, 'message' => xlt('Failed to create directory')]);
             }
 
-            // Write atomically
+            // Write atomically; encrypt-at-rest so the download branch's
+            // sendFile call (which decrypts via decryptFileBytes) is the
+            // only path that ever sees the plaintext bytes on disk.
             $tmp = tempnam($dir, 'fax_');
             if ($tmp === false) {
                 return json_encode(['success' => false, 'message' => xlt('Failed to create temp file')]);
             }
-            $bytes = file_put_contents($tmp, $decoded, LOCK_EX);
+            $bytes = file_put_contents($tmp, $this->crypto->encryptForFilesystem($decoded), LOCK_EX);
             if ($bytes === false) {
                 @unlink($tmp);
                 return json_encode(['success' => false, 'message' => xlt('Failed to write file')]);
@@ -768,17 +783,28 @@ class EtherFaxActions extends AppDispatch
         return (bool)preg_match('/<\?(php|=)|<script\b/i', $snippet);
     }
 
+    /**
+     * Decrypt the at-rest fax file and stream it to the browser. Legacy
+     * plaintext files flow through unchanged via decryptFromFilesystem's
+     * version-prefix check.
+     */
     private function sendFile(string $filePath): void
     {
+        $payload = $this->uploadStaging->decryptFileBytes($filePath);
+        if ($payload === null) {
+            http_response_code(500);
+            echo xlt('Failed to read fax file');
+            exit;
+        }
         ob_end_clean();
         header("Cache-Control: public");
         header("Content-Description: File Transfer");
         header("Content-Disposition: attachment; filename=" . basename($filePath));
         header("Content-Type: application/pdf");
         header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . filesize($filePath));
+        header('Content-Length: ' . strlen($payload));
 
-        readfile($filePath);
+        echo $payload;
         exit;
     }
 
