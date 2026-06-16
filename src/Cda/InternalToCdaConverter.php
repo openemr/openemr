@@ -2653,9 +2653,127 @@ class InternalToCdaConverter
 
         $this->appendEncounterPerformer($encounter, $enc);
         $this->appendEncounterLocation($encounter, $enc);
+        $this->appendEncounterDiagnoses($encounter, $enc);
 
         $entry->appendChild($encounter);
         $section->appendChild($entry);
+    }
+
+    private function appendEncounterDiagnoses(DOMElement $encounter, DOMElement $enc): void
+    {
+        $problems = $this->xpath('encounter_problems/problem', $enc);
+        foreach ($problems as $problem) {
+            $code = $this->xpathValue('code', $problem);
+            if ($code === '') {
+                continue;
+            }
+
+            $entryRel = $this->createElement('entryRelationship');
+            $entryRel->setAttribute('typeCode', 'SUBJ');
+
+            $act = $this->createElement('act');
+            $act->setAttribute('classCode', 'ACT');
+            $act->setAttribute('moodCode', 'EVN');
+
+            $this->appendVersionedTemplateId($act, '2.16.840.1.113883.10.20.22.4.80', '2015-08-01');
+            $this->appendTemplateId($act, '2.16.840.1.113883.10.20.22.4.19');
+
+            $shaExt = $this->xpathValue('sha_extension', $enc);
+            $ext = $this->xpathValue('extension', $problem);
+            $id = $this->createElement('id');
+            $id->setAttribute('root', $shaExt);
+            if ($ext !== '') {
+                $id->setAttribute('extension', $ext);
+            }
+            $act->appendChild($id);
+
+            $actCode = $this->createElement('code');
+            $actCode->setAttributeNS(self::NS_XSI, 'xsi:type', 'CE');
+            $actCode->setAttribute('code', '29308-4');
+            $actCode->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+            $actCode->setAttribute('codeSystemName', 'LOINC');
+            $actCode->setAttribute('displayName', 'ENCOUNTER DIAGNOSIS');
+            $act->appendChild($actCode);
+
+            $date = $this->xpathValue('date', $enc);
+            if ($date !== '') {
+                $effTime = $this->createElement('effectiveTime');
+                $low = $this->createElement('low');
+                $low->setAttribute('value', $this->formatDateOnly($date));
+                $effTime->appendChild($low);
+                $act->appendChild($effTime);
+            }
+
+            $this->appendEncounterDiagnosisObservation($act, $enc, $problem);
+
+            $entryRel->appendChild($act);
+            $encounter->appendChild($entryRel);
+        }
+    }
+
+    private function appendEncounterDiagnosisObservation(DOMElement $act, DOMElement $enc, DOMElement $problem): void
+    {
+        $innerEntryRel = $this->createElement('entryRelationship');
+        $innerEntryRel->setAttribute('typeCode', 'SUBJ');
+        $innerEntryRel->setAttribute('inversionInd', 'false');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+        $obs->setAttribute('negationInd', 'false');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.4', '2015-08-01');
+
+        $shaExt = $this->xpathValue('sha_extension', $enc);
+        $ext = $this->xpathValue('extension', $problem);
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $shaExt);
+        if ($ext !== '') {
+            $id->setAttribute('extension', $ext);
+        }
+        $obs->appendChild($id);
+
+        $obsCode = $this->createElement('code');
+        $obsCode->setAttribute('code', '404684003');
+        $obsCode->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+        $obsCode->setAttribute('codeSystemName', 'SNOMED CT');
+        $obsCode->setAttribute('displayName', 'Finding');
+
+        $translation = $this->createElement('translation');
+        $translation->setAttribute('code', '75321-0');
+        $translation->setAttribute('codeSystem', '2.16.840.1.113883.6.1');
+        $translation->setAttribute('codeSystemName', 'LOINC');
+        $translation->setAttribute('displayName', 'Clinical finding');
+        $obsCode->appendChild($translation);
+        $obs->appendChild($obsCode);
+
+        $statusCode = $this->createElement('statusCode');
+        $statusCode->setAttribute('code', 'completed');
+        $obs->appendChild($statusCode);
+
+        $date = $this->xpathValue('date', $enc);
+        if ($date !== '') {
+            $effTime = $this->createElement('effectiveTime');
+            $low = $this->createElement('low');
+            $low->setAttribute('value', $this->formatDateOnly($date));
+            $effTime->appendChild($low);
+            $obs->appendChild($effTime);
+        }
+
+        $code = $this->xpathValue('code', $problem);
+        $text = $this->xpathValue('text', $problem);
+        $codeType = $this->xpathValue('code_type', $problem);
+
+        $value = $this->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        $value->setAttribute('code', $code);
+        $value->setAttribute('displayName', $text);
+        $value->setAttribute('codeSystem', $this->getCodeSystemOid($codeType));
+        $value->setAttribute('codeSystemName', $this->normalizeCodeSystemName($codeType));
+        $obs->appendChild($value);
+
+        $innerEntryRel->appendChild($obs);
+        $act->appendChild($innerEntryRel);
     }
 
     private function appendEncounterPerformer(DOMElement $encounter, DOMElement $enc): void
