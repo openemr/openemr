@@ -1733,17 +1733,23 @@ class InternalToCdaConverter
 
         $dosage = $this->xpathValue('dosage', $med);
         $interval = $this->xpathValue('interval', $med);
-        $effTime2 = $this->output->createElement('effectiveTime');
-        $effTime2->setAttributeNS(self::NS_XSI, 'xsi:type', 'PIVL_TS');
-        $effTime2->setAttribute('institutionSpecified', 'true');
-        $effTime2->setAttribute('operator', 'A');
-        $period = $this->createElement('period');
-        $period->setAttribute('value', $dosage !== '' ? (string) (int) floatval($dosage) : '1');
-        if ($interval !== '') {
-            $period->setAttribute('unit', $interval);
+        $dosageFloat = floatval($dosage);
+        // Node.js only renders period when there's actual data
+        if ($dosageFloat > 0 || $interval !== '') {
+            $effTime2 = $this->output->createElement('effectiveTime');
+            $effTime2->setAttributeNS(self::NS_XSI, 'xsi:type', 'PIVL_TS');
+            $effTime2->setAttribute('institutionSpecified', 'true');
+            $effTime2->setAttribute('operator', 'A');
+            $period = $this->createElement('period');
+            if ($dosageFloat > 0) {
+                $period->setAttribute('value', (string) (int) $dosageFloat);
+            }
+            if ($interval !== '') {
+                $period->setAttribute('unit', $interval);
+            }
+            $effTime2->appendChild($period);
+            $subAdmin->appendChild($effTime2);
         }
-        $effTime2->appendChild($period);
-        $subAdmin->appendChild($effTime2);
 
         $routeCode = $this->createElement('routeCode');
         $route = $this->mapRouteCode($this->xpathValue('route_code', $med));
@@ -1759,8 +1765,8 @@ class InternalToCdaConverter
 
         $size = $this->xpathValue('size', $med);
         $unit = $this->xpathValue('unit', $med);
-        $doseQuantity = $this->createElement('doseQuantity');
         $sizeFloat = floatval($size);
+        $doseQuantity = $this->createElement('doseQuantity');
         if ($sizeFloat > 0) {
             $doseQuantity->setAttribute('value', (string) $sizeFloat);
         }
