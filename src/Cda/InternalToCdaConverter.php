@@ -381,7 +381,7 @@ class InternalToCdaConverter
         $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
         $telecom = $this->createElement('telecom');
         $telecom->setAttribute('use', 'WP');
-        $telecom->setAttribute('value', $phone !== '' ? 'tel:' . $phone : '');
+        $telecom->setAttribute('value', $phone);
         $provOrg->appendChild($telecom);
 
         $addr = $this->createElement('addr');
@@ -466,6 +466,14 @@ class InternalToCdaConverter
         $name = $this->xpathValue('/CCDA/encounter_provider/facility_name');
         $repOrg->appendChild($this->createElement('name', $name !== '' ? $name : null));
 
+        $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $telecom->setAttribute('use', 'WP');
+            $repOrg->appendChild($telecom);
+        }
+
         $addr = $this->createElement('addr');
         $addr->setAttribute('use', 'WP');
         $country = $this->xpathValue('/CCDA/encounter_provider/facility_country_code');
@@ -518,30 +526,23 @@ class InternalToCdaConverter
     {
         $fname = $this->xpathValue('/CCDA/information_recipient/fname');
         $lname = $this->xpathValue('/CCDA/information_recipient/lname');
-        if ($fname === '' && $lname === '') {
-            return;
-        }
+        $org = $this->xpathValue('/CCDA/information_recipient/organization');
 
         $infoRecipient = $this->createElement('informationRecipient');
         $intendedRecipient = $this->createElement('intendedRecipient');
 
         $recipient = $this->createElement('informationRecipient');
         $name = $this->createElement('name');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
+        $name->appendChild($this->createElement('family', $lname !== '' ? $lname : null));
         if ($fname !== '') {
             $name->appendChild($this->createElement('given', $fname));
         }
         $recipient->appendChild($name);
         $intendedRecipient->appendChild($recipient);
 
-        $org = $this->xpathValue('/CCDA/information_recipient/organization');
-        if ($org !== '') {
-            $receivedOrg = $this->createElement('receivedOrganization');
-            $receivedOrg->appendChild($this->createElement('name', $org));
-            $intendedRecipient->appendChild($receivedOrg);
-        }
+        $receivedOrg = $this->createElement('receivedOrganization');
+        $receivedOrg->appendChild($this->createElement('name', $org !== '' ? $org : 'org'));
+        $intendedRecipient->appendChild($receivedOrg);
 
         $infoRecipient->appendChild($intendedRecipient);
         $root->appendChild($infoRecipient);
