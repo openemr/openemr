@@ -20,6 +20,7 @@
 namespace OpenEMR\Tests\Isolated\Common\Twig;
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\PostCalendar\PostCalendarTwigExtension;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
@@ -199,6 +200,130 @@ class TwigTemplateRenderTest extends TestCase
             $fixtureDir . '/appointments-future-empty.html',
         ];
 
+        // Calendar render cases — see CalendarRenderDataBuilder for the
+        // shape each template iterates. Print views are tested with empty
+        // events; the per-event content path is unit-covered by
+        // CalendarRenderDataBuilderTest. Screen views are tested with
+        // empty events because their per-event decoration runs through
+        // dateformat() (DB-dependent).
+        $emptyMini = ['monthLabel' => 'March 2026', 'weeks' => []];
+        $defaultDowList = [0, 1, 2, 3, 4, 5, 6];
+        $defaultDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+        yield 'calendar month_print empty' => [
+            'calendar/default/views/month_print/outlook_ajax_template.html.twig',
+            [
+                'providers'         => [['id' => 1, 'fname' => 'Alice', 'lname' => 'Smith']],
+                'dowList'           => $defaultDowList,
+                'A_SHORT_DAY_NAMES' => $defaultDayNames,
+                'dateLabel'         => 'March 2026',
+                'dayHeaderDates'    => [],
+                'currentMonthMini'  => $emptyMini,
+                'nextMonthMini'     => ['monthLabel' => 'April 2026', 'weeks' => []],
+                'A_EVENTS'          => [],
+                'dowOfDate'         => [],
+            ],
+            $fixtureDir . '/calendar-month-print-empty.html',
+        ];
+
+        yield 'calendar week_print empty' => [
+            'calendar/default/views/week_print/outlook_ajax_template.html.twig',
+            [
+                'providers'         => [['id' => 1, 'fname' => 'Alice', 'lname' => 'Smith', 'dayPairs' => []]],
+                'dowList'           => $defaultDowList,
+                'A_SHORT_DAY_NAMES' => $defaultDayNames,
+                'dateRange'         => ['firstMonth' => 'March', 'firstDay' => '15', 'lastMonth' => 'March', 'lastDay' => '21'],
+                'currentMonthMini'  => $emptyMini,
+                'nextMonthMini'     => ['monthLabel' => 'April 2026', 'weeks' => []],
+            ],
+            $fixtureDir . '/calendar-week-print-empty.html',
+        ];
+
+        yield 'calendar day_print empty' => [
+            'calendar/default/views/day_print/outlook_ajax_template.html.twig',
+            [
+                'providers'         => [['id' => 1, 'fname' => 'Alice', 'lname' => 'Smith', 'events' => []]],
+                'dowList'           => $defaultDowList,
+                'A_SHORT_DAY_NAMES' => $defaultDayNames,
+                'dateHeader'        => ['dateLabel' => '15 March 2026', 'weekdayLabel' => 'Sunday'],
+                'currentMonthMini'  => $emptyMini,
+                'nextMonthMini'     => ['monthLabel' => 'April 2026', 'weeks' => []],
+                'timeRows'          => [],
+                'timeslotCss'       => '20px',
+            ],
+            $fixtureDir . '/calendar-day-print-empty.html',
+        ];
+
+        // Screen views share a large set of chrome variables (nav URLs,
+        // chevron icons, monthSelectorHtml, facility picker, provider
+        // picker). Empty providersGrid / dayColumns + empty facilities
+        // / provinfo render the page chrome only — the per-event paths
+        // are covered by CalendarRenderDataBuilderTest.
+        $screenCommon = [
+            'dowList'                 => $defaultDowList,
+            'A_SHORT_DAY_NAMES'       => $defaultDayNames,
+            'prevMonth'               => '20260201',
+            'nextMonth'               => '20260401',
+            'prevMonthName'           => 'February',
+            'nextMonthName'           => 'April',
+            'currentMiniCal'          => $emptyMini,
+            'monthSelectorHtml'       => '<select id="monthPicker"></select>',
+            'showFacilitySelect'      => false,
+            'showAllFacilitiesOption' => true,
+            'pc_facility'             => 0,
+            'facilities'              => [],
+            'provinfo'                => [],
+            'selectedUsernames'       => [],
+            'chevron_icon_left'       => 'fa-chevron-left',
+            'chevron_icon_right'      => 'fa-chevron-right',
+            'isToday'                 => false,
+            'webroot'                 => '',
+            'body_class'              => '',
+        ];
+
+        yield 'calendar month-screen empty' => [
+            'calendar/default/views/month/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'           => 'month',
+                'Date'               => '20260315',
+                'currentMonthLabel'  => 'March 2026',
+                'PREV_MONTH_URL'     => '?prev',
+                'NEXT_MONTH_URL'     => '?next',
+                'providersGrid'      => [],
+            ]),
+            $fixtureDir . '/calendar-month-screen-empty.html',
+        ];
+
+        yield 'calendar day-screen empty' => [
+            'calendar/default/views/day/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'day',
+                'Date'            => '20260315',
+                'dayHeaderLabel'  => 'Sunday March 15 2026',
+                'PREV_DAY_URL'    => '?prev',
+                'NEXT_DAY_URL'    => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [],
+            ]),
+            $fixtureDir . '/calendar-day-screen-empty.html',
+        ];
+
+        yield 'calendar week-screen empty' => [
+            'calendar/default/views/week/ajax_template.html.twig',
+            array_merge($screenCommon, [
+                'viewtype'        => 'week',
+                'Date'            => '20260315',
+                'weekHeaderLabel' => 'Mar 15 - Mar 21 2026',
+                'PREV_WEEK_URL'   => '?prev',
+                'NEXT_WEEK_URL'   => '?next',
+                'timeRows'        => [],
+                'timeslotCss'     => '20px',
+                'providers'       => [],
+            ]),
+            $fixtureDir . '/calendar-week-screen-empty.html',
+        ];
+
         yield 'patient/card/appointments with future appointments' => [
             'patient/card/appointments.html.twig',
             [
@@ -269,6 +394,11 @@ class TwigTemplateRenderTest extends TestCase
             fn () => '<!-- setupHeader stub -->',
             ['is_safe' => ['html']]
         ));
+
+        // PostCalendar templates use pc_sort_events and
+        // pc_event_time_anchor — register the extension that supplies
+        // them so calendar render cases parse and render correctly.
+        $twig->addExtension(new PostCalendarTwigExtension());
 
         self::$twig = $twig;
         return $twig;
