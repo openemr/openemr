@@ -1,4 +1,5 @@
 <?php
+
 /**
  * =======================================
  * OpenEMR Automated Configuration Script

@@ -3,25 +3,25 @@
 # ============================================================================
 # OpenEMR Development Tools Library
 # ============================================================================
-# 
+#
 # Purpose:
 #   This library provides utility functions for OpenEMR container development,
 #   testing, and maintenance tasks. Functions are designed to be sourced into
 #   other shell scripts.
-# 
+#
 # Note: This file uses bash-specific features ([[ ]]) and should be sourced
 #       by bash scripts. The shebang is /bin/sh for compatibility, but the
 #       actual shell used depends on the script that sources it.
-# 
+#
 # Usage:
 #   source /path/to/devtoolsLibrary.source
 #   prepareVariables
 #   resetOpenemr
-# 
+#
 # Environment Variables:
 #   The library uses various environment variables for database and OpenEMR
 #   configuration. See individual function documentation for details.
-# 
+#
 # ============================================================================
 
 # ============================================================================
@@ -253,16 +253,16 @@ upgradeOpenEMR() {
     # Create a modified version of sql_upgrade.php that auto-submits
     # Replace form submission check with 'true' to bypass user interaction
     sed -e "s@!empty(\$_POST\['form_submit'\])@true@" < /var/www/localhost/htdocs/openemr/sql_upgrade.php > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-    
+
     # Set the old version parameter directly instead of reading from POST
     sed -i "s@\$form_old_version = \$_POST\['form_old_version'\];@\$form_old_version = '${1}';@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-    
+
     # Inject site context at the beginning of the file
     sed -i "1s@^@<?php \$_GET['site'] = 'default'; ?>@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-    
+
     # Execute the modified upgrade script
     php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
-    
+
     # Clean up temporary file
     rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
 }
@@ -328,20 +328,20 @@ sqlDataDrive() {
 # ----------------------------------------------------------------------------
 backupOpenemr() {
     mkdir -p "/snapshots/${1}"
-    
+
     # Dump database (excluding onsite_activity_view which is a view, not a table)
     mariadb-dump --skip-ssl --ignore-table="${CUSTOM_DATABASE}".onsite_activity_view --hex-blob -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" > "/snapshots/${1}/backup.sql"
-    
+
     # Backup site files
     rsync --delete --recursive --links /var/www/localhost/htdocs/openemr/sites "/snapshots/${1}/"
-    
+
     # Backup CouchDB data
     rsync --delete --recursive --links /couchdb/data "/snapshots/${1}/"
-    
+
     # Create compressed archive
     cd /snapshots || exit
     tar -czf "${1}.tgz" "${1}"
-    
+
     # Remove temporary directory (archive contains everything)
     rm -fr "/snapshots/${1}"
 }
@@ -378,35 +378,35 @@ backupOpenemr() {
 # ----------------------------------------------------------------------------
 restoreOpenemr() {
     cd /snapshots || exit
-    
+
     # Extract backup archive
     tar -xzf "${1}.tgz"
-    
+
     # Drop all existing tables before restore (disable foreign key checks temporarily)
     # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
     mariadb-dump --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" --add-drop-table --no-data "${CUSTOM_DATABASE}" | grep ^DROP | awk ' BEGIN { print "SET FOREIGN_KEY_CHECKS=0;" } { print $0 } END { print "SET FOREIGN_KEY_CHECKS=1;" } ' | mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" || true
-    
+
     # Import database backup
     mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" < "/snapshots/${1}/backup.sql"
-    
+
     # Save current sqlconf.php before restoring sites (preserves database credentials)
     # This allows restoring backups from different environments while keeping current DB config
     sqlconf=$(cat /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php)
-    
+
     # Restore site files
     rsync --delete --recursive --links "/snapshots/${1}/sites" /var/www/localhost/htdocs/openemr/
-    
+
     # Restore original sqlconf.php (maintains current database connection)
     echo "${sqlconf}" > /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
-    
+
     # Fix ownership
     chown -R apache /var/www/localhost/htdocs/openemr/
-    
+
     # Restore CouchDB data if present in backup
     if [[ -d "/snapshots/${1}/data" ]]; then
         rsync --delete --recursive --links "/snapshots/${1}/data" /couchdb/
     fi
-    
+
     # Clean up extracted directory
     rm -fr "/snapshots/${1}"
 }
@@ -446,7 +446,7 @@ changeEncodingCollation() {
     # Single quotes intentionally used for SQL syntax - variables expand on server side
     # shellcheck disable=SC2016,SC2312  # Pipeline return value is intentionally ignored
     mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e 'SELECT concat("ALTER DATABASE `",TABLE_SCHEMA,"` CHARACTER SET = '"${1}"' COLLATE = '"${2}"';") as _sql FROM `information_schema`.`TABLES` where `TABLE_SCHEMA` like "'"${CUSTOM_DATABASE}"'" and `TABLE_TYPE`="BASE TABLE" group by `TABLE_SCHEMA`;' | grep '^ALTER' | mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" || true
-    
+
     # Generate and execute ALTER TABLE statements for all tables
     # Single quotes intentionally used for SQL syntax - variables expand on server side
     # shellcheck disable=SC2016,SC2312  # Pipeline return value is intentionally ignored
@@ -536,22 +536,22 @@ setupClientCert() {
     cp "/certs/${1}/Server.crt" /etc/ssl/certs/customclientbased.cert.pem
     rm -f /etc/ssl/certs/webserver.cert.pem
     ln -s /etc/ssl/certs/customclientbased.cert.pem /etc/ssl/certs/webserver.cert.pem
-    
+
     # Install server private key
     cp "/certs/${1}/Server.key" /etc/ssl/private/customclientbased.key.pem
     rm -f /etc/ssl/private/webserver.key.pem
     ln -s /etc/ssl/private/customclientbased.key.pem /etc/ssl/private/webserver.key.pem
-    
+
     # Install CA certificate
     cp "/certs/${1}/CertificateAuthority.crt" /etc/ssl/certs/CAcustomclientbased.cert.pem
     rm -f /etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem
     ln -s /etc/ssl/certs/CAcustomclientbased.cert.pem /etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem
-    
+
     # Install CA private key
     cp "/certs/${1}/CertificateAuthority.key" /etc/ssl/private/CAcustomclientbased.key.pem
     rm -f /etc/ssl/private/CAcustomclientbasedwebserver.key.pem
     ln -s /etc/ssl/private/CAcustomclientbased.key.pem /etc/ssl/private/CAcustomclientbasedwebserver.key.pem
-    
+
     # Clean up extracted files
     rm -fr "/certs/${1}"
     # configure apache

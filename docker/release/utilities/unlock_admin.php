@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ============================================================================
  * OpenEMR Admin Account Unlock and Password Reset Utility

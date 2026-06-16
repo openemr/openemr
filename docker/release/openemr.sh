@@ -112,7 +112,7 @@ wait_for_mysql() {
     local -i max_delay=5
     local -i current_delay=${initial_delay}
     echo "Waiting for MySQL at ${MYSQL_HOST}:${MYSQL_PORT}..."
-    
+
     # Try immediate connection first (MySQL might already be ready)
     # Use mysqladmin ping for more efficient health check
     if mysqladmin ping \
@@ -124,7 +124,7 @@ wait_for_mysql() {
         echo "MySQL is ready!"
         return 0
     fi
-    
+
     while (( retries-- > 0 )); do
         # Test database connectivity using mysqladmin ping
         if mysqladmin ping \
@@ -136,20 +136,20 @@ wait_for_mysql() {
             echo "MySQL is ready!"
             return 0
         fi
-        
+
         # Exponential backoff: start with shorter delays, increase gradually
         # Only print message every 10 seconds to reduce log noise
         if (( retries % 5 == 0 || current_delay <= 2 )); then
             echo "MySQL not ready yet, retrying in ${current_delay} seconds... (${retries} attempts remaining)"
         fi
         sleep "${current_delay}"
-        
+
         # Increase delay gradually (exponential backoff), but cap at max_delay
         if (( ++current_delay > max_delay )); then
             current_delay=${max_delay}
         fi
     done
-    
+
     echo "ERROR: Timed out waiting for MySQL at ${MYSQL_HOST}:${MYSQL_PORT}" >&2
     return 1
 }
@@ -160,13 +160,13 @@ wait_for_mysql() {
 wait_for_redis() {
     # Skip if Redis isn't configured
     [[ -z "${REDIS_SERVER:-}" ]] && return 0
-    
+
     # Parse Redis server address (format: "host:port" or just "host")
     local redis_host
     local redis_port
     IFS=: read -r redis_host redis_port _ <<< "${REDIS_SERVER}"
     redis_port="${redis_port:-6379}"  # Default Redis port
-    
+
     # Try to connect to Redis
     local -i retries=10
     while (( retries-- > 0 )); do
@@ -175,7 +175,7 @@ wait_for_redis() {
         fi
         sleep 1
     done
-    
+
     echo "Warning: Redis at ${REDIS_SERVER} not available, using file sessions" >&2
     return 1
 }
@@ -205,10 +205,10 @@ swarm_wait() {
 # leader is considered stale.
 is_leader_stale() {
     local leader_file="${OE_ROOT}/sites/docker-leader"
-    
+
     # No leader file means no active leader (not stale, just absent)
     [[ ! -f "${leader_file}" ]] && return 0
-    
+
     # Check file age
     local -i leader_timeout="${LEADER_TIMEOUT:-300}"  # Default: 5 minutes
     local -i now
@@ -216,7 +216,7 @@ is_leader_stale() {
     local -i leader_mtime
     leader_mtime=$(stat -c %Y "${leader_file}" 2>/dev/null || stat -f %m "${leader_file}" 2>/dev/null || echo 0)
     local -i age=$((now - leader_mtime))
-    
+
     # Leader is stale if file is older than timeout
     (( age > leader_timeout ))
 }
@@ -225,7 +225,7 @@ is_leader_stale() {
 # Only one container can be leader at a time. Uses file locking via noclobber.
 try_become_leader() {
     local leader_file="${OE_ROOT}/sites/docker-leader"
-    
+
     # If setup is already complete, nobody needs to be leader
     if [[ -f "${OE_ROOT}/sites/docker-completed" ]]; then
         AUTHORITY=no
@@ -240,7 +240,7 @@ try_become_leader() {
         rm -f "${leader_file}" "${OE_ROOT}/sites/docker-initiated"
         sleep 1  # Small delay to ensure file deletion is visible
     fi
-    
+
     # Try to create leader file atomically
     set -o noclobber
     if { date +%s > "${leader_file}"; } 2>/dev/null; then
@@ -282,7 +282,7 @@ handle_swarm_mode() {
         echo "Waiting for docker-leader to finish configuration (with timeout-based recovery)..."
         local -i max_wait_time="${LEADER_WAIT_TIMEOUT:-600}"  # Default: 10 minutes
         local -i waited=0
-        
+
         # Wait for setup completion with stale leader detection
         # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
         while swarm_wait && (( waited < max_wait_time )); do
@@ -299,13 +299,13 @@ handle_swarm_mode() {
             sleep 10
             (( waited += 10 ))
         done
-        
+
         # Try one more time to become leader (in case leader died just as we timed out)
         # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
         if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]] && try_become_leader; then
             echo "Promoted to leader after waiting period"
         fi
-        
+
         # If we timed out, check if configuration actually exists
         if [[ ! -f "${OE_ROOT}/sites/docker-completed" ]]; then
             local config_state
@@ -322,7 +322,7 @@ handle_swarm_mode() {
     if [[ "${AUTHORITY}" = "yes" ]]; then
         touch "${OE_ROOT}/sites/docker-initiated"
         update_leader_heartbeat
-        
+
         # Restore swarm-pieces if needed (for swarm mode with empty volumes)
         if [[ ! -f /etc/ssl/openssl.cnf ]]; then
             echo "Restoring empty /etc/ssl directory..."
@@ -344,7 +344,7 @@ handle_swarm_mode() {
 manage_certificates() {
     local certs_dir="/root/certs"
     local dest_dir="${OE_ROOT}/sites/default/documents/certificates"
-    
+
     # Create destination directory if it doesn't exist
     mkdir -p "${dest_dir}"
 
@@ -426,7 +426,7 @@ manage_certificates() {
 configure_redis_sessions() {
     # Skip if Redis isn't configured
     [[ -z "${REDIS_SERVER:-}" ]] && return 0
-    
+
     # Wait for Redis to be available
     # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
     if ! wait_for_redis; then
@@ -438,10 +438,10 @@ configure_redis_sessions() {
     local redis_port
     IFS=: read -r redis_host redis_port _ <<< "${REDIS_SERVER}"
     redis_port="${redis_port:-6379}"
-    
+
     local redis_path="${redis_host}:${redis_port}"
     local get_connector="?"
-    
+
     if [[ -n "${REDIS_USERNAME:-}" && -n "${REDIS_PASSWORD:-}" ]]; then
         redis_path="${redis_path}?auth[user]=${REDIS_USERNAME}\&auth[pass]=${REDIS_PASSWORD}"
         get_connector="\&"
@@ -468,7 +468,7 @@ configure_redis_sessions() {
         echo "session.save_handler = redis"
         echo "session.save_path = \"${redis_path}\""
     } > "/etc/php${PHP_VERSION_ABBR}/conf.d/99-redis-sessions.ini"
-    
+
     # Only create marker file if configuration was successful
     # This prevents false positives when Redis is unavailable
     touch /etc/php-redis-configured
@@ -512,10 +512,10 @@ check_upgrade() {
 # Updates leader heartbeat periodically during execution to prevent stale leader detection.
 run_upgrade() {
     echo "Starting OpenEMR upgrade process..."
-    
+
     # Update heartbeat before starting upgrade
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-    
+
     # Verify OpenEMR is configured before upgrading
     local config_state
     config_state=$(is_configured)
@@ -526,16 +526,16 @@ run_upgrade() {
 
     # Wait for MySQL to be available
     wait_for_mysql
-    
+
     # Update heartbeat after MySQL wait
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-    
+
     # Read version numbers
     local docker_version_root
     docker_version_root=$(cat /root/docker-version 2>/dev/null || echo 0)
     local docker_version_sites
     docker_version_sites=$(cat "${OE_ROOT}/sites/default/docker-version" 2>/dev/null || echo 0)
-    
+
     # Run filesystem upgrade scripts in sequence
     local c=${docker_version_sites}
     while [[ "${c}" -le "${docker_version_root}" ]]; do
@@ -550,14 +550,14 @@ run_upgrade() {
         fi
         (( c++ ))
     done
-    
+
     # Update version marker
     echo -n "${docker_version_root}" > "${OE_ROOT}/sites/default/docker-version"
     echo "Version marker updated to: ${docker_version_root}"
-    
+
     # Final heartbeat update
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-    
+
     echo "OpenEMR upgrade completed successfully"
 }
 
@@ -574,7 +574,7 @@ run_auto_configure() {
 
     # Update heartbeat before starting long-running operation
     [[ "${AUTHORITY}" = "yes" ]] && update_leader_heartbeat
-    
+
     # Create temporary file cache directory for opcache
     TMP_FILE_CACHE_LOCATION="/tmp/php-file-cache"
     mkdir -p "${TMP_FILE_CACHE_LOCATION}"
@@ -626,7 +626,7 @@ run_auto_configure() {
 cleanup_setup_scripts() {
     local config_state
     config_state=$(is_configured)
-    
+
     # Only remove setup scripts if OpenEMR is configured
     if [[ "${config_state}" = "1" ]] && [[ -f "${AUTO_CONFIG}" ]]; then
         echo "Removing setup scripts (keeping upgrade scripts for future upgrades)..."
@@ -737,7 +737,7 @@ if [[ "${AUTHORITY}" = "yes" ]]; then
             wait_for_redis &
             REDIS_WAIT_PID=$!
         fi
-        
+
         echo "Running quick setup!"
         setup_retries=0
         setup_delay=1
@@ -764,13 +764,13 @@ if [[ "${AUTHORITY}" = "yes" ]]; then
                 setup_delay=2
             fi
         done
-        
+
         # Wait for Redis wait process to complete if it was started
         if [[ -n "${REDIS_WAIT_PID:-}" ]]; then
             wait "${REDIS_WAIT_PID}" 2>/dev/null || true
             unset REDIS_WAIT_PID
         fi
-        
+
         AUTO_CONFIG_END=$(date +%s.%N 2>/dev/null || date +%s)
         AUTO_CONFIG_DURATION=0
         if command -v python3 >/dev/null 2>&1; then
@@ -780,13 +780,13 @@ if [[ "${AUTHORITY}" = "yes" ]]; then
         fi
         echo "[TIMING] Auto-configuration took ${AUTO_CONFIG_DURATION}s"
         echo "Setup Complete!"
-        
+
         # Set global settings from environment variables
         # Ensure variables are prepared before calling setGlobalSettings
         prepareVariables
         # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
         setGlobalSettings || true
-        
+
         # Create version markers after successful installation
         if [[ -f /root/docker-version ]]; then
             installed_version=$(cat /root/docker-version 2>/dev/null || echo 0)
@@ -836,7 +836,7 @@ if [[ -n "${REDIS_SERVER:-}" ]] && [[ ! -f /etc/php-redis-configured ]]; then
       apk del --no-cache git "php${PHP_VERSION_ABBR}-dev" gcc make g++
       cd "${OE_ROOT}"
     fi
-    
+
     # Only create marker if configuration succeeds
     # shellcheck disable=SC2310  # set -e behavior in conditionals is intentional
     if configure_redis_sessions; then
@@ -855,20 +855,20 @@ if [[ "${AUTHORITY}" = "yes" ]] || [[ "${SWARM_MODE}" = "yes" ]]; then
     if [[ "${CONFIG}" = "1" ]] && [[ "${MANUAL_SETUP}" != "yes" ]]; then
         if [[ -f "${AUTO_CONFIG}" ]]; then
             # This section only runs once after initial setup since auto_configure.php gets removed
-            
+
             echo "Finalizing file permissions after setup..."
-            
+
             # Lock down sqlconf.php (was writable during setup, now secure it)
             chmod 400 sites/default/sqlconf.php 2>/dev/null || true
-            
+
             # Lock down sites/default directory
             chmod 500 sites/default 2>/dev/null || true
-            
+
             # Ensure openemr.sh stays executable
             chmod 700 openemr.sh 2>/dev/null || true
-            
+
             echo "File permissions finalized"
-            
+
             cleanup_setup_scripts
         fi
     fi

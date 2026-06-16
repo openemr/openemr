@@ -94,17 +94,17 @@ if [[ "${DOMAIN:-}" != "" ]]; then
         # Start Apache temporarily for Let's Encrypt validation
         /usr/sbin/httpd -k start
         sleep 2
-        
+
         # Request certificate using webroot validation method
         if [[ -n "${EMAIL_ARG:-}" ]]; then
             certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d "${DOMAIN}" "${EMAIL_ARG}" --agree-tos
         else
             certbot certonly --webroot -n -w /var/www/localhost/htdocs/openemr/ -d "${DOMAIN}" --agree-tos
         fi
-        
+
         # Stop Apache (it will be started again by openemr.sh)
         /usr/sbin/httpd -k stop
-        
+
         # Schedule automatic renewal via cron (runs daily at 23:01)
         # The renewal uses graceful restart to avoid downtime
         echo "1 23  *   *   *   certbot renew -q --post-hook \"httpd -k graceful\"" >> /etc/crontabs/root

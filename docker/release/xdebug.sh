@@ -37,7 +37,7 @@ fi
 
 if [[ ! -f /etc/php-xdebug-configured ]]; then
     echo "Installing and configuring XDebug..."
-    
+
     # Install XDebug extension from Alpine package repository
     apk update
     apk add --no-cache "php${PHP_VERSION_ABBR?}-pecl-xdebug"
@@ -66,7 +66,7 @@ if [[ ! -f /etc/php-xdebug-configured ]]; then
         echo "; Automatically discover the client host (useful for Docker)"
         echo "xdebug.discover_client_host=1"
         echo ""
-        
+
         # Configure debugging mode (with optional profiling)
         if [[ "${XDEBUG_PROFILER_ON:-}" = 1 ]]; then
             echo "; Enable both debugging and profiling"
@@ -79,25 +79,25 @@ if [[ ! -f /etc/php-xdebug-configured ]]; then
             echo "xdebug.mode=debug"
         fi
         echo ""
-        
+
         # Configure client connection settings
         echo "; Port for debugging connection (default: 9003)"
         echo "xdebug.client_port=${XDEBUG_CLIENT_PORT:-9003}"
-        
+
         # Override client host if explicitly set (useful for Docker networking)
         if [[ "${XDEBUG_CLIENT_HOST:-}" != "" ]]; then
             echo ""
             echo "; Explicitly set client host (overrides auto-discovery)"
             echo "xdebug.client_host=${XDEBUG_CLIENT_HOST}"
         fi
-        
+
         # Set IDE key if provided (used by some IDEs to identify debugging sessions)
         if [[ "${XDEBUG_IDE_KEY:-}" != "" ]]; then
             echo ""
             echo "; IDE key for debugging session identification"
             echo "xdebug.idekey=${XDEBUG_IDE_KEY}"
         fi
-        
+
         echo ""
         echo "; ========================================================================"
         echo "; End XDebug Configuration"
