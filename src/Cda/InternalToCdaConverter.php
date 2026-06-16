@@ -266,11 +266,15 @@ class InternalToCdaConverter
         $name->setAttribute('use', 'L');
         $lname = $this->xpathValue('/CCDA/patient/lname');
         $fname = $this->xpathValue('/CCDA/patient/fname');
+        $mname = $this->xpathValue('/CCDA/patient/mname');
         if ($lname !== '') {
             $name->appendChild($this->createElement('family', $lname));
         }
         if ($fname !== '') {
             $name->appendChild($this->createElement('given', $fname));
+        }
+        if ($mname !== '') {
+            $name->appendChild($this->createElement('given', $mname));
         }
         $patient->appendChild($name);
 
@@ -1676,9 +1680,10 @@ class InternalToCdaConverter
 
         $index = 1;
         foreach ($medications as $med) {
+            $startDate = $this->xpathValue('start_date_formatted', $med);
             $this->appendTableRow(
                 $table,
-                [$this->xpathValue('drug', $med), '0', date('Y-m-d')],
+                [$this->xpathValue('drug', $med), '0', $startDate !== '' ? $startDate : date('Y-m-d')],
                 'medinfo' . $index,
             );
             $index++;
@@ -1744,6 +1749,8 @@ class InternalToCdaConverter
         if ($route !== '') {
             $routeCode->setAttribute('code', $route);
             $routeCode->setAttribute('codeSystem', '2.16.840.1.113883.3.26.1.1');
+            $routeCode->setAttribute('codeSystemName', 'Medication Route FDA');
+            $routeCode->setAttribute('displayName', $this->getRouteDisplayName($route));
         } else {
             $routeCode->setAttribute('nullFlavor', 'UNK');
         }
@@ -1976,15 +1983,19 @@ class InternalToCdaConverter
         $title = $this->xpathValue('title', $problem);
         $problemCode = $this->xpathValue('code', $problem);
         $codeType = $this->xpathValue('code_type', $problem);
-        $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
-        $normalizedCode = $this->normalizeCodeForSystem($problemCode, $codeType);
 
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-        $value->setAttribute('code', $normalizedCode);
-        $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
-        $value->setAttribute('codeSystemName', $codeSystemInfo['name']);
-        $value->setAttribute('displayName', $title);
+        if ($problemCode !== '') {
+            $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
+            $normalizedCode = $this->normalizeCodeForSystem($problemCode, $codeType);
+            $value->setAttribute('code', $normalizedCode);
+            $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
+            $value->setAttribute('codeSystemName', $codeSystemInfo['name']);
+            $value->setAttribute('displayName', $title);
+        } else {
+            $value->setAttribute('nullFlavor', 'UNK');
+        }
         $obs->appendChild($value);
 
         $authorEl = $this->xpath('author', $problem)->item(0);
@@ -2156,22 +2167,27 @@ class InternalToCdaConverter
         foreach ($procedures as $proc) {
             $description = $this->xpathValue('description', $proc);
             $code = $this->xpathValue('code', $proc);
+            $codeType = $this->xpathValue('code_type', $proc);
             $date = $this->xpathValue('date', $proc);
-            $fname = $this->xpathValue('fname', $proc);
-            $lname = $this->xpathValue('lname', $proc);
-            $provider = ($fname !== '' || $lname !== '') ? trim("$fname $lname") : 'No Data Available';
+            $facilityName = $this->xpathValue('facility_name', $proc);
+            $facilityPhone = $this->xpathValue('facility_phone', $proc);
+
+            // ICD9 codes have dots removed
+            if ($codeType === 'ICD9') {
+                $code = str_replace('.', '', $code);
+            }
 
             $tbody = $this->createElement('tbody');
             $row = $this->createElement('tr');
 
-            $cell1 = $this->createElement('td', $description);
+            $cell1 = $this->createElement('td', $description !== '' ? $description : 'No Data Available');
             $cell1->setAttribute('ID', 'procedure' . $index);
             $row->appendChild($cell1);
 
             $row->appendChild($this->createElement('td', $code));
             $row->appendChild($this->createElement('td', $date));
-            $row->appendChild($this->createElement('td', $provider));
-            $row->appendChild($this->createElement('td', 'No Data Available'));
+            $row->appendChild($this->createElement('td', $facilityName !== '' ? $facilityName : 'No Data Available'));
+            $row->appendChild($this->createElement('td', $facilityPhone !== '' ? $facilityPhone : 'No Data Available'));
 
             $tbody->appendChild($row);
             $table->appendChild($tbody);
@@ -2204,10 +2220,22 @@ class InternalToCdaConverter
         $description = $this->xpathValue('description', $proc);
         $codeType = $this->xpathValue('code_type', $proc);
         $code = $this->createElement('code');
-        $code->setAttribute('code', $codeVal);
-        $code->setAttribute('displayName', $description);
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-        $code->setAttribute('codeSystemName', $codeType);
+        // Normalize code and set attributes based on code type
+        if ($codeType === 'CPT4') {
+            $code->setAttribute('code', $codeVal);
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.12');
+            $code->setAttribute('codeSystemName', $codeType);
+        } elseif ($codeType === 'ICD9') {
+            // ICD9 codes have dots removed and no codeSystem attribute
+            $code->setAttribute('code', str_replace('.', '', $codeVal));
+            $code->setAttribute('displayName', $description);
+            $code->setAttribute('codeSystemName', $codeType);
+        } else {
+            $code->setAttribute('code', $codeVal);
+            $code->setAttribute('displayName', $description);
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $code->setAttribute('codeSystemName', $codeType);
+        }
         $origText = $this->createElement('originalText');
         $ref = $this->createElement('reference');
         $ref->setAttribute('value', '#procedure' . $index);
@@ -2237,14 +2265,22 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
+        $results = $this->xpath('/CCDA/results/result');
+        if ($results->length === 0) {
+            $section->setAttribute('nullFlavor', 'NI');
+        }
+
         $this->appendVersionedTemplateId($section, '2.16.840.1.113883.10.20.22.2.3.1', '2015-08-01');
 
         $section->appendChild($this->createLoincCode('30954-2', 'Relevant Dx tests/lab data'));
         $section->appendChild($this->createElement('title', 'Relevant Dx tests/lab data'));
 
-        $results = $this->xpath('/CCDA/results/result');
-        $this->appendResultsNarrative($section, $results);
-        $this->appendResultsEntry($section, $results);
+        if ($results->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendResultsNarrative($section, $results);
+            $this->appendResultsEntry($section, $results);
+        }
 
         $this->appendSection($structuredBody, $component, $section);
     }
@@ -2523,9 +2559,9 @@ class InternalToCdaConverter
 
         $index = 1;
         foreach ($encounters as $enc) {
-            $description = $this->xpathValue('code_description', $enc);
+            $visitCategory = $this->xpathValue('visit_category', $enc);
             $reason = $this->xpathValue('encounter_reason', $enc);
-            $displayText = "$description | $reason";
+            $displayText = "$visitCategory | $reason";
             $date = $this->xpathValue('date', $enc);
             // Format date as MM/DD/YYYY
             $dateFormatted = $this->formatEncounterDate($date);
@@ -2537,7 +2573,8 @@ class InternalToCdaConverter
             $cell1->setAttribute('ID', 'Encounter' . $index);
             $row->appendChild($cell1);
 
-            $row->appendChild($this->createElement('td', 'No Data Available'));
+            $facilityName = $this->xpathValue('/CCDA/encounter_provider/facility_name');
+            $row->appendChild($this->createElement('td', $facilityName !== '' ? $facilityName : 'No Data Available'));
             $row->appendChild($this->createElement('td', $dateFormatted));
             $row->appendChild($this->createElement('td', 'No Data Available'));
 
@@ -2581,10 +2618,10 @@ class InternalToCdaConverter
         $encounter->appendChild($id);
 
         $procedureCode = $this->xpathValue('encounter_procedures/procedures/code', $enc);
-        $description = $this->xpathValue('code_description', $enc);
+        $visitCategory = $this->xpathValue('visit_category', $enc);
         $reason = $this->xpathValue('encounter_reason', $enc);
         $codeType = $this->xpathValue('encounter_procedures/procedures/code_type', $enc);
-        $displayText = "$description | $reason";
+        $displayText = "$visitCategory | $reason";
 
         $code = $this->createElement('code');
         // Node.js uses encounter_procedures.procedures.code with fallback to 185347001
@@ -2673,19 +2710,45 @@ class InternalToCdaConverter
         $locationDetails = $this->xpathValue('location_details', $enc);
         $code = $this->createElement('code');
         $code->setAttribute('code', '1160-1');
-        // Node.js service includes trailing space in location display
-        $code->setAttribute('displayName', $locationDetails . ' ');
+        $code->setAttribute('displayName', $locationDetails);
         $code->setAttribute('codeSystem', '2.16.840.1.113883.6.259');
         $code->setAttribute('codeSystemName', 'HealthcareServiceLocation');
         $role->appendChild($code);
 
+        // Address from encounter provider facility
+        $street = $this->xpathValue('/CCDA/encounter_provider/facility_street');
+        $city = $this->xpathValue('/CCDA/encounter_provider/facility_city');
+        $state = $this->xpathValue('/CCDA/encounter_provider/facility_state');
+        $postalCode = $this->xpathValue('/CCDA/encounter_provider/facility_postal_code');
+        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country');
         $addr = $this->createElement('addr');
-        $addr->appendChild($this->createElement('country', 'US'));
+        if ($street !== '') {
+            $addr->appendChild($this->createElement('streetAddressLine', $street));
+        }
+        if ($city !== '') {
+            $addr->appendChild($this->createElement('city', $city));
+        }
+        if ($state !== '') {
+            $addr->appendChild($this->createElement('state', $state));
+        }
+        if ($postalCode !== '') {
+            $addr->appendChild($this->createElement('postalCode', $postalCode));
+        }
+        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'USA'));
         $role->appendChild($addr);
+
+        // Telecom
+        $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('use', 'WP');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $role->appendChild($telecom);
+        }
 
         $playingEntity = $this->createElement('playingEntity');
         $playingEntity->setAttribute('classCode', 'PLC');
-        $facilityName = $this->xpathValue('facility_name', $enc);
+        $facilityName = $this->xpathValue('/CCDA/encounter_provider/facility_name');
         $playingEntity->appendChild($this->createElement('name', $facilityName !== '' ? $facilityName : null));
         $role->appendChild($playingEntity);
 
@@ -2698,19 +2761,27 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
+        $immunizations = $this->xpath('/CCDA/immunizations/immunization');
+        if ($immunizations->length === 0) {
+            $section->setAttribute('nullFlavor', 'NI');
+        }
+
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.2');
         $this->appendTemplateId($section, '2.16.840.1.113883.10.20.22.2.2.1');
 
         $section->appendChild($this->createLoincCode('11369-6', 'Immunizations'));
         $section->appendChild($this->createElement('title', 'Immunizations'));
 
-        $immunizations = $this->xpath('/CCDA/immunizations/immunization');
-        $this->appendImmunizationsNarrative($section, $immunizations);
+        if ($immunizations->length === 0) {
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendImmunizationsNarrative($section, $immunizations);
 
-        $index = 1;
-        foreach ($immunizations as $imm) {
-            $this->appendImmunizationEntry($section, $imm, $index);
-            $index++;
+            $index = 1;
+            foreach ($immunizations as $imm) {
+                $this->appendImmunizationEntry($section, $imm, $index);
+                $index++;
+            }
         }
 
         $this->appendSection($structuredBody, $component, $section);
@@ -4175,17 +4246,44 @@ class InternalToCdaConverter
     private function appendPayersNarrative(DOMElement $section, \DOMNodeList $payers): void
     {
         $text = $this->createElement('text');
-        $table = $this->createNarrativeTable(['Payer', 'Policy Type', 'Member ID']);
+        $table = $this->createElement('table');
+        $table->setAttribute('width', '100%');
+        $table->setAttribute('border', '1');
 
-        $index = 1;
+        // Two header rows matching Node.js blue-button-generate
+        $thead = $this->createElement('thead');
+        $tr1 = $this->createElement('tr');
+        $th1 = $this->createElement('th', 'Health Insurance Providers');
+        $th1->setAttribute('colspan', '5');
+        $tr1->appendChild($th1);
+        $thead->appendChild($tr1);
+
+        $tr2 = $this->createElement('tr');
+        $tr2->appendChild($this->createElement('th', 'Payer Name'));
+        $tr2->appendChild($this->createElement('th', 'Group ID'));
+        $tr2->appendChild($this->createElement('th', 'Member ID'));
+        $tr2->appendChild($this->createElement('th', 'Elegibility Start Date'));
+        $tr2->appendChild($this->createElement('th', 'Elegibility End Date'));
+        $thead->appendChild($tr2);
+        $table->appendChild($thead);
+
+        $tbody = $this->createElement('tbody');
         foreach ($payers as $payer) {
             $orgName = $this->xpathValue('policy/insurance/performer/organization/name', $payer);
-            $policyType = $this->xpathValue('policy/code/name', $payer);
-            $memberId = $this->xpathValue('participant/code/name', $payer);
+            $groupId = $this->xpathValue('policy/identifiers/extension', $payer);
+            $memberId = $this->xpathValue('participant/performer/identifiers/extension', $payer);
+            $startDate = $this->xpathValue('participant/time_low', $payer);
+            $endDate = $this->xpathValue('participant/time_high', $payer);
 
-            $this->appendTableRow($table, [$orgName, $policyType, $memberId], 'payer' . $index);
-            $index++;
+            $tr = $this->createElement('tr');
+            $tr->appendChild($this->createElement('td', $orgName));
+            $tr->appendChild($this->createElement('td', $groupId));
+            $tr->appendChild($this->createElement('td', $memberId));
+            $tr->appendChild($this->createElement('td', $startDate));
+            $tr->appendChild($this->createElement('td', $endDate !== '' ? $endDate : date('Y-m-d')));
+            $tbody->appendChild($tr);
         }
+        $table->appendChild($tbody);
 
         $text->appendChild($table);
         $section->appendChild($text);
@@ -4248,23 +4346,34 @@ class InternalToCdaConverter
         $id->setAttribute('extension', $policyExt);
         $policyAct->appendChild($id);
 
-        // Code - policy type
-        $policyCode = $this->xpathValue('policy/code/code', $payer);
-        $policyName = $this->xpathValue('policy/code/name', $payer);
+        // Code - policy type (attributes on the code element)
+        $policyCode = $this->xpathValue('policy/code/@code', $payer);
+        $policyName = $this->xpathValue('policy/code/@name', $payer);
+        $policyCodeSystem = $this->xpathValue('policy/code/@code_system', $payer);
+        $policyCodeSystemName = $this->xpathValue('policy/code/@code_system_name', $payer);
         $code = $this->createElement('code');
         $code->setAttribute('code', $policyCode !== '' ? $policyCode : '72');
         $code->setAttribute('displayName', $policyName !== '' ? $policyName : 'Self');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.3.221.5');
-        $code->setAttribute('codeSystemName', 'Source of Payment Typology');
+        $code->setAttribute('codeSystem', $policyCodeSystem !== '' ? $policyCodeSystem : '2.16.840.1.113883.3.221.5');
+        $code->setAttribute('codeSystemName', $policyCodeSystemName !== '' ? $policyCodeSystemName : 'Insurance Type Code');
         $policyAct->appendChild($code);
 
         $this->appendStatusCode($policyAct, ActStatus::Completed);
 
-        // Performer - Insurance
+        // Performer - Insurance (Payer)
         $this->appendPayerPerformer($policyAct, $payer);
 
-        // Participant - Covered party
+        // Performer - Guarantor
+        $this->appendGuarantorPerformer($policyAct, $payer);
+
+        // Participant - Covered party (COV)
         $this->appendPayerParticipant($policyAct, $payer);
+
+        // Participant - Policy Holder (HLD)
+        $this->appendPolicyHolderParticipant($policyAct, $payer);
+
+        // EntryRelationship - Policy Reference
+        $this->appendPolicyReference($policyAct, $payer);
 
         $entryRel->appendChild($policyAct);
         $act->appendChild($entryRel);
@@ -4285,31 +4394,53 @@ class InternalToCdaConverter
         $id->setAttribute('root', $performerId !== '' ? $performerId : 'NI');
         $assignedEntity->appendChild($id);
 
-        // Code
+        // Code - read from input or default
+        $insuranceCode = $this->xpathValue('policy/insurance/code/code', $payer);
+        $insuranceCodeSystem = $this->xpathValue('policy/insurance/code/code_system', $payer);
+        $insuranceCodeSystemName = $this->xpathValue('policy/insurance/code/code_system_name', $payer);
+        $insuranceName = $this->xpathValue('policy/insurance/code/name', $payer);
         $code = $this->createElement('code');
-        $code->setAttribute('code', 'PAYOR');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.110');
-        $code->setAttribute('codeSystemName', 'HL7 RoleCode');
-        $code->setAttribute('displayName', 'Payor');
+        $code->setAttribute('code', $insuranceCode !== '' ? $insuranceCode : 'PAYOR');
+        $code->setAttribute('displayName', $insuranceName !== '' ? $insuranceName : 'Invoice Payor');
+        $code->setAttribute('codeSystem', $insuranceCodeSystem !== '' ? $insuranceCodeSystem : '2.16.840.1.113883.5.110');
+        $code->setAttribute('codeSystemName', $insuranceCodeSystemName !== '' ? $insuranceCodeSystemName : 'RoleCode');
         $assignedEntity->appendChild($code);
 
         // Address
-        $addr = $this->createElement('addr');
         $street = $this->xpathValue('policy/insurance/performer/address/street_lines', $payer);
         $city = $this->xpathValue('policy/insurance/performer/address/city', $payer);
         $state = $this->xpathValue('policy/insurance/performer/address/state', $payer);
         $zip = $this->xpathValue('policy/insurance/performer/address/zip', $payer);
-        $addr->appendChild($this->createElement('streetAddressLine', $street !== '' ? $street : null));
-        $addr->appendChild($this->createElement('city', $city !== '' ? $city : null));
-        $addr->appendChild($this->createElement('state', $state !== '' ? $state : null));
-        $addr->appendChild($this->createElement('postalCode', $zip !== '' ? $zip : null));
-        $assignedEntity->appendChild($addr);
+        $country = $this->xpathValue('policy/insurance/performer/address/country', $payer);
+        if ($street !== '' || $city !== '') {
+            $addr = $this->createElement('addr');
+            $addr->setAttribute('use', 'WP');
+            if ($street !== '') {
+                $addr->appendChild($this->createElement('streetAddressLine', $street));
+            }
+            if ($city !== '') {
+                $addr->appendChild($this->createElement('city', $city));
+            }
+            if ($state !== '') {
+                $addr->appendChild($this->createElement('state', $state));
+            }
+            if ($zip !== '') {
+                $addr->appendChild($this->createElement('postalCode', $zip));
+            }
+            if ($country !== '') {
+                $addr->appendChild($this->createElement('country', $country));
+            }
+            $assignedEntity->appendChild($addr);
+        }
 
         // Phone
         $phone = $this->xpathValue('policy/insurance/performer/phone/number', $payer);
-        $telecom = $this->createElement('telecom');
-        $telecom->setAttribute('value', $phone !== '' ? 'tel:' . $phone : '');
-        $assignedEntity->appendChild($telecom);
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $telecom->setAttribute('use', 'WP');
+            $assignedEntity->appendChild($telecom);
+        }
 
         // Organization
         $orgName = $this->xpathValue('policy/insurance/performer/organization/name', $payer);
@@ -4326,46 +4457,281 @@ class InternalToCdaConverter
         $participant = $this->createElement('participant');
         $participant->setAttribute('typeCode', 'COV');
 
-        // Template ID for Coverage Target
         $this->appendTemplateId($participant, '2.16.840.1.113883.10.20.22.4.89');
 
-        // Time
+        // Time - always include both low and high
         $timeLow = $this->xpathValue('participant/time_low', $payer);
         $timeHigh = $this->xpathValue('participant/time_high', $payer);
-        if ($timeLow !== '' || $timeHigh !== '') {
-            $time = $this->createElement('time');
-            if ($timeLow !== '') {
-                $low = $this->createElement('low');
-                $low->setAttribute('value', $this->formatDateOnly($timeLow));
-                $time->appendChild($low);
-            }
-            if ($timeHigh !== '') {
-                $high = $this->createElement('high');
-                $high->setAttribute('value', $this->formatDateOnly($timeHigh));
-                $time->appendChild($high);
-            }
-            $participant->appendChild($time);
-        }
+        $time = $this->createElement('time');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $timeLow !== '' ? $this->formatDateOnly($timeLow) : date('Ymd'));
+        $time->appendChild($low);
+        $high = $this->createElement('high');
+        $high->setAttribute('value', $timeHigh !== '' ? $this->formatDateOnly($timeHigh) : date('Ymd'));
+        $time->appendChild($high);
+        $participant->appendChild($time);
 
         $participantRole = $this->createElement('participantRole');
         $participantRole->setAttribute('classCode', 'PAT');
 
-        $participantId = $this->xpathValue('participant/code/code', $payer);
+        // ID from participant/performer/identifiers
+        $participantIdRoot = $this->xpathValue('participant/performer/identifiers/identifier', $payer);
+        $participantIdExt = $this->xpathValue('participant/performer/identifiers/extension', $payer);
         $id = $this->createElement('id');
-        $id->setAttribute('root', '2.16.840.1.113883.4.3.6');
-        $id->setAttribute('extension', $participantId);
+        $id->setAttribute('root', $participantIdRoot !== '' ? $participantIdRoot : 'NI');
+        $id->setAttribute('extension', $participantIdExt);
         $participantRole->appendChild($id);
 
-        // Code
+        // Code from participant/code - use Insurance Type Code system
+        $codeValue = $this->xpathValue('participant/code/code', $payer);
+        $codeName = $this->xpathValue('participant/code/name', $payer);
+        $codeSystem = $this->xpathValue('participant/code/code_system', $payer);
+        $codeSystemName = $this->xpathValue('participant/code/code_system_name', $payer);
         $code = $this->createElement('code');
-        $code->setAttribute('code', 'SELF');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.111');
-        $code->setAttribute('codeSystemName', 'HL7 RoleCode');
-        $code->setAttribute('displayName', 'Self');
+        $code->setAttribute('code', $codeValue !== '' ? $codeValue : 'SELF');
+        $code->setAttribute('displayName', $codeName !== '' ? $codeName : 'Self');
+        // Remove quotes if present in code_system
+        $codeSystem = trim($codeSystem, '"');
+        $code->setAttribute('codeSystem', $codeSystem !== '' ? $codeSystem : '2.16.840.1.113883.3.221.5');
+        $code->setAttribute('codeSystemName', $codeSystemName !== '' ? $codeSystemName : 'Insurance Type Code');
         $participantRole->appendChild($code);
+
+        // Address from participant/performer/address
+        $street = $this->xpathValue('participant/performer/address/street_lines', $payer);
+        $city = $this->xpathValue('participant/performer/address/city', $payer);
+        $state = $this->xpathValue('participant/performer/address/state', $payer);
+        $zip = $this->xpathValue('participant/performer/address/zip', $payer);
+        $country = $this->xpathValue('participant/performer/address/country', $payer);
+        if ($street !== '' || $city !== '') {
+            $addr = $this->createElement('addr');
+            $addr->setAttribute('use', 'HP');
+            if ($street !== '') {
+                $addr->appendChild($this->createElement('streetAddressLine', $street));
+            }
+            if ($city !== '') {
+                $addr->appendChild($this->createElement('city', $city));
+            }
+            if ($state !== '') {
+                $addr->appendChild($this->createElement('state', $state));
+            }
+            if ($zip !== '') {
+                $addr->appendChild($this->createElement('postalCode', $zip));
+            }
+            if ($country !== '') {
+                $addr->appendChild($this->createElement('country', $country));
+            }
+            $participantRole->appendChild($addr);
+        }
+
+        // PlayingEntity with name and birthTime
+        $firstName = $this->xpathValue('participant/name/first', $payer);
+        $middleName = $this->xpathValue('participant/name/middle', $payer);
+        $lastName = $this->xpathValue('participant/name/last', $payer);
+        $birthTime = $this->xpathValue('/CCDA/patient/dob');
+        if ($firstName !== '' || $lastName !== '') {
+            $playingEntity = $this->createElement('playingEntity');
+            $name = $this->createElement('name');
+            if ($lastName !== '') {
+                $name->appendChild($this->createElement('family', $lastName));
+            }
+            if ($firstName !== '') {
+                $name->appendChild($this->createElement('given', $firstName));
+            }
+            if ($middleName !== '') {
+                $name->appendChild($this->createElement('given', $middleName));
+            }
+            $playingEntity->appendChild($name);
+
+            if ($birthTime !== '') {
+                $bt = $this->output->createElementNS(self::NS_SDTC, 'sdtc:birthTime');
+                $bt->setAttribute('value', $this->formatDateOnly($birthTime));
+                $playingEntity->appendChild($bt);
+            }
+            $participantRole->appendChild($playingEntity);
+        }
 
         $participant->appendChild($participantRole);
         $policyAct->appendChild($participant);
+    }
+
+    private function appendGuarantorPerformer(DOMElement $policyAct, DOMElement $payer): void
+    {
+        $guarantorId = $this->xpathValue('guarantor/identifiers/identifier', $payer);
+        if ($guarantorId === '') {
+            return;
+        }
+
+        $performer = $this->createElement('performer');
+        $performer->setAttribute('typeCode', 'PRF');
+
+        $this->appendTemplateId($performer, '2.16.840.1.113883.10.20.22.4.88');
+
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $guarantorId);
+        $assignedEntity->appendChild($id);
+
+        // Code - GUAR
+        $code = $this->createElement('code');
+        $code->setAttribute('code', 'GUAR');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.110');
+        $code->setAttribute('codeSystemName', 'HL7 Role');
+        $assignedEntity->appendChild($code);
+
+        // Address
+        $street = $this->xpathValue('guarantor/address/street_lines', $payer);
+        $city = $this->xpathValue('guarantor/address/city', $payer);
+        $state = $this->xpathValue('guarantor/address/state', $payer);
+        $zip = $this->xpathValue('guarantor/address/zip', $payer);
+        $country = $this->xpathValue('guarantor/address/country', $payer);
+        if ($street !== '' || $city !== '') {
+            $addr = $this->createElement('addr');
+            $addr->setAttribute('use', 'HP');
+            if ($street !== '') {
+                $addr->appendChild($this->createElement('streetAddressLine', $street));
+            }
+            if ($city !== '') {
+                $addr->appendChild($this->createElement('city', $city));
+            }
+            if ($state !== '') {
+                $addr->appendChild($this->createElement('state', $state));
+            }
+            if ($zip !== '') {
+                $addr->appendChild($this->createElement('postalCode', $zip));
+            }
+            if ($country !== '') {
+                $addr->appendChild($this->createElement('country', $country));
+            }
+            $assignedEntity->appendChild($addr);
+        }
+
+        // Telecom
+        $phone = $this->xpathValue('guarantor/phone/number', $payer);
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $telecom->setAttribute('use', 'HP');
+            $assignedEntity->appendChild($telecom);
+        }
+
+        // AssignedPerson with name
+        $firstName = $this->xpathValue('guarantor/name/first', $payer);
+        $middleName = $this->xpathValue('guarantor/name/middle', $payer);
+        $lastName = $this->xpathValue('guarantor/name/last', $payer);
+        $prefix = $this->xpathValue('guarantor/name/prefix', $payer);
+        if ($firstName !== '' || $lastName !== '') {
+            $assignedPerson = $this->createElement('assignedPerson');
+            $name = $this->createElement('name');
+            if ($lastName !== '') {
+                $name->appendChild($this->createElement('family', $lastName));
+            }
+            if ($firstName !== '') {
+                $name->appendChild($this->createElement('given', $firstName));
+            }
+            if ($middleName !== '') {
+                $name->appendChild($this->createElement('given', $middleName));
+            }
+            if ($prefix !== '') {
+                $name->appendChild($this->createElement('prefix', $prefix));
+            }
+            $assignedPerson->appendChild($name);
+            $assignedEntity->appendChild($assignedPerson);
+        }
+
+        $performer->appendChild($assignedEntity);
+        $policyAct->appendChild($performer);
+    }
+
+    private function appendPolicyHolderParticipant(DOMElement $policyAct, DOMElement $payer): void
+    {
+        // Use policy_holder/performer data for HLD participant
+        $policyHolderId = $this->xpathValue('policy_holder/performer/identifiers/identifier', $payer);
+        $policyHolderExt = $this->xpathValue('policy_holder/performer/identifiers/extension', $payer);
+        if ($policyHolderId === '' && $policyHolderExt === '') {
+            return;
+        }
+
+        $participant = $this->createElement('participant');
+        $participant->setAttribute('typeCode', 'HLD');
+
+        $this->appendTemplateId($participant, '2.16.840.1.113883.10.20.22.4.90');
+
+        $participantRole = $this->createElement('participantRole');
+
+        // ID
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $policyHolderId !== '' ? $policyHolderId : 'NI');
+        $id->setAttribute('extension', $policyHolderExt);
+        $participantRole->appendChild($id);
+
+        // Address from policy_holder/performer/address
+        $street = $this->xpathValue('policy_holder/performer/address/street_lines', $payer);
+        $city = $this->xpathValue('policy_holder/performer/address/city', $payer);
+        $state = $this->xpathValue('policy_holder/performer/address/state', $payer);
+        $zip = $this->xpathValue('policy_holder/performer/address/zip', $payer);
+        $country = $this->xpathValue('policy_holder/performer/address/country', $payer);
+        if ($street !== '' || $city !== '') {
+            $addr = $this->createElement('addr');
+            $addr->setAttribute('use', 'HP');
+            if ($street !== '') {
+                $addr->appendChild($this->createElement('streetAddressLine', $street));
+            }
+            if ($city !== '') {
+                $addr->appendChild($this->createElement('city', $city));
+            }
+            if ($state !== '') {
+                $addr->appendChild($this->createElement('state', $state));
+            }
+            if ($zip !== '') {
+                $addr->appendChild($this->createElement('postalCode', $zip));
+            }
+            if ($country !== '') {
+                $addr->appendChild($this->createElement('country', $country));
+            }
+            $participantRole->appendChild($addr);
+        }
+
+        $participant->appendChild($participantRole);
+        $policyAct->appendChild($participant);
+    }
+
+    private function appendPolicyReference(DOMElement $policyAct, DOMElement $payer): void
+    {
+        $planName = $this->xpathValue('policy/plan_name', $payer);
+        $policyId = $this->xpathValue('policy/identifiers/identifier', $payer);
+        if ($planName === '' && $policyId === '') {
+            return;
+        }
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'REFR');
+
+        $act = $this->createElement('act');
+        $act->setAttribute('classCode', 'ACT');
+        $act->setAttribute('moodCode', 'DEF');
+
+        // ID
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $policyId !== '' ? $policyId : $this->generateUuid());
+        $act->appendChild($id);
+
+        // Code - policy type
+        $policyCode = $this->xpathValue('policy/code/code', $payer);
+        $code = $this->createElement('code');
+        $code->setAttribute('code', $policyCode !== '' ? $policyCode : '72');
+        $code->setAttribute('displayName', 'Health Insurance Plan Policy');
+        $code->setAttribute('codeSystem', '2.16.840.1.113883.3.221.5');
+        $code->setAttribute('codeSystemName', 'Source of Payment Typology');
+        $act->appendChild($code);
+
+        // Text - plan name
+        if ($planName !== '') {
+            $act->appendChild($this->createElement('text', $planName));
+        }
+
+        $entryRel->appendChild($act);
+        $policyAct->appendChild($entryRel);
     }
 
     private function renderMedicalEquipmentSection(DOMElement $structuredBody): void
@@ -5680,12 +6046,11 @@ class InternalToCdaConverter
         $codeText = $this->xpathValue('code_text', $concern);
         $codeType = $this->xpathValue('code_type', $concern);
 
-        if ($concernCode !== '' || $codeText !== '') {
-            $value = $this->output->createElement('value');
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-            if ($concernCode !== '') {
-                $value->setAttribute('code', $this->cleanCode($concernCode));
-            }
+        // Value - CD type with concern code, or nullFlavor if no code
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+        if ($concernCode !== '') {
+            $value->setAttribute('code', $this->cleanCode($concernCode));
             if ($codeText !== '') {
                 $value->setAttribute('displayName', $codeText);
             }
@@ -5707,8 +6072,10 @@ class InternalToCdaConverter
             if ($codeSystemName !== '') {
                 $value->setAttribute('codeSystemName', $codeSystemName);
             }
-            $obs->appendChild($value);
+        } else {
+            $value->setAttribute('nullFlavor', 'UNK');
         }
+        $obs->appendChild($value);
 
         $authorEl = $this->xpath('author', $concern)->item(0);
         if ($authorEl instanceof DOMElement) {
@@ -6134,6 +6501,28 @@ class InternalToCdaConverter
         ];
 
         return $routeMap[strtoupper($cleaned)] ?? $cleaned;
+    }
+
+    private function getRouteDisplayName(string $routeCode): string
+    {
+        $displayNames = [
+            'C38288' => 'Per Oris',
+            'C38276' => 'Intravenous',
+            'C28161' => 'Intramuscular',
+            'C38299' => 'Subcutaneous',
+            'C38304' => 'Topical',
+            'C38216' => 'Respiratory (Inhalation)',
+            'C38284' => 'Nasal',
+            'C38287' => 'Ophthalmic',
+            'C38192' => 'Otic',
+            'C38295' => 'Rectal',
+            'C38313' => 'Vaginal',
+            'C38300' => 'Sublingual',
+            'C38193' => 'Buccal',
+            'C38305' => 'Transdermal',
+        ];
+
+        return $displayNames[$routeCode] ?? $routeCode;
     }
 
     /**

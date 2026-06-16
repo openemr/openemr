@@ -120,7 +120,8 @@ class InternalToCdaConverterTest extends TestCase
 
         $expectedDom = $this->cleanWhitespace($expectedDom);
 
-        $fixtureDate = '20251215';
+        // Extract fixture date from expected document's effectiveTime
+        $fixtureDate = $this->extractFixtureDate($expectedDom);
         $currentDate = date('Ymd');
         $actualDom = $this->replaceTimestamps($actualDom, $currentDate, $fixtureDate);
         $actualDom = $this->normalizeDynamicIds($actualDom, $expectedDom);
@@ -138,6 +139,9 @@ class InternalToCdaConverterTest extends TestCase
         $actualDom = $this->loadDom($actual);
         $expectedDom = $this->loadDom($expected);
 
+        // Extract fixture date from the full expected document before extracting sections
+        $fixtureDate = $this->extractFixtureDate($expectedDom);
+
         $actualSection = $this->extractSection($actualDom, $templateId);
         $expectedSection = $this->extractSection($expectedDom, $templateId);
 
@@ -152,7 +156,6 @@ class InternalToCdaConverterTest extends TestCase
         $actualDom = $this->loadDom($actualSection);
         $expectedDom = $this->loadDom($expectedSection);
 
-        $fixtureDate = '20251215';
         $currentDate = date('Ymd');
         $actualDom = $this->replaceTimestamps($actualDom, $currentDate, $fixtureDate);
         $actualDom = $this->cleanWhitespace($actualDom);
@@ -277,6 +280,25 @@ class InternalToCdaConverterTest extends TestCase
                 $actualId->setAttribute('root', $expectedId->getAttribute('root'));
             }
         }
+    }
+
+    private function extractFixtureDate(DOMDocument $dom): string
+    {
+        $xpath = new DOMXPath($dom);
+        $xpath->registerNamespace('hl7', 'urn:hl7-org:v3');
+
+        // Get the effectiveTime from the document header (ClinicalDocument/effectiveTime)
+        $effectiveTime = $xpath->query('/hl7:ClinicalDocument/hl7:effectiveTime/@value');
+        if ($effectiveTime !== false && $effectiveTime->length > 0) {
+            $value = $effectiveTime->item(0)?->nodeValue ?? '';
+            // Extract just the date portion (first 8 chars: YYYYMMDD)
+            if (strlen($value) >= 8) {
+                return substr($value, 0, 8);
+            }
+        }
+
+        // Fallback to a default if not found
+        return '20251215';
     }
 
     private function cleanWhitespace(DOMDocument $dom): DOMDocument
