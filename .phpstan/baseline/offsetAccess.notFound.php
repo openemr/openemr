@@ -822,7 +822,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'id\' might not exist on array\\{id\\: int\\|string, name\\: string\\}\\|string\\.$#',
+    'message' => '#^Offset \'id\' might not exist on array\\{id\\: int, name\\: string\\}\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/InsuranceCompanyServiceTest.php',
 ];
