@@ -80,7 +80,14 @@ final readonly class FaxMailer
         if ($tmp === false) {
             return null;
         }
-        file_put_contents($tmp, (string)$payload);
+        if (file_put_contents($tmp, (string)$payload) === false) {
+            // Scratch file was created by tempnam() but the payload didn't
+            // make it onto disk; bail rather than mail an empty attachment.
+            // The half-written tempnam gets unlinked best-effort here so it
+            // doesn't linger.
+            unlink($tmp);
+            return null;
+        }
         self::send($email, $body, $tmp, $user);
         return $tmp;
     }

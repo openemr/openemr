@@ -203,19 +203,21 @@ class SignalWireClient extends AppDispatch
             $file = (new Document($docId))->get_data();
         }
 
-        // Send email if requested. When the patient-document branch
-        // above handed us raw bytes rather than a path, FaxMailer writes
-        // a per-request plaintext scratch file and returns it for
-        // cleanup. The staged-upload branch already left $file pointing
-        // at a real plaintext path, so the helper just sends it directly.
+        // Send email if requested. $file is raw bytes when either the
+        // patient-document branch above set it from Document::get_data
+        // ($isDocuments) or the caller indicated the payload is already
+        // content ($isContent). The staged-upload branch left $file
+        // pointing at a plaintext path, so the else branch in
+        // mailUploadedDocument sends it directly.
         $emailPath = null;
         if ($hasEmail && $smtpEnabled) {
+            $payloadIsContent = (bool)$isDocuments || !empty($isContent);
             $emailPath = FaxMailer::mailUploadedDocument(
                 $email,
                 '',
                 $file,
                 $user,
-                (bool)$isDocuments,
+                $payloadIsContent,
             );
         }
 

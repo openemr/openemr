@@ -206,19 +206,21 @@ class EtherFaxActions extends AppDispatch
             $fileName = $doc->get_name() ?? 'document';
         }
 
-        // Optional email copy. When the patient-document branch above
-        // handed us raw bytes rather than a path, FaxMailer writes a
-        // per-request plaintext scratch file and returns it for cleanup.
-        // The staged-upload branch already left $file pointing at a real
-        // plaintext path, so the helper just sends it directly.
+        // Optional email copy. $file is raw bytes when either the
+        // patient-document branch above set it from Document::get_data
+        // ($isDocuments) or the caller indicated the payload is already
+        // content ($isContent). The staged-upload branch left $file
+        // pointing at a plaintext path, so the else branch in
+        // mailUploadedDocument sends it directly.
         $emailPath = null;
         if ($hasEmail && $smtpEnabled) {
+            $payloadIsContent = $isDocuments || !empty($isContent);
             $emailPath = FaxMailer::mailUploadedDocument(
                 $email,
                 '',
                 $file,
                 $user,
-                $isDocuments,
+                $payloadIsContent,
             );
         }
 
@@ -359,11 +361,11 @@ class EtherFaxActions extends AppDispatch
         $content = $fax->FaxImage;
         $c_header = $fax->DocumentParams->Type;
         $ext = $c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' || $c_header == 'image/tif' ? '.tiff' : '.txt');
-        $filepath = $this->baseDir . "/send/" . ($jobId . $ext);
-
-        if (!file_exists($this->baseDir . '/send')) {
-            mkdir($this->baseDir . '/send', 0777, true);
+        $stagingDir = $this->uploadStaging->ensureStagingDir($this->baseDir);
+        if ($stagingDir === null) {
+            return js_escape('Error: ' . xlt('Failed to prepare fax staging directory'));
         }
+        $filepath = $stagingDir . '/' . ($jobId . $ext);
 
         file_put_contents($filepath, base64_decode((string)$content));
 

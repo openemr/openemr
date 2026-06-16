@@ -188,11 +188,12 @@ class RCFaxClient extends AppDispatch
 
             $ext = $this->getExtensionFromContentType($contentType);
             $type = $this->getTypeFromContentType($contentType);
-            $filePath = $this->baseDir . "/send/" . ($jobId . $ext);
-
-            if (!file_exists($this->baseDir . '/send')) {
-                mkdir($this->baseDir . '/send', 0777, true);
+            $stagingDir = $this->uploadStaging->ensureStagingDir($this->baseDir);
+            if ($stagingDir === null) {
+                return js_escape('Error: ' . xlt('Failed to prepare fax staging directory'));
             }
+            $filePath = $stagingDir . '/' . ($jobId . $ext);
+
             file_put_contents($filePath, $rawData);
 
             if ($hasEmail && $smtpEnabled && is_string($email)) {

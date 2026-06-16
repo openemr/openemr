@@ -98,15 +98,10 @@ final readonly class FaxUploadStaging
             return '';
         }
 
-        $targetDir = $baseDir . '/send';
-        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
-            $this->logger->error(
-                'Failed to create fax staging directory',
-                ['directory' => $targetDir]
-            );
+        $targetDir = $this->ensureStagingDir($baseDir);
+        if ($targetDir === null) {
             return '';
         }
-        chmod($targetDir, 0700);
 
         $rawName = $upload['name'] ?? null;
         $origName = is_string($rawName) ? basename($rawName) : 'fax';
@@ -176,23 +171,45 @@ final readonly class FaxUploadStaging
     /**
      * Best-effort removal of staging artifacts. Filesystem::remove
      * swallows the benign already-gone race; a real permission failure
-     * surfaces as IOException, which is logged at warning level so the
-     * caller's success path isn't interrupted.
+     * surfaces as IOException, which is logged at warning level for the
+     * individual path so the loop keeps cleaning up the remaining paths.
      */
     public function removeStagedArtifacts(?string ...$paths): void
     {
-        try {
-            $fs = new Filesystem();
-            foreach ($paths as $path) {
-                if ($path !== null) {
-                    $fs->remove($path);
-                }
+        $fs = new Filesystem();
+        foreach ($paths as $path) {
+            if ($path === null) {
+                continue;
             }
-        } catch (IOException $cleanupError) {
-            $this->logger->warning(
-                'Failed to remove staged fax upload artifacts after send',
-                ['exception' => $cleanupError]
-            );
+            try {
+                $fs->remove($path);
+            } catch (IOException $cleanupError) {
+                $this->logger->warning(
+                    'Failed to remove staged fax upload artifact',
+                    ['path' => $path, 'exception' => $cleanupError]
+                );
+            }
         }
+    }
+
+    /**
+     * Ensure the per-controller fax staging directory exists at
+     * `<baseDir>/send/` with 0700 permissions, and re-apply chmod on
+     * every call so installs that were created earlier with looser
+     * permissions get tightened on the next pass. Returns the directory
+     * path on success, or null if the directory could not be created.
+     */
+    public function ensureStagingDir(string $baseDir): ?string
+    {
+        $targetDir = $baseDir . '/send';
+        if (!is_dir($targetDir) && !mkdir($targetDir, 0700, true)) {
+            $this->logger->error(
+                'Failed to create fax staging directory',
+                ['directory' => $targetDir]
+            );
+            return null;
+        }
+        chmod($targetDir, 0700);
+        return $targetDir;
     }
 }
