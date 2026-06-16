@@ -2769,13 +2769,14 @@ class InternalToCdaConverter
         $code = $this->xpathValue('code', $problem);
         $text = $this->xpathValue('text', $problem);
         $codeType = $this->xpathValue('code_type', $problem);
+        $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
 
         $value = $this->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
         $value->setAttribute('code', $code);
         $value->setAttribute('displayName', $text);
-        $value->setAttribute('codeSystem', $this->getCodeSystemOid($codeType));
-        $value->setAttribute('codeSystemName', $this->normalizeCodeSystemName($codeType));
+        $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
+        $value->setAttribute('codeSystemName', $codeSystemInfo['name']);
         $obs->appendChild($value);
 
         $innerEntryRel->appendChild($obs);
