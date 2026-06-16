@@ -2957,10 +2957,13 @@ class InternalToCdaConverter
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
 
+        $status = $this->xpathValue('status', $imm);
+        [$moodCode, $negationInd] = $this->getImmunizationMoodAttributes($status);
+
         $subAdmin = $this->createElement('substanceAdministration');
         $subAdmin->setAttribute('classCode', 'SBADM');
-        $subAdmin->setAttribute('moodCode', 'EVN');
-        $subAdmin->setAttribute('negationInd', 'false');
+        $subAdmin->setAttribute('moodCode', $moodCode);
+        $subAdmin->setAttribute('negationInd', $negationInd);
 
         $this->appendVersionedTemplateId($subAdmin, '2.16.840.1.113883.10.20.22.4.52', '2015-08-01');
 
@@ -3063,7 +3066,20 @@ class InternalToCdaConverter
         $code->appendChild($origText);
         $mfgMaterial->appendChild($code);
 
+        $lotNumber = $this->xpathValue('lot_number', $imm);
+        if ($lotNumber !== '') {
+            $mfgMaterial->appendChild($this->createElement('lotNumberText', $lotNumber));
+        }
+
         $mfgProduct->appendChild($mfgMaterial);
+
+        $manufacturer = $this->xpathValue('manufacturer', $imm);
+        if ($manufacturer !== '') {
+            $mfgOrg = $this->createElement('manufacturerOrganization');
+            $mfgOrg->appendChild($this->createElement('name', $manufacturer));
+            $mfgProduct->appendChild($mfgOrg);
+        }
+
         $consumable->appendChild($mfgProduct);
         $subAdmin->appendChild($consumable);
     }
@@ -3103,6 +3119,18 @@ class InternalToCdaConverter
 
         $performer->appendChild($assignedEntity);
         $subAdmin->appendChild($performer);
+    }
+
+    /**
+     * @return array{string, string} [moodCode, negationInd]
+     */
+    private function getImmunizationMoodAttributes(string $status): array
+    {
+        return match ($status) {
+            'refused' => ['EVN', 'true'],
+            'pending' => ['INT', 'false'],
+            default => ['EVN', 'false'],
+        };
     }
 
     private function renderVitalSignsSection(DOMElement $structuredBody): void
