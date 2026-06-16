@@ -108,7 +108,6 @@ return ['includes' => [
     __DIR__ . '/offsetAssign.valueType.php',
     __DIR__ . '/openemr.deprecatedSqlFunction.php',
     __DIR__ . '/openemr.exitInCatchOrFinally.php',
-    __DIR__ . '/openemr.forbidDirectSessionWrite.php',
     __DIR__ . '/openemr.forbiddenCatchType.php',
     __DIR__ . '/openemr.forbiddenCurlFunction.php',
     __DIR__ . '/openemr.forbiddenErrorLog.php',
