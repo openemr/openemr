@@ -3294,6 +3294,13 @@ class InternalToCdaConverter
         $index = 1;
         foreach ($items as $item) {
             $element = $this->xpathValue('element', $item);
+            $elementLower = strtolower($element);
+
+            // Only include smoking-related items in narrative per Node.js behavior
+            if (!str_contains($elementLower, 'smok') && !str_contains($elementLower, 'tobacco')) {
+                continue;
+            }
+
             $description = $this->xpathValue('description', $item);
             $date = $this->xpathValue('date', $item);
 
