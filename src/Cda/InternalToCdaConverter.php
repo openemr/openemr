@@ -166,6 +166,7 @@ class InternalToCdaConverter
         $this->appendId($patientRole, $facilityOid, $patientUuid);
 
         $this->appendPatientAddress($patientRole);
+        $this->appendPatientTelecoms($patientRole);
         $this->appendPatientDemographics($patientRole);
         $this->appendProviderOrganization($patientRole);
 
@@ -214,6 +215,48 @@ class InternalToCdaConverter
         $patientRole->appendChild($addr);
     }
 
+    private function appendPatientTelecoms(DOMElement $patientRole): void
+    {
+        $phoneHome = $this->xpathValue('/CCDA/patient/phone_home');
+        if ($phoneHome !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phoneHome);
+            $telecom->setAttribute('use', 'HP');
+            $patientRole->appendChild($telecom);
+        }
+
+        $phoneMobile = $this->xpathValue('/CCDA/patient/phone_mobile');
+        if ($phoneMobile !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phoneMobile);
+            $telecom->setAttribute('use', 'MC');
+            $patientRole->appendChild($telecom);
+        }
+
+        $phoneWork = $this->xpathValue('/CCDA/patient/phone_work');
+        if ($phoneWork !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phoneWork);
+            $telecom->setAttribute('use', 'WP');
+            $patientRole->appendChild($telecom);
+        }
+
+        $phoneEmergency = $this->xpathValue('/CCDA/patient/phone_emergency');
+        if ($phoneEmergency !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phoneEmergency);
+            $telecom->setAttribute('use', 'EC');
+            $patientRole->appendChild($telecom);
+        }
+
+        $email = $this->xpathValue('/CCDA/patient/email');
+        if ($email !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'mailto:' . $email);
+            $patientRole->appendChild($telecom);
+        }
+    }
+
     private function appendPatientDemographics(DOMElement $patientRole): void
     {
         $patient = $this->createElement('patient');
@@ -243,6 +286,17 @@ class InternalToCdaConverter
         $birthTime = $this->createElement('birthTime');
         $birthTime->setAttribute('value', $dob);
         $patient->appendChild($birthTime);
+
+        $maritalStatus = $this->xpathValue('/CCDA/patient/status');
+        $maritalStatusCode = $this->xpathValue('/CCDA/patient/status_code');
+        if ($maritalStatus !== '' || $maritalStatusCode !== '') {
+            $maritalEl = $this->createElement('maritalStatusCode');
+            $maritalEl->setAttribute('code', $maritalStatusCode !== '' ? substr($maritalStatusCode, 0, 1) : '');
+            $maritalEl->setAttribute('displayName', strtoupper($maritalStatus));
+            $maritalEl->setAttribute('codeSystem', '2.16.840.1.113883.5.2');
+            $maritalEl->setAttribute('codeSystemName', 'HL7 Marital Status');
+            $patient->appendChild($maritalEl);
+        }
 
         $raceCode = $this->xpathValue('/CCDA/patient/race_code');
         $race = $this->xpathValue('/CCDA/patient/race');
