@@ -72,11 +72,11 @@ The `openemr.sh` entrypoint script was optimized to:
 To verify these results on your system:
 
 ```bash
-cd utilities/container_benchmarking
+cd docker/container_benchmarking
 ./benchmark.sh
 ```
 
-See [Container Benchmarking Utility](../../utilities/container_benchmarking/README.md) for detailed instructions.
+See [Container Benchmarking Utility](../container_benchmarking/README.md) for detailed instructions.
 
 ## Tags
 

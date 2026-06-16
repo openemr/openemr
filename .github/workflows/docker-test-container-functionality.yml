@@ -12,13 +12,13 @@ on:
     branches: [rel-810]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
-    - 'utilities/container_benchmarking/**'
+    - 'docker/container_benchmarking/**'
     - 'docker/release/**'
   pull_request:
     branches: [rel-810]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
-    - 'utilities/container_benchmarking/**'
+    - 'docker/container_benchmarking/**'
     - 'docker/release/**'
   workflow_dispatch:
     inputs:
@@ -48,12 +48,12 @@ jobs:
         fi
     - name: Run container functionality tests (release)
       run: |
-        cd utilities/container_benchmarking
+        cd docker/container_benchmarking
         ./test_functionality.sh release ${{ steps.args.outputs.args }}
     - name: Upload test results
       if: always()
       uses: actions/upload-artifact@v7
       with:
         name: test-results-release
-        path: utilities/container_benchmarking/test_results/
+        path: docker/container_benchmarking/test_results/
         retention-days: 7
