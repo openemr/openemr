@@ -1976,12 +1976,15 @@ class InternalToCdaConverter
         $title = $this->xpathValue('title', $problem);
         $problemCode = $this->xpathValue('code', $problem);
         $codeType = $this->xpathValue('code_type', $problem);
+        $codeSystemInfo = $this->mapCodeTypeToSystem($codeType);
+        $normalizedCode = $this->normalizeCodeForSystem($problemCode, $codeType);
+
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-        $value->setAttribute('code', $problemCode);
+        $value->setAttribute('code', $normalizedCode);
+        $value->setAttribute('codeSystem', $codeSystemInfo['oid']);
+        $value->setAttribute('codeSystemName', $codeSystemInfo['name']);
         $value->setAttribute('displayName', $title);
-        $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-        $value->setAttribute('codeSystemName', $codeType);
         $obs->appendChild($value);
 
         $authorEl = $this->xpath('author', $problem)->item(0);
@@ -6032,6 +6035,66 @@ class InternalToCdaConverter
             return 'null_flavor';
         }
         return (string) preg_replace('/[.#]/', '', $code);
+    }
+
+    /**
+     * @return array{oid: string, name: string}
+     */
+    private function mapCodeTypeToSystem(string $codeType): array
+    {
+        $normalized = strtoupper(trim($codeType));
+        $normalized = str_replace([' ', '-'], '', $normalized);
+
+        return match ($normalized) {
+            'ICD10CM', 'ICD10' => [
+                'oid' => '2.16.840.1.113883.6.90',
+                'name' => 'ICD-10-CM',
+            ],
+            'ICD9CM', 'ICD9' => [
+                'oid' => '2.16.840.1.113883.6.103',
+                'name' => 'ICD-9-CM',
+            ],
+            'SNOMEDCT', 'SNOMED' => [
+                'oid' => '2.16.840.1.113883.6.96',
+                'name' => 'SNOMED CT',
+            ],
+            'CPT', 'CPT4' => [
+                'oid' => '2.16.840.1.113883.6.12',
+                'name' => 'CPT-4',
+            ],
+            'LOINC' => [
+                'oid' => '2.16.840.1.113883.6.1',
+                'name' => 'LOINC',
+            ],
+            'RXNORM' => [
+                'oid' => '2.16.840.1.113883.6.88',
+                'name' => 'RxNorm',
+            ],
+            'NDC' => [
+                'oid' => '2.16.840.1.113883.6.69',
+                'name' => 'NDC',
+            ],
+            'CVX' => [
+                'oid' => '2.16.840.1.113883.12.292',
+                'name' => 'CVX',
+            ],
+            default => [
+                'oid' => '2.16.840.1.113883.6.96',
+                'name' => 'SNOMED CT',
+            ],
+        };
+    }
+
+    private function normalizeCodeForSystem(string $code, string $codeType): string
+    {
+        $normalized = strtoupper(str_replace([' ', '-'], '', trim($codeType)));
+
+        // ICD codes should have dots removed
+        if (in_array($normalized, ['ICD10CM', 'ICD10', 'ICD9CM', 'ICD9'], true)) {
+            return str_replace('.', '', $code);
+        }
+
+        return $code;
     }
 
     private function mapRouteCode(string $routeCode): string
