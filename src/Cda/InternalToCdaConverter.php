@@ -1853,9 +1853,13 @@ class InternalToCdaConverter
         $index = 1;
         foreach ($problems as $problem) {
             $title = $this->xpathValue('title', $problem);
+            $observation = $this->xpathValue('observation', $problem);
             $startDate = $this->xpathValue('start_date_table', $problem);
             $dateOnly = $startDate !== '' ? substr(str_replace(['-', ' ', ':'], '', $startDate), 0, 10) : '';
             $formattedDate = $dateOnly !== '' ? substr($dateOnly, 0, 4) . '-' . substr($dateOnly, 4, 2) . '-' . substr($dateOnly, 6, 2) : '';
+            if ($formattedDate === '') {
+                $formattedDate = date('Y-m-d');
+            }
 
             $tbody = $this->createElement('tbody');
             $row = $this->createElement('tr');
@@ -1864,7 +1868,7 @@ class InternalToCdaConverter
             $cell1->setAttribute('ID', 'problem' . $index);
             $row->appendChild($cell1);
 
-            $cell2 = $this->createElement('td', 'No Data Available');
+            $cell2 = $this->createElement('td', $observation !== '' ? $observation : 'No Data Available');
             $cell2->setAttribute('ID', 'healthStatus' . $index);
             $row->appendChild($cell2);
 
