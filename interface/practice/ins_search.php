@@ -228,7 +228,10 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $ins_id = filter_input(INPUT_GET, 'ins', FILTER_VALIDATE_INT);
         $ins_id = $ins_id ?: 0;
         $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
-        $ins_co_address = (new AddressService())->getOneByForeignId($ins_id) ?? null;
+        $ins_id = filter_input(INPUT_GET, 'ins', FILTER_VALIDATE_INT) ?: null;
+        $ins_co = $ins_id ? (new InsuranceCompanyService())->getOneById($ins_id) : null;
+        $ins_co_address = $ins_id ? (new AddressService())->getOneByForeignId($ins_id) : null;
+        $ins_co_phone = $ins_id ? (new PhoneNumberService())->getOneByForeignId($ins_id) : null;
         $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;
     }
 
