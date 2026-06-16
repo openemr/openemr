@@ -412,7 +412,10 @@ class InsuranceCompanyService extends BaseService
             $id = $this->insert($data);
         } else {
             $id = $form['form_id'];
-            $this->update($data, $id);
+            $result = $this->update($data, $id);
+            if ($result === false) {
+                return xl('Failed to update insurance company');
+            }
         }
 
         $id = filter_var($id, FILTER_VALIDATE_INT);
