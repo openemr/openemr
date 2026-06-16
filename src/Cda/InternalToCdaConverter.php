@@ -1994,7 +1994,7 @@ class InternalToCdaConverter
 
         $this->appendProblemStatus($obs, $problem);
         $this->appendAgeAtOnset($obs, $problem);
-        $this->appendHealthStatus($obs, $index);
+        $this->appendHealthStatus($obs, $index, $problem);
 
         $entryRel->appendChild($obs);
         $act->appendChild($entryRel);
@@ -2050,8 +2050,10 @@ class InternalToCdaConverter
         $obs->appendChild($entryRel);
     }
 
-    private function appendHealthStatus(DOMElement $obs, int $index): void
+    private function appendHealthStatus(DOMElement $obs, int $index, DOMElement $problem): void
     {
+        $observation = $this->xpathValue('observation', $problem);
+
         $entryRel = $this->createElement('entryRelationship');
         $entryRel->setAttribute('typeCode', 'REFR');
 
@@ -2074,9 +2076,9 @@ class InternalToCdaConverter
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
         $value->setAttribute('code', '81323004');
-        $value->setAttribute('displayName', '');
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
+        $value->setAttribute('displayName', $observation);
         $healthObs->appendChild($value);
 
         $entryRel->appendChild($healthObs);
