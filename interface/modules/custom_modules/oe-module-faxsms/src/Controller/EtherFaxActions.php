@@ -14,25 +14,27 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
+use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
 class EtherFaxActions extends AppDispatch
 {
     public static $timeZone;
-    protected $baseDir;
+    protected string $baseDir = '';
     protected $uriDir;
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
     protected CryptoInterface $crypto;
     private readonly EtherFaxClient $client;
+    private readonly FaxUploadStaging $uploadStaging;
     private mixed $appSecret;
     private mixed $sid;
     private mixed $appKey;
@@ -44,6 +46,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         $this->crypto = ServiceContainer::getCrypto();
+        $this->uploadStaging = FaxUploadStaging::create();
         $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
@@ -72,31 +75,6 @@ class EtherFaxActions extends AppDispatch
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
-    }
-
-    /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument($email, $body, $file, array $user = []): string
-    {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
     }
 
     /**
@@ -140,28 +118,10 @@ class EtherFaxActions extends AppDispatch
      */
     public function faxProcessUploads(): string
     {
-        if (empty($_FILES['fax']) || $_FILES['fax']['error'] !== UPLOAD_ERR_OK) {
-            error_log('Error: No file uploaded or upload error.');
-            return '';
-        }
-
-        $name = basename((string)$_FILES['fax']['name']);
-        $tmp_name = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
-            return '';
-        }
-
-        $filepath = $targetDir . "/" . $name;
-
-        if (!move_uploaded_file($tmp_name, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
-            return '';
-        }
-
-        return $filepath;
+        $upload = $_FILES['fax'] ?? null;
+        return is_array($upload)
+            ? $this->uploadStaging->processUpload($this->baseDir, $upload)
+            : '';
     }
 
     /**
@@ -217,6 +177,28 @@ class EtherFaxActions extends AppDispatch
             }
         }
 
+        // Decrypt the staged upload to a per-request plaintext tempnam
+        // and continue with that as $file. Pattern guard scopes the
+        // cleanup we'll do below to files this controller staged via
+        // FaxUploadStaging, leaving caller-managed temp files alone.
+        $stagedPath = null;
+        $plainStagePath = null;
+        if (
+            empty($isContent)
+            && !$isDocuments
+            && is_string($file)
+            && is_file($file)
+            && $this->uploadStaging->isStagedUploadPath($file)
+        ) {
+            $plainStagePath = $this->uploadStaging->decryptStagedToTemp($file);
+            if ($plainStagePath === null) {
+                return xlt('Error: Failed to read fax content');
+            }
+            $stagedPath = $file;
+            $file = $plainStagePath;
+            $fileName = pathinfo($file, PATHINFO_BASENAME);
+        }
+
         // If document mode, load from Document table instead
         if ($isDocuments) {
             $doc = new Document($docId);
@@ -224,9 +206,22 @@ class EtherFaxActions extends AppDispatch
             $fileName = $doc->get_name() ?? 'document';
         }
 
-        // Optional email copy
+        // Optional email copy. $file is raw bytes when either the
+        // patient-document branch above set it from Document::get_data
+        // ($isDocuments) or the caller indicated the payload is already
+        // content ($isContent). The staged-upload branch left $file
+        // pointing at a plaintext path, so the else branch in
+        // mailUploadedDocument sends it directly.
+        $emailPath = null;
         if ($hasEmail && $smtpEnabled) {
-            self::emailDocument($email, '', $file, $user);
+            $payloadIsContent = $isDocuments || !empty($isContent);
+            $emailPath = FaxMailer::mailUploadedDocument(
+                $email,
+                '',
+                $file,
+                $user,
+                $payloadIsContent,
+            );
         }
 
         try {
@@ -289,6 +284,12 @@ class EtherFaxActions extends AppDispatch
             }
         } catch (\Throwable $e) {
             return 'Error: ' . json_encode($e->getMessage());
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts(
+                $stagedPath,
+                $plainStagePath,
+                $emailPath
+            );
         }
         $resultName = FaxResult::getFaxResult($status->FaxResult ?? null);
         // Treat InProgress as non-error (queued for tracking)
@@ -360,16 +361,16 @@ class EtherFaxActions extends AppDispatch
         $content = $fax->FaxImage;
         $c_header = $fax->DocumentParams->Type;
         $ext = $c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' || $c_header == 'image/tif' ? '.tiff' : '.txt');
-        $filepath = $this->baseDir . "/send/" . ($jobId . $ext);
-
-        if (!file_exists($this->baseDir . '/send')) {
-            mkdir($this->baseDir . '/send', 0777, true);
+        $stagingDir = $this->uploadStaging->ensureStagingDir($this->baseDir);
+        if ($stagingDir === null) {
+            return js_escape('Error: ' . xlt('Failed to prepare fax staging directory'));
         }
+        $filepath = $stagingDir . '/' . ($jobId . $ext);
 
         file_put_contents($filepath, base64_decode((string)$content));
 
-        if ($hasEmail && $smtpEnabled) {
-            $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filepath, $user) . "<br />";
+        if ($hasEmail && $smtpEnabled && is_string($email)) {
+            $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $filepath, $user) . "<br />";
         }
 
         if ($faxNumber) {
