@@ -1231,11 +1231,7 @@ class InternalToCdaConverter
         $idEl->setAttribute('extension', $id);
         $act->appendChild($idEl);
 
-        $code = $this->createElement('code');
-        $code->setAttribute('code', 'CONC');
-        $code->setAttribute('displayName', 'Concerns');
-        $code->setAttribute('codeSystem', '2.16.840.1.113883.5.6');
-        $act->appendChild($code);
+        $act->appendChild($this->createLoincCode('48765-2', 'Allergies, adverse reactions, alerts'));
 
         $this->appendStatusCode($act, ActStatus::Active);
 
@@ -1758,7 +1754,7 @@ class InternalToCdaConverter
     private function formatDateOnly(string $input): string
     {
         $input = trim($input);
-        if ($input === '' || $input === '0000-00-00') {
+        if ($input === '' || $input === '0000-00-00' || (int) $input === 0) {
             return date('Ymd');
         }
         $input = str_replace(['-', ' ', ':'], '', $input);
