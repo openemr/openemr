@@ -38,7 +38,7 @@ The entire benchmark suite completes in just a few minutes, making it suitable f
 
 1. Navigate to the benchmarking directory:
    ```bash
-   cd utilities/container_benchmarking
+   cd docker/container_benchmarking
    ```
 
 2. Run the benchmark script:
@@ -340,7 +340,7 @@ Integrate into CI/CD:
 # Example GitHub Actions step
 - name: Run Benchmarks
   run: |
-    cd utilities/container_benchmarking
+    cd docker/container_benchmarking
     ./benchmark.sh
   env:
     IMAGE_A_CONTEXT: ./docker/openemr/8.1.0
@@ -393,7 +393,7 @@ The test suite verifies that all OpenEMR container features work correctly, incl
 
 1. Navigate to the benchmarking directory:
    ```bash
-   cd utilities/container_benchmarking
+   cd docker/container_benchmarking
    ```
 
 2. Run all tests:
@@ -461,7 +461,7 @@ The test suite is designed for CI/CD integration:
 # Example GitHub Actions workflow
 - name: Run Functional Tests
   run: |
-    cd utilities/container_benchmarking
+    cd docker/container_benchmarking
     ./test_suite.sh
   env:
     DOCKER_CONTEXT: ./docker/openemr/8.1.0

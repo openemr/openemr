@@ -9,7 +9,7 @@ on:
     branches: [master]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
-    - 'utilities/container_benchmarking/**'
+    - 'docker/container_benchmarking/**'
     - 'docker/release/**'
     - 'docker/binary/**'
     - 'docker/flex/**'
@@ -17,7 +17,7 @@ on:
     branches: [master]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
-    - 'utilities/container_benchmarking/**'
+    - 'docker/container_benchmarking/**'
     - 'docker/release/**'
     - 'docker/binary/**'
     - 'docker/flex/**'
@@ -55,7 +55,7 @@ jobs:
       env:
         TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
-        cd utilities/container_benchmarking
+        cd docker/container_benchmarking
         # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
         # into two argv elements; quoting would pass it as one combined string.
         # shellcheck disable=SC2086
@@ -65,7 +65,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: test-results-release
-        path: utilities/container_benchmarking/test_results/
+        path: docker/container_benchmarking/test_results/
         retention-days: 7
 
   functionality-binary:
@@ -90,7 +90,7 @@ jobs:
       env:
         TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
-        cd utilities/container_benchmarking
+        cd docker/container_benchmarking
         # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
         # into two argv elements; quoting would pass it as one combined string.
         # shellcheck disable=SC2086
@@ -100,7 +100,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: test-results-binary
-        path: utilities/container_benchmarking/test_results/
+        path: docker/container_benchmarking/test_results/
         retention-days: 7
 
   functionality-flex:
@@ -125,7 +125,7 @@ jobs:
       env:
         TEST_ARGS: ${{ steps.args.outputs.args }}
       run: |
-        cd utilities/container_benchmarking
+        cd docker/container_benchmarking
         # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
         # into two argv elements; quoting would pass it as one combined string.
         # shellcheck disable=SC2086
@@ -135,5 +135,5 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: test-results-flex
-        path: utilities/container_benchmarking/test_results/
+        path: docker/container_benchmarking/test_results/
         retention-days: 7
