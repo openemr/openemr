@@ -3290,7 +3290,7 @@ class InternalToCdaConverter
     private function appendSocialHistoryNarrative(DOMElement $section, \DOMNodeList $items): void
     {
         $text = $this->createElement('text');
-        $table = $this->createNarrativeTable(['Social History Element', 'Description', 'Date']);
+        $table = $this->createNarrativeTable(['Social History Element', 'Description', 'Effective Dates']);
 
         $index = 1;
         foreach ($items as $item) {
@@ -3298,7 +3298,10 @@ class InternalToCdaConverter
             $description = $this->xpathValue('description', $item);
             $date = $this->xpathValue('date', $item);
 
-            $this->appendTableRow($table, [$element, $description, $this->formatDateForDisplay($date)], 'social' . $index);
+            $descDisplay = $description !== '' ? $description : 'No Data Available';
+            $dateDisplay = $date !== '' ? $this->formatDateForDisplay($date) : date('Y-m-d');
+
+            $this->appendTableRow($table, [$element, $descDisplay, $dateDisplay], 'social' . $index);
             $index++;
         }
 
