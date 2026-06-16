@@ -391,12 +391,21 @@ class InsuranceCompanyService extends BaseService
      * company identified by form_id. Returns the resulting id and the display name
      * the opener should show.
      *
-     * @param array<string, mixed> $form Raw posted form values (form_* keys).
-     * @return array{id: int|string, name: string}
+     * @param array<string, mixed> $form
+     * @return array{id: int, name: string}|string
+     */
+    /**
+     * @param array<string, mixed> $form
+     * @return array{id: int, name: string}|string
      */
     public function saveFromForm(array $form): array|string
     {
-        $isNew = (($form['form_save'] ?? '') === 'Save as New' || ($form['form_id'] ?? null) === null || $form['form_id'] === '');
+        $isNew = (
+            ($form['form_save'] ?? '') === 'Save as New'
+            || ($form['form_id'] ?? null) === null
+            || $form['form_id'] === ''
+        );
+
         $data = $this->buildSaveDataFromForm($form);
 
         if ($isNew) {
@@ -406,9 +415,21 @@ class InsuranceCompanyService extends BaseService
             $this->update($data, $id);
         }
 
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+
+        if ($id === false) {
+            return xl('Invalid insurance company id');
+        }
+
+        $name = $this->getInsuranceDisplayName($id);
+
+        if (!is_string($name)) {
+            $name = '';
+        }
+
         return [
-            'id' => is_int($id ?? '') ? $id : '',
-            'name' => $this->getInsuranceDisplayName($id),
+            'id' => $id,
+            'name' => $name,
         ];
     }
 
