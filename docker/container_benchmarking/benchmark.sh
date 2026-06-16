@@ -3,7 +3,7 @@
 # Container Benchmarking Script
 # ============================================================================
 # This script runs comparative benchmarks between two OpenEMR container images:
-#   - Image A: Local build from repository (default: ./docker/openemr/8.1.0/)
+#   - Image A: Local build from repository (default: ./docker/release/)
 #   - Image B: Public Docker Hub image (default: openemr/openemr:8.1.0)
 #
 # Benchmarks measured:
@@ -22,7 +22,7 @@ set -euo pipefail
 # Modify these variables to test different images
 
 # Image A: Local build context (relative to this script's directory)
-IMAGE_A_CONTEXT="${IMAGE_A_CONTEXT:-../../docker/openemr/8.1.0}"
+IMAGE_A_CONTEXT="${IMAGE_A_CONTEXT:-../release}"
 
 # Image B: Docker Hub image name and tag
 IMAGE_B_IMAGE="${IMAGE_B_IMAGE:-openemr/openemr:8.1.0}"

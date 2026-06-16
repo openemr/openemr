@@ -101,7 +101,7 @@ main() {
     log_section "Benchmark Results Summary"
 
     # Find all result files
-    local files
+    local files=()
     while IFS= read -r file; do
         files+=("${file}")
     done < <(find "${RESULTS_DIR}" -name "benchmark_*.txt" -type f | sort) || true
@@ -202,7 +202,7 @@ main() {
     log_section "Recent Results"
 
     # Show last 5 results
-    local recent_files
+    local recent_files=()
     while IFS= read -r file; do
         recent_files+=("${file}")
     done < <(find "${RESULTS_DIR}" -name "benchmark_*.txt" -type f | sort -r | head -5) || true

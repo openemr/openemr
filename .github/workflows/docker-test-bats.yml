@@ -20,6 +20,9 @@ on:
     - 'tests/bats/docker/**'
     - 'docker/release/**'
 
+permissions:
+  contents: read
+
 jobs:
   bats-release:
     name: BATS release

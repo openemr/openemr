@@ -30,11 +30,15 @@ assert_script_syntax() {
     if [[ "$shebang" =~ ^#!/usr/bin/env\ bash ]] || [[ "$shebang" =~ ^#!/bin/bash ]]; then
         bash -n "$script_path" || { echo "Bash syntax check failed: $script_path"; return 1; }
     elif [[ "$shebang" =~ ^#!/bin/sh ]] || [[ "$shebang" =~ ^#!/usr/bin/env\ sh ]]; then
-        sh -n "$script_path" 2>/dev/null || true
-        # Some systems don't have sh -n; try bash -n as fallback for sh scripts
-        bash -n "$script_path" 2>/dev/null || true
+        # Prefer sh -n; fall back to bash -n only if sh isn't on PATH.
+        # `2>/dev/null || true` would have swallowed a real syntax failure here.
+        if command -v sh >/dev/null 2>&1; then
+            sh -n "$script_path" || { echo "sh syntax check failed: $script_path"; return 1; }
+        else
+            bash -n "$script_path" || { echo "Bash (sh fallback) syntax check failed: $script_path"; return 1; }
+        fi
     else
-        bash -n "$script_path" 2>/dev/null || true
+        bash -n "$script_path" || { echo "Bash syntax check failed: $script_path"; return 1; }
     fi
     return 0
 }
@@ -79,7 +83,10 @@ assert_pattern_count_ge() {
     local min="$3"
     [[ -f "$path" ]] || { echo "File not found: $path"; return 1; }
     local count
-    count=$(grep -c "$pattern" "$path" 2>/dev/null || echo 0)
+    # `grep -c` returns exit 1 when it prints "0" matches. Without the `|| true`
+    # the prior form `|| echo 0` appended a second "0" producing a non-numeric
+    # multi-line count that always failed the -ge comparison.
+    count=$(grep -c "$pattern" "$path" 2>/dev/null) || true
     [[ "$count" -ge "$min" ]] || { echo "Pattern $pattern found $count times in $path (expected >= $min)"; return 1; }
     return 0
 }
