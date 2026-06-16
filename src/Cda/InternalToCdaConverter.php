@@ -77,6 +77,7 @@ class InternalToCdaConverter
         $this->renderInformationRecipient($root);
         $this->renderParticipants($root);
         $this->renderDocumentationOf($root);
+        $this->renderComponentOf($root);
     }
 
     private function renderDocumentMetadata(DOMElement $root): void
@@ -740,6 +741,132 @@ class InternalToCdaConverter
 
         $performer->appendChild($assignedEntity);
         $serviceEvent->appendChild($performer);
+    }
+
+    private function renderComponentOf(DOMElement $root): void
+    {
+        $encounters = $this->xpath('/CCDA/encounter_list/encounter');
+        if ($encounters->length !== 1) {
+            return;
+        }
+
+        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
+        if ($facilityOid === '') {
+            $facilityOid = '2.16.840.1.113883.19.5.99999.1';
+        }
+
+        $componentOf = $this->createElement('componentOf');
+        $encompassingEncounter = $this->createElement('encompassingEncounter');
+
+        $patientId = $this->xpathValue('/CCDA/patient/id');
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $facilityOid);
+        $id->setAttribute('extension', 'PT-' . $patientId);
+        $encompassingEncounter->appendChild($id);
+
+        $encounterDate = $this->xpathValue('/CCDA/primary_diagnosis/encounter_date');
+        $encounterEndDate = $this->xpathValue('/CCDA/primary_diagnosis/encounter_end_date');
+        $effectiveTime = $this->createElement('effectiveTime');
+        $low = $this->createElement('low');
+        $low->setAttribute('value', $this->formatTimestamp($encounterDate));
+        $effectiveTime->appendChild($low);
+        $high = $this->createElement('high');
+        $high->setAttribute('value', $this->formatTimestamp($encounterEndDate));
+        $effectiveTime->appendChild($high);
+        $encompassingEncounter->appendChild($effectiveTime);
+
+        $this->appendResponsibleParty($encompassingEncounter, $facilityOid);
+        $this->appendEncounterParticipant($encompassingEncounter, $facilityOid);
+
+        $componentOf->appendChild($encompassingEncounter);
+        $root->appendChild($componentOf);
+    }
+
+    private function appendResponsibleParty(DOMElement $encompassingEncounter, string $facilityOid): void
+    {
+        $responsibleParty = $this->createElement('responsibleParty');
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $facilityOid);
+        $assignedEntity->appendChild($id);
+
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        $lname = $this->xpathValue('/CCDA/author/lname');
+        $fname = $this->xpathValue('/CCDA/author/fname');
+        if ($lname !== '') {
+            $name->appendChild($this->createElement('family', $lname));
+        }
+        if ($fname !== '') {
+            $name->appendChild($this->createElement('given', $fname));
+        }
+        $assignedPerson->appendChild($name);
+        $assignedEntity->appendChild($assignedPerson);
+
+        $responsibleParty->appendChild($assignedEntity);
+        $encompassingEncounter->appendChild($responsibleParty);
+    }
+
+    private function appendEncounterParticipant(DOMElement $encompassingEncounter, string $facilityOid): void
+    {
+        $lname = $this->xpathValue('/CCDA/author/lname');
+        if ($lname === '') {
+            return;
+        }
+
+        $encounterParticipant = $this->createElement('encounterParticipant');
+        $encounterParticipant->setAttribute('typeCode', 'ATND');
+        $assignedEntity = $this->createElement('assignedEntity');
+
+        $id = $this->createElement('id');
+        $id->setAttribute('root', $facilityOid);
+        $assignedEntity->appendChild($id);
+
+        $addr = $this->createElement('addr');
+        $addr->setAttribute('use', 'WP');
+        $street = $this->xpathValue('/CCDA/encounter_provider/facility_street');
+        if ($street !== '') {
+            $addr->appendChild($this->createElement('streetAddressLine', $street));
+        }
+        $city = $this->xpathValue('/CCDA/encounter_provider/facility_city');
+        if ($city !== '') {
+            $addr->appendChild($this->createElement('city', $city));
+        }
+        $state = $this->xpathValue('/CCDA/encounter_provider/facility_state');
+        if ($state !== '') {
+            $addr->appendChild($this->createElement('state', $state));
+        }
+        $postalCode = $this->xpathValue('/CCDA/encounter_provider/facility_postal_code');
+        if ($postalCode !== '') {
+            $addr->appendChild($this->createElement('postalCode', $postalCode));
+        }
+        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country_code');
+        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
+        $assignedEntity->appendChild($addr);
+
+        $phone = $this->xpathValue('/CCDA/encounter_provider/facility_phone');
+        if ($phone !== '') {
+            $telecom = $this->createElement('telecom');
+            $telecom->setAttribute('value', 'tel:' . $phone);
+            $telecom->setAttribute('use', 'WP');
+            $assignedEntity->appendChild($telecom);
+        }
+
+        $assignedPerson = $this->createElement('assignedPerson');
+        $name = $this->createElement('name');
+        $fname = $this->xpathValue('/CCDA/author/fname');
+        if ($lname !== '') {
+            $name->appendChild($this->createElement('family', $lname));
+        }
+        if ($fname !== '') {
+            $name->appendChild($this->createElement('given', $fname));
+        }
+        $assignedPerson->appendChild($name);
+        $assignedEntity->appendChild($assignedPerson);
+
+        $encounterParticipant->appendChild($assignedEntity);
+        $encompassingEncounter->appendChild($encounterParticipant);
     }
 
     private function formatTimestamp(string $input): string
