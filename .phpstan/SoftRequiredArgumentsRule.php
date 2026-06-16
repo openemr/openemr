@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\PHPStan\Rules;
 
-use OpenEMR\Common\Database\QueryUtils;
 use PhpParser\Node;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\StaticCall;

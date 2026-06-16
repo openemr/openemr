@@ -14,8 +14,6 @@ declare(strict_types=1);
 namespace OpenEMR\PHPStan\Rules;
 
 use PhpParser\Node;
-use PhpParser\Node\Expr\FuncCall;
-use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;

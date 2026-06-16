@@ -14,7 +14,6 @@ namespace OpenEMR\PHPStan\Rules;
 use OpenEMR\Common\Database\QueryUtils;
 use PhpParser\Node;
 use PhpParser\Node\Expr\StaticCall;
-use PhpParser\Node\Identifier;
 use PhpParser\Node\Name;
 use PHPStan\Analyser\Scope;
 use PHPStan\Rules\Rule;
