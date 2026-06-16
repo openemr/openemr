@@ -96,6 +96,7 @@ return ['includes' => [
     __DIR__ . '/notIdentical.alwaysFalse.php',
     __DIR__ . '/notIdentical.alwaysTrue.php',
     __DIR__ . '/nullCoalesce.expr.php',
+    __DIR__ . '/nullCoalesce.initializedProperty.php',
     __DIR__ . '/nullCoalesce.offset.php',
     __DIR__ . '/nullCoalesce.property.php',
     __DIR__ . '/nullCoalesce.variable.php',

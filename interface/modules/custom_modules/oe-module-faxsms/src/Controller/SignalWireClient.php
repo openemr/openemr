@@ -14,7 +14,6 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
@@ -22,17 +21,20 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
+use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use SignalWire\Rest\Client;
 
 class SignalWireClient extends AppDispatch
 {
     public static $timeZone;
-    protected $baseDir;
+    protected string $baseDir = '';
     protected $uriDir;
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
     protected CryptoInterface $crypto;
+    private readonly FaxUploadStaging $uploadStaging;
     private $client;
     private $spaceUrl;
     private $projectId;
@@ -47,6 +49,7 @@ class SignalWireClient extends AppDispatch
         // Initialize properties before calling parent (like other controllers)
         $globals = OEGlobalsBag::getInstance();
         $this->crypto = ServiceContainer::getCrypto();
+        $this->uploadStaging = FaxUploadStaging::create();
         $this->baseDir = $globals->getString('temporary_files_dir');
         $this->uriDir = $globals->getString('OE_SITE_WEBROOT');
 
@@ -174,14 +177,48 @@ class SignalWireClient extends AppDispatch
             }
         }
 
+        // Decrypt the staged upload to a per-request plaintext tempnam
+        // and continue with that as $file. Pattern guard scopes the
+        // cleanup we'll do below to files this controller staged via
+        // FaxUploadStaging, leaving caller-managed temp files alone.
+        $stagedPath = null;
+        $plainStagePath = null;
+        if (
+            empty($isContent)
+            && !$isDocuments
+            && is_string($file)
+            && is_file($file)
+            && $this->uploadStaging->isStagedUploadPath($file)
+        ) {
+            $plainStagePath = $this->uploadStaging->decryptStagedToTemp($file);
+            if ($plainStagePath === null) {
+                return xlt('Error: Failed to read fax content');
+            }
+            $stagedPath = $file;
+            $file = $plainStagePath;
+        }
+
         // Handle document retrieval
         if ($isDocuments) {
             $file = (new Document($docId))->get_data();
         }
 
-        // Send email if requested
+        // Send email if requested. $file is raw bytes when either the
+        // patient-document branch above set it from Document::get_data
+        // ($isDocuments) or the caller indicated the payload is already
+        // content ($isContent). The staged-upload branch left $file
+        // pointing at a plaintext path, so the else branch in
+        // mailUploadedDocument sends it directly.
+        $emailPath = null;
         if ($hasEmail && $smtpEnabled) {
-            self::emailDocument($email, '', $file, $user);
+            $payloadIsContent = (bool)$isDocuments || !empty($isContent);
+            $emailPath = FaxMailer::mailUploadedDocument(
+                $email,
+                '',
+                $file,
+                $user,
+                $payloadIsContent,
+            );
         }
 
         // Validate phone number
@@ -250,6 +287,12 @@ class SignalWireClient extends AppDispatch
                 'success' => false,
                 'error' => xlt('Error sending fax') . ': ' . $e->getMessage()
             ]);
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts(
+                $stagedPath,
+                $plainStagePath,
+                $emailPath
+            );
         }
     }
 
@@ -430,34 +473,6 @@ class SignalWireClient extends AppDispatch
     public function sendEmail(): mixed
     {
         return xlt('Email not implemented for SignalWire Fax');
-    }
-
-    /**
-     * Email a document
-     *
-     * @param string $email
-     * @param string $body
-     * @param string $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument(string $email, string $body, string $file, array $user = []): string
-    {
-        $globals = OEGlobalsBag::getInstance();
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = $globals->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
     }
 
     /**
@@ -915,11 +930,18 @@ class SignalWireClient extends AppDispatch
                 return null;
             }
 
-            // Create directory for fax media if it doesn't exist
+            // Create directory for fax media if it doesn't exist. Tighten
+            // perms on every call so installs whose dir was created earlier
+            // with 0777 get walked back to 0700 on the next inbound fax.
             $faxDir = $this->baseDir . '/received_faxes';
-            if (!file_exists($faxDir)) {
-                mkdir($faxDir, 0777, true);
+            if (!file_exists($faxDir) && !mkdir($faxDir, 0700, true)) {
+                ServiceContainer::getLogger()->error(
+                    'SignalWire downloadFaxMedia: failed to create received_faxes directory',
+                    ['directory' => $faxDir]
+                );
+                return null;
             }
+            chmod($faxDir, 0700);
 
             // Generate filename
             $filename = $fax->sid . '.pdf';
@@ -938,8 +960,11 @@ class SignalWireClient extends AppDispatch
                 return null;
             }
 
-            // Save the file
-            if (file_put_contents($filepath, $fileContent) === false) {
+            // Save the file encrypted-at-rest. Consumers (viewFaxPdf,
+            // download) already feed the bytes through decryptFromFilesystem,
+            // which version-prefix-checks so legacy plaintext files from
+            // before this change still flow through unchanged.
+            if (file_put_contents($filepath, $this->crypto->encryptForFilesystem($fileContent)) === false) {
                 error_log("SignalWireClient.downloadFaxMedia(): Failed to save file to {$filepath}");
                 return null;
             }
@@ -1038,27 +1063,10 @@ class SignalWireClient extends AppDispatch
      */
     public function faxProcessUploads(): string
     {
-        if (empty($_FILES['fax']) || $_FILES['fax']['error'] !== UPLOAD_ERR_OK) {
-            error_log('Error: No file uploaded or upload error.');
-            return '';
-        }
-
-        $name = basename((string) $_FILES['fax']['name']);
-        $tmp_name = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
-            return '';
-        }
-
-        $filepath = $targetDir . "/" . $name;
-
-        if (!move_uploaded_file($tmp_name, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
-            return '';
-        }
-
-        return $filepath;
+        $upload = $_FILES['fax'] ?? null;
+        return is_array($upload)
+            ? $this->uploadStaging->processUpload($this->baseDir, $upload)
+            : '';
     }
+
 }
