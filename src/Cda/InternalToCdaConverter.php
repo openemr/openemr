@@ -2990,6 +2990,13 @@ class InternalToCdaConverter
         $effTime->appendChild($low);
         $subAdmin->appendChild($effTime);
 
+        $sequenceNumber = $this->xpathValue('sequence_number', $imm);
+        if ($sequenceNumber !== '') {
+            $repeatNumber = $this->createElement('repeatNumber');
+            $repeatNumber->setAttribute('value', $sequenceNumber);
+            $subAdmin->appendChild($repeatNumber);
+        }
+
         $routeCode = $this->createElement('routeCode');
         $route = $this->mapRouteCode($this->xpathValue('route_code', $imm));
         if ($route !== '') {
@@ -3000,6 +3007,8 @@ class InternalToCdaConverter
         }
         $subAdmin->appendChild($routeCode);
 
+        $this->appendImmunizationApproachSite($subAdmin, $imm);
+        $this->appendImmunizationDoseQuantity($subAdmin, $imm);
         $this->appendImmunizationConsumable($subAdmin, $imm, $index);
         $this->appendImmunizationPerformer($subAdmin, $imm);
 
@@ -3009,6 +3018,10 @@ class InternalToCdaConverter
         }
 
         $this->appendImmunizationEducation($subAdmin);
+
+        if ($status === 'refused') {
+            $this->appendImmunizationRefusalReason($subAdmin, $imm);
+        }
 
         $entry->appendChild($subAdmin);
         $section->appendChild($entry);
@@ -3131,6 +3144,81 @@ class InternalToCdaConverter
             'pending' => ['INT', 'false'],
             default => ['EVN', 'false'],
         };
+    }
+
+    private function appendImmunizationApproachSite(DOMElement $subAdmin, DOMElement $imm): void
+    {
+        $bodySiteCode = $this->xpathValue('body_site_code', $imm);
+        $bodySiteName = $this->xpathValue('body_site', $imm);
+        if ($bodySiteCode === '' && $bodySiteName === '') {
+            return;
+        }
+
+        $approachSiteCode = $this->createElement('approachSiteCode');
+        if ($bodySiteCode !== '') {
+            $approachSiteCode->setAttribute('code', $bodySiteCode);
+            $approachSiteCode->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
+            $approachSiteCode->setAttribute('codeSystemName', 'SNOMED CT');
+        }
+        if ($bodySiteName !== '') {
+            $approachSiteCode->setAttribute('displayName', $bodySiteName);
+        }
+        $subAdmin->appendChild($approachSiteCode);
+    }
+
+    private function appendImmunizationDoseQuantity(DOMElement $subAdmin, DOMElement $imm): void
+    {
+        $doseValue = $this->xpathValue('dose_value', $imm);
+        $doseUnit = $this->xpathValue('dose_unit', $imm);
+        if ($doseValue === '' && $doseUnit === '') {
+            return;
+        }
+
+        $doseQuantity = $this->createElement('doseQuantity');
+        if ($doseValue !== '') {
+            $doseQuantity->setAttribute('value', $doseValue);
+        }
+        if ($doseUnit !== '') {
+            $doseQuantity->setAttribute('unit', $doseUnit);
+        }
+        $subAdmin->appendChild($doseQuantity);
+    }
+
+    private function appendImmunizationRefusalReason(DOMElement $subAdmin, DOMElement $imm): void
+    {
+        $refusalReasonCode = $this->xpathValue('refusal_reason_code', $imm);
+        $refusalReasonName = $this->xpathValue('refusal_reason', $imm);
+        if ($refusalReasonCode === '' && $refusalReasonName === '') {
+            return;
+        }
+
+        $entryRel = $this->createElement('entryRelationship');
+        $entryRel->setAttribute('typeCode', 'RSON');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.53');
+
+        $obsId = $this->createElement('id');
+        $obsId->setAttribute('nullFlavor', 'UNK');
+        $obs->appendChild($obsId);
+
+        $code = $this->createElement('code');
+        if ($refusalReasonCode !== '') {
+            $code->setAttribute('code', $refusalReasonCode);
+            $code->setAttribute('codeSystem', '2.16.840.1.113883.5.8');
+        }
+        if ($refusalReasonName !== '') {
+            $code->setAttribute('displayName', $refusalReasonName);
+        }
+        $obs->appendChild($code);
+
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $entryRel->appendChild($obs);
+        $subAdmin->appendChild($entryRel);
     }
 
     private function renderVitalSignsSection(DOMElement $structuredBody): void
