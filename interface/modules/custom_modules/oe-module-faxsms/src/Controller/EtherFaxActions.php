@@ -14,13 +14,13 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
@@ -75,31 +75,6 @@ class EtherFaxActions extends AppDispatch
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
-    }
-
-    /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument($email, $body, $file, array $user = []): string
-    {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
     }
 
     /**
@@ -231,23 +206,20 @@ class EtherFaxActions extends AppDispatch
             $fileName = $doc->get_name() ?? 'document';
         }
 
-        // Optional email copy. The patient-document branch above hands us
-        // raw bytes rather than a path, so write a per-request plaintext
-        // scratch file in that case so AddAttachment sees a real path.
-        // The staged-upload branch already left $file pointing at a
-        // plaintext tempnam.
+        // Optional email copy. When the patient-document branch above
+        // handed us raw bytes rather than a path, FaxMailer writes a
+        // per-request plaintext scratch file and returns it for cleanup.
+        // The staged-upload branch already left $file pointing at a real
+        // plaintext path, so the helper just sends it directly.
         $emailPath = null;
-        if ($hasEmail && $smtpEnabled && is_string($email)) {
-            if ($isDocuments) {
-                $tmp = tempnam(sys_get_temp_dir(), 'fax_');
-                if ($tmp !== false) {
-                    $emailPath = $tmp;
-                    file_put_contents($emailPath, (string)$file);
-                    self::emailDocument($email, '', $emailPath, $user);
-                }
-            } else {
-                self::emailDocument($email, '', (string)$file, $user);
-            }
+        if ($hasEmail && $smtpEnabled) {
+            $emailPath = FaxMailer::mailUploadedDocument(
+                $email,
+                '',
+                $file,
+                $user,
+                $isDocuments,
+            );
         }
 
         try {
@@ -395,8 +367,8 @@ class EtherFaxActions extends AppDispatch
 
         file_put_contents($filepath, base64_decode((string)$content));
 
-        if ($hasEmail && $smtpEnabled) {
-            $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filepath, $user) . "<br />";
+        if ($hasEmail && $smtpEnabled && is_string($email)) {
+            $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $filepath, $user) . "<br />";
         }
 
         if ($faxNumber) {

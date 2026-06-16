@@ -12,12 +12,12 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
@@ -195,8 +195,8 @@ class RCFaxClient extends AppDispatch
             }
             file_put_contents($filePath, $rawData);
 
-            if ($hasEmail && $smtpEnabled) {
-                $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filePath, $user) . "<br />";
+            if ($hasEmail && $smtpEnabled && is_string($email)) {
+                $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $filePath, $user) . "<br />";
             }
             if ($faxNumber) {
                 try {
@@ -315,23 +315,22 @@ class RCFaxClient extends AppDispatch
             // covers any caller that supplied already-ciphertext content.
             $content = $this->crypto->decryptFromFilesystem($content);
 
-            // Email: when we have content rather than a real path (the
-            // isContent and isDocuments branches), write a per-request
-            // scratch file so AddAttachment sees a real path. The staged-
-            // upload branch already left $file pointing at plaintext.
+            // Email: hand the payload to FaxMailer. When we have a real
+            // plaintext path (the staged-upload branch), it's emailed as
+            // is; for the isContent / isDocuments branches we pass the
+            // decrypted bytes and FaxMailer writes a per-request scratch
+            // file, returning that path for finally cleanup.
             $error = false;
-            if ($hasEmail && $smtpEnabled && is_string($email)) {
+            if ($hasEmail && $smtpEnabled) {
                 try {
-                    if (is_string($file) && is_file($file)) {
-                        self::emailDocument($email, $comments, $file, $user);
-                    } else {
-                        $tmp = tempnam(sys_get_temp_dir(), 'fax_');
-                        if ($tmp !== false) {
-                            $emailPath = $tmp;
-                            file_put_contents($emailPath, $content);
-                            self::emailDocument($email, $comments, $emailPath, $user);
-                        }
-                    }
+                    $payloadIsContent = !(is_string($file) && is_file($file));
+                    $emailPath = FaxMailer::mailUploadedDocument(
+                        $email,
+                        $comments,
+                        $payloadIsContent ? $content : $file,
+                        $user,
+                        $payloadIsContent,
+                    );
                 } catch (\PHPMailer\PHPMailer\Exception) {
                     $error = true;
                 }
@@ -1180,28 +1179,4 @@ class RCFaxClient extends AppDispatch
         }
     }
 
-    /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument($email, $body, $file, array $user = []): string
-    {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
-    }
 }

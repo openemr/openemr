@@ -14,7 +14,6 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
@@ -22,6 +21,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use SignalWire\Rest\Client;
 
@@ -203,21 +203,20 @@ class SignalWireClient extends AppDispatch
             $file = (new Document($docId))->get_data();
         }
 
-        // Send email if requested. When we're holding raw content rather
-        // than a path (isDocuments mode), write a per-request plaintext
-        // scratch file so AddAttachment can read it. Cleaned up in finally.
+        // Send email if requested. When the patient-document branch
+        // above handed us raw bytes rather than a path, FaxMailer writes
+        // a per-request plaintext scratch file and returns it for
+        // cleanup. The staged-upload branch already left $file pointing
+        // at a real plaintext path, so the helper just sends it directly.
         $emailPath = null;
-        if ($hasEmail && $smtpEnabled && is_string($email)) {
-            if ($isDocuments) {
-                $tmp = tempnam(sys_get_temp_dir(), 'fax_');
-                if ($tmp !== false) {
-                    $emailPath = $tmp;
-                    file_put_contents($emailPath, (string)$file);
-                    self::emailDocument($email, '', $emailPath, $user);
-                }
-            } else {
-                self::emailDocument($email, '', (string)$file, $user);
-            }
+        if ($hasEmail && $smtpEnabled) {
+            $emailPath = FaxMailer::mailUploadedDocument(
+                $email,
+                '',
+                $file,
+                $user,
+                (bool)$isDocuments,
+            );
         }
 
         // Validate phone number
@@ -472,34 +471,6 @@ class SignalWireClient extends AppDispatch
     public function sendEmail(): mixed
     {
         return xlt('Email not implemented for SignalWire Fax');
-    }
-
-    /**
-     * Email a document
-     *
-     * @param string $email
-     * @param string $body
-     * @param string $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument(string $email, string $body, string $file, array $user = []): string
-    {
-        $globals = OEGlobalsBag::getInstance();
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = $globals->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
     }
 
     /**
