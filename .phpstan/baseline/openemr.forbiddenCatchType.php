@@ -173,7 +173,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
 ];
 $ignoreErrors[] = [
@@ -188,7 +188,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 17,
+    'count' => 16,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
@@ -567,19 +567,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^catch \\(Exception\\) would suppress ErrorException, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Utils/DateFormatter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Controller/ControllerAjax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/JWT/JwtService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
@@ -595,11 +585,6 @@ $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Exception\\) would suppress ErrorException, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenTestCommand.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
@@ -620,11 +605,6 @@ $ignoreErrors[] = [
     'message' => '#^catch \\(ValueError\\) would suppress Error, which is forbidden\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Exception\\) would suppress ErrorException, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/ModulesApplication.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(ValueError\\) would suppress Error, which is forbidden\\.$#',
@@ -803,11 +783,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemsHealthConcernService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirProvenanceService.php',
 ];
@@ -870,21 +845,6 @@ $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/QdmBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Exception\\) would suppress ErrorException, which is forbidden\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/RelatedPersonPortalService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Error\\) would suppress Error, which is forbidden\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Utils/RandomGenUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^catch \\(Exception\\) would suppress ErrorException, which is forbidden\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Utils/RandomGenUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^catch \\(Throwable\\) would suppress Error, which is forbidden\\.$#',

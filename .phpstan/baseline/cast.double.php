@@ -48,11 +48,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to float\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to float\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Easipro/Easipro.php',
 ];

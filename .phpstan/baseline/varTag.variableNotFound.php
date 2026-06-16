@@ -14,11 +14,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$dispatcher in PHPDoc tag @var does not exist\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/Kernel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$dispatcher in PHPDoc tag @var does not exist\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Kernel.php',
 ];
 

@@ -67,6 +67,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Auth/OpenIDConnect/IdTokenSMARTResponseTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsString\\(\\) with string will always evaluate to true\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/MeasurementUtilsTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'OpenEMR\\\\\\\\Tests\\\\\\\\Isolated\\\\\\\\Core\\\\\\\\Traits\\\\\\\\SingletonA\' and OpenEMR\\\\Tests\\\\Isolated\\\\Core\\\\Traits\\\\SingletonA will always evaluate to true\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/Traits/SingletonTraitTest.php',

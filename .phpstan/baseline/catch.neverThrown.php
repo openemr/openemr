@@ -24,22 +24,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Dead catch \\- InvalidArgumentException is never thrown in the try block\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Dead catch \\- InvalidArgumentException is never thrown in the try block\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Core/Header.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Dead catch \\- Throwable is never thrown in the try block\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Dead catch \\- Error is never thrown in the try block\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Utils/RandomGenUtils.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

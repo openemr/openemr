@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Unable to resolve the template type T in call to function array_values$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Unable to resolve the template type T in call to method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSingleEntry\\(\\)$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',

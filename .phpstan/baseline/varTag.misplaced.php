@@ -14,11 +14,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var above a method has no effect\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var above a method has no effect\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Twig/TwigContainer.php',
 ];
 $ignoreErrors[] = [

@@ -22,61 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Pharmacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/batchcom/batch_navigation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getThemesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/billing/edih_view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/ub04_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/view.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/clinical_notes/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/procedure_order/delete.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:set_authorized\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
@@ -90,31 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:set_pid\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/authorizations/authorizations.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/tabs/main.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/tabs/templates/patient_data_template.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#',
@@ -137,11 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/messageUI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/openemr.bootstrap.php',
@@ -160,11 +75,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#',
     'count' => 7,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getVendorDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/config/application.config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
@@ -282,109 +192,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/SyndromicsurveillanceController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/cash_receipt.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/delete_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getThemesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/letter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getThemesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/labdata.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/lbf_fragment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/vitals_fragment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getThemesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesAbsolute\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/smart/register-app.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/appointmentComponent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsGeneralData.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/groupDetailsParticipants.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_views/listGroups.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getTemplateDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getVendorDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method HTML_TreeMenu_Presentation\\:\\:toHTML\\(\\)\\.$#',
@@ -405,71 +220,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:Start\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/sasl.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/custom_template/add_context.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/custom_template/ajax_code.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/dicom_frame.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/options.js.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/report.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:_compile_file\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:get\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method object\\:\\:set_file_contents\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\ContactService\\:\\:getContactsForPatient\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/templates/address_list_display.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\ContactService\\:\\:getContactsForPatient\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/templates/address_list_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/validation/validation_script.js.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:htmlAttribs\\(\\)\\.$#',
@@ -517,41 +267,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/Phreezer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Patient\\:\\:GetValidationErrors\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Patient\\:\\:Save\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Patient\\:\\:Validate\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/AbstractGenerator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesAbsolute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorHCFA_PDF_IMG.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorX12Direct.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Omnipay\\\\Common\\\\GatewayInterface\\:\\:setApiKey\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/PaymentGateway.php',
@@ -582,49 +297,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ActionRouter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSrcDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getTemplateDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/CdrAlertManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSrcDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleTemplateExtension.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method League\\\\OAuth2\\\\Server\\\\Repositories\\\\UserRepositoryInterface\\:\\:getCustomUserEntityByUserCredentials\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomPasswordGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Lcobucci\\\\JWT\\\\Token\\:\\:claims\\(\\)\\.$#',
@@ -645,11 +320,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method GuzzleHttp\\\\Exception\\\\GuzzleException\\:\\:getResponse\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSrcDir\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Forms/CoreFormToPortalUtility.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:getBody\\(\\)\\.$#',
@@ -677,139 +347,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:errorLogCaller\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/Predis/PredisSessionHandler.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigContainer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigExtension.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigExtension.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSrcDir\\(\\)\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigExtension.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Twig/TwigExtension.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/Header.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSrcDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Core/OEGlobalsBag.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Encounter/LoadEncounterFormFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/OeUI/OemrUI.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/CareExperiencePreferenceViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/PortalCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Patient/Cards/TreatmentPreferenceViewCard.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SpherePayment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/PaymentProcessing/Sphere/SphereRevert.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getVendorDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Pdf/PdfCreator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\FHIR\\\\IFhirExportableResourceService\\:\\:setServiceLocator\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:getHeader\\(\\)\\.$#',
@@ -822,19 +362,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/TelemetryListener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/CDADocumentService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getAttribute\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:C14N\\(\\)\\.$#',
@@ -860,11 +390,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:addProcessingError\\(\\)\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../src/Services/ContactService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DocumentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\FHIR\\\\R4\\\\FHIRDomainResource\\\\FHIRDiagnosticReport\\:\\:setDate\\(\\)\\.$#',
@@ -927,16 +452,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesAbsolute\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/LogoService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\ISearchField\\:\\:getModifier\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
@@ -977,31 +492,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\TableSearchProcessor\\:\\:createResultRecordFromDatabaseResult\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Search/TableSearchProcessor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\TableSearchProcessor\\:\\:getSelectJoinClauses\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/TableSearchProcessor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\TableSearchProcessor\\:\\:getTable\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/TableSearchProcessor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\Search\\\\TableSearchProcessor\\:\\:selectHelper\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/Search/TableSearchProcessor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\USPS\\\\USPSBase\\:\\:getPostFields\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method Particle\\\\Validator\\\\Chain\\:\\:listOption\\(\\)\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
@@ -1025,76 +515,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:getMessages\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getAssetsRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesAbsolute\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getImagesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getIncludeRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getProjectDir\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getRootDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSiteDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSiteWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSitesBase\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getSrcDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getTemplateDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getThemesRelative\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getVendorDir\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/KernelPathsTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Services\\\\SpreadSheetService\\|PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:buildSpreadsheet\\(\\)\\.$#',
@@ -1270,16 +690,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:populateServiceWithFhirQuestionnaire\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/PredictiveDSIServiceEntityTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\Kernel\\:\\:getWebRoot\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/api/InternalFhirTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

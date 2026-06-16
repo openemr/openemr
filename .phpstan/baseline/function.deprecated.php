@@ -584,11 +584,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/user_settings.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function sqlQ\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/PhoneNumber.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function checkUserSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:checkUserSetting$#',
     'count' => 1,

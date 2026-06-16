@@ -257,21 +257,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/FaxDocumentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$apiToken \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$projectId \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:\\$spaceUrl \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/SignalWireClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Juggernaut\\\\OpenEMR\\\\Modules\\\\PriorAuthModule\\\\Controller\\\\AuthorizationService\\:\\:\\$id \\(int\\|null\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
@@ -390,16 +375,6 @@ $ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Subject \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$_cache_including \\(string\\) does not accept false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$_cache_info \\(array\\) does not accept mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Static property GlobalConfig\\:\\:\\$APP_ROOT \\(string\\) does not accept string\\|false\\.$#',
@@ -652,29 +627,249 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsitePortalActivityController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$authorDateTime \\(string\\) does not accept mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+    'message' => '#^Property PatientDAO\\:\\:\\$AllowHealthInfoEx \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$documentLocation \\(string\\) does not accept mixed\\.$#',
+    'message' => '#^Property PatientDAO\\:\\:\\$AllowImmInfoShare \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$npiProvider \\(string\\) does not accept mixed\\.$#',
+    'message' => '#^Property PatientDAO\\:\\:\\$AllowImmRegUse \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$oidFacility \\(string\\) does not accept mixed\\.$#',
+    'message' => '#^Property PatientDAO\\:\\:\\$AllowPatientPortal \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Carecoordination\\\\Model\\\\PhpCcdaBuilder\\\\CcdaDataTransformer\\:\\:\\$webRoot \\(string\\) does not accept mixed\\.$#',
+    'message' => '#^Property PatientDAO\\:\\:\\$CareTeam \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$City \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$ContactRelationship \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$CountryCode \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$County \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Dob \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$DriversLicense \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Email \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Ethnicity \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Ethnoracial \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$FamilySize \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Financial \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Fname \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Guardiansname \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$HipaaAllowemail \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$HipaaAllowsms \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$HipaaMail \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$HipaaMessage \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$HipaaNotice \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$HipaaVoice \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Language \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Lname \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Mname \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Mothersname \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Occupation \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$PharmacyId \\(int\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$PhoneBiz \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$PhoneCell \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$PhoneContact \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$PhoneHome \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Pid \\(int\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$PostalCode \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Providerid \\(int\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Pubpid \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Race \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$RefProviderid \\(int\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Referrer \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Referrerid \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Religion \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Sex \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Ss \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$State \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Status \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Street \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PatientDAO\\:\\:\\$Title \\(string\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/libs/Controller/PatientController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$bibliographic_citation \\(string\\) does not accept mixed\\.$#',
@@ -892,16 +1087,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Core\\\\ModulesApplication\\:\\:\\$application \\(Laminas\\\\Mvc\\\\Application\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/ModulesApplication.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Core\\\\ModulesClassLoader\\:\\:\\$classLoader \\(Composer\\\\Autoload\\\\ClassLoader\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Database/ModulesClassLoader.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\:\\:\\$searchUri \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryPagination.php',
@@ -1015,11 +1200,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Symfony\\\\Component\\\\HttpFoundation\\\\Request\\:\\:\\$method \\(string\\|null\\) does not accept mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpRestRouteHandler\\:\\:\\$logger \\(Psr\\\\Log\\\\LoggerInterface\\) does not accept OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRouteHandler.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:\\:\\$sessionType \\(string\\) does not accept mixed\\.$#',
@@ -1267,11 +1447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportStreamWriter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$webroot \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:\\$id \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/DecisionSupportInterventionEntity.php',
@@ -1335,16 +1510,6 @@ $ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$notRestCall \\(OpenEMR\\\\RestControllers\\\\Config\\\\set\\) does not accept true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:\\$dispatcher \\(Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\) does not accept Symfony\\\\Component\\\\EventDispatcher\\\\EventDispatcherInterface\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\SMART\\\\SMARTAuthorizationController\\:\\:\\$logger \\(Psr\\\\Log\\\\LoggerInterface\\) does not accept OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property DateInterval\\:\\:\\$s \\(int\\) does not accept mixed\\.$#',
@@ -1510,26 +1675,6 @@ $ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\USPS\\\\USPSAddressVerifyV3\\:\\:\\$token \\(string\\|null\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSBase\\:\\:\\$errorCode \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSBase\\:\\:\\$errorMessage \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSBase\\:\\:\\$headers \\(array\\) does not accept string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\USPS\\\\USPSBase\\:\\:\\$response \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/USPS/USPSBase.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\BulkPatientExport311APITest\\:\\:\\$previousProfileValue \\(string\\) does not accept mixed\\.$#',

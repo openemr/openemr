@@ -542,11 +542,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on \'\'\\|non\\-empty\\-list\\<string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-empty\\-string, non\\-empty\\-string, string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/maviq_phone_api.php',
@@ -605,61 +600,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'total_pre_unsent_reminders\' does not exist on array\\{total_active_actions\\: \\(array\\|float\\|int\\), total_pre_active_reminders\\: \\(array\\|float\\|int\\)\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-empty\\-string, non\\-empty\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 2 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, non\\-empty\\-string, non\\-empty\\-string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'insert_tags\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'timestamp\' does not exist on array\\{\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'resource_timestamp\' does not exist on array\\{get_source\\: false, quiet\\: true, resource_name\\: int\\|string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'resource_timestamp\' does not exist on array\\{resource_base_path\\: mixed, get_source\\: false, quiet\\: true, resource_name\\: int\\|string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.read_cache_file.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'resource_timestamp\' does not exist on array\\{resource_name\\: mixed, resource_base_path\\: mixed, 0\\: true\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'resource_timestamp\' does not exist on array\\{resource_name\\: mixed, resource_base_path\\: mixed, get_source\\: false\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'resource_type\' does not exist on array\\{resource_name\\: mixed, resource_base_path\\: mixed, get_source\\: false\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'source_content\' does not exist on array\\{resource_name\\: mixed, resource_base_path\\: mixed, 0\\: true\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.config_load.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'host\' might not exist on non\\-empty\\-array\\{scheme\\?\\: string, host\\?\\: string, port\\?\\: int\\<0, 65535\\>, user\\?\\: string, pass\\?\\: string, path\\?\\: string, query\\?\\: string, fragment\\?\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.fetch.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'args\' might not exist on array\\{function\\: string, line\\?\\: int, file\\?\\: string, class\\?\\: class\\-string, type\\?\\: \'\\-\\>\'\\|\'\\:\\:\', args\\?\\: list\\<mixed\\>, object\\?\\: object\\}\\.$#',
@@ -825,11 +765,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'dtl\' might not exist on array\\{chg\\: float\\|int, bal\\: float\\|int, code_type\\: mixed, code_value\\: mixed, modifier\\: mixed, code_text\\: mixed, dtl\\?\\: non\\-empty\\-array\\<\'          1000\'\\|\'          1001\', array\\{chg\\: numeric\\-string\\}\\>\\}\\|array\\{chg\\: float\\|int, bal\\: float\\|int\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset 0 might not exist on string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/Templates/HeaderLevel.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset 1 might not exist on array\\{\\}\\|array\\{non\\-falsy\\-string, \'\'\\|numeric\\-string\\}\\.$#',

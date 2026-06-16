@@ -577,11 +577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/registry.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$smallform on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../library/templates/address_list_form.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$mname on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',

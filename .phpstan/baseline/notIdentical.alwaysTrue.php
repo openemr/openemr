@@ -92,24 +92,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between string and null will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Compiler_Legacy.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between Phreezable and false will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/DataPage.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Carecoordination/Model/PhpCcdaBuilder/CcdaDataTransformer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between non\\-empty\\-string and false will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/JWT/JwtService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and false will always evaluate to true\\.$#',
@@ -220,11 +205,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between ADORecordSet and false will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Uuid/UuidRegistry.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',

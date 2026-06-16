@@ -98,12 +98,6 @@ Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoid
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\FHIR\\\\SMART\\\\RequestConstraintFilterer\\:
-Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/RequestConstraintFilterer.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class OpenEMR\\\\FHIR\\\\SMART\\\\ResourceConstraintFilterer\\:
 Prefer constructor injection of a logger; use PSR\'s LoggerAwareTrait if unavoidable\\.$#',
     'count' => 1,

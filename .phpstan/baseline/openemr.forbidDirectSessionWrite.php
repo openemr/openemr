@@ -89,11 +89,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct \\$session\\-\\>set\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use SessionUtil\\:\\:setSession\\(\\) instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenTestCommand.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct \\$session\\-\\>set\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use SessionUtil\\:\\:setSession\\(\\) instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
 ];
 $ignoreErrors[] = [
@@ -115,21 +110,6 @@ $ignoreErrors[] = [
     'message' => '#^Direct \\$session\\-\\>set\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use SessionUtil\\:\\:setSession\\(\\) instead\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct \\$session\\-\\>clear\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use \\$session\\-\\>clear\\(\\) requires a writable session \\(setSessionReadOnly\\(false\\)\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct \\$session\\-\\>remove\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use SessionUtil\\:\\:unsetSession\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct \\$session\\-\\>set\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use SessionUtil\\:\\:setSession\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct \\$session\\-\\>set\\(\\) is forbidden — it silently fails on read_and_close sessions\\. Use SessionUtil\\:\\:setSession\\(\\) instead\\.$#',
