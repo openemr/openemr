@@ -39,6 +39,19 @@ ignored:
   # Some existing Dockerfiles use ADD for local files
   - DL3020
 
+  # DL3018: Pin versions in apk add
+  # The release Dockerfile uses unpinned apk packages deliberately so
+  # the build picks up Alpine's security updates; pinning would defeat
+  # that purpose and require synchronized bumps every time Alpine's
+  # package index moves.
+  - DL3018
+
+  # DL3059: Multiple consecutive `RUN` instructions
+  # Some build steps are intentionally split across multiple RUN
+  # instructions for cache-layer granularity and readability;
+  # consolidation isn't always desirable.
+  - DL3059
+
 # Trusted registries for base images
 trustedRegistries:
   - docker.io
