@@ -1651,12 +1651,16 @@ class InternalToCdaConverter
         );
 
         $medications = $this->xpath('/CCDA/medications/medication');
-        $this->appendMedicationsNarrative($section, $medications);
-
-        $index = 1;
-        foreach ($medications as $med) {
-            $this->appendMedicationEntry($section, $med, $index);
-            $index++;
+        if ($medications->length === 0) {
+            $section->setAttribute('nullFlavor', 'NI');
+            $section->appendChild($this->createElement('text', 'Not Available'));
+        } else {
+            $this->appendMedicationsNarrative($section, $medications);
+            $index = 1;
+            foreach ($medications as $med) {
+                $this->appendMedicationEntry($section, $med, $index);
+                $index++;
+            }
         }
 
         $this->appendSection($structuredBody, $component, $section);
