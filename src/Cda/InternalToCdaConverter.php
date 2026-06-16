@@ -3244,6 +3244,7 @@ class InternalToCdaConverter
         $section = $this->createElement('section');
 
         // Check for USCDI data
+        $patientGender = $this->xpathValue('/CCDA/patient/gender');
         $sexObservation = $this->xpathValue('/CCDA/patient/sex_observation');
         $occupationCode = $this->xpathValue('/CCDA/patient/occupation/occupation_code');
         $tribalCode = $this->xpathValue('/CCDA/patient/tribal');
@@ -3251,7 +3252,7 @@ class InternalToCdaConverter
         $hungerRiskCode = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/risk_status/answer_code');
         $disabilityStatusCode = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_code');
         $disabilityQuestions = $this->xpath('/CCDA/patient/sdoh_data/disability_assessment/disability_questions/question');
-        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '' || $disabilityStatusCode !== '' || $disabilityQuestions->length > 0;
+        $hasUscdiData = $patientGender !== '' || $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '' || $disabilityStatusCode !== '' || $disabilityQuestions->length > 0;
 
         if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->setAttribute('nullFlavor', 'NI');
@@ -3266,14 +3267,12 @@ class InternalToCdaConverter
             $section->appendChild($this->createElement('text', 'Not Available'));
         } else {
             $this->appendSocialHistoryNarrative($section, $socialHistory);
-            foreach ($socialHistory as $item) {
-                $this->appendSocialHistoryEntry($section, $item);
-            }
 
-            // USCDI Social History Observations
-            $this->appendSexObservationEntry($section, $sexObservation);
+            // USCDI Social History Observations - order matches Node.js
+            $this->appendSexAssignedAtBirthEntry($section, $patientGender);
             $this->appendSexualOrientationObservationEntry($section);
             $this->appendGenderIdentityObservationEntry($section);
+            $this->appendSexObservationEntry($section, $sexObservation);
             $this->appendOccupationObservationEntry($section, $occupationCode);
             $this->appendTribalAffiliationObservationEntry($section, $tribalCode);
             $this->appendPregnancyStatusObservationEntry($section, $pregnancyCode);
@@ -3483,12 +3482,7 @@ class InternalToCdaConverter
 
         $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.507', '2023-06-28');
 
-        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $id = $this->createElement('id');
-            $id->setAttribute('root', $facilityOid);
-            $obs->appendChild($id);
-        }
+        $this->appendId($obs, $this->generateUuid());
 
         $obs->appendChild($this->createLoincCode('46098-0', 'Sex'));
         $this->appendStatusCode($obs, ActStatus::Completed);
@@ -3551,9 +3545,69 @@ class InternalToCdaConverter
         };
     }
 
+    private function appendSexAssignedAtBirthEntry(DOMElement $section, string $gender): void
+    {
+        if ($gender === '') {
+            return;
+        }
+
+        $entry = $this->createElement('entry');
+        $entry->setAttribute('typeCode', 'DRIV');
+
+        $obs = $this->createElement('observation');
+        $obs->setAttribute('classCode', 'OBS');
+        $obs->setAttribute('moodCode', 'EVN');
+
+        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.200', '2016-06-01');
+
+        $obs->appendChild($this->createLoincCode('76689-9', 'Sex Assigned At Birth'));
+        $this->appendStatusCode($obs, ActStatus::Completed);
+
+        $value = $this->output->createElement('value');
+        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
+
+        $genderCode = $this->mapAdminGenderCode($gender);
+        $value->setAttribute('code', $genderCode['code']);
+        $value->setAttribute('codeSystem', $genderCode['codeSystem']);
+        $value->setAttribute('codeSystemName', $genderCode['codeSystemName']);
+        $value->setAttribute('displayName', $genderCode['displayName']);
+        $obs->appendChild($value);
+
+        $entry->appendChild($obs);
+        $section->appendChild($entry);
+    }
+
+    /**
+     * @return array{code: string, codeSystem: string, codeSystemName: string, displayName: string}
+     */
+    private function mapAdminGenderCode(string $gender): array
+    {
+        $gender = strtolower(trim($gender));
+
+        return match ($gender) {
+            'male', 'm' => [
+                'code' => 'M',
+                'codeSystem' => '2.16.840.1.113883.5.1',
+                'codeSystemName' => 'HL7 AdministrativeGender',
+                'displayName' => 'Male',
+            ],
+            'female', 'f' => [
+                'code' => 'F',
+                'codeSystem' => '2.16.840.1.113883.5.1',
+                'codeSystemName' => 'HL7 AdministrativeGender',
+                'displayName' => 'Female',
+            ],
+            default => [
+                'code' => 'UN',
+                'codeSystem' => '2.16.840.1.113883.5.1',
+                'codeSystemName' => 'HL7 AdministrativeGender',
+                'displayName' => 'Undifferentiated',
+            ],
+        };
+    }
+
     private function appendSexualOrientationObservationEntry(DOMElement $section): void
     {
-        // Sexual orientation is always included per Node.js behavior
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
 
@@ -3562,14 +3616,9 @@ class InternalToCdaConverter
         $obs->setAttribute('moodCode', 'EVN');
 
         $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
-        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.22.4.501', '2022-06-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.501', '2022-06-01');
 
-        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $id = $this->createElement('id');
-            $id->setAttribute('root', $facilityOid);
-            $obs->appendChild($id);
-        }
+        $this->appendId($obs, $this->generateUuid());
 
         $obs->appendChild($this->createLoincCode('76690-7', 'Sexual Orientation'));
         $this->appendStatusCode($obs, ActStatus::Completed);
@@ -3578,19 +3627,12 @@ class InternalToCdaConverter
         $effTime->setAttribute('nullFlavor', 'NI');
         $obs->appendChild($effTime);
 
-        // Value with nullFlavor if no data
-        $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-        $value->setAttribute('nullFlavor', 'UNK');
-        $obs->appendChild($value);
-
         $entry->appendChild($obs);
         $section->appendChild($entry);
     }
 
     private function appendGenderIdentityObservationEntry(DOMElement $section): void
     {
-        // Gender identity is always included per Node.js behavior
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
 
@@ -3599,14 +3641,9 @@ class InternalToCdaConverter
         $obs->setAttribute('moodCode', 'EVN');
 
         $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
-        $this->appendVersionedTemplateId($obs, '2.16.840.1.113883.10.20.34.3.45', '2022-06-01');
+        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.34.3.45', '2022-06-01');
 
-        $facilityOid = $this->xpathValue('/CCDA/encounter_provider/facility_oid');
-        if ($facilityOid !== '') {
-            $id = $this->createElement('id');
-            $id->setAttribute('root', $facilityOid);
-            $obs->appendChild($id);
-        }
+        $this->appendId($obs, $this->generateUuid());
 
         $obs->appendChild($this->createLoincCode('76691-5', 'Gender Identity'));
         $this->appendStatusCode($obs, ActStatus::Completed);
@@ -3614,12 +3651,6 @@ class InternalToCdaConverter
         $effTime = $this->createElement('effectiveTime');
         $effTime->setAttribute('nullFlavor', 'NI');
         $obs->appendChild($effTime);
-
-        // Value with nullFlavor if no data
-        $value = $this->output->createElement('value');
-        $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
-        $value->setAttribute('nullFlavor', 'ASKU');
-        $obs->appendChild($value);
 
         $entry->appendChild($obs);
         $section->appendChild($entry);
