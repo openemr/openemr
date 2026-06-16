@@ -50,8 +50,13 @@ setup() {
 }
 
 @test "upgrade scripts exist and have valid syntax" {
-    for i in 1 2 3 4 5 6 7 8 9; do
-        assert_script_syntax "${SCRIPT_DIR}/upgrade/fsupgrade-${i}.sh"
+    # Enumerate the fsupgrade-*.sh files at test time rather than hardcoding a
+    # 1..N range -- master has fsupgrade-10.sh (which a 1..9 loop missed) and
+    # the set grows on patch releases.
+    local upgrade_scripts=( "${SCRIPT_DIR}"/upgrade/fsupgrade-*.sh )
+    [[ ${#upgrade_scripts[@]} -gt 0 ]] || { echo "No fsupgrade-*.sh scripts found"; return 1; }
+    for script in "${upgrade_scripts[@]}"; do
+        assert_script_syntax "${script}"
     done
 }
 

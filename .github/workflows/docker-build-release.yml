@@ -194,7 +194,17 @@ jobs:
         docker pull "$REF_TAG"
 
         inspect_label() {
-          docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG"
+          # docker's Go-template `index` returns the literal string "<no value>"
+          # when a label key is missing on newer Docker versions, instead of an
+          # empty string. Normalize it back to empty so callers (both the
+          # value-comparison and the presence-checks below) can rely on -z to
+          # mean "label absent."
+          V=$(docker inspect --format "{{ index .Config.Labels \"org.opencontainers.image.$1\" }}" "$REF_TAG")
+          if [ "$V" = "<no value>" ]; then
+            echo ""
+          else
+            echo "$V"
+          fi
         }
 
         FAIL=0

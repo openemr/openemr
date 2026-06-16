@@ -112,7 +112,15 @@ jobs:
             continue
           fi
 
-          curl -fsSL "https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php" -o /tmp/v.php
+          # Wipe any /tmp/v.php from a prior iteration before fetching, so a
+          # transient curl failure can't fall through to parsing a stale file
+          # for the wrong branch's version.
+          rm -f /tmp/v.php
+          if ! curl -fsSL "https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php" -o /tmp/v.php; then
+            echo "::error::Row '$BRANCH': failed to fetch version.php at ref '$REF' from raw.githubusercontent.com"
+            FAIL=1
+            continue
+          fi
           MAJ=$(awk -F"'" '/^\$v_major[[:space:]]*=/ {print $2}' /tmp/v.php)
           MIN=$(awk -F"'" '/^\$v_minor[[:space:]]*=/ {print $2}' /tmp/v.php)
           PAT=$(awk -F"'" '/^\$v_patch[[:space:]]*=/ {print $2}' /tmp/v.php)

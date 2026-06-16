@@ -42,7 +42,6 @@ on:
         default: ''
 
 permissions:
-  actions: write
   contents: read
 
 jobs:
@@ -101,6 +100,12 @@ jobs:
     name: fan-out
     needs: compute-matrix
     runs-on: ubuntu-24.04
+    # actions:write is the capability that `gh workflow run` needs to
+    # dispatch docker-build-release.yml on each rel branch. Scoped to
+    # this job only (compute-matrix doesn't need it).
+    permissions:
+      actions: write
+      contents: read
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.compute-matrix.outputs.matrix) }}

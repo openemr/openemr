@@ -28,4 +28,6 @@ jobs:
       alpine_version: "3.23"
       php_versions: '["8.3", "8.4", "8.5"]'
       php_default: "8.5"
-    secrets: inherit
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

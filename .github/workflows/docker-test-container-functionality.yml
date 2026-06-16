@@ -32,6 +32,9 @@ env:
   # Run full test suite by default; use workflow_dispatch with test_name to run a single test
   TEST_SUITE_ARGS: ''
 
+permissions:
+  contents: read
+
 jobs:
   functionality-release:
     name: Functionality release
@@ -45,6 +48,14 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
       run: |
         if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
           printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
         elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "args=" >> "$GITHUB_OUTPUT"
@@ -80,6 +91,14 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
       run: |
         if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
           printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
         elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "args=" >> "$GITHUB_OUTPUT"
@@ -115,6 +134,14 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
       run: |
         if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
           printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
         elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
           echo "args=" >> "$GITHUB_OUTPUT"

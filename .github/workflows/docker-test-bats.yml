@@ -21,6 +21,9 @@ on:
     - 'docker/binary/**'
     - 'docker/flex/**'
 
+permissions:
+  contents: read
+
 jobs:
   bats-release:
     name: BATS release

@@ -25,8 +25,8 @@ mkdir -p "${RESULTS_DIR}"
 
 # Test configuration
 # Note: Using DOCKERFILE_CONTEXT instead of DOCKER_CONTEXT to avoid conflict with Docker CLI's context variable
-DOCKERFILE_CONTEXT="${DOCKERFILE_CONTEXT:-${DOCKER_CONTEXT:-../../docker/openemr/8.1.0}}"
-IMAGE_TAG="${IMAGE_TAG:-openemr:8.1.0-test}"
+DOCKERFILE_CONTEXT="${DOCKERFILE_CONTEXT:-${DOCKER_CONTEXT:-../release}}"
+IMAGE_TAG="${IMAGE_TAG:-openemr:release-test}"
 KEEP_CONTAINERS="${KEEP_CONTAINERS:-no}"
 VERBOSE="${VERBOSE:-no}"
 
@@ -40,8 +40,8 @@ if [[ -z "${VERSION:-}" ]]; then
     elif [[ "${DOCKERFILE_CONTEXT}" == *"/flex"* ]]; then
         VERSION="flex"
     else
-        # Extract version number from path (e.g., ../../docker/openemr/8.1.0 -> 8.1.0)
-        VERSION=$(basename "${DOCKERFILE_CONTEXT}" 2>/dev/null || echo "8.1.0")
+        # Extract variant name from path (e.g., ../release -> release)
+        VERSION=$(basename "${DOCKERFILE_CONTEXT}" 2>/dev/null || echo "release")
     fi
 fi
 
@@ -1581,8 +1581,8 @@ main() {
                 shift
                 ;;
             --version)
-                VERSION="${2:-8.1.0}"
-                DOCKERFILE_CONTEXT="../../docker/openemr/${VERSION}"
+                VERSION="${2:-release}"
+                DOCKERFILE_CONTEXT="../${VERSION}"
                 IMAGE_TAG="openemr:${VERSION}-test"
                 shift 2
                 ;;

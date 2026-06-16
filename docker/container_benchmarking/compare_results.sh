@@ -3,8 +3,10 @@
 # Benchmark Results Comparison Tool
 # ============================================================================
 # This script compares benchmark results and generates a summary report
-# Usage: ./compare_results.sh [result_file_1] [result_file_2] ...
-# If no files specified, compares the two most recent results
+# Usage: ./compare_results.sh [result_file]
+# If no file is specified, compares Image A vs Image B from the most recent
+# result. Any additional arguments are currently ignored -- the implementation
+# only processes the first file.
 # ============================================================================
 
 set -euo pipefail
