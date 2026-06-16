@@ -1818,6 +1818,14 @@ class InternalToCdaConverter
         $mfgMaterial->appendChild($code);
 
         $mfgProduct->appendChild($mfgMaterial);
+
+        $manufacturer = $this->xpathValue('manufacturer', $med);
+        if ($manufacturer !== '') {
+            $mfgOrg = $this->createElement('manufacturerOrganization');
+            $mfgOrg->appendChild($this->createElement('name', $manufacturer));
+            $mfgProduct->appendChild($mfgOrg);
+        }
+
         $consumable->appendChild($mfgProduct);
         $subAdmin->appendChild($consumable);
     }
