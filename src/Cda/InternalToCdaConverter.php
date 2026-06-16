@@ -294,9 +294,10 @@ class InternalToCdaConverter
 
         $maritalStatus = $this->xpathValue('/CCDA/patient/status');
         $maritalStatusCode = $this->xpathValue('/CCDA/patient/status_code');
-        if ($maritalStatus !== '' || $maritalStatusCode !== '') {
+        // Only output maritalStatusCode if there's a valid status (not empty, not "0")
+        if ($maritalStatus !== '' && $maritalStatusCode !== '' && $maritalStatusCode !== '0') {
             $maritalEl = $this->createElement('maritalStatusCode');
-            $maritalEl->setAttribute('code', $maritalStatusCode !== '' ? substr($maritalStatusCode, 0, 1) : '');
+            $maritalEl->setAttribute('code', substr($maritalStatusCode, 0, 1));
             $maritalEl->setAttribute('displayName', strtoupper($maritalStatus));
             $maritalEl->setAttribute('codeSystem', '2.16.840.1.113883.5.2');
             $maritalEl->setAttribute('codeSystemName', 'HL7 Marital Status');
@@ -2710,7 +2711,9 @@ class InternalToCdaConverter
         $locationDetails = $this->xpathValue('location_details', $enc);
         $code = $this->createElement('code');
         $code->setAttribute('code', '1160-1');
-        $code->setAttribute('displayName', $locationDetails);
+        // Node.js includes trailing space only when location details are empty (just commas)
+        $hasActualData = trim(str_replace(',', '', $locationDetails)) !== '';
+        $code->setAttribute('displayName', $hasActualData ? $locationDetails : $locationDetails . ' ');
         $code->setAttribute('codeSystem', '2.16.840.1.113883.6.259');
         $code->setAttribute('codeSystemName', 'HealthcareServiceLocation');
         $role->appendChild($code);
@@ -2720,7 +2723,7 @@ class InternalToCdaConverter
         $city = $this->xpathValue('/CCDA/encounter_provider/facility_city');
         $state = $this->xpathValue('/CCDA/encounter_provider/facility_state');
         $postalCode = $this->xpathValue('/CCDA/encounter_provider/facility_postal_code');
-        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country');
+        $country = $this->xpathValue('/CCDA/encounter_provider/facility_country_code');
         $addr = $this->createElement('addr');
         if ($street !== '') {
             $addr->appendChild($this->createElement('streetAddressLine', $street));
@@ -2734,7 +2737,7 @@ class InternalToCdaConverter
         if ($postalCode !== '') {
             $addr->appendChild($this->createElement('postalCode', $postalCode));
         }
-        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'USA'));
+        $addr->appendChild($this->createElement('country', $country !== '' ? $country : 'US'));
         $role->appendChild($addr);
 
         // Telecom
@@ -3319,7 +3322,8 @@ class InternalToCdaConverter
         $component = $this->createElement('component');
         $section = $this->createElement('section');
 
-        // Check for USCDI data
+        // Check for USCDI data - matches Node.js logic that only generates
+        // social history section when there are history items OR sex_observation is present
         $patientGender = $this->xpathValue('/CCDA/patient/gender');
         $sexObservation = $this->xpathValue('/CCDA/patient/sex_observation');
         $occupationCode = $this->xpathValue('/CCDA/patient/occupation/occupation_code');
@@ -3328,7 +3332,8 @@ class InternalToCdaConverter
         $hungerRiskCode = $this->xpathValue('/CCDA/social_history_sdoh/hunger_vital_signs/risk_status/answer_code');
         $disabilityStatusCode = $this->xpathValue('/CCDA/patient/sdoh_data/disability_assessment/overall_status/answer_code');
         $disabilityQuestions = $this->xpath('/CCDA/patient/sdoh_data/disability_assessment/disability_questions/question');
-        $hasUscdiData = $patientGender !== '' || $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '' || $disabilityStatusCode !== '' || $disabilityQuestions->length > 0;
+        // Note: patientGender alone does NOT trigger social history generation per Node.js logic
+        $hasUscdiData = $sexObservation !== '' || $occupationCode !== '' || $tribalCode !== '' || $pregnancyCode !== '' || $hungerRiskCode !== '' || $disabilityStatusCode !== '' || $disabilityQuestions->length > 0;
 
         if ($socialHistory->length === 0 && !$hasUscdiData) {
             $section->setAttribute('nullFlavor', 'NI');
