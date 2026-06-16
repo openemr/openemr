@@ -31,6 +31,33 @@ class InternalToCdaConverterTest extends TestCase
         $this->assertCdaEquals($expected, $actual);
     }
 
+    #[DataProvider('demoFixtureProvider')]
+    public function testDemoFixture(string $inputFile, string $expectedFile): void
+    {
+        $input = file_get_contents(self::FIXTURE_DIR . $inputFile);
+        self::assertNotFalse($input, "Failed to read input fixture: $inputFile");
+        $expected = file_get_contents(self::FIXTURE_DIR . $expectedFile);
+        self::assertNotFalse($expected, "Failed to read expected fixture: $expectedFile");
+
+        $converter = new InternalToCdaConverter();
+        $actual = $converter->convert(trim($input));
+
+        $this->assertCdaEquals($expected, $actual);
+    }
+
+    /**
+     * @return array<string, array{string, string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function demoFixtureProvider(): array
+    {
+        return [
+            'demo1' => ['ccda-input-demo1.xml', 'ccda-output-demo1.xml'],
+            'demo2' => ['ccda-input-demo2.xml', 'ccda-output-demo2.xml'],
+        ];
+    }
+
     #[DataProvider('sectionTemplateIdProvider')]
     public function testSection(string $name, string $templateId): void
     {
