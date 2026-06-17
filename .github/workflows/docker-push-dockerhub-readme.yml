@@ -1,0 +1,105 @@
+# Render docker/dockerhub-overview.md against the live state of
+# release-targets.yml + the three flex build callers, then PATCH it to
+# Docker Hub's repo description for openemr/openemr.
+#
+# Three trigger paths:
+#
+#   * workflow_run on docker-release-orchestrator.yml -- after each
+#     successful nightly fan-out, refresh the readme so consumers landing
+#     on Docker Hub see the same version pointers the most recent push
+#     just published.
+#
+#   * pull_request, paths-filtered to the four inputs (the template,
+#     release-targets.yml, the three flex caller workflows, this workflow,
+#     and the renderer script). Renders to a job artifact + posts a one-
+#     line summary; never pushes to Docker Hub. Pre-merge preview only.
+#
+#   * workflow_dispatch with a `dry_run` input -- for maintainer-driven
+#     ad-hoc refreshes (or testing the renderer without publishing).
+#
+# Push only happens when the run was triggered by the orchestrator's
+# workflow_run path, or by an explicit dispatch with dry_run=false.
+
+name: Push Docker Hub readme
+
+on:
+  workflow_run:
+    workflows: ["Docker release orchestrator"]
+    types: [completed]
+  pull_request:
+    branches: [master]
+    paths:
+    - 'docker/dockerhub-overview.md'
+    - 'docker/render-dockerhub-overview.sh'
+    - '.github/release-targets.yml'
+    - '.github/workflows/docker-build-322.yml'
+    - '.github/workflows/docker-build-323.yml'
+    - '.github/workflows/docker-build-edge.yml'
+    - '.github/workflows/docker-push-dockerhub-readme.yml'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Render only -- skip pushing to Docker Hub'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize so two near-simultaneous renders can't race the dockerhub
+  # PATCH endpoint.
+  group: docker-push-dockerhub-readme
+  cancel-in-progress: false
+
+jobs:
+  render-and-push:
+    # Gate on success when triggered by the orchestrator's workflow_run.
+    # workflow_run fires on completed regardless of conclusion, so without
+    # this check a failed orchestrator run would still update the readme.
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    name: Render and push
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Render readme
+      run: |
+        mkdir -p "${RUNNER_TEMP}/rendered"
+        ./docker/render-dockerhub-overview.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
+        echo "✓ Rendered $(wc -l < ${RUNNER_TEMP}/rendered/dockerhub-readme.md) lines"
+
+    - name: Upload rendered readme as artifact
+      uses: actions/upload-artifact@v7
+      with:
+        name: dockerhub-readme
+        path: ${{ runner.temp }}/rendered/dockerhub-readme.md
+        retention-days: 14
+
+    - name: Decide whether to push
+      id: decide
+      env:
+        EVENT_NAME: ${{ github.event_name }}
+        DRY_RUN: ${{ github.event.inputs.dry_run }}
+      run: |
+        # Push when triggered by a successful orchestrator run, OR when a
+        # maintainer manually dispatched with dry_run=false. Pull requests
+        # and dry_run dispatches stop at the artifact upload above.
+        if [ "$EVENT_NAME" = 'workflow_run' ]; then
+          echo "push=true" >> "$GITHUB_OUTPUT"
+        elif [ "$EVENT_NAME" = 'workflow_dispatch' ] && [ "$DRY_RUN" = 'false' ]; then
+          echo "push=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "push=false" >> "$GITHUB_OUTPUT"
+          echo "ℹ Skipping Docker Hub push (event=$EVENT_NAME dry_run=${DRY_RUN:-n/a}). Rendered output uploaded as artifact only."
+        fi
+
+    - name: Push readme to Docker Hub
+      if: ${{ steps.decide.outputs.push == 'true' && github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' }}
+      uses: peter-evans/dockerhub-description@v5
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        repository: openemr/openemr
+        readme-filepath: ${{ runner.temp }}/rendered/dockerhub-readme.md
