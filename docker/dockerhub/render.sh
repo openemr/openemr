@@ -124,11 +124,21 @@ done
 #    each, read alpine_version, php_versions (JSON array), php_default,
 #    is_default_flex from .jobs.build.with. Emit one bullet per PHP version
 #    (in REVERSE list order so newest PHP appears first, matching the old
-#    devops template's ordering). The tag list per bullet replicates
-#    docker-build-flex-core.yml's Build tags step:
+#    devops template's ordering).
+#
+#    IMPORTANT -- mirror of docker-build-flex-core.yml.
+#    The tag list per bullet replicates that workflow's `Build tags` step:
 #      base:          flex-{alpine}-php-{php}
 #      + default php: flex-{alpine}
 #      + default flex + default php: flex (the bare tag)
+#    If flex-core's tag rules ever change (a new floating alias, a different
+#    conditional, etc.), THIS block needs to follow + the Tier 2 golden
+#    fixture at docker/dockerhub/tests/golden.md needs to be regenerated via
+#    docker/dockerhub/tests/golden-regenerate.sh. Tier 1 catches bullet-count
+#    drift; Tier 2 catches changes to this block; neither catches flex-core
+#    diverging from this block silently. flex-core's Build tags step has a
+#    matching pointer back here.
+#
 #    All bullets link to docker/flex/{Dockerfile,README.md} on master since
 #    flex lives only on master.
 # ---------------------------------------------------------------------------

@@ -38,6 +38,19 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
+    # IMPORTANT -- mirror in docker/dockerhub/render.sh.
+    # The Docker Hub readme renderer at docker/dockerhub/render.sh
+    # reproduces the tag-composition logic below in bash so the
+    # rendered "Supported tags" bullets match what this step actually
+    # publishes. If you change which tags get emitted here (add a new
+    # floating alias, change a conditional, change the bare-`flex`
+    # rule, etc.), also update render.sh's flex-bullet synthesis block
+    # to follow + regenerate the golden fixture at
+    # docker/dockerhub/tests/golden.md via
+    # docker/dockerhub/tests/golden-regenerate.sh. Tier 1 sanity test
+    # catches bullet-count drift, Tier 2 golden test catches changes to
+    # render.sh's logic -- but neither catches this step diverging
+    # silently from the renderer.
     - name: Build tags
       id: build_tags
       env:
