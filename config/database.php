@@ -120,6 +120,14 @@ return [
     EventManager::class => function (TC $c): EventManager {
         $manager = new EventManager();
         // Future: add ORM/DBAL/Migrations lifecycle hooks in here
+        //
+        // Hookable events are defined in:
+        // - Doctrine\Migrations\Events
+        // - Doctrine\ORM\Events
+        // - Doctrine\ORM\Tools\ToolEvents
+        //
+        // This should NOT be used for application events; stick with the
+        // Symfony EventDispatcher in the kernel.
         return $manager;
     },
 ];
