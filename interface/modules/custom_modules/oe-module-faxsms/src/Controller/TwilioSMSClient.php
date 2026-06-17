@@ -141,8 +141,8 @@ class TwilioSMSClient extends AppDispatch
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01Z';
             $timeTo = 'T23:59:59Z';
-            $dateFrom = trim((string) $dateFrom) . $timeFrom;
-            $dateTo = trim((string) $dateTo) . $timeTo;
+            $dateFrom = trim((string)$dateFrom) . $timeFrom;
+            $dateTo = trim((string)$dateTo) . $timeTo;
 
             try {
                 $twilio = new Client($this->appKey, $this->appSecret, $this->sid);
