@@ -75,6 +75,16 @@ jobs:
         ./docker/dockerhub/render.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
         echo "✓ Rendered $(wc -l < ${RUNNER_TEMP}/rendered/dockerhub-readme.md) lines"
 
+    - name: Sanity-check rendered output
+      # Runs the Tier 1 structural assertions defined in
+      # docker/dockerhub/test.sh -- placeholder substitution, bullet
+      # counts vs input data, no stale openemr-devops paths, headline
+      # version matches the row carrying `latest`, dated example uses
+      # today's date, key env-var documentation markers present, output
+      # is non-trivially long, and every release-targets.yml branch
+      # appears in exactly one release bullet. Fail-fast on any.
+      run: ./docker/dockerhub/test.sh
+
     - name: Upload rendered readme as artifact
       uses: actions/upload-artifact@v7
       with:
