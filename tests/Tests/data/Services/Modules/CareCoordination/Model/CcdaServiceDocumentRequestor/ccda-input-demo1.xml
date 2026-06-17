@@ -107,7 +107,7 @@
                 <facility_postal_code>333222</facility_postal_code>
                 <facility_country_code>USA</facility_country_code>
             </encounter_provider>
-            
+
         <author>
         <time>2026-06-16 00:36:19+0000</time>
         <id>a208621d-3161-44e0-a316-cc907728fe76</id>
@@ -304,7 +304,7 @@
                 <text></text>
                 <status></status>
                 </problem></encounter_problems>
-        
+
                 <encounter_diagnosis>
                 <extension></extension>
                 <code></code>
