@@ -113,6 +113,7 @@
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
 
+-- v_database 539: Fix calendar appointments (pc_endDate zero-date sentinels).
 --
 -- Fix calendar appointments disappearing after 8.0.0 → 8.1.0 upgrade.
 -- The 8.0.0→8.1.0 migration ran UPDATE pc_endDate=NULL before the column was
