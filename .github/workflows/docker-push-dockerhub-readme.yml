@@ -75,15 +75,25 @@ jobs:
         ./docker/dockerhub/render.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
         echo "✓ Rendered $(wc -l < ${RUNNER_TEMP}/rendered/dockerhub-readme.md) lines"
 
-    - name: Sanity-check rendered output
-      # Runs the Tier 1 structural assertions defined in
-      # docker/dockerhub/test.sh -- placeholder substitution, bullet
-      # counts vs input data, no stale openemr-devops paths, headline
-      # version matches the row carrying `latest`, dated example uses
-      # today's date, key env-var documentation markers present, output
-      # is non-trivially long, and every release-targets.yml branch
-      # appears in exactly one release bullet. Fail-fast on any.
-      run: ./docker/dockerhub/test.sh
+    - name: Sanity-check rendered output (Tier 1)
+      # Structural assertions in docker/dockerhub/tests/sanity.sh:
+      # placeholder substitution, bullet counts vs input data, no stale
+      # openemr-devops paths, headline version matches the row carrying
+      # `latest`, dated example uses today's date, key env-var
+      # documentation markers present, output is non-trivially long,
+      # and every release-targets.yml branch appears in exactly one
+      # release bullet. Run against the LIVE inputs.
+      run: ./docker/dockerhub/tests/sanity.sh
+
+    - name: Golden-file diff (Tier 2)
+      # Drives render.sh against the fixture inputs in
+      # docker/dockerhub/tests/fixtures/ + the production template,
+      # diffs the result against the checked-in golden.md. Any
+      # divergence -- bullet ordering, link format, whitespace, tag
+      # synthesis, prose -- fails the test. Intentional changes
+      # require regenerating the golden via the helper script noted
+      # in the failure message.
+      run: ./docker/dockerhub/tests/golden-test.sh
 
     - name: Upload rendered readme as artifact
       uses: actions/upload-artifact@v7

@@ -24,7 +24,7 @@
 #     docker-build-flex-core.yml's Build tags step (Tier 3 / drift canary)
 #
 # Usage:
-#   ./docker/dockerhub/test.sh
+#   ./docker/dockerhub/tests/sanity.sh
 #
 # Exits 0 on all checks passing, non-zero with diagnostic output on any
 # failure. CI invokes it as a workflow step before the push decision.
@@ -32,8 +32,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-ROOT_DIR="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-RENDER_SCRIPT="${SCRIPT_DIR}/render.sh"
+DOCKERHUB_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+ROOT_DIR="$(cd "${DOCKERHUB_DIR}/../.." && pwd)"
+RENDER_SCRIPT="${DOCKERHUB_DIR}/render.sh"
 RELEASE_TARGETS="${ROOT_DIR}/.github/release-targets.yml"
 WORKFLOWS_DIR="${ROOT_DIR}/.github/workflows"
 

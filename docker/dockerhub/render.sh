@@ -40,10 +40,15 @@
 
 set -euo pipefail
 
+# The three RENDER_*_OVERRIDE env vars exist so the Tier 2 golden test
+# can drive the renderer against fixture inputs from
+# docker/dockerhub/tests/fixtures/ while still exercising the production
+# template. Unset in normal CI/production use; render.sh resolves the
+# live paths.
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
 TEMPLATE="${ROOT_DIR}/docker/dockerhub/overview.md"
-RELEASE_TARGETS="${ROOT_DIR}/.github/release-targets.yml"
-WORKFLOWS_DIR="${ROOT_DIR}/.github/workflows"
+RELEASE_TARGETS="${RENDER_RELEASE_TARGETS_OVERRIDE:-${ROOT_DIR}/.github/release-targets.yml}"
+WORKFLOWS_DIR="${RENDER_WORKFLOWS_DIR_OVERRIDE:-${ROOT_DIR}/.github/workflows}"
 
 OUT="${1:-/dev/stdout}"
 
@@ -158,9 +163,10 @@ done
 # ---------------------------------------------------------------------------
 # 4) DATED_EXAMPLE -- "{latest}-{today UTC}" matches what the orchestrator's
 #    nightly publish actually does (see docker-build-release.yml's
-#    dated-sibling rule).
+#    dated-sibling rule). RENDER_DATE_OVERRIDE lets the golden test pin a
+#    fixed date so the golden file stays stable across days.
 # ---------------------------------------------------------------------------
-TODAY=$(date -u +%Y-%m-%d)
+TODAY="${RENDER_DATE_OVERRIDE:-$(date -u +%Y-%m-%d)}"
 DATED_EXAMPLE="${LATEST_VERSION}-${TODAY}"
 
 # ---------------------------------------------------------------------------
