@@ -126,6 +126,12 @@ return [
         // - Doctrine\ORM\Events
         // - Doctrine\ORM\Tools\ToolEvents
         //
+        // Listeners are convention-based: they must have a public method of the
+        // event's name which will be called upon event dispatching. E.g. an
+        // event named `fooEvent` means the listener must have `public function
+        // fooEvent(): void`. Some events emit additional data as an argument,
+        // see their defintions for more detail.
+        //
         // This should NOT be used for application events; stick with the
         // Symfony EventDispatcher in the kernel.
         return $manager;
