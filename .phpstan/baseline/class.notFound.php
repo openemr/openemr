@@ -162,51 +162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:_get_filter_name\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:register_outputfilter\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:register_postfilter\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:register_prefilter\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:unregister_outputfilter\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:unregister_postfilter\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:unregister_prefilter\\(\\) has invalid type callback\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Smarty_Legacy\\:\\:\\$_conf_obj has unknown class Config_file as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function prevSetting\\(\\) has invalid return type Prior\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
