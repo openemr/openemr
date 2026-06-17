@@ -822,6 +822,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'id\' might not exist on array\\{id\\: int, name\\: string\\}\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Services/InsuranceCompanyServiceTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'PATH_INFO\' does not exist on array\\{REQUEST_METHOD\\: \'GET\', HTTP_HOST\\: \'localhost\', DOCUMENT_ROOT\\: \'/var/www/html\', REQUEST_URI\\: \'/apis/dispatch\\.php\\?…\', QUERY_STRING\\: \'_REWRITE_COMMAND\\=…\', SCRIPT_NAME\\: \'/apis/dispatch\\.php\', SCRIPT_FILENAME\\: \'/var/www/html…\'\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Http/HttpRestRequestTest.php',

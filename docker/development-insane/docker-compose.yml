@@ -789,7 +789,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
-    image: redis:8.8.0@sha256:4c7ecf5d14207f5baf8e140ab428a54ae5cf2a0411956f75deb0ef89d3cb4fda
+    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
   openldap:
     restart: always
     image: openemr/dev-ldap:insane@sha256:24b023a969e3a2e43bfab56e22474a036553c3d69687f8e0f9d8da968ed744a7
@@ -825,7 +825,7 @@ services:
       retries: 3
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.30.1@sha256:3bd7c2f2696deb35a4780d152b404dceec99cb041b942c0877b3b22384714f85
+    image: axllent/mailpit:v1.30.2@sha256:37a38e48e9338cd7e89dfeb487f37b02ebfcd9cb23111bed2d345e79d37d6dd6
     ports:
     - 8025:8025    # Web UI and API
     - 1025:1025    # SMTP server
