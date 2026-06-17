@@ -119,7 +119,7 @@ return [
     // EventManagerInterface, so we use it as the key so it gets wired.
     EventManager::class => function (TC $c): EventManager {
         $manager = new EventManager();
-        // Future: add ORM/DBAL lifecycle hooks in here
+        // Future: add ORM/DBAL/Migrations lifecycle hooks in here
         return $manager;
     },
 ];
