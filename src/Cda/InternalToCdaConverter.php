@@ -861,9 +861,8 @@ class InternalToCdaConverter
         $assignedPerson = $this->createElement('assignedPerson');
         $name = $this->createElement('name');
         $fname = $this->xpathValue('/CCDA/author/fname');
-        if ($lname !== '') {
-            $name->appendChild($this->createElement('family', $lname));
-        }
+        // $lname guaranteed non-empty due to early return above
+        $name->appendChild($this->createElement('family', $lname));
         if ($fname !== '') {
             $name->appendChild($this->createElement('given', $fname));
         }
@@ -3609,6 +3608,11 @@ class InternalToCdaConverter
         } else {
             $this->appendSocialHistoryNarrative($section, $socialHistory);
 
+            // Social history entries from history_element items
+            foreach ($socialHistory as $item) {
+                $this->appendSocialHistoryEntry($section, $item);
+            }
+
             // USCDI Social History Observations - order matches Node.js
             $this->appendSexAssignedAtBirthEntry($section, $patientGender);
             $this->appendSexualOrientationObservationEntry($section);
@@ -3658,18 +3662,15 @@ class InternalToCdaConverter
 
     private function appendSocialHistoryEntry(DOMElement $section, DOMElement $item): void
     {
-        $description = strtolower($this->xpathValue('description', $item));
-        $isSmokingStatus = str_contains($description, 'smoke') || str_contains($description, 'tobacco');
+        // Node.js only generates entries when value contains "smoke"
+        $description = $this->xpathValue('description', $item);
+        if ($description === '' || !str_contains(strtolower($description), 'smoke')) {
+            return;
+        }
 
         $entry = $this->createElement('entry');
         $entry->setAttribute('typeCode', 'DRIV');
-
-        if ($isSmokingStatus) {
-            $this->appendSmokingStatusObservation($entry, $item);
-        } else {
-            $this->appendSocialHistoryObservation($entry, $item);
-        }
-
+        $this->appendSmokingStatusObservation($entry, $item);
         $section->appendChild($entry);
     }
 
@@ -3712,59 +3713,6 @@ class InternalToCdaConverter
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
         $obs->appendChild($value);
-
-        $entry->appendChild($obs);
-    }
-
-    private function appendSocialHistoryObservation(DOMElement $entry, DOMElement $item): void
-    {
-        $obs = $this->createElement('observation');
-        $obs->setAttribute('classCode', 'OBS');
-        $obs->setAttribute('moodCode', 'EVN');
-
-        $this->appendTemplateId($obs, '2.16.840.1.113883.10.20.22.4.38');
-
-        // ID
-        $shaExt = $this->xpathValue('sha_extension', $item);
-        $ext = $this->xpathValue('extension', $item);
-        $this->appendIds($obs, $shaExt, $ext);
-
-        // Code
-        $elementCode = $this->xpathValue('code', $item);
-        $element = $this->xpathValue('element', $item);
-
-        $code = $this->createElement('code');
-        if ($elementCode !== '') {
-            $code->setAttribute('code', $elementCode);
-            $code->setAttribute('displayName', $element);
-            $code->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
-            $code->setAttribute('codeSystemName', 'SNOMED CT');
-        } else {
-            $code->setAttribute('nullFlavor', 'UNK');
-        }
-        $obs->appendChild($code);
-
-        // Status
-        $this->appendStatusCode($obs, ActStatus::Completed);
-
-        // Effective time
-        $date = $this->xpathValue('date', $item);
-        if ($date !== '') {
-            $effectiveTime = $this->createElement('effectiveTime');
-            $low = $this->createElement('low');
-            $low->setAttribute('value', $this->formatDateOnly($date));
-            $effectiveTime->appendChild($low);
-            $obs->appendChild($effectiveTime);
-        }
-
-        // Value (description as ST)
-        $description = $this->xpathValue('description', $item);
-        if ($description !== '') {
-            $value = $this->output->createElement('value');
-            $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'ST');
-            $value->appendChild($this->output->createTextNode($description));
-            $obs->appendChild($value);
-        }
 
         $entry->appendChild($obs);
     }
