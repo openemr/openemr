@@ -25,7 +25,8 @@ numer
 requestor
 
 # CCDA
-elegibility # There's a spelling error in the source data and inferno tests, possibly part of the spec?
+# There's a spelling error in the source data and inferno tests, possibly part of the spec?
+elegibility
 
 # Variable names, SQL aliases, and legacy code identifiers
 alog
