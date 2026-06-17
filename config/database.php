@@ -130,7 +130,7 @@ return [
         // event's name which will be called upon event dispatching. E.g. an
         // event named `fooEvent` means the listener must have `public function
         // fooEvent(): void`. Some events emit additional data as an argument,
-        // see their defintions for more detail.
+        // see their definitions for more detail.
         //
         // This should NOT be used for application events; stick with the
         // Symfony EventDispatcher in the kernel.
