@@ -59,8 +59,12 @@
   openemr_version_ref: v8_1_0
 
 - branch: rel-800
-  docker_tags: 8.0.0
-  openemr_version_ref: v8_0_0
+  # 8.0.0 is the floating "current latest 8.0.0.x" pointer (always advances
+  # with openemr_version_ref); 8.0.0.3 is the specific-patch pointer (only
+  # advances when this row bumps to 8.0.0.4+). Both tags get an auto-appended
+  # "<tag>-YYYY-MM-DD" sibling for immutable per-build pinning.
+  docker_tags: 8.0.0,8.0.0.3
+  openemr_version_ref: v8_0_0_3
 
 - branch: rel-704
   docker_tags: 7.0.4

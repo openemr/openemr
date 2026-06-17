@@ -103,11 +103,12 @@ jobs:
           BRANCH=$(echo "$ROW" | jq -r '.branch')
           REF=$(echo "$ROW" | jq -r '.openemr_version_ref')
 
-          # Pick the first version-number docker_tag (digits-and-dots)
-          TAG_VER=$(echo "$ROW" | jq -r '.docker_tags' | tr ',' '\n' | tr -d ' ' \
-            | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1 || true)
+          # Every version-number docker_tag (digits-and-dots), one per line.
+          # Floating-name tags (latest, dev, next, ...) are skipped.
+          VERSION_TAGS=$(echo "$ROW" | jq -r '.docker_tags' | tr ',' '\n' | tr -d ' ' \
+            | grep -E '^[0-9]+(\.[0-9]+)+$' || true)
 
-          if [ -z "$TAG_VER" ]; then
+          if [ -z "$VERSION_TAGS" ]; then
             echo "ℹ $BRANCH: no version-number docker_tag (floating-only); skipping alignment check."
             continue
           fi
@@ -128,15 +129,22 @@ jobs:
           SRC_BASE="${MAJ}.${MIN}.${PAT}"
           SRC_WITH_REALPATCH="${SRC_BASE}.${RP}"
 
-          # Accept the docker_tag in any of these forms:
-          #   - matches the base (e.g., "8.1.0" == version.php base "8.1.0", realpatch=0)
-          #   - matches base.realpatch when realpatch > 0 (e.g., "8.1.0.1" for v_realpatch='1')
-          if [ "$TAG_VER" = "$SRC_BASE" ] || { [ "$RP" != "0" ] && [ "$TAG_VER" = "$SRC_WITH_REALPATCH" ]; }; then
-            echo "✓ $BRANCH: docker_tag '$TAG_VER' aligns with version.php '$SRC_BASE' (realpatch=$RP) at $REF"
-          else
-            echo "::error::Row '$BRANCH': docker_tag '$TAG_VER' doesn't match version.php base '$SRC_BASE' at $REF (realpatch=$RP)."
-            echo "  Either bump release-targets.yml to match the source, or bump version.php on the openemr branch."
-            FAIL=1
-          fi
+          # Check EVERY version-number tag in the row -- not just the first.
+          # Each must independently match one of:
+          #   - the base (e.g., "8.1.0" == version.php base "8.1.0", realpatch=0)
+          #   - base.realpatch when realpatch > 0 (e.g., "8.0.0.3" for v_realpatch='3')
+          # So a row like `docker_tags: 8.0.0,8.0.0.3` with openemr_version_ref
+          # v8_0_0_3 validates both pointers; a typo like `8.0.0,9.9.9` fails on
+          # the second; and `8.0.0,8.0.0.4` with v_realpatch=3 catches the
+          # patch-tag-ahead-of-source class of drift.
+          while IFS= read -r TAG_VER; do
+            if [ "$TAG_VER" = "$SRC_BASE" ] || { [ "$RP" != "0" ] && [ "$TAG_VER" = "$SRC_WITH_REALPATCH" ]; }; then
+              echo "✓ $BRANCH: docker_tag '$TAG_VER' aligns with version.php '$SRC_BASE' (realpatch=$RP) at $REF"
+            else
+              echo "::error::Row '$BRANCH': docker_tag '$TAG_VER' doesn't match version.php base '$SRC_BASE' or base.realpatch '$SRC_WITH_REALPATCH' at $REF (realpatch=$RP)."
+              echo "  Either bump release-targets.yml to match the source, or bump version.php on the openemr branch."
+              FAIL=1
+            fi
+          done <<< "$VERSION_TAGS"
         done < <(yq -o=json -I=0 . .github/release-targets.yml | jq -c '.[]')
         exit $FAIL
