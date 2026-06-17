@@ -218,6 +218,63 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# 11. Release ordering -- first release bullet carries `latest` (current
+#     production is at the top), and `dev`/`next` only appear in the LAST
+#     release bullet (active dev is at the bottom). Mirrors the convention
+#     the renderer enforces -- if the bucketing or sort flips, this catches it.
+# ---------------------------------------------------------------------------
+RELEASE_BULLET_LINES=$(grep -nE '^\* `.*\[Dockerfile\]\(https://github\.com/openemr/openemr/blob/[^)]+/docker/release/Dockerfile\)' "${RENDERED}" | cut -d: -f1)
+FIRST_RELEASE_LINE=$(printf '%s\n' "${RELEASE_BULLET_LINES}" | head -1)
+LAST_RELEASE_LINE=$(printf '%s\n' "${RELEASE_BULLET_LINES}" | tail -1)
+ORDER_ERRORS=()
+LATEST_PRESENT=$(yq -r '.[] | select(.docker_tags | split(",") | map(. == "latest") | any) | .branch' "${RELEASE_TARGETS}" | head -1)
+if [[ -n "${LATEST_PRESENT}" ]]; then
+    # Backticks below are literal markdown code-span delimiters; single
+    # quotes prevent shell interpretation, not expansion.
+    # shellcheck disable=SC2016
+    if ! sed -n "${FIRST_RELEASE_LINE}p" "${RENDERED}" | grep -q '`latest`'; then
+        ORDER_ERRORS+=("first release bullet missing \`latest\`")
+    fi
+fi
+DEV_NEXT_PRESENT=$(yq -r '.[] | select(.docker_tags | split(",") | map(. == "dev" or . == "next") | any) | .branch' "${RELEASE_TARGETS}" | head -1)
+if [[ -n "${DEV_NEXT_PRESENT}" ]]; then
+    # shellcheck disable=SC2016
+    if ! sed -n "${LAST_RELEASE_LINE}p" "${RENDERED}" | grep -qE '`(dev|next)`'; then
+        ORDER_ERRORS+=("last release bullet missing \`dev\` or \`next\`")
+    fi
+fi
+if [[ ${#ORDER_ERRORS[@]} -eq 0 ]]; then
+    assert "release bullet order: latest first, dev/next last" pass
+else
+    assert "release bullet order: latest first, dev/next last" fail "${ORDER_ERRORS[*]}"
+fi
+
+# ---------------------------------------------------------------------------
+# 12. Flex ordering -- any `flex-edge` bullet must come AFTER every non-edge
+#     `flex-*` bullet. Catches the bucketing-or-sort breakage that would put
+#     edge anywhere except last among the flex bullets.
+# ---------------------------------------------------------------------------
+FLEX_BULLET_LINES=$(grep -nE '^\* `.*\[Dockerfile\]\(https://github\.com/openemr/openemr/blob/master/docker/flex/Dockerfile\)' "${RENDERED}" | cut -d: -f1)
+FIRST_EDGE_LINE=""
+LAST_NON_EDGE_LINE=""
+if [[ -n "${FLEX_BULLET_LINES}" ]]; then
+    while read -r LINE_NO; do
+        if sed -n "${LINE_NO}p" "${RENDERED}" | grep -q '`flex-edge'; then
+            [[ -z "${FIRST_EDGE_LINE}" ]] && FIRST_EDGE_LINE="${LINE_NO}"
+        else
+            LAST_NON_EDGE_LINE="${LINE_NO}"
+        fi
+    done <<< "${FLEX_BULLET_LINES}"
+fi
+if [[ -z "${FIRST_EDGE_LINE}" ]] || [[ -z "${LAST_NON_EDGE_LINE}" ]] \
+    || [[ "${FIRST_EDGE_LINE}" -gt "${LAST_NON_EDGE_LINE}" ]]; then
+    assert "flex bullet order: edge follows all non-edge flex bullets" pass
+else
+    assert "flex bullet order: edge follows all non-edge flex bullets" fail \
+        "first edge at line ${FIRST_EDGE_LINE} but last non-edge at line ${LAST_NON_EDGE_LINE}"
+fi
+
+# ---------------------------------------------------------------------------
 # Report.
 # ---------------------------------------------------------------------------
 echo

@@ -4,15 +4,15 @@
 
 Supported tags:
 
-* `9.0.0-dev` `dev` `next` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/release/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/release/README.md)
 * `8.5.0` `latest` [Dockerfile](https://github.com/openemr/openemr/blob/rel-fix/docker/release/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/rel-fix/docker/release/README.md)
 * `7.0.0` `7.0.0.5` [Dockerfile](https://github.com/openemr/openemr/blob/rel-old/docker/release/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/rel-old/docker/release/README.md)
 * `6.0.0` [Dockerfile](https://github.com/openemr/openemr/blob/rel-ancient/docker/release/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/rel-ancient/docker/release/README.md)
-* `flex-fix1-php-8.0` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
-* `flex-fix1-php-7.4` `flex-fix1` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
+* `9.0.0-dev` `dev` `next` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/release/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/release/README.md)
 * `flex-fix2-php-8.3` `flex-fix2` `flex` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
 * `flex-fix2-php-8.2` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
 * `flex-fix2-php-8.1` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
+* `flex-fix1-php-8.0` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
+* `flex-fix1-php-7.4` `flex-fix1` [Dockerfile](https://github.com/openemr/openemr/blob/master/docker/flex/Dockerfile) | [Instructions](https://github.com/openemr/openemr/blob/master/docker/flex/README.md)
 
 Each production build also pushes an immutable `X.Y.Z-YYYY-MM-DD` tag (e.g. `8.5.0-2026-01-01`) so a deployment can pin a specific build and survive future rebuilds of the same version. See the [Tags page](https://hub.docker.com/r/openemr/openemr/tags) for the most recent dated tag of each track.
 

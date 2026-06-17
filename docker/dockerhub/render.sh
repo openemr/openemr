@@ -98,17 +98,64 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 2) SUPPORTED_TAGS_RELEASE -- one bullet per release-targets.yml row in file
-#    order. Each lists all docker_tags as inline code spans + a Dockerfile and
+# 2) SUPPORTED_TAGS_RELEASE -- one bullet per release-targets.yml row. Each
+#    lists all docker_tags as inline code spans + a Dockerfile and
 #    Instructions link to the row's branch.
+#
+#    Ordering (NOT release-targets.yml file order):
+#      1. The row carrying `latest`           -- current production at top
+#      2. Older production rows               -- desc by version (8.0.0, 7.0.4, ...)
+#      3. The row carrying `dev` and/or `next` -- active dev at bottom
+#    Bucketed first, sorted within the "older productions" bucket via sort -V -r
+#    on the first version-number tag of each row. Matches the convention the
+#    devops Twig template hand-coded -- current → older → next → dev.
 # ---------------------------------------------------------------------------
 RELEASE_BULLETS_FILE="${TMPDIR}/release_bullets"
 : > "${RELEASE_BULLETS_FILE}"
 
 ROW_COUNT=$(yq -r '. | length' "${RELEASE_TARGETS}")
+
+# Bucket rows by their floating-tag role. A row carrying `latest` is the
+# current-production row (singleton by validator). A row carrying `dev`
+# and/or `next` is the active-dev row. Everything else is an older
+# production line to be sorted descending by version.
+LATEST_IDX=""
+DEV_NEXT_IDX=""
+OLDER_INDICES=()
 for ((i = 0; i < ROW_COUNT; i++)); do
-    BRANCH=$(yq -r ".[${i}].branch" "${RELEASE_TARGETS}")
-    TAGS=$(yq -r ".[${i}].docker_tags" "${RELEASE_TARGETS}")
+    ROW_TAGS=$(yq -r ".[${i}].docker_tags" "${RELEASE_TARGETS}")
+    if printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qx 'latest'; then
+        LATEST_IDX="${i}"
+    elif printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qxE 'dev|next'; then
+        DEV_NEXT_IDX="${i}"
+    else
+        OLDER_INDICES+=("${i}")
+    fi
+done
+
+# Sort the OLDER bucket by descending version on the first version-number
+# tag of each row. `sort -V -r` handles 8.1.0 > 8.0.0 > 7.0.4 correctly.
+SORTED_OLDER=()
+if (( ${#OLDER_INDICES[@]} > 0 )); then
+    OLDER_KEYED="${TMPDIR}/older_keyed"
+    : > "${OLDER_KEYED}"
+    for IDX in "${OLDER_INDICES[@]}"; do
+        ROW_TAGS=$(yq -r ".[${IDX}].docker_tags" "${RELEASE_TARGETS}")
+        VER=$(printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)
+        printf '%s\t%s\n' "${VER:-0}" "${IDX}" >> "${OLDER_KEYED}"
+    done
+    mapfile -t SORTED_OLDER < <(sort -V -r -k1,1 "${OLDER_KEYED}" | cut -f2)
+fi
+
+# Final emission order: latest → older (desc) → dev/next.
+ORDERED_INDICES=()
+[[ -n "${LATEST_IDX}" ]] && ORDERED_INDICES+=("${LATEST_IDX}")
+ORDERED_INDICES+=("${SORTED_OLDER[@]}")
+[[ -n "${DEV_NEXT_IDX}" ]] && ORDERED_INDICES+=("${DEV_NEXT_IDX}")
+
+for IDX in "${ORDERED_INDICES[@]}"; do
+    BRANCH=$(yq -r ".[${IDX}].branch" "${RELEASE_TARGETS}")
+    TAGS=$(yq -r ".[${IDX}].docker_tags" "${RELEASE_TARGETS}")
     # Format each comma-separated tag as `tag`, joined by " ". The backticks
     # inside the sed expression are LITERAL markdown code-span delimiters; the
     # single quotes prevent shell interpretation, not expansion.
@@ -147,7 +194,28 @@ FLEX_BULLETS_FILE="${TMPDIR}/flex_bullets"
 
 FLEX_LINK_BASE="https://github.com/openemr/openemr/blob/master/docker/flex"
 
+# Reorder discovered flex callers before emission. Convention:
+#   1. Non-edge alpine versions, descending  (3.23, 3.22, ...)
+#   2. `edge` always last
+# Matches the existing devops-template convention. Sort key is each caller's
+# alpine_version value; `sort -V -r` puts 3.23 above 3.22. Edge is bucketed
+# separately because version-sort against the literal string "edge" doesn't
+# produce a meaningful order.
+NON_EDGE_KEYED="${TMPDIR}/non_edge_callers_keyed"
+: > "${NON_EDGE_KEYED}"
+EDGE_CALLERS=()
 for CALLER_FILE in "${FLEX_CALLERS[@]}"; do
+    CALLER_ALPINE=$(yq -r '.jobs.build.with.alpine_version' "${CALLER_FILE}")
+    if [[ "${CALLER_ALPINE}" == "edge" ]]; then
+        EDGE_CALLERS+=("${CALLER_FILE}")
+    else
+        printf '%s\t%s\n' "${CALLER_ALPINE}" "${CALLER_FILE}" >> "${NON_EDGE_KEYED}"
+    fi
+done
+mapfile -t SORTED_NON_EDGE < <(sort -V -r -k1,1 "${NON_EDGE_KEYED}" | cut -f2)
+ORDERED_FLEX_CALLERS=("${SORTED_NON_EDGE[@]}" "${EDGE_CALLERS[@]}")
+
+for CALLER_FILE in "${ORDERED_FLEX_CALLERS[@]}"; do
     ALPINE=$(yq -r '.jobs.build.with.alpine_version' "${CALLER_FILE}")
     PHP_DEFAULT=$(yq -r '.jobs.build.with.php_default' "${CALLER_FILE}")
     IS_DEFAULT_FLEX=$(yq -r '.jobs.build.with.is_default_flex' "${CALLER_FILE}")
