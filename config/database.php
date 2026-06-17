@@ -114,6 +114,9 @@ return [
 
     EntityManager::class,
     EntityManagerInterface::class => EntityManager::class,
+
+    // Note: Doctrine EntityManager types EventManager not
+    // EventManagerInterface, so we use it as the key so it gets wired.
     EventManager::class => function (TC $c): EventManager {
         $manager = new EventManager();
         // Future: add ORM/DBAL lifecycle hooks in here
