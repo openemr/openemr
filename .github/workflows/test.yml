@@ -587,6 +587,17 @@ jobs:
         . ci/ciLibrary.source
         setup_e2e_bookends ${{ needs.setup.outputs.webserver }}
 
+    ##
+    # Enable coredumps for the apache e2e cell so a segfaulting worker
+    # (#12438) leaves a core the failure-diagnostics step can backtrace
+    # (#12439). Apache-only: the nginx stack runs php-fpm, which logs
+    # crashes to the container log instead.
+    - name: Enable coredumps
+      if: ${{ matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
+      run: |
+        . ci/ciLibrary.source
+        enable_coredumps
+
     - name: Run ${{ matrix.suite }} tests
       run: |
         . ci/ciLibrary.source
@@ -698,6 +709,35 @@ jobs:
       with:
         name: selenium-diagnostics-${{ needs.setup.outputs.docker_dir }}
         path: ${{ runner.temp }}/selenium-diagnostics/
+        if-no-files-found: ignore
+
+    ##
+    # Crash diagnostics for the apache worker segfault (#12438/#12439). The
+    # `E2e container logs`/`E2e error logs` steps below only echo to the job
+    # log, which is truncated to the summary tail — so the openemr PHP/Apache
+    # log and any coredump are not recoverable from a failed run. Capture them
+    # into a downloadable artifact, with a gdb backtrace naming the faulting
+    # shared object. junit is already uploaded separately (see above).
+    - name: Capture crash diagnostics on failure
+      if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
+      env:
+        CRASH_DIAG_DIR: ${{ runner.temp }}/crash-diagnostics
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${CRASH_DIAG_DIR}"
+        # openemr container log (Apache core + AH00051 segfault lines).
+        dc logs --no-color openemr > "${CRASH_DIAG_DIR}/openemr.container.log" 2>&1 || true
+        # In-container Apache/PHP error log.
+        dump_error_log apache > "${CRASH_DIAG_DIR}/openemr.error.log" 2>&1 || true
+        # Backtrace + gzip'd core for each coredump produced this run.
+        capture_coredumps "${CRASH_DIAG_DIR}"
+
+    - name: Upload crash diagnostics
+      if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: crash-diagnostics-${{ needs.setup.outputs.docker_dir }}
+        path: ${{ runner.temp }}/crash-diagnostics/
         if-no-files-found: ignore
 
     ##

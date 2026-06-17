@@ -26,7 +26,7 @@ services:
       retries: 3
   openemr:
     restart: always
-    image: openemr/openemr:flex@sha256:227bcf2e7181a3d786f3109b56fdbd7d26c0dacd6ddcf359328a64b5b9ec3ffc
+    image: openemr/openemr:flex@sha256:a7970e3d790ed12b2cf9b1cc44991c1481922fe22e454563fb4af1cf242164d6
     ports:
     - "${WT_HTTP_PORT:-8300}:80"
     - "${WT_HTTPS_PORT:-9300}:443"
@@ -39,6 +39,7 @@ services:
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - phpstanvolume:/var/www/localhost/htdocs/openemr/tmp-phpstan:rw
+    - webpackcachevolume:/var/www/localhost/htdocs/openemr/.webpack-cache:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - ccdanodemodules2:/var/www/localhost/htdocs/openemr/ccdaservice/packages/oe-cqm-service/node_modules:rw
     - logvolume:/var/log
@@ -92,7 +93,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:7dfd52c452049bf077f5ae6d46324f5f33ea0130c16b958d9821aff5c6f812ef
+    image: phpmyadmin:5.2.3@sha256:51b74806646fb15aa59df2a2e73573969a44f4b7d4729e4a5c4ba364bc20ec77
     ports:
     - "${WT_PMA_PORT:-8310}:80"
     environment:
@@ -108,6 +109,7 @@ volumes:
   nodemodules: {}
   vendordir: {}
   phpstanvolume: {}
+  webpackcachevolume: {}
   ccdanodemodules: {}
   ccdanodemodules2: {}
   logvolume: {}

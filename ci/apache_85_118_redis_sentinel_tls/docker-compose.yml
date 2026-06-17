@@ -20,7 +20,7 @@ x-includes:
 services:
   # ---------- cert generation ----------
   redis-tls-init:
-    image: alpine:3.23.4@sha256:5b10f432ef3da1b8d4c7eb6c487f2f5a8f096bc91145e68878dd4a5019afde11
+    image: alpine:3.24.0@sha256:a2d49ea686c2adfe3c992e47dc3b5e7fa6e6b5055609400dc2acaeb241c829f4
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -245,7 +245,7 @@ services:
 
   # ---------- OpenEMR: add TLS env vars + cert volume ----------
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:227bcf2e7181a3d786f3109b56fdbd7d26c0dacd6ddcf359328a64b5b9ec3ffc
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:a7970e3d790ed12b2cf9b1cc44991c1481922fe22e454563fb4af1cf242164d6
     environment:
       REDIS_TLS: "yes"
       REDIS_TLS_CERT_KEY_PATH: /redis-certs

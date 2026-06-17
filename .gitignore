@@ -49,3 +49,4 @@ docker/development-easy-light/docker-compose.override.yml
 docker/development-easy-redis/docker-compose.override.yml
 compose.override.yml
 tmp/
+.webpack-cache/
