@@ -97,7 +97,7 @@ class NotificationTaskManager
         // Callers treat $hours as an integer number of hours, but legacy
         // code paths pass strings from $_POST. Normalize to int and fall
         // back to the stored DB interval when no explicit value is given.
-        $hoursInt = is_numeric($hours) ? (int)$hours : 0;
+        $hoursInt = is_numeric($hours) ? (int) $hours : 0;
         $intervalHours = $hoursInt > 0 ? $hoursInt : $this->getTaskHours($type);
         $total_minutes = $intervalHours * 60;
 

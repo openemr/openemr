@@ -227,7 +227,7 @@ class RCFaxClient extends AppDispatch
             }
             unlink($filePath);
             return js_escape($statusMsg);
-        } catch (ApiException | \Throwable $e) {
+        } catch (ApiException|\Throwable $e) {
             return js_escape('Error: ' . text($e->getMessage()));
         }
     }
