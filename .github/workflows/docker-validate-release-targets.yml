@@ -13,11 +13,13 @@
 #      builds tried to push the same image:tag).
 #   5. Every `openemr_version_ref` resolves to a real git ref in
 #      openemr/openemr.
-#   6. The first version-number entry in each row's docker_tags aligns with
-#      the major.minor.patch from version.php at the same row's
-#      openemr_version_ref (allowing the docker_tag to drop the realpatch
-#      suffix when realpatch is 0). Catches the drift bug where someone bumps
-#      version.php without updating release-targets.yml.
+#   6. Every version-number entry in each row's docker_tags aligns with the
+#      major.minor.patch from version.php at the same row's
+#      openemr_version_ref. Each tag must match either the base
+#      (X.Y.Z, when realpatch == 0) or the base.realpatch form
+#      (X.Y.Z.W, when realpatch > 0). Catches both the version.php-bump-
+#      without-release-targets-bump drift case AND typo'd secondary tags
+#      like `8.0.0,9.9.9` in a multi-tag row.
 
 name: Validate release-targets.yml
 
