@@ -32,9 +32,15 @@ on:
     - 'docker/dockerhub-overview.md'
     - 'docker/render-dockerhub-overview.sh'
     - '.github/release-targets.yml'
-    - '.github/workflows/docker-build-322.yml'
-    - '.github/workflows/docker-build-323.yml'
-    - '.github/workflows/docker-build-edge.yml'
+    # Glob covers the current flex callers (docker-build-322.yml,
+    # docker-build-323.yml, docker-build-edge.yml) plus any future
+    # variant (e.g., docker-build-324.yml), plus the reusable
+    # docker-build-flex-core.yml whose Build tags step the renderer
+    # mirrors, plus docker-build-release.yml. Some of those wouldn't
+    # change the rendered output, but the cost of an extra preview
+    # render on those PRs is trivial vs the cost of missing a real
+    # delta.
+    - '.github/workflows/docker-build-*.yml'
     - '.github/workflows/docker-push-dockerhub-readme.yml'
   workflow_dispatch:
     inputs:
