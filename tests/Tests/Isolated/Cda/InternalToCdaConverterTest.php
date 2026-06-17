@@ -290,7 +290,7 @@ class InternalToCdaConverterTest extends TestCase
         // Get the effectiveTime from the document header (ClinicalDocument/effectiveTime)
         $effectiveTime = $xpath->query('/hl7:ClinicalDocument/hl7:effectiveTime/@value');
         if ($effectiveTime !== false && $effectiveTime->length > 0) {
-            $value = $effectiveTime->item(0)?->nodeValue ?? '';
+            $value = $effectiveTime->item(0)->nodeValue ?? '';
             // Extract just the date portion (first 8 chars: YYYYMMDD)
             if (strlen($value) >= 8) {
                 return substr($value, 0, 8);
