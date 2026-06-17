@@ -12,6 +12,7 @@
 
 declare(strict_types=1);
 
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
@@ -111,4 +112,9 @@ return [
 
     EntityManager::class,
     EntityManagerInterface::class => EntityManager::class,
+    EventManager::class => function (TC $c): EventManager {
+        $manager = new EventManager();
+        // Future: add ORM/DBAL lifecycle hooks in here
+        return $manager;
+    },
 ];
