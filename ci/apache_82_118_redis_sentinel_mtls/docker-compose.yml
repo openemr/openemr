@@ -17,7 +17,7 @@ x-includes:
 services:
   # ---------- cert generation (identical to TLS variant) ----------
   redis-tls-init:
-    image: alpine:3.24.0@sha256:a2d49ea686c2adfe3c992e47dc3b5e7fa6e6b5055609400dc2acaeb241c829f4
+    image: alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -245,7 +245,7 @@ services:
 
   # ---------- OpenEMR: TLS + X.509 client certs ----------
   openemr:
-    image: openemr/openemr:flex-3.22-php-8.2@sha256:806385be68a1e1fd39d04ad4b551d975f5587069ddf91dd4156b83b09b214039
+    image: openemr/openemr:flex-3.22-php-8.2@sha256:8c777ff8d17f9863ee78a4f6f7c9db6631d8651277f3eda0231c7b89bfe918fe
     environment:
       REDIS_TLS: "yes"
       REDIS_X509: "yes"

@@ -45,15 +45,15 @@ class AppointmentNotificationRunner
     private readonly ClockInterface $clock;
 
     /**
-     * @param NotificationChannel $channel             Which reminder channel to process.
-     * @param AppDispatch         $client              Configured email or SMS client.
-     * @param int                 $notificationHours   Appointment lead time (hours ahead).
-     * @param int                 $cronIntervalHours   Background-service execution interval, in hours.
-     * @param bool                $dryRun              When true, scans and logs but sends nothing.
-     * @param string              $messageTemplate     Raw template with ***PLACEHOLDER*** tokens.
-     * @param string              $gatewayType         Vendor slug persisted to notification_log.
-     * @param LoggerInterface|null $logger             PSR-3 logger (NullLogger when omitted).
-     * @param ClockInterface|null  $clock              Injected clock for deterministic tests.
+     * @param NotificationChannel  $channel           Which reminder channel to process.
+     * @param AppDispatch          $client            Configured email or SMS client.
+     * @param int                  $notificationHours Appointment lead time (hours ahead).
+     * @param int                  $cronIntervalHours Background-service execution interval, in hours.
+     * @param bool                 $dryRun            When true, scans and logs but sends nothing.
+     * @param string               $messageTemplate   Raw template with ***PLACEHOLDER*** tokens.
+     * @param string               $gatewayType       Vendor slug persisted to notification_log.
+     * @param LoggerInterface|null $logger            PSR-3 logger (NullLogger when omitted).
+     * @param ClockInterface|null  $clock             Injected clock for deterministic tests.
      */
     public function __construct(
         private readonly NotificationChannel $channel,
@@ -125,10 +125,10 @@ class AppointmentNotificationRunner
         int $nowTimestamp,
         int $notificationHours,
     ): int {
-        $apptHour = (int) round($appointmentTimestamp / 3600);
-        $nowHour = (int) round($nowTimestamp / 3600);
+        $apptHour = (int)round($appointmentTimestamp / 3600);
+        $nowHour = (int)round($nowTimestamp / 3600);
         $remainingApptHour = $apptHour - $nowHour;
-        return (int) round($remainingApptHour - $notificationHours);
+        return (int)round($remainingApptHour - $notificationHours);
     }
 
     /**
@@ -191,7 +191,7 @@ class AppointmentNotificationRunner
             return $value;
         }
         if (is_int($value) || is_float($value)) {
-            return (string) $value;
+            return (string)$value;
         }
         return '';
     }
@@ -393,6 +393,6 @@ class AppointmentNotificationRunner
             return;
         }
         $recur = self::stringFromRow($row, 'pc_recurrtype');
-        rc_sms_notification_cron_update_entry($this->channel, (int) $pid, (int) $pcEid, $recur);
+        rc_sms_notification_cron_update_entry($this->channel, (int)$pid, (int)$pcEid, $recur);
     }
 }
