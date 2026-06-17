@@ -73,7 +73,7 @@ jobs:
       run: |
         mkdir -p "${RUNNER_TEMP}/rendered"
         ./docker/dockerhub/render.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
-        echo "✓ Rendered $(wc -l < ${RUNNER_TEMP}/rendered/dockerhub-readme.md) lines"
+        echo "✓ Rendered $(wc -l < "${RUNNER_TEMP}/rendered/dockerhub-readme.md") lines"
 
     - name: Sanity-check rendered output (Tier 1)
       # Structural assertions in docker/dockerhub/tests/sanity.sh:
