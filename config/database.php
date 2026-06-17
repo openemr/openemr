@@ -18,8 +18,8 @@ use Doctrine\DBAL\{
     DriverManager,
 };
 use Doctrine\Migrations\Configuration\{
-    Connection\ConnectionLoader,
     Connection\ExistingConnection,
+    EntityManager\ExistingEntityManager,
     Migration\ConfigurationLoader,
     Migration\PhpFile,
 };
@@ -72,12 +72,14 @@ return [
 
     // Doctrine Migrations
     ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
-    ConnectionLoader::class => fn (TC $c) => new ExistingConnection($c->get(Connection::class)),
-    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromConnection(
+    // We use fromEntityManager instead of fromConnection to be able to leverage
+    // its EventManager. This is required to subscribe to migration events.
+    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromEntityManager(
         $c->get(ConfigurationLoader::class),
-        $c->get(ConnectionLoader::class),
+        $c->get(ExistingEntityManager::class),
         $c->get(LoggerInterface::class),
     ),
+    ExistingEntityManager::class,
 
     // ORM
     Configuration::class => function (TC $c) {
