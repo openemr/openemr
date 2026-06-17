@@ -227,7 +227,7 @@ class RCFaxClient extends AppDispatch
             }
             unlink($filePath);
             return js_escape($statusMsg);
-        } catch (ApiException|\Throwable $e) {
+        } catch (ApiException | \Throwable $e) {
             return js_escape('Error: ' . text($e->getMessage()));
         }
     }
@@ -742,31 +742,6 @@ class RCFaxClient extends AppDispatch
         $result = sqlStatement($query, [$id]);
         $u = sqlFetchArray($result);
         return json_encode([$u['fname'], $u['lname'], $u['fax']]);
-    }
-
-    /**
-     * @return string
-     */
-    public function getNotificationLog(): string
-    {
-        $type = $this->getRequest('type');
-        $fromDate = $this->getRequest('datefrom');
-        $toDate = $this->getRequest('dateto');
-        try {
-            $query = "SELECT notification_log.* FROM notification_log WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ?";
-            $res = sqlStatement($query, [$fromDate, $toDate]);
-            $responseMsg = '';
-            while ($nrow = sqlFetchArray($res)) {
-                $adate = ($nrow['pc_eventDate'] . '::' . $nrow['pc_startTime']);
-                $pinfo = str_replace("|||", " ", $nrow['patient_info']);
-                $msg = text($nrow["message"]);
-                $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
-            }
-        } catch (\Throwable $e) {
-            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
-        }
-
-        return $responseMsg;
     }
 
     /**
