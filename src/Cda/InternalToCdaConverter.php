@@ -877,6 +877,7 @@ class InternalToCdaConverter
     private function formatTimestamp(string $input): string
     {
         $input = trim($input);
+        // Node.js moment.js produces "Invalid date" for empty/invalid dates
         if ($input === '' || $input === '0000-00-00 00:00:00') {
             return 'Invalid date';
         }
@@ -3704,7 +3705,9 @@ class InternalToCdaConverter
         $value = $this->output->createElement('value');
         $value->setAttributeNS(self::NS_XSI, 'xsi:type', 'CD');
         $smokingCode = $this->mapSmokingStatusCode($description);
-        $value->setAttribute('code', $smokingCode['code']);
+        if ($smokingCode['code'] !== null) {
+            $value->setAttribute('code', $smokingCode['code']);
+        }
         $value->setAttribute('displayName', $smokingCode['displayName']);
         $value->setAttribute('codeSystem', '2.16.840.1.113883.6.96');
         $value->setAttribute('codeSystemName', 'SNOMED CT');
@@ -3767,51 +3770,41 @@ class InternalToCdaConverter
     }
 
     /**
-     * Maps smoking status description to SNOMED CT code
-     * @return array{code: string, displayName: string}
+     * Maps smoking status description to SNOMED code.
+     *
+     * Node.js does exact case-sensitive lookup against OID 2.16.840.1.113883.11.20.9.38
+     * value set. If no match, returns the input as displayName with no code.
+     *
+     * @return array{code: string|null, displayName: string}
      */
     private function mapSmokingStatusCode(string $description): array
     {
-        $description = strtolower($description);
+        // Reverse lookup table matching Node.js oe-blue-button-meta OID 2.16.840.1.113883.11.20.9.38
+        // This is an exact case-sensitive match, same as Node.js displayNameCode()
+        $table = [
+            'Current every day smoker' => '449868002',
+            'Current some day smoker' => '428041000124106',
+            'Former smoker' => '8517006',
+            'Never smoker' => '266919005',
+            'Smoker, current status unknown' => '77176002',
+            'Unknown if ever smoked' => '266927001',
+            'Tobacco use and exposure' => '229819007',
+            'Exercise' => '256235009',
+            'Alcohol intake' => '160573003',
+            'Nutritional observable' => '364393001',
+            'Employment detail' => '364703007',
+            'Toxic exposure status' => '425400000',
+            'Details of drug misuse behavior' => '363908000',
+            'Health-related behavior' => '228272008',
+            'Educational Achievement' => '105421008',
+        ];
 
-        return match (true) {
-            str_contains($description, 'current') && str_contains($description, 'every day') => [
-                'code' => '449868002',
-                'displayName' => 'Current every day smoker',
-            ],
-            str_contains($description, 'current') && str_contains($description, 'some day') => [
-                'code' => '428041000124106',
-                'displayName' => 'Current some day smoker',
-            ],
-            str_contains($description, 'former') => [
-                'code' => '8517006',
-                'displayName' => 'Former smoker',
-            ],
-            str_contains($description, 'never') => [
-                'code' => '266919005',
-                'displayName' => 'Never smoker',
-            ],
-            str_contains($description, 'heavy') => [
-                'code' => '428071000124103',
-                'displayName' => 'Heavy tobacco smoker',
-            ],
-            str_contains($description, 'light') => [
-                'code' => '428061000124105',
-                'displayName' => 'Light tobacco smoker',
-            ],
-            str_contains($description, 'unknown if ever') => [
-                'code' => '266927001',
-                'displayName' => 'Unknown if ever smoked',
-            ],
-            str_contains($description, 'current status unknown') || str_contains($description, 'smoker') => [
-                'code' => '77176002',
-                'displayName' => 'Smoker, current status unknown',
-            ],
-            default => [
-                'code' => '77176002',
-                'displayName' => 'Smoker, current status unknown',
-            ],
-        };
+        $code = $table[$description] ?? null;
+
+        return [
+            'code' => $code,
+            'displayName' => $description,
+        ];
     }
 
     private function appendSexObservationEntry(DOMElement $section, string $sexObservation): void
