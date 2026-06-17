@@ -86,13 +86,13 @@ jobs:
         # Push when triggered by a successful orchestrator run, OR when a
         # maintainer manually dispatched with dry_run=false. Pull requests
         # and dry_run dispatches stop at the artifact upload above.
-        if [ "$EVENT_NAME" = 'workflow_run' ]; then
-          echo "push=true" >> "$GITHUB_OUTPUT"
-        elif [ "$EVENT_NAME" = 'workflow_dispatch' ] && [ "$DRY_RUN" = 'false' ]; then
-          echo "push=true" >> "$GITHUB_OUTPUT"
+        if [[ "${EVENT_NAME}" == "workflow_run" ]]; then
+          echo "push=true" >> "${GITHUB_OUTPUT}"
+        elif [[ "${EVENT_NAME}" == "workflow_dispatch" ]] && [[ "${DRY_RUN}" == "false" ]]; then
+          echo "push=true" >> "${GITHUB_OUTPUT}"
         else
-          echo "push=false" >> "$GITHUB_OUTPUT"
-          echo "ℹ Skipping Docker Hub push (event=$EVENT_NAME dry_run=${DRY_RUN:-n/a}). Rendered output uploaded as artifact only."
+          echo "push=false" >> "${GITHUB_OUTPUT}"
+          echo "ℹ Skipping Docker Hub push (event=${EVENT_NAME} dry_run=${DRY_RUN:-n/a}). Rendered output uploaded as artifact only."
         fi
 
     - name: Push readme to Docker Hub
