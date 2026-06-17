@@ -29,8 +29,7 @@ on:
   pull_request:
     branches: [master]
     paths:
-    - 'docker/dockerhub-overview.md'
-    - 'docker/render-dockerhub-overview.sh'
+    - 'docker/dockerhub/**'
     - '.github/release-targets.yml'
     # Glob covers the current flex callers (docker-build-322.yml,
     # docker-build-323.yml, docker-build-edge.yml) plus any future
@@ -73,7 +72,7 @@ jobs:
     - name: Render readme
       run: |
         mkdir -p "${RUNNER_TEMP}/rendered"
-        ./docker/render-dockerhub-overview.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
+        ./docker/dockerhub/render.sh "${RUNNER_TEMP}/rendered/dockerhub-readme.md"
         echo "✓ Rendered $(wc -l < ${RUNNER_TEMP}/rendered/dockerhub-readme.md) lines"
 
     - name: Upload rendered readme as artifact

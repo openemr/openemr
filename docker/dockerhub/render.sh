@@ -6,7 +6,7 @@
 #   cases for this script's intent -- pure render-or-die, no per-step
 #   recovery needed. Suppressing wholesale to keep the script readable.
 #
-# Render docker/dockerhub-overview.md into the markdown that ships to
+# Render docker/dockerhub/overview.md into the markdown that ships to
 # Docker Hub's repo description for openemr/openemr.
 #
 # Input sources:
@@ -15,7 +15,7 @@
 #                                            whose .jobs.build.uses points at
 #                                            docker-build-flex-core.yml are
 #                                            the flex callers
-#   * docker/dockerhub-overview.md        -- markdown template with placeholders
+#   * docker/dockerhub/overview.md        -- markdown template with placeholders
 #
 # Four placeholders substituted in the template:
 #   __CURRENT_LATEST_VERSION__   -- version-number tag from the release-targets
@@ -34,14 +34,14 @@
 #                                   version + today's UTC date (8.1.0-2026-06-17).
 #
 # Usage:
-#   ./docker/render-dockerhub-overview.sh [output-path]
+#   ./docker/dockerhub/render.sh [output-path]
 #
 # Defaults the output to stdout. CI passes ${RUNNER_TEMP}/dockerhub-readme.md.
 
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-TEMPLATE="${ROOT_DIR}/docker/dockerhub-overview.md"
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+TEMPLATE="${ROOT_DIR}/docker/dockerhub/overview.md"
 RELEASE_TARGETS="${ROOT_DIR}/.github/release-targets.yml"
 WORKFLOWS_DIR="${ROOT_DIR}/.github/workflows"
 
