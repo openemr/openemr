@@ -20,11 +20,11 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Services\PatientPortalService;
-use OpenEMR\Services\PhoneNumberService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -676,19 +676,19 @@ abstract class AppDispatch
             $content = text($body) . "\n";
             $from_name = text($from_name);
             $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-            $mail->AddReplyTo($from, $from_name);
-            $mail->SetFrom($from, $from);
+            $mail->addReplyTo($from, $from_name);
+            $mail->setFrom($from, $from);
             $to = $email;
             $to_name = $email;
-            $mail->AddAddress($to, $to_name);
+            $mail->addAddress($to, $to_name);
             $subject = text($subject);
             $mail->Subject = $subject;
             $mail->Body = $content;
             if (!empty($htmlContent)) {
-                $mail->MsgHTML(text($htmlContent));
-                $mail->IsHTML(true);
+                $mail->msgHTML(text($htmlContent));
+                $mail->isHTML(true);
             }
-            $status = $mail->Send()
+            $status = $mail->send()
                 ? xlt("Email successfully sent.")
                 : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
         } catch (\Throwable $e) {
@@ -718,7 +718,8 @@ abstract class AppDispatch
      */
     public function formatPhone(string $number): string
     {
-        return PhoneNumberService::toE164($number) ?? '';
+        $parsed = PhoneNumber::tryParse($number);
+        return $parsed?->toE164() ?? '';
     }
 
     /**
