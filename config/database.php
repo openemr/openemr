@@ -19,8 +19,8 @@ use Doctrine\DBAL\{
     Types\Type,
 };
 use Doctrine\Migrations\Configuration\{
-    Connection\ConnectionLoader,
     Connection\ExistingConnection,
+    EntityManager\ExistingEntityManager,
     Migration\ConfigurationLoader,
     Migration\PhpFile,
 };
@@ -78,12 +78,14 @@ return [
 
     // Doctrine Migrations
     ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
-    ConnectionLoader::class => fn (TC $c) => new ExistingConnection($c->get(Connection::class)),
-    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromConnection(
+    // We use fromEntityManager instead of fromConnection to be able to leverage
+    // its EventManager. This is required to subscribe to migration events.
+    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromEntityManager(
         $c->get(ConfigurationLoader::class),
-        $c->get(ConnectionLoader::class),
+        $c->get(ExistingEntityManager::class),
         $c->get(LoggerInterface::class),
     ),
+    ExistingEntityManager::class,
 
     // ORM
     TypedFieldMapper::class => function (): TypedFieldMapper {
@@ -125,7 +127,23 @@ return [
 
     EntityManager::class,
     EntityManagerInterface::class => EntityManager::class,
+
+    // Note: Doctrine EntityManager types EventManager not
+    // EventManagerInterface, so we use it as the key so it gets wired.
     EventManager::class => function (TC $c): EventManager {
+        // Hookable events are defined in:
+        // - Doctrine\Migrations\Events
+        // - Doctrine\ORM\Events
+        // - Doctrine\ORM\Tools\ToolEvents
+        //
+        // Listeners are convention-based: they must have a public method of the
+        // event's name which will be called upon event dispatching. E.g. an
+        // event named `fooEvent` means the listener must have `public function
+        // fooEvent(): void`. Some events emit additional data as an argument,
+        // see their definitions for more detail.
+        //
+        // This should NOT be used for application events; stick with the
+        // Symfony EventDispatcher in the kernel.
         $manager = new EventManager();
         $manager->addEventListener(
             events: [Events::prePersist, Events::preUpdate],
