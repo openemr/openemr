@@ -152,6 +152,7 @@
         "phpunit/phpunit": "^11.0",
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
+        "roave/security-advisories": "dev-latest",
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
         "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
