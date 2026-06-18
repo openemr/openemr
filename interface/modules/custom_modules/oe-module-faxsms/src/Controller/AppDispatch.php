@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -25,7 +26,9 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Services\PatientPortalService;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Throwable;
 
 /**
  * Class AppDispatch
@@ -47,7 +50,7 @@ abstract class AppDispatch
     protected $authUser;
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -105,7 +108,7 @@ abstract class AppDispatch
                 );
             } else {
                 $this->setHeader("HTTP/1.0 404 Not Found");
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     xlt("Requested") . ' ' . text($action) . ' '
                     . xlt("or service is not found.") . ' ' . xlt("Install or turn service on!")
                 );
@@ -151,7 +154,7 @@ abstract class AppDispatch
 
     /**
      * @param string|null $param
-     * @param mixed|null $default
+     * @param mixed|null  $default
      * @return mixed|null
      */
     public function getSession(?string $param = null, mixed $default = null): mixed
@@ -220,7 +223,7 @@ abstract class AppDispatch
 
     /**
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function render(): void
     {
@@ -228,7 +231,7 @@ abstract class AppDispatch
             if (is_scalar($this->_response)) {
                 echo $this->_response;
             } else {
-                throw new \Exception(xlt('Response content must be scalar'));
+                throw new Exception(xlt('Response content must be scalar'));
             }
             exit;
         }
@@ -305,7 +308,7 @@ abstract class AppDispatch
             return $factory();
         }
 
-        throw new \RuntimeException(
+        throw new RuntimeException(
             xlt("Requested") . ' ' . text($type) . ' '
             . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
         );
@@ -336,7 +339,7 @@ abstract class AppDispatch
             return OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null;
         }
 
-        throw new \RuntimeException(
+        throw new RuntimeException(
             xlt("Requested") . ' ' . text(self::$_apiModule) . ' '
             . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
         );
@@ -388,7 +391,7 @@ abstract class AppDispatch
 
     /**
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      * @return $this
      */
     public function setSession(string $key, $value): static
@@ -485,7 +488,7 @@ abstract class AppDispatch
     public function apiFetchPatientDetails(): string
     {
         $idRaw = $this->getRequest('pid');
-        $id = is_numeric($idRaw) ? (int) $idRaw : 0;
+        $id = is_numeric($idRaw) ? (int)$idRaw : 0;
         $result = $id > 0
             ? (new PatientPortalService())->getPatientDetails($id)
             : null;
@@ -656,6 +659,7 @@ abstract class AppDispatch
     /**
      * This is available to all services
      * regardless if EmailClient is enabled.
+     *
      * @param        $email
      * @param        $from_name
      * @param        $body
@@ -688,10 +692,8 @@ abstract class AppDispatch
                 $mail->msgHTML(text($htmlContent));
                 $mail->isHTML(true);
             }
-            $status = $mail->send()
-                ? xlt("Email successfully sent.")
-                : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
-        } catch (\Throwable $e) {
+            $status = $mail->send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             $status = 'Error: ' . $message;
         }
@@ -719,7 +721,7 @@ abstract class AppDispatch
     public function formatPhone(string $number): string
     {
         $parsed = PhoneNumber::tryParse($number);
-        return $parsed?->toE164() ?? '';
+        return $parsed ? $parsed->toE164() : '';
     }
 
     /**
@@ -760,7 +762,7 @@ abstract class AppDispatch
                 $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             return 'Error: ' . text($message) . PHP_EOL;
         }

@@ -23,20 +23,20 @@
  * The procedural SQL/formatting helpers used by both entry points
  * live in `rc_sms_notification_helpers.php`.
  *
- * @package   OpenEMR
+ * @package            OpenEMR
  *
- * @link      https://www.open-emr.org
- * @author    Unknown
- * @author    Larry Lart
- * @author    Jerry Padgett
- * @author    Robert Down
- * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Unknown
- * @copyright Copyright (c) 2008 Larry Lart
- * @copyright Copyright (c) 2018-2024 Jerry Padgett
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @link               https://www.open-emr.org
+ * @author             Unknown
+ * @author             Larry Lart
+ * @author             Jerry Padgett
+ * @author             Robert Down
+ * @author             Michael A. Smith <michael@opencoreemr.com>
+ * @copyright          Unknown
+ * @copyright          Copyright (c) 2008 Larry Lart
+ * @copyright          Copyright (c) 2018-2024 Jerry Padgett
+ * @copyright          Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright          Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license            https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  * @codeCoverageIgnore Top-level admin popup / argv entry point. Mixes
  *     globals.php bootstrap, raw `$_GET` writes for site/type, ACL gating
@@ -147,7 +147,7 @@ set_time_limit(0);
 
 $credArray = is_array($cred) ? $cred : [];
 $notificationHoursRaw = $credArray['smsHours'] ?? $credArray['notification_hours'] ?? 24;
-$notificationHours = is_numeric($notificationHoursRaw) ? (int) $notificationHoursRaw : 24;
+$notificationHours = is_numeric($notificationHoursRaw) ? (int)$notificationHoursRaw : 24;
 $messageTemplateRaw = $credArray['smsMessage'] ?? $credArray['email_message'] ?? '';
 $messageTemplate = is_string($messageTemplateRaw) ? $messageTemplateRaw : '';
 $vendor = AppDispatch::getModuleVendor();
@@ -206,17 +206,18 @@ $runner = new AppointmentNotificationRunner(
                 . " "
                 . text("(" . $hours . " hours ahead)")
                 . " ==============</h4>";
+
             ob_flush();
             flush();
 
             $result = $runner->run();
             ?>
             <ul>
-                <li><?php echo xlt('Candidates scanned'); ?>: <strong><?php echo text((string) $result->scanned); ?></strong></li>
-                <li><?php echo xlt('In send window'); ?>: <strong><?php echo text((string) $result->inWindow); ?></strong></li>
-                <li><?php echo xlt('Sent'); ?>: <strong><?php echo text((string) $result->sent); ?></strong></li>
-                <li><?php echo xlt('Skipped (invalid recipient)'); ?>: <strong><?php echo text((string) $result->skippedInvalid); ?></strong></li>
-                <li><?php echo xlt('Failed'); ?>: <strong><?php echo text((string) $result->failed); ?></strong></li>
+                <li><?php echo xlt('Candidates scanned'); ?>: <strong><?php echo text((string)$result->scanned); ?></strong></li>
+                <li><?php echo xlt('In send window'); ?>: <strong><?php echo text((string)$result->inWindow); ?></strong></li>
+                <li><?php echo xlt('Sent'); ?>: <strong><?php echo text((string)$result->sent); ?></strong></li>
+                <li><?php echo xlt('Skipped (invalid recipient)'); ?>: <strong><?php echo text((string)$result->skippedInvalid); ?></strong></li>
+                <li><?php echo xlt('Failed'); ?>: <strong><?php echo text((string)$result->failed); ?></strong></li>
             </ul>
             <?php if ($result->hasFailures()) : ?>
                 <p class="text-danger"><?php echo xlt('One or more sends failed. Check the PHP error log for details.'); ?></p>

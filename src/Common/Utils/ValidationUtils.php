@@ -11,7 +11,7 @@
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
  * @copyright  Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright  Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @copyright  Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -26,7 +26,6 @@ class ValidationUtils
 {
     public static function isValidEmail(string $email): bool
     {
-        // FILTER_FLAG_EMAIL_UNICODE allows for unicode characters in the local (part before the @) of the email.
         return filter_var($email, FILTER_VALIDATE_EMAIL, FILTER_FLAG_EMAIL_UNICODE) !== false;
     }
 
@@ -193,7 +192,7 @@ class ValidationUtils
         }
 
         if ($requireHttps) {
-            $scheme = parse_url((string) $url, PHP_URL_SCHEME);
+            $scheme = parse_url((string)$url, PHP_URL_SCHEME);
             return is_string($scheme) && strtolower($scheme) === 'https';
         }
 

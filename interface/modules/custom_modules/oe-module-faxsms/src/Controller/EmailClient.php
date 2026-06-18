@@ -160,6 +160,7 @@ class EmailClient extends AppDispatch
             throw new EmailSendFailedException($mail->ErrorInfo);
         }
     }
+
     /**
      * @return false|string
      */
