@@ -325,9 +325,6 @@ class InsuranceCompanyServiceTest extends TestCase
             'form_country' => 'USA',
         ]);
 
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-
         $id = $result['id'];
         $this->createdIds[] = $id;
 
@@ -372,5 +369,25 @@ class InsuranceCompanyServiceTest extends TestCase
         );
         $this->assertNotFalse($row);
         $this->assertEquals('test-fixture-SaveFromForm Updated', $row['name']);
+    }
+
+    #[Test]
+    public function testSaveFromFormThrowsWhenUpdateTargetMissing(): void
+    {
+        // Updating a non-existent row triggers BaseService::update() returning
+        // false, which saveFromForm() turns into a RuntimeException so the
+        // caller doesn't have to branch on a stringly-typed error return.
+        $this->expectException(\RuntimeException::class);
+
+        $this->service->saveFromForm([
+            'form_update' => 'Update',
+            'form_id' => '0',
+            'form_name' => 'test-fixture-SaveFromForm Missing',
+            'form_addr1' => '1 Nowhere St',
+            'form_city' => 'Nowhere',
+            'form_state' => 'IL',
+            'form_zip' => '60000',
+            'form_country' => 'USA',
+        ]);
     }
 }

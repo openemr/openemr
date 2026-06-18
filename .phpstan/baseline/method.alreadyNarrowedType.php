@@ -917,11 +917,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FacilityServiceTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertArrayHasKey\\(\\) with \'name\' and array\\{id\\: int, name\\: string\\} will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/InsuranceCompanyServiceTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsInt\\(\\) with int will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/InsuranceCompanyServiceTest.php',

@@ -67,7 +67,7 @@ class InsuranceCompanyService extends BaseService
         parent::__construct(self::INSURANCE_TABLE);
     }
 
-    public function getInsuranceDisplayName($insuranceId)
+    public function getInsuranceDisplayName($insuranceId): string
     {
         $searchResults = $this->search(['id' => $insuranceId]);
         $insuranceCompany = null;
@@ -79,7 +79,7 @@ class InsuranceCompanyService extends BaseService
         }
         return "";
     }
-    public static function getDisplayNameForInsuranceRecord($insuranceCompany)
+    public static function getDisplayNameForInsuranceRecord($insuranceCompany): string
     {
         switch (OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
@@ -113,7 +113,7 @@ class InsuranceCompanyService extends BaseService
                 $returnval = $insuranceCompany['name'];
                 break;
         }
-        return $returnval;
+        return (string) $returnval;
     }
 
     public function getUuidFields(): array
@@ -392,13 +392,11 @@ class InsuranceCompanyService extends BaseService
      * the opener should show.
      *
      * @param array<string, mixed> $form
-     * @return array{id: int, name: string}|string
+     * @return array{id: int, name: string}
+     * @throws \RuntimeException When the underlying insert/update fails or the
+     *     resulting id is not a valid integer.
      */
-    /**
-     * @param array<string, mixed> $form
-     * @return array{id: int, name: string}|string
-     */
-    public function saveFromForm(array $form): array|string
+    public function saveFromForm(array $form): array
     {
         $isNew = (
             ($form['form_save'] ?? '') === 'Save as New'
@@ -414,29 +412,23 @@ class InsuranceCompanyService extends BaseService
             $id = $form['form_id'];
             $result = $this->update($data, $id);
             if ($result === false) {
-                return xl('Failed to update insurance company');
+                throw new \RuntimeException(xl('Failed to update insurance company'));
             }
         }
 
         $id = filter_var($id, FILTER_VALIDATE_INT);
 
         if ($id === false) {
-            return xl('Invalid insurance company id');
-        }
-
-        $name = $this->getInsuranceDisplayName($id);
-
-        if (!is_string($name)) {
-            $name = '';
+            throw new \RuntimeException(xl('Invalid insurance company id'));
         }
 
         return [
             'id' => $id,
-            'name' => $name,
+            'name' => $this->getInsuranceDisplayName($id),
         ];
     }
 
-    public function insert($data)
+    public function insert($data): int|string
     {
         // insurance companies need to use sequences table since they share the
         // addresses table with pharmacies
@@ -446,6 +438,9 @@ class InsuranceCompanyService extends BaseService
             $data["id"] = QueryUtils::generateId();
         }
         $freshId = $data['id'];
+        if (!is_int($freshId) && !is_string($freshId)) {
+            throw new \RuntimeException(xl('Invalid insurance company id'));
+        }
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
