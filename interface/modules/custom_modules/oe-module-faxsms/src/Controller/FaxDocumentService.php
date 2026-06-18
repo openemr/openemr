@@ -18,11 +18,14 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
+use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
 use OpenEMR\Services\PhoneNumberService;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -475,6 +478,116 @@ class FaxDocumentService
         } catch (\Throwable $e) {
             error_log("FaxDocumentService.insertInboundFaxToQueue(): ERROR - " . $e->getMessage());
             throw new FaxDocumentException("Failed to insert inbound fax to queue: " . $e->getMessage(), 0, $e);
+        }
+    }
+
+    /**
+     * Download fax media from a provider URL and persist it via storeFaxDocument().
+     *
+     * Single source of truth for the download-and-store behavior shared by the
+     * inbound webhook receiver and the polling path (SignalWireClient::getPending()).
+     * Validates the URL against the SignalWire host whitelist, downloads with the
+     * correct auth (Bearer for files.signalwire.com media URLs, Basic otherwise),
+     * matches a patient by phone when $patientId is 0, and stores through
+     * storeFaxDocument() so the file always lands encrypted in the canonical
+     * received_faxes location (or as a patient Document when matched).
+     *
+     * This method does NOT write to oe_faxsms_queue. The caller owns the queue
+     * row lifecycle and applies the returned patient_id/document_id/media_path,
+     * because the webhook updates an existing row while polling inserts/updates.
+     *
+     * @return array{success: bool, document_id: int|null, media_path: string|null, patient_id: int}
+     */
+    public function downloadAndStoreFromUrl(
+        string $faxSid,
+        string $mediaUrl,
+        string $fromNumber,
+        string $projectId,
+        string $apiToken,
+        int $patientId = 0
+    ): array {
+        $failure = ['success' => false, 'document_id' => null, 'media_path' => null, 'patient_id' => $patientId];
+
+        if (!SignalWireWebhookValidator::isValidSignalWireUrl($mediaUrl)) {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Invalid or unauthorized media URL for {$faxSid}");
+            return $failure;
+        }
+
+        if ($projectId === '' || $apiToken === '') {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Missing Project ID or API token for {$faxSid}");
+            return $failure;
+        }
+
+        // files.signalwire.com media downloads authenticate with a Bearer token;
+        // other SignalWire hosts use Basic project/token auth.
+        $useBearer = str_contains($mediaUrl, 'files.signalwire.com');
+
+        $fetched = $this->fetchMediaBytes($mediaUrl, $projectId, $apiToken, $useBearer);
+        if ($fetched === null) {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): HTTP request failed for {$faxSid}");
+            return $failure;
+        }
+
+        $httpCode = $fetched['status'];
+        $mediaContent = $fetched['body'];
+        $contentType = $fetched['contentType'];
+
+        if ($httpCode !== 200 || $mediaContent === '') {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Failed to download media for {$faxSid}. HTTP status={$httpCode}");
+            return $failure;
+        }
+
+        if ($patientId === 0) {
+            $patientId = $this->findPatientByPhone($fromNumber);
+        }
+
+        try {
+            $result = $this->storeFaxDocument($faxSid, $mediaContent, $fromNumber, $patientId, $contentType);
+        } catch (FaxDocumentException $e) {
+            error_log("FaxDocumentService.downloadAndStoreFromUrl(): Failed to store media for {$faxSid}: " . $e->getMessage());
+            return $failure;
+        }
+
+        return [
+            'success' => true,
+            'document_id' => $result['document_id'] ?? null,
+            'media_path' => $result['media_path'] ?? null,
+            'patient_id' => (int)($result['patient_id'] ?? $patientId),
+        ];
+    }
+
+    /**
+     * Perform the media HTTP GET and return a normalized result. Isolated as a
+     * protected seam so downloadAndStoreFromUrl() can be unit tested without the
+     * oeHttp transport: tests override this to feed canned responses.
+     *
+     * @return array{status: int, body: string, contentType: string}|null Null on transport failure.
+     */
+    protected function fetchMediaBytes(string $mediaUrl, string $projectId, string $apiToken, bool $useBearer): ?array
+    {
+        try {
+            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
+
+            if ($useBearer) {
+                $httpRequest->usingHeaders(['Authorization' => 'Bearer ' . $apiToken]);
+            } else {
+                $httpRequest->setOptions(['auth' => [$projectId, $apiToken]]);
+            }
+
+            $response = $httpRequest->get($mediaUrl);
+            $body = SignalWireWebhookValidator::scalarString($response->body());
+
+            return [
+                'status' => (int)$response->status(),
+                'body' => $body,
+                'contentType' => SignalWireWebhookValidator::normalizeMimeType(
+                    $response->header('Content-Type'),
+                    $body
+                ),
+            ];
+        } catch (\Throwable $e) {
+            error_log("FaxDocumentService.fetchMediaBytes(): HTTP request failed: " . $e->getMessage());
+            return null;
         }
     }
 }

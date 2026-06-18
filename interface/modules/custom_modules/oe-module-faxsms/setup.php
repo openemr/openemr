@@ -252,8 +252,16 @@ $mode = $_REQUEST['mode'] ?? null;
                         case ServiceType::SIGNALWIRE: ?> <!-- SignalWire -->
                         <div class="checkbox">
                             <label>
-                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
-                                <?php echo xlt("Production Mode") ?>
+                                <input id="form_production" type="radio" name="production" value=""
+                                       title="<?php echo xla('Requires a valid HTTPS URL with certificate.'); ?>"
+                                    <?php echo attr($c['production'] === '') ? ' checked' : '' ?>>
+                                <?php echo xlt("Web Hook Mode"); ?>
+                            </label>
+                            <label>
+                                <input class="" id="form_mode-polling" type="radio" name="production" value="polling"
+                                       title="<?php echo xla('For localized sites and not requiring an HTTPS with certificate. Less open to public access.'); ?>"
+                                    <?php echo attr($c['production'] === 'polling') ? ' checked' : '' ?>>
+                                <?php echo xlt("Polling Mode"); ?>
                             </label>
                         </div>
                         <div class="form-group">

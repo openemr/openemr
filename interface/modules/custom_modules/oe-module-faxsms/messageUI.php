@@ -71,7 +71,7 @@ $site_id = $session->get('site_id');
                 [ServiceType.RINGCENTRAL]: {hide: ['.rc-hide'].concat(serviceType === 'fax' ? ['.rc-fax-hide'] : [])},
                 [ServiceType.TWILIO_SMS]: {hide: ['.etherfax', '.signalwire']},
                 [ServiceType.ETHERFAX]: {hide: ['.twilio', '.etherfax-hide', '.signalwire'], show: ['.etherfax']},
-                [ServiceType.SIGNALWIRE]: {hide: ['.twilio', '.etherfax', '.rc-hide'], show: ['.signalwire']},
+                [ServiceType.SIGNALWIRE]: {hide: ['.twilio', '.etherfax', '.rc-hide, .signalwire-hide'], show: ['.signalwire']},
             }[currentService] ?? {};
             hide.forEach(s => $(s).hide());
             show.forEach(s => $(s).show());
@@ -887,17 +887,17 @@ $site_id = $session->get('site_id');
                         <li class="nav-item" role="tab">
                             <a class="nav-link" href="#sent" aria-controls="sent" role="tab" data-toggle="tab"><?php echo xlt("Sent") ?></a>
                         </li>
-                        <li class="nav-item rc-fax-hide etherfax-hide email-hide" role="tab">
+                        <li class="nav-item rc-fax-hide etherfax-hide email-hide signalwire-hide" role="tab">
                             <a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><?php echo xlt("SMS Log") ?></a>
                         </li>
-                        <li class="nav-item email-hide" role="tab">
+                        <li class="nav-item email-hide signalwire-hide" role="tab">
                             <a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Call Log") ?></a>
                         </li>
-                        <li class="nav-item etherfax-hide rc-fax-hide" role="tab">
+                        <li class="nav-item etherfax-hide rc-fax-hide signalwire-hide" role="tab">
                             <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ml-1" onclick="getNotificationLog(event, this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>"></span></a>
                         </li>
-                        <li class="nav-item sms-hide email-hide etherfax" role="tab">
+                        <li class="nav-item sms-hide email-hide etherfax  signalwire" role="tab">
                             <a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a>
                         </li>
                         <?php if ($serviceType == 'email') { ?>
@@ -915,20 +915,20 @@ $site_id = $session->get('site_id');
                     <?php if ($service != '1') { ?>
                         <div class="tab-content">
                             <div role="tabpanel" class="container-fluid tab-pane fade" id="received">
-                                <?php if ($service == '3') { ?>
+                                <?php if ($service == '3' || $service == '6') { ?>
                                     <div class="table-responsive">
                                         <table class="table table-sm" id="rcvdetails">
                                             <thead>
                                             <tr>
                                                 <th><?php echo xlt("Time") ?></th>
                                                 <th><?php echo xlt("Caller #") ?></th>
-                                                <th><?php echo xlt("Caller Id") ?></th>
+                                                <th class="signalwire-hide"><?php echo xlt("Caller Id") ?></th>
                                                 <th><?php echo xlt("To") ?></th>
                                                 <th><?php echo xlt("Pages") ?></th>
-                                                <th><?php echo xlt("Length") ?></th>
+                                                <th class="signalwire-hide"><?php echo xlt("Length") ?></th>
                                                 <th><?php echo xlt("Status") ?></th>
-                                                <th><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a><?php echo xlt("Extracted") ?></th>
-                                                <th><?php echo xlt("MRN Match") ?></th>
+                                                <th class="signalwire-hide"><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a><?php echo xlt("Extracted") ?></th>
+                                                <th class="signalwire-hide"><?php echo xlt("MRN Match") ?></th>
                                                 <th><?php echo xlt("Actions") ?></th>
                                                 <th><i role="button" id="delete-selected-received" title="<?php echo xla("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>
                                             </tr>
@@ -964,17 +964,17 @@ $site_id = $session->get('site_id');
                                 <?php } ?>
                             </div>
                             <div role="tabpanel" class="container-fluid tab-pane fade" id="sent">
-                                <?php if ($service == '3') { ?>
+                                <?php if ($service == '3' || $service == '6') { ?>
                                     <div class="table-responsive">
                                         <table class="table table-sm" id="sent-details">
                                             <thead>
                                             <tr>
                                                 <th><?php echo xlt("Time") ?></th>
                                                 <th><?php echo xlt("Caller #") ?></th>
-                                                <th><?php echo xlt("Caller Id") ?></th>
+                                                <th class="signalwire-hide"><?php echo xlt("Caller Id") ?></th>
                                                 <th><?php echo xlt("To") ?></th>
                                                 <th><?php echo xlt("Pages") ?></th>
-                                                <th><?php echo xlt("Name") ?></th>
+                                                <th class="signalwire-hide"><?php echo xlt("Name") ?></th>
                                                 <th><?php echo xlt("Status") ?></th>
                                                 <th><?php echo xlt("Actions") ?></th>
                                                 <th><i role="button" id="delete-selected-sent" title="<?php echo xlt("Delete selected fax documents") ?>" class="delete-selected-items text-danger fa fa-trash"></i></th>

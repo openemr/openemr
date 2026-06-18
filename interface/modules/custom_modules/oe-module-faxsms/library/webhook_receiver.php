@@ -6,223 +6,283 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    SignalWire Integration
- * @copyright Copyright (c) 2025
+ * @author    SignalWire Integration Sherwin Gladdis
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025 Sherwin Gladdis
+ * @copyright Copyright (c) 2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// Allow webhook access without authentication. Keep this endpoint narrow:
+// validation below rejects non-SignalWire requests before any fax data is stored.
+$ignoreAuth = true;
+$sessionAllowWrite = true;
+
+// globals.php reads auth/site very early, so set this before requiring globals.
+$_GET['auth'] = $_GET['auth'] ?? 'portal';
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Modules\FaxSMS\Controller\FaxDocumentService;
 use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
 
-// Allow webhook access without authentication
-$ignoreAuth = true;
-$sessionAllowWrite = true;
-
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-// Set site from query parameter for multi-site support
-$_GET['auth'] = 'portal';  // Enable site selection
-
-if (empty($_GET['site'])) {
-    error_log("Fax site ID missing");
-    die;
-}
-
-// Capture raw input first (can only be read once)
-$rawInput = file_get_contents('php://input');
-
 /**
- * Download fax media from SignalWire and store using FaxDocumentService
+ * Echo an empty cXML response to acknowledge SignalWire callbacks.
  *
- * @param string $faxSid
- * @param string $mediaUrl
- * @param string $fromNumber
- * @param string $siteId
- * @param int    $patientId Patient ID if already assigned
  * @return void
  */
-function downloadAndStoreFaxMedia(
-    string $faxSid,
-    string $mediaUrl,
-    string $fromNumber,
-    string $siteId,
-    int $patientId = 0
-): void
+function signalwireWebhookAck(): void
 {
-    try {
-        // Validate mediaUrl to prevent SSRF attacks
-        if (!SignalWireWebhookValidator::isValidSignalWireUrl($mediaUrl)) {
-            error_log("SignalWire Webhook: Invalid or unauthorized media URL: " . $mediaUrl);
-            return;
-        }
-
-        // Get SignalWire credentials
-        $vendor = '_signalwire';
-        $credentials = QueryUtils::querySingleRow(
-            "SELECT credentials FROM module_faxsms_credentials WHERE vendor = ? AND auth_user = 0",
-            [$vendor]
-        );
-
-        if (empty($credentials)) {
-            return;
-        }
-
-        $crypto = ServiceContainer::getCrypto();
-        $decrypted = $crypto->decryptFromDatabase(is_string($credentials['credentials']) ? $credentials['credentials'] : null);
-        $creds = json_decode($decrypted, true);
-
-        $projectId = $creds['project_id'] ?? '';
-        $apiToken = $creds['api_token'] ?? '';
-
-        if (empty($projectId) || empty($apiToken)) {
-            return;
-        }
-
-        // Download the fax media with authentication using oeHttp
-        // SignalWire files.signalwire.com requires Bearer token, not Basic auth
-        try {
-            $httpRequest = oeHttpRequest::newArgs(oeHttp::client());
-
-            // Set up headers based on URL type
-            if (str_contains($mediaUrl, 'files.signalwire.com')) {
-                // Use Bearer token authentication for SignalWire file downloads
-                $httpRequest->usingHeaders([
-                    'Authorization' => 'Bearer ' . $apiToken
-                ]);
-            } else {
-                // Use Basic authentication for API endpoints
-                $httpRequest->setOptions([
-                    'auth' => [$projectId, $apiToken]
-                ]);
-            }
-
-            $response = $httpRequest->get($mediaUrl);
-            $httpCode = $response->status();
-            $mediaContent = $response->body();
-            $contentTypeHeader = $response->header('Content-Type');
-            $contentType = !empty($contentTypeHeader) ? $contentTypeHeader : 'application/pdf';
-
-            if ($httpCode !== 200 || empty($mediaContent)) {
-                return;
-            }
-        } catch (\Throwable $e) {
-            error_log("SignalWire Webhook: HTTP request failed: " . $e->getMessage());
-            return;
-        }
-
-        // Try to find patient by phone number if not assigned
-        if ($patientId === 0) {
-            $faxService = new FaxDocumentService($siteId);
-            $patientId = $faxService->findPatientByPhone($fromNumber);
-        }
-
-        // Store fax using FaxDocumentService
-        $faxService ??= new FaxDocumentService($siteId);
-        $result = $faxService->storeFaxDocument(
-            $faxSid,
-            $mediaContent,
-            $fromNumber,
-            $patientId,
-            $contentType
-        );
-
-        // Update queue with storage info
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE oe_faxsms_queue
-             SET patient_id = ?, document_id = ?, media_path = ?
-             WHERE job_id = ? AND site_id = ?",
-            [
-                $result['patient_id'],
-                $result['document_id'],
-                $result['media_path'],
-                $faxSid,
-                $siteId
-            ]
-        );
-    } catch (\Throwable $e) {
-        error_log("SignalWire Webhook: Error downloading/storing fax media: " . $e->getMessage());
-    }
-}
-
-// Get site ID from query parameter and validate
-$siteId = SignalWireWebhookValidator::validateSiteId($session->get('site_id') ?? $_GET['site'] ?? 'default');
-
-// Handle JSON payloads (SignalWire sends JSON for some webhooks)
-$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-if (str_contains((string)$contentType, 'application/json') && !empty($rawInput)) {
-    $jsonData = json_decode($rawInput, true);
-    if (json_last_error() === JSON_ERROR_NONE) {
-        // Check if this is a SWML execute callback with fax data in vars
-        if (isset($jsonData['call']) && isset($jsonData['vars'])) {
-            $vars = $jsonData['vars'];
-
-            // Check if fax was received (SWML execute sends fax data in vars)
-            if (isset($vars['receive_fax_document'])) {
-                // Map SWML vars to standard fax webhook format for processing
-                $_POST = [
-                    'FaxSid' => $jsonData['call']['call_id'] ?? uniqid('fax_'),
-                    'Status' => ($vars['receive_fax_result'] === 'success') ? 'received' : 'failed',
-                    'From' => $jsonData['call']['from'] ?? '',
-                    'To' => $jsonData['call']['to'] ?? '',
-                    'NumPages' => $vars['receive_fax_pages'] ?? 0,
-                    'MediaUrl' => $vars['receive_fax_document'] ?? '',
-                    'Direction' => 'inbound',
-                    'ErrorCode' => $vars['receive_fax_result_code'] ?? '',
-                    'ErrorMessage' => $vars['receive_fax_result_text'] ?? ''
-                ];
-            } else {
-                // This is a call event without fax data (call setup/teardown)
-                http_response_code(200);
-                header('Content-Type: application/xml');
-                echo '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
-                exit();
-            }
-        } // If JSON contains traditional fax data, map it to $_POST for processing
-        elseif (isset($jsonData['FaxSid']) || isset($jsonData['Sid'])) {
-            $_POST = $jsonData;
-        }
-    }
-}
-
-// Get vendor type from query string
-$vendor = $_GET['vendor'] ?? '';
-$type = $_GET['type'] ?? '';
-
-if ($vendor !== 'signalwire' || $type !== 'fax') {
-    http_response_code(400);
-    error_log("Invalid webhook vendor or type: vendor=$vendor, type=$type");
-    exit('Invalid request');
-}
-
-// Get webhook payload - validate and sanitize all input
-$faxSid = SignalWireWebhookValidator::validateFaxId($_POST['FaxSid'] ?? $_POST['Sid'] ?? '');
-$status = SignalWireWebhookValidator::validateFaxStatus($_POST['Status'] ?? $_POST['FaxStatus'] ?? 'unknown');
-$from = SignalWireWebhookValidator::validatePhoneNumber($_POST['From'] ?? $_POST['RemoteStationId'] ?? '');
-$to = SignalWireWebhookValidator::validatePhoneNumber($_POST['To'] ?? $_POST['OriginalTo'] ?? '');
-$numPages = SignalWireWebhookValidator::validateInteger($_POST['NumPages'] ?? $_POST['Pages'] ?? 0, 0, 9999);
-$mediaUrl = SignalWireWebhookValidator::validateString($_POST['MediaUrl'] ?? '', 2048);
-$direction = SignalWireWebhookValidator::validateDirection($_POST['Direction'] ?? 'inbound');
-$errorCode = SignalWireWebhookValidator::validateString($_POST['ErrorCode'] ?? '', 100);
-$errorMessage = SignalWireWebhookValidator::validateString($_POST['ErrorMessage'] ?? '', 1000);
-
-// Handle webhook validation/test (empty POST body)
-if (empty($_POST) || empty($faxSid)) {
-    // SignalWire sends validation pings with empty POST
-    // Respond with 200 OK and TwiML to acknowledge webhook is working
     http_response_code(200);
     header('Content-Type: application/xml');
     echo '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
+}
+
+/**
+ * Load and decrypt the site-level SignalWire credentials.
+ *
+ * @return array<string, mixed>
+ */
+function signalwireLoadCredentials(): array
+{
+    $row = QueryUtils::querySingleRow(
+        "SELECT credentials FROM module_faxsms_credentials WHERE vendor = ? AND auth_user = 0",
+        ['_signalwire']
+    );
+
+    if (!is_array($row) || empty($row['credentials']) || !is_string($row['credentials'])) {
+        return [];
+    }
+
+    try {
+        $decrypted = ServiceContainer::getCrypto()->decryptFromDatabase($row['credentials']);
+    } catch (\Throwable $e) {
+        error_log('SignalWire Webhook: Failed to decrypt credentials: ' . $e->getMessage());
+        return [];
+    }
+
+    $credentials = json_decode($decrypted, true);
+    return is_array($credentials) ? $credentials : [];
+}
+
+/**
+ * Fetch the first non-empty credential value by key.
+ *
+ * @param array<string, mixed> $credentials
+ * @param array<int, string> $keys
+ * @return string
+ */
+function signalwireCredentialValue(array $credentials, array $keys): string
+{
+    foreach ($keys as $key) {
+        $value = SignalWireWebhookValidator::scalarString($credentials[$key] ?? '');
+        if ($value !== '') {
+            return $value;
+        }
+    }
+
+    return '';
+}
+
+/**
+ * Validate the SignalWire signature before trusting a public webhook payload.
+ *
+ * @param string $rawInput Raw php://input body captured before JSON parsing.
+ * @param array<string, mixed> $credentials
+ * @return bool
+ */
+function signalwireValidateRequestSignature(string $rawInput, array $credentials): bool
+{
+    $signingKey = signalwireCredentialValue($credentials, [
+        'signing_key',
+        'signingKey',
+        'webhook_signing_key',
+        'webhookSigningKey',
+        'signalwire_signing_key',
+        'signalwireSigningKey',
+        'auth_token',
+        'authToken',
+    ]);
+
+    // Do not break existing working installs that have not yet added the
+    // SignalWire signing key to module setup. When a key is configured, the
+    // request must validate. When no key is configured, preserve the current
+    // receive-fax behavior and log a setup warning instead of rejecting.
+    if ($signingKey === '') {
+        error_log('SignalWire Webhook: No signing key configured; signature validation skipped. Add the SignalWire signing key to enable forged-request protection.');
+        return true;
+    }
+
+    $signatureHeader = SignalWireWebhookValidator::getSignatureHeader($_SERVER);
+    if ($signatureHeader === '') {
+        error_log('SignalWire Webhook: Signing key is configured but signature header is missing. Request rejected.');
+        return false;
+    }
+
+    $requestUrl = SignalWireWebhookValidator::buildRequestUrl($_SERVER);
+
+    // Optional override for reverse proxies/tunnels where PHP reconstructs a
+    // URL different from the public URL SignalWire actually called. Store the
+    // full webhook URL including query string when this is needed.
+    $configuredWebhookUrl = signalwireCredentialValue($credentials, [
+        'webhook_url',
+        'webhookUrl',
+        'public_webhook_url',
+        'publicWebhookUrl',
+    ]);
+    if ($configuredWebhookUrl !== '') {
+        $requestUrl = $configuredWebhookUrl;
+    }
+
+    return SignalWireWebhookValidator::validateSignature(
+        $signingKey,
+        $signatureHeader,
+        $requestUrl,
+        $rawInput,
+        $_POST
+    );
+}
+
+
+/**
+ * Map SignalWire JSON/SWML execute payloads into the common POST-like shape.
+ *
+ * @param string $rawInput
+ * @return array<string, mixed>|null Null means this was an ignorable non-fax event.
+ */
+function signalwirePayloadFromJson(string $rawInput): ?array
+{
+    if ($rawInput === '') {
+        return [];
+    }
+
+    $jsonData = json_decode($rawInput, true);
+    if (!is_array($jsonData) || json_last_error() !== JSON_ERROR_NONE) {
+        return [];
+    }
+
+    if (isset($jsonData['call'], $jsonData['vars']) && is_array($jsonData['call']) && is_array($jsonData['vars'])) {
+        $vars = $jsonData['vars'];
+        $receiveFaxDocument = SignalWireWebhookValidator::scalarString($vars['receive_fax_document'] ?? '');
+
+        if ($receiveFaxDocument === '') {
+            return null;
+        }
+
+        $receiveFaxResult = strtolower(SignalWireWebhookValidator::scalarString($vars['receive_fax_result'] ?? ''));
+
+        return [
+            'FaxSid' => SignalWireWebhookValidator::scalarString(
+                $vars['receive_fax_id'] ?? $jsonData['call']['call_id'] ?? uniqid('fax_', true)
+            ),
+            'Status' => ($receiveFaxResult === 'success') ? 'received' : 'failed',
+            'From' => SignalWireWebhookValidator::scalarString($jsonData['call']['from'] ?? ''),
+            'To' => SignalWireWebhookValidator::scalarString($jsonData['call']['to'] ?? ''),
+            'NumPages' => SignalWireWebhookValidator::scalarString($vars['receive_fax_pages'] ?? '0'),
+            'MediaUrl' => $receiveFaxDocument,
+            'Direction' => 'inbound',
+            'ErrorCode' => SignalWireWebhookValidator::scalarString($vars['receive_fax_result_code'] ?? ''),
+            'ErrorMessage' => SignalWireWebhookValidator::scalarString($vars['receive_fax_result_text'] ?? ''),
+        ];
+    }
+
+    if (isset($jsonData['FaxSid']) || isset($jsonData['Sid'])) {
+        return $jsonData;
+    }
+
+    return [];
+}
+
+/**
+ * Normalize the inbound webhook body into a single payload array.
+ *
+ * @param string $rawInput
+ * @return array<string, mixed>|null Null means this was an ignorable non-fax event.
+ */
+function signalwireBuildPayload(string $rawInput): ?array
+{
+    $contentType = SignalWireWebhookValidator::scalarString($_SERVER['CONTENT_TYPE'] ?? '');
+
+    if (str_contains(strtolower($contentType), 'application/json')) {
+        return signalwirePayloadFromJson($rawInput);
+    }
+
+    return $_POST;
+}
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$rawInput = file_get_contents('php://input');
+$rawInput = is_string($rawInput) ? $rawInput : '';
+
+if (empty($_GET['site'])) {
+    error_log('SignalWire Webhook: Site ID missing.');
+    http_response_code(400);
+    exit('Missing site');
+}
+
+$vendor = SignalWireWebhookValidator::scalarString($_GET['vendor'] ?? '');
+$type = SignalWireWebhookValidator::scalarString($_GET['type'] ?? '');
+
+if ($vendor !== 'signalwire' || $type !== 'fax') {
+    http_response_code(400);
+    error_log('SignalWire Webhook: Invalid webhook vendor or type: vendor=' . $vendor . ', type=' . $type);
+    exit('Invalid request');
+}
+
+$credentials = signalwireLoadCredentials();
+if (!signalwireValidateRequestSignature($rawInput, $credentials)) {
+    http_response_code(403);
+    error_log('SignalWire Webhook: Invalid or missing signature. Request rejected.');
+    exit('Forbidden');
+}
+
+$payload = signalwireBuildPayload($rawInput);
+if ($payload === null) {
+    signalwireWebhookAck();
+    exit();
+}
+
+$siteId = SignalWireWebhookValidator::validateSiteId(
+    SignalWireWebhookValidator::scalarString($session->get('site_id') ?? $_GET['site'] ?? 'default')
+);
+
+$faxSid = SignalWireWebhookValidator::validateFaxId(
+    SignalWireWebhookValidator::scalarString($payload['FaxSid'] ?? $payload['Sid'] ?? '')
+);
+$status = SignalWireWebhookValidator::validateFaxStatus(
+    SignalWireWebhookValidator::scalarString($payload['Status'] ?? $payload['FaxStatus'] ?? 'unknown')
+);
+$from = SignalWireWebhookValidator::validatePhoneNumber(
+    SignalWireWebhookValidator::scalarString($payload['From'] ?? $payload['RemoteStationId'] ?? '')
+);
+$to = SignalWireWebhookValidator::validatePhoneNumber(
+    SignalWireWebhookValidator::scalarString($payload['To'] ?? $payload['OriginalTo'] ?? '')
+);
+$numPages = SignalWireWebhookValidator::validateInteger($payload['NumPages'] ?? $payload['Pages'] ?? 0, 0, 9999);
+$mediaUrl = SignalWireWebhookValidator::validateString(
+    SignalWireWebhookValidator::scalarString($payload['MediaUrl'] ?? ''),
+    2048
+);
+$direction = SignalWireWebhookValidator::validateDirection(
+    SignalWireWebhookValidator::scalarString($payload['Direction'] ?? 'inbound')
+);
+$errorCode = SignalWireWebhookValidator::validateString(
+    SignalWireWebhookValidator::scalarString($payload['ErrorCode'] ?? ''),
+    100
+);
+$errorMessage = SignalWireWebhookValidator::validateString(
+    SignalWireWebhookValidator::scalarString($payload['ErrorMessage'] ?? ''),
+    1000
+);
+
+if ($faxSid === '') {
+    signalwireWebhookAck();
     exit();
 }
 
 try {
-    // Prepare fax data for storage
     $faxData = [
         'job_id' => $faxSid,
         'status' => $status,
@@ -233,25 +293,41 @@ try {
         'direction' => $direction,
         'error_code' => $errorCode,
         'error_message' => $errorMessage,
-        'raw_payload' => json_encode($_POST)
+        'raw_payload' => json_encode($payload) ?: '{}',
     ];
 
-    // Check if this fax already exists in queue for this site
     $existingFax = QueryUtils::querySingleRow(
         "SELECT id, status, patient_id FROM oe_faxsms_queue WHERE job_id = ? AND site_id = ?",
         [$faxSid, $siteId]
     );
+    $existingFax = is_array($existingFax) ? $existingFax : [];
 
-    if ($existingFax) {
-        // Update existing fax with new status
+    // Discard failures. A failed / no-answer / busy / canceled fax produced no
+    // document; soft-delete any existing row for audit and never insert one.
+    if (in_array($status, ['failed', 'no-answer', 'busy', 'canceled'], true)) {
+        if (!empty($existingFax)) {
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE oe_faxsms_queue
+                 SET deleted = 1, status = ?, details_json = ?, date = NOW()
+                 WHERE job_id = ? AND site_id = ?",
+                [$status, json_encode($faxData) ?: '{}', $faxSid, $siteId]
+            );
+        }
+        signalwireWebhookAck();
+        exit();
+    }
+
+    // Deferred-storage model: record metadata + media URL only. The document
+    // stays on SignalWire until the user disposes of the fax from the UI, which
+    // downloads it, stores it, and deletes it from SignalWire.
+    if (!empty($existingFax)) {
         QueryUtils::sqlStatementThrowException(
             "UPDATE oe_faxsms_queue
              SET status = ?, details_json = ?, date = NOW()
              WHERE job_id = ? AND site_id = ?",
-            [$status, json_encode($faxData), $faxSid, $siteId]
+            [$status, json_encode($faxData) ?: '{}', $faxSid, $siteId]
         );
     } else {
-        // Insert new fax
         QueryUtils::sqlStatementThrowException(
             "INSERT INTO oe_faxsms_queue
              (job_id, calling_number, called_number, status, direction, details_json, site_id, date, receive_date)
@@ -262,24 +338,15 @@ try {
                 $to,
                 $status,
                 $direction,
-                json_encode($faxData),
-                $siteId
+                json_encode($faxData) ?: '{}',
+                $siteId,
             ]
         );
     }
 
-    // If fax is received and has media, download and store it
-    if ($direction === 'inbound' && $status === 'received' && !empty($mediaUrl)) {
-        downloadAndStoreFaxMedia($faxSid, $mediaUrl, $from, $siteId, $existingFax['patient_id'] ?? 0);
-    }
-
-    // Respond with success
-    http_response_code(200);
-    header('Content-Type: application/xml');
-    echo '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
-
-} catch (Throwable $e) {
-    error_log("Error processing SignalWire webhook: " . $e->getMessage());
+    signalwireWebhookAck();
+} catch (\Throwable $e) {
+    error_log('SignalWire Webhook: Error processing webhook: ' . $e->getMessage());
     http_response_code(500);
     exit('Internal server error');
 }

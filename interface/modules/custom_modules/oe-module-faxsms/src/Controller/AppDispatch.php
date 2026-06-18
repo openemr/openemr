@@ -593,18 +593,18 @@ abstract class AppDispatch
 
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
 
-        if (empty($credentials)) {
+        if (!$credentials) {
             return [
                 'username' => '',
                 'extension' => '',
                 'password' => '',
                 'account' => '',
-                'phone' => '+1',
+                'phone' => '',
                 'appKey' => '',
                 'appSecret' => '',
                 'server' => '',
                 'portal' => '',
-                'smsNumber' => '+1',
+                'smsNumber' => '',
                 'production' => '',
                 'redirect_url' => '',
                 'smsHours' => "50",
@@ -616,7 +616,6 @@ abstract class AppDispatch
                 'api_token' => '',
                 'fax_number' => ''
             ];
-            return $credentials;
         } else {
             $credentials = $credentials['credentials'];
         }

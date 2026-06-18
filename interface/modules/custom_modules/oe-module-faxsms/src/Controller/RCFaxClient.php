@@ -12,12 +12,13 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use Exception;
-use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
+use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
+use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
 
@@ -26,7 +27,7 @@ class RCFaxClient extends AppDispatch
     use AuthenticateTrait;
     use VoiceFunctionsTrait;
 
-    public $baseDir;
+    public string $baseDir = '';
     public $uriDir;
     public $serverUrl;
     public $redirectUrl;
@@ -38,12 +39,14 @@ class RCFaxClient extends AppDispatch
     protected $platform;
     protected $rcsdk;
     protected CryptoInterface $crypto;
+    private readonly FaxUploadStaging $uploadStaging;
 
     private const AUTH_RATE_LIMIT = 5; // Max attempts per minute
 
     public function __construct()
     {
         $this->crypto = ServiceContainer::getCrypto();
+        $this->uploadStaging = FaxUploadStaging::create();
         $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->cacheDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
@@ -64,26 +67,10 @@ class RCFaxClient extends AppDispatch
      */
     public function faxProcessUploads(): string
     {
-        if (empty($_FILES['fax']) || $_FILES['fax']['error'] !== UPLOAD_ERR_OK) {
-            error_log('Error: No file uploaded or upload error.');
-            return '';
-        }
-
-        $name = basename((string)$_FILES['fax']['name']);
-        $tmpName = $_FILES['fax']['tmp_name'];
-        $targetDir = $this->baseDir . '/send';
-        if (!file_exists($targetDir) && !mkdir($targetDir, 0777, true)) {
-            error_log('Error: Failed to create directory.');
-            return '';
-        }
-
-        $filepath = $targetDir . "/" . $name;
-        if (!move_uploaded_file($tmpName, $filepath)) {
-            error_log('Error: Failed to move uploaded file.');
-            return '';
-        }
-
-        return $filepath;
+        $upload = $_FILES['fax'] ?? null;
+        return is_array($upload)
+            ? $this->uploadStaging->processUpload($this->baseDir, $upload)
+            : '';
     }
 
     /**
@@ -196,38 +183,48 @@ class RCFaxClient extends AppDispatch
             // Fetch the fax content
             $contentUri = $messageDetails->attachments[0]->uri;
             $apiResponse = $this->platform->get($contentUri);
-            $contentType = $apiResponse->response()->getHeader('Content-Type')[0];
+            $contentType = (string)($apiResponse->response()->getHeader('Content-Type')[0] ?? '');
             $rawData = (string)$apiResponse->raw();
 
-            $ext = $this->getExtensionFromContentType($contentType);
-            $type = $this->getTypeFromContentType($contentType);
-            $filePath = $this->baseDir . "/send/" . ($jobId . $ext);
-
-            if (!file_exists($this->baseDir . '/send')) {
-                mkdir($this->baseDir . '/send', 0777, true);
+            $stagedPath = $this->uploadStaging->stageInternalPayload(
+                $this->baseDir,
+                $rawData,
+                (string)$jobId,
+                $contentType
+            );
+            if ($stagedPath === '') {
+                return js_escape('Error: ' . xlt('Failed to stage fax payload for forwarding'));
             }
-            file_put_contents($filePath, $rawData);
 
-            if ($hasEmail && $smtpEnabled) {
-                $statusMsg .= self::emailDocument($email, $this->getRequest('comments'), $filePath, $user) . "<br />";
-            }
-            if ($faxNumber) {
-                try {
-                    $this->sendFax(
-                        $faxNumber,
-                        $filePath,
-                        $user['username'],
-                        $jobId,
-                        $contentType
-                    );
-                    $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
-                } catch (\Throwable $e) {
-                    return js_escape('Error: ' . text($e->getMessage()));
+            $plainPath = null;
+            try {
+                $plainPath = $this->uploadStaging->decryptStagedToTemp($stagedPath);
+                if ($plainPath === null) {
+                    return js_escape('Error: ' . xlt('Failed to prepare fax payload for forwarding'));
                 }
+
+                if ($hasEmail && $smtpEnabled && is_string($email)) {
+                    $statusMsg .= FaxMailer::send($email, (string)$this->getRequest('comments'), $plainPath, $user) . "<br />";
+                }
+                if ($faxNumber) {
+                    try {
+                        $this->sendFax(
+                            $faxNumber,
+                            $plainPath,
+                            $user['username'],
+                            $jobId,
+                            $contentType
+                        );
+                        $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
+                    } catch (\Throwable $e) {
+                        return js_escape('Error: ' . text($e->getMessage()));
+                    }
+                }
+            } finally {
+                $this->uploadStaging->removeStagedArtifacts($stagedPath, $plainPath);
             }
-            unlink($filePath);
             return js_escape($statusMsg);
-        } catch (ApiException | \Throwable $e) {
+        } catch (ApiException|\Throwable $e) {
             return js_escape('Error: ' . text($e->getMessage()));
         }
     }
@@ -280,45 +277,90 @@ class RCFaxClient extends AppDispatch
                 return xlt('Error: No Fax content');
             }
         }
-        // Check if the content is from patient report
-        if ($isContent) {
-            $content = $file;
-            $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
-        } else {
-            // Is it from patient documents
-            if ($isDocuments) {
-                $content = (new Document($docId))->get_data();
-            } else {
-                // Get the content of the file or the file path
-                $content = (is_file($file) && empty($content)) ? file_get_contents($file) : $file;
-            }
-            if (empty($content)) {
-                return xlt('Error: No content to send.');
-            }
-        }
-
-        // Decrypt content if needed
-        $content = $this->crypto->decryptFromFilesystem($content);
-
-        // Email the document if email is provided and SMTP is enabled.
-        // TODO: need check to ensure not from forward fax
-        $error = false;
-        if ($hasEmail && $smtpEnabled) {
-            try {
-                self::emailDocument($email, $comments, $file, $user);
-                $error = false;
-            } catch (\PHPMailer\PHPMailer\Exception) {
-                $error = true;
-            }
-        }
-        // Request to send the fax
+        // Decrypt a staged upload to a per-request plaintext tempnam and
+        // continue with that as $file. Pattern guard scopes the cleanup
+        // below to files this controller staged via FaxUploadStaging,
+        // leaving caller-managed temp files alone (e.g. forwardFax).
+        $stagedPath = null;
+        $plainStagePath = null;
+        $emailPath = null;
         try {
-            $this->sendFaxRequest($phone, $content, $fileName, $comments, $name);
-            // debug error log
-            error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
-            return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
-        } catch (\Throwable $e) {
-            return 'Error: ' . text(js_escape($e->getMessage()));
+            if (
+                empty($isContent)
+                && !$isDocuments
+                && is_string($file)
+                && is_file($file)
+                && $this->uploadStaging->isStagedUploadPath($file)
+            ) {
+                $plainStagePath = $this->uploadStaging->decryptStagedToTemp($file);
+                if ($plainStagePath === null) {
+                    return xlt('Error: No content to send.');
+                }
+                $stagedPath = $file;
+                $file = $plainStagePath;
+                $fileName = pathinfo($file, PATHINFO_BASENAME);
+            }
+
+            // Build $content (plaintext bytes for the vendor).
+            if ($isContent) {
+                $content = $file;
+                $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
+            } else {
+                if ($isDocuments) {
+                    $content = (new Document($docId))->get_data();
+                } elseif (is_file($file)) {
+                    $content = file_get_contents($file);
+                    if ($content === false) {
+                        return xlt('Error: No content to send.');
+                    }
+                } else {
+                    $content = $file;
+                }
+                if (empty($content)) {
+                    return xlt('Error: No content to send.');
+                }
+            }
+
+            // Defensive decrypt: a no-op on plaintext via cryptCheckStandard,
+            // covers any caller that supplied already-ciphertext content.
+            $content = $this->crypto->decryptFromFilesystem($content);
+
+            // Email: hand the payload to FaxMailer. When we have a real
+            // plaintext path (the staged-upload branch), it's emailed as
+            // is; for the isContent / isDocuments branches we pass the
+            // decrypted bytes and FaxMailer writes a per-request scratch
+            // file, returning that path for finally cleanup.
+            $error = false;
+            if ($hasEmail && $smtpEnabled) {
+                try {
+                    $payloadIsContent = !(is_string($file) && is_file($file));
+                    $emailPath = FaxMailer::mailUploadedDocument(
+                        $email,
+                        $comments,
+                        $payloadIsContent ? $content : $file,
+                        $user,
+                        $payloadIsContent,
+                    );
+                } catch (\PHPMailer\PHPMailer\Exception) {
+                    $error = true;
+                }
+            }
+
+            // Request to send the fax
+            try {
+                $this->sendFaxRequest($phone, $content, $fileName, $comments, $name);
+                // debug error log
+                error_log($phone . ' ' . $fileName . ' ' . $comments . ' ' . $name);
+                return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
+            } catch (\Throwable $e) {
+                return 'Error: ' . text(js_escape($e->getMessage()));
+            }
+        } finally {
+            $this->uploadStaging->removeStagedArtifacts(
+                $stagedPath,
+                $plainStagePath,
+                $emailPath
+            );
         }
     }
 
@@ -428,19 +470,6 @@ class RCFaxClient extends AppDispatch
             'application/xml' => 'xml',
             'audio/wav', 'audio/x-wav' => 'wav',
             default => 'application/pdf',
-        };
-    }
-
-    /**
-     * @param string $contentType
-     * @return string
-     */
-    private function getTypeFromContentType(string $contentType): string
-    {
-        return match ($contentType) {
-            'application/pdf', 'image/tiff' => 'Fax',
-            'audio/wav', 'audio/x-wav' => 'Audio',
-            default => 'Text',
         };
     }
 
@@ -568,7 +597,10 @@ class RCFaxClient extends AppDispatch
         $fileName = "Fax_{$jobId}." . $fileExtension;
         $filePath = $this->baseDir . DIRECTORY_SEPARATOR . $fileName;
 
-        file_put_contents($filePath, $data);
+        // Write encrypted-at-rest. The session-stored path is read back in
+        // disposeDocument's download branch (sendFile), which decrypts via
+        // FaxUploadStaging::decryptFileBytes.
+        file_put_contents($filePath, $this->crypto->encryptForFilesystem($data));
 
         return $filePath;
     }
@@ -623,7 +655,9 @@ class RCFaxClient extends AppDispatch
 
         if (!empty($content) && $action == 'setup') {
             $decodedContent = base64_decode((string)$content);
-            if (file_put_contents($where, $decodedContent) !== false) {
+            // Write encrypted-at-rest; the download branch's sendFile
+            // call decrypts via FaxUploadStaging::decryptFileBytes.
+            if (file_put_contents($where, $this->crypto->encryptForFilesystem($decodedContent)) !== false) {
                 $response['success'] = true;
                 $response['url'] = $where;
             } else {
@@ -638,20 +672,27 @@ class RCFaxClient extends AppDispatch
     }
 
     /**
-     * @param string $filePath
-     * @return void
+     * Decrypt the at-rest fax file and stream it to the browser. Legacy
+     * plaintext files flow through unchanged via decryptFromFilesystem's
+     * version-prefix check.
      */
     private function sendFile(string $filePath): void
     {
+        $payload = $this->uploadStaging->decryptFileBytes($filePath);
+        if ($payload === null) {
+            http_response_code(500);
+            echo xlt('Failed to read fax file');
+            exit;
+        }
         ob_end_clean();
         header("Cache-Control: public");
         header("Content-Description: File Transfer");
         header("Content-Disposition: attachment; filename=" . basename($filePath));
         header("Content-Type: application/pdf");
         header("Content-Transfer-Encoding: binary");
-        header('Content-Length: ' . filesize($filePath));
+        header('Content-Length: ' . strlen($payload));
 
-        readfile($filePath);
+        echo $payload;
         exit;
     }
 
@@ -671,26 +712,23 @@ class RCFaxClient extends AppDispatch
             $contentType = $response->response()->getHeader('Content-Type')[0];
             $fileExtension = $this->getFileExtension($contentType);
             $fileName = "fax_{$messageId}." . $fileExtension;
+            $content = (string)$response->raw();
 
-            // Save the file locally
-            $filePath = $this->cacheDir . DIRECTORY_SEPARATOR . $fileName;
-            file_put_contents($filePath, $response->raw());
-
-            // Prepare the file for download
+            // Stream straight from memory. The earlier write-to-cacheDir-
+            // then-readfile-then-unlink dance left plaintext PHI on disk
+            // for the request duration with no functional benefit over
+            // serving the bytes directly.
+            ob_end_clean();
             header('Content-Description: File Transfer');
             header('Content-Type: ' . $contentType);
-            header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            header('Content-Disposition: attachment; filename="' . $fileName . '"');
             header('Content-Transfer-Encoding: binary');
             header('Expires: 0');
             header('Cache-Control: must-revalidate');
             header('Pragma: public');
-            header('Content-Length: ' . filesize($filePath));
-            readfile($filePath);
-
-            // Optionally, you can delete the file after download
-            unlink($filePath);
-
-            exit; // Stop further script execution
+            header('Content-Length: ' . strlen($content));
+            echo $content;
+            exit;
         } catch (ApiException $e) {
             return text(json_encode(['error' => "API Error: " . $e->getMessage()]));
         } catch (\Throwable $e) {
@@ -742,6 +780,31 @@ class RCFaxClient extends AppDispatch
         $result = sqlStatement($query, [$id]);
         $u = sqlFetchArray($result);
         return json_encode([$u['fname'], $u['lname'], $u['fax']]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getNotificationLog(): string
+    {
+        $type = $this->getRequest('type');
+        $fromDate = $this->getRequest('datefrom');
+        $toDate = $this->getRequest('dateto');
+        try {
+            $query = "SELECT notification_log.* FROM notification_log WHERE notification_log.dSentDateTime > ? AND notification_log.dSentDateTime < ?";
+            $res = sqlStatement($query, [$fromDate, $toDate]);
+            $responseMsg = '';
+            while ($nrow = sqlFetchArray($res)) {
+                $adate = ($nrow['pc_eventDate'] . '::' . $nrow['pc_startTime']);
+                $pinfo = str_replace("|||", " ", $nrow['patient_info']);
+                $msg = text($nrow["message"]);
+                $responseMsg .= "<tr><td>" . text($nrow["pc_eid"]) . "</td><td>" . text($nrow["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($msg) . "</td></tr>";
+            }
+        } catch (\Throwable $e) {
+            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
+        }
+
+        return $responseMsg;
     }
 
     /**
@@ -1122,28 +1185,4 @@ class RCFaxClient extends AppDispatch
         }
     }
 
-    /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
-     * @return string
-     * @throws \PHPMailer\PHPMailer\Exception
-     */
-    public static function emailDocument($email, $body, $file, array $user = []): string
-    {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $mail->AddAddress($email, $email);
-        $mail->Subject = xlt("Forwarded Fax Document");
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-
-        return $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
-    }
 }

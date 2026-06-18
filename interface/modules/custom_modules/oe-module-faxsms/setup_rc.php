@@ -82,10 +82,16 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                     return false;
                 }
             });
+            // Hide the field group that does not apply to this service AND drop the
+            // HTML5 "required" constraint from the inputs inside it. A required
+            // control that is hidden cannot be focused, so the browser aborts the
+            // submit with "An invalid form control with name='smsnumber' is not
+            // focusable." Only the required flag is toggled (not disabled) so the
+            // hidden value still serializes into the POST exactly as before.
             if (Service === 'fax') {
-                $(".smsHide").hide();
+                $(".smsHide").hide().find(':input').prop('required', false);
             } else {
-                $(".faxHide").hide();
+                $(".faxHide").hide().find(':input').prop('required', false);
             }
         });
 
