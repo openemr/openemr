@@ -67,7 +67,7 @@ class InsuranceCompanyService extends BaseService
         parent::__construct(self::INSURANCE_TABLE);
     }
 
-    public function getInsuranceDisplayName($insuranceId)
+    public function getInsuranceDisplayName($insuranceId): string
     {
         $searchResults = $this->search(['id' => $insuranceId]);
         $insuranceCompany = null;
@@ -434,7 +434,7 @@ class InsuranceCompanyService extends BaseService
         ];
     }
 
-    public function insert($data)
+    public function insert($data): string
     {
         // insurance companies need to use sequences table since they share the
         // addresses table with pharmacies
@@ -443,7 +443,7 @@ class InsuranceCompanyService extends BaseService
         if (!isset($data["id"]) || $data["id"] === '') {
             $data["id"] = QueryUtils::generateId();
         }
-        $freshId = $data['id'];
+        $freshId = (string) $data['id'];
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";

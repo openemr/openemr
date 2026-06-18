@@ -493,7 +493,15 @@ abstract class AppDispatch
             ? (new PatientPortalService())->getPatientDetails($id)
             : null;
 
-        return json_encode($result ?: new \stdClass(), JSON_THROW_ON_ERROR);
+        try {
+            return json_encode($result ?: new \stdClass(), JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            ServiceContainer::getLogger()->error(
+                'apiFetchPatientDetails: failed to encode response',
+                ['exception' => $e]
+            );
+            return '{}';
+        }
     }
 
     /**
@@ -694,8 +702,11 @@ abstract class AppDispatch
             }
             $status = $mail->send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
         } catch (Throwable $e) {
-            $message = $e->getMessage();
-            $status = 'Error: ' . $message;
+            ServiceContainer::getLogger()->error(
+                'mailEmail: send failed',
+                ['exception' => $e]
+            );
+            $status = xlt('Error: Unable to send email at this time.');
         }
         return $status;
     }
@@ -763,8 +774,11 @@ abstract class AppDispatch
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
         } catch (Throwable $e) {
-            $message = $e->getMessage();
-            return 'Error: ' . text($message) . PHP_EOL;
+            ServiceContainer::getLogger()->error(
+                'getNotificationLog: query failed',
+                ['exception' => $e]
+            );
+            return xlt('Error: Unable to load notification log.') . PHP_EOL;
         }
 
         return $responseMsgs;

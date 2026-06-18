@@ -376,6 +376,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 $cqm_sop_array = $insuranceCompany->getInsuranceCqmSop();
                                 foreach ($cqm_sop_array as $key => $value) {
                                     echo "   <option value='" . attr($key) . "'";
+                                    if (($ins_co['cqm_sop'] ?? '') === $key) {
+                                        echo " selected";
+                                    }
                                     echo ">" . text($value) . "</option>\n";
                                 }
                                 ?>
