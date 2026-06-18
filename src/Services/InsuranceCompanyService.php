@@ -113,7 +113,7 @@ class InsuranceCompanyService extends BaseService
                 $returnval = $insuranceCompany['name'];
                 break;
         }
-        return $returnval;
+        return (string) $returnval;
     }
 
     public function getUuidFields(): array
