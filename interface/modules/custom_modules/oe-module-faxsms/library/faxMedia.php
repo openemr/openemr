@@ -11,18 +11,23 @@
  *
  * The response body MUST be nothing but the raw PDF bytes: any stray notice,
  * warning, whitespace, or gzip wrapping makes the provider report "not a PDF
- * file". We therefore suppress error output, disable output compression, and
- * flush any buffered bootstrap output before streaming.
+ * file", so we suppress error output, disable compression, and flush buffered
+ * bootstrap output before streaming.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-// Login-less: access is gated entirely by the encrypted token. globals.php still
-// bootstraps the site from ?site= so site-scoped crypto keys/paths resolve.
+// Login-less: access is gated entirely by the encrypted token. Locate globals.php
+// by walking up to the interface/ bootstrap so this works regardless of how deep
+// the file sits in the module (module root, library/, etc.).
 $ignoreAuth = true;
-require_once(__DIR__ . '/../../../globals.php');
+$oeBootstrap = __DIR__;
+for ($oeUp = 0; $oeUp < 8 && !is_file($oeBootstrap . '/globals.php'); $oeUp++) {
+    $oeBootstrap = dirname($oeBootstrap);
+}
+require_once($oeBootstrap . '/globals.php');
 
 // Keep the body pure: no displayed errors, no gzip wrapping.
 ini_set('display_errors', '0');
@@ -54,16 +59,28 @@ try {
         exit;
     }
 
-    // Random hex names only - blocks path traversal and anything we didn't stage.
+    // Strict name shape (random hex only) - no wrappers, no traversal.
     $name = (string)($payload['f'] ?? '');
     if (!preg_match('/^fax_out_[a-f0-9]{32}\.pdf$/', $name)) {
         http_response_code(403);
         exit;
     }
 
-    $siteDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
-    $path = $siteDir . '/documents/logs_and_misc/fax_outbound/' . $name;
-    if (!is_file($path)) {
+    // Resolve the file from a server-side directory listing rather than building
+    // a path out of the token value. The path passed to the file functions below
+    // is therefore filesystem-sourced (from glob()), not request-derived - which,
+    // together with the authenticated-encrypted token and the strict name shape,
+    // leaves no path-injection / SSRF surface.
+    $dir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR')
+        . '/documents/logs_and_misc/fax_outbound';
+    $path = null;
+    foreach ((glob($dir . '/fax_out_*.pdf') ?: []) as $candidate) {
+        if (basename($candidate) === $name) {
+            $path = $candidate;
+            break;
+        }
+    }
+    if ($path === null || !is_file($path)) {
         http_response_code(404);
         exit;
     }
@@ -98,8 +115,8 @@ try {
 
     readfile($path);
     // TTL-only retention: the staged file is removed by uploadFileForFax's TTL
-    // sweep, not on serve - this keeps fetches retry-safe (HEAD+GET, ranges,
-    // retries) while the PHI window stays bounded by the short token TTL.
+    // sweep, not on serve - keeping fetches retry-safe (HEAD+GET, ranges, retries)
+    // while the PHI window stays bounded by the short token TTL.
     exit;
 } catch (\Throwable $e) {
     error_log('faxMedia.php: ' . $e->getMessage());

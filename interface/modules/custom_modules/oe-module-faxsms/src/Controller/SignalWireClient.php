@@ -361,7 +361,7 @@ class SignalWireClient extends AppDispatch
             }
 
             $base = rtrim((string)$this->serverUrl, '/');
-            $mediaUrl = $base . '/interface/modules/custom_modules/oe-module-faxsms/faxMedia.php'
+            $mediaUrl = $base . '/interface/modules/custom_modules/oe-module-faxsms/library/faxMedia.php'
                 . '?site=' . urlencode((string)$siteId)
                 . '&t=' . urlencode($token);
 
@@ -721,7 +721,7 @@ class SignalWireClient extends AppDispatch
                             $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false')\"><i class='fa fa-file-pdf mr-2' title='" . xla('View fax document') . "'></i></a>";
                             $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'true')\"><i class='fa fa-file-download mr-2' title='" . xla('Download fax document') . "'></i></a>";
                         }
-                        $responseMsg[1] .= "<tr><td>" . text($dateLocal) . "</td><td>" . $statusCol . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . $resultCol . "</td><td>" . $messageCol . "</td><td class='text-left'>" . $actions . "</td></tr>";
+                        $responseMsg[1] .= "<tr><td>" . text($dateLocal) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . $resultCol . "</td><td>" . $statusCol . "</td><td class='text-left'>" . $actions . "</td></tr>";
                         continue;
                     }
 
@@ -743,7 +743,7 @@ class SignalWireClient extends AppDispatch
                         $statusCol = "<span class='badge badge-secondary'>" . text($status) . "</span>";
                     }
 
-                    $responseMsg[0] .= "<tr><td>" . text($dateLocal) . "</td><td>" . $statusCol . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . $resultCol . "</td><td>" . $messageCol . "</td><td class='text-left'>" . $actions . "</td></tr>";
+                    $responseMsg[0] .= "<tr><td>" . text($dateLocal) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($resultCol) . "</td><td>" . text($statusCol) . "</td><td class='text-left'>" . $actions . "</td></tr>";
                 }
             } catch (\Throwable $e) {
                 error_log("SignalWireClient.getPending(): ERROR - " . $e->getMessage());
