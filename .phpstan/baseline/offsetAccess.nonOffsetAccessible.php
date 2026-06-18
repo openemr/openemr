@@ -23677,11 +23677,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cqm_sop\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',

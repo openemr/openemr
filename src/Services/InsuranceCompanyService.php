@@ -79,7 +79,7 @@ class InsuranceCompanyService extends BaseService
         }
         return "";
     }
-    public static function getDisplayNameForInsuranceRecord($insuranceCompany)
+    public static function getDisplayNameForInsuranceRecord($insuranceCompany): string
     {
         switch (OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
@@ -422,15 +422,9 @@ class InsuranceCompanyService extends BaseService
             throw new \RuntimeException(xl('Invalid insurance company id'));
         }
 
-        $name = $this->getInsuranceDisplayName($id);
-
-        if (!is_string($name)) {
-            $name = '';
-        }
-
         return [
             'id' => $id,
-            'name' => $name,
+            'name' => $this->getInsuranceDisplayName($id),
         ];
     }
 
@@ -444,6 +438,9 @@ class InsuranceCompanyService extends BaseService
             $data["id"] = QueryUtils::generateId();
         }
         $freshId = $data['id'];
+        if (!is_int($freshId) && !is_string($freshId)) {
+            throw new \RuntimeException(xl('Invalid insurance company id'));
+        }
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";

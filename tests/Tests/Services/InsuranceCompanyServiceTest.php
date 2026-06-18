@@ -325,9 +325,6 @@ class InsuranceCompanyServiceTest extends TestCase
             'form_country' => 'USA',
         ]);
 
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('name', $result);
-
         $id = $result['id'];
         $this->createdIds[] = $id;
 
