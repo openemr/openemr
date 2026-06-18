@@ -392,7 +392,6 @@ class InsuranceCompanyService extends BaseService
      * the opener should show.
      *
      * @param array<string, mixed> $form
-     * @param array<string, mixed> $form
      * @return array{id: int, name: string}
      * @throws \RuntimeException When the underlying insert/update fails or the
      *     resulting id is not a valid integer.
