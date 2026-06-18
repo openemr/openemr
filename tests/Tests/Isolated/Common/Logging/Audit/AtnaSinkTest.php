@@ -52,7 +52,6 @@ class AtnaSinkTest extends TestCase
             user_notes: '',
             patientId: $patientId,
             success: $success,
-            SSL_CLIENT_S_DN_CN: '',
             logFrom: 'open-emr',
             menuItemId: null,
             ccdaDocId: null,

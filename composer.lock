@@ -11444,16 +11444,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.38.1",
+            "version": "v1.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/14c5439eec4ccff081ac14eca2dc57feb2a66d92",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
                 "shasum": ""
             },
             "require": {
@@ -11505,7 +11505,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.1"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2"
             },
             "funding": [
                 {
@@ -11525,7 +11525,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-26T12:51:13+00:00"
+            "time": "2026-05-27T06:59:30+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
@@ -13258,16 +13258,16 @@
         },
         {
             "name": "zircote/swagger-php",
-            "version": "6.1.2",
+            "version": "6.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zircote/swagger-php.git",
-                "reference": "f66289ab9c9c3a1cf70222e0bebbe7c6c7109f2f"
+                "reference": "060af3bb9c4cba6a5859aba2c51cd1c129479410"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/f66289ab9c9c3a1cf70222e0bebbe7c6c7109f2f",
-                "reference": "f66289ab9c9c3a1cf70222e0bebbe7c6c7109f2f",
+                "url": "https://api.github.com/repos/zircote/swagger-php/zipball/060af3bb9c4cba6a5859aba2c51cd1c129479410",
+                "reference": "060af3bb9c4cba6a5859aba2c51cd1c129479410",
                 "shasum": ""
             },
             "require": {
@@ -13336,7 +13336,7 @@
             ],
             "support": {
                 "issues": "https://github.com/zircote/swagger-php/issues",
-                "source": "https://github.com/zircote/swagger-php/tree/6.1.2"
+                "source": "https://github.com/zircote/swagger-php/tree/6.2.0"
             },
             "funding": [
                 {
@@ -13344,7 +13344,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-04-28T04:47:53+00:00"
+            "time": "2026-06-14T06:51:56+00:00"
         }
     ],
     "packages-dev": [
