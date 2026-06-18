@@ -21,14 +21,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class CodeTypeEventsSubscriber implements EventSubscriberInterface
 {
-    private const CODE_TYPE_SNOMED = "SNOMED";
-    private const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
-    private const CODE_TYPE_SNOMED_PR = "SNOMED-PR";
-    private const CODE_TYPE_CPT4 = "CPT4";
-
-    private const LIST_ID_ENCOUNTER_TYPES = 'encounter-types';
-    private const LIST_ID_IMMUNIZATION_REFUSAL = 'immunization_refusal_reason';
-
     public static function getSubscribedEvents()
     {
         return [

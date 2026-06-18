@@ -75,4 +75,11 @@ class CodeTypesMappings
         'established-patient-40-54' => 'Established Patient (Comprehensive)',
     ];
 
+    public const CODE_TYPE_SNOMED = "SNOMED";
+    public const CODE_TYPE_SNOMED_CT = "SNOMED-CT";
+    public const CODE_TYPE_SNOMED_PR = "SNOMED-PR";
+    public const CODE_TYPE_CPT4 = "CPT4";
+
+    public const LIST_ID_ENCOUNTER_TYPES = 'encounter-types';
+    public const LIST_ID_IMMUNIZATION_REFUSAL = 'immunization_refusal_reason';
 }
