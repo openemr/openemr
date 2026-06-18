@@ -434,7 +434,7 @@ class InsuranceCompanyService extends BaseService
         ];
     }
 
-    public function insert($data): string
+    public function insert($data): int|string
     {
         // insurance companies need to use sequences table since they share the
         // addresses table with pharmacies
@@ -443,7 +443,7 @@ class InsuranceCompanyService extends BaseService
         if (!isset($data["id"]) || $data["id"] === '') {
             $data["id"] = QueryUtils::generateId();
         }
-        $freshId = (string) $data['id'];
+        $freshId = $data['id'];
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";

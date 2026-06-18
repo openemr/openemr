@@ -16,10 +16,5 @@ $ignoreErrors[] = [
     'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryRepositoryTest.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var with type int\\|string is not subtype of native type string\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Services/InsuranceCompanyServiceTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
