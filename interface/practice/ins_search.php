@@ -225,8 +225,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     } else {
         // Guard against missing or non-numeric ?ins=. The downstream services
         // type-hint int and would throw a TypeError on an empty string (#12307).
+        // Default $ins_co to [] (rather than null) so the form-rendering code
+        // below can read $ins_co['name'] ?? '' etc. without a PHP 8 warning
+        // about offset-access-on-null.
         $ins_id = filter_input(INPUT_GET, 'ins', FILTER_VALIDATE_INT) ?: null;
-        $ins_co = $ins_id ? (new InsuranceCompanyService())->getOneById($ins_id) : null;
+        // (array) so that getOneById's untyped return (could be false on
+        // miss) collapses to [] for safe offset access below.
+        $ins_co = (array) ($ins_id ? (new InsuranceCompanyService())->getOneById($ins_id) : []);
         $ins_co_address = $ins_id ? (new AddressService())->getOneByForeignId($ins_id) : null;
         $ins_co_phone = $ins_id ? (new PhoneNumberService())->getOneByForeignId($ins_id) : null;
     }
@@ -376,7 +381,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 $cqm_sop_array = $insuranceCompany->getInsuranceCqmSop();
                                 foreach ($cqm_sop_array as $key => $value) {
                                     echo "   <option value='" . attr($key) . "'";
-                                    if (is_array($ins_co) && ($ins_co['cqm_sop'] ?? '') === $key) {
+                                    if (($ins_co['cqm_sop'] ?? '') === $key) {
                                         echo " selected";
                                     }
                                     echo ">" . text($value) . "</option>\n";
