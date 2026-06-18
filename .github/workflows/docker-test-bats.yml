@@ -8,13 +8,11 @@ name: BATS Tests (release)
 
 on:
   push:
-    branches: [rel-810]
     paths:
     - '.github/workflows/docker-test-bats.yml'
     - 'tests/bats/docker/**'
     - 'docker/release/**'
   pull_request:
-    branches: [rel-810]
     paths:
     - '.github/workflows/docker-test-bats.yml'
     - 'tests/bats/docker/**'

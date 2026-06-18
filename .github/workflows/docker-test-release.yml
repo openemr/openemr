@@ -14,21 +14,26 @@
 #    docker-test-flex-*.yml callers).
 #  - production_coverage_openemr_version: 'release' -- variant to enable
 #    coverage instrumentation on; only one variant gets kcov per run.
+#
+# No `branches:` filter on the triggers. Branch scoping is implicit -- the
+# workflow file lives on master + every rel-*; push events use the workflow
+# at the pushed commit, pull_request events use the workflow at the PR's
+# base ref. So each branch's copy of THIS file fires only for events on
+# its own branch, no explicit filter needed. Dropping the per-branch filter
+# is what lets this file join the byte-identical FILES_ALL set in
+# docker-validate-byte-identical.yml -- one canonical file across master
+# and every current and future rel-*, no edit needed at branch-cut.
 
 name: Docker release test
 
 on:
   push:
-    branches:
-    - rel-810
     paths:
     - '.github/workflows/docker-test-release.yml'
     - 'docker/release/**'
     - '.github/actions/test-actions-core/action.yml'
     - '.github/workflows/docker-test-core.yml'
   pull_request:
-    branches:
-    - rel-810
     paths:
     - '.github/workflows/docker-test-release.yml'
     - 'docker/release/**'

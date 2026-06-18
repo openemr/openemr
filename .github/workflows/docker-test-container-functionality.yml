@@ -9,13 +9,11 @@ name: Container Functionality (release)
 
 on:
   push:
-    branches: [rel-810]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
     - 'docker/container_benchmarking/**'
     - 'docker/release/**'
   pull_request:
-    branches: [rel-810]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
     - 'docker/container_benchmarking/**'
