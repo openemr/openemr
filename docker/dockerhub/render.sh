@@ -103,9 +103,17 @@ fi
 #    Instructions link to the row's branch.
 #
 #    Ordering (NOT release-targets.yml file order):
-#      1. The row carrying `latest`           -- current production at top
-#      2. Older production rows               -- desc by version (8.0.0, 7.0.4, ...)
-#      3. The row carrying `dev` and/or `next` -- active dev at bottom
+#      1. The row carrying `latest`     -- current production at top
+#      2. Older production rows         -- desc by version (8.0.0, 7.0.4, ...)
+#      3. The row carrying `next`       -- upcoming-stable
+#      4. The row carrying `dev`        -- active development at bottom
+#    `next` and `dev` may be carried by the same row (e.g., when master is the
+#    only active-development row pre-cutover) or by separate rows (e.g., when
+#    a `rel-*` branch is being readied for the next stable while master is
+#    already developing the version after that). The bucketing handles both:
+#    a row with both `dev` AND `next` goes into the `dev` slot (the more-
+#    bleeding-edge label wins) so it renders as one combined bullet at the
+#    bottom; a row with only `next` gets the `next` slot.
 #    Bucketed first, sorted within the "older productions" bucket via sort -V -r
 #    on the first version-number tag of each row. Matches the convention the
 #    devops Twig template hand-coded -- current → older → next → dev.
@@ -116,18 +124,30 @@ RELEASE_BULLETS_FILE="${TMPDIR}/release_bullets"
 ROW_COUNT=$(yq -r '. | length' "${RELEASE_TARGETS}")
 
 # Bucket rows by their floating-tag role. A row carrying `latest` is the
-# current-production row (singleton by validator). A row carrying `dev`
-# and/or `next` is the active-dev row. Everything else is an older
+# current-production row (singleton by validator). A row carrying `dev` is
+# the active-development row (also singleton in practice). A row carrying
+# `next` (but not `dev`) is the upcoming-stable row. A row carrying both
+# `next` AND `dev` lands in the `dev` slot so it renders as a single
+# combined bullet (legacy master-row pattern). Everything else is an older
 # production line to be sorted descending by version.
 LATEST_IDX=""
-DEV_NEXT_IDX=""
+DEV_IDX=""
+NEXT_IDX=""
 OLDER_INDICES=()
 for ((i = 0; i < ROW_COUNT; i++)); do
     ROW_TAGS=$(yq -r ".[${i}].docker_tags" "${RELEASE_TARGETS}")
-    if printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qx 'latest'; then
+    HAS_LATEST=0; HAS_DEV=0; HAS_NEXT=0
+    printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qx 'latest' && HAS_LATEST=1
+    printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qx 'dev'    && HAS_DEV=1
+    printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qx 'next'   && HAS_NEXT=1
+    if (( HAS_LATEST )); then
         LATEST_IDX="${i}"
-    elif printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qxE 'dev|next'; then
-        DEV_NEXT_IDX="${i}"
+    elif (( HAS_DEV )); then
+        # A row with both `dev` and `next` falls here too; the row's
+        # combined-bullet rendering captures both floating tags.
+        DEV_IDX="${i}"
+    elif (( HAS_NEXT )); then
+        NEXT_IDX="${i}"
     else
         OLDER_INDICES+=("${i}")
     fi
@@ -147,11 +167,12 @@ if (( ${#OLDER_INDICES[@]} > 0 )); then
     mapfile -t SORTED_OLDER < <(sort -V -r -k1,1 "${OLDER_KEYED}" | cut -f2)
 fi
 
-# Final emission order: latest → older (desc) → dev/next.
+# Final emission order: latest → older (desc) → next → dev.
 ORDERED_INDICES=()
 [[ -n "${LATEST_IDX}" ]] && ORDERED_INDICES+=("${LATEST_IDX}")
 ORDERED_INDICES+=("${SORTED_OLDER[@]}")
-[[ -n "${DEV_NEXT_IDX}" ]] && ORDERED_INDICES+=("${DEV_NEXT_IDX}")
+[[ -n "${NEXT_IDX}" ]] && ORDERED_INDICES+=("${NEXT_IDX}")
+[[ -n "${DEV_IDX}" ]] && ORDERED_INDICES+=("${DEV_IDX}")
 
 for IDX in "${ORDERED_INDICES[@]}"; do
     BRANCH=$(yq -r ".[${IDX}].branch" "${RELEASE_TARGETS}")

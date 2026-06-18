@@ -51,11 +51,11 @@
   # release cycle (e.g., when version.php switches to 8.1.2-dev or 8.2.0-dev).
   # The docker_tag <-> version.php alignment guard in
   # docker-validate-release-targets.yml catches drift on PRs.
-  docker_tags: 8.1.1,dev,next
+  docker_tags: 8.1.1,dev
   openemr_version_ref: master
 
 - branch: rel-810
-  docker_tags: 8.1.0,latest
+  docker_tags: 8.1.0,next
   openemr_version_ref: v8_1_0
 
 - branch: rel-800
@@ -63,7 +63,7 @@
   # with openemr_version_ref); 8.0.0.3 is the specific-patch pointer (only
   # advances when this row bumps to 8.0.0.4+). Both tags get an auto-appended
   # "<tag>-YYYY-MM-DD" sibling for immutable per-build pinning.
-  docker_tags: 8.0.0,8.0.0.3
+  docker_tags: 8.0.0,8.0.0.3,latest
   openemr_version_ref: v8_0_0_3
 
 - branch: rel-704
