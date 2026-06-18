@@ -26,18 +26,24 @@ class ClaimCountMethodsTest extends TestCase
      */
     private function makeClaim(array $procs = [], array $payers = []): Claim
     {
-        // Bypass the real constructor, which hits the database. procCount()
-        // and payerCount() read only the procs and payers properties, so the
-        // stub seeds nothing else.
-        $stub = new class extends Claim {
+        $stub = self::newStub();
+        $stub->procs = $procs;
+        $stub->payers = $payers;
+        return $stub;
+    }
+
+    /**
+     * A Claim whose real constructor (which hits the database) is bypassed.
+     * procCount() and payerCount() read only the procs and payers properties,
+     * so the stub seeds nothing else.
+     */
+    private static function newStub(): Claim
+    {
+        return new class extends Claim {
             public function __construct()
             {
             }
         };
-
-        $stub->procs = $procs;
-        $stub->payers = $payers;
-        return $stub;
     }
 
     public function testProcCountIsZeroWhenNoProcs(): void
@@ -94,5 +100,29 @@ class ClaimCountMethodsTest extends TestCase
         ];
         $claim = $this->makeClaim(payers: $payers);
         $this->assertSame(3, $claim->payerCount());
+    }
+
+    /**
+     * Regression guard for #12331: before #12525, procCount() called
+     * count($this->procs) unconditionally. The procs property has no default,
+     * so it stays null until getProcsAndDiags() populates it, and count(null)
+     * throws a TypeError on PHP 8. The is_array() guard must return 0 instead.
+     */
+    public function testProcCountIsZeroWhenProcsIsNull(): void
+    {
+        $claim = self::newStub();
+        $claim->procs = null;
+        $this->assertSame(0, $claim->procCount());
+    }
+
+    /**
+     * Regression guard for #12331: payerCount() must return 0 rather than throw
+     * a TypeError when payers is null (the failure mode #12525 fixed).
+     */
+    public function testPayerCountIsZeroWhenPayersIsNull(): void
+    {
+        $claim = self::newStub();
+        $claim->payers = null;
+        $this->assertSame(0, $claim->payerCount());
     }
 }
