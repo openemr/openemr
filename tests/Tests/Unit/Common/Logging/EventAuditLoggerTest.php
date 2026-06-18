@@ -178,7 +178,6 @@ final class EventAuditLoggerTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/test/script.php',
             'QUERY_STRING' => 'param=value',
-            'SSL_CLIENT_S_DN_CN' => 'test-client',
             'REMOTE_ADDR' => '127.0.0.1'
         ];
 

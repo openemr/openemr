@@ -93,11 +93,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/ssl_certificates_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Negated boolean expression is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];

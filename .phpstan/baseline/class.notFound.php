@@ -152,11 +152,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function create_crt\\(\\) has invalid return type data\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',

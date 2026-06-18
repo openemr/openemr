@@ -47,7 +47,6 @@ class LogTablesSinkTest extends TestCase
             user_notes: 'User notes',
             patientId: 123,
             success: 1,
-            SSL_CLIENT_S_DN_CN: 'cert-user',
             logFrom: 'open-emr',
             menuItemId: null,
             ccdaDocId: null,
@@ -76,7 +75,7 @@ class LogTablesSinkTest extends TestCase
                     self::assertSame('User notes', $data['user_notes']);
                     self::assertSame(123, $data['patient_id']);
                     self::assertSame(1, $data['success']);
-                    self::assertSame('cert-user', $data['crt_user']);
+                    self::assertSame('', $data['crt_user'], 'crt_user is vestigial and always empty');
                     self::assertSame('open-emr', $data['log_from']);
                 } elseif ($callCount === 2) {
                     self::assertSame('log_comment_encrypt', $table);
@@ -160,7 +159,6 @@ class LogTablesSinkTest extends TestCase
             user_notes: '',
             patientId: null,
             success: 1,
-            SSL_CLIENT_S_DN_CN: '',
             logFrom: 'open-emr',
             menuItemId: null,
             ccdaDocId: null,
@@ -201,7 +199,6 @@ class LogTablesSinkTest extends TestCase
             user_notes: '',
             patientId: null,
             success: 1,
-            SSL_CLIENT_S_DN_CN: '',
             logFrom: 'open-emr',
             menuItemId: null,
             ccdaDocId: null,
