@@ -45,7 +45,7 @@ class Claim
     public $patient_data;      // row from patient_data table
     public $billing_options;   // row from form_misc_billing_options table
     public $invoice;           // result from get_invoice_summary()
-    public $payers = [];        // array of arrays, for all payers
+    public $payers = [];       // array of arrays, for all payers
     public $copay;             // total of copays from the ar_activity table
     public $facilityService;   // via matthew.vita orm work :)
     public $pay_to_provider;   // to be implemented in facility ui
