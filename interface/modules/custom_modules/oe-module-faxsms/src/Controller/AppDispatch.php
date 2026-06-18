@@ -477,19 +477,31 @@ abstract class AppDispatch
     }
 
     /**
-     * REST Endpoint for contact form.
+     * REST endpoint for the module contact dialog.
      *
-     * @return string|false
+     * Returns a JSON-encoded object — either the patient details (when ?pid
+     * resolves to a real patient) or an empty object {} (when the id is
+     * missing, non-numeric, or doesn't resolve). The contract is "always a
+     * JSON object string" so the JS caller can `JSON.parse` and access
+     * fields without first defending against false/null.
      */
-    public function apiFetchPatientDetails(): bool|string
+    public function apiFetchPatientDetails(): string
     {
-
         $idRaw = $this->getRequest('pid');
         $id = is_numeric($idRaw) ? (int)$idRaw : 0;
-        $service = new PatientPortalService();
-        $result = $id > 0 ? $service->getPatientDetails($id) : false;
+        $result = $id > 0
+            ? (new PatientPortalService())->getPatientDetails($id)
+            : null;
 
-        return json_encode($result ?: new \stdClass());
+        try {
+            return json_encode($result ?: new \stdClass(), JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            ServiceContainer::getLogger()->error(
+                'apiFetchPatientDetails: failed to encode response',
+                ['exception' => $e]
+            );
+            return '{}';
+        }
     }
 
     /**
@@ -648,11 +660,7 @@ abstract class AppDispatch
      */
     public function validEmail($email): bool
     {
-        $isValid = ValidationUtils::isValidEmail($email);
-        if (!$isValid) {
-            return false;
-        }
-        return true;
+        return ValidationUtils::isValidEmail($email);
     }
 
     /**
@@ -693,8 +701,11 @@ abstract class AppDispatch
             }
             $status = $mail->send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
         } catch (Throwable $e) {
-            $message = $e->getMessage();
-            $status = 'Error: ' . $message;
+            ServiceContainer::getLogger()->error(
+                'mailEmail: send failed',
+                ['exception' => $e]
+            );
+            $status = xlt('Error: Unable to send email at this time.');
         }
         return $status;
     }
@@ -762,8 +773,11 @@ abstract class AppDispatch
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
         } catch (Throwable $e) {
-            $message = $e->getMessage();
-            return 'Error: ' . text($message) . PHP_EOL;
+            ServiceContainer::getLogger()->error(
+                'getNotificationLog: query failed',
+                ['exception' => $e]
+            );
+            return xlt('Error: Unable to load notification log.') . PHP_EOL;
         }
 
         return $responseMsgs;

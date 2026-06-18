@@ -524,7 +524,7 @@ $vendors = $boot->getVendorGlobals();
                                 <button type="button" class="btn btn-info" onclick="toggleHelpCard()"><?php echo xlt('Help'); ?></button>
                             </span>
                             </div>
-                            <?php if ($currentStatus && ($currentStatus[$selectedService]) !== false) { ?>
+                            <?php if ($currentStatus && ($currentStatus[$selectedService] ?? false) !== false) { ?>
                                 <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string)$selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>

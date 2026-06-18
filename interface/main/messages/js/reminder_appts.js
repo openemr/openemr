@@ -329,6 +329,7 @@ function refresh_me() {
 // Process click to pop up the edit window.
 function doRecallclick_edit(goHere) {
     top.restoreSession();
+    let zone;
     if (window.location.pathname.match(/patient_tracker/)) {
         zone = 'main/';
     } else {
