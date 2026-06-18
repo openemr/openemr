@@ -13,14 +13,15 @@
 
 namespace OpenEMR\ZendModules\CodeTypes\Listener;
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
+use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
+use OpenEMR\Events\Core\SQLUpgradeEvent;
+use OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater;
 use Psr\Log\{
     AbstractLogger,
     LoggerInterface,
 };
-use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
-use OpenEMR\Events\Core\SQLUpgradeEvent;
-use OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -38,14 +39,15 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
 
     public function onSqlUpgradeEvent(SQLUpgradeEvent $event)
     {
-        // we want to push out to the system that we are making changes...
-        // $logger = function ($message) use ($event): void {
-        //     // make sure we escape this here.
-        //     $event->getSqlUpgradeService()->flush_echo(text($message) . "<br />");
-        // };
-        $logger = new class extends AbstractLogger {
-            public function log(): void
+        $upgradeService = $event->getSqlUpgradeService();
+        $logger = new class ($upgradeService) extends AbstractLogger {
+            public function __construct(private ISQLUpgradeService $upgradeService)
             {
+            }
+
+            public function log($level, \Stringable|string $message, array $context = []): void
+            {
+                $this->upgradeService->flush_echo(text($message) . "<br />");
             }
         };
 
@@ -67,8 +69,9 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     private function makeService(?LoggerInterface $logger = null): CodeTypeMappingUpdater
     {
         $logger ??= ServiceContainer::getLogger();
+        // TODO: get connection from container
+        $connection = $GLOBALS['dbal'];
 
-        return new CodeTypeMappingUpdater(
-        );
+        return new CodeTypeMappingUpdater($connection, $logger);
     }
 }

@@ -115,19 +115,9 @@ class CodeTypeMappingUpdater
             $codeType = $record['ct_key'];
 
             if ($codeType === self::CODE_TYPE_CPT4) {
-                if ($this->shouldUpdateCPT4Mappings()) {
-                    $this->updateCPT4Mappings();
-                } else {
-                    $this->logger->info('Skipping Section #updateCPT4Mappings');
-                }
+                $this->updateCPT4Mappings();
             } elseif ($this->isSnomedCodeType($codeType)) {
-                if ($this->shouldUpdateSNOMEDMappings()) {
-                    $this->updateSNOMEDMappings($codeType);
-                } else {
-                    $this->logger->info('Skipping Section #updateSNOMEDMappings type={type}', [
-                        'type' => $codeType
-                    ]);
-                }
+                $this->updateSNOMEDMappings($codeType);
             }
         }
     }
@@ -135,8 +125,13 @@ class CodeTypeMappingUpdater
     /**
      * Updates SNOMED-CT mappings for encounter types and immunization refusal reasons.
      */
-    private function updateSNOMEDMappings(string $codeType): void
+    public function updateSNOMEDMappings(string $codeType): void
     {
+        if (!$this->shouldUpdateSNOMEDMappings()) {
+            $this->logger->info('Skipping SNOMED mappings update', ['codeType' => $codeType]);
+            return;
+        }
+
         $this->logger->info("Updating {codeType} Mappings", ['codeType' => $codeType]);
         $this->updateListWithSnomedCodes(
             self::SNOMED_ENCOUNTER_TYPE_MAPPINGS,
@@ -153,6 +148,11 @@ class CodeTypeMappingUpdater
      */
     public function updateCPT4Mappings(): void
     {
+        if (!$this->shouldUpdateCPT4Mappings()) {
+            $this->logger->info('Skipping CPT4 mappings update');
+            return;
+        }
+
         $this->logger->info('Updating CPT4 Mappings');
         $this->connection->transactional(function (): void {
             foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
@@ -172,13 +172,13 @@ class CodeTypeMappingUpdater
                 $sql = "UPDATE list_options SET codes = CONCAT('CPT4:', ?) WHERE list_id = ? AND option_id = ?";
                 $params = [$codeId, self::LIST_ID_ENCOUNTER_TYPES, $optionId];
 
-                $this->log($logger, "(sql=`{$sql}`, values=`" . var_export($params, true) . "`)");
+                $this->logger->debug('Executing SQL', ['sql' => $sql, 'params' => $params]);
                 $this->connection->executeStatement($sql, $params);
             }
         });
     }
 
-    public function shouldUpdateSNOMEDMappings(): bool
+    private function shouldUpdateSNOMEDMappings(): bool
     {
         if (!$this->isCodeTypeActive(self::CODE_TYPE_SNOMED_CT)) {
             return false;
@@ -195,7 +195,7 @@ class CodeTypeMappingUpdater
         return false;
     }
 
-    public function shouldUpdateCPT4Mappings(): bool
+    private function shouldUpdateCPT4Mappings(): bool
     {
         if (!$this->isCodeTypeActive(self::CODE_TYPE_CPT4)) {
             return false;
@@ -273,7 +273,7 @@ class CodeTypeMappingUpdater
                 $params = [$codeId, $listId, $optionId];
 
                 $this->connection->executeStatement($sql, $params);
-                $this->log($logger, 'Success - (sql=`' . $sql . '`, values=`' . var_export($params, true) . '`)');
+                $this->logger->debug('Executed SQL', ['sql' => $sql, 'params' => $params]);
             }
         });
     }
