@@ -50,7 +50,9 @@ readonly class LogTablesSink implements SinkInterface
             'user_notes' => $event->user_notes,
             'patient_id' => $event->patientId,
             'success' => $event->success,
-            'crt_user' => $event->SSL_CLIENT_S_DN_CN,
+            // crt_user stored SSL client certificate CN for ATNA compliance (2010).
+            // Client cert auth was never integrated with login; column is vestigial.
+            'crt_user' => '',
             'log_from' => $event->logFrom,
             'menu_item_id' => $event->menuItemId,
             'ccda_doc_id' => $event->ccdaDocId,
