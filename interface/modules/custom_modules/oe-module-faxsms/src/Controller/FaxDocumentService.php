@@ -578,7 +578,7 @@ class FaxDocumentService
             $body = SignalWireWebhookValidator::scalarString($response->body());
 
             return [
-                'status' => (int)$response->status(),
+                'status' => $response->status(),
                 'body' => $body,
                 'contentType' => SignalWireWebhookValidator::normalizeMimeType(
                     $response->header('Content-Type'),

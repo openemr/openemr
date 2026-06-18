@@ -15,12 +15,9 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use Document;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\Client;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\FaxInstance;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
@@ -343,7 +340,7 @@ class SignalWireClient extends AppDispatch
             // non-PDF fails clearly on our side instead of as a cryptic "not a PDF
             // file" from the provider after it fetches the media.
             $head = (string)file_get_contents($path, false, null, 0, 5);
-            if (strncmp($head, '%PDF-', 5) !== 0) {
+            if (!str_starts_with($head, '%PDF-')) {
                 @unlink($path);
                 error_log("SignalWireClient.uploadFileForFax(): ERROR - Outbound media is not a PDF (first bytes: " . bin2hex($head) . ")");
                 return null;

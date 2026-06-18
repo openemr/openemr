@@ -195,7 +195,7 @@ final class SignalWireWebhookValidator
             'files.signalwire.com',
             'api.signalwire.com',
         ];
-        $host = strtolower((string)$parsedUrl['host']);
+        $host = strtolower($parsedUrl['host']);
 
         foreach ($allowedDomains as $allowedDomain) {
             if ($host === $allowedDomain || str_ends_with($host, '.' . $allowedDomain)) {

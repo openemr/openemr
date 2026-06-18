@@ -30,12 +30,9 @@ use GuzzleHttp\Exception\GuzzleException;
  */
 class RestException extends \Exception
 {
-    private int $statusCode;
-
-    public function __construct(string $message, int $statusCode = 0, ?\Throwable $previous = null)
+    public function __construct(string $message, private readonly int $statusCode = 0, ?\Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
-        $this->statusCode = $statusCode;
     }
 
     public function getStatusCode(): int
@@ -49,21 +46,17 @@ class RestException extends \Exception
  *
  * @internal
  */
-final class Transport
+final readonly class Transport
 {
-    private string $projectId;
-    private string $apiToken;
     private string $spaceUrl;
     private ClientInterface $http;
 
     public function __construct(
-        string $projectId,
-        string $apiToken,
+        private string $projectId,
+        private string $apiToken,
         string $spaceUrl,
         ?ClientInterface $http = null
     ) {
-        $this->projectId = $projectId;
-        $this->apiToken = $apiToken;
         $this->spaceUrl = self::normalizeSpace($spaceUrl);
         $this->http = $http ?? new GuzzleClient();
     }
@@ -204,7 +197,7 @@ final class FaxInstance
         if (!empty($created) && is_string($created)) {
             try {
                 $fax->dateCreated = new \DateTime($created);
-            } catch (\Exception) {
+            } catch (\Throwable) {
                 $fax->dateCreated = null;
             }
         }
@@ -216,15 +209,10 @@ final class FaxInstance
 /**
  * Context for a single fax (selected by SID); supports fetch() and delete().
  */
-final class FaxContext
+final readonly class FaxContext
 {
-    private Transport $transport;
-    private string $sid;
-
-    public function __construct(Transport $transport, string $sid)
+    public function __construct(private Transport $transport, private string $sid)
     {
-        $this->transport = $transport;
-        $this->sid = $sid;
     }
 
     /**
@@ -253,13 +241,10 @@ final class FaxContext
 /**
  * The Faxes collection: create / read (list) / getContext.
  */
-final class FaxList
+final readonly class FaxList
 {
-    private Transport $transport;
-
-    public function __construct(Transport $transport)
+    public function __construct(private Transport $transport)
     {
-        $this->transport = $transport;
     }
 
     /**
@@ -394,16 +379,14 @@ class Client
     /** Exposes the ->fax->v1->faxes chain used by the faxsms controller. */
     public FaxDomain $fax;
 
-    private Transport $transport;
+    private readonly Transport $transport;
 
     /**
      * @param array{signalwireSpaceUrl?: string, httpClient?: ClientInterface} $options
      */
     public function __construct(string $projectId, string $apiToken, array $options = [])
     {
-        $spaceUrl = isset($options['signalwireSpaceUrl'])
-            ? (string) $options['signalwireSpaceUrl']
-            : '';
+        $spaceUrl = $options['signalwireSpaceUrl'] ?? '';
 
         $http = $options['httpClient'] ?? null;
         if ($http !== null && !$http instanceof ClientInterface) {

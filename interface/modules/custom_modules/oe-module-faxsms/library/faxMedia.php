@@ -91,7 +91,7 @@ try {
     if ($fh) {
         fclose($fh);
     }
-    if (strncmp($head, '%PDF-', 5) !== 0) {
+    if (!str_starts_with($head, '%PDF-')) {
         error_log('faxMedia.php: staged file is not a PDF: ' . $name);
         http_response_code(415);
         exit;
