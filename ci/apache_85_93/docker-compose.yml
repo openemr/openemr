@@ -9,4 +9,4 @@ services:
   mysql:
     image: mysql:9.3.0@sha256:b9d8b7ec6e6aced08b1cfe50776f8e323c0a625adf4e10e69f90fc686ea10807
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:c1eb26a24f4f3e2fa96c518df8a40444435a3373036a2b8fd3a7580fcca335fc
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:09363d62a88752fc6095fd013cc416b324f7b75b2c4f53b3051c66f80a2fa3be
