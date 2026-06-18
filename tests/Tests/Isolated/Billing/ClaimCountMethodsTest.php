@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,18 +21,17 @@ use PHPUnit\Framework\TestCase;
 class ClaimCountMethodsTest extends TestCase
 {
     /**
-     * @param array<int,array<string,mixed>> $procs
-     * @param array<int,array<string,mixed>> $payers
+     * @param list<array<string, mixed>> $procs
+     * @param list<array<string, mixed>> $payers
      */
     private function makeClaim(array $procs = [], array $payers = []): Claim
     {
-        $stub = new class (1, 1) extends Claim {
-            public function __construct(mixed $pid, mixed $encounter_id)
+        // Bypass the real constructor, which hits the database. procCount()
+        // and payerCount() read only the procs and payers properties, so the
+        // stub seeds nothing else.
+        $stub = new class extends Claim {
+            public function __construct()
             {
-                $this->pid = $pid;
-                $this->encounter_id = $encounter_id;
-                $this->procs = [];
-                $this->payers = [];
             }
         };
 
