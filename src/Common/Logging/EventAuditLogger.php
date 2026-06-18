@@ -666,9 +666,7 @@ class EventAuditLogger
         // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
         $comments = base64_encode($comments);
 
-        // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
-        $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.
         //  Need to keep to maintain backward compatibility since the checksum is used when calculating checksum stored in log_comment_encrypt table
@@ -690,7 +688,6 @@ class EventAuditLogger
             $user_notes,
             $patientId,
             $success,
-            $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
             $ccdaDocId,
