@@ -15768,12 +15768,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "6b43b34b35cef5e93f19f389daf029845e391351"
+                "reference": "5f01a18cea5507cf7e46c86f870f4020e3b365ac"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/6b43b34b35cef5e93f19f389daf029845e391351",
-                "reference": "6b43b34b35cef5e93f19f389daf029845e391351",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/5f01a18cea5507cf7e46c86f870f4020e3b365ac",
+                "reference": "5f01a18cea5507cf7e46c86f870f4020e3b365ac",
                 "shasum": ""
             },
             "conflict": {
@@ -16100,10 +16100,10 @@
                 "georgringer/news": "<10.0.4|>=11,<11.4.4|>=12,<12.3.2|>=13,<13.0.2|>=14,<14.0.3",
                 "geshi/geshi": "<=1.0.9.1",
                 "getformwork/formwork": "<=2.3.3",
-                "getgrav/grav": "<=2.0.0.0-RC1",
+                "getgrav/grav": "<=2.0.0.0-RC8",
                 "getgrav/grav-plugin-api": "<1.0.0.0-beta15",
                 "getgrav/grav-plugin-form": "<9.1",
-                "getkirby/cms": "<=4.9|>=5,<=5.4",
+                "getkirby/cms": "<=4.9.3|>=5,<=5.4.3",
                 "getkirby/kirby": "<3.9.8.3-dev|>=3.10,<3.10.1.2-dev|>=4,<4.7.1",
                 "getkirby/panel": "<2.5.14",
                 "getkirby/starterkit": "<=3.7.0.2",
@@ -16862,7 +16862,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-17T19:44:27+00:00"
+            "time": "2026-06-18T15:08:21+00:00"
         },
         {
             "name": "sebastian/cli-parser",
