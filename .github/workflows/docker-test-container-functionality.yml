@@ -6,7 +6,6 @@ name: Container Functionality (release, binary, flex)
 
 on:
   push:
-    branches: [master]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
     - 'docker/container_benchmarking/**'
@@ -14,7 +13,6 @@ on:
     - 'docker/binary/**'
     - 'docker/flex/**'
   pull_request:
-    branches: [master]
     paths:
     - '.github/workflows/docker-test-container-functionality.yml'
     - 'docker/container_benchmarking/**'

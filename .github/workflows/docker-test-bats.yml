@@ -5,7 +5,6 @@ name: BATS Tests (release, binary, flex)
 
 on:
   push:
-    branches: [master]
     paths:
     - '.github/workflows/docker-test-bats.yml'
     - 'tests/bats/docker/**'
@@ -13,7 +12,6 @@ on:
     - 'docker/binary/**'
     - 'docker/flex/**'
   pull_request:
-    branches: [master]
     paths:
     - '.github/workflows/docker-test-bats.yml'
     - 'tests/bats/docker/**'

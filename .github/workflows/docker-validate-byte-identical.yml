@@ -72,12 +72,12 @@ jobs:
         # Files that must stay byte-identical across master and every rel branch.
         # Intentionally NOT in this list because they differ per branch:
         #   docker/release/Dockerfile          (version-pinned per branch)
-        #   docker-test-release.yml            (different `branches:` triggers)
         #   docker-test-bats.yml               (master 3 jobs, rel-810 1 job, rel-800/rel-704 absent)
         #   docker-test-container-functionality.yml (same shape as bats)
         FILES_ALL=(
           .github/workflows/docker-build-release.yml
           .github/workflows/docker-test-core.yml
+          .github/workflows/docker-test-release.yml
           .github/actions/test-actions-core/action.yml
           docker/compose.yml
           docker/.gitignore
