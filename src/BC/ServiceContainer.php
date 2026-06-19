@@ -233,7 +233,7 @@ class ServiceContainer
             if (!array_key_exists('ENV', $_ENV) && !array_key_exists('ENVIRONMENT', $_ENV)) {
                 $_ENV['ENVIRONMENT'] = 'development';
             }
-            self::$container = AutoDetect::instance('config');
+            self::$container = AutoDetect::instance(dirname(__DIR__, 2) . '/config');
         }
         return self::$container;
     }
