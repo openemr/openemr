@@ -191,36 +191,30 @@ class CodeTypeMappingUpdaterTest extends TestCase
     private function makeCodeType(string $key, int $id): CodeType
     {
         $entity = (new ReflectionClass(CodeType::class))->newInstanceWithoutConstructor();
-        $this->setReadonlyProperty($entity, 'key', $key);
-        $this->setReadonlyProperty($entity, 'id', $id);
-        $this->setReadonlyProperty($entity, 'active', true);
-        $this->setReadonlyProperty($entity, 'seq', 1);
+        (new ReflectionClass($entity))->getProperty('key')->setValue($entity, $key);
+        $entity->id = $id;
+        $entity->active = true;
+        $entity->seq = 1;
         return $entity;
     }
 
     private function makeCode(string $code, string $codeText, int $codeType): Code
     {
         $entity = (new ReflectionClass(Code::class))->newInstanceWithoutConstructor();
-        $this->setReadonlyProperty($entity, 'id', 1);
-        $this->setReadonlyProperty($entity, 'code', $code);
-        $this->setReadonlyProperty($entity, 'codeText', $codeText);
-        $this->setReadonlyProperty($entity, 'codeType', $codeType);
+        (new ReflectionClass($entity))->getProperty('id')->setValue($entity, 1);
+        $entity->code = $code;
+        $entity->codeText = $codeText;
+        $entity->codeType = $codeType;
         return $entity;
     }
 
     private function makeListOption(string $listId, string $optionId, string $codes): ListOption
     {
         $entity = (new ReflectionClass(ListOption::class))->newInstanceWithoutConstructor();
-        $this->setReadonlyProperty($entity, 'listId', $listId);
-        $this->setReadonlyProperty($entity, 'optionId', $optionId);
+        $ref = new ReflectionClass($entity);
+        $ref->getProperty('listId')->setValue($entity, $listId);
+        $ref->getProperty('optionId')->setValue($entity, $optionId);
         $entity->codes = $codes;
         return $entity;
-    }
-
-    private function setReadonlyProperty(object $entity, string $property, mixed $value): void
-    {
-        $ref = new ReflectionClass($entity);
-        $prop = $ref->getProperty($property);
-        $prop->setValue($entity, $value);
     }
 }

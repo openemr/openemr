@@ -34,11 +34,11 @@ class CodeType
     public readonly string $key; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
 
     #[Mapping\Column(name: 'ct_id', type: Types::INTEGER)]
-    public readonly int $id; // @phpstan-ignore property.uninitializedReadonly
+    public int $id;
 
     #[Mapping\Column(name: 'ct_seq', type: Types::INTEGER)]
-    public readonly int $seq; // @phpstan-ignore property.uninitializedReadonly
+    public int $seq;
 
     #[Mapping\Column(name: 'ct_active', type: Types::BOOLEAN)]
-    public readonly bool $active; // @phpstan-ignore property.uninitializedReadonly
+    public bool $active;
 }

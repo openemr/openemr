@@ -25,11 +25,11 @@ class Code
     public readonly int $id; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
 
     #[Mapping\Column(length: 25)]
-    public readonly string $code; // @phpstan-ignore property.uninitializedReadonly
+    public string $code;
 
     #[Mapping\Column(type: Types::TEXT, nullable: true)]
-    public readonly ?string $codeText; // @phpstan-ignore property.uninitializedReadonly
+    public ?string $codeText;
 
     #[Mapping\Column(type: Types::SMALLINT, nullable: true)]
-    public readonly ?int $codeType; // @phpstan-ignore property.uninitializedReadonly
+    public ?int $codeType;
 }
