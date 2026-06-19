@@ -28,8 +28,8 @@ class Code
     public string $code;
 
     #[Mapping\Column(type: Types::TEXT, nullable: true)]
-    public ?string $codeText;
+    public ?string $codeText = null;
 
     #[Mapping\Column(type: Types::SMALLINT, nullable: true)]
-    public ?int $codeType;
+    public ?int $codeType = null;
 }
