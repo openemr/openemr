@@ -41,7 +41,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     {
         $upgradeService = $event->getSqlUpgradeService();
         $logger = new class ($upgradeService) extends AbstractLogger {
-            public function __construct(private ISQLUpgradeService $upgradeService)
+            public function __construct(private readonly ISQLUpgradeService $upgradeService)
             {
             }
 

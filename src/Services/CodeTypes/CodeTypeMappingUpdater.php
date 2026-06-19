@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
  * allowing the UI to display human-readable labels while storing
  * standard code references.
  */
-class CodeTypeMappingUpdater
+readonly class CodeTypeMappingUpdater
 {
     private const SNOMED_ENCOUNTER_TYPE_MAPPINGS = [
         'visit-after-hours' => '185463005',

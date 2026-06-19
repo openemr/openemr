@@ -222,9 +222,7 @@ class ServiceContainer
     {
         return self::resolveOrCreate(
             EntityManagerInterface::class,
-            static function () {
-                return self::getContainer()->get(EntityManagerInterface::class);
-            },
+            static fn () => self::getContainer()->get(EntityManagerInterface::class),
         );
     }
 
