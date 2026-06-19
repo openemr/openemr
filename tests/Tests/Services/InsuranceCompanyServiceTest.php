@@ -246,4 +246,30 @@ class InsuranceCompanyServiceTest extends TestCase
         $this->assertNotFalse($row);
         $this->assertEquals(9999999, $row['id']);
     }
+
+    #[Test]
+    public function testLegacyPersistSkipsPhoneWithoutTenDigitNationalNumber(): void
+    {
+        // Regression for the TypeError on Practice Settings → Insurance Company
+        // edit when the phone field posts something PhoneNumber::tryParse will
+        // accept but that doesn't yield a 10-digit NANP national number
+        // (e.g. "555-1234"). The legacy InsuranceCompany::persist() forwarded
+        // a null from PhoneNumber::getNationalDigits() into
+        // PhoneNumberService::getPhoneParts(string), throwing:
+        //   TypeError: Argument #1 ($phone_number) must be of type string, null given
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistShortPhone');
+        $co->set_phone('555-1234');
+
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        $phoneRows = QueryUtils::fetchRecordsNoLog(
+            "SELECT id FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertSame([], $phoneRows);
+    }
 }
