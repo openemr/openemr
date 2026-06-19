@@ -36,10 +36,13 @@ class ShellCommand extends Command
 
     public function __invoke(OutputInterface $output): int
     {
-        // PhySH is installed as a dev dependency
         if (!class_exists(Shell::class)) {
+            // PhySH is installed as a dev dependency, so this condition is
+            // unreachable from test environments.
+            // @codeCoverageIgnoreStart
             $output->writeln('Shell is only available in dev installations.');
             return 1;
+            // @codeCoverageIgnoreEnd
         }
         $shell = new Shell();
         $shell->setScopeVariables([
