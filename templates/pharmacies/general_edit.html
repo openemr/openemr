@@ -57,13 +57,13 @@
     <div class="form-row py-sm-2">
         <label for="phone" class="col-form-label col-sm-2">{xlt t='Phone'}</label>
         <div class="col-sm-8">
-            <input type="tel" id="phone" name="phone" class="form-control" value="{$pharmacy->get_phone()|attr}" pattern="\(?\d\d\d\)?[\s.\-]?\d\d\d[\s.\-]?\d\d\d\d" title="{xla t='Enter a 10-digit phone number, e.g. 555-123-4567'}" onKeyDown="PreventIt(event)" />
+            <input type="tel" id="phone" name="phone" class="form-control" value="{$pharmacy->get_phone()|attr}" pattern="(?:\(\d\d\d\)|\d\d\d)[\s.\-]?\d\d\d[\s.\-]?\d\d\d\d" title="{xla t='Enter a 10-digit phone number, e.g. 555-123-4567'}" onKeyDown="PreventIt(event)" />
         </div>
     </div>
     <div class="form-row py-sm-2">
         <label for="fax" class="col-form-label col-sm-2">{xlt t='Fax'}</label>
         <div class="col-sm-8">
-            <input type="tel" id="fax" name="fax" class="form-control" value="{$pharmacy->get_fax()|attr}" pattern="\(?\d\d\d\)?[\s.\-]?\d\d\d[\s.\-]?\d\d\d\d" title="{xla t='Enter a 10-digit fax number, e.g. 555-123-4567'}" onKeyDown="PreventIt(event)" />
+            <input type="tel" id="fax" name="fax" class="form-control" value="{$pharmacy->get_fax()|attr}" pattern="(?:\(\d\d\d\)|\d\d\d)[\s.\-]?\d\d\d[\s.\-]?\d\d\d\d" title="{xla t='Enter a 10-digit fax number, e.g. 555-123-4567'}" onKeyDown="PreventIt(event)" />
         </div>
     </div>
     <div class="form-row py-sm-2">
