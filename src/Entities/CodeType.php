@@ -21,7 +21,7 @@ use Doctrine\ORM\Mapping;
  * per normal conventions). The Doctrine model reverses this to match common
  * expectations.
  *
- * The database should get updated to reverse this, matching model declaration.r
+ * The database should get updated to reverse this, matching model declaration.
  * See #12540.
  */
 #[Mapping\Entity]
