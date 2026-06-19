@@ -25,7 +25,7 @@ class Code
     #[Mapping\Id]
     #[Mapping\GeneratedValue]
     #[Mapping\Column(type: Types::INTEGER)]
-    public readonly string $id; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
+    public readonly int $id; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
 
     #[Mapping\Column(length: 25)]
     public readonly string $code; // @phpstan-ignore property.uninitializedReadonly

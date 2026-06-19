@@ -112,9 +112,19 @@ class CodeTypeMappingUpdater
 
         foreach ($activatedCodeTypes as $codeType) {
             if ($codeType->key === self::CODE_TYPE_CPT4) {
-                $this->updateCPT4Mappings();
+                if ($this->shouldUpdateCPT4Mappings()) {
+                    $this->logger->info('Updating {codeType} Mappings', ['codeType' => $codeType->key]);
+                    $this->updateCPT4Mappings();
+                } else {
+                    $this->logger->info('Skipping CPT4 mappings update');
+                }
             } elseif ($this->isSnomedCodeType($codeType->key)) {
-                $this->updateSNOMEDMappings($codeType->key);
+                if ($this->shouldUpdateSNOMEDMappings()) {
+                    $this->logger->info('Updating {codeType} Mappings', ['codeType' => $codeType->key]);
+                    $this->updateSNOMEDMappings();
+                } else {
+                    $this->logger->info('Skipping SNOMED mappings update', ['codeType' => $codeType->key]);
+                }
             }
         }
     }
@@ -122,14 +132,8 @@ class CodeTypeMappingUpdater
     /**
      * Updates SNOMED-CT mappings for encounter types and immunization refusal reasons.
      */
-    public function updateSNOMEDMappings(string $codeType): void
+    public function updateSNOMEDMappings(): void
     {
-        if (!$this->shouldUpdateSNOMEDMappings()) {
-            $this->logger->info('Skipping SNOMED mappings update', ['codeType' => $codeType]);
-            return;
-        }
-
-        $this->logger->info("Updating {codeType} Mappings", ['codeType' => $codeType]);
         $this->updateListWithSnomedCodes(
             self::SNOMED_ENCOUNTER_TYPE_MAPPINGS,
             self::LIST_ID_ENCOUNTER_TYPES,
@@ -145,15 +149,13 @@ class CodeTypeMappingUpdater
      */
     public function updateCPT4Mappings(): void
     {
-        if (!$this->shouldUpdateCPT4Mappings()) {
-            $this->logger->info('Skipping CPT4 mappings update');
-            return;
-        }
-
-        $this->logger->info('Updating CPT4 Mappings');
         foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
             $code = $this->findCPT4Code($codeText);
             if ($code === null) {
+                $this->logger->debug('Failed to find CPT4 code in codes with code_text, skipping', [
+                    'code_text' => $codeText,
+                    'option_id' => $optionId,
+                ]);
                 continue;
             }
 
@@ -163,12 +165,8 @@ class CodeTypeMappingUpdater
         $this->em->flush();
     }
 
-    private function shouldUpdateSNOMEDMappings(): bool
+    public function shouldUpdateSNOMEDMappings(): bool
     {
-        if (!$this->isCodeTypeActive(self::CODE_TYPE_SNOMED_CT)) {
-            return false;
-        }
-
         if ($this->listNeedsSnomedUpdate(self::SNOMED_ENCOUNTER_TYPE_MAPPINGS, self::LIST_ID_ENCOUNTER_TYPES)) {
             return true;
         }
@@ -180,7 +178,7 @@ class CodeTypeMappingUpdater
         return false;
     }
 
-    private function shouldUpdateCPT4Mappings(): bool
+    public function shouldUpdateCPT4Mappings(): bool
     {
         if (!$this->isCodeTypeActive(self::CODE_TYPE_CPT4)) {
             return false;

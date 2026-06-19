@@ -57,12 +57,11 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     public function onCodeTypeInstalledEvent(CodeTypeInstalledEvent $event)
     {
         $codeType = $event->getCodeType();
+        $service = $this->makeService();
         if ($codeType === "SNOMED") {
-            // check if we have SNOMED codes installed and update our list options
-            $this->makeService()->updateSNOMEDMappings($codeType);
-        } elseif ($codeType === "CPT4") {
-            // check if we have CPT4 codes installed and update our list options
-            $this->makeService()->updateCPT4Mappings();
+            $service->updateSNOMEDMappings();
+        } elseif ($codeType === "CPT4" && $service->shouldUpdateCPT4Mappings()) {
+            $service->updateCPT4Mappings();
         }
     }
 
