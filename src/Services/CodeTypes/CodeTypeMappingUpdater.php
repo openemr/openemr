@@ -101,12 +101,14 @@ class CodeTypeMappingUpdater
      */
     public function updateActivatedMappings(): void
     {
-        $sql = 'SELECT ct_key FROM code_types WHERE ct_active = 1 ORDER BY ct_seq, ct_key';
-        $activatedCodeTypes = $this->connection->fetchAllAssociative($sql);
-
-        if ($activatedCodeTypes === []) {
-            return;
-        }
+        $qb = $this->connection->createQueryBuilder();
+        $activatedCodeTypes = $qb
+            ->select('ct_key')
+            ->from('code_types')
+            ->where('ct_active = 1')
+            ->orderBy('ct_seq')
+            ->addOrderBy('ct_key')
+            ->fetchAllAssociative();
 
         foreach ($activatedCodeTypes as $record) {
             if (!is_string($record['ct_key'])) {
@@ -156,24 +158,13 @@ class CodeTypeMappingUpdater
         $this->logger->info('Updating CPT4 Mappings');
         $this->connection->transactional(function (): void {
             foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
-                $codeId = $this->connection->fetchOne(
-                    <<<'SQL'
-                    SELECT `code` FROM codes
-                    WHERE code_text = ?
-                      AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')
-                    SQL,
-                    [$codeText],
-                );
-
-                if ($codeId === false || $codeId === '') {
+                $codeId = $this->findCPT4Code($codeText);
+                if ($codeId === null) {
                     continue;
                 }
 
-                $sql = "UPDATE list_options SET codes = CONCAT('CPT4:', ?) WHERE list_id = ? AND option_id = ?";
-                $params = [$codeId, self::LIST_ID_ENCOUNTER_TYPES, $optionId];
-
-                $this->logger->debug('Executing SQL', ['sql' => $sql, 'params' => $params]);
-                $this->connection->executeStatement($sql, $params);
+                $codes = self::CODE_TYPE_CPT4 . ':' . $codeId;
+                $this->updateListOptionCodes(self::LIST_ID_ENCOUNTER_TYPES, $optionId, $codes);
             }
         });
     }
@@ -202,30 +193,40 @@ class CodeTypeMappingUpdater
         }
 
         foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
-            $codeId = $this->connection->fetchOne(
-                <<<'SQL'
-                SELECT `code` FROM codes
-                WHERE code_text = ?
-                  AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')
-                SQL,
-                [$codeText],
-            );
-
-            if (!is_string($codeId) || $codeId === '') {
+            $codeId = $this->findCPT4Code($codeText);
+            if ($codeId === null) {
                 continue;
             }
 
-            $currentCodes = $this->connection->fetchOne(
-                'SELECT codes FROM list_options WHERE list_id = ? AND option_id = ?',
-                [self::LIST_ID_ENCOUNTER_TYPES, $optionId],
-            );
+            $currentCodes = $this->getListOptionCodes(self::LIST_ID_ENCOUNTER_TYPES, $optionId);
+            $expectedCodes = self::CODE_TYPE_CPT4 . ':' . $codeId;
 
-            if ($currentCodes !== "CPT4:{$codeId}") {
+            if ($currentCodes !== $expectedCodes) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function findCPT4Code(string $codeText): ?string
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $result = $qb
+            ->select('c.code')
+            ->from('codes', 'c')
+            ->innerJoin('c', 'code_types', 'ct', 'c.code_type = ct.ct_id')
+            ->where('c.code_text = :codeText')
+            ->andWhere('ct.ct_key = :codeType')
+            ->setParameter('codeText', $codeText)
+            ->setParameter('codeType', self::CODE_TYPE_CPT4)
+            ->fetchOne();
+
+        if (!is_string($result) || $result === '') {
+            return null;
+        }
+
+        return $result;
     }
 
     private function isSnomedCodeType(string $codeType): bool
@@ -235,10 +236,14 @@ class CodeTypeMappingUpdater
 
     private function isCodeTypeActive(string $codeType): bool
     {
-        $result = $this->connection->fetchOne(
-            'SELECT ct_key FROM code_types WHERE ct_active = 1 AND ct_key = ?',
-            [$codeType],
-        );
+        $qb = $this->connection->createQueryBuilder();
+        $result = $qb
+            ->select('ct_key')
+            ->from('code_types')
+            ->where('ct_active = 1')
+            ->andWhere('ct_key = :codeType')
+            ->setParameter('codeType', $codeType)
+            ->fetchOne();
 
         return $result !== false;
     }
@@ -249,17 +254,34 @@ class CodeTypeMappingUpdater
     private function listNeedsSnomedUpdate(array $mappings, string $listId): bool
     {
         foreach ($mappings as $optionId => $codeId) {
-            $currentCodes = $this->connection->fetchOne(
-                'SELECT codes FROM list_options WHERE list_id = ? AND option_id = ?',
-                [$listId, $optionId],
-            );
+            $currentCodes = $this->getListOptionCodes($listId, $optionId);
+            $expectedCodes = self::CODE_TYPE_SNOMED_CT . ':' . $codeId;
 
-            if ($currentCodes !== self::CODE_TYPE_SNOMED_CT . ':' . $codeId) {
+            if ($currentCodes !== $expectedCodes) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private function getListOptionCodes(string $listId, string $optionId): ?string
+    {
+        $qb = $this->connection->createQueryBuilder();
+        $result = $qb
+            ->select('codes')
+            ->from('list_options')
+            ->where('list_id = :listId')
+            ->andWhere('option_id = :optionId')
+            ->setParameter('listId', $listId)
+            ->setParameter('optionId', $optionId)
+            ->fetchOne();
+
+        if (!is_string($result)) {
+            return null;
+        }
+
+        return $result;
     }
 
     /**
@@ -269,12 +291,25 @@ class CodeTypeMappingUpdater
     {
         $this->connection->transactional(function () use ($mappings, $listId): void {
             foreach ($mappings as $optionId => $codeId) {
-                $sql = "UPDATE list_options SET codes = CONCAT('SNOMED-CT:', ?) WHERE list_id = ? AND option_id = ?";
-                $params = [$codeId, $listId, $optionId];
-
-                $this->connection->executeStatement($sql, $params);
-                $this->logger->debug('Executed SQL', ['sql' => $sql, 'params' => $params]);
+                $codes = self::CODE_TYPE_SNOMED_CT . ':' . $codeId;
+                $this->updateListOptionCodes($listId, $optionId, $codes);
             }
         });
+    }
+
+    private function updateListOptionCodes(string $listId, string $optionId, string $codes): void
+    {
+        $affected = $this->connection->update(
+            'list_options',
+            ['codes' => $codes],
+            ['list_id' => $listId, 'option_id' => $optionId],
+        );
+
+        $this->logger->debug('Updated list_options', [
+            'listId' => $listId,
+            'optionId' => $optionId,
+            'codes' => $codes,
+            'affected' => $affected,
+        ]);
     }
 }
