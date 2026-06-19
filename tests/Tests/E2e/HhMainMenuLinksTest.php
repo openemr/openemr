@@ -103,7 +103,6 @@ class HhMainMenuLinksTest extends PantherTestCase
             'Admin -> System -> Backup menu link' => ['Admin||System||Backup', 'Backup'],
             'Admin -> System -> Files menu link' => ['Admin||System||Files', 'File management'],
             'Admin -> System -> Language menu link' => ['Admin||System||Language', 'Multi Language Tool'],
-            'Admin -> System -> Certificates menu link' => ['Admin||System||Certificates', 'SSL Certificate Administration'],
             'Admin -> System -> Logs menu link' => ['Admin||System||Logs', 'Logs Viewer'],
             'Admin -> System -> Audit Log Tamper menu link' => ['Admin||System||Audit Log Tamper', 'Audit Log Tamper Report'],
             'Admin -> System -> Diagnostics menu link' => ['Admin||System||Diagnostics', 'Diagnostics'],
