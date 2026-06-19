@@ -16,8 +16,9 @@ use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest\Client;
 use RuntimeException;
-use Twilio\Rest\Client;
+use Throwable;
 
 class TwilioSMSClient extends AppDispatch
 {
@@ -102,7 +103,7 @@ class TwilioSMSClient extends AppDispatch
                     "from" => attr($from)
                 ]
             );
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             return text('Error: ' . $message);
         }
@@ -150,7 +151,7 @@ class TwilioSMSClient extends AppDispatch
                     "dateSentAfter" => $dateFrom,
                     "dateSentBefore" => $dateTo
                 ], 100);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $message = $e->getMessage();
                 $emsg = xlt('Report to Administration');
                 return json_encode(['error' => $message . " : " . $emsg]);
@@ -183,13 +184,13 @@ class TwilioSMSClient extends AppDispatch
                 }
                 $utc_time = strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC');
                 $updateDate = date('M j Y g:i:sa T', $utc_time);
-                if (strtolower($messageStore->direction) != "outbound-api") {
+                if (strtolower((string) $messageStore->direction) != "outbound-api") {
                     $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . ($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><<td>" . $vreply . "</td></tr>";
                 } else {
                     $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
                 }
             }
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $message = $e->getMessage();
             $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
             echo json_encode(['error' => $responseMsgs]);

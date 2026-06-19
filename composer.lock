@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ab9fd3b55305a91b37fb5962b108129f",
+    "content-hash": "315d3f26b44c8837c8e4eb573b86c6a8",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -18525,5 +18525,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.9.0"
+    "plugin-api-version": "2.6.0"
 }
