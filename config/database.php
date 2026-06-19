@@ -66,12 +66,12 @@ return [
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
-        $site = $c->getString('OPENEMR_SITE');
-        return DatabaseConnectionOptions::forSite("sites/$site");
+        $siteDir = sprintf('%s/sites/%s', $c->getString('installRoot'), $c->getString('OPENEMR_SITE'));
+        return DatabaseConnectionOptions::forSite($siteDir);
     },
 
     // Doctrine Migrations
-    ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
+    ConfigurationLoader::class => fn (TC $c) => new PhpFile($c->getString('installRoot') . '/db/migration-config.php'),
     // We use fromEntityManager instead of fromConnection to be able to leverage
     // its EventManager. This is required to subscribe to migration events.
     DependencyFactory::class => fn (TC $c) => DependencyFactory::fromEntityManager(
@@ -83,8 +83,9 @@ return [
 
     // ORM
     Configuration::class => function (TC $c) {
+        $root = $c->getString('installRoot');
         $paths = [
-            'src/Entities',
+            $root . '/src/Entities',
             // Future: load additional paths from modules?
             // this may need a ClassLoader instead.
         ];
