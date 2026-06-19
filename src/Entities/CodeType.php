@@ -20,6 +20,7 @@ use Doctrine\ORM\Mapping;
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'code_types')]
+#[Mapping\UniqueConstraint(fields: ['id'])]
 class CodeType
 {
     #[Mapping\Id]
