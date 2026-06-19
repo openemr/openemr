@@ -12,6 +12,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use Doctrine\ORM\EntityManagerInterface;
+use Firehed\Container\{
+    AutoDetect,
+    TypedContainerInterface,
+};
 use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use League\Flysystem\Local\LocalFilesystemAdapter;
@@ -56,6 +61,8 @@ class ServiceContainer
 
     /** @var array<class-string, object> */
     private static array $cache = [];
+
+    private static ?TypedContainerInterface $container = null;
 
     /**
      * Reset all registered overrides and cached instances. For testing only.
@@ -206,5 +213,30 @@ class ServiceContainer
             UriFactoryInterface::class,
             static fn() => new Psr17Factory(),
         );
+    }
+
+    /**
+     * @deprecated - this is an experimental bridge for now.
+     */
+    public static function getEntityManager(): EntityManagerInterface
+    {
+        return self::resolveOrCreate(
+            EntityManagerInterface::class,
+            static function () {
+                return self::getContainer()->get(EntityManagerInterface::class);
+            },
+        );
+    }
+
+    private static function getContainer(): TypedContainerInterface
+    {
+        if (self::$container === null) {
+            // Ensure autodetect can actually work, fall back to dev.
+            if (!array_key_exists('ENV', $_ENV) && !array_key_exists('ENVIRONMENT', $_ENV)) {
+                $_ENV['ENVIRONMENT'] = 'development';
+            }
+            self::$container = AutoDetect::instance('config');
+        }
+        return self::$container;
     }
 }
