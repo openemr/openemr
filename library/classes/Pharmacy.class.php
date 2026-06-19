@@ -217,33 +217,34 @@ class Pharmacy extends ORDataObject
 
     function persist()
     {
-        parent::persist();
-        $this->address->persist($this->id);
-        $phoneService = new PhoneNumberService();
-        // Reset phone_numbers rows for this pharmacy before inserting so the
-        // table mirrors $this->phone_numbers after each save. Without the
-        // clear, persist() accumulates a fresh row on every save (since
-        // PhoneNumberService::insert is a plain INSERT, contrary to the
-        // earlier "handles upsert logic" comment) and the list-view LEFT
-        // JOINs on phone_numbers multiply each pharmacy across
-        // (work_count * fax_count) result rows.
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM phone_numbers WHERE foreign_id = ?",
-            [$this->id]
-        );
-        foreach ($this->phone_numbers as $phone) {
-            $nationalDigits = $phone->phoneNumber->getNationalDigits();
-            if ($nationalDigits === null) {
-                // The legacy phone_numbers table stores 10-digit NANP parts
-                // (area_code / prefix / number). Skip numbers we can't
-                // represent in that schema rather than throwing a TypeError
-                // from PhoneNumberService::getPhoneParts().
-                continue;
+        // Wrap the whole logical save (parent row, address row, phone_numbers
+        // delete + re-insert) in a single transaction. See the matching note
+        // in InsuranceCompany::persist() — the delete-then-insert pattern is
+        // what stops the duplicate-phone-row accumulation, and the
+        // transaction keeps a mid-loop failure from leaving the record with
+        // partial or no phone data instead of just the buggy duplicates.
+        QueryUtils::inTransaction(function (): void {
+            parent::persist();
+            $this->address->persist($this->id);
+            $phoneService = new PhoneNumberService();
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM phone_numbers WHERE foreign_id = ?",
+                [$this->id]
+            );
+            foreach ($this->phone_numbers as $phone) {
+                $nationalDigits = $phone->phoneNumber->getNationalDigits();
+                if ($nationalDigits === null) {
+                    // The legacy phone_numbers table stores 10-digit NANP parts
+                    // (area_code / prefix / number). Skip numbers we can't
+                    // represent in that schema rather than throwing a TypeError
+                    // from PhoneNumberService::getPhoneParts().
+                    continue;
+                }
+                $phoneData = ['phone' => $nationalDigits];
+                $phoneService->type = $phone->type->value;
+                $phoneService->insert($phoneData, $this->id);
             }
-            $phoneData = ['phone' => $nationalDigits];
-            $phoneService->type = $phone->type->value;
-            $phoneService->insert($phoneData, $this->id);
-        }
+        });
     }
 
     function utility_pharmacy_array()
