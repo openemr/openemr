@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
@@ -339,6 +340,17 @@ class InsuranceCompany extends ORDataObject
         parent::persist();
         $this->address->persist($this->id);
         $phoneService = new PhoneNumberService();
+        // Reset phone_numbers rows for this company before inserting so the
+        // table mirrors $this->phone_numbers after each save. Without the
+        // clear, persist() accumulates a fresh row on every save (since
+        // PhoneNumberService::insert is a plain INSERT, contrary to the
+        // earlier "handles upsert logic" comment) and the list-view LEFT
+        // JOINs on phone_numbers multiply each company across
+        // (work_count * fax_count) result rows.
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM phone_numbers WHERE foreign_id = ?",
+            [$this->id]
+        );
         foreach ($this->phone_numbers as $phone) {
             $nationalDigits = $phone->phoneNumber->getNationalDigits();
             if ($nationalDigits === null) {
@@ -350,7 +362,6 @@ class InsuranceCompany extends ORDataObject
             }
             $phoneData = ['phone' => $nationalDigits];
             $phoneService->type = $phone->type->value;
-            // Always insert for now - PhoneNumberService handles upsert logic
             $phoneService->insert($phoneData, $this->id);
         }
     }

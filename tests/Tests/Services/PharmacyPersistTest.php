@@ -59,4 +59,48 @@ class PharmacyPersistTest extends TestCase
         );
         $this->assertSame([], $phoneRows);
     }
+
+    #[Test]
+    public function testLegacyPersistDoesNotDuplicatePhoneRowsOnResave(): void
+    {
+        // Same regression as the matching InsuranceCompany test — Pharmacy
+        // inherited the duplicate-on-save bug from PR #10326. Without the
+        // clear-then-insert in persist() every save added another WORK + FAX
+        // pair, and the list view's two LEFT JOINs on phone_numbers
+        // multiplied the pharmacy across (work_count * fax_count) result rows.
+        $pharmacy = new \Pharmacy();
+        $pharmacy->set_name('test-fixture-LegacyPersistDuplicate');
+        $pharmacy->set_phone('5551234567');
+        $pharmacy->set_fax('5559876543');
+        $pharmacy->persist();
+        $pharmacyId = $pharmacy->id;
+        $this->assertTrue(is_int($pharmacyId) || is_string($pharmacyId));
+        $this->createdIds[] = $pharmacyId;
+
+        $afterCreate = QueryUtils::fetchRecordsNoLog(
+            "SELECT id, type FROM phone_numbers WHERE foreign_id = ?",
+            [$pharmacyId]
+        );
+        $this->assertCount(2, $afterCreate);
+
+        $pharmacy->persist();
+        $afterResave = QueryUtils::fetchRecordsNoLog(
+            "SELECT id, type FROM phone_numbers WHERE foreign_id = ?",
+            [$pharmacyId]
+        );
+        $this->assertCount(2, $afterResave);
+
+        $pharmacy->set_phone('5551112222');
+        $pharmacy->persist();
+        $afterEdit = QueryUtils::fetchRecordsNoLog(
+            "SELECT area_code, prefix, number, type FROM phone_numbers"
+            . " WHERE foreign_id = ? ORDER BY type",
+            [$pharmacyId]
+        );
+        $this->assertCount(2, $afterEdit);
+        $workRow = $afterEdit[0];
+        $this->assertSame('555', $workRow['area_code']);
+        $this->assertSame('111', $workRow['prefix']);
+        $this->assertSame('2222', $workRow['number']);
+    }
 }
