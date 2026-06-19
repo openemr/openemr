@@ -11,6 +11,7 @@ use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
 use OpenEMR\Console\Command\{
     InstallCommand,
+    UpdateCodeTypeMappingsCommand,
 };
 use Symfony\Component\Console\Application;
 
@@ -29,6 +30,7 @@ file_put_contents(
 
 $application = new Application();
 $application->addCommand($container->get(InstallCommand::class));
+$application->addCommand($container->get(UpdateCodeTypeMappingsCommand::class));
 
 // Doctrine Migrations integration
 MigrationsConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
