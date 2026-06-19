@@ -19,6 +19,7 @@ use OpenEMR\Entities\CodeType;
 use OpenEMR\Entities\ListOption;
 use OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -26,13 +27,13 @@ use ReflectionClass;
 #[Group('isolated')]
 class CodeTypeMappingUpdaterTest extends TestCase
 {
-    private EntityManagerInterface&\PHPUnit\Framework\MockObject\MockObject $em;
+    private EntityManagerInterface&MockObject $em;
     /** @var EntityRepository<CodeType>&\PHPUnit\Framework\MockObject\MockObject */
-    private EntityRepository $codeTypeRepo;
+    private EntityRepository&MockObject $codeTypeRepo;
     /** @var EntityRepository<Code>&\PHPUnit\Framework\MockObject\MockObject */
-    private EntityRepository $codeRepo;
+    private EntityRepository&MockObject $codeRepo;
     /** @var EntityRepository<ListOption>&\PHPUnit\Framework\MockObject\MockObject */
-    private EntityRepository $listOptionRepo;
+    private EntityRepository&MockObject $listOptionRepo;
 
     protected function setUp(): void
     {
