@@ -16,5 +16,6 @@ namespace OpenEMR\Console\Command;
 
 return [
     InstallCommand::class,
+    ShellCommand::class,
     UpdateCodeTypeMappingsCommand::class,
 ];
