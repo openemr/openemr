@@ -87,9 +87,6 @@
 # SSL/TLS CERTIFICATES:
 #   force-https             - Enable HTTPS redirect
 #   un-force-https          - Disable HTTPS redirect
-#   setup-client-cert <id>  - Configure client certificate authentication
-#   on-self-signed-cert     - Revert to self-signed certificates
-#   list-client-certs       - List available client certificate packages
 #
 # DATABASE SSL:
 #   sql-ssl                 - Enable MySQL SSL with test CA certificate
@@ -621,29 +618,7 @@ if [ "$1" = "un-force-https" ]; then
     echo "Completed. Need to stop/start docker for changes to take effect"
 fi
 
-if [ "$1" = "list-client-certs" ]; then
-    echo "Listing client certs packages:"
-    cd /certs
-    for f in *; do
-        if [ -f "${f}" ]; then
-            echo "  ${f%.*}"
-        fi
-    done
-fi
 
-if [ "$1" = "setup-client-cert" ] && [ ! -z "$2" ] ; then
-    echo "Setting up client based cert with following cert package: ${2}"
-    prepareVariables
-    setupClientCert "$2"
-    echo "Completed. Need to stop/start docker for changes to take effect"
-fi
-
-if [ "$1" = "on-self-signed-cert" ]; then
-    echo "Toggling on self signed key and certificate (includes disabling client based cert)"
-    prepareVariables
-    toggleOnSelfSignedCert
-    echo "Completed. Need to stop/start docker for changes to take effect"
-fi
 
 # ============================================================================
 # DATABASE SSL COMMANDS
