@@ -10,9 +10,9 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\Console\Command;
+namespace OpenEMR\Tests\Isolated\Console\Command\Codes;
 
-use OpenEMR\Console\Command\UpdateCodeTypeMappingsCommand;
+use OpenEMR\Console\Command\Codes\UpdateMappingsCommand;
 use OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
@@ -21,7 +21,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
 
 #[Group('isolated')]
-class UpdateCodeTypeMappingsCommandTest extends TestCase
+class UpdateMappingsCommandTest extends TestCase
 {
     public function testCommandCallsUpdater(): void
     {
@@ -29,7 +29,7 @@ class UpdateCodeTypeMappingsCommandTest extends TestCase
         $updater->expects($this->once())
             ->method('updateActivatedMappings');
 
-        $command = new UpdateCodeTypeMappingsCommand($updater);
+        $command = new UpdateMappingsCommand($updater);
         $tester = $this->createTester($command);
 
         $tester->execute([]);
@@ -41,7 +41,7 @@ class UpdateCodeTypeMappingsCommandTest extends TestCase
         );
     }
 
-    private function createTester(UpdateCodeTypeMappingsCommand $command): CommandTester
+    private function createTester(UpdateMappingsCommand $command): CommandTester
     {
         $app = new Application();
         $app->addCommand($command);

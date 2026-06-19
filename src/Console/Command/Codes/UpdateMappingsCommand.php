@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Console\Command;
+namespace OpenEMR\Console\Command\Codes;
 
 use OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -22,7 +22,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'codes:update-mappings',
     description: 'Update list_options.codes mappings for activated code types (SNOMED, CPT4)',
 )]
-class UpdateCodeTypeMappingsCommand extends Command
+class UpdateMappingsCommand extends Command
 {
     public function __construct(private readonly CodeTypeMappingUpdater $updater)
     {
