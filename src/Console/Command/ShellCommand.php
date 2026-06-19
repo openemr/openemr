@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psy\Shell;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
     name: 'shell',
@@ -33,8 +34,13 @@ class ShellCommand extends Command
         parent::__construct();
     }
 
-    public function __invoke(): int
+    public function __invoke(OutputInterface $output): int
     {
+        // PhySH is installed as a dev dependency
+        if (!class_exists(Shell::class)) {
+            $output->writeln('Shell is only available in dev installations.');
+            return 1;
+        }
         $shell = new Shell();
         $shell->setScopeVariables([
             'em' => $this->em,
