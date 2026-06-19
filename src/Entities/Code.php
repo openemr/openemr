@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR <https://opencoreemr.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Entities;
+
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping;
+
+/**
+ * Partial mapping - additional columns exist in the database.
+ */
+#[Mapping\Entity]
+#[Mapping\Table(name: 'codes')]
+class Code
+{
+    #[Mapping\Id]
+    #[Mapping\GeneratedValue]
+    #[Mapping\Column(type: Types::INTEGER)]
+    public readonly string $id; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
+
+    #[Mapping\Column(length: 25)]
+    public readonly string $code; // @phpstan-ignore property.uninitializedReadonly
+
+    #[Mapping\Column(type: Types::TEXT, nullable: true)]
+    public readonly ?string $codeText; // @phpstan-ignore property.uninitializedReadonly
+
+    #[Mapping\Column(type: Types::SMALLINT, nullable: true)]
+    public readonly ?int $codeType; // @phpstan-ignore property.uninitializedReadonly
+}

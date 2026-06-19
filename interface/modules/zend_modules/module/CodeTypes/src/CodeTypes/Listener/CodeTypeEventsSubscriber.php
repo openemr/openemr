@@ -69,9 +69,9 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
     private function makeService(?LoggerInterface $logger = null): CodeTypeMappingUpdater
     {
         $logger ??= ServiceContainer::getLogger();
-        // TODO: get connection from container
-        $connection = $GLOBALS['dbal'];
+        // TODO: get EntityManager from container
+        $em = $GLOBALS['kernel']->getContainer()->get('doctrine.orm.default_entity_manager');
 
-        return new CodeTypeMappingUpdater($connection, $logger);
+        return new CodeTypeMappingUpdater($em, $logger);
     }
 }

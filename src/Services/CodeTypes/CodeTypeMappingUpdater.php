@@ -14,7 +14,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Services\CodeTypes;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\ORM\EntityManagerInterface;
+use OpenEMR\Entities\Code;
+use OpenEMR\Entities\CodeType;
+use OpenEMR\Entities\ListOption;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -91,7 +94,7 @@ class CodeTypeMappingUpdater
     private const LIST_ID_IMMUNIZATION_REFUSAL = 'immunization_refusal_reason';
 
     public function __construct(
-        private Connection $connection,
+        private EntityManagerInterface $em,
         private LoggerInterface $logger,
     ) {
     }
@@ -101,25 +104,17 @@ class CodeTypeMappingUpdater
      */
     public function updateActivatedMappings(): void
     {
-        $qb = $this->connection->createQueryBuilder();
-        $activatedCodeTypes = $qb
-            ->select('ct_key')
-            ->from('code_types')
-            ->where('ct_active = 1')
-            ->orderBy('ct_seq')
-            ->addOrderBy('ct_key')
-            ->fetchAllAssociative();
+        $repo = $this->em->getRepository(CodeType::class);
+        $activatedCodeTypes = $repo->findBy(
+            ['active' => true],
+            ['seq' => 'ASC', 'key' => 'ASC'],
+        );
 
-        foreach ($activatedCodeTypes as $record) {
-            if (!is_string($record['ct_key'])) {
-                continue;
-            }
-            $codeType = $record['ct_key'];
-
-            if ($codeType === self::CODE_TYPE_CPT4) {
+        foreach ($activatedCodeTypes as $codeType) {
+            if ($codeType->key === self::CODE_TYPE_CPT4) {
                 $this->updateCPT4Mappings();
-            } elseif ($this->isSnomedCodeType($codeType)) {
-                $this->updateSNOMEDMappings($codeType);
+            } elseif ($this->isSnomedCodeType($codeType->key)) {
+                $this->updateSNOMEDMappings($codeType->key);
             }
         }
     }
@@ -156,17 +151,16 @@ class CodeTypeMappingUpdater
         }
 
         $this->logger->info('Updating CPT4 Mappings');
-        $this->connection->transactional(function (): void {
-            foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
-                $codeId = $this->findCPT4Code($codeText);
-                if ($codeId === null) {
-                    continue;
-                }
-
-                $codes = self::CODE_TYPE_CPT4 . ':' . $codeId;
-                $this->updateListOptionCodes(self::LIST_ID_ENCOUNTER_TYPES, $optionId, $codes);
+        foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
+            $code = $this->findCPT4Code($codeText);
+            if ($code === null) {
+                continue;
             }
-        });
+
+            $codes = self::CODE_TYPE_CPT4 . ':' . $code->code;
+            $this->updateListOptionCodes(self::LIST_ID_ENCOUNTER_TYPES, $optionId, $codes);
+        }
+        $this->em->flush();
     }
 
     private function shouldUpdateSNOMEDMappings(): bool
@@ -193,15 +187,15 @@ class CodeTypeMappingUpdater
         }
 
         foreach (self::CPT4_ENCOUNTER_TYPE_MAPPINGS as $optionId => $codeText) {
-            $codeId = $this->findCPT4Code($codeText);
-            if ($codeId === null) {
+            $code = $this->findCPT4Code($codeText);
+            if ($code === null) {
                 continue;
             }
 
-            $currentCodes = $this->getListOptionCodes(self::LIST_ID_ENCOUNTER_TYPES, $optionId);
-            $expectedCodes = self::CODE_TYPE_CPT4 . ':' . $codeId;
+            $listOption = $this->getListOption(self::LIST_ID_ENCOUNTER_TYPES, $optionId);
+            $expectedCodes = self::CODE_TYPE_CPT4 . ':' . $code->code;
 
-            if ($currentCodes !== $expectedCodes) {
+            if ($listOption?->codes !== $expectedCodes) {
                 return true;
             }
         }
@@ -209,24 +203,17 @@ class CodeTypeMappingUpdater
         return false;
     }
 
-    private function findCPT4Code(string $codeText): ?string
+    private function findCPT4Code(string $codeText): ?Code
     {
-        $qb = $this->connection->createQueryBuilder();
-        $result = $qb
-            ->select('c.code')
-            ->from('codes', 'c')
-            ->innerJoin('c', 'code_types', 'ct', 'c.code_type = ct.ct_id')
-            ->where('c.code_text = :codeText')
-            ->andWhere('ct.ct_key = :codeType')
-            ->setParameter('codeText', $codeText)
-            ->setParameter('codeType', self::CODE_TYPE_CPT4)
-            ->fetchOne();
-
-        if (!is_string($result) || $result === '') {
+        $codeTypeEntity = $this->em->getRepository(CodeType::class)->find(self::CODE_TYPE_CPT4);
+        if ($codeTypeEntity === null) {
             return null;
         }
 
-        return $result;
+        return $this->em->getRepository(Code::class)->findOneBy([
+            'codeText' => $codeText,
+            'codeType' => $codeTypeEntity->id,
+        ]);
     }
 
     private function isSnomedCodeType(string $codeType): bool
@@ -236,16 +223,12 @@ class CodeTypeMappingUpdater
 
     private function isCodeTypeActive(string $codeType): bool
     {
-        $qb = $this->connection->createQueryBuilder();
-        $result = $qb
-            ->select('ct_key')
-            ->from('code_types')
-            ->where('ct_active = 1')
-            ->andWhere('ct_key = :codeType')
-            ->setParameter('codeType', $codeType)
-            ->fetchOne();
+        $entity = $this->em->getRepository(CodeType::class)->findOneBy([
+            'key' => $codeType,
+            'active' => true,
+        ]);
 
-        return $result !== false;
+        return $entity !== null;
     }
 
     /**
@@ -254,10 +237,10 @@ class CodeTypeMappingUpdater
     private function listNeedsSnomedUpdate(array $mappings, string $listId): bool
     {
         foreach ($mappings as $optionId => $codeId) {
-            $currentCodes = $this->getListOptionCodes($listId, $optionId);
+            $listOption = $this->getListOption($listId, $optionId);
             $expectedCodes = self::CODE_TYPE_SNOMED_CT . ':' . $codeId;
 
-            if ($currentCodes !== $expectedCodes) {
+            if ($listOption?->codes !== $expectedCodes) {
                 return true;
             }
         }
@@ -265,23 +248,12 @@ class CodeTypeMappingUpdater
         return false;
     }
 
-    private function getListOptionCodes(string $listId, string $optionId): ?string
+    private function getListOption(string $listId, string $optionId): ?ListOption
     {
-        $qb = $this->connection->createQueryBuilder();
-        $result = $qb
-            ->select('codes')
-            ->from('list_options')
-            ->where('list_id = :listId')
-            ->andWhere('option_id = :optionId')
-            ->setParameter('listId', $listId)
-            ->setParameter('optionId', $optionId)
-            ->fetchOne();
-
-        if (!is_string($result)) {
-            return null;
-        }
-
-        return $result;
+        return $this->em->getRepository(ListOption::class)->find([
+            'listId' => $listId,
+            'optionId' => $optionId,
+        ]);
     }
 
     /**
@@ -289,27 +261,30 @@ class CodeTypeMappingUpdater
      */
     private function updateListWithSnomedCodes(array $mappings, string $listId): void
     {
-        $this->connection->transactional(function () use ($mappings, $listId): void {
-            foreach ($mappings as $optionId => $codeId) {
-                $codes = self::CODE_TYPE_SNOMED_CT . ':' . $codeId;
-                $this->updateListOptionCodes($listId, $optionId, $codes);
-            }
-        });
+        foreach ($mappings as $optionId => $codeId) {
+            $codes = self::CODE_TYPE_SNOMED_CT . ':' . $codeId;
+            $this->updateListOptionCodes($listId, $optionId, $codes);
+        }
+        $this->em->flush();
     }
 
     private function updateListOptionCodes(string $listId, string $optionId, string $codes): void
     {
-        $affected = $this->connection->update(
-            'list_options',
-            ['codes' => $codes],
-            ['list_id' => $listId, 'option_id' => $optionId],
-        );
+        $listOption = $this->getListOption($listId, $optionId);
+        if ($listOption === null) {
+            $this->logger->warning('ListOption not found', [
+                'listId' => $listId,
+                'optionId' => $optionId,
+            ]);
+            return;
+        }
+
+        $listOption->codes = $codes;
 
         $this->logger->debug('Updated list_options', [
             'listId' => $listId,
             'optionId' => $optionId,
             'codes' => $codes,
-            'affected' => $affected,
         ]);
     }
 }
