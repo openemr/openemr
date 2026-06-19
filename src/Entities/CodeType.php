@@ -30,11 +30,11 @@ use Doctrine\ORM\Mapping;
 class CodeType
 {
     #[Mapping\Id]
-    #[Mapping\Column(name: 'ct_key', length: 15)]
-    public readonly string $key; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
-
     #[Mapping\Column(name: 'ct_id', type: Types::INTEGER)]
-    public int $id;
+    public readonly int $id; // @phpstan-ignore property.uninitializedReadonly (Doctrine hydrates via reflection)
+
+    #[Mapping\Column(name: 'ct_key', length: 15)]
+    public string $key;
 
     #[Mapping\Column(name: 'ct_seq', type: Types::INTEGER)]
     public int $seq;

@@ -191,8 +191,8 @@ class CodeTypeMappingUpdaterTest extends TestCase
     private function makeCodeType(string $key, int $id): CodeType
     {
         $entity = (new ReflectionClass(CodeType::class))->newInstanceWithoutConstructor();
-        (new ReflectionClass($entity))->getProperty('key')->setValue($entity, $key);
-        $entity->id = $id;
+        (new ReflectionClass($entity))->getProperty('id')->setValue($entity, $id);
+        $entity->key = $key;
         $entity->active = true;
         $entity->seq = 1;
         return $entity;
