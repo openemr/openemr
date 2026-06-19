@@ -19,6 +19,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Psy\Shell;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 #[AsCommand(
@@ -34,7 +35,7 @@ class ShellCommand extends Command
         parent::__construct();
     }
 
-    public function __invoke(OutputInterface $output): int
+    public function __invoke(InputInterface $input, OutputInterface $output): int
     {
         if (!class_exists(Shell::class)) {
             // PhySH is installed as a dev dependency, so this condition is
@@ -49,6 +50,8 @@ class ShellCommand extends Command
             'em' => $this->em,
         ]);
 
-        return $shell->run();
+        // Input is only passed for unit tests, it's not needed for runtime.
+        // Passing output messes up formatting since it supplies its own tools
+        return $shell->run($input);
     }
 }
