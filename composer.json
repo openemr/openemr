@@ -150,6 +150,7 @@
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/php-code-coverage": "^11.0",
         "phpunit/phpunit": "^11.0",
+        "psy/psysh": "^0.12.23",
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
         "roave/security-advisories": "dev-latest",
