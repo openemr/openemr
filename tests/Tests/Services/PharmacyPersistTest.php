@@ -19,6 +19,7 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -94,13 +95,25 @@ class PharmacyPersistTest extends TestCase
         $pharmacy->persist();
         $afterEdit = QueryUtils::fetchRecordsNoLog(
             "SELECT area_code, prefix, number, type FROM phone_numbers"
-            . " WHERE foreign_id = ? ORDER BY type",
+            . " WHERE foreign_id = ?",
             [$pharmacyId]
         );
         $this->assertCount(2, $afterEdit);
-        $workRow = $afterEdit[0];
+        $byType = [];
+        foreach ($afterEdit as $row) {
+            $rowType = $row['type'];
+            $this->assertIsInt($rowType);
+            $byType[$rowType] = $row;
+        }
+        $workRow = $byType[PhoneType::WORK->value] ?? null;
+        $this->assertNotNull($workRow);
         $this->assertSame('555', $workRow['area_code']);
         $this->assertSame('111', $workRow['prefix']);
         $this->assertSame('2222', $workRow['number']);
+        $faxRow = $byType[PhoneType::FAX->value] ?? null;
+        $this->assertNotNull($faxRow);
+        $this->assertSame('555', $faxRow['area_code']);
+        $this->assertSame('987', $faxRow['prefix']);
+        $this->assertSame('6543', $faxRow['number']);
     }
 }

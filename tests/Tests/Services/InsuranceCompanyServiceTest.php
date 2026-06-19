@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -451,19 +452,32 @@ class InsuranceCompanyServiceTest extends TestCase
         $this->assertCount(2, $afterResave);
 
         // Re-save with a changed phone. The clear-then-insert should leave
-        // exactly one row per type, and the WORK row should carry the new
-        // number rather than the original.
+        // exactly one row per type, the WORK row should carry the new number,
+        // and the FAX row should still carry the original (since set_phone
+        // touches only the WORK entry).
         $co->set_phone('5551112222');
         $co->persist();
         $afterEdit = QueryUtils::fetchRecordsNoLog(
             "SELECT area_code, prefix, number, type FROM phone_numbers"
-            . " WHERE foreign_id = ? ORDER BY type",
+            . " WHERE foreign_id = ?",
             [$insuranceId]
         );
         $this->assertCount(2, $afterEdit);
-        $workRow = $afterEdit[0];
+        $byType = [];
+        foreach ($afterEdit as $row) {
+            $rowType = $row['type'];
+            $this->assertIsInt($rowType);
+            $byType[$rowType] = $row;
+        }
+        $workRow = $byType[PhoneType::WORK->value] ?? null;
+        $this->assertNotNull($workRow);
         $this->assertSame('555', $workRow['area_code']);
         $this->assertSame('111', $workRow['prefix']);
         $this->assertSame('2222', $workRow['number']);
+        $faxRow = $byType[PhoneType::FAX->value] ?? null;
+        $this->assertNotNull($faxRow);
+        $this->assertSame('555', $faxRow['area_code']);
+        $this->assertSame('987', $faxRow['prefix']);
+        $this->assertSame('6543', $faxRow['number']);
     }
 }
