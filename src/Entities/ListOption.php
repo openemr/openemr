@@ -15,7 +15,9 @@ namespace OpenEMR\Entities;
 use Doctrine\ORM\Mapping;
 
 /**
- * Partial mapping - additional columns exist in the database.
+ * Important note: this table has a composite PK (see #12541) and must use the
+ * rarely-used array-as-id syntax for `find()` operations, e.g.
+ * `$em->find(ListOption::class, ['listId' => 'asdf', 'optionId' => 'sdfg'])`
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'list_options')]

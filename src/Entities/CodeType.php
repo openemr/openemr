@@ -16,11 +16,17 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping;
 
 /**
- * Partial mapping - additional columns exist in the database.
+ * Important note: the underlying table has the PRIMARY KEY on the `ct_key`
+ * field and a separate UNIQUE on `ct_id` (despite `codes` referencing id, as
+ * per normal conventions). The Doctrine model reverses this to match common
+ * expectations.
+ *
+ * The database should get updated to reverse this, matching model declaration.r
+ * See #12540.
  */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'code_types')]
-#[Mapping\UniqueConstraint(fields: ['id'])]
+#[Mapping\UniqueConstraint(fields: ['key'])]
 class CodeType
 {
     #[Mapping\Id]

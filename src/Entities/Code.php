@@ -15,9 +15,6 @@ namespace OpenEMR\Entities;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping;
 
-/**
- * Partial mapping - additional columns exist in the database.
- */
 #[Mapping\Entity]
 #[Mapping\Table(name: 'codes')]
 class Code
