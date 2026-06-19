@@ -24,7 +24,6 @@ use Doctrine\Migrations\Configuration\{
     Migration\PhpFile,
 };
 use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Events as MigrationEvents;
 use Doctrine\ORM\{
     Configuration,
     EntityManager,
@@ -135,25 +134,6 @@ return [
         //
         // This should NOT be used for application events; stick with the
         // Symfony EventDispatcher in the kernel.
-
-        // Lazy proxy to break circular dependency:
-        // EventManager → CodeTypeMappingUpdater → EntityManager → EventManager
-        // (also avoids tying it to the events at all)
-        $manager->addEventListener(
-            MigrationEvents::onMigrationsMigrated,
-            new class ($c) {
-                public function __construct(private TC $container)
-                {
-                }
-
-                public function onMigrationsMigrated(): void
-                {
-                    $this->container
-                        ->get(OpenEMR\Services\CodeTypes\CodeTypeMappingUpdater::class)
-                        ->updateActivatedMappings();
-                }
-            },
-        );
         return $manager;
     },
 ];
