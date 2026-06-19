@@ -26,6 +26,7 @@
     "OpenEMR\\Gacl\\Hashed_Cache_Lite",
     "Pdo\\Mysql",
     "PHPUnit\\Framework\\Attributes\\Test",
+    "Psy\\Shell",
     "SebastianBergmann\\CodeCoverage\\CodeCoverage",
     "SebastianBergmann\\CodeCoverage\\Driver\\Selector",
     "SebastianBergmann\\CodeCoverage\\Filter",
