@@ -1,0 +1,123 @@
+# Validates that the files which are promised byte-identical across master
+# and every rel-X.Y.Z branch actually stay that way.
+#
+# The orchestrator-driven docker release pipeline (see
+# docker-release-orchestrator.yml + .github/release-targets.yml) leans on
+# the invariant that certain workflow + composite + compose + doc files
+# are character-for-character identical across master and every rel
+# branch. That invariant is structural -- if it drifts, the orchestrator
+# can dispatch the same logical build against two branches and silently
+# get two different behaviors, which defeats the whole "byte-identical
+# build pipeline" property the planning doc (openemr-devops#790)
+# established.
+#
+# This workflow asserts the invariant. Three trigger sources:
+#
+#   1. pull_request on master, gated on `paths:` so it only fires when
+#      one of the watched files changes. Catches the case where a PR
+#      lands a change on master but forgets the matching sync PRs to
+#      the rel branches.
+#
+#   2. schedule, daily at 07:00 UTC -- one hour after the build
+#      orchestrator. Catches latent drift that happened via an unrelated
+#      PR to a rel branch.
+#
+#   3. workflow_dispatch -- manual dry-run when investigating.
+#
+# Files in the byte-identical set are listed in FILES_ALL below.
+# Conditional files (e.g. tests/bats/docker/helpers.bash, which only
+# lives on master + rel-810 today because rel-800 and rel-704 don't
+# carry BATS) are a follow-up; for now this workflow only asserts the
+# unconditional set.
+#
+# Rel branches come from .github/release-targets.yml so adding a new
+# rel branch automatically extends the check -- no edit to this file
+# needed.
+
+name: Validate byte-identical files
+
+on:
+  schedule:
+  - cron: '0 7 * * *'   # 07:00 UTC daily; build orchestrator runs at 06:00
+  workflow_dispatch:
+  pull_request:
+    # Fire on PRs to master AND to any rel branch. The if: gate on the job
+    # restricts execution to the upstream openemr/openemr repository.
+    branches:
+    - master
+    - 'rel-*'
+    paths:
+    - '.github/workflows/docker-build-release.yml'
+    - '.github/workflows/docker-test-core.yml'
+    - '.github/actions/test-actions-core/action.yml'
+    - 'docker/compose.yml'
+    - 'docker/.gitignore'
+    - 'docker/COVERAGE.md'
+    - 'docker/README.md'
+    - '.github/release-targets.yml'
+    - '.github/workflows/docker-validate-byte-identical.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  diff-against-rel-branches:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+
+    - name: Diff every byte-identical file against every rel branch in release-targets.yml
+      run: |
+        # Files that must stay byte-identical across master and every rel branch.
+        # Intentionally NOT in this list because they differ per branch:
+        #   docker/release/Dockerfile          (version-pinned per branch)
+        #   docker-test-bats.yml               (master 3 jobs, rel-810 1 job, rel-800/rel-704 absent)
+        #   docker-test-container-functionality.yml (same shape as bats)
+        FILES_ALL=(
+          .github/workflows/docker-build-release.yml
+          .github/workflows/docker-test-core.yml
+          .github/workflows/docker-test-release.yml
+          .github/actions/test-actions-core/action.yml
+          docker/compose.yml
+          docker/.gitignore
+          docker/COVERAGE.md
+          docker/README.md
+        )
+
+        # Rel branches come from the canonical orchestrator data file.
+        REL_BRANCHES=$(yq -o=json -I=0 . .github/release-targets.yml \
+          | jq -r '.[] | select(.branch != "master") | .branch')
+
+        if [ -z "$REL_BRANCHES" ]; then
+          echo "::warning::No rel branches found in release-targets.yml -- nothing to check."
+          exit 0
+        fi
+
+        FAIL=0
+        for BRANCH in $REL_BRANCHES; do
+          echo "::group::Branch $BRANCH"
+          for FILE in "${FILES_ALL[@]}"; do
+            LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
+            URL="https://raw.githubusercontent.com/openemr/openemr/${BRANCH}/${FILE}"
+            STATUS=$(curl -s -o /tmp/remote -w '%{http_code}' "$URL")
+            if [ "$STATUS" != "200" ]; then
+              echo "::warning::${BRANCH}:${FILE} not present (HTTP $STATUS); expected before phase 2 lands on that branch."
+              continue
+            fi
+            REMOTE_SHA=$(sha256sum /tmp/remote | cut -d' ' -f1)
+            if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+              echo "::error file=${FILE}::Drift: ${BRANCH}:${FILE} differs from master"
+              echo "  master sha:  $LOCAL_SHA"
+              echo "  ${BRANCH} sha: $REMOTE_SHA"
+              echo "  Fix: open a sync PR to ${BRANCH} (or revert master's change if the master edit was unintentional)."
+              FAIL=1
+            else
+              echo "✓ ${BRANCH}:${FILE} matches master"
+            fi
+          done
+          echo "::endgroup::"
+        done
+        [ "$FAIL" -eq 0 ] || exit 1
+        echo
+        echo "✓ All byte-identical files match across master and every rel branch."
