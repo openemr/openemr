@@ -84,7 +84,14 @@ repos:
     - --autofix
     - --indent=2
     - --no-sort-keys
-    exclude: ^composer\.json$
+    # composer.json is excluded because composer-normalize (below) owns its
+    # formatting -- two formatters fighting over the same file. The
+    # Pain_Initial_Assessment.json exclude is temporary: that file uses
+    # 4-space indent (consistent with HL7 SDC IG convention) and the hook
+    # would rewrite all 13k lines to 2-space on any touch. A follow-up PR
+    # will split this hook into per-ecosystem 2-space / 4-space blocks so
+    # individual excludes like this are no longer needed.
+    exclude: ^(composer\.json|contrib/portal_templates/assessments/SDC FHIR/Pain_Initial_Assessment\.json)$
   - id: mixed-line-ending
     args:
     - --fix=lf
