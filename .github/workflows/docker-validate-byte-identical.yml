@@ -74,6 +74,11 @@ jobs:
         #   docker/release/Dockerfile          (version-pinned per branch)
         #   docker-test-bats.yml               (master 3 jobs, rel-810 1 job, rel-800/rel-704 absent)
         #   docker-test-container-functionality.yml (same shape as bats)
+        #   docker/README.md                   (master describes the full subdir set
+        #                                       including flex/, binary/, dockerhub/,
+        #                                       container_benchmarking/; rel branches'
+        #                                       docker/ doesn't carry those, so the
+        #                                       README content legitimately differs)
         FILES_ALL=(
           .github/workflows/docker-build-release.yml
           .github/workflows/docker-test-core.yml
@@ -82,7 +87,6 @@ jobs:
           docker/compose.yml
           docker/.gitignore
           docker/COVERAGE.md
-          docker/README.md
         )
 
         # Rel branches come from the canonical orchestrator data file.
