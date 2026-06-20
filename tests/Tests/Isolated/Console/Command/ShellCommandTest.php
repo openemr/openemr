@@ -22,8 +22,8 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
-#[Group('isolated')]
 #[RequiresPhpExtension('posix')]
+#[Group('isolated')]
 final class ShellCommandTest extends TestCase
 {
     public function testInvokeStartsShellAndExits(): void
