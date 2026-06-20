@@ -48,6 +48,25 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
     private const LOCK_PREFIX = 'lock_';
 
     /**
+     * CI crash tracing: write to a log file to identify where segfaults occur.
+     * @internal For CI debugging only - will be removed.
+     */
+    private static function crashTrace(string $phase): void
+    {
+        static $enabled = null;
+        if ($enabled === null) {
+            $enabled = getenv('OPENEMR_ENABLE_CI_PHP') !== false;
+        }
+        if (!$enabled) {
+            return;
+        }
+        $pid = getmypid();
+        $time = date('H:i:s.') . substr((string) microtime(true), -4);
+        $line = sprintf("[%s] pid=%d LockingRedisSessionHandler::%s\n", $time, $pid, $phase);
+        @file_put_contents('/tmp/openemr-redis-trace.log', $line, FILE_APPEND | LOCK_EX);
+    }
+
+    /**
      * Microseconds to sleep between lock acquisition attempts.
      */
     private const LOCK_SPIN_WAIT_US = 50_000; // 50 ms
@@ -88,7 +107,21 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
         private readonly int $maxLockWaitSeconds = self::DEFAULT_LOCK_MAX_WAIT_SECONDS,
         ?LoggerInterface $logger = null,
     ) {
+        self::crashTrace('__construct_START');
         $this->logger = $logger ?? ServiceContainer::getLogger();
+        self::crashTrace('__construct_END');
+    }
+
+    /**
+     * CI crash tracing: trace destruction to identify segfault location.
+     * @internal For CI debugging only - will be removed.
+     */
+    public function __destruct()
+    {
+        self::crashTrace('__destruct_START');
+        // Note: We do NOT close the Redis connection here - that's handled
+        // by phpredis when the \Redis object is garbage collected.
+        self::crashTrace('__destruct_END');
     }
 
     public function open(string $path, string $name): bool
@@ -160,8 +193,12 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
      */
     public function close(): bool
     {
+        self::crashTrace('close_START');
         $this->releaseLock();
-        return $this->inner->close();
+        self::crashTrace('close_LOCK_RELEASED');
+        $result = $this->inner->close();
+        self::crashTrace('close_INNER_CLOSED');
+        return $result;
     }
 
     public function gc(int $max_lifetime): int|false
@@ -224,7 +261,9 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
      */
     private function releaseLock(): void
     {
+        self::crashTrace('releaseLock_START');
         if ($this->lockToken === null || $this->currentLockKey === null) {
+            self::crashTrace('releaseLock_NO_LOCK');
             return;
         }
 
@@ -235,12 +274,15 @@ else
     return 0
 end
 LUA;
+        self::crashTrace('releaseLock_BEFORE_EVAL');
         // phpredis eval: script, [keys + args], numKeys
         $this->redis->eval($script, [$this->currentLockKey, $this->lockToken], 1);
+        self::crashTrace('releaseLock_AFTER_EVAL');
 
         $this->logger->debug('Redis session lock released');
 
         $this->lockToken = null;
         $this->currentLockKey = null;
+        self::crashTrace('releaseLock_END');
     }
 }
