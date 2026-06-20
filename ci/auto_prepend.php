@@ -24,29 +24,8 @@ if (!getenv('OPENEMR_ENABLE_CI_PHP')) {
 
 const PREPEND_MARKER = '/tmp/openemr-autoprepend-PREPEND_EXECUTED';
 const SHUTDOWN_MARKER = '/tmp/openemr-autoprepend-SHUTDOWN_EXECUTED';
-const CRASH_TRACE_LOG = '/tmp/openemr-crash-trace.log';
 
 const COVERAGE_DIR = '/tmp/openemr-coverage';
-
-// Crash tracing: write to a log file at key points to identify where segfaults occur.
-// If a request segfaults, the last written line indicates how far it got.
-function crash_trace(string $phase): void
-{
-    static $pid = null;
-    static $reqId = null;
-    if ($pid === null) {
-        $pid = getmypid();
-        $reqId = substr(bin2hex(random_bytes(4)), 0, 8);
-    }
-    $time = date('H:i:s.') . substr((string) microtime(true), -4);
-    $uri = $_SERVER['REQUEST_URI'] ?? 'CLI';
-    $line = sprintf("[%s] pid=%d req=%s uri=%s phase=%s\n", $time, $pid, $reqId, $uri, $phase);
-    // Use FILE_APPEND and LOCK_EX for atomic writes
-    file_put_contents(CRASH_TRACE_LOG, $line, FILE_APPEND | LOCK_EX);
-}
-
-// Trace request start
-crash_trace('PREPEND_START');
 
 // Detect test type based on the request URI or environment
 // Priority order: inferno > api > e2e
@@ -95,8 +74,6 @@ if (COVERAGE_ENABLED) {
 
 function coverage_shutdown_handler(): void
 {
-    crash_trace('SHUTDOWN_HANDLER_START');
-
     if (!getenv('OPENEMR_ENABLE_CI_PHP')) {
         error_log('Tried to run shutdown handler without setting OPENEMR_ENABLE_CI_PHP in the environment.');
         return;
@@ -107,8 +84,6 @@ function coverage_shutdown_handler(): void
             error_log('CI DEBUG: Failed to write shutdown marker to ' . SHUTDOWN_MARKER);
         }
     }
-
-    crash_trace('SHUTDOWN_MARKER_WRITTEN');
 
     // Only collect coverage if enabled
     if (!COVERAGE_ENABLED) {
@@ -158,11 +133,6 @@ function coverage_shutdown_handler(): void
     // Format: just the raw array from the coverage driver
     $exported = var_export($coverage, true);
     file_put_contents($filename, "<?php\nreturn " . $exported . ";\n");
-
-    crash_trace('SHUTDOWN_HANDLER_COMPLETE');
 }
 
 register_shutdown_function(coverage_shutdown_handler(...));
-
-// Trace that prepend file completed loading
-crash_trace('PREPEND_COMPLETE');

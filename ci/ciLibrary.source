@@ -700,10 +700,6 @@ enable_coredumps() {
     # coredumps to work. Also check if there's an existing Apport pipe.
     echo "Checking /proc/sys/kernel/core_pattern from inside container:"
     dc exec -T openemr cat /proc/sys/kernel/core_pattern || true
-
-    # Initialize crash trace log (cleared at start of each run)
-    echo "Initializing crash trace logs:"
-    dc exec -T openemr sh -c 'rm -f /tmp/openemr-*.log && touch /tmp/openemr-crash-trace.log /tmp/openemr-redis-trace.log && chmod 666 /tmp/openemr-*.log'
 }
 
 ##
@@ -720,17 +716,12 @@ capture_coredumps() {
     local max_core_mb=${COREDUMP_MAX_MB:-0}
     mkdir -p "${dest_dir}"
 
-    # Capture crash trace logs (always, even if no coredumps)
-    echo "Capturing crash trace logs..."
-    dc exec -T openemr sh -c 'cat /tmp/openemr-crash-trace.log 2>/dev/null' > "${dest_dir}/crash-trace.log" || true
-    dc exec -T openemr sh -c 'cat /tmp/openemr-redis-trace.log 2>/dev/null' > "${dest_dir}/redis-trace.log" || true
-
     local cores
     # shellcheck disable=SC2310  # missing-core is expected; || true drives the no-op branch
     cores=$(dc exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.* 2>/dev/null") || true
     if [[ -z "${cores}" ]]; then
         echo "No coredumps found in ${COREDUMP_DIR}." > "${dest_dir}/coredumps.none.txt"
-        return 0  # Trace logs were captured above; no cores to process
+        return 0
     fi
 
     # gdb gives us `bt` and `info sharedlibrary`. Install inside the container
