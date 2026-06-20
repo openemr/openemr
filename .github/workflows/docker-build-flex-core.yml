@@ -1,0 +1,87 @@
+name: Flex Docker Build Core
+
+on:
+  workflow_call:
+    inputs:
+      alpine_version:
+        required: true
+        type: string
+      php_versions:
+        required: true
+        type: string
+      php_default:
+        required: true
+        type: string
+      is_default_flex:
+        required: true
+        type: boolean
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+jobs:
+  build:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php_version: ${{ fromJson(inputs.php_versions) }}
+    steps:
+    # Checkout the repo so build-push-action's context is a local path. The
+    # earlier `context: "{{defaultContext}}:docker/flex"` form let buildkit
+    # fetch the subdir over git -- but it triggers a recurse-submodules
+    # clone, and openemr's .gitmodules points at private/missing repos
+    # (inferno-files in particular returns 403). A local checkout dodges
+    # the submodule fetch entirely.
+    - uses: actions/checkout@v6
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v4
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v4
+    - name: Login to Docker Hub
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    # IMPORTANT -- mirror in docker/dockerhub/render.sh.
+    # The Docker Hub readme renderer at docker/dockerhub/render.sh
+    # reproduces the tag-composition logic below in bash so the
+    # rendered "Supported tags" bullets match what this step actually
+    # publishes. If you change which tags get emitted here (add a new
+    # floating alias, change a conditional, change the bare-`flex`
+    # rule, etc.), also update render.sh's flex-bullet synthesis block
+    # to follow + regenerate the golden fixture at
+    # docker/dockerhub/tests/golden.md via
+    # docker/dockerhub/tests/golden-regenerate.sh. Tier 1 sanity test
+    # catches bullet-count drift, Tier 2 golden test catches changes to
+    # render.sh's logic -- but neither catches this step diverging
+    # silently from the renderer.
+    - name: Build tags
+      id: build_tags
+      env:
+        ALPINE_VERSION: ${{ inputs.alpine_version }}
+        PHP_VERSION: ${{ matrix.php_version }}
+        PHP_DEFAULT: ${{ inputs.php_default }}
+        IS_DEFAULT_FLEX: ${{ inputs.is_default_flex }}
+      run: |
+        TAGS="openemr/openemr:flex-${ALPINE_VERSION}-php-${PHP_VERSION}"
+        if [ "$PHP_VERSION" == "$PHP_DEFAULT" ]; then
+          TAGS="$TAGS,openemr/openemr:flex-${ALPINE_VERSION}"
+          if [ "$IS_DEFAULT_FLEX" == "true" ]; then
+            TAGS="$TAGS,openemr/openemr:flex"
+          fi
+        fi
+        echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+    - name: Build and push flex ${{ inputs.alpine_version }} docker (PHP ${{ matrix.php_version }})
+      uses: docker/build-push-action@v7
+      with:
+        context: ./docker/flex
+        tags: ${{ steps.build_tags.outputs.tags }}
+        platforms: linux/amd64,linux/arm64
+        build-args: |
+          ALPINE_VERSION=${{ inputs.alpine_version }}
+          PHP_VERSION=${{ matrix.php_version }}
+        push: true
+        no-cache: true

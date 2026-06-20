@@ -590,12 +590,12 @@ Preserve existing authors/copyrights when editing files.
 - **Pre-commit hooks:** Install with `openemr-cmd prek-install` (alias `pi`).
   This writes git hooks that route through the running openemr container, so
   `git commit` validates against the project's full `.pre-commit-config.yaml`
-  suite (phpstan, rector, phpcs, codespell, actionlint, and more) without
-  requiring PHP, Node, Python, codespell, or actionlint on the host. Manual
-  passthrough is `openemr-cmd prek run [args...]` (use `--all-files` for a
-  whole-codebase check before pushing). See CONTRIBUTING.md's "Pre-commit
-  hooks for the docker dev environment" section (Advanced Use item 2) for
-  the full workflow.
+  suite (phpstan, rector, phpcs, codespell, actionlint, hadolint, and more)
+  without requiring PHP, Node, Python, codespell, actionlint, or hadolint on
+  the host. Manual passthrough is `openemr-cmd prek run [args...]` (use
+  `--all-files` for a whole-codebase check before pushing). See
+  CONTRIBUTING.md's "Pre-commit hooks for the docker dev environment"
+  section (Advanced Use item 2) for the full workflow.
   If you maintain a full host PHP/Composer/Python toolchain instead, use
   `prek install` (or `pre-commit install` if prek is unavailable) for hooks
   that run directly on the host; `prek run --all-files` is the manual form.

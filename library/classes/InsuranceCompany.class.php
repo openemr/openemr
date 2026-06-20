@@ -340,7 +340,15 @@ class InsuranceCompany extends ORDataObject
         $this->address->persist($this->id);
         $phoneService = new PhoneNumberService();
         foreach ($this->phone_numbers as $phone) {
-            $phoneData = ['phone' => $phone->phoneNumber->getNationalDigits()];
+            $nationalDigits = $phone->phoneNumber->getNationalDigits();
+            if ($nationalDigits === null) {
+                // The legacy phone_numbers table stores 10-digit NANP parts
+                // (area_code / prefix / number). Skip numbers we can't
+                // represent in that schema rather than throwing a TypeError
+                // from PhoneNumberService::getPhoneParts().
+                continue;
+            }
+            $phoneData = ['phone' => $nationalDigits];
             $phoneService->type = $phone->type->value;
             // Always insert for now - PhoneNumberService handles upsert logic
             $phoneService->insert($phoneData, $this->id);

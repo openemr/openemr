@@ -63,6 +63,19 @@ repos:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-yaml
+    # Strict YAML validation for everything except the two docker-compose
+    # files that use the non-standard !override tag. PyYAML rejects
+    # unknown tags by default, so those need the relaxed check below.
+    exclude: ^(docker/compose\.yml|ci/inferno/compose\.yml)$
+  - id: check-yaml
+    # Relaxed YAML validation scoped to the two compose files that use
+    # Docker Compose's !override tag for service-extension blocks. The
+    # --unsafe flag tells PyYAML to accept user-defined tags as long as
+    # the document parses, instead of rejecting unknown tags outright.
+    name: check-yaml (docker compose with !override)
+    files: ^(docker/compose\.yml|ci/inferno/compose\.yml)$
+    args:
+    - --unsafe
   - id: check-added-large-files
   - id: check-merge-conflict
   - id: check-json
@@ -96,6 +109,28 @@ repos:
   rev: v1.7.10
   hooks:
   - id: actionlint-docker
+
+# hadolint for Dockerfile linting. Mirrors the CI workflow
+# (.github/workflows/docker-lint-hadolint.yml) so devs see the same findings
+# locally as CI. Shares .hadolint.yaml with CI.
+#
+# Uses the AleksaC/hadolint-py shim (vs. upstream hadolint/hadolint's
+# hadolint-docker hook) so the hook runs in any env where pre-commit runs --
+# including the in-container prek path (no docker socket required). The shim
+# downloads the official hadolint binary from the upstream GitHub release
+# (SHA256-pinned in its setup.py), so it executes the same hadolint binary
+# upstream publishes. CI's docker image (hadolint/hadolint, untagged ->
+# floating :latest) and this hook's pinned rev can drift between upstream
+# releases, so findings are consistent in steady state but may diverge
+# briefly when upstream ships a new version. Dependabot bumps the hook rev
+# to close that window.
+- repo: https://github.com/AleksaC/hadolint-py
+  rev: v2.14.0
+  hooks:
+  - id: hadolint
+    args:
+    - --config
+    - .hadolint.yaml
 
 - repo: local
   hooks:
