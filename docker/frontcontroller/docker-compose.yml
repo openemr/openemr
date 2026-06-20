@@ -1,0 +1,128 @@
+# vim: ft=docker-compose sw=2
+#
+# Web server options (pick one):
+#   nginx        - nginx + php-fpm (recommended)
+#   apache-fpm   - Apache + php-fpm
+#   apache-modphp - Apache + mod_php (legacy style)
+#   php-builtin   - PHP built-in server (development only)
+#
+# Examples:
+#   docker compose up -d nginx php-fpm mysql
+#   docker compose up -d apache-fpm php-fpm mysql
+#   docker compose up -d apache-modphp mysql
+#   docker compose up -d php-builtin mysql
+
+# Shared config for all of the webservers/backends
+x-dev-env: &dev-env
+  # OpenEMR settings
+  LOG_LEVEL: debug
+  OPENEMR_SITE: default
+  ENVIRONMENT: development
+  OPENEMR__ENVIRONMENT: dev
+  # OPENEMR__NO_BACKGROUND_TASKS: true
+  # PHP settings
+  PHP_ZEND_ASSERTIONS: 1
+
+x-fastcgi: &x-fastcgi
+  FASTCGI_HOST: php-fpm
+  FASTCGI_PORT: 9000
+
+services:
+  nginx:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+      target: nginx
+    depends_on:
+      - php-fpm
+    environment:
+      <<: *x-fastcgi
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../config/nginx/frontcontroller-fpm.conf.template:/etc/nginx/templates/default.conf.template
+      - ../../:/app:ro
+
+  apache-fpm:
+    image: httpd:alpine
+    depends_on:
+      - php-fpm
+    environment:
+      <<: *x-fastcgi
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../config/apache/frontcontroller-fpm.conf:/usr/local/apache2/conf/extra/openemr.conf:ro
+      - ../../:/app:ro
+    command: >
+      sh -c "echo 'Include conf/extra/openemr.conf' >> /usr/local/apache2/conf/httpd.conf && httpd-foreground"
+
+  apache-modphp:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+      target: apache-modphp
+    depends_on:
+      - mysql
+    environment:
+      <<: *dev-env
+    restart: always
+    ports:
+      - 80
+    volumes:
+      - ../../:/app
+
+  # php-builtin:
+  #   build:
+  #     context: ../../
+  #     dockerfile: docker/frontcontroller/Dockerfile
+  #     target: server
+  #   depends_on:
+  #     - mysql
+  #   environment:
+  #     <<: *dev-env
+  #     PHP_CLI_SERVER_WORKERS: 8
+  #   restart: always
+  #   ports:
+  #     - 80
+  #   volumes:
+  #     - ../../:/app
+  #   command: ["php", "-S", "0.0.0.0:80", "-t", ".", "public/index.php"]
+
+  php-fpm:
+    build:
+      context: ../../
+      dockerfile: docker/frontcontroller/Dockerfile
+      target: server
+    depends_on:
+      mysql:
+        condition: service_healthy
+        restart: false
+    environment:
+      <<: *dev-env
+      # PHP-FPM settings
+      # In dev, nginx+fpm access logs are redundant, disable the latter
+      PHP_FPM_ACCESS_LOG: "/dev/null"
+    restart: always
+    volumes:
+      - ../../:/app
+
+  mysql:
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    healthcheck:
+      test: ["CMD", "mysql", "-uroot", '-proot', "-e", "SELECT 1"]
+      retries: 10
+      start_interval: 5s
+      start_period: 30s
+    image: mysql:8
+    ports:
+      # Expose to the host on a generated port
+      - 3306
+    volumes:
+      - mysql:/var/lib/mysql
+
+volumes:
+  mysql: # intentionally empty

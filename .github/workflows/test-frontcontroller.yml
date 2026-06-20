@@ -84,10 +84,15 @@ jobs:
             2> "${RUNNER_TEMP}/php-server.err.log" &
 
       - name: Wait for webserver
-        run: |
-          curl --retry-connrefused --retry 30 --retry-delay 1 \
-               --fail --silent --show-error \
-               -o /dev/null http://127.0.0.1:8080/
+        run: curl
+          --retry-connrefused
+          --retry 30
+          --retry-delay 1
+          --fail
+          --silent
+          --show-error
+          --output /dev/null
+          http://127.0.0.1:8080/
 
       - name: Run ${{ matrix.suite }} tests
         working-directory: .
@@ -112,7 +117,86 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           report_type: test_results
 
-  # Future jobs:
-  # - apache (mod_php)
-  # - apache (fastcgi/php-fpm)
-  # - nginx (fastcgi/php-fpm)
+  # GHA runners include these, maybe we can use them instead of the docker stuff?
+  docker:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        suite:
+          - api
+        webserver:
+          - nginx
+    env:
+      COMPOSE_FILE: docker/frontcontroller/docker-compose.yml
+
+    services:
+      selenium:
+        image: selenium/standalone-chrome:latest
+        ports:
+          - 4444:4444
+        options: --shm-size=2gb
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      # This isn't needed for the build, but is IS needed for the installer
+      # since vendor/ will be mounted into the running image.
+      - name: Setup PHP
+        uses: ./.github/actions/setup-php-composer
+        with:
+          # php-version: ${{ matrix.php }}
+          php-version: '8.5'
+
+      - name: Build and start services
+        run: docker compose
+          --file $COMPOSE_FILE
+            up
+          --build
+          --detach
+          ${{ matrix.webserver }}
+
+      - name: Make sqlconf writable
+        run: chmod 666 sites/default/sqlconf.php
+
+      - name: Run CLI installer
+        run: docker compose --file $COMPOSE_FILE exec php-fpm
+          ./cli install
+            --db-root-user=root
+            --db-root-password=root
+            --db-host=mysql
+            --db-port=3306
+            --db-user=ci
+            --db-password=topsecret
+            --db-name=openemr_test
+            --oe-admin-username=admin
+            --oe-admin-password=pass
+            --no-interaction
+            -vvv
+      # TODO: Secondary config (update globals)
+      - name: Get webserver port
+        id: port
+        run: |
+          port=$(docker compose --file $COMPOSE_FILE port ${{ matrix.webserver }} 80 | cut -d: -f2)
+          echo "port=$port" >> "$GITHUB_OUTPUT"
+          echo "Webserver available at http://localhost:$port"
+
+      #- name: Verify webserver responds
+      #  run: curl -fsSL "http://localhost:${{ steps.port.outputs.port }}/" -o /dev/null -w '%{http_code}\n'
+
+      # Run tests from the hosts against the dockerized server
+
+      - name: Run ${{ matrix.suite }} tests
+        working-directory: .
+        env:
+          OPENEMR_BASE_URL_API: http://localhost:${{ steps.port.outputs.port }}
+      #    SELENIUM_BASE_URL: http://localhost:${{ steps.port.outputs.port }}
+      #    SELENIUM_HOST: localhost
+      #    SELENIUM_USE_GRID: "true"
+        run: vendor/bin/phpunit
+            --testsuite ${{ matrix.suite }}
+            --log-junit junit-${{ matrix.suite }}.xml
+    # TODO: codecov
+##
+  # apache-fpm:
+  # apache-modphp:
