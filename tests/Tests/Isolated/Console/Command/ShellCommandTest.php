@@ -15,12 +15,14 @@ namespace OpenEMR\Tests\Isolated\Console\Command;
 use Doctrine\ORM\EntityManagerInterface;
 use OpenEMR\Console\Command\ShellCommand;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
 
+#[RequiresPhpExtension('posix')]
 #[Group('isolated')]
-class ShellCommandTest extends TestCase
+final class ShellCommandTest extends TestCase
 {
     public function testInvokeStartsShellAndExits(): void
     {
