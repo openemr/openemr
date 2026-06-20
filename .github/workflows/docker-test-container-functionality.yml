@@ -1,0 +1,76 @@
+# Run container_benchmarking test_functionality.sh for the release docker image.
+# Uses the test_suite.sh inside container_benchmarking to verify the container
+# performs as expected.
+#
+# On rel branches this workflow has only the functionality-release job -- flex
+# and binary are master-only docker variants and aren't part of any rel branch.
+
+name: Container Functionality (release)
+
+on:
+  push:
+    paths:
+    - '.github/workflows/docker-test-container-functionality.yml'
+    - 'docker/container_benchmarking/**'
+    - 'docker/release/**'
+  pull_request:
+    paths:
+    - '.github/workflows/docker-test-container-functionality.yml'
+    - 'docker/container_benchmarking/**'
+    - 'docker/release/**'
+  workflow_dispatch:
+    inputs:
+      test_name:
+        description: 'Run only this test (e.g. fresh_installation). Leave empty for full suite.'
+        required: false
+        default: ''
+
+env:
+  TEST_SUITE_ARGS: ''
+
+permissions:
+  contents: read
+
+jobs:
+  functionality-release:
+    name: Functionality release
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set test args
+      id: args
+      env:
+        TEST_NAME: ${{ github.event.inputs.test_name }}
+        EVENT_NAME: ${{ github.event_name }}
+      run: |
+        if [[ -n "$TEST_NAME" ]]; then
+          # Allowlist: test names are file basenames in test_suite.sh's test
+          # registry, so [A-Za-z0-9_-]+ is the full character set we accept.
+          # Reject anything else fail-fast rather than letting it land in argv
+          # to test_functionality.sh.
+          if ! [[ "$TEST_NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
+            echo "::error::test_name must match [A-Za-z0-9_-]+; got '$TEST_NAME'"
+            exit 1
+          fi
+          printf 'args=--test %s\n' "$TEST_NAME" >> "$GITHUB_OUTPUT"
+        elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+          echo "args=" >> "$GITHUB_OUTPUT"
+        else
+          echo "args=${TEST_SUITE_ARGS}" >> "$GITHUB_OUTPUT"
+        fi
+    - name: Run container functionality tests (release)
+      env:
+        TEST_ARGS: ${{ steps.args.outputs.args }}
+      run: |
+        cd docker/container_benchmarking
+        # TEST_ARGS is intentionally unquoted so bash word-splits "--test name"
+        # into two argv elements; quoting would pass it as one combined string.
+        # shellcheck disable=SC2086
+        ./test_functionality.sh release $TEST_ARGS
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-results-release
+        path: docker/container_benchmarking/test_results/
+        retention-days: 7

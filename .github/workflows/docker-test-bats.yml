@@ -1,0 +1,41 @@
+# Run BATS tests for bash scripts in the release Docker context.
+# Ensures all scripts have valid syntax and expected structure.
+#
+# On rel branches this workflow has only the bats-release job -- flex and
+# binary are master-only docker variants and aren't part of any rel branch.
+
+name: BATS Tests (release)
+
+on:
+  push:
+    paths:
+    - '.github/workflows/docker-test-bats.yml'
+    - 'tests/bats/docker/**'
+    - 'docker/release/**'
+  pull_request:
+    paths:
+    - '.github/workflows/docker-test-bats.yml'
+    - 'tests/bats/docker/**'
+    - 'docker/release/**'
+
+permissions:
+  contents: read
+
+jobs:
+  bats-release:
+    name: BATS release
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+    - name: Install Bats
+      run: |
+        git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        /tmp/bats-core/install.sh "$HOME/bats"
+        echo "$HOME/bats/bin" >> "$GITHUB_PATH"
+        echo "PATH=$HOME/bats/bin:$PATH" >> "$GITHUB_ENV"
+    - name: Install Bats assertion libraries
+      run: |
+        git clone --depth 1 --branch v0.3.0 https://github.com/bats-core/bats-support.git tests/bats/docker/test_helper/bats-support
+        git clone --depth 1 --branch v2.2.4 https://github.com/bats-core/bats-assert.git tests/bats/docker/test_helper/bats-assert
+    - name: Run BATS tests (release)
+      run: bats tests/bats/docker/release/
