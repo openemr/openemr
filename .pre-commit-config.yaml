@@ -110,6 +110,28 @@ repos:
   hooks:
   - id: actionlint-docker
 
+# hadolint for Dockerfile linting. Mirrors the CI workflow
+# (.github/workflows/docker-lint-hadolint.yml) so devs see the same findings
+# locally as CI. Shares .hadolint.yaml with CI.
+#
+# Uses the AleksaC/hadolint-py shim (vs. upstream hadolint/hadolint's
+# hadolint-docker hook) so the hook runs in any env where pre-commit runs --
+# including the in-container prek path (no docker socket required). The shim
+# downloads the official hadolint binary from the upstream GitHub release
+# (SHA256-pinned in its setup.py), so it executes the same hadolint binary
+# upstream publishes. CI's docker image (hadolint/hadolint, untagged ->
+# floating :latest) and this hook's pinned rev can drift between upstream
+# releases, so findings are consistent in steady state but may diverge
+# briefly when upstream ships a new version. Dependabot bumps the hook rev
+# to close that window.
+- repo: https://github.com/AleksaC/hadolint-py
+  rev: v2.14.0
+  hooks:
+  - id: hadolint
+    args:
+    - --config
+    - .hadolint.yaml
+
 - repo: local
   hooks:
   - id: php-syntax-check

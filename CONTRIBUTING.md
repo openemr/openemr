@@ -318,7 +318,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
 
 
-2. <a name="precommit"></a>Pre-commit hooks for the docker dev environment can be installed so that `git commit` validates staged changes against the project's full `.pre-commit-config.yaml` suite (phpstan, rector, phpcs, codespell, actionlint, etc.) inside the running openemr container. No host install of PHP, Node, Python, codespell, or actionlint is required — only Docker. Routing is cwd-aware: a commit fired from worktree `foo` dispatches to `foo`'s container.
+2. <a name="precommit"></a>Pre-commit hooks for the docker dev environment can be installed so that `git commit` validates staged changes against the project's full `.pre-commit-config.yaml` suite (phpstan, rector, phpcs, codespell, actionlint, hadolint, etc.) inside the running openemr container. No host install of PHP, Node, Python, codespell, actionlint, or hadolint is required — only Docker. Routing is cwd-aware: a commit fired from worktree `foo` dispatches to `foo`'s container.
 
     - One-time install per clone (run from the base repo on master):
       ```sh
