@@ -668,9 +668,35 @@ enable_coredumps() {
     # Create the in-container target up front so the kernel has somewhere to
     # write the core. World-writable + sticky: Apache workers run as the
     # unprivileged web user once privileges are dropped.
+    echo "Creating coredump directory in container: ${COREDUMP_DIR}"
     dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
+
+    # Verify directory was created and is writable
+    echo "Verifying coredump directory:"
+    dc exec -T openemr sh -c "ls -ld '${COREDUMP_DIR}' && touch '${COREDUMP_DIR}/test-write' && rm '${COREDUMP_DIR}/test-write' && echo 'Directory is writable'"
+
+    # Set kernel core_pattern. This is a kernel global that's interpreted
+    # within the crashing process's mount namespace.
+    echo "Setting kernel.core_pattern to: ${COREDUMP_DIR}/core.%e.%p.%t"
     sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
+
+    # fs.suid_dumpable=2 ensures processes that dropped privileges (like
+    # Apache workers) still produce coredumps.
+    echo "Setting fs.suid_dumpable=2"
     sudo sysctl -w 'fs.suid_dumpable=2'
+
+    # Verify the settings took effect
+    echo "Verifying sysctl settings:"
+    sysctl kernel.core_pattern fs.suid_dumpable
+
+    # Check container's ulimit for core files
+    echo "Checking container core ulimit:"
+    dc exec -T openemr sh -c 'ulimit -c'
+
+    # For Alpine-based images, ensure procfs is mounted correctly for
+    # coredumps to work. Also check if there's an existing Apport pipe.
+    echo "Checking /proc/sys/kernel/core_pattern from inside container:"
+    dc exec -T openemr cat /proc/sys/kernel/core_pattern || true
 }
 
 ##
