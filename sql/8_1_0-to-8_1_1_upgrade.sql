@@ -136,7 +136,7 @@ SET sql_mode = '';
 UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
 
--- v_database 540: Remove duplicate phone_numbers rows left by InsuranceCompany /
+-- v_database 541: Remove duplicate phone_numbers rows left by InsuranceCompany /
 -- Pharmacy persist() unconditional-insert.
 --
 -- PR #10326 replaced the legacy PhoneNumber->persist($id) call in
