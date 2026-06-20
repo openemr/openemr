@@ -4,15 +4,17 @@
 The OpenEMR community loves Docker. We eat and breathe Docker. The OpenEMR dockers and detailed documentation
 can be found on [dockerhub](https://hub.docker.com/r/openemr/openemr/). There are two main categories of
 dockers for OpenEMR, Production Dockers and Development Dockers. Production dockers are meant for production
-use with tags such as `8.0.0.3` or `7.0.4`, whereby the `latest` tag identifies the most recent version
-Production docker. Development dockers are mainly meant for development and/or testing and include the `flex`
+use with tags such as `8.0.0.3` or `7.0.4`, whereby the `latest` tag identifies the most recent **stable
+production release** (not the absolute newest build — `next` and `dev` carry in-development versions).
+Development dockers are mainly meant for development and/or testing and include the `flex`
 series which are highly flexible development dockers that are used to create the standard OpenEMR development
 environments. There is also a less-flexible development docker rebuilt daily, tagged `dev` (head of master)
 and `next` (head of the upcoming-release rel branch).
 
 ## Production Dockers
 Production dockers are meant for production use with tags such as `8.0.0.3` or `7.0.4`, whereby the `latest`
-tag identifies the most recent version Production docker and can be found on
+tag identifies the most recent **stable production release** (not the absolute newest build — `next` and
+`dev` carry in-development versions). All production tags are published to
 [dockerhub](https://hub.docker.com/r/openemr/openemr/). Several example docker-compose.yml scripts are
 discussed below.
 
