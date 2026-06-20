@@ -137,7 +137,6 @@
         "zircote/swagger-php": "^6.0"
     },
     "require-dev": {
-        "ext-posix": "*",
         "ergebnis/composer-normalize": "^2.48",
         "iamcal/sql-parser": "^0.7.0",
         "justinrainbow/json-schema": "^6.8",
