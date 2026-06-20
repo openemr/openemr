@@ -120,6 +120,26 @@ updates:
     include: scope
   open-pull-requests-limit: 5
 
+  # Pre-commit hook revs in .pre-commit-config.yaml. Tooling pins -- same
+  # category as github-actions above. Majors are allowed (no ignore block):
+  # hook bumps are reviewed before merge, so a behavior change (new lint
+  # rule, CLI rename) surfaces as a Dependabot PR with a diff, not silent
+  # drift. Application-dep ecosystems (composer/npm) block majors because
+  # the blast radius is different; pre-commit doesn't have that risk.
+- package-ecosystem: pre-commit
+  directory: /
+  schedule:
+    interval: weekly
+    day: monday
+    time: "08:00"
+  labels:
+  - dependencies
+  - pre-commit
+  commit-message:
+    prefix: chore
+    include: scope
+  open-pull-requests-limit: 5
+
   # Docker selenium updates for CI (shared compose file)
   # Docker dev directories are covered by their own entries below,
   # which handle selenium alongside all other images.
