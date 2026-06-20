@@ -29,6 +29,13 @@ jobs:
       matrix:
         php_version: ${{ fromJson(inputs.php_versions) }}
     steps:
+    # Checkout the repo so build-push-action's context is a local path. The
+    # earlier `context: "{{defaultContext}}:docker/flex"` form let buildkit
+    # fetch the subdir over git -- but it triggers a recurse-submodules
+    # clone, and openemr's .gitmodules points at private/missing repos
+    # (inferno-files in particular returns 403). A local checkout dodges
+    # the submodule fetch entirely.
+    - uses: actions/checkout@v6
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v4
     - name: Set up Docker Buildx
@@ -70,7 +77,7 @@ jobs:
     - name: Build and push flex ${{ inputs.alpine_version }} docker (PHP ${{ matrix.php_version }})
       uses: docker/build-push-action@v7
       with:
-        context: "{{defaultContext}}:docker/flex"
+        context: ./docker/flex
         tags: ${{ steps.build_tags.outputs.tags }}
         platforms: linux/amd64,linux/arm64
         build-args: |
