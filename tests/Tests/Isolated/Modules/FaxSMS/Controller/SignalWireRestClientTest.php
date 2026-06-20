@@ -108,7 +108,7 @@ final class SignalWireRestClientTest extends TestCase
         self::assertSame(0, $fax->numPages);
         self::assertSame(0, $fax->duration);
         self::assertSame('https://files.signalwire.com/media/FX0000.pdf', $fax->mediaUrl);
-        self::assertInstanceOf(\DateTime::class, $fax->dateCreated);
+        self::assertInstanceOf(\DateTimeImmutable::class, $fax->dateCreated);
         self::assertSame('2026-06-16 13:45:07', $fax->dateCreated->format('Y-m-d H:i:s'));
 
         // Outgoing request: method, endpoint, host, Basic auth, form mapping.

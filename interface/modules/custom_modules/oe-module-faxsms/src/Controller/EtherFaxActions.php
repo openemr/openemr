@@ -166,7 +166,15 @@ class EtherFaxActions extends AppDispatch
             }
             $realPath = realpath((string)$file);
             if ($realPath !== false) {
-                if ($allowedTempDir === false || !str_starts_with($realPath, $allowedTempDir)) {
+                $allowedRoot = $allowedTempDir !== false
+                    ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
+                    : false;
+                // Require an exact match or a true child path; a bare prefix
+                // check would let a sibling like ".../send_evil" slip through.
+                $withinAllowed = $allowedRoot !== false
+                    && ($realPath === $allowedRoot
+                        || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
+                if (!$withinAllowed) {
                     error_log("Path traversal blocked: " . $realPath);
                     return xlt('Error: Invalid file location');
                 }
@@ -283,7 +291,8 @@ class EtherFaxActions extends AppDispatch
                 $this->insertSentFaxQueue($status, $phone, $csid, $tag, $fileName);
             }
         } catch (\Throwable $e) {
-            return 'Error: ' . json_encode($e->getMessage());
+            error_log('EtherFaxActions: ' . $e->getMessage());
+            return xlt('Error: fax operation failed');
         } finally {
             $this->uploadStaging->removeStagedArtifacts(
                 $stagedPath,
@@ -398,7 +407,8 @@ class EtherFaxActions extends AppDispatch
                     }
                     $statusMsg .= xlt("Successfully forwarded fax to") . ' ' . text($faxNumber) . "<br />";
                 } catch (\Throwable $e) {
-                    return js_escape('Error: ' . $e->getMessage());
+                    error_log('EtherFaxActions: ' . $e->getMessage());
+                    return js_escape('Error: ' . xlt('fax operation failed'));
                 }
             }
         } finally {
@@ -577,7 +587,8 @@ class EtherFaxActions extends AppDispatch
         try {
             $apiResponse = is_numeric($docId) ? $this->fetchFaxFromQueue(null, $docId) : $this->fetchFaxFromQueue($docId);
         } catch (\Throwable $e) {
-            return "Error: Retrieving Fax:\n" . $e->getMessage();
+            error_log('EtherFaxActions: ' . $e->getMessage());
+            return 'Error: ' . xlt('Could not retrieve fax');
         }
 
         if ($isDelete && !empty($apiResponse->JobId)) {
@@ -840,7 +851,8 @@ class EtherFaxActions extends AppDispatch
                 $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
             }
         } catch (\Throwable $e) {
-            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
+            error_log('EtherFaxActions: ' . $e->getMessage());
+            return 'Error: ' . xlt('fax operation failed') . PHP_EOL;
         }
 
         return $responseMsgs;
@@ -1107,3 +1119,5 @@ SQL;
         return null;
     }
 }
+
+

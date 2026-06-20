@@ -25,7 +25,7 @@ use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 
 class SignalWireClient extends AppDispatch
 {
-    const debugLogging = true; // Set to true to enable detailed debug logging in error_log
+    const debugLogging = false; // Set to true to enable detailed debug logging in error_log
     /** Max faxes to pull from the SignalWire API in a single check. */
     private const FAX_LIST_LIMIT = 100;
 
@@ -185,6 +185,21 @@ class SignalWireClient extends AppDispatch
             }
         }
 
+        // Outbound file-mode sends must reference an upload this controller
+        // staged (see FaxUploadStaging::isStagedUploadPath); reject any other
+        // resolved server path so an authenticated caller cannot fax out
+        // arbitrary local files. Document sends ($isDocuments) and inline
+        // content ($isContent) take their own paths below and are exempt.
+        if (
+            empty($isContent)
+            && !$isDocuments
+            && !empty($file)
+            && !$this->uploadStaging->isStagedUploadPath((string)$file)
+        ) {
+            error_log('SignalWireClient.sendFax(): rejected non-staged file path');
+            return xlt('Error: Invalid file location');
+        }
+
         // Decrypt the staged upload to a per-request plaintext tempnam
         // and continue with that as $file. Pattern guard scopes the
         // cleanup we'll do below to files this controller staged via
@@ -272,7 +287,7 @@ class SignalWireClient extends AppDispatch
             error_log('SignalWire Fax Error: ' . $e->getMessage());
             return json_encode([
                 'success' => false,
-                'error' => xlt('Error sending fax') . ': ' . $e->getMessage()
+                'error' => xlt('Error sending fax')
             ]);
         } finally {
             $this->uploadStaging->removeStagedArtifacts(
@@ -504,7 +519,7 @@ class SignalWireClient extends AppDispatch
             ]));
         } catch (\Throwable $e) {
             error_log('SignalWireClient.viewFax(): ERROR - ' . $e->getMessage());
-            return text(json_encode(['error' => xlt('Error retrieving fax: ') . $e->getMessage()]));
+            return text(json_encode(['error' => xlt('Error retrieving fax')]));
         }
     }
 
@@ -545,9 +560,9 @@ class SignalWireClient extends AppDispatch
         $action = $this->getRequest('action');
 
         if ($action == 'download') {
+            // sendFile() streams the file and exits, removing the staged temp
+            // after a successful stream, so no cleanup is reachable here.
             $this->sendFile((string)$where);
-            sleep(2);
-            @unlink((string)$where);
             exit;
         }
 
@@ -587,6 +602,7 @@ class SignalWireClient extends AppDispatch
         header("Content-Transfer-Encoding: binary");
         header('Content-Length: ' . strlen($payload));
         echo $payload;
+        @unlink($filePath);
         exit;
     }
 
@@ -631,7 +647,7 @@ class SignalWireClient extends AppDispatch
             return json_encode(['success' => true, 'document_id' => $result['document_id'] ?? null]);
         } catch (\Throwable $e) {
             error_log("SignalWireClient.assignFax(): ERROR - " . $e->getMessage());
-            return json_encode(['error' => xlt('Failed to assign fax: ') . $e->getMessage()]);
+            return json_encode(['error' => xlt('Failed to assign fax')]);
         }
     }
 
@@ -896,3 +912,5 @@ class SignalWireClient extends AppDispatch
         return xlt('Not Supported');
     }
 }
+
+

@@ -9,8 +9,12 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\RestClient;
 
@@ -65,6 +69,7 @@ final class TwilioRestClientTest extends TestCase
 
     private function lastRequest(): \Psr\Http\Message\RequestInterface
     {
+        self::assertNotEmpty($this->history, 'Expected at least one HTTP request to have been recorded.');
         $entry = end($this->history);
         return $entry['request'];
     }
@@ -150,8 +155,8 @@ final class TwilioRestClientTest extends TestCase
         $this->assertSame('inbound', $m->direction);
         $this->assertSame(1, $m->numSegments);
 
-        $this->assertInstanceOf(\DateTime::class, $m->dateCreated);
-        $this->assertInstanceOf(\DateTime::class, $m->dateUpdated);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $m->dateCreated);
+        $this->assertInstanceOf(\DateTimeImmutable::class, $m->dateUpdated);
         $this->assertSame('2025-06-13 12:34:56', $m->dateCreated->format('Y-m-d H:i:s'));
         $this->assertSame('2025-06-13 12:35:10', $m->dateUpdated->format('Y-m-d H:i:s'));
     }

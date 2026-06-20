@@ -11,6 +11,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -237,7 +239,15 @@ final readonly class FaxUploadStaging
         if ($raw === false) {
             return null;
         }
-        $plaintext = $this->crypto->decryptFromFilesystem($raw);
+        try {
+            $plaintext = $this->crypto->decryptFromFilesystem($raw);
+        } catch (CryptoGenException $e) {
+            $this->logger->error(
+                'Failed to decrypt staged fax file',
+                ['path' => $stagedPath, 'exception' => $e]
+            );
+            return null;
+        }
 
         $tempPath = tempnam(sys_get_temp_dir(), 'fax_');
         if ($tempPath === false) {

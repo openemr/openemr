@@ -185,9 +185,9 @@ class TwilioSMSClient extends AppDispatch
                 $utc_time = strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC');
                 $updateDate = date('M j Y g:i:sa T', $utc_time);
                 if (strtolower((string) $messageStore->direction) != "outbound-api") {
-                    $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . ($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><<td>" . $vreply . "</td></tr>";
+                    $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $vreply . "</td></tr>";
                 } else {
-                    $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
+                    $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $vreply . "</td></tr>";
                 }
             }
         } catch (Throwable $e) {
@@ -269,3 +269,5 @@ class TwilioSMSClient extends AppDispatch
         return false;
     }
 }
+
+

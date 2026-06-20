@@ -10,6 +10,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2025-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -43,7 +45,7 @@ final readonly class FaxMailer
         $mail->AddAddress($email, $email);
         $mail->Subject = xlt("Forwarded Fax Document");
         $mail->Body = $desc;
-        $mail->AddAttachment($file);
+        $mail->AddAttachment($file, self::attachmentName($file));
 
         return $mail->Send()
             ? xlt("Email successfully sent.")
@@ -90,5 +92,31 @@ final readonly class FaxMailer
         }
         self::send($email, $body, $tmp, $user);
         return $tmp;
+    }
+
+    /**
+     * Derive a recipient-facing attachment filename whose extension matches
+     * the file's actual content. The plaintext payload is delivered through a
+     * tempnam scratch file whose "....tmp" suffix would otherwise reach the
+     * recipient and trip mail clients (and is what RingCentral rejected on
+     * the send side), so sniff the bytes and map to a sensible name.
+     */
+    private static function attachmentName(string $file): string
+    {
+        $mime = '';
+        if (is_file($file) && function_exists('mime_content_type')) {
+            $detected = mime_content_type($file);
+            if (is_string($detected)) {
+                $mime = strtolower($detected);
+            }
+        }
+        $ext = match ($mime) {
+            'image/tiff', 'image/tif' => 'tiff',
+            'image/jpeg', 'image/jpg' => 'jpg',
+            'image/png' => 'png',
+            'text/plain' => 'txt',
+            default => 'pdf',
+        };
+        return 'fax_document.' . $ext;
     }
 }

@@ -51,8 +51,11 @@ class RCFaxClient extends AppDispatch
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->cacheDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
-        $this->portalUrl = $this->credentials['production'] ?? null ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
-        $this->serverUrl = $this->credentials['production'] ?? null ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
+        // RingCentral retired the developer sandbox (platform.devtest.ringcentral.com)
+        // at the end of 2024; only production remains. Hardcode it so the dead
+        // sandbox host can never be selected again.
+        $this->portalUrl = "https://service.ringcentral.com/";
+        $this->serverUrl = "https://platform.ringcentral.com";
         $this->redirectUrl = $this->credentials['redirect_url'] ?? null;
         $this->initializeSDK();
         // TODO: initVoice() is not used in this class, move to new voice client.
@@ -89,10 +92,10 @@ class RCFaxClient extends AppDispatch
         }
         $toPhone = $toPhone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');
+        $from = $from ?: $this->credentials['smsNumber'];
         $message = $message ?: $this->getRequest('comments');
 
-        $smsNumber = $this->formatPhone($this->credentials['smsNumber']);
-        $from = $this->formatPhone($from);
+        $smsNumber = $this->formatPhone($from);
         $toPhone = $this->formatPhone($toPhone);
         if ($smsNumber) {
             try {
@@ -268,7 +271,15 @@ class RCFaxClient extends AppDispatch
             }
             $realPath = realpath($file);
             if ($realPath !== false) {
-                if (!str_starts_with($realPath, $allowedTempDir)) {
+                $allowedRoot = $allowedTempDir !== false
+                    ? rtrim($allowedTempDir, DIRECTORY_SEPARATOR)
+                    : false;
+                // Require an exact match or a true child path; a bare prefix
+                // check would let a sibling like ".../send_evil" slip through.
+                $withinAllowed = $allowedRoot !== false
+                    && ($realPath === $allowedRoot
+                        || str_starts_with($realPath, $allowedRoot . DIRECTORY_SEPARATOR));
+                if (!$withinAllowed) {
                     error_log("Path traversal blocked: " . $realPath);
                     return xlt('Error: Invalid file location');
                 }
@@ -298,7 +309,10 @@ class RCFaxClient extends AppDispatch
                 }
                 $stagedPath = $file;
                 $file = $plainStagePath;
-                $fileName = pathinfo($file, PATHINFO_BASENAME);
+                // Name the attachment from the staged file (which carries the
+                // real .pdf/.tiff extension), not the decrypt tempnam, whose
+                // Windows ".tmp" suffix makes RingCentral reject the attachment.
+                $fileName = pathinfo($stagedPath, PATHINFO_BASENAME);
             }
 
             // Build $content (plaintext bytes for the vendor).
@@ -386,6 +400,21 @@ class RCFaxClient extends AppDispatch
             $fileName = $mime['filePath'];
             if (empty($type)) {
                 $type = mime_content_type($content);
+            }
+            // RingCentral 400s when an attachment's filename extension does not
+            // match its Content-Type. Tempnam-derived names (e.g. a Windows
+            // "....tmp") and content-mode names can drift, so force the
+            // extension to match the resolved type before sending.
+            $extByType = [
+                'application/pdf' => 'pdf',
+                'image/tiff' => 'tiff', 'image/tif' => 'tiff',
+                'image/jpeg' => 'jpg', 'image/jpg' => 'jpg',
+                'image/png' => 'png', 'text/plain' => 'txt',
+            ];
+            $wantExt = $extByType[strtolower((string)$type)] ?? null;
+            if ($wantExt !== null && strtolower(pathinfo((string)$fileName, PATHINFO_EXTENSION)) !== $wantExt) {
+                $stem = pathinfo((string)$fileName, PATHINFO_FILENAME);
+                $fileName = ($stem !== '' ? $stem : 'fax') . '.' . $wantExt;
             }
             //error_log($phone . ' ' . $fileName . ' ' . $type . ' ' . $name);
             $request = $this->rcsdk->createMultipartBuilder()
@@ -839,7 +868,7 @@ class RCFaxClient extends AppDispatch
                     'page' => $pageCount
                 ]);
                 foreach ($apiResponse->json()->records as $value) {
-                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", $value->startTime)) . "</td><td>" . text($value->type) . "</td><td>" . text($value->from->name) . "</td><td>" . text($value->to->name) . "</td><td>" . text($value->action) . "</td><td>" . text($value->result) . "</td><td>" . text($value->message->id) . "</td></tr>";
+                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", $value->startTime)) . "</td><td>" . text($value->type) . "</td><td>" . text($value->from->name) . "</td><td>" . text($value->to->phoneNumber) . "</td><td>" . text($value->action) . "</td><td>" . text($value->result) . "</td><td>" . text($value->message->id) . "</td></tr>";
                 }
 
                 $end = microtime(true);
@@ -987,7 +1016,7 @@ class RCFaxClient extends AppDispatch
 
     private function processMessageStoreList($messageStoreList, $serviceType): false|array|string
     {
-        $responseMsg = [];
+        $responseMsg = ['', '', ''];
         $count = count($messageStoreList ?? []);
         $timePerMessageStore = 1; // seconds
         $start = microtime();
@@ -998,9 +1027,15 @@ class RCFaxClient extends AppDispatch
                 foreach ($messageStore->attachments as $attachment) {
                     $id = attr($attachment->id);
                     $uri = $attachment->uri;
-                    $to = $messageStore->to[0]->name . " " . $messageStore->to[0]->phoneNumber;
-                    $from = $messageStore->from->name . " " . $messageStore->from->phoneNumber;
-                    $status = $messageStore->messageStatus . $messageStore->from->faxErrorCode;
+                    // Inbound messages carry no ->to, faxErrorCode only
+                    // appears on failures, and a fax "from"/"to" entry may
+                    // omit name; coalesce every read so polling a mixed
+                    // inbox does not spray undefined-property/null-offset
+                    // warnings into the error log.
+                    $toEntry = $messageStore->to[0] ?? null;
+                    $to = trim(($toEntry->name ?? '') . " " . ($toEntry->phoneNumber ?? ''));
+                    $from = trim(($messageStore->from->name ?? '') . " " . ($messageStore->from->phoneNumber ?? ''));
+                    $status = ($messageStore->messageStatus ?? '') . ($messageStore->from->faxErrorCode ?? '');
                     $faxFormattedDate = date('M j, Y g:i:sa T', strtotime((string)$messageStore->creationTime));
                     $updateDate = date('M j Y g:i:sa T', strtotime((string)$messageStore->lastModifiedTime));
 
@@ -1053,11 +1088,11 @@ class RCFaxClient extends AppDispatch
                         }
                         $responseMsg[2] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($messageStore->readStatus) . "</td><td>" . text($fromName) . "</td><td>" . text($toName) . "</td><td>" . text($status) . "</td><td><div class='$id'>" . text($messageText) . "</div></td><td class='btn-group'>" . $links['sms'] . "</td></tr>";
                     } elseif ($direction === "inbound" && $type === $serviceType && $serviceType === "fax") {
-                        $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
-                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject) . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
+                        $status = ($messageStore->to[0]->faxErrorCode ?? '') ?: ($messageStore->messageStatus ?? '');
+                        $responseMsg[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount ?? '') . "</td><td>" . text($from) . "</td><td>" . text($messageStore->subject ?? '') . "</td><td>" . text($status) . "</td><td class='text-left'>" . $links['inbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
                     } elseif ($direction === "outbound" && $type === $serviceType && $serviceType === "fax") {
-                        $status = $messageStore->to[0]->faxErrorCode ?: $messageStore->messageStatus;
-                        $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount) .
+                        $status = ($messageStore->to[0]->faxErrorCode ?? '') ?: ($messageStore->messageStatus ?? '');
+                        $responseMsg[1] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($updateDate) . "</td><td>" . text($messageStore->faxPageCount ?? '') .
                             "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $links['outbound'] . "</td><td class='text-center'>" . $checkbox . "</td></tr>";
                     }
                 }

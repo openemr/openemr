@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Minimal SignalWire REST client shim (Compatibility / LaML Fax API).
  *
@@ -172,7 +174,7 @@ final class FaxInstance
     public ?string $to = null;
     public ?int $numPages = null;
     public ?int $duration = null;
-    public ?\DateTime $dateCreated = null;
+    public ?\DateTimeImmutable $dateCreated = null;
     public ?string $mediaUrl = null;
 
     /**
@@ -196,7 +198,7 @@ final class FaxInstance
         $created = $raw['date_created'] ?? null;
         if (!empty($created) && is_string($created)) {
             try {
-                $fax->dateCreated = new \DateTime($created);
+                $fax->dateCreated = new \DateTimeImmutable($created);
             } catch (\Throwable) {
                 $fax->dateCreated = null;
             }
@@ -397,3 +399,5 @@ class Client
         $this->fax = new FaxDomain($this->transport);
     }
 }
+
+

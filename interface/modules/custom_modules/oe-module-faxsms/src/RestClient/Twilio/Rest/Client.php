@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Minimal Twilio REST client shim (Messages / SMS only).
  *
@@ -116,7 +118,7 @@ final readonly class Transport
         }
 
         $status = $response->getStatusCode();
-        $body = (string) $response->getBody();
+        $body = (string)$response->getBody();
 
         if ($status < 200 || $status >= 300) {
             throw new RestException('Twilio returned HTTP ' . $status . ': ' . self::snippet($body), $status);
@@ -153,9 +155,9 @@ final class MessageInstance
     public ?string $errorCode = null;
     public ?string $errorMessage = null;
     public ?int $numSegments = null;
-    public ?\DateTime $dateCreated = null;
-    public ?\DateTime $dateUpdated = null;
-    public ?\DateTime $dateSent = null;
+    public ?\DateTimeImmutable $dateCreated = null;
+    public ?\DateTimeImmutable $dateUpdated = null;
+    public ?\DateTimeImmutable $dateSent = null;
 
     /**
      * @param array<mixed, mixed> $raw
@@ -189,7 +191,7 @@ final class MessageInstance
         return is_scalar($value) ? (int) $value : null;
     }
 
-    private static function toDate(mixed $value): ?\DateTime
+    private static function toDate(mixed $value): ?\DateTimeImmutable
     {
         if (!is_string($value) || $value === '') {
             return null;
@@ -197,8 +199,8 @@ final class MessageInstance
         // Twilio returns RFC 2822 dates (e.g. "Mon, 01 Jan 2024 12:00:00 +0000").
         // date_create() returns false on a bad string instead of throwing, which
         // avoids catching \Exception (and thus \ErrorException).
-        $date = date_create($value);
-        return $date instanceof \DateTime ? $date : null;
+        $date = date_create_immutable($value);
+        return $date instanceof \DateTimeImmutable ? $date : null;
     }
 }
 
