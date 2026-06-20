@@ -16,8 +16,8 @@ For larger changes — new features, architectural changes, or anything that wou
 
 OpenEMR is split across multiple repositories. Make sure your contribution targets the right one:
 
-- **[openemr/openemr](https://github.com/openemr/openemr)** — The application itself: PHP code, frontend, APIs, clinical features, tests.
-- **[openemr/openemr-devops](https://github.com/openemr/openemr-devops)** — Infrastructure and deployment: Docker, Kubernetes, cloud provisioning (CloudFormation, Terraform), and operational tooling.
+- **[openemr/openemr](https://github.com/openemr/openemr)** — The application itself: PHP code, frontend, APIs, clinical features, tests. Also owns the production Docker image pipeline (Dockerfiles, build/publish workflows, Docker Hub readme rendering) — see [DOCKER_README.md](DOCKER_README.md) and [docs/docker-migration-from-devops.md](docs/docker-migration-from-devops.md).
+- **[openemr/openemr-devops](https://github.com/openemr/openemr-devops)** — Deployment + operational tooling: Kubernetes manifests, cloud provisioning (CloudFormation, Terraform, ECS, EKS), AWS packaging, Raspberry Pi installer, and developer utilities (`openemr-cmd`, env-installer, monitor, portainer, env-migrator).
 
 When in doubt, ask on the forum or open an issue to discuss where the work belongs.
 

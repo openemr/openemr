@@ -22,4 +22,4 @@ annotated release tag and triggers the docs/infra workflows.
 
 - Acknowledgments — generated from `git shortlog vPREV..HEAD` in the docs PR.
 - Test-matrix / package-pin rotations — handled by the openemr-devops rotation workflow.
-- `fsupgrade-N.sh` and upgrade Dockerfile changes — handled in openemr-devops `docker/openemr/<version>/`.
+- `fsupgrade-N.sh` and upgrade Dockerfile changes — handled in this repo's per-rel-branch `docker/release/upgrade/` (these moved out of openemr-devops's `docker/openemr/<version>/` when the docker pipeline migrated; see [`docs/docker-migration-from-devops.md`](../../docs/docker-migration-from-devops.md)).
