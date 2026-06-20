@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Minimal Twilio REST client shim (Messages / SMS only).
  *
@@ -21,6 +19,8 @@ declare(strict_types=1);
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest;
 
@@ -60,7 +60,8 @@ final readonly class Transport
         private string $password,
         ?string $accountSid = null,
         ?ClientInterface $http = null
-    ) {
+    )
+    {
         // Twilio defaults the account SID to the auth username when not given.
         $this->accountSid = ($accountSid !== null && $accountSid !== '') ? $accountSid : $this->username;
         $this->http = $http ?? new GuzzleClient();
@@ -114,7 +115,7 @@ final readonly class Transport
         try {
             $response = $this->http->request($method, $url, $options);
         } catch (GuzzleException $e) {
-            throw new RestException('Twilio request failed: ' . $e->getMessage(), (int) $e->getCode(), $e);
+            throw new RestException('Twilio request failed: ' . $e->getMessage(), (int)$e->getCode(), $e);
         }
 
         $status = $response->getStatusCode();
@@ -183,12 +184,12 @@ final class MessageInstance
 
     private static function str(mixed $value): ?string
     {
-        return is_scalar($value) ? (string) $value : null;
+        return is_scalar($value) ? (string)$value : null;
     }
 
     private static function intOrNull(mixed $value): ?int
     {
-        return is_scalar($value) ? (int) $value : null;
+        return is_scalar($value) ? (int)$value : null;
     }
 
     private static function toDate(mixed $value): ?\DateTimeImmutable
@@ -223,13 +224,13 @@ final readonly class MessageList
     {
         $form = ['To' => $to];
         if (isset($options['from']) && is_scalar($options['from'])) {
-            $form['From'] = (string) $options['from'];
+            $form['From'] = (string)$options['from'];
         }
         if (isset($options['body']) && is_scalar($options['body'])) {
-            $form['Body'] = (string) $options['body'];
+            $form['Body'] = (string)$options['body'];
         }
         if (isset($options['messagingServiceSid']) && is_scalar($options['messagingServiceSid'])) {
-            $form['MessagingServiceSid'] = (string) $options['messagingServiceSid'];
+            $form['MessagingServiceSid'] = (string)$options['messagingServiceSid'];
         }
 
         $data = $this->transport->request('POST', ['form_params' => $form]);
@@ -313,7 +314,8 @@ class Client
         string $password,
         ?string $accountSid = null,
         ?ClientInterface $httpClient = null
-    ) {
+    )
+    {
         $this->transport = new Transport($username, $password, $accountSid, $httpClient);
         $this->messages = new MessageList($this->transport);
     }

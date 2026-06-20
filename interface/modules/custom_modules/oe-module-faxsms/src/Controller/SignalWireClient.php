@@ -308,7 +308,7 @@ class SignalWireClient extends AppDispatch
      * name, site, and an expiry; faxMedia.php validates it, streams the PDF, and
      * deletes it. Abandoned stagings are swept here on each send.
      *
-     * @param string $file       Plaintext file path, or raw content when $isDocuments
+     * @param string $file Plaintext file path, or raw content when $isDocuments
      * @param bool   $isDocuments
      * @return string|null Public token URL, or null on failure
      */
@@ -912,5 +912,3 @@ class SignalWireClient extends AppDispatch
         return xlt('Not Supported');
     }
 }
-
-

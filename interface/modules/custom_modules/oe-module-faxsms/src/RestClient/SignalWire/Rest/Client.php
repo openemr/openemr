@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * Minimal SignalWire REST client shim (Compatibility / LaML Fax API).
  *
@@ -20,6 +18,8 @@ declare(strict_types=1);
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest;
 
@@ -58,7 +58,8 @@ final readonly class Transport
         private string $apiToken,
         string $spaceUrl,
         ?ClientInterface $http = null
-    ) {
+    )
+    {
         $this->spaceUrl = self::normalizeSpace($spaceUrl);
         $this->http = $http ?? new GuzzleClient();
     }
@@ -129,12 +130,12 @@ final readonly class Transport
         try {
             $response = $this->http->request($method, $url, $options);
         } catch (GuzzleException $e) {
-            $code = method_exists($e, 'getCode') ? (int) $e->getCode() : 0;
+            $code = method_exists($e, 'getCode') ? (int)$e->getCode() : 0;
             throw new RestException('SignalWire request failed: ' . $e->getMessage(), $code, $e);
         }
 
         $status = $response->getStatusCode();
-        $body = (string) $response->getBody();
+        $body = (string)$response->getBody();
 
         if ($status < 200 || $status >= 300) {
             throw new RestException('SignalWire returned HTTP ' . $status . ': ' . self::snippet($body), $status);
@@ -183,17 +184,17 @@ final class FaxInstance
     public static function fromArray(array $raw): self
     {
         $fax = new self();
-        $fax->sid = isset($raw['sid']) ? (string) $raw['sid'] : null;
-        $fax->status = isset($raw['status']) ? (string) $raw['status'] : null;
-        $fax->direction = isset($raw['direction']) ? (string) $raw['direction'] : null;
-        $fax->from = isset($raw['from']) ? (string) $raw['from'] : null;
-        $fax->to = isset($raw['to']) ? (string) $raw['to'] : null;
+        $fax->sid = isset($raw['sid']) ? (string)$raw['sid'] : null;
+        $fax->status = isset($raw['status']) ? (string)$raw['status'] : null;
+        $fax->direction = isset($raw['direction']) ? (string)$raw['direction'] : null;
+        $fax->from = isset($raw['from']) ? (string)$raw['from'] : null;
+        $fax->to = isset($raw['to']) ? (string)$raw['to'] : null;
 
         $pages = $raw['num_pages'] ?? ($raw['pages'] ?? null);
-        $fax->numPages = $pages !== null ? (int) $pages : null;
+        $fax->numPages = $pages !== null ? (int)$pages : null;
 
-        $fax->duration = isset($raw['duration']) ? (int) $raw['duration'] : null;
-        $fax->mediaUrl = isset($raw['media_url']) ? (string) $raw['media_url'] : null;
+        $fax->duration = isset($raw['duration']) ? (int)$raw['duration'] : null;
+        $fax->mediaUrl = isset($raw['media_url']) ? (string)$raw['media_url'] : null;
 
         $created = $raw['date_created'] ?? null;
         if (!empty($created) && is_string($created)) {
@@ -252,7 +253,7 @@ final readonly class FaxList
     /**
      * POST .../Faxes
      *
-     * @param array<string, mixed> $options Accepts: to, from, mediaUrl (+ optional
+     * @param array<string, mixed> $options  Accepts: to, from, mediaUrl (+ optional
      *                                       quality, statusCallback, storeMedia).
      * @throws RestException
      */
@@ -260,13 +261,13 @@ final readonly class FaxList
     {
         $form = [];
         if (isset($options['to'])) {
-            $form['To'] = (string) $options['to'];
+            $form['To'] = (string)$options['to'];
         }
         if (isset($options['from'])) {
-            $form['From'] = (string) $options['from'];
+            $form['From'] = (string)$options['from'];
         }
         if (isset($options['mediaUrl'])) {
-            $form['MediaUrl'] = (string) $options['mediaUrl'];
+            $form['MediaUrl'] = (string)$options['mediaUrl'];
         }
         $optional = [
             'quality' => 'Quality',
@@ -286,7 +287,7 @@ final readonly class FaxList
     /**
      * GET .../Faxes (auto-paginates up to $limit).
      *
-     * @param array<string, mixed> $filters Accepts: from, to, dateCreatedAfter,
+     * @param array<string, mixed> $filters  Accepts: from, to, dateCreatedAfter,
      *                                       dateCreatedOnOrBefore, dateCreatedBefore.
      * @return list<FaxInstance>
      * @throws RestException
@@ -399,5 +400,3 @@ class Client
         $this->fax = new FaxDomain($this->transport);
     }
 }
-
-
