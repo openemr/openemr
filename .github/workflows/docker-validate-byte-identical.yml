@@ -5,6 +5,13 @@
 # Source of truth for the rel branches is .github/release-targets.yml.
 # Both are read at workflow-run time -- this file holds no hardcoded list.
 #
+# This workflow and its config file (.github/docker-byte-identical.yml)
+# travel as a pair. Both live on master only today; if a future change
+# syncs this workflow to rel branches (e.g. to fire the canary on rel-*
+# PR triggers, which today is no-op because the workflow file isn't
+# present on the base), the config file must sync alongside it -- the
+# yq read below fails if the config is missing.
+#
 # The orchestrator-driven docker release pipeline (see
 # docker-release-orchestrator.yml + .github/release-targets.yml) leans on
 # the invariant that certain workflow + composite + compose files are
