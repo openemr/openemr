@@ -60,11 +60,9 @@ final class TwilioRestClientTest extends TestCase
     {
         $this->history = [];
         $stack = HandlerStack::create(new MockHandler($responses));
-        $stack->push(function (callable $handler): callable {
-            return function (RequestInterface $request, array $options) use ($handler): mixed {
-                $this->history[] = $request;
-                return $handler($request, $options);
-            };
+        $stack->push(fn(callable $handler): callable => function (RequestInterface $request, array $options) use ($handler): mixed {
+            $this->history[] = $request;
+            return $handler($request, $options);
         });
         $guzzle = new GuzzleClient(['handler' => $stack]);
 
