@@ -6,11 +6,10 @@
 # Both are read at workflow-run time -- this file holds no hardcoded list.
 #
 # This workflow and its config file (.github/docker-byte-identical.yml)
-# travel as a pair. Both live on master only today; if a future change
-# syncs this workflow to rel branches (e.g. to fire the canary on rel-*
-# PR triggers, which today is no-op because the workflow file isn't
-# present on the base), the config file must sync alongside it -- the
-# yq read below fails if the config is missing.
+# are themselves in FILES_ALL, so the auto-sync workflow keeps both in
+# step across master and every rel branch. That means the canary fires
+# on rel-* PRs against the rel branch's own copy of this file, and the
+# logic below has to behave correctly from either context.
 #
 # The orchestrator-driven docker release pipeline (see
 # docker-release-orchestrator.yml + .github/release-targets.yml) leans on
@@ -21,17 +20,39 @@
 # two different behaviors, which defeats the whole "byte-identical build
 # pipeline" property the planning doc (openemr-devops#790) established.
 #
+# Behavior splits by run context (master vs rel-*):
+#
+#   master context (PR to master, daily cron, dispatch from master):
+#     iterate the rel branches in release-targets.yml and compare each
+#     remote HEAD against this checkout (LOCAL = master). On a master
+#     pull_request the drift is reported as warnings -- the PR is the
+#     source of truth, and the sync workflow (sync-byte-identical.yml)
+#     propagates to rel branches after merge -- so failing would block
+#     legitimate master changes. On cron / dispatch, drift fails: it
+#     means a sync is overdue.
+#
+#   rel-* context (PR to a rel branch, dispatch from a rel branch):
+#     compare this checkout (LOCAL = rel-X, possibly + PR diff) against
+#     master HEAD. Rel branches must match master, so any drift fails.
+#     Catches both hand-edits to a FILES_ALL file on a rel branch AND
+#     auto-sync PRs that have been overtaken by a newer master change.
+#     Files listed in FILES_ALL but not yet present on this rel branch
+#     (transitional state -- auto-sync hasn't delivered them) are
+#     skipped with a warning rather than failing.
+#
 # Three trigger sources:
 #
 #   1. pull_request on master or any rel-* branch -- catches drift the
 #      moment a PR proposes it. Runs on every PR (the diff check is
-#      fast, fetching N files once each per rel branch); no paths:
-#      filter to keep in sync with the source-of-truth list.
+#      fast, fetching N files once); no paths: filter to keep in sync
+#      with the source-of-truth list.
 #
 #   2. schedule, daily at 07:00 UTC -- one hour after the build
-#      orchestrator. Catches latent drift introduced via any other path.
+#      orchestrator. Fires only from master (default branch). Catches
+#      latent drift introduced via any other path.
 #
-#   3. workflow_dispatch -- manual dry-run when investigating.
+#   3. workflow_dispatch -- manual dry-run when investigating; can be
+#      run from master or from any rel branch.
 
 name: Validate byte-identical files
 
@@ -56,7 +77,7 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Diff every byte-identical file against every rel branch in release-targets.yml
+    - name: Diff byte-identical files against master (or against each rel branch when running from master)
       run: |
         mapfile -t FILES_ALL < <(yq -r '.files[]' .github/docker-byte-identical.yml)
         mapfile -t REL_BRANCHES < <(yq -r '.[] | select(.branch != "master") | .branch' .github/release-targets.yml)
@@ -82,43 +103,96 @@ jobs:
           exit 1
         fi
 
-        # Reject entries that don't resolve to a file in the current checkout.
-        # Without this, a typo in docker-byte-identical.yml causes the loop
-        # below to produce confusing 'master sha:' empty values (the sha256sum
-        # call fails) rather than a clean "fix the config" message.
-        MISSING=()
-        for FILE in "${FILES_ALL[@]}"; do
-          [ -f "$FILE" ] || MISSING+=("$FILE")
-        done
-        if [ ${#MISSING[@]} -gt 0 ]; then
-          echo "::error::Files listed in docker-byte-identical.yml but missing from current checkout: ${MISSING[*]}"
-          exit 1
-        fi
+        # Determine run context. For a pull_request the meaningful base is
+        # the PR's base ref; for everything else (schedule, push,
+        # workflow_dispatch) it's the ref the workflow ran on.
+        case "$GITHUB_EVENT_NAME" in
+          pull_request) CONTEXT_BRANCH="$GITHUB_BASE_REF" ;;
+          *) CONTEXT_BRANCH="$GITHUB_REF_NAME" ;;
+        esac
+        echo "Run context: event=$GITHUB_EVENT_NAME branch=$CONTEXT_BRANCH"
 
         FAIL=0
-        for BRANCH in "${REL_BRANCHES[@]}"; do
-          echo "::group::Branch $BRANCH"
+        if [ "$CONTEXT_BRANCH" = "master" ]; then
+          # Master context: master is canonical. Every FILES_ALL entry
+          # must exist on master; missing ones are a config bug.
+          MISSING=()
           for FILE in "${FILES_ALL[@]}"; do
+            [ -f "$FILE" ] || MISSING+=("$FILE")
+          done
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Files listed in docker-byte-identical.yml but missing from master checkout: ${MISSING[*]}"
+            exit 1
+          fi
+
+          # On a master pull_request the drift is intentional/in-progress
+          # (the PR is the source of truth; auto-sync will propagate after
+          # merge). Surface it as warnings so the maintainer can see what
+          # will get synced, but don't block the PR.
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            DRIFT_LEVEL="warning"
+          else
+            DRIFT_LEVEL="error"
+          fi
+
+          for BRANCH in "${REL_BRANCHES[@]}"; do
+            echo "::group::Compare $BRANCH to master"
+            for FILE in "${FILES_ALL[@]}"; do
+              LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
+              URL="https://raw.githubusercontent.com/openemr/openemr/${BRANCH}/${FILE}"
+              STATUS=$(curl -s -o /tmp/remote -w '%{http_code}' "$URL")
+              if [ "$STATUS" != "200" ]; then
+                echo "::warning::${BRANCH}:${FILE} not present (HTTP $STATUS); auto-sync will add it on the next run."
+                continue
+              fi
+              REMOTE_SHA=$(sha256sum /tmp/remote | cut -d' ' -f1)
+              if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
+                if [ "$DRIFT_LEVEL" = "error" ]; then
+                  echo "::error file=${FILE}::Drift: ${BRANCH}:${FILE} differs from master"
+                  echo "  master sha:  $LOCAL_SHA"
+                  echo "  ${BRANCH} sha: $REMOTE_SHA"
+                  echo "  Fix: an auto-sync PR should already be open for ${BRANCH}; merge it, or trigger sync-byte-identical.yml manually."
+                  FAIL=1
+                else
+                  echo "::warning file=${FILE}::${BRANCH}:${FILE} will differ from master once this PR merges; auto-sync will resolve."
+                fi
+              else
+                echo "✓ ${BRANCH}:${FILE} matches master"
+              fi
+            done
+            echo "::endgroup::"
+          done
+        else
+          # Rel branch context: master is canonical, this branch must
+          # match it. Files listed in FILES_ALL but not yet on this branch
+          # are tolerated (auto-sync hasn't delivered them); divergent
+          # content fails.
+          echo "Comparing ${CONTEXT_BRANCH} (LOCAL) to master HEAD (REMOTE)."
+          for FILE in "${FILES_ALL[@]}"; do
+            if [ ! -f "$FILE" ]; then
+              echo "::warning::${FILE} not present on ${CONTEXT_BRANCH}; auto-sync will deliver it."
+              continue
+            fi
             LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
-            URL="https://raw.githubusercontent.com/openemr/openemr/${BRANCH}/${FILE}"
+            URL="https://raw.githubusercontent.com/openemr/openemr/master/${FILE}"
             STATUS=$(curl -s -o /tmp/remote -w '%{http_code}' "$URL")
             if [ "$STATUS" != "200" ]; then
-              echo "::warning::${BRANCH}:${FILE} not present (HTTP $STATUS); expected before phase 2 lands on that branch."
+              echo "::warning::master:${FILE} not present (HTTP $STATUS); FILES_ALL may have drifted from master."
               continue
             fi
             REMOTE_SHA=$(sha256sum /tmp/remote | cut -d' ' -f1)
             if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
-              echo "::error file=${FILE}::Drift: ${BRANCH}:${FILE} differs from master"
-              echo "  master sha:  $LOCAL_SHA"
-              echo "  ${BRANCH} sha: $REMOTE_SHA"
-              echo "  Fix: open a sync PR to ${BRANCH} (or revert master's change if the master edit was unintentional)."
+              echo "::error file=${FILE}::Drift: ${CONTEXT_BRANCH}:${FILE} differs from master"
+              echo "  ${CONTEXT_BRANCH} sha: $LOCAL_SHA"
+              echo "  master sha:          $REMOTE_SHA"
+              echo "  Fix: rel branches must match master. Let auto-sync (sync-byte-identical.yml) propose the update, or revert this PR's change to the file."
               FAIL=1
             else
-              echo "✓ ${BRANCH}:${FILE} matches master"
+              echo "✓ ${FILE} matches master"
             fi
           done
-          echo "::endgroup::"
-        done
+        fi
+
         [ "$FAIL" -eq 0 ] || exit 1
         echo
-        echo "✓ All byte-identical files match across master and every rel branch."
+        echo "✓ All byte-identical files match between master and ${CONTEXT_BRANCH}."
