@@ -134,7 +134,7 @@ for FILE in "${FILES_ALL[@]}"; do
 
   if [[ "${master_has}" == "n" ]] && [[ "${branch_has}" == "y" ]]; then
     echo "  - ${FILE}  (delete)"
-    git rm "${FILE}" >/dev/null
+    git rm -- "${FILE}" >/dev/null
     CHANGES+=("delete: ${FILE}")
     continue
   fi
@@ -197,7 +197,7 @@ if git cat-file -e "HEAD:.github/docker-byte-identical.yml" 2>/dev/null; then
       fi
       # case 1: true removal (or rename's old-path side).
       echo "  - ${STALE}  (delete: master removed this path entirely)"
-      git rm "${STALE}" >/dev/null
+      git rm -- "${STALE}" >/dev/null
       CHANGES+=("delete: ${STALE}")
     done <<< "${rel_only}"
   fi
