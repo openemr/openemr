@@ -1,0 +1,37 @@
+# Runs the shell-script test suite for .github/scripts/sync-byte-identical.sh.
+#
+# Fires on PR changes to the script itself, its tests, the test runner, or
+# this workflow file. Fast suite (~10 tests, all using synthetic in-memory
+# git repos -- no network, no Docker), so the cost of running on every
+# touch is minimal.
+#
+# Not in any byte-identical set: this workflow and the scripts it tests
+# live on master only (they support the master-only auto-sync workflow);
+# rel branches never invoke them.
+
+name: Test byte-identical scripts
+
+on:
+  pull_request:
+    branches:
+    - master
+    paths:
+    - '.github/scripts/sync-byte-identical.sh'
+    - '.github/scripts/tests/**'
+    - '.github/workflows/test-byte-identical-scripts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
+
+    - name: Run shell-script test suite
+      run: bash .github/scripts/tests/run-tests.sh
