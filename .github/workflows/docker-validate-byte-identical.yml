@@ -59,8 +59,12 @@ jobs:
           exit 0
         fi
         if [ ${#FILES_ALL[@]} -eq 0 ]; then
-          echo "::warning::No files listed in docker-byte-identical.yml -- nothing to check."
-          exit 0
+          # Fail closed: an empty FILES_ALL would silently disable the
+          # canary. The only paths that get here are accidental edits to
+          # docker-byte-identical.yml (the file emptied or its YAML
+          # malformed) or yq misbehaving -- all of which we want loud.
+          echo "::error::No files listed in docker-byte-identical.yml; refusing to skip drift validation."
+          exit 1
         fi
 
         FAIL=0
