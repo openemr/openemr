@@ -5,12 +5,13 @@
 # Source of truth for the rel branches is .github/release-targets.yml.
 # Both are read at workflow-run time -- this file holds no hardcoded list.
 #
-# This workflow and its config file (.github/docker-byte-identical.yml)
-# travel as a pair. Both live on master only today; if a future change
-# syncs this workflow to rel branches (e.g. to fire the canary on rel-*
-# PR triggers, which today is no-op because the workflow file isn't
-# present on the base), the config file must sync alongside it -- the
-# yq read below fails if the config is missing.
+# This workflow, its config file (.github/docker-byte-identical.yml),
+# and the diff script (.github/scripts/validate-byte-identical.sh) are
+# all in FILES_ALL, so the auto-sync workflow keeps the trio in step
+# across master and every rel branch. That means the canary fires on
+# rel-* PRs against the rel branch's own copy of all three files, and
+# the script has to behave correctly from either context. BATS coverage
+# lives at tests/bats/ci-scripts/validate-byte-identical/ (master only).
 #
 # The orchestrator-driven docker release pipeline (see
 # docker-release-orchestrator.yml + .github/release-targets.yml) leans on
@@ -25,13 +26,15 @@
 #
 #   1. pull_request on master or any rel-* branch -- catches drift the
 #      moment a PR proposes it. Runs on every PR (the diff check is
-#      fast, fetching N files once each per rel branch); no paths:
-#      filter to keep in sync with the source-of-truth list.
+#      fast, fetching N files once); no paths: filter to keep in sync
+#      with the source-of-truth list.
 #
 #   2. schedule, daily at 07:00 UTC -- one hour after the build
-#      orchestrator. Catches latent drift introduced via any other path.
+#      orchestrator. Fires only from master (default branch). Catches
+#      latent drift introduced via any other path.
 #
-#   3. workflow_dispatch -- manual dry-run when investigating.
+#   3. workflow_dispatch -- manual dry-run when investigating; can be
+#      run from master or from any rel branch.
 
 name: Validate byte-identical files
 
@@ -55,70 +58,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
 
-    - name: Diff every byte-identical file against every rel branch in release-targets.yml
-      run: |
-        mapfile -t FILES_ALL < <(yq -r '.files[]' .github/docker-byte-identical.yml)
-        mapfile -t REL_BRANCHES < <(yq -r '.[] | select(.branch != "master") | .branch' .github/release-targets.yml)
-
-        if [ ${#REL_BRANCHES[@]} -eq 0 ]; then
-          echo "::warning::No rel branches found in release-targets.yml -- nothing to check."
-          exit 0
-        fi
-        if [ ${#FILES_ALL[@]} -eq 0 ]; then
-          # Fail closed: an empty FILES_ALL would silently disable the
-          # canary. The only paths that get here are accidental edits to
-          # docker-byte-identical.yml (the file emptied or its YAML
-          # malformed) or yq misbehaving -- all of which we want loud.
-          echo "::error::No files listed in docker-byte-identical.yml; refusing to skip drift validation."
-          exit 1
-        fi
-
-        # Reject duplicate entries -- they'd just check the same file twice
-        # but indicate a config bug worth surfacing.
-        DUPES=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
-        if [ -n "$DUPES" ]; then
-          echo "::error::Duplicate entries in docker-byte-identical.yml files: $DUPES"
-          exit 1
-        fi
-
-        # Reject entries that don't resolve to a file in the current checkout.
-        # Without this, a typo in docker-byte-identical.yml causes the loop
-        # below to produce confusing 'master sha:' empty values (the sha256sum
-        # call fails) rather than a clean "fix the config" message.
-        MISSING=()
-        for FILE in "${FILES_ALL[@]}"; do
-          [ -f "$FILE" ] || MISSING+=("$FILE")
-        done
-        if [ ${#MISSING[@]} -gt 0 ]; then
-          echo "::error::Files listed in docker-byte-identical.yml but missing from current checkout: ${MISSING[*]}"
-          exit 1
-        fi
-
-        FAIL=0
-        for BRANCH in "${REL_BRANCHES[@]}"; do
-          echo "::group::Branch $BRANCH"
-          for FILE in "${FILES_ALL[@]}"; do
-            LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
-            URL="https://raw.githubusercontent.com/openemr/openemr/${BRANCH}/${FILE}"
-            STATUS=$(curl -s -o /tmp/remote -w '%{http_code}' "$URL")
-            if [ "$STATUS" != "200" ]; then
-              echo "::warning::${BRANCH}:${FILE} not present (HTTP $STATUS); expected before phase 2 lands on that branch."
-              continue
-            fi
-            REMOTE_SHA=$(sha256sum /tmp/remote | cut -d' ' -f1)
-            if [ "$LOCAL_SHA" != "$REMOTE_SHA" ]; then
-              echo "::error file=${FILE}::Drift: ${BRANCH}:${FILE} differs from master"
-              echo "  master sha:  $LOCAL_SHA"
-              echo "  ${BRANCH} sha: $REMOTE_SHA"
-              echo "  Fix: open a sync PR to ${BRANCH} (or revert master's change if the master edit was unintentional)."
-              FAIL=1
-            else
-              echo "✓ ${BRANCH}:${FILE} matches master"
-            fi
-          done
-          echo "::endgroup::"
-        done
-        [ "$FAIL" -eq 0 ] || exit 1
-        echo
-        echo "✓ All byte-identical files match across master and every rel branch."
+    - name: Diff byte-identical files (master/rel context-aware)
+      run: bash .github/scripts/validate-byte-identical.sh
