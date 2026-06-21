@@ -18,7 +18,7 @@ on:
     - 'docker/flex/**'
     - '.github/actions/test-actions-core/action.yml'
     - '.github/workflows/docker-test-core.yml'
-    - 'docker/compose.yml'
+    - '.github/docker/compose.yml'
   pull_request:
     branches:
     - master
@@ -27,7 +27,7 @@ on:
     - 'docker/flex/**'
     - '.github/actions/test-actions-core/action.yml'
     - '.github/workflows/docker-test-core.yml'
-    - 'docker/compose.yml'
+    - '.github/docker/compose.yml'
 
 jobs:
   build:
