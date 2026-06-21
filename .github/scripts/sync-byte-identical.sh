@@ -154,11 +154,22 @@ done
 # Rename / removed-from-config sweep: walk the rel branch's own
 # docker-byte-identical.yml (if it has one). Entries that are in rel's
 # FILES_ALL but not master's are paths master dropped from the managed
-# set -- either renamed to a new path (the new path appears in master's
-# config and was already handled as `add` by the main loop above) or
-# removed entirely. Either way, the old path lingering on the rel branch
-# is orphaned and should be deleted, so the rel-branch tree converges
-# on master's intent.
+# set. There are three sub-cases, distinguished by whether master still
+# carries the file at that path:
+#
+#   1. Master neither lists nor carries the path. True removal (or
+#      rename -- the new path appears in master's config and was already
+#      handled as `add` by the main loop above). The old path lingering
+#      on the rel branch is orphaned -- delete it.
+#
+#   2. Master still carries the path but dropped it from FILES_ALL.
+#      Deliberate "demote to per-branch divergence" -- the file is no
+#      longer being byte-identity-enforced. Leave the rel-branch copy
+#      alone; it can now legitimately drift.
+#
+#   3. Path not on rel branch HEAD either. Rel's FILES_ALL lists a
+#      path no one carries -- a config bug on rel's side. Silent skip;
+#      the canary's main loop is what surfaces config bugs, not sync.
 if git cat-file -e "HEAD:.github/docker-byte-identical.yml" 2>/dev/null; then
   rel_config_contents=$(git show "HEAD:.github/docker-byte-identical.yml")
   rel_files_yq_output=$(echo "${rel_config_contents}" | yq -r '.files[]')
@@ -175,14 +186,19 @@ if git cat-file -e "HEAD:.github/docker-byte-identical.yml" 2>/dev/null; then
   if [[ -n "${rel_only}" ]]; then
     while IFS= read -r STALE; do
       [[ -z "${STALE}" ]] && continue
-      if git cat-file -e "HEAD:${STALE}" 2>/dev/null; then
-        echo "  - ${STALE}  (delete: removed from FILES_ALL on master)"
-        git rm "${STALE}" >/dev/null
-        CHANGES+=("delete: ${STALE}")
+      if ! git cat-file -e "HEAD:${STALE}" 2>/dev/null; then
+        continue   # case 3: rel doesn't have the file either
       fi
-      # If the path isn't on rel branch HEAD either, nothing to do --
-      # rel's FILES_ALL just lists a path no one carries. Skip silently;
-      # the canary's main loop is responsible for surfacing config bugs.
+      if git cat-file -e "master:${STALE}" 2>/dev/null; then
+        # case 2: master still carries the file, just stopped enforcing
+        # byte-identity. Leave rel's copy alone.
+        echo "  ${STALE}  (skip: dropped from FILES_ALL but master still carries the file -- per-branch divergence now allowed)"
+        continue
+      fi
+      # case 1: true removal (or rename's old-path side).
+      echo "  - ${STALE}  (delete: master removed this path entirely)"
+      git rm "${STALE}" >/dev/null
+      CHANGES+=("delete: ${STALE}")
     done <<< "${rel_only}"
   fi
 fi
