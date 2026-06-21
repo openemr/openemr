@@ -33,7 +33,7 @@ jobs:
     if: ${{ inputs.is_production_docker }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Collect OpenEMR Prod Dockerfiles
       id: docker-dirs
       ##
@@ -95,7 +95,7 @@ jobs:
       COMPOSE_BAKE: "1"
       DOCKER_BUILDKIT: "1"
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: ./.github/actions/test-actions-core
       with:
         is_production_docker: ${{ inputs.is_production_docker }}
@@ -118,7 +118,7 @@ jobs:
       # Surfaces phase timing in openemr.sh — see openemr-devops#797.
       OPENEMR_FLEX_TIMING: ${{ inputs.flex_timing && '1' || '' }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: ./.github/actions/test-actions-core
       with:
         is_production_docker: ${{ inputs.is_production_docker }}
