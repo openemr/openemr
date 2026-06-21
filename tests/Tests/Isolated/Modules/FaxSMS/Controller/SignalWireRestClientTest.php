@@ -31,7 +31,6 @@ use Composer\Autoload\ClassLoader;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\Client;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\FaxInstance;
@@ -99,7 +98,6 @@ final class SignalWireRestClientTest extends TestCase
         ]);
 
         // Response mapping: snake_case -> camelCase, with numeric coercion.
-        self::assertInstanceOf(FaxInstance::class, $fax);
         self::assertSame('FX0000000000000000000000000000aa', $fax->sid);
         self::assertSame('queued', $fax->status);
         self::assertSame('outbound', $fax->direction);
@@ -211,8 +209,10 @@ final class SignalWireRestClientTest extends TestCase
 
         // Two HTTP round-trips: the base collection, then the next_page_uri.
         self::assertCount(2, $history);
-        self::assertSame(self::EXPECTED_PATH, $history[1]['request']->getUri()->getPath());
-        parse_str($history[1]['request']->getUri()->getQuery(), $secondQuery);
+        self::assertArrayHasKey(1, $history);
+        $secondRequest = $history[1];
+        self::assertSame(self::EXPECTED_PATH, $secondRequest->getUri()->getPath());
+        parse_str($secondRequest->getUri()->getQuery(), $secondQuery);
         self::assertSame('abc', $secondQuery['PageToken'] ?? null);
     }
 
@@ -336,7 +336,7 @@ final class SignalWireRestClientTest extends TestCase
             new Response(200, [], (string) json_encode(['sid' => 'FXz', 'status' => 'queued'])),
         ]);
         $stack = HandlerStack::create($mock);
-        $stack->push(Middleware::history($history));
+        $this->recordRequestsInto($stack, $history);
         $guzzle = new GuzzleClient(['handler' => $stack]);
 
         $client = new Client(self::PROJECT, self::TOKEN, [
@@ -366,13 +366,13 @@ final class SignalWireRestClientTest extends TestCase
      * recording outgoing requests into $history.
      *
      * @param list<Response>                                            $responses
-     * @param array<int, array{request: RequestInterface, response: mixed}> $history
+     * @param list<RequestInterface> $history
      */
     private function makeClient(array $responses, array &$history): Client
     {
         $mock = new MockHandler($responses);
         $stack = HandlerStack::create($mock);
-        $stack->push(Middleware::history($history));
+        $this->recordRequestsInto($stack, $history);
         $guzzle = new GuzzleClient(['handler' => $stack]);
 
         return new Client(self::PROJECT, self::TOKEN, [
@@ -382,12 +382,31 @@ final class SignalWireRestClientTest extends TestCase
     }
 
     /**
-     * @param array<int, array{request: RequestInterface, response: mixed}> $history
+     * Record each outgoing request into the given list. Replaces Guzzle's
+     * history middleware, whose container is typed array|ArrayAccess and
+     * would otherwise force every reader to re-narrow the captured entries.
+     *
+     * @param list<RequestInterface> $history
+     */
+    private function recordRequestsInto(HandlerStack $stack, array &$history): void
+    {
+        $stack->push(static function (callable $handler) use (&$history): callable {
+            return static function (RequestInterface $request, array $options) use ($handler, &$history): mixed {
+                $history[] = $request;
+                return $handler($request, $options);
+            };
+        });
+    }
+
+    /**
+     * @param list<RequestInterface> $history
      */
     private function lastRequest(array $history): RequestInterface
     {
         self::assertNotEmpty($history, 'Expected at least one HTTP request to have been made.');
-        return $history[array_key_last($history)]['request'];
+        $last = end($history);
+        self::assertInstanceOf(RequestInterface::class, $last);
+        return $last;
     }
 
     private function expectedBasicAuthHeader(): string

@@ -22,12 +22,11 @@ use Composer\Autoload\ClassLoader;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Response;
 use OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest\Client;
-use OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest\MessageInstance;
 use OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest\RestException;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 
 final class TwilioRestClientTest extends TestCase
 {
@@ -35,7 +34,7 @@ final class TwilioRestClientTest extends TestCase
     private const AUTH_USER = 'SK00000000000000000000000000000002';
     private const AUTH_PASS = 'secret-token';
 
-    /** @var array<int, array<string, mixed>> */
+    /** @var list<RequestInterface> */
     private array $history = [];
 
     public static function setUpBeforeClass(): void
@@ -55,23 +54,29 @@ final class TwilioRestClientTest extends TestCase
     /**
      * Build a shim Client whose transport uses a mocked Guzzle handler.
      *
-     * @param Response[] $responses
+     * @param list<Response> $responses
      */
     private function clientWith(array $responses): Client
     {
         $this->history = [];
         $stack = HandlerStack::create(new MockHandler($responses));
-        $stack->push(Middleware::history($this->history));
+        $stack->push(function (callable $handler): callable {
+            return function (RequestInterface $request, array $options) use ($handler): mixed {
+                $this->history[] = $request;
+                return $handler($request, $options);
+            };
+        });
         $guzzle = new GuzzleClient(['handler' => $stack]);
 
         return new Client(self::AUTH_USER, self::AUTH_PASS, self::ACCOUNT_SID, $guzzle);
     }
 
-    private function lastRequest(): \Psr\Http\Message\RequestInterface
+    private function lastRequest(): RequestInterface
     {
         self::assertNotEmpty($this->history, 'Expected at least one HTTP request to have been recorded.');
-        $entry = end($this->history);
-        return $entry['request'];
+        $last = end($this->history);
+        self::assertInstanceOf(RequestInterface::class, $last);
+        return $last;
     }
 
     /**
@@ -118,7 +123,6 @@ final class TwilioRestClientTest extends TestCase
         $this->assertSame('+15559990000', $form['From']);
         $this->assertSame('Hello there', $form['Body']);
 
-        $this->assertInstanceOf(MessageInstance::class, $message);
         $this->assertSame('SM0000000000000000000000000000000a', $message->sid);
         $this->assertSame('queued', $message->status);
     }
@@ -200,7 +204,8 @@ final class TwilioRestClientTest extends TestCase
 
         // Second call followed the absolute next_page_uri.
         $this->assertCount(2, $this->history);
-        $secondUrl = (string)$this->history[1]['request']->getUri();
+        $this->assertArrayHasKey(1, $this->history);
+        $secondUrl = (string)$this->history[1]->getUri();
         $this->assertStringContainsString('api.twilio.com', $secondUrl);
         $this->assertStringContainsString('Page=1', $secondUrl);
     }
