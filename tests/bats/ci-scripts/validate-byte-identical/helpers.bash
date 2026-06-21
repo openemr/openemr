@@ -43,6 +43,14 @@ setup_test_dir() {
 
     cd "${CWD}" || exit 1
     mkdir -p .github
+
+    # Force plain output regardless of caller environment. On GitHub
+    # Actions runners GITHUB_ACTIONS=true is set globally, which would
+    # flip the script into ::error::/::warning:: annotation mode and
+    # break the plain-text substring asserts. Tests set the other
+    # GH context env vars explicitly via set_*_context, so they don't
+    # need defensive unsetting here.
+    unset GITHUB_ACTIONS
 }
 
 teardown_test_dir() {
