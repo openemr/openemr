@@ -35,6 +35,20 @@
 # NOT enabled -- the sync PRs are review-gated by default so substantive
 # changes (refactor of a FILES_ALL workflow, not just a dependabot bump)
 # get human eyes before landing on the rel branches.
+#
+# Rel-branch inheritance note: future rel branches cut from master will
+# inherit this workflow file (plus the script + tests it references). That
+# is harmless. The push trigger above filters to master only; GitHub
+# Actions' schedule: trigger only fires from the default branch (master);
+# the test workflow that runs the BATS suite only fires on PRs targeting
+# master. The only path that exercises a rel-branch copy is an explicit
+# workflow_dispatch against that branch -- which still does the right
+# thing because the apply step fetches master's copy of the script via
+# `git show master:.github/scripts/sync-byte-identical.sh`. So a manual
+# dispatch against rel-820 syncs rel-820 to master's FILES_ALL using
+# master's logic, regardless of what version of this workflow lives on
+# rel-820. The rel-branch copies are dead weight but never produce
+# unexpected behavior.
 
 name: Sync byte-identical files to rel branches
 
@@ -108,82 +122,28 @@ jobs:
 
     - name: Apply master's FILES_ALL content to the rel-branch working tree
       id: apply
+      env:
+        OUTPUT_DIR: ${{ runner.temp }}
+        TARGET_BRANCH: ${{ matrix.branch }}
       run: |
-        # Read FILES_ALL from master's copy of the config -- the rel branch
-        # may not have the config file at all (pre-PR-D state), but master
-        # is always the source of truth.
-        mapfile -t FILES_ALL < <(git show master:.github/docker-byte-identical.yml | yq -r '.files[]')
+        # Classification + apply logic lives in a standalone script so the
+        # 5-case behavior (identical/add/update/delete/both-missing) is
+        # unit-tested by tests/bats/ci-scripts/sync-byte-identical/.
+        #
+        # The script lives on master only (per PR #12578 scope -- not in
+        # FILES_ALL, no need to sync it to rel branches). The current
+        # checkout is the rel branch, which may not have the script at
+        # all. Materialize master's copy into RUNNER_TEMP and run that.
+        git show master:.github/scripts/sync-byte-identical.sh > "$RUNNER_TEMP/sync-byte-identical.sh"
+        bash "$RUNNER_TEMP/sync-byte-identical.sh" "$TARGET_BRANCH"
 
-        if [ ${#FILES_ALL[@]} -eq 0 ]; then
-          # Fail closed: an empty FILES_ALL would propagate "delete every
-          # synced file" to every rel branch, which is almost certainly a
-          # config bug (yq misparse, file blanked, etc.).
-          echo "::error::No files in master's docker-byte-identical.yml; refusing to sync."
-          exit 1
-        fi
-
-        # Reject duplicate entries -- they don't break anything (sync is
-        # idempotent) but they're an unambiguous config bug worth surfacing.
-        DUPES=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
-        if [ -n "$DUPES" ]; then
-          echo "::error::Duplicate entries in docker-byte-identical.yml files: $DUPES"
-          exit 1
-        fi
-
-        MASTER_SHA=$(git rev-parse master)
-        echo "Syncing master ($MASTER_SHA) -> ${{ matrix.branch }}"
-        echo "Files in FILES_ALL: ${#FILES_ALL[@]}"
-
-        CHANGES=()
-        for FILE in "${FILES_ALL[@]}"; do
-          MASTER_HAS=$(git cat-file -e "master:$FILE" 2>/dev/null && echo y || echo n)
-          BRANCH_HAS=$(git cat-file -e "HEAD:$FILE" 2>/dev/null && echo y || echo n)
-
-          if [ "$MASTER_HAS" = "n" ] && [ "$BRANCH_HAS" = "n" ]; then
-            # File is listed as byte-identical but exists in neither master
-            # nor this rel branch -- unambiguous config bug (someone removed
-            # the file but forgot to update docker-byte-identical.yml). Fail
-            # loud so it gets fixed instead of silently dropping out of the
-            # invariant.
-            echo "::error::$FILE: listed in docker-byte-identical.yml but missing from both master and ${{ matrix.branch }}"
-            exit 1
-          fi
-
-          if [ "$MASTER_HAS" = "y" ] && [ "$BRANCH_HAS" = "n" ]; then
-            echo "  + $FILE  (add)"
-            mkdir -p "$(dirname "$FILE")"
-            git show "master:$FILE" > "$FILE"
-            CHANGES+=("add: $FILE")
-            continue
-          fi
-
-          if [ "$MASTER_HAS" = "n" ] && [ "$BRANCH_HAS" = "y" ]; then
-            echo "  - $FILE  (delete)"
-            git rm "$FILE"
-            CHANGES+=("delete: $FILE")
-            continue
-          fi
-
-          # Both present -- compare hashes
-          MASTER_HASH=$(git rev-parse "master:$FILE")
-          BRANCH_HASH=$(git rev-parse "HEAD:$FILE")
-          if [ "$MASTER_HASH" = "$BRANCH_HASH" ]; then
-            continue
-          fi
-
-          echo "  ~ $FILE  (update from master)"
-          git show "master:$FILE" > "$FILE"
-          CHANGES+=("update: $FILE")
-        done
-
-        if [ ${#CHANGES[@]} -eq 0 ]; then
-          echo "No changes needed for ${{ matrix.branch }}"
-          echo "has_changes=false" >> "$GITHUB_OUTPUT"
-        else
-          printf '%s\n' "${CHANGES[@]}" > "$RUNNER_TEMP/changes.txt"
+        # Translate the script's structured outputs into GitHub step outputs.
+        echo "master_sha=$(cat "$OUTPUT_DIR/master-sha.txt")" >> "$GITHUB_OUTPUT"
+        if [ -s "$OUTPUT_DIR/changes.txt" ]; then
           echo "has_changes=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "has_changes=false" >> "$GITHUB_OUTPUT"
         fi
-        echo "master_sha=$MASTER_SHA" >> "$GITHUB_OUTPUT"
 
     - name: Render PR body
       if: steps.apply.outputs.has_changes == 'true'

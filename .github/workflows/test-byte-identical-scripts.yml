@@ -1,0 +1,46 @@
+# Runs the BATS test suite for .github/scripts/sync-byte-identical.sh.
+#
+# Fires on PR changes to the script itself, its tests, or this workflow.
+# Fast suite (~10 tests, all using synthetic in-memory git repos -- no
+# network, no Docker), so the cost of running on every touch is minimal.
+#
+# Pattern matches docker-test-bats.yml: clone bats-core at the repo-pinned
+# version (v1.13.0) and put it on PATH. No bats-support / bats-assert
+# dependencies needed -- the tests use plain [[ ]] asserts.
+#
+# Not in any byte-identical set: this workflow and the script it tests
+# live on master only (they support the master-only auto-sync workflow);
+# rel branches never invoke them.
+
+name: Test byte-identical scripts
+
+on:
+  pull_request:
+    branches:
+    - master
+    paths:
+    - '.github/scripts/sync-byte-identical.sh'
+    - 'tests/bats/ci-scripts/sync-byte-identical/**'
+    - '.github/workflows/test-byte-identical-scripts.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false
+
+    - name: Install Bats
+      run: |
+        git clone --depth 1 --branch v1.13.0 https://github.com/bats-core/bats-core.git /tmp/bats-core
+        /tmp/bats-core/install.sh "$HOME/bats"
+        echo "$HOME/bats/bin" >> "$GITHUB_PATH"
+
+    - name: Run BATS test suite
+      run: bats tests/bats/ci-scripts/sync-byte-identical/
