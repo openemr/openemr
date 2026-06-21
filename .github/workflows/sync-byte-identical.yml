@@ -74,7 +74,7 @@ jobs:
     outputs:
       branches: ${{ steps.list.outputs.branches }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
       with:
         persist-credentials: false   # this job only reads release-targets.yml; no git push
     - name: Read rel branches from release-targets.yml
@@ -108,7 +108,7 @@ jobs:
         permission-pull-requests: write
 
     - name: Checkout rel branch
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: ${{ matrix.branch }}
         token: ${{ steps.app-token.outputs.token }}

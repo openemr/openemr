@@ -55,7 +55,7 @@ jobs:
       matrix: ${{ steps.gen.outputs.matrix }}
     steps:
     - name: Sparse checkout of release-targets.yml
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         sparse-checkout: |
           .github/release-targets.yml

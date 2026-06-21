@@ -35,7 +35,7 @@ jobs:
     # clone, and openemr's .gitmodules points at private/missing repos
     # (inferno-files in particular returns 403). A local checkout dodges
     # the submodule fetch entirely.
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v4
     - name: Set up Docker Buildx

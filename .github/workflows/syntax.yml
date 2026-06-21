@@ -28,7 +28,7 @@ jobs:
         php: ${{ github.event_name == 'pull_request' && fromJson('["8.2"]') || fromJson('["8.2", "8.3", "8.4", "8.5", "8.6"]') }}
     name: PHP ${{ matrix.php }}
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Setup PHP
       uses: ./.github/actions/setup-php-composer

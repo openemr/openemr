@@ -38,7 +38,7 @@ jobs:
     name: Functionality release
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set test args
       id: args
       env:
@@ -81,7 +81,7 @@ jobs:
     name: Functionality binary
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set test args
       id: args
       env:
@@ -124,7 +124,7 @@ jobs:
     name: Functionality flex
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - name: Set test args
       id: args
       env:
