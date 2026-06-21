@@ -1,38 +1,37 @@
 # Validates that the files which are promised byte-identical across master
 # and every rel-X.Y.Z branch actually stay that way.
 #
+# Source of truth for the file set is .github/docker-byte-identical.yml.
+# Source of truth for the rel branches is .github/release-targets.yml.
+# Both are read at workflow-run time -- this file holds no hardcoded list.
+#
+# This workflow and its config file (.github/docker-byte-identical.yml)
+# travel as a pair. Both live on master only today; if a future change
+# syncs this workflow to rel branches (e.g. to fire the canary on rel-*
+# PR triggers, which today is no-op because the workflow file isn't
+# present on the base), the config file must sync alongside it -- the
+# yq read below fails if the config is missing.
+#
 # The orchestrator-driven docker release pipeline (see
 # docker-release-orchestrator.yml + .github/release-targets.yml) leans on
-# the invariant that certain workflow + composite + compose + doc files
-# are character-for-character identical across master and every rel
-# branch. That invariant is structural -- if it drifts, the orchestrator
-# can dispatch the same logical build against two branches and silently
-# get two different behaviors, which defeats the whole "byte-identical
-# build pipeline" property the planning doc (openemr-devops#790)
-# established.
+# the invariant that certain workflow + composite + compose files are
+# character-for-character identical across master and every rel branch.
+# That invariant is structural -- if it drifts, the orchestrator can
+# dispatch the same logical build against two branches and silently get
+# two different behaviors, which defeats the whole "byte-identical build
+# pipeline" property the planning doc (openemr-devops#790) established.
 #
-# This workflow asserts the invariant. Three trigger sources:
+# Three trigger sources:
 #
-#   1. pull_request on master, gated on `paths:` so it only fires when
-#      one of the watched files changes. Catches the case where a PR
-#      lands a change on master but forgets the matching sync PRs to
-#      the rel branches.
+#   1. pull_request on master or any rel-* branch -- catches drift the
+#      moment a PR proposes it. Runs on every PR (the diff check is
+#      fast, fetching N files once each per rel branch); no paths:
+#      filter to keep in sync with the source-of-truth list.
 #
 #   2. schedule, daily at 07:00 UTC -- one hour after the build
-#      orchestrator. Catches latent drift that happened via an unrelated
-#      PR to a rel branch.
+#      orchestrator. Catches latent drift introduced via any other path.
 #
 #   3. workflow_dispatch -- manual dry-run when investigating.
-#
-# Files in the byte-identical set are listed in FILES_ALL below.
-# Conditional files (e.g. tests/bats/docker/helpers.bash, which only
-# lives on master + rel-810 today because rel-800 and rel-704 don't
-# carry BATS) are a follow-up; for now this workflow only asserts the
-# unconditional set.
-#
-# Rel branches come from .github/release-targets.yml so adding a new
-# rel branch automatically extends the check -- no edit to this file
-# needed.
 
 name: Validate byte-identical files
 
@@ -46,16 +45,6 @@ on:
     branches:
     - master
     - 'rel-*'
-    paths:
-    - '.github/workflows/docker-build-release.yml'
-    - '.github/workflows/docker-test-core.yml'
-    - '.github/actions/test-actions-core/action.yml'
-    - 'docker/compose.yml'
-    - 'docker/.gitignore'
-    - 'docker/COVERAGE.md'
-    - 'docker/README.md'
-    - '.github/release-targets.yml'
-    - '.github/workflows/docker-validate-byte-identical.yml'
 
 permissions:
   contents: read
@@ -69,37 +58,24 @@ jobs:
 
     - name: Diff every byte-identical file against every rel branch in release-targets.yml
       run: |
-        # Files that must stay byte-identical across master and every rel branch.
-        # Intentionally NOT in this list because they differ per branch:
-        #   docker/release/Dockerfile          (version-pinned per branch)
-        #   docker-test-bats.yml               (master 3 jobs, rel-810 1 job, rel-800/rel-704 absent)
-        #   docker-test-container-functionality.yml (same shape as bats)
-        #   docker/README.md                   (master describes the full subdir set
-        #                                       including flex/, binary/, dockerhub/,
-        #                                       container_benchmarking/; rel branches'
-        #                                       docker/ doesn't carry those, so the
-        #                                       README content legitimately differs)
-        FILES_ALL=(
-          .github/workflows/docker-build-release.yml
-          .github/workflows/docker-test-core.yml
-          .github/workflows/docker-test-release.yml
-          .github/actions/test-actions-core/action.yml
-          docker/compose.yml
-          docker/.gitignore
-          docker/COVERAGE.md
-        )
+        mapfile -t FILES_ALL < <(yq -r '.files[]' .github/docker-byte-identical.yml)
+        mapfile -t REL_BRANCHES < <(yq -r '.[] | select(.branch != "master") | .branch' .github/release-targets.yml)
 
-        # Rel branches come from the canonical orchestrator data file.
-        REL_BRANCHES=$(yq -o=json -I=0 . .github/release-targets.yml \
-          | jq -r '.[] | select(.branch != "master") | .branch')
-
-        if [ -z "$REL_BRANCHES" ]; then
+        if [ ${#REL_BRANCHES[@]} -eq 0 ]; then
           echo "::warning::No rel branches found in release-targets.yml -- nothing to check."
           exit 0
         fi
+        if [ ${#FILES_ALL[@]} -eq 0 ]; then
+          # Fail closed: an empty FILES_ALL would silently disable the
+          # canary. The only paths that get here are accidental edits to
+          # docker-byte-identical.yml (the file emptied or its YAML
+          # malformed) or yq misbehaving -- all of which we want loud.
+          echo "::error::No files listed in docker-byte-identical.yml; refusing to skip drift validation."
+          exit 1
+        fi
 
         FAIL=0
-        for BRANCH in $REL_BRANCHES; do
+        for BRANCH in "${REL_BRANCHES[@]}"; do
           echo "::group::Branch $BRANCH"
           for FILE in "${FILES_ALL[@]}"; do
             LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
