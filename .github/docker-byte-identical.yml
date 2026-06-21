@@ -1,0 +1,42 @@
+# Files that must stay byte-identical across master and every rel branch
+# listed in .github/release-targets.yml. This file is the source-of-truth
+# list consumed by the byte-identical drift canary (and any future tooling
+# that needs to operate on the same set, e.g. an auto-sync workflow).
+#
+# Inclusion criterion: per-branch divergence of this file would produce
+# *different runtime behavior*. The orchestrator dispatches identical
+# workflow + composite + compose content against every rel branch and
+# expects identical execution semantics; files where divergence would
+# break that expectation belong here. Files whose divergence has only
+# cosmetic / documentation impact don't qualify.
+#
+# Consumed by:
+#   .github/workflows/docker-validate-byte-identical.yml  (drift canary)
+#
+# To add a file: append under `files:`. The canary picks it up on the
+# next run; no workflow edit needed.
+#
+# To remove a file: move it from `files:` to the comment block below
+# with a one-line reason.
+#
+# Intentionally NOT in this list (per-branch divergence is correct or
+# tolerable):
+#   docker/release/Dockerfile                      version-pinned per branch
+#   .github/workflows/docker-test-bats.yml         master 3 jobs / rel-810 1 job / rel-800 + rel-704 absent
+#   .github/workflows/docker-test-container-functionality.yml
+#                                                  same shape as bats
+#   docker/README.md                               master describes the full
+#                                                  subdir set including flex/,
+#                                                  binary/, dockerhub/,
+#                                                  container_benchmarking/;
+#                                                  rel branches' docker/
+#                                                  doesn't carry those
+
+files:
+- .github/workflows/docker-build-release.yml
+- .github/workflows/docker-test-core.yml
+- .github/workflows/docker-test-release.yml
+- .github/actions/test-actions-core/action.yml
+- docker/compose.yml
+- docker/.gitignore
+- docker/COVERAGE.md
