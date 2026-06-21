@@ -110,11 +110,18 @@ jobs:
       id: apply
       env:
         OUTPUT_DIR: ${{ runner.temp }}
+        TARGET_BRANCH: ${{ matrix.branch }}
       run: |
         # Classification + apply logic lives in a standalone script so the
         # 5-case behavior (identical/add/update/delete/both-missing) is
-        # unit-tested by .github/scripts/tests/test-sync-byte-identical.sh.
-        bash .github/scripts/sync-byte-identical.sh "${{ matrix.branch }}"
+        # unit-tested by tests/bats/ci-scripts/sync-byte-identical/.
+        #
+        # The script lives on master only (per PR #12578 scope -- not in
+        # FILES_ALL, no need to sync it to rel branches). The current
+        # checkout is the rel branch, which may not have the script at
+        # all. Materialize master's copy into RUNNER_TEMP and run that.
+        git show master:.github/scripts/sync-byte-identical.sh > "$RUNNER_TEMP/sync-byte-identical.sh"
+        bash "$RUNNER_TEMP/sync-byte-identical.sh" "$TARGET_BRANCH"
 
         # Translate the script's structured outputs into GitHub step outputs.
         echo "master_sha=$(cat "$OUTPUT_DIR/master-sha.txt")" >> "$GITHUB_OUTPUT"

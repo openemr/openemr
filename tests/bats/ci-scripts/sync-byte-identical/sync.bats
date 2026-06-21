@@ -27,6 +27,7 @@ teardown() {
     OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
 
     [[ $status -eq 0 ]]
+    [[ -f "$OUTPUT_DIR/changes.txt" ]]   # contract: file always created
     [[ ! -s "$OUTPUT_DIR/changes.txt" ]]
 }
 
@@ -137,6 +138,7 @@ teardown() {
     [[ "$(cat src/changed.txt)" == "new" ]]                # updated
     [[ "$(cat src/added.txt)" == "added-on-master" ]]      # added
     [[ ! -f src/removed.txt ]]                             # deleted
+    [[ -f "$OUTPUT_DIR/changes.txt" ]]   # contract: file always created
     grep -qxF "update: src/changed.txt" "$OUTPUT_DIR/changes.txt"
     grep -qxF "add: src/added.txt" "$OUTPUT_DIR/changes.txt"
     grep -qxF "delete: src/removed.txt" "$OUTPUT_DIR/changes.txt"

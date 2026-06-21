@@ -52,7 +52,7 @@ output_dir="${OUTPUT_DIR:-$(mktemp -d)}"
 
 emit_error() {
   local msg="$1"
-  if [ "${GITHUB_ACTIONS:-}" = "true" ]; then
+  if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
     echo "::error::${msg}" >&2
   else
     echo "ERROR: ${msg}" >&2
@@ -70,71 +70,84 @@ git rev-parse --verify master >/dev/null 2>&1 || {
   exit 2
 }
 
-mkdir -p "$output_dir"
+mkdir -p "${output_dir}"
 
 # Read the FILES_ALL set from master's config file. Even if the rel branch
 # has its own copy, master is the source of truth -- we never sync FROM a
-# rel branch's view.
-mapfile -t FILES_ALL < <(git show master:.github/docker-byte-identical.yml | yq -r '.files[]')
+# rel branch's view. Each subprocess invocation is captured separately to
+# avoid SC2312 (pipeline return values being masked by mapfile process
+# substitution).
+config_contents=$(git show master:.github/docker-byte-identical.yml)
+files_yq_output=$(echo "${config_contents}" | yq -r '.files[]')
+mapfile -t FILES_ALL <<<"${files_yq_output}"
+# When the yq output is empty, mapfile produces a single empty element;
+# normalize to an empty array so the length-zero check below is honest.
+if [[ ${#FILES_ALL[@]} -eq 1 && -z "${FILES_ALL[0]}" ]]; then
+  FILES_ALL=()
+fi
 
-if [ ${#FILES_ALL[@]} -eq 0 ]; then
+if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
   emit_error "No files in master's docker-byte-identical.yml; refusing to sync (an empty list would propagate 'delete every synced file' to every rel branch)."
   exit 1
 fi
 
 # Reject duplicates -- idempotent in practice, but a config bug worth surfacing.
-DUPES=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
-if [ -n "$DUPES" ]; then
-  emit_error "Duplicate entries in docker-byte-identical.yml files: $(echo "$DUPES" | tr '\n' ' ')"
+dupes=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
+if [[ -n "${dupes}" ]]; then
+  dupes_one_line=$(echo "${dupes}" | tr '\n' ' ')
+  emit_error "Duplicate entries in docker-byte-identical.yml files: ${dupes_one_line}"
   exit 1
 fi
 
 master_sha=$(git rev-parse master)
-echo "Syncing master ($master_sha) -> ${target_branch}"
+echo "Syncing master (${master_sha}) -> ${target_branch}"
 echo "Files in FILES_ALL: ${#FILES_ALL[@]}"
 
 CHANGES=()
 for FILE in "${FILES_ALL[@]}"; do
-  master_has=$(git cat-file -e "master:$FILE" 2>/dev/null && echo y || echo n)
-  branch_has=$(git cat-file -e "HEAD:$FILE" 2>/dev/null && echo y || echo n)
+  master_has=n
+  branch_has=n
+  if git cat-file -e "master:${FILE}" 2>/dev/null; then master_has=y; fi
+  if git cat-file -e "HEAD:${FILE}" 2>/dev/null; then branch_has=y; fi
 
-  if [ "$master_has" = "n" ] && [ "$branch_has" = "n" ]; then
+  if [[ "${master_has}" == "n" ]] && [[ "${branch_has}" == "n" ]]; then
     # File is in FILES_ALL but absent from both branches -- always a config
     # bug (someone removed the file but forgot to update the list).
     emit_error "${FILE}: listed in docker-byte-identical.yml but missing from both master and ${target_branch}"
     exit 1
   fi
 
-  if [ "$master_has" = "y" ] && [ "$branch_has" = "n" ]; then
+  if [[ "${master_has}" == "y" ]] && [[ "${branch_has}" == "n" ]]; then
     echo "  + ${FILE}  (add)"
-    mkdir -p "$(dirname "$FILE")"
-    git show "master:$FILE" > "$FILE"
-    CHANGES+=("add: $FILE")
+    dir=$(dirname "${FILE}")
+    mkdir -p "${dir}"
+    git show "master:${FILE}" > "${FILE}"
+    CHANGES+=("add: ${FILE}")
     continue
   fi
 
-  if [ "$master_has" = "n" ] && [ "$branch_has" = "y" ]; then
+  if [[ "${master_has}" == "n" ]] && [[ "${branch_has}" == "y" ]]; then
     echo "  - ${FILE}  (delete)"
-    git rm "$FILE" >/dev/null
-    CHANGES+=("delete: $FILE")
+    git rm "${FILE}" >/dev/null
+    CHANGES+=("delete: ${FILE}")
     continue
   fi
 
   # Both present -- compare blob hashes
-  master_hash=$(git rev-parse "master:$FILE")
-  branch_hash=$(git rev-parse "HEAD:$FILE")
-  if [ "$master_hash" = "$branch_hash" ]; then
+  master_hash=$(git rev-parse "master:${FILE}")
+  branch_hash=$(git rev-parse "HEAD:${FILE}")
+  if [[ "${master_hash}" == "${branch_hash}" ]]; then
     continue
   fi
 
   echo "  ~ ${FILE}  (update from master)"
-  git show "master:$FILE" > "$FILE"
-  CHANGES+=("update: $FILE")
+  git show "master:${FILE}" > "${FILE}"
+  CHANGES+=("update: ${FILE}")
 done
 
 # Write structured outputs
 echo "${master_sha}" > "${output_dir}/master-sha.txt"
-if [ ${#CHANGES[@]} -eq 0 ]; then
+if [[ ${#CHANGES[@]} -eq 0 ]]; then
   : > "${output_dir}/changes.txt"  # empty file
   echo "No changes needed for ${target_branch}"
 else
