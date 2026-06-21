@@ -47,7 +47,7 @@ files:
 - .github/workflows/docker-test-core.yml
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
-- docker/compose.yml
+- .github/docker/compose.yml
 - .github/workflows/docker-validate-byte-identical.yml
 - .github/docker-byte-identical.yml
 - .github/scripts/validate-byte-identical.sh
