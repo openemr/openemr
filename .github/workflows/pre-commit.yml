@@ -7,12 +7,14 @@ on:
     - rel-*
     paths:
     - '.github/workflows/*.yml'
+    - '.pre-commit-config.yaml'
   pull_request:
     branches:
     - master
     - rel-*
     paths:
     - '.github/workflows/*.yml'
+    - '.pre-commit-config.yaml'
 
 permissions:
   contents: read
@@ -29,6 +31,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v6
 
+    # Run every upstream-pinned hook against all files. Catches:
+    # (a) workflow-YAML changes that fail actionlint, and
+    # (b) Dependabot bumps of any hook rev in .pre-commit-config.yaml
+    #     (pre-commit-hooks, language-formatters-pre-commit-hooks,
+    #     codespell, actionlint, hadolint-py).
+    # Local hooks (PHP/composer) are skipped here -- they need the openemr
+    # container's toolchain and have their own CI workflows (phpstan.yml,
+    # phpcs.yml, etc.). Conventional Commits is commit-msg stage only.
     - uses: j178/prek-action@v2
+      env:
+        SKIP: php-syntax-check,composer-validate,composer-normalize,phpcbf,phpcs,phpstan,rector,composer-require-checker,conventional-commits
       with:
-        extra_args: "--all-files actionlint-docker"
+        extra_args: --all-files

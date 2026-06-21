@@ -58,7 +58,7 @@ default_stages: [pre-commit]
 
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
+  rev: v6.0.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
@@ -79,18 +79,63 @@ repos:
   - id: check-added-large-files
   - id: check-merge-conflict
   - id: check-json
+  # Two pretty-format-json instances split by ecosystem -- the same pattern
+  # check-yaml uses for compose-with-!override files. The split exists
+  # because the repo has two coherent JSON-indent cultures that one global
+  # `--indent` setting can never satisfy at once:
+  #
+  #   2-space: JS/npm packages, JSON Schemas. Matches `npm init` defaults
+  #            and the wider npm ecosystem.
+  #   4-space: PHP composer modules, OpenEMR data files, healthcare-spec
+  #            content. Matches the HL7 FHIR / SDC IG / CMS QRDA / QDM
+  #            convention used by most upstream healthcare data the repo
+  #            consumes, and the project's PHP 4-space style extended to
+  #            non-PHP data.
+  #
+  # Upstream-derived healthcare data is excluded from both blocks so the
+  # repo can re-sync against upstream sources (HL7 FHIR examples, SDC IG
+  # questionnaires, CMS QRDA patients, QDM/HQMF OID maps, RFC 7517 JWK
+  # samples) without diff noise from our formatter.
   - id: pretty-format-json
+    name: pretty-format-json (2-space — JS/npm/JSON-schema)
+    # Files paired with the dispatch JSON Schema (which lives at
+    # tools/release/contracts/dispatch.schema.json -- itself caught by
+    # `.*\.schema\.json$` below) stay in 2-space so the schema and its
+    # fixture instances format identically.
+    files: |
+      (?x)
+      (^|/)(package(-lock)?\.json|.*\.schema\.json)$|
+      ^tests/Tests/Isolated/Release/fixtures/dispatch/.*\.json$
     args:
     - --autofix
     - --indent=2
     - --no-sort-keys
-    exclude: ^composer\.json$
+  - id: pretty-format-json
+    name: pretty-format-json (4-space — PHP/data files)
+    args:
+    - --autofix
+    - --indent=4
+    - --no-sort-keys
+    exclude: |
+      (?x)^(
+        composer\.json$|                                          # composer-normalize owns this
+        (.*/)?(package(-lock)?\.json|.*\.schema\.json)$|          # covered by 2-space block
+        tests/Tests/Isolated/Release/fixtures/dispatch/.*\.json$| # covered by 2-space block
+        contrib/portal_templates/assessments/SDC\ FHIR/|          # HL7 SDC IG examples
+        src/Cqm/.*\.json$|                                        # QDM/HQMF OID maps from CMS
+        tests/Tests/ECQM/|                                        # CMS QRDA/CQM patient fixtures
+        tests/Tests/Fixtures/FHIR/|                               # FHIR sample resources
+        tests/Tests/data/Services/FHIR/|                          # FHIR IG examples (US Core, SDC)
+        tests/Tests/data/Unit/FHIR/SMART/|                        # FHIR SMART IG examples
+        tests/Tests/data/Unit/Common/Auth/Grant/|                 # RFC 7517 JWK samples
+        tests/Tests/data/single_patient_api_test_run.*\.json$     # Inferno G10 cert test-run outputs
+      )
   - id: mixed-line-ending
     args:
     - --fix=lf
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.14.0
+  rev: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args:
@@ -99,7 +144,7 @@ repos:
     - --preserve-quotes
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
+  rev: v2.4.2
   hooks:
   - id: codespell
     # Configuration in .codespellrc

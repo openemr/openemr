@@ -15,7 +15,9 @@
     ],
     "minimum-stability": "stable",
     "autoload": {
-        "psr-4": {"OpenEMR\\Modules\\FaxSMS\\": "src/"}
+        "psr-4": {
+            "OpenEMR\\Modules\\FaxSMS\\": "src/"
+        }
     },
     "require": {
     }
