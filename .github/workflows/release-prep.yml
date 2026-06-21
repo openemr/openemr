@@ -73,7 +73,7 @@ jobs:
         - '8.5'
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -239,7 +239,7 @@ jobs:
         - '8.5'
     steps:
     - name: Checkout merge commit
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: ${{ github.event.pull_request.merge_commit_sha }}
         fetch-depth: 0

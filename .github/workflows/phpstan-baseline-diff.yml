@@ -59,7 +59,7 @@ jobs:
 
     - name: Checkout master baseline
       if: steps.pr.outputs.number
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         ref: master
         sparse-checkout: |
