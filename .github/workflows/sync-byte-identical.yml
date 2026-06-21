@@ -122,6 +122,14 @@ jobs:
           exit 1
         fi
 
+        # Reject duplicate entries -- they don't break anything (sync is
+        # idempotent) but they're an unambiguous config bug worth surfacing.
+        DUPES=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
+        if [ -n "$DUPES" ]; then
+          echo "::error::Duplicate entries in docker-byte-identical.yml files: $DUPES"
+          exit 1
+        fi
+
         MASTER_SHA=$(git rev-parse master)
         echo "Syncing master ($MASTER_SHA) -> ${{ matrix.branch }}"
         echo "Files in FILES_ALL: ${#FILES_ALL[@]}"
@@ -132,8 +140,13 @@ jobs:
           BRANCH_HAS=$(git cat-file -e "HEAD:$FILE" 2>/dev/null && echo y || echo n)
 
           if [ "$MASTER_HAS" = "n" ] && [ "$BRANCH_HAS" = "n" ]; then
-            echo "::warning::$FILE: in FILES_ALL but missing from both master and ${{ matrix.branch }} (config bug?)"
-            continue
+            # File is listed as byte-identical but exists in neither master
+            # nor this rel branch -- unambiguous config bug (someone removed
+            # the file but forgot to update docker-byte-identical.yml). Fail
+            # loud so it gets fixed instead of silently dropping out of the
+            # invariant.
+            echo "::error::$FILE: listed in docker-byte-identical.yml but missing from both master and ${{ matrix.branch }}"
+            exit 1
           fi
 
           if [ "$MASTER_HAS" = "y" ] && [ "$BRANCH_HAS" = "n" ]; then

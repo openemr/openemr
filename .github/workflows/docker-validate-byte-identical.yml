@@ -74,6 +74,27 @@ jobs:
           exit 1
         fi
 
+        # Reject duplicate entries -- they'd just check the same file twice
+        # but indicate a config bug worth surfacing.
+        DUPES=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
+        if [ -n "$DUPES" ]; then
+          echo "::error::Duplicate entries in docker-byte-identical.yml files: $DUPES"
+          exit 1
+        fi
+
+        # Reject entries that don't resolve to a file in the current checkout.
+        # Without this, a typo in docker-byte-identical.yml causes the loop
+        # below to produce confusing 'master sha:' empty values (the sha256sum
+        # call fails) rather than a clean "fix the config" message.
+        MISSING=()
+        for FILE in "${FILES_ALL[@]}"; do
+          [ -f "$FILE" ] || MISSING+=("$FILE")
+        done
+        if [ ${#MISSING[@]} -gt 0 ]; then
+          echo "::error::Files listed in docker-byte-identical.yml but missing from current checkout: ${MISSING[*]}"
+          exit 1
+        fi
+
         FAIL=0
         for BRANCH in "${REL_BRANCHES[@]}"; do
           echo "::group::Branch $BRANCH"
