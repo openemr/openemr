@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\AddressService;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Services\PhoneType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
@@ -245,5 +246,94 @@ class InsuranceCompanyServiceTest extends TestCase
         );
         $this->assertNotFalse($row);
         $this->assertEquals(9999999, $row['id']);
+    }
+
+    #[Test]
+    public function testLegacyPersistSkipsPhoneWithoutTenDigitNationalNumber(): void
+    {
+        // Regression for the TypeError on Practice Settings → Insurance Company
+        // edit when the phone field posts something PhoneNumber::tryParse will
+        // accept but that doesn't yield a 10-digit NANP national number
+        // (e.g. "555-1234"). The legacy InsuranceCompany::persist() forwarded
+        // a null from PhoneNumber::getNationalDigits() into
+        // PhoneNumberService::getPhoneParts(string), throwing:
+        //   TypeError: Argument #1 ($phone_number) must be of type string, null given
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistShortPhone');
+        $co->set_phone('555-1234');
+
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        $phoneRows = QueryUtils::fetchRecordsNoLog(
+            "SELECT id FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertSame([], $phoneRows);
+    }
+
+    #[Test]
+    public function testLegacyPersistDoesNotDuplicatePhoneRowsOnResave(): void
+    {
+        // Regression for the duplicate phone_numbers rows that accumulated on
+        // every save before persist() learned to clear by foreign_id first.
+        // PR #10326 swapped the legacy upsert for a bare PhoneNumberService
+        // insert(), so each save added another WORK row + another FAX row;
+        // the list view's two LEFT JOINs on phone_numbers then multiplied the
+        // company across (work_count * fax_count) rows in the UI.
+        $co = new \InsuranceCompany();
+        $co->set_name('test-fixture-LegacyPersistDuplicate');
+        $co->set_phone('5551234567');
+        $co->set_fax('5559876543');
+        $co->persist();
+        $insuranceId = $co->id;
+        $this->assertTrue(is_int($insuranceId) || is_string($insuranceId));
+        $this->createdIds[] = $insuranceId;
+
+        // After first save: one WORK row + one FAX row.
+        $afterCreate = QueryUtils::fetchRecordsNoLog(
+            "SELECT id, type FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertCount(2, $afterCreate);
+
+        // Re-save unchanged. Without the fix this would double to four rows.
+        $co->persist();
+        $afterResave = QueryUtils::fetchRecordsNoLog(
+            "SELECT id, type FROM phone_numbers WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertCount(2, $afterResave);
+
+        // Re-save with a changed phone. The clear-then-insert should leave
+        // exactly one row per type, the WORK row should carry the new number,
+        // and the FAX row should still carry the original (since set_phone
+        // touches only the WORK entry).
+        $co->set_phone('5551112222');
+        $co->persist();
+        $afterEdit = QueryUtils::fetchRecordsNoLog(
+            "SELECT area_code, prefix, number, type FROM phone_numbers"
+            . " WHERE foreign_id = ?",
+            [$insuranceId]
+        );
+        $this->assertCount(2, $afterEdit);
+        $byType = [];
+        foreach ($afterEdit as $row) {
+            $rowType = $row['type'];
+            $this->assertIsInt($rowType);
+            $byType[$rowType] = $row;
+        }
+        $workRow = $byType[PhoneType::WORK->value] ?? null;
+        $this->assertNotNull($workRow);
+        $this->assertSame('555', $workRow['area_code']);
+        $this->assertSame('111', $workRow['prefix']);
+        $this->assertSame('2222', $workRow['number']);
+        $faxRow = $byType[PhoneType::FAX->value] ?? null;
+        $this->assertNotNull($faxRow);
+        $this->assertSame('555', $faxRow['area_code']);
+        $this->assertSame('987', $faxRow['prefix']);
+        $this->assertSame('6543', $faxRow['number']);
     }
 }
