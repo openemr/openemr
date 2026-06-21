@@ -80,7 +80,7 @@ final readonly class Transport
      * Issue a request against the Faxes resource and decode the JSON body.
      *
      * @param array<string, mixed> $opts
-     * @return array<string, mixed>
+     * @return array<mixed, mixed>
      * @throws RestException
      */
     public function request(string $method, string $path = '', array $opts = []): array
@@ -100,7 +100,7 @@ final readonly class Transport
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<mixed, mixed>
      * @throws RestException
      */
     public function requestAbsolute(string $method, string $uri): array
@@ -113,7 +113,7 @@ final readonly class Transport
 
     /**
      * @param array<string, mixed> $opts
-     * @return array<string, mixed>|null Decoded body when $expectJson, else null.
+     * @return array<mixed, mixed>|null Decoded body when $expectJson, else null.
      * @throws RestException
      */
     private function send(string $method, string $url, array $opts, bool $expectJson): ?array
@@ -130,8 +130,7 @@ final readonly class Transport
         try {
             $response = $this->http->request($method, $url, $options);
         } catch (GuzzleException $e) {
-            $code = method_exists($e, 'getCode') ? (int)$e->getCode() : 0;
-            throw new RestException('SignalWire request failed: ' . $e->getMessage(), $code, $e);
+            throw new RestException('SignalWire request failed: ' . $e->getMessage(), (int)$e->getCode(), $e);
         }
 
         $status = $response->getStatusCode();
@@ -179,33 +178,44 @@ final class FaxInstance
     public ?string $mediaUrl = null;
 
     /**
-     * @param array<string, mixed> $raw
+     * @param array<mixed, mixed> $raw
      */
     public static function fromArray(array $raw): self
     {
         $fax = new self();
-        $fax->sid = isset($raw['sid']) ? (string)$raw['sid'] : null;
-        $fax->status = isset($raw['status']) ? (string)$raw['status'] : null;
-        $fax->direction = isset($raw['direction']) ? (string)$raw['direction'] : null;
-        $fax->from = isset($raw['from']) ? (string)$raw['from'] : null;
-        $fax->to = isset($raw['to']) ? (string)$raw['to'] : null;
-
-        $pages = $raw['num_pages'] ?? ($raw['pages'] ?? null);
-        $fax->numPages = $pages !== null ? (int)$pages : null;
-
-        $fax->duration = isset($raw['duration']) ? (int)$raw['duration'] : null;
-        $fax->mediaUrl = isset($raw['media_url']) ? (string)$raw['media_url'] : null;
-
-        $created = $raw['date_created'] ?? null;
-        if (!empty($created) && is_string($created)) {
-            try {
-                $fax->dateCreated = new \DateTimeImmutable($created);
-            } catch (\Throwable) {
-                $fax->dateCreated = null;
-            }
-        }
+        $fax->sid = self::str($raw['sid'] ?? null);
+        $fax->status = self::str($raw['status'] ?? null);
+        $fax->direction = self::str($raw['direction'] ?? null);
+        $fax->from = self::str($raw['from'] ?? null);
+        $fax->to = self::str($raw['to'] ?? null);
+        $fax->numPages = self::intOrNull($raw['num_pages'] ?? $raw['pages'] ?? null);
+        $fax->duration = self::intOrNull($raw['duration'] ?? null);
+        $fax->mediaUrl = self::str($raw['media_url'] ?? null);
+        $fax->dateCreated = self::toDate($raw['date_created'] ?? null);
 
         return $fax;
+    }
+
+    private static function str(mixed $value): ?string
+    {
+        return is_scalar($value) ? (string)$value : null;
+    }
+
+    private static function intOrNull(mixed $value): ?int
+    {
+        return is_scalar($value) ? (int)$value : null;
+    }
+
+    private static function toDate(mixed $value): ?\DateTimeImmutable
+    {
+        if (!is_string($value) || $value === '') {
+            return null;
+        }
+        // SignalWire LaML returns RFC 2822 / ISO 8601 dates. date_create_immutable()
+        // returns false on a bad string instead of throwing, which avoids catching
+        // \Exception (and thus \ErrorException).
+        $date = date_create_immutable($value);
+        return $date instanceof \DateTimeImmutable ? $date : null;
     }
 }
 
@@ -260,13 +270,13 @@ final readonly class FaxList
     public function create(array $options): FaxInstance
     {
         $form = [];
-        if (isset($options['to'])) {
+        if (isset($options['to']) && is_scalar($options['to'])) {
             $form['To'] = (string)$options['to'];
         }
-        if (isset($options['from'])) {
+        if (isset($options['from']) && is_scalar($options['from'])) {
             $form['From'] = (string)$options['from'];
         }
-        if (isset($options['mediaUrl'])) {
+        if (isset($options['mediaUrl']) && is_scalar($options['mediaUrl'])) {
             $form['MediaUrl'] = (string)$options['mediaUrl'];
         }
         $optional = [
@@ -385,12 +395,17 @@ class Client
     private readonly Transport $transport;
 
     /**
-     * @param array{signalwireSpaceUrl?: string, httpClient?: ClientInterface} $options
+     * @param array<string, mixed> $options  Recognized keys: signalwireSpaceUrl
+     *                                        (string) and httpClient
+     *                                        (GuzzleHttp\ClientInterface).
      */
     public function __construct(string $projectId, string $apiToken, array $options = [])
     {
-        $spaceUrl = $options['signalwireSpaceUrl'] ?? '';
+        $rawSpaceUrl = $options['signalwireSpaceUrl'] ?? '';
+        $spaceUrl = is_string($rawSpaceUrl) ? $rawSpaceUrl : '';
 
+        // Callers hand us an options array straight from request/config, so the
+        // instanceof guard below is a real runtime check, not a tautology.
         $http = $options['httpClient'] ?? null;
         if ($http !== null && !$http instanceof ClientInterface) {
             throw new \InvalidArgumentException("'httpClient' must implement GuzzleHttp\\ClientInterface");

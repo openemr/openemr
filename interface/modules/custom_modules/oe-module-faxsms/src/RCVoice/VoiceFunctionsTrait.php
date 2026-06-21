@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\Platform\Platform;
@@ -46,7 +47,7 @@ trait VoiceFunctionsTrait
 
             // Get raw JSON and decode as associative array
             $body = $resp->text();
-            $data = json_decode((string) $body, true);
+            $data = json_decode(is_string($body) ? $body : '', true);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new \RuntimeException('Invalid JSON from SIP provision');
             }
@@ -146,7 +147,7 @@ trait VoiceFunctionsTrait
             if ($token === 'changeme') {
                 // Generate secure token
                 $token = bin2hex(random_bytes(16));
-                $session->set('ringcentral_voice_token', $token);
+                SessionUtil::setSession('ringcentral_voice_token', $token);
             }
             // Webhook endpoint
             $this->webhookUrl = $this->getWebhookUrl($token);
@@ -194,7 +195,7 @@ trait VoiceFunctionsTrait
                 // Check if any event filter matches the telephony sessions pattern
                 $isCorrectFilter = false;
                 foreach ($subscription->eventFilters ?? [] as $filter) {
-                    if (preg_match('#^/restapi/v1\.0/account/\d+/extension/\d+/telephony/sessions$#', (string) $filter)) {
+                    if (preg_match('#^/restapi/v1\.0/account/\d+/extension/\d+/telephony/sessions$#', is_string($filter) ? $filter : '')) {
                         $isCorrectFilter = true;
                         break;
                     }

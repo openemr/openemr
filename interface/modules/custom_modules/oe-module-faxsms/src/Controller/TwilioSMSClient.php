@@ -168,7 +168,7 @@ class TwilioSMSClient extends AppDispatch
                 $from = $messageStore->from;
                 $status = $messageStore->status;
                 // purge failed. a day is enough time to report.
-                if ($status) {
+                if ($status && $messageStore->dateCreated !== null) {
                     $d1 = new DateTime($messageStore->dateCreated->format('Ymd Hi'));
                     $d2 = new DateTime(gmdate('Ymd Hi', time()));
                     $dif = $d1->diff($d2);
@@ -182,7 +182,9 @@ class TwilioSMSClient extends AppDispatch
                 } else {
                     $vreply = "<a href='#' title='SMS failure'> <span class='fa fa-file-pdf text-danger'></span></a></br>";
                 }
-                $utc_time = strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC');
+                $utc_time = $messageStore->dateUpdated !== null
+                    ? strtotime($messageStore->dateUpdated->format('Ymd His') . ' UTC')
+                    : time();
                 $updateDate = date('M j Y g:i:sa T', $utc_time);
                 if (strtolower((string)$messageStore->direction) != "outbound-api") {
                     $responseMsgs[0] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($status) . "</td><td>" . $vreply . "</td></tr>";

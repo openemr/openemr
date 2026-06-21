@@ -172,7 +172,7 @@ final class SignalWireWebhookValidator
     public static function validateSiteId(string $siteId): string
     {
         $sanitized = preg_replace('/[^a-zA-Z0-9_-]/', '', $siteId);
-        return !empty($sanitized) ? $sanitized : 'default';
+        return ($sanitized !== null && $sanitized !== '') ? $sanitized : 'default';
     }
 
     /**
@@ -276,7 +276,7 @@ final class SignalWireWebhookValidator
             base64_encode(hash_hmac('sha256', $rawBody, $signingKey, true)),
         ];
 
-        if (!empty($postParams)) {
+        if ($postParams !== []) {
             $expectedSignatures[] = self::buildCompatibilitySignature($signingKey, $requestUrl, $postParams);
         }
 
