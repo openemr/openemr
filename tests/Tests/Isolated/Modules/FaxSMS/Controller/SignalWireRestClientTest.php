@@ -209,7 +209,6 @@ final class SignalWireRestClientTest extends TestCase
 
         // Two HTTP round-trips: the base collection, then the next_page_uri.
         self::assertCount(2, $history);
-        self::assertArrayHasKey(1, $history);
         $secondRequest = $history[1];
         self::assertSame(self::EXPECTED_PATH, $secondRequest->getUri()->getPath());
         parse_str($secondRequest->getUri()->getQuery(), $secondQuery);
@@ -404,9 +403,7 @@ final class SignalWireRestClientTest extends TestCase
     private function lastRequest(array $history): RequestInterface
     {
         self::assertNotEmpty($history, 'Expected at least one HTTP request to have been made.');
-        $last = end($history);
-        self::assertInstanceOf(RequestInterface::class, $last);
-        return $last;
+        return end($history);
     }
 
     private function expectedBasicAuthHeader(): string

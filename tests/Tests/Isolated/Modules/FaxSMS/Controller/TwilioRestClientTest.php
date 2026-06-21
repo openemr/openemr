@@ -72,9 +72,7 @@ final class TwilioRestClientTest extends TestCase
     private function lastRequest(): RequestInterface
     {
         self::assertNotEmpty($this->history, 'Expected at least one HTTP request to have been recorded.');
-        $last = end($this->history);
-        self::assertInstanceOf(RequestInterface::class, $last);
-        return $last;
+        return end($this->history);
     }
 
     /**
