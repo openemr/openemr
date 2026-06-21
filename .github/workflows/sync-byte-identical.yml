@@ -1,0 +1,256 @@
+# Auto-syncs the byte-identical file set from master into every rel branch
+# listed in .github/release-targets.yml. Pairs with
+# docker-validate-byte-identical.yml (the drift canary): the canary
+# detects drift, this workflow proactively closes it.
+#
+# Source of truth for the file set is .github/docker-byte-identical.yml,
+# the same config the canary reads. Three triggers:
+#
+#   1. push on master -- fires the moment a master merge changes one
+#      of the byte-identical files. The script self-detects no-op if
+#      nothing in FILES_ALL actually drifted (avoids the maintenance
+#      burden of keeping a paths: filter in sync with the source-of-
+#      truth list).
+#
+#   2. schedule, daily at 09:00 UTC. Picked specifically to land
+#      AFTER the orchestrator-dispatched per-branch builds finish:
+#      orchestrator fires at 06:00 UTC, rel-704 + rel-800 builds take
+#      ~1h each, so they're done by ~07:15 UTC. 09:00 gives clear
+#      headroom; opening a sync PR while a build is still in flight
+#      on the same rel branch would queue two concurrent
+#      docker-build-release.yml runs against the same branch.
+#
+#   3. workflow_dispatch -- manual reconciliation when investigating.
+#
+# Five cases the sync script handles for each file in FILES_ALL:
+#
+#   identical    no-op
+#   add          file on master, missing on rel branch -> push to rel
+#   update       on both, content differs               -> push master's content
+#   delete       missing on master, present on rel      -> push deletion
+#   both-missing in FILES_ALL but absent from both      -> warn (config bug)
+#
+# Token: the release App (vars.RELEASE_APP_CLIENT_ID + secrets.RELEASE_APP_PRIVATE_KEY),
+# same as release-prep.yml and build-release.yml. Auto-merge is intentionally
+# NOT enabled -- the sync PRs are review-gated by default so substantive
+# changes (refactor of a FILES_ALL workflow, not just a dependabot bump)
+# get human eyes before landing on the rel branches.
+
+name: Sync byte-identical files to rel branches
+
+on:
+  push:
+    branches:
+    - master
+  schedule:
+  - cron: '0 9 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-byte-identical
+  cancel-in-progress: false
+
+jobs:
+  enumerate-rel-branches:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    outputs:
+      branches: ${{ steps.list.outputs.branches }}
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        persist-credentials: false   # this job only reads release-targets.yml; no git push
+    - name: Read rel branches from release-targets.yml
+      id: list
+      run: |
+        BRANCHES=$(yq -o=json -I=0 '[.[] | select(.branch != "master") | .branch]' .github/release-targets.yml)
+        echo "Discovered rel branches: $BRANCHES"
+        echo "branches=$BRANCHES" >> "$GITHUB_OUTPUT"
+
+  sync:
+    needs: enumerate-rel-branches
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJson(needs.enumerate-rel-branches.outputs.branches) }}
+    steps:
+    - name: Mint App token
+      id: app-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+        private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+        owner: openemr
+        repositories: openemr
+        # Narrow the minted token to just what this workflow needs (defense
+        # in depth on top of the App's installation-level permissions).
+        # peter-evans/create-pull-request needs contents:write to push the
+        # sync branch and pull-requests:write to open/update the PR.
+        permission-contents: write
+        permission-pull-requests: write
+
+    - name: Checkout rel branch
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ matrix.branch }}
+        token: ${{ steps.app-token.outputs.token }}
+        # peter-evans takes the token via its own input below; we don't
+        # need git's persisted-credentials to survive into other steps.
+        persist-credentials: false
+        fetch-depth: 0
+
+    - name: Fetch master so we can compare
+      run: git fetch origin master:master
+
+    - name: Apply master's FILES_ALL content to the rel-branch working tree
+      id: apply
+      run: |
+        # Read FILES_ALL from master's copy of the config -- the rel branch
+        # may not have the config file at all (pre-PR-D state), but master
+        # is always the source of truth.
+        mapfile -t FILES_ALL < <(git show master:.github/docker-byte-identical.yml | yq -r '.files[]')
+
+        if [ ${#FILES_ALL[@]} -eq 0 ]; then
+          # Fail closed: an empty FILES_ALL would propagate "delete every
+          # synced file" to every rel branch, which is almost certainly a
+          # config bug (yq misparse, file blanked, etc.).
+          echo "::error::No files in master's docker-byte-identical.yml; refusing to sync."
+          exit 1
+        fi
+
+        # Reject duplicate entries -- they don't break anything (sync is
+        # idempotent) but they're an unambiguous config bug worth surfacing.
+        DUPES=$(printf '%s\n' "${FILES_ALL[@]}" | sort | uniq -d)
+        if [ -n "$DUPES" ]; then
+          echo "::error::Duplicate entries in docker-byte-identical.yml files: $DUPES"
+          exit 1
+        fi
+
+        MASTER_SHA=$(git rev-parse master)
+        echo "Syncing master ($MASTER_SHA) -> ${{ matrix.branch }}"
+        echo "Files in FILES_ALL: ${#FILES_ALL[@]}"
+
+        CHANGES=()
+        for FILE in "${FILES_ALL[@]}"; do
+          MASTER_HAS=$(git cat-file -e "master:$FILE" 2>/dev/null && echo y || echo n)
+          BRANCH_HAS=$(git cat-file -e "HEAD:$FILE" 2>/dev/null && echo y || echo n)
+
+          if [ "$MASTER_HAS" = "n" ] && [ "$BRANCH_HAS" = "n" ]; then
+            # File is listed as byte-identical but exists in neither master
+            # nor this rel branch -- unambiguous config bug (someone removed
+            # the file but forgot to update docker-byte-identical.yml). Fail
+            # loud so it gets fixed instead of silently dropping out of the
+            # invariant.
+            echo "::error::$FILE: listed in docker-byte-identical.yml but missing from both master and ${{ matrix.branch }}"
+            exit 1
+          fi
+
+          if [ "$MASTER_HAS" = "y" ] && [ "$BRANCH_HAS" = "n" ]; then
+            echo "  + $FILE  (add)"
+            mkdir -p "$(dirname "$FILE")"
+            git show "master:$FILE" > "$FILE"
+            CHANGES+=("add: $FILE")
+            continue
+          fi
+
+          if [ "$MASTER_HAS" = "n" ] && [ "$BRANCH_HAS" = "y" ]; then
+            echo "  - $FILE  (delete)"
+            git rm "$FILE"
+            CHANGES+=("delete: $FILE")
+            continue
+          fi
+
+          # Both present -- compare hashes
+          MASTER_HASH=$(git rev-parse "master:$FILE")
+          BRANCH_HASH=$(git rev-parse "HEAD:$FILE")
+          if [ "$MASTER_HASH" = "$BRANCH_HASH" ]; then
+            continue
+          fi
+
+          echo "  ~ $FILE  (update from master)"
+          git show "master:$FILE" > "$FILE"
+          CHANGES+=("update: $FILE")
+        done
+
+        if [ ${#CHANGES[@]} -eq 0 ]; then
+          echo "No changes needed for ${{ matrix.branch }}"
+          echo "has_changes=false" >> "$GITHUB_OUTPUT"
+        else
+          printf '%s\n' "${CHANGES[@]}" > "$RUNNER_TEMP/changes.txt"
+          echo "has_changes=true" >> "$GITHUB_OUTPUT"
+        fi
+        echo "master_sha=$MASTER_SHA" >> "$GITHUB_OUTPUT"
+
+    - name: Render PR body
+      if: steps.apply.outputs.has_changes == 'true'
+      run: |
+        cat > "$RUNNER_TEMP/pr-body.md" <<EOF
+        Auto-sync of FILES_ALL changes from master @ \`${{ steps.apply.outputs.master_sha }}\`
+        per the byte-identical invariant declared in
+        [\`.github/docker-byte-identical.yml\`](.github/docker-byte-identical.yml).
+
+        ### Changes
+
+        \`\`\`
+        $(cat "$RUNNER_TEMP/changes.txt")
+        \`\`\`
+
+        ### What to do
+
+        Review the diff -- it should be content already reviewed on master being
+        applied to this rel branch. Merge as-is unless something looks
+        unexpected. Branch protection requires CI green; the byte-identical
+        canary on master will turn green once this merges and re-establishes
+        the invariant.
+
+        ### Why
+
+        The byte-identical drift canary at
+        [\`.github/workflows/docker-validate-byte-identical.yml\`](.github/workflows/docker-validate-byte-identical.yml)
+        requires the files listed in \`.github/docker-byte-identical.yml\` to be
+        character-for-character identical across master and every rel branch
+        (the orchestrator dispatches the same logical build against each branch
+        and expects identical semantics). This PR re-establishes that invariant
+        after a master-side change.
+
+        ---
+
+        Auto-generated by
+        [\`.github/workflows/sync-byte-identical.yml\`](.github/workflows/sync-byte-identical.yml).
+        EOF
+
+    - name: Compute add-paths input for peter-evans
+      id: paths
+      if: steps.apply.outputs.has_changes == 'true'
+      run: |
+        # Tell peter-evans/create-pull-request to commit only the FILES_ALL
+        # entries, not any other files that happen to be in the workspace
+        # (e.g. composer.lock drift from a running container, or our own
+        # /tmp body file if it ended up here).
+        mapfile -t FILES_ALL < <(git show master:.github/docker-byte-identical.yml | yq -r '.files[]')
+        {
+          echo "paths<<EOF"
+          printf '%s\n' "${FILES_ALL[@]}"
+          echo "EOF"
+        } >> "$GITHUB_OUTPUT"
+
+    - name: Open or update sync PR
+      if: steps.apply.outputs.has_changes == 'true'
+      uses: peter-evans/create-pull-request@v8
+      with:
+        token: ${{ steps.app-token.outputs.token }}
+        branch: sync-byte-identical/${{ matrix.branch }}
+        base: ${{ matrix.branch }}
+        title: "ci(docker): sync byte-identical files from master to ${{ matrix.branch }} (auto)"
+        commit-message: |
+          ci(docker): sync byte-identical files from master (${{ steps.apply.outputs.master_sha }})
+
+          Auto-generated by .github/workflows/sync-byte-identical.yml.
+        body-path: ${{ runner.temp }}/pr-body.md
+        add-paths: ${{ steps.paths.outputs.paths }}
+        delete-branch: false
+        labels: auto-sync
