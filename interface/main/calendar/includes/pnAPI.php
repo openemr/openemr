@@ -33,31 +33,6 @@ use OpenEMR\BC\Database;
  *
  */
 
-/*        Allows Postnuke to work with register_globals set to off
- *        Patch for php 4.2.x or greater
- */
-
-if (ini_get('register_globals') != 1) {
-    $supers = ['_REQUEST',
-                            '_ENV',
-                            '_SERVER',
-                            '_POST',
-                            '_GET',
-                            '_COOKIE',
-                            '_SESSION',
-                            '_FILES',
-                            '_GLOBALS' ];
-
-    foreach ($supers as $__s) {
-        if ((isset(${$__s}) == true) && (is_array(${$__s}) == true)) {
-            extract(${$__s}, EXTR_OVERWRITE);
-        }
-    }
-
-    unset($supers);
-}
-
-
 /*
  * State of modules
  */
