@@ -61,6 +61,8 @@ jobs:
       branches: ${{ steps.list.outputs.branches }}
     steps:
     - uses: actions/checkout@v6
+      with:
+        persist-credentials: false   # this job only reads release-targets.yml; no git push
     - name: Read rel branches from release-targets.yml
       id: list
       run: |
@@ -84,12 +86,21 @@ jobs:
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
         owner: openemr
         repositories: openemr
+        # Narrow the minted token to just what this workflow needs (defense
+        # in depth on top of the App's installation-level permissions).
+        # peter-evans/create-pull-request needs contents:write to push the
+        # sync branch and pull-requests:write to open/update the PR.
+        permission-contents: write
+        permission-pull-requests: write
 
     - name: Checkout rel branch
       uses: actions/checkout@v6
       with:
         ref: ${{ matrix.branch }}
         token: ${{ steps.app-token.outputs.token }}
+        # peter-evans takes the token via its own input below; we don't
+        # need git's persisted-credentials to survive into other steps.
+        persist-credentials: false
         fetch-depth: 0
 
     - name: Fetch master so we can compare
