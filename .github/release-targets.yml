@@ -1,5 +1,21 @@
 # Source of truth for Docker release builds.
 #
+# Master-authoritative -- read only from master's tree. Future rel
+# branches cut from master inherit a frozen snapshot whose contents
+# drift over time (master adds new rel branches, bumps version refs);
+# the rel-branch copies are never consulted. Every existing consumer
+# enforces this: workflows either filter the trigger to
+# `branches: [master]` (or `schedule:`, which fires only from the
+# default branch), or read master's copy via `git show master:...`
+# instead of the local checkout. The byte-identical canary script
+# (.github/scripts/validate-byte-identical.sh) is the third pattern --
+# its rel-branch context simply does not read this file at all.
+#
+# When adding a new consumer, preserve that property: if the workflow
+# can fire from a rel branch, fetch master's copy explicitly rather
+# than reading from the local checkout (otherwise it'll see the
+# frozen-at-cut-time snapshot, not the current source of truth).
+#
 # Consumed by .github/workflows/docker-release-orchestrator.yml on each
 # scheduled tick (or manual dispatch). The orchestrator reads this file,
 # applies its include/exclude filter, and fans out one
