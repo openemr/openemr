@@ -37,9 +37,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/soap/report.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'\\-patient\\-\' and \'\\-patient\\-\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'child\' and \'child\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between \'fgp\' and \'fgp\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/orders/types_ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'\' and \'\' will always evaluate to true\\.$#',

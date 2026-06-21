@@ -7,6 +7,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/user_admin.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Expression in empty\\(\\) is always falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/import_template_ui.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',

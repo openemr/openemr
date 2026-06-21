@@ -1737,6 +1737,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/CapabilityStatementTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Modules\\\\FaxSMS\\\\RestClient\\\\TwilioRestClientTest\\:\\:\\$history \\(array\\<int, array\\<string, mixed\\>\\>\\) does not accept array\\|ArrayAccess\\<int, array\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Modules/FaxSMS/Controller/TwilioRestClientTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Tools\\\\OAuth2\\\\ClientCredentialsAssertionGeneratorTest\\:\\:\\$privateKeyPem \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Tools/OAuth2/ClientCredentialsAssertionGeneratorTest.php',
