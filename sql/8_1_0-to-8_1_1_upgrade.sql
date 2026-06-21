@@ -135,3 +135,29 @@ SET @currentSQLMode = (SELECT @@sql_mode);
 SET sql_mode = '';
 UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
 SET sql_mode = @currentSQLMode;
+
+-- v_database 541: Remove duplicate phone_numbers rows left by InsuranceCompany /
+-- Pharmacy persist() unconditional-insert.
+--
+-- PR #10326 replaced the legacy PhoneNumber->persist($id) call in
+-- InsuranceCompany::persist() and Pharmacy::persist() with a direct
+-- PhoneNumberService::insert() — which is a plain INSERT, not an upsert,
+-- despite the "PhoneNumberService handles upsert logic" comment that
+-- accompanied it. Every save (create or edit) appended fresh rows to
+-- phone_numbers for each entry in $this->phone_numbers; the list view's
+-- two LEFT JOINs on phone_numbers (one for type=WORK, one for type=FAX)
+-- then multiplied each company / pharmacy across
+-- (work_row_count * fax_row_count) result rows in the list UI.
+--
+-- The class-side fix (persist() now clears phone_numbers for the foreign id
+-- before re-inserting) stops new duplicates from forming; this cleanup
+-- handles rows already accumulated on instances upgrading from a buggy
+-- version. Idempotent — a no-op on instances that never accumulated dupes.
+--
+
+-- Keep the most recent (highest id) row per (foreign_id, type); drop older.
+DELETE p1 FROM phone_numbers p1
+INNER JOIN phone_numbers p2
+    ON p1.foreign_id = p2.foreign_id
+    AND p1.type = p2.type
+    AND p1.id < p2.id;
