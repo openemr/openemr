@@ -36,9 +36,10 @@
 #     master HEAD. Rel branches must match master, so any drift fails.
 #     Catches both hand-edits to a FILES_ALL file on a rel branch AND
 #     auto-sync PRs that have been overtaken by a newer master change.
-#     Files listed in FILES_ALL but not yet present on this rel branch
-#     (transitional state -- auto-sync hasn't delivered them) are
-#     skipped with a warning rather than failing.
+#     A FILES_ALL entry that's missing from the rel branch also fails:
+#     auto-sync delivers config + file in a single PR, so a missing
+#     file means either a destructive PR (deleted a protected file)
+#     or a hand-edit config bug (FILES_ALL entry without the file).
 #
 # Three trigger sources:
 #
@@ -140,9 +141,16 @@ jobs:
             for FILE in "${FILES_ALL[@]}"; do
               LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
               URL="https://raw.githubusercontent.com/openemr/openemr/${BRANCH}/${FILE}"
-              STATUS=$(curl -s -o /tmp/remote -w '%{http_code}' "$URL")
+              STATUS=$(curl -sS --connect-timeout 10 --max-time 30 --retry 3 --retry-delay 2 --retry-connrefused -o /tmp/remote -w '%{http_code}' "$URL")
               if [ "$STATUS" != "200" ]; then
-                echo "::warning::${BRANCH}:${FILE} not present (HTTP $STATUS); auto-sync will add it on the next run."
+                if [ "$DRIFT_LEVEL" = "error" ]; then
+                  echo "::error file=${FILE}::${BRANCH}:${FILE} not present on remote (HTTP $STATUS); expected per FILES_ALL."
+                  echo "  Either a destructive change to ${BRANCH} or an overdue auto-sync delivery."
+                  echo "  Fix: trigger sync-byte-identical.yml manually, or restore the file on ${BRANCH}."
+                  FAIL=1
+                else
+                  echo "::warning file=${FILE}::${BRANCH}:${FILE} not present (HTTP $STATUS); auto-sync will add it on the next run."
+                fi
                 continue
               fi
               REMOTE_SHA=$(sha256sum /tmp/remote | cut -d' ' -f1)
@@ -164,18 +172,22 @@ jobs:
           done
         else
           # Rel branch context: master is canonical, this branch must
-          # match it. Files listed in FILES_ALL but not yet on this branch
-          # are tolerated (auto-sync hasn't delivered them); divergent
-          # content fails.
+          # match it. Auto-sync delivers config + file together in one
+          # PR, so a missing file means either a destructive PR (delete
+          # of a protected file) or a hand-edit config bug (FILES_ALL
+          # entry without the file). Both fail.
           echo "Comparing ${CONTEXT_BRANCH} (LOCAL) to master HEAD (REMOTE)."
           for FILE in "${FILES_ALL[@]}"; do
             if [ ! -f "$FILE" ]; then
-              echo "::warning::${FILE} not present on ${CONTEXT_BRANCH}; auto-sync will deliver it."
+              echo "::error file=${FILE}::${FILE} listed in FILES_ALL but missing from ${CONTEXT_BRANCH}."
+              echo "  Either this PR deleted a protected file, or docker-byte-identical.yml lists a file the branch does not carry."
+              echo "  Fix: restore the file (let auto-sync redeliver it from master, or revert the deletion)."
+              FAIL=1
               continue
             fi
             LOCAL_SHA=$(sha256sum "$FILE" | cut -d' ' -f1)
             URL="https://raw.githubusercontent.com/openemr/openemr/master/${FILE}"
-            STATUS=$(curl -s -o /tmp/remote -w '%{http_code}' "$URL")
+            STATUS=$(curl -sS --connect-timeout 10 --max-time 30 --retry 3 --retry-delay 2 --retry-connrefused -o /tmp/remote -w '%{http_code}' "$URL")
             if [ "$STATUS" != "200" ]; then
               echo "::warning::master:${FILE} not present (HTTP $STATUS); FILES_ALL may have drifted from master."
               continue
