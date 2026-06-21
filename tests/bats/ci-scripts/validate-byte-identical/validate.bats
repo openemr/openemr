@@ -150,6 +150,31 @@ teardown() {
     [[ "$output" == *"foo.txt matches master"* ]]
 }
 
+@test "rel-810 PR: succeeds when release-targets.yml is absent (rel branches don't carry it)" {
+    rm -f .github/release-targets.yml
+    write_files_all_config foo.txt
+    write_local_file       foo.txt   "in-sync"
+    write_remote_file master foo.txt "in-sync"
+
+    set_pr_context rel-810
+    run bash "$VALIDATE_BYTE_IDENTICAL_SCRIPT"
+
+    [[ $status -eq 0 ]]
+    [[ "$output" == *"foo.txt matches master"* ]]
+}
+
+@test "master context: missing release-targets.yml -> precondition error (still required on master)" {
+    rm -f .github/release-targets.yml
+    write_files_all_config foo.txt
+    write_local_file foo.txt "v1"
+
+    set_schedule_context master
+    run bash "$VALIDATE_BYTE_IDENTICAL_SCRIPT"
+
+    [[ $status -eq 2 ]]
+    [[ "$output" == *"release-targets.yml not present"* ]]
+}
+
 @test "rel-810 PR: drift vs master -> error, fail" {
     write_files_all_config foo.txt
     write_local_file       foo.txt   "rel-edit"

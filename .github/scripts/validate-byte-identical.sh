@@ -2,10 +2,13 @@
 #
 # Validate the byte-identical file set across master and every rel branch.
 #
-# Reads FILES_ALL from .github/docker-byte-identical.yml in cwd and
-# REL_BRANCHES from .github/release-targets.yml in cwd. Compares each
-# FILES_ALL entry across branches via raw.githubusercontent.com fetches.
-# Behavior depends on run context -- see the header of
+# Reads FILES_ALL from .github/docker-byte-identical.yml in cwd. In
+# master context also reads REL_BRANCHES from .github/release-targets.yml;
+# that file is master-only orchestrator config and rel branches don't
+# carry it (the rel-* path doesn't need it -- it just walks FILES_ALL
+# and compares each entry to master HEAD). Compares each FILES_ALL
+# entry across branches via raw.githubusercontent.com fetches. Behavior
+# depends on run context -- see the header of
 # .github/workflows/docker-validate-byte-identical.yml for the rationale.
 #
 # Inputs (env)
@@ -90,28 +93,19 @@ command -v yq >/dev/null 2>&1 || {
   emit_error ".github/docker-byte-identical.yml not present in cwd."
   exit 2
 }
-[[ -f .github/release-targets.yml ]] || {
-  emit_error ".github/release-targets.yml not present in cwd."
-  exit 2
-}
+# Note: .github/release-targets.yml presence is only required in master
+# context; the file is master-side orchestrator config that rel branches
+# don't carry (and don't need -- the rel-* path only walks FILES_ALL and
+# fetches master's copy of each entry). Its check moves into the
+# master-context branch below.
 
-# Read configs. Each subprocess captured separately so SC2312 (return-value
-# masking via process substitution) does not bite.
+# Read FILES_ALL (needed in both contexts). The subprocess is captured
+# separately so SC2312 (return-value masking via process substitution)
+# does not bite.
 files_yq_output=$(yq -r '.files[]' .github/docker-byte-identical.yml)
 mapfile -t FILES_ALL <<<"${files_yq_output}"
 if [[ ${#FILES_ALL[@]} -eq 1 && -z "${FILES_ALL[0]}" ]]; then
   FILES_ALL=()
-fi
-
-rel_yq_output=$(yq -r '.[] | select(.branch != "master") | .branch' .github/release-targets.yml)
-mapfile -t REL_BRANCHES <<<"${rel_yq_output}"
-if [[ ${#REL_BRANCHES[@]} -eq 1 && -z "${REL_BRANCHES[0]}" ]]; then
-  REL_BRANCHES=()
-fi
-
-if [[ ${#REL_BRANCHES[@]} -eq 0 ]]; then
-  emit_warning "No rel branches found in release-targets.yml -- nothing to check."
-  exit 0
 fi
 
 if [[ ${#FILES_ALL[@]} -eq 0 ]]; then
@@ -158,6 +152,22 @@ fetch_status() {
 }
 
 if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
+  # Master context needs the rel branch list -- read release-targets.yml
+  # here (not at script start) so the rel-* context doesn't require it.
+  [[ -f .github/release-targets.yml ]] || {
+    emit_error ".github/release-targets.yml not present in cwd (required in master context)."
+    exit 2
+  }
+  rel_yq_output=$(yq -r '.[] | select(.branch != "master") | .branch' .github/release-targets.yml)
+  mapfile -t REL_BRANCHES <<<"${rel_yq_output}"
+  if [[ ${#REL_BRANCHES[@]} -eq 1 && -z "${REL_BRANCHES[0]}" ]]; then
+    REL_BRANCHES=()
+  fi
+  if [[ ${#REL_BRANCHES[@]} -eq 0 ]]; then
+    emit_warning "No rel branches found in release-targets.yml -- nothing to check."
+    exit 0
+  fi
+
   # Master context: master is canonical. Every FILES_ALL entry must
   # exist on master; missing ones are a config bug.
   missing=()
