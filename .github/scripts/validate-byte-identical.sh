@@ -248,4 +248,8 @@ fi
 
 [[ ${FAIL} -eq 0 ]] || exit 1
 echo
-echo "✓ All byte-identical files match between master and ${CONTEXT_BRANCH}."
+if [[ "${CONTEXT_BRANCH}" == "master" ]]; then
+  echo "✓ All byte-identical files match across master and every rel branch."
+else
+  echo "✓ All byte-identical files on ${CONTEXT_BRANCH} match master."
+fi
