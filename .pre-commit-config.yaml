@@ -66,14 +66,14 @@ repos:
     # Strict YAML validation for everything except the two docker-compose
     # files that use the non-standard !override tag. PyYAML rejects
     # unknown tags by default, so those need the relaxed check below.
-    exclude: ^(docker/compose\.yml|ci/inferno/compose\.yml)$
+    exclude: ^(\.github/docker/compose\.yml|ci/inferno/compose\.yml)$
   - id: check-yaml
     # Relaxed YAML validation scoped to the two compose files that use
     # Docker Compose's !override tag for service-extension blocks. The
     # --unsafe flag tells PyYAML to accept user-defined tags as long as
     # the document parses, instead of rejecting unknown tags outright.
     name: check-yaml (docker compose with !override)
-    files: ^(docker/compose\.yml|ci/inferno/compose\.yml)$
+    files: ^(\.github/docker/compose\.yml|ci/inferno/compose\.yml)$
     args:
     - --unsafe
   - id: check-added-large-files

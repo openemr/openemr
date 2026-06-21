@@ -43,8 +43,7 @@ automatically by Dependabot under the `openemr-images` group in
 | [`dockerhub/`](dockerhub/) | Docker Hub repo overview rendering. `overview.md` is the template; `render.sh` is the bash + yq + jq + sed renderer (reads [`../.github/release-targets.yml`](../.github/release-targets.yml) + scans `docker-build-*.yml` flex callers); `tests/` carries a Tier 1 sanity check and a Tier 2 golden-file test. Published by `.github/workflows/docker-push-dockerhub-readme.yml`. |
 | [`container_benchmarking/`](container_benchmarking/) | Container functionality + performance test harness. Driven by `.github/workflows/docker-test-container-functionality.yml`. |
 | [`library/`](library/) | Shared assets pulled into multiple images: SQL/LDAP/CouchDB SSL cert fixtures, dev-only PHP-FPM base Dockerfiles, API scope listings. |
-| [`compose.yml`](compose.yml) | **CI test-harness compose** used by `.github/actions/test-actions-core`. NOT for end-user `docker compose up` workflows — those live in `production/` and `development-*/`. |
-| [`COVERAGE.md`](COVERAGE.md) | Kcov entrypoint-script coverage docs. |
+| [`COVERAGE.md`](COVERAGE.md) | Kcov entrypoint-script coverage docs (uses [`../.github/docker/compose.yml`](../.github/docker/compose.yml) as the CI test-harness compose). |
 
 ## Publish flow
 

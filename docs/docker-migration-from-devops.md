@@ -421,7 +421,7 @@ Four complementary checks assert that the image baked from `openemr_version_ref`
    * `.github/workflows/docker-test-core.yml`
    * `.github/workflows/docker-test-release.yml`
    * `.github/actions/test-actions-core/action.yml`
-   * `docker/compose.yml`
+   * `.github/docker/compose.yml`
    * `.github/workflows/docker-validate-byte-identical.yml`
    * `.github/docker-byte-identical.yml`
    * `.github/scripts/validate-byte-identical.sh`
@@ -439,7 +439,7 @@ Not every rel branch has the same test coverage in devops today. Phase 2 mirrors
 | File / Dir | master | rel-810 | rel-800 | rel-704 |
 |---|:---:|:---:|:---:|:---:|
 | `docker/release/Dockerfile` (version-pinned) | ✓ | ✓ | ✓ | ✓ |
-| `docker/compose.yml` | ✓ | ✓ | ✓ | ✓ |
+| `.github/docker/compose.yml` | ✓ | ✓ | ✓ | ✓ |
 | `docker-build-release.yml` (byte-identical) | ✓ | ✓ | ✓ | ✓ |
 | `docker-test-release.yml` (production Dockerfile test) | ✓ | ✓ | ✓ | ✓ |
 | `docker-test-core.yml` (reusable) | ✓ | ✓ | ✓ | ✓ |
