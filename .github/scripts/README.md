@@ -8,21 +8,22 @@ from testing or reuse.
 
 | Path | Invoked by | Tested by |
 |---|---|---|
-| [`sync-byte-identical.sh`](sync-byte-identical.sh) | [`.github/workflows/sync-byte-identical.yml`](../workflows/sync-byte-identical.yml) | [`tests/test-sync-byte-identical.sh`](tests/test-sync-byte-identical.sh) |
+| [`sync-byte-identical.sh`](sync-byte-identical.sh) | [`.github/workflows/sync-byte-identical.yml`](../workflows/sync-byte-identical.yml) | [`tests/bats/ci-scripts/sync-byte-identical/`](../../tests/bats/ci-scripts/sync-byte-identical/) (BATS) |
 
 ## Running the tests locally
 
 ```sh
 # From the repo root:
-bash .github/scripts/tests/run-tests.sh
+bats tests/bats/ci-scripts/sync-byte-identical/
 ```
 
-Requires `bash`, `git`, and [Mike Farah's `yq`](https://github.com/mikefarah/yq)
-on PATH. No other dependencies (no BATS, no shellspec).
+Requires [BATS](https://github.com/bats-core/bats-core) (v1.13.0 per
+repo standard), `bash`, `git`, and
+[Mike Farah's `yq`](https://github.com/mikefarah/yq) on PATH.
 
-The test runner discovers every `test-*.sh` file under
-[`tests/`](tests/) and runs every `test_*` function in each. Tests run in
-subshells so a failure doesn't cascade.
+CI installs BATS via [`.github/workflows/test-byte-identical-scripts.yml`](../workflows/test-byte-identical-scripts.yml)
+using the same pattern as the existing
+[`docker-test-bats.yml`](../workflows/docker-test-bats.yml).
 
 ## Conventions for new scripts
 
@@ -35,21 +36,14 @@ When extracting another workflow's bash into a script here:
    workflow-specific paths.
 4. Emit `::error::` / `::warning::` annotations only when
    `$GITHUB_ACTIONS == 'true'`; fall back to plain stderr otherwise so
-   the test suite output stays readable.
+   the BATS output stays readable.
 5. Write structured outputs to files in `$OUTPUT_DIR` (default a fresh
    temp dir) rather than just stdout, so tests can assert on them
    precisely.
-6. Add tests at `.github/scripts/tests/test-<name>.sh` using the
-   patterns in [`tests/helpers.sh`](tests/helpers.sh).
-7. Add a CI workflow that runs the tests on PR changes (model after
+6. Add tests at `tests/bats/ci-scripts/<name>/<name>.bats` with a
+   sibling `helpers.bash`. Match the pattern of the existing
+   [`sync-byte-identical/`](../../tests/bats/ci-scripts/sync-byte-identical/)
+   suite.
+7. Add a CI workflow that installs BATS and runs the suite on PR
+   changes (model after
    [`test-byte-identical-scripts.yml`](../workflows/test-byte-identical-scripts.yml)).
-
-## Why bash + custom runner instead of BATS
-
-The repo already has a BATS suite for `openemr-cmd` testing, but that
-harness expects a running Docker stack to exec commands against — wrong
-context for "test bash logic against synthetic git state." Building a
-new BATS harness for fixture-driven git tests would have added a layer
-of indirection without buying any testing capability that `set -e` +
-shell asserts don't already give. See [`tests/helpers.sh`](tests/helpers.sh)
-for the assertion helpers.
