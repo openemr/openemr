@@ -7952,11 +7952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Uuid/UuidRegistryTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getUri\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Modules/FaxSMS/Controller/TwilioRestClientTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method addData\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/HandleProcessingResultTest.php',

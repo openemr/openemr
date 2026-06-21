@@ -146,7 +146,6 @@ return ['includes' => [
     __DIR__ . '/smaller.alwaysFalse.php',
     __DIR__ . '/smaller.alwaysTrue.php',
     __DIR__ . '/smallerOrEqual.alwaysTrue.php',
-    __DIR__ . '/staticMethod.alreadyNarrowedType.php',
     __DIR__ . '/staticMethod.deprecated.php',
     __DIR__ . '/staticMethod.deprecatedClass.php',
     __DIR__ . '/staticMethod.impossibleType.php',

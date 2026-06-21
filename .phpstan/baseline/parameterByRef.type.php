@@ -31,10 +31,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Parameter &\\$history by\\-ref type of method OpenEMR\\\\Tests\\\\Isolated\\\\Modules\\\\FaxSMS\\\\RestClient\\\\SignalWireRestClientTest\\:\\:makeClient\\(\\) expects array\\<int, array\\{request\\: Psr\\\\Http\\\\Message\\\\RequestInterface, response\\: mixed\\}\\>, array\\|ArrayAccess\\<int, array\\> given\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Modules/FaxSMS/Controller/SignalWireRestClientTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
