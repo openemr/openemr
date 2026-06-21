@@ -5,9 +5,15 @@
 # Reads the FILES_ALL list from master's .github/docker-byte-identical.yml
 # and, for each entry, classifies the rel branch's state relative to master
 # (identical / add / update / delete / both-missing) and applies the right
-# operation to the current working tree. The caller (typically
-# .github/workflows/sync-byte-identical.yml) handles the git push + PR
-# open via peter-evans/create-pull-request.
+# operation to the current working tree. Then, after the main loop, also
+# walks the rel branch's own copy of docker-byte-identical.yml to find
+# entries that are in rel's FILES_ALL but not master's -- those are paths
+# master removed from the managed set (either renamed to a new path, or
+# dropped entirely), and any rel-branch file still sitting at the old path
+# is queued for delete (the "rename / removed-from-config" sweep).
+#
+# The caller (typically .github/workflows/sync-byte-identical.yml) handles
+# the git push + PR open via peter-evans/create-pull-request.
 #
 # Inputs
 #   $1                  rel branch name (e.g. rel-810). Used in log output.
@@ -128,7 +134,7 @@ for FILE in "${FILES_ALL[@]}"; do
 
   if [[ "${master_has}" == "n" ]] && [[ "${branch_has}" == "y" ]]; then
     echo "  - ${FILE}  (delete)"
-    git rm "${FILE}" >/dev/null
+    git rm -- "${FILE}" >/dev/null
     CHANGES+=("delete: ${FILE}")
     continue
   fi
@@ -144,6 +150,58 @@ for FILE in "${FILES_ALL[@]}"; do
   git show "master:${FILE}" > "${FILE}"
   CHANGES+=("update: ${FILE}")
 done
+
+# Rename / removed-from-config sweep: walk the rel branch's own
+# docker-byte-identical.yml (if it has one). Entries that are in rel's
+# FILES_ALL but not master's are paths master dropped from the managed
+# set. There are three sub-cases, distinguished by whether master still
+# carries the file at that path:
+#
+#   1. Master neither lists nor carries the path. True removal (or
+#      rename -- the new path appears in master's config and was already
+#      handled as `add` by the main loop above). The old path lingering
+#      on the rel branch is orphaned -- delete it.
+#
+#   2. Master still carries the path but dropped it from FILES_ALL.
+#      Deliberate "demote to per-branch divergence" -- the file is no
+#      longer being byte-identity-enforced. Leave the rel-branch copy
+#      alone; it can now legitimately drift.
+#
+#   3. Path not on rel branch HEAD either. Rel's FILES_ALL lists a
+#      path no one carries -- a config bug on rel's side. Silent skip;
+#      the canary's main loop is what surfaces config bugs, not sync.
+if git cat-file -e "HEAD:.github/docker-byte-identical.yml" 2>/dev/null; then
+  rel_config_contents=$(git show "HEAD:.github/docker-byte-identical.yml")
+  rel_files_yq_output=$(echo "${rel_config_contents}" | yq -r '.files[]')
+  mapfile -t REL_FILES_ALL <<<"${rel_files_yq_output}"
+  if [[ ${#REL_FILES_ALL[@]} -eq 1 && -z "${REL_FILES_ALL[0]}" ]]; then
+    REL_FILES_ALL=()
+  fi
+
+  # Set difference (rel - master). `comm -23` needs sorted input.
+  master_sorted=$(printf '%s\n' "${FILES_ALL[@]}" | sort)
+  rel_sorted=$(printf '%s\n' "${REL_FILES_ALL[@]}" | sort)
+  rel_only=$(comm -23 <(echo "${rel_sorted}") <(echo "${master_sorted}"))
+
+  if [[ -n "${rel_only}" ]]; then
+    while IFS= read -r STALE; do
+      [[ -z "${STALE}" ]] && continue
+      if ! git cat-file -e "HEAD:${STALE}" 2>/dev/null; then
+        continue   # case 3: rel doesn't have the file either
+      fi
+      if git cat-file -e "master:${STALE}" 2>/dev/null; then
+        # case 2: master still carries the file, just stopped enforcing
+        # byte-identity. Leave rel's copy alone.
+        echo "  ${STALE}  (skip: dropped from FILES_ALL but master still carries the file -- per-branch divergence now allowed)"
+        continue
+      fi
+      # case 1: true removal (or rename's old-path side).
+      echo "  - ${STALE}  (delete: master removed this path entirely)"
+      git rm -- "${STALE}" >/dev/null
+      CHANGES+=("delete: ${STALE}")
+    done <<< "${rel_only}"
+  fi
+fi
 
 # Write structured outputs
 echo "${master_sha}" > "${output_dir}/master-sha.txt"

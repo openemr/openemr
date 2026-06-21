@@ -158,3 +158,101 @@ teardown() {
     [[ $status -eq 0 ]]
     [[ "$(cat "$OUTPUT_DIR/master-sha.txt")" == "$expected_sha" ]]
 }
+
+@test "rename case: master drops old path + adds new path -> sync deletes old + adds new" {
+    # Initial state: both branches carry src/old.txt at the same content
+    write_on_branch master  src/old.txt "shared-content"
+    write_on_branch rel-810 src/old.txt "shared-content"
+    # rel-810's FILES_ALL still lists the old path (set up before master's rename).
+    write_files_all_config_on_branch rel-810 src/old.txt
+    # Now master renames: deletes old path, adds new path, updates its FILES_ALL.
+    delete_on_branch master src/old.txt
+    write_on_branch master  src/new.txt "shared-content"
+    write_files_all_config src/new.txt   # this targets master (default)
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/new.txt ]]                                          # added
+    [[ "$(cat src/new.txt)" == "shared-content" ]]
+    [[ ! -f src/old.txt ]]                                        # deleted
+    grep -qxF "add: src/new.txt" "$OUTPUT_DIR/changes.txt"
+    grep -qxF "delete: src/old.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "removed-from-config: master drops a path entirely -> sync deletes from rel branch" {
+    write_on_branch master  src/keepme.txt "keep"
+    write_on_branch rel-810 src/keepme.txt "keep"
+    write_on_branch rel-810 src/byebye.txt "obsolete"
+    # rel-810's config still has both entries (delivered before master's removal).
+    write_files_all_config_on_branch rel-810 src/keepme.txt src/byebye.txt
+    # master removes src/byebye.txt from both tree and config.
+    write_files_all_config src/keepme.txt   # master's FILES_ALL no longer lists byebye.txt
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/keepme.txt ]]                                       # retained
+    [[ ! -f src/byebye.txt ]]                                     # deleted by rel-only sweep
+    grep -qxF "delete: src/byebye.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "src/keepme.txt" "$OUTPUT_DIR/changes.txt"          # no change recorded for the kept file
+}
+
+@test "rel-only sweep handles rel branch with no FILES_ALL config gracefully (skip the sweep)" {
+    # rel-810 has no .github/docker-byte-identical.yml (pre-PR-D state).
+    # No way to know what rel had "in config" -- script must not crash.
+    write_on_branch master src/foo.txt "x"
+    write_files_all_config src/foo.txt
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/foo.txt ]]
+    grep -qxF "add: src/foo.txt" "$OUTPUT_DIR/changes.txt"
+}
+
+@test "demote case: master keeps file but drops from FILES_ALL -> sync leaves rel alone (per-branch divergence now allowed)" {
+    # File exists on both branches AND on rel's FILES_ALL, but master
+    # dropped the entry from its FILES_ALL while keeping the file in its
+    # tree. That's a deliberate "demote to per-branch divergence" --
+    # the sweep must NOT delete it from rel.
+    write_on_branch master  src/demoted.txt "master-content"
+    write_on_branch rel-810 src/demoted.txt "rel-existing-content"
+    write_files_all_config_on_branch rel-810 src/demoted.txt
+    # master's FILES_ALL no longer lists demoted.txt (but master tree still has it).
+    write_files_all_config   # empty list intentionally? No -- need a non-empty list to avoid the fail-closed branch
+    # Add a placeholder file so master's FILES_ALL has at least one entry
+    # that triggers a no-op (avoids the "refusing to sync empty list" fail).
+    write_on_branch master  src/keepme.txt "shared"
+    write_on_branch rel-810 src/keepme.txt "shared"
+    write_files_all_config src/keepme.txt
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/demoted.txt ]]                                       # NOT deleted
+    [[ "$(cat src/demoted.txt)" == "rel-existing-content" ]]       # rel's version preserved
+    [[ "$output" == *"skip: dropped from FILES_ALL but master still carries the file"* ]]
+    ! grep -qF "demoted.txt" "$OUTPUT_DIR/changes.txt"             # no change recorded
+}
+
+@test "rel-only sweep: path in rel's config but absent from rel tree -> no-op, no error" {
+    # rel-810's FILES_ALL claims src/phantom.txt but neither branch's tree carries it.
+    # Main loop won't see it (not in master's FILES_ALL). Rel-only sweep notices
+    # it's missing from rel HEAD too, so nothing to delete -- silent skip.
+    write_on_branch master src/real.txt "real-content"
+    write_files_all_config_on_branch rel-810 src/phantom.txt
+    write_files_all_config src/real.txt
+
+    git checkout -q rel-810
+    OUTPUT_DIR="$OUTPUT_DIR" run bash "$SYNC_BYTE_IDENTICAL_SCRIPT" rel-810
+
+    [[ $status -eq 0 ]]
+    [[ -f src/real.txt ]]                                         # added by main loop
+    grep -qxF "add: src/real.txt" "$OUTPUT_DIR/changes.txt"
+    ! grep -qF "phantom" "$OUTPUT_DIR/changes.txt"                # not recorded
+}
