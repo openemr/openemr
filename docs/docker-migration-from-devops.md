@@ -415,18 +415,17 @@ Four complementary checks assert that the image baked from `openemr_version_ref`
    5. Every `openemr_version_ref` resolves to a real ref in openemr/openemr (catches typos like `rel-8100` or `v8_1_0_`).
    6. The first version-number `docker_tag` in each row aligns with the `major.minor.patch` composed from `version.php` at that row's `openemr_version_ref`. Catches the drift bug where master bumps `version.php` from `8.1.1-dev` to `8.1.2-dev` but `release-targets.yml` still says `docker_tags: 8.1.1,dev,next`.
 
-5. **Byte-identical drift canary across rel branches** (`docker-validate-byte-identical.yml`). The orchestrator-driven pipeline depends on eight files being character-for-character identical across master and every rel branch:
+5. **Byte-identical drift canary across rel branches** (`docker-validate-byte-identical.yml`). The orchestrator-driven pipeline depends on a set of files being character-for-character identical across master and every rel branch. The current set, defined in [`.github/docker-byte-identical.yml`](../.github/docker-byte-identical.yml), is:
 
    * `.github/workflows/docker-build-release.yml`
    * `.github/workflows/docker-test-core.yml`
    * `.github/workflows/docker-test-release.yml`
    * `.github/actions/test-actions-core/action.yml`
    * `docker/compose.yml`
-   * `docker/.gitignore`
-   * `docker/COVERAGE.md`
-   * `docker/README.md`
 
-   If any drift, the orchestrator can dispatch the same logical build against two branches and silently get different behaviors. This workflow asserts the invariant via three triggers: PR on master or any rel-* branch gated to changes in any of those files (catches a PR that updates one without sync PRs to the others), daily cron at 07:00 UTC (catches latent drift via unrelated rel-branch PRs), and `workflow_dispatch` for ad-hoc investigation. Rel branches come from `release-targets.yml` at runtime, so adding a new rel branch automatically extends the check. Files that are intentionally non-identical (`docker/release/Dockerfile`, `docker-test-bats.yml`, `docker-test-container-functionality.yml`) are deliberately excluded from the watched set.
+   If any drift, the orchestrator can dispatch the same logical build against two branches and silently get different behaviors. The canary asserts the invariant via three triggers: PR on master or any rel-* branch (runs on every PR; the diff check is fast), daily cron at 07:00 UTC (catches latent drift via unrelated rel-branch PRs), and `workflow_dispatch` for ad-hoc investigation. Rel branches come from `release-targets.yml` at runtime, so adding a new rel branch automatically extends the check. Files intentionally non-identical — `docker/release/Dockerfile` (version-pinned per branch), `docker-test-bats.yml` / `docker-test-container-functionality.yml` (per-branch job count), `docker/README.md` (master describes the full subdir set that rel branches don't carry), `docker/.gitignore` and `docker/COVERAGE.md` (docs/hygiene with no runtime-behavior load) — are deliberately excluded; the inclusion criterion is "per-branch divergence would produce different runtime behavior."
+
+   *Post-migration refinement (2026-06-21):* the FILES_ALL list was externalized into [`.github/docker-byte-identical.yml`](../.github/docker-byte-identical.yml) so a future auto-sync workflow can read the same source-of-truth list, and the set was tightened by removing `docker/.gitignore` and `docker/COVERAGE.md` (per the criterion above). `docker/README.md` had already been removed when the file was expanded per-branch in #12551.
 
 Together: the five checks make every published image self-documenting, assert build-time alignment, assert config-time alignment, AND assert the cross-branch invariant. A release-management PR that bumps any of `version.php` / `release-targets.yml` / Dockerfile fails at PR time if the three drift apart; a PR that quietly forks one of the byte-identical files on a rel branch fails at the next daily canary run.
 

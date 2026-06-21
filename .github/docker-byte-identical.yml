@@ -31,6 +31,16 @@
 #                                                  container_benchmarking/;
 #                                                  rel branches' docker/
 #                                                  doesn't carry those
+#   docker/.gitignore                              one-line ignore pattern;
+#                                                  divergence is at-worst a
+#                                                  cosmetic per-branch gitignore
+#                                                  difference, no behavior load
+#   docker/COVERAGE.md                             documentation about kcov
+#                                                  coverage; each rel branch
+#                                                  may legitimately have
+#                                                  different coverage notes
+#                                                  (different PHP / Alpine
+#                                                  combos, different flows)
 
 files:
 - .github/workflows/docker-build-release.yml
@@ -38,5 +48,3 @@ files:
 - .github/workflows/docker-test-release.yml
 - .github/actions/test-actions-core/action.yml
 - docker/compose.yml
-- docker/.gitignore
-- docker/COVERAGE.md
