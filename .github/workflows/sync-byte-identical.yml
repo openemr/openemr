@@ -35,6 +35,20 @@
 # NOT enabled -- the sync PRs are review-gated by default so substantive
 # changes (refactor of a FILES_ALL workflow, not just a dependabot bump)
 # get human eyes before landing on the rel branches.
+#
+# Rel-branch inheritance note: future rel branches cut from master will
+# inherit this workflow file (plus the script + tests it references). That
+# is harmless. The push trigger above filters to master only; GitHub
+# Actions' schedule: trigger only fires from the default branch (master);
+# the test workflow that runs the BATS suite only fires on PRs targeting
+# master. The only path that exercises a rel-branch copy is an explicit
+# workflow_dispatch against that branch -- which still does the right
+# thing because the apply step fetches master's copy of the script via
+# `git show master:.github/scripts/sync-byte-identical.sh`. So a manual
+# dispatch against rel-820 syncs rel-820 to master's FILES_ALL using
+# master's logic, regardless of what version of this workflow lives on
+# rel-820. The rel-branch copies are dead weight but never produce
+# unexpected behavior.
 
 name: Sync byte-identical files to rel branches
 
