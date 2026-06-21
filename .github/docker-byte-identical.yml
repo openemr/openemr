@@ -50,3 +50,4 @@ files:
 - docker/compose.yml
 - .github/workflows/docker-validate-byte-identical.yml
 - .github/docker-byte-identical.yml
+- .github/scripts/validate-byte-identical.sh

@@ -1,16 +1,16 @@
-# Runs the BATS test suite for .github/scripts/sync-byte-identical.sh.
+# Runs the BATS test suites for the scripts under .github/scripts/.
 #
-# Fires on PR changes to the script itself, its tests, or this workflow.
-# Fast suite (~10 tests, all using synthetic in-memory git repos -- no
-# network, no Docker), so the cost of running on every touch is minimal.
+# Fires on PR changes to any script, its tests, or this workflow. Fast
+# suites (synthetic in-memory fixtures -- no network, no Docker), so the
+# cost of running on every touch is minimal.
 #
 # Pattern matches docker-test-bats.yml: clone bats-core at the repo-pinned
 # version (v1.13.0) and put it on PATH. No bats-support / bats-assert
-# dependencies needed -- the tests use plain [[ ]] asserts.
+# dependencies -- the tests use plain [[ ]] asserts.
 #
-# Not in any byte-identical set: this workflow and the script it tests
-# live on master only (they support the master-only auto-sync workflow);
-# rel branches never invoke them.
+# Not in any byte-identical set: the scripts these tests cover are
+# master-only (auto-sync + the canary's logic), so the tests live on
+# master only too.
 
 name: Test byte-identical scripts
 
@@ -19,8 +19,8 @@ on:
     branches:
     - master
     paths:
-    - '.github/scripts/sync-byte-identical.sh'
-    - 'tests/bats/ci-scripts/sync-byte-identical/**'
+    - '.github/scripts/**'
+    - 'tests/bats/ci-scripts/**'
     - '.github/workflows/test-byte-identical-scripts.yml'
   workflow_dispatch:
 
@@ -42,5 +42,7 @@ jobs:
         /tmp/bats-core/install.sh "$HOME/bats"
         echo "$HOME/bats/bin" >> "$GITHUB_PATH"
 
-    - name: Run BATS test suite
-      run: bats tests/bats/ci-scripts/sync-byte-identical/
+    - name: Run BATS test suites
+      run: |
+        bats tests/bats/ci-scripts/sync-byte-identical/
+        bats tests/bats/ci-scripts/validate-byte-identical/
