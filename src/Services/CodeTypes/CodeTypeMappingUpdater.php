@@ -97,7 +97,6 @@ readonly class CodeTypeMappingUpdater
         private EntityManagerInterface $em,
         private LoggerInterface $logger,
     ) {
-        error_log(__METHOD__ . __LINE__);
     }
 
     /**

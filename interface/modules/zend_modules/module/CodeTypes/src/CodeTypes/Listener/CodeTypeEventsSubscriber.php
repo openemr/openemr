@@ -39,22 +39,18 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
 
     public function onSqlUpgradeEvent(SQLUpgradeEvent $event)
     {
-        error_log(__METHOD__ . __LINE__);
         $upgradeService = $event->getSqlUpgradeService();
         $logger = new class ($upgradeService) extends AbstractLogger {
             public function __construct(private readonly ISQLUpgradeService $upgradeService)
             {
-        error_log(__METHOD__ . __LINE__);
             }
 
             public function log($level, \Stringable|string $message, array $context = []): void
             {
-        error_log(__METHOD__ . __LINE__);
                 $this->upgradeService->flush_echo(text($message) . "<br />");
             }
         };
 
-        error_log(__METHOD__ . __LINE__);
         $this->makeService($logger)->updateActivatedMappings();
     }
 
@@ -71,12 +67,9 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
 
     private function makeService(?LoggerInterface $logger = null): CodeTypeMappingUpdater
     {
-        error_log(__METHOD__ . __LINE__);
         $logger ??= ServiceContainer::getLogger();
-        error_log(__METHOD__ . __LINE__);
         $em = ServiceContainer::getEntityManager();
 
-        error_log(__METHOD__ . __LINE__);
         return new CodeTypeMappingUpdater($em, $logger);
     }
 }
