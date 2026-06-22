@@ -20,11 +20,10 @@ use Symfony\Component\Console\Command\Command;
     name: 'codes:update-mappings',
     description: 'Update list_options.codes mappings for activated code types (SNOMED, CPT4)',
 )]
-class UpdateMappingsCommand extends Command
+class UpdateMappingsCommand
 {
     public function __construct(private readonly CodeTypeMappingUpdater $updater)
     {
-        parent::__construct();
     }
 
     public function __invoke(): int
