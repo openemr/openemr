@@ -1,0 +1,30 @@
+# Synthetic release-targets fixture for the golden-file test in
+# docker/dockerhub/tests/golden-test.sh. Designed to exercise the four
+# patterns the renderer should handle:
+#
+#   1. Master-style row: combined dev + next floating tags alongside a
+#      version-number tag.
+#   2. Floating-stable row: carries `latest` (which the renderer pulls for
+#      the headline "Current production OpenEMR version is X").
+#   3. Multi-version-tag row: both base and base.realpatch in docker_tags,
+#      matching the rel-800 pattern of 8.0.0 + 8.0.0.3.
+#   4. Minimal row: a single version-number tag, no floating alias.
+#
+# Branch names are deliberately fictional (rel-fix, rel-old, rel-ancient)
+# so the test isn't tracking the live release-targets.yml's content.
+
+- branch: master
+  docker_tags: 9.0.0-dev,dev,next
+  openemr_version_ref: master
+
+- branch: rel-fix
+  docker_tags: 8.5.0,latest
+  openemr_version_ref: v8_5_0
+
+- branch: rel-old
+  docker_tags: 7.0.0,7.0.0.5
+  openemr_version_ref: v7_0_0_5
+
+- branch: rel-ancient
+  docker_tags: 6.0.0
+  openemr_version_ref: v6_0_0

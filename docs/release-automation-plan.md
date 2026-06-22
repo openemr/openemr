@@ -54,12 +54,16 @@ Mechanical changes from the wiki's [pre-tag checklist](https://www.open-emr.org/
 These items appear in the wiki release checklist but live outside this repo
 and are handled by sibling tracks of the three-PR release automation:
 
-- **`fsupgrade-N.sh`** + the upgrade-dir `Dockerfile` — owned by
-  `openemr-devops` under `docker/openemr/<version>/`. The rotation workflow
-  in openemr-devops#665 covers this slice.
-- **`contrib/util/installScripts/docker-version`** and
-  `docker/openemr/<version>/root/docker-version` — paths in `openemr-devops`,
-  not here.
+- **`fsupgrade-N.sh`** + the upgrade-dir `Dockerfile` — owned by this repo's
+  per-rel-branch [`docker/release/upgrade/`](../docker/release/upgrade/) (these
+  moved out of openemr-devops's `docker/openemr/<version>/` when the docker
+  pipeline migrated; see [`docker-migration-from-devops.md`](docker-migration-from-devops.md)).
+  The rotation workflow originally tracked in openemr-devops#665 covers this
+  slice as part of the deferred release-mechanism follow-up.
+- **`docker/release/upgrade/docker-version`** and
+  **`docker/binary/upgrade/docker-version`** — also in this repo per branch
+  (same post-migration relocation). The conductor doesn't rewrite these
+  directly; the rotation tooling does.
 - **`contrib/util/installScripts/InstallerAuto.php`** — verified to contain
   no version references in the current openemr/openemr code; nothing to
   bump.
