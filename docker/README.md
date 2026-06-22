@@ -43,8 +43,7 @@ automatically by Dependabot under the `openemr-images` group in
 | [`dockerhub/`](dockerhub/) | Docker Hub repo overview rendering. `overview.md` is the template; `render.sh` is the bash + yq + jq + sed renderer (reads [`../.github/release-targets.yml`](../.github/release-targets.yml) + scans `docker-build-*.yml` flex callers); `tests/` carries a Tier 1 sanity check and a Tier 2 golden-file test. Published by `.github/workflows/docker-push-dockerhub-readme.yml`. |
 | [`container_benchmarking/`](container_benchmarking/) | Container functionality + performance test harness. Driven by `.github/workflows/docker-test-container-functionality.yml`. |
 | [`library/`](library/) | Shared assets pulled into multiple images: SQL/LDAP/CouchDB SSL cert fixtures, dev-only PHP-FPM base Dockerfiles, API scope listings. |
-| [`compose.yml`](compose.yml) | **CI test-harness compose** used by `.github/actions/test-actions-core`. NOT for end-user `docker compose up` workflows — those live in `production/` and `development-*/`. |
-| [`COVERAGE.md`](COVERAGE.md) | Kcov entrypoint-script coverage docs. |
+| [`COVERAGE.md`](COVERAGE.md) | Kcov entrypoint-script coverage docs (uses [`../.github/docker/compose.yml`](../.github/docker/compose.yml) as the CI test-harness compose). |
 
 ## Publish flow
 
@@ -63,7 +62,8 @@ their own daily 02:00 UTC cron, independent of the orchestrator.
 
 | Workflow | What it catches |
 |---|---|
-| `docker-validate-byte-identical.yml` | A defined set of workflow + composite files must stay byte-identical across master + every rel branch. Fires on `rel-*` PRs to catch drift before merge. |
+| `docker-validate-byte-identical.yml` | Files listed in [`.github/docker-byte-identical.yml`](../.github/docker-byte-identical.yml) must stay byte-identical across master + every rel branch. Fires on every PR to master or `rel-*` + daily 07:00 UTC cron. |
+| `sync-byte-identical.yml` | Auto-propagates byte-identical file changes from master to every rel branch (opens or updates a long-lived sync PR per branch). Fires on master push + daily 09:00 UTC backstop. Pairs with the canary above. |
 | `docker-validate-release-targets.yml` | Schema validation on `release-targets.yml`, git-ref resolution checks, and `docker_tags` ↔ `version.php` alignment on master. |
 | `docker-test-{bats,container-functionality,core,release}.yml` + `docker-test-flex-{322,323,edge}.yml` | Build the image locally and exercise it (BATS, container functionality, OpenEMR install). Catches build-time and runtime regressions before publish. |
 | `docker-lint-hadolint.yml` + `docker-compose-lint.yml` | Lint Dockerfiles and compose files. |

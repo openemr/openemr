@@ -415,18 +415,20 @@ Four complementary checks assert that the image baked from `openemr_version_ref`
    5. Every `openemr_version_ref` resolves to a real ref in openemr/openemr (catches typos like `rel-8100` or `v8_1_0_`).
    6. The first version-number `docker_tag` in each row aligns with the `major.minor.patch` composed from `version.php` at that row's `openemr_version_ref`. Catches the drift bug where master bumps `version.php` from `8.1.1-dev` to `8.1.2-dev` but `release-targets.yml` still says `docker_tags: 8.1.1,dev,next`.
 
-5. **Byte-identical drift canary across rel branches** (`docker-validate-byte-identical.yml`). The orchestrator-driven pipeline depends on eight files being character-for-character identical across master and every rel branch:
+5. **Byte-identical drift canary across rel branches** (`docker-validate-byte-identical.yml`). The orchestrator-driven pipeline depends on a set of files being character-for-character identical across master and every rel branch. The current set, defined in [`.github/docker-byte-identical.yml`](../.github/docker-byte-identical.yml), is:
 
    * `.github/workflows/docker-build-release.yml`
    * `.github/workflows/docker-test-core.yml`
    * `.github/workflows/docker-test-release.yml`
    * `.github/actions/test-actions-core/action.yml`
-   * `docker/compose.yml`
-   * `docker/.gitignore`
-   * `docker/COVERAGE.md`
-   * `docker/README.md`
+   * `.github/docker/compose.yml`
+   * `.github/workflows/docker-validate-byte-identical.yml`
+   * `.github/docker-byte-identical.yml`
+   * `.github/scripts/validate-byte-identical.sh`
 
-   If any drift, the orchestrator can dispatch the same logical build against two branches and silently get different behaviors. This workflow asserts the invariant via three triggers: PR on master or any rel-* branch gated to changes in any of those files (catches a PR that updates one without sync PRs to the others), daily cron at 07:00 UTC (catches latent drift via unrelated rel-branch PRs), and `workflow_dispatch` for ad-hoc investigation. Rel branches come from `release-targets.yml` at runtime, so adding a new rel branch automatically extends the check. Files that are intentionally non-identical (`docker/release/Dockerfile`, `docker-test-bats.yml`, `docker-test-container-functionality.yml`) are deliberately excluded from the watched set.
+   If any drift, the orchestrator can dispatch the same logical build against two branches and silently get different behaviors. The canary asserts the invariant via three triggers: PR on master or any rel-* branch (runs on every PR; the diff check is fast), daily cron at 07:00 UTC (catches latent drift via unrelated rel-branch PRs), and `workflow_dispatch` for ad-hoc investigation. Rel branches come from `release-targets.yml` at runtime, so adding a new rel branch automatically extends the check. Files intentionally non-identical — `docker/release/Dockerfile` (version-pinned per branch), `docker-test-bats.yml` / `docker-test-container-functionality.yml` (per-branch job count), `docker/README.md` (master describes the full subdir set that rel branches don't carry), `docker/.gitignore` and `docker/COVERAGE.md` (docs/hygiene with no runtime-behavior load) — are deliberately excluded; the inclusion criterion is "per-branch divergence would produce different runtime behavior."
+
+   *Post-migration refinement (2026-06-21):* four related changes landed together. First, the FILES_ALL list was externalized into [`.github/docker-byte-identical.yml`](../.github/docker-byte-identical.yml) so multiple consumers can read the same source-of-truth list. Second, the set was tightened by removing `docker/.gitignore` and `docker/COVERAGE.md` (per the criterion above); `docker/README.md` had already been removed when the file was expanded per-branch in #12551. Third, an auto-sync workflow ([`.github/workflows/sync-byte-identical.yml`](../.github/workflows/sync-byte-identical.yml)) was added that proactively propagates byte-identical file changes from master to every rel branch via long-lived sync PRs (one per branch), pairing with the canary so drift gets closed mechanically rather than via manual sync PRs per dependabot bump. Scheduled at 09:00 UTC so it runs after the 06:00 UTC orchestrator-dispatched per-branch builds (which take ~1h on rel-704 and rel-800) have completed, avoiding queuing two concurrent `docker-build-release.yml` runs on the same rel branch. Fourth, the canary workflow itself + its config + its newly-extracted diff script (`.github/scripts/validate-byte-identical.sh`) were added to FILES_ALL — the canary now travels with the file set it polices, which both closes the prior gap where rel-* PR triggers were no-ops (the workflow file wasn't on rel branches) and makes the canary self-enforcing. Pairs with a context-aware rewrite of the canary's diff logic (extracted into the new script with BATS coverage at [`tests/bats/ci-scripts/validate-byte-identical/`](../tests/bats/ci-scripts/validate-byte-identical/)): from master, compare each rel branch HEAD against master (informational warnings on master PRs since auto-sync resolves them, hard fails on cron / dispatch); from a rel branch, compare LOCAL against master HEAD (any drift fails, since rel branches must match master).
 
 Together: the five checks make every published image self-documenting, assert build-time alignment, assert config-time alignment, AND assert the cross-branch invariant. A release-management PR that bumps any of `version.php` / `release-targets.yml` / Dockerfile fails at PR time if the three drift apart; a PR that quietly forks one of the byte-identical files on a rel branch fails at the next daily canary run.
 
@@ -437,7 +439,7 @@ Not every rel branch has the same test coverage in devops today. Phase 2 mirrors
 | File / Dir | master | rel-810 | rel-800 | rel-704 |
 |---|:---:|:---:|:---:|:---:|
 | `docker/release/Dockerfile` (version-pinned) | ✓ | ✓ | ✓ | ✓ |
-| `docker/compose.yml` | ✓ | ✓ | ✓ | ✓ |
+| `.github/docker/compose.yml` | ✓ | ✓ | ✓ | ✓ |
 | `docker-build-release.yml` (byte-identical) | ✓ | ✓ | ✓ | ✓ |
 | `docker-test-release.yml` (production Dockerfile test) | ✓ | ✓ | ✓ | ✓ |
 | `docker-test-core.yml` (reusable) | ✓ | ✓ | ✓ | ✓ |
@@ -466,6 +468,8 @@ When cutting a new `rel-X.Y.Z` from master:
 3. **On master, append one row to `.github/release-targets.yml`** with the new branch's `docker_tags` and `openemr_version_ref`. This is what starts the orchestrator dispatching nightly builds against the new branch.
 
 What does NOT change at branch-cut: every byte-identical `FILES_ALL` file (see the Verification section above for the list) carries forward from master verbatim -- including `docker-test-release.yml`, which has no `branches:` filter on its triggers. Branch scoping is implicit -- the workflow file only exists on the branches that need it, and push/pull_request events use the workflow at the relevant ref. `docker-test-bats.yml` and `docker-test-container-functionality.yml` also have no `branches:` filter -- they come over from master with their full content and fire on the new branch automatically. The Dockerfile carries forward whatever Alpine + PHP versions master had at cut time. Dependabot, hadolint paths, lint configs -- unchanged. The openemr source ref is supplied at build time via `OPENEMR_VERSION` from `release-targets.yml`, not baked into the Dockerfile.
+
+`release-targets.yml` itself also carries forward at the cut, but it's *master-authoritative*: every consumer either runs only on master or reads master's copy via `git show master:...`, never from the local checkout (the byte-identical canary script is the lone exception and its rel-branch context skips the read entirely). So the rel-branch copy is a harmless frozen snapshot -- it'll drift from master over time as new rel branches are added and version refs bump, but no consumer ever sees the drift. The header comment in `release-targets.yml` documents this property as a forward-looking guard against new consumers reading from the local checkout on rel branches.
 
 Tag-rotation, release promotion, and post-release patch handling are all one-line edits in `release-targets.yml`:
 

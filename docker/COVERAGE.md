@@ -37,9 +37,9 @@ To run the container locally with coverage enabled, point Docker Compose at the 
 
 ```bash
 DOCKER_CONTEXT_PATH=release COMPOSE_PROFILES=kcov-dev \
-  docker compose -f docker/compose.yml up --build
+  docker compose -f .github/docker/compose.yml up --build
 ```
 
-`DOCKER_CONTEXT_PATH` selects which `docker/<variant>/Dockerfile` (e.g., `release`, `binary`, `flex`) gets built; `COMPOSE_PROFILES=kcov-dev` activates the kcov-instrumented service variant defined in `docker/compose.yml`. The kcov wrapper script (`docker/release/kcov-wrapper.sh` or the equivalent under the chosen variant) does a two-pass build so coverage instrumentation skips the heavy build step (composer/npm/webpack) and only wraps OpenEMR's runtime code paths -- see openemr-devops#797 for the rationale.
+`DOCKER_CONTEXT_PATH` selects which `docker/<variant>/Dockerfile` (e.g., `release`, `binary`, `flex`) gets built; `COMPOSE_PROFILES=kcov-dev` activates the kcov-instrumented service variant defined in `.github/docker/compose.yml`. The kcov wrapper script (`docker/release/kcov-wrapper.sh` or the equivalent under the chosen variant) does a two-pass build so coverage instrumentation skips the heavy build step (composer/npm/webpack) and only wraps OpenEMR's runtime code paths -- see openemr-devops#797 for the rationale.
 
-After running, view the coverage reports in `docker/coverage-reports/` (the container writes them via the bind mount declared in `docker/compose.yml`).
+After running, view the coverage reports in `.github/docker/coverage-reports/` (the container writes them via the bind mount declared in `.github/docker/compose.yml`).
