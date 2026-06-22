@@ -683,6 +683,32 @@ enable_coredumps() {
     echo "Setting fs.suid_dumpable=2..."
     sudo sysctl -w 'fs.suid_dumpable=2'
 
+    # Apache explicitly disables core dumps via prctl(PR_SET_DUMPABLE, 0) as a
+    # security measure. Setting CoreDumpDirectory re-enables them for workers.
+    # This is the key fix for issue #12438/#12439.
+    echo "Configuring Apache CoreDumpDirectory..."
+    dc exec -T openemr sh -c "
+        # Find Apache config directory
+        conf_dir=''
+        for d in /etc/apache2/conf.d /etc/httpd/conf.d /usr/local/apache2/conf/extra; do
+            if [ -d \"\$d\" ]; then
+                conf_dir=\"\$d\"
+                break
+            fi
+        done
+        if [ -z \"\$conf_dir\" ]; then
+            echo 'WARNING: Could not find Apache conf.d directory'
+            exit 0
+        fi
+        echo \"CoreDumpDirectory ${COREDUMP_DIR}\" > \"\$conf_dir/coredump.conf\"
+        echo \"Wrote CoreDumpDirectory to \$conf_dir/coredump.conf\"
+    "
+
+    # Restart Apache to pick up the CoreDumpDirectory setting
+    echo "Restarting Apache to apply CoreDumpDirectory..."
+    dc exec -T openemr sh -c 'pkill -HUP httpd || pkill -HUP apache2 || true'
+    sleep 2
+
     # Verify settings
     echo ""
     echo "=== Verifying coredump configuration ==="
