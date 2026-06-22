@@ -782,10 +782,83 @@ verify_coredump_works() {
         fi
     fi
 
+    # Test 3: Crash via PHP running in Apache (most realistic test)
+    # This tests whether mod_php/httpd worker produces cores
+    echo ""
+    echo "Test 3: Triggering test crash via PHP in Apache..."
+
+    # Create a PHP script that will crash
+    dc exec -T openemr sh -c "cat > /var/www/localhost/htdocs/openemr/ci/crash_test.php << 'CRASHPHP'
+<?php
+// Write marker so we know the script ran
+file_put_contents('/tmp/crash_test_started', date('c'));
+
+// Check and log dumpable status before crash
+\$dumpable = @file_get_contents('/proc/self/coredump_filter');
+file_put_contents('/tmp/crash_test_coredump_filter', \$dumpable ?: 'unreadable');
+
+// Log current limits
+\$limits = @file_get_contents('/proc/self/limits');
+file_put_contents('/tmp/crash_test_limits', \$limits ?: 'unreadable');
+
+// Trigger segfault via posix_kill
+posix_kill(posix_getpid(), SIGSEGV);
+CRASHPHP
+"
+
+    local cores_before_php
+    cores_before_php=$(dc exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.* 2>/dev/null | wc -l") || cores_before_php="0"
+    cores_before_php=${cores_before_php%$'\r'}
+
+    # Hit the crash endpoint via curl (will fail, that's expected)
+    dc exec -T openemr curl -s --max-time 5 http://localhost/ci/crash_test.php 2>/dev/null || true
+
+    sleep 2
+
+    # Check if a new core appeared
+    local cores_after_php
+    cores_after_php=$(dc exec -T openemr sh -c "ls -1 '${COREDUMP_DIR}'/core.* 2>/dev/null | wc -l") || cores_after_php="0"
+    cores_after_php=${cores_after_php%$'\r'}
+
+    echo "Cores before PHP crash: ${cores_before_php}, after: ${cores_after_php}"
+
+    if (( cores_after_php > cores_before_php )); then
+        echo "SUCCESS: PHP crash in Apache produced a core!"
+        dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}'/core.* 2>/dev/null | tail -3"
+    else
+        echo "FAILURE: PHP crash in Apache did NOT produce a core."
+        echo "This explains why real segfaults aren't captured."
+        echo ""
+        echo "Checking PHP crash test markers..."
+        dc exec -T openemr sh -c 'cat /tmp/crash_test_started 2>/dev/null || echo "Script did not start"'
+        echo "coredump_filter:"
+        dc exec -T openemr sh -c 'cat /tmp/crash_test_coredump_filter 2>/dev/null || echo "Not captured"'
+        echo "Process limits during crash:"
+        dc exec -T openemr sh -c 'cat /tmp/crash_test_limits 2>/dev/null | grep -i core || echo "Not captured"'
+
+        echo ""
+        echo "Checking httpd worker dumpable status..."
+        # Get the dumpable status of a running httpd worker
+        dc exec -T openemr sh -c '
+            pid=$(pgrep -f "httpd.*-k" | head -1)
+            if [ -n "$pid" ]; then
+                echo "httpd worker PID: $pid"
+                cat "/proc/$pid/coredump_filter" 2>/dev/null || echo "coredump_filter: unreadable"
+                grep -i core "/proc/$pid/limits" 2>/dev/null || echo "limits: unreadable"
+                cat "/proc/$pid/status" 2>/dev/null | grep -i dump || echo "status dump info: not found"
+            else
+                echo "No httpd worker found"
+            fi
+        '
+    fi
+
+    # Clean up test script
+    dc exec -T openemr rm -f /var/www/localhost/htdocs/openemr/ci/crash_test.php /tmp/crash_test_* 2>/dev/null || true
+
     # Clean up test cores so they don't pollute the real diagnostics
     echo ""
     echo "Cleaning up test cores..."
-    dc exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.sh.* '${COREDUMP_DIR}'/core.test_crash.* 2>/dev/null" || true
+    dc exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.sh.* '${COREDUMP_DIR}'/core.test_crash.* '${COREDUMP_DIR}'/core.httpd.* '${COREDUMP_DIR}'/core.php.* 2>/dev/null" || true
 
     echo "=== Coredump verification complete ==="
 }
