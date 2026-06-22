@@ -141,4 +141,16 @@ class AuthorizationControllerTest extends TestCase
         $response = $authorizationController->oauthAuthorizationFlow($request);
         $this->assertEquals(Response::HTTP_TEMPORARY_REDIRECT, $response->getStatusCode(), "Expected 407 location redirect");
     }
+
+    public function testOauthAuthorizeTokenMissingGrantType(): void
+    {
+        $request = HttpRestRequest::create('/oauth2/default/token', 'POST');
+        $session = $this->getMockSessionForRequest($request);
+        $request->setSession($session);
+        // Deliberately omit grant_type from the request body
+        $request->request->set('code', 'test_authorization_code');
+        $authorizationController = $this->getDefaultAuthorizationControllerForRequest($request);
+        $response = $authorizationController->oauthAuthorizeToken($request);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), "Expected 400 Bad Request when grant_type is missing");
+    }
 }
