@@ -13,6 +13,12 @@ services:
       core:
         soft: -1
         hard: -1
+    # Disable AppArmor and use a permissive seccomp profile for core dump
+    # generation. Docker's default security profiles can prevent core files
+    # from being written even when ulimits allow it.
+    security_opt:
+    - apparmor:unconfined
+    - seccomp:unconfined
     environment:
       EMPTY: yes
       FORCE_NO_BUILD_MODE: yes
