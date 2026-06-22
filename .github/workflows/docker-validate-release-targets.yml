@@ -19,7 +19,12 @@
 #      (X.Y.Z, when realpatch == 0) or the base.realpatch form
 #      (X.Y.Z.W, when realpatch > 0). Catches both the version.php-bump-
 #      without-release-targets-bump drift case AND typo'd secondary tags
-#      like `8.0.0,9.9.9` in a multi-tag row.
+#      like `8.0.0,9.9.9` in a multi-tag row. For the master row the
+#      check reads version.php from the PR's local checkout (which is
+#      the merge-commit state -- "what master will look like after this
+#      PR merges") so a PR that coordinately bumps BOTH docker_tags and
+#      version.php validates cleanly; non-master rows use raw URL fetch
+#      against the stable git tag in openemr_version_ref.
 
 name: Validate release-targets.yml
 
@@ -119,7 +124,21 @@ jobs:
           # transient curl failure can't fall through to parsing a stale file
           # for the wrong branch's version.
           rm -f /tmp/v.php
-          if ! curl -fsSL "https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php" -o /tmp/v.php; then
+          if [ "$REF" = "master" ]; then
+            # Use the PR's local checkout instead of raw.githubusercontent.com.
+            # This workflow only fires on `pull_request: branches: [master]`,
+            # so the checkout is always the PR's merge-commit content -- i.e.,
+            # "what master will look like after this PR merges." Validating
+            # against that closes a chicken-and-egg: a PR that coordinately
+            # bumps BOTH .github/release-targets.yml's master row docker_tags
+            # AND version.php would otherwise fail here because the new
+            # docker_tags would be compared against the upstream master's
+            # PRE-bump version.php (the PR hasn't merged yet, so raw URL
+            # serves the old content). Non-master rows continue to use the
+            # raw URL because their openemr_version_ref is a stable git tag
+            # that a PR can't modify locally.
+            cp version.php /tmp/v.php
+          elif ! curl -fsSL "https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php" -o /tmp/v.php; then
             echo "::error::Row '$BRANCH': failed to fetch version.php at ref '$REF' from raw.githubusercontent.com"
             FAIL=1
             continue
