@@ -704,9 +704,11 @@ enable_coredumps() {
         echo \"Wrote CoreDumpDirectory to \$conf_dir/coredump.conf\"
     "
 
-    # Restart Apache to pick up the CoreDumpDirectory setting
-    echo "Restarting Apache to apply CoreDumpDirectory..."
-    dc exec -T openemr sh -c 'pkill -HUP httpd || pkill -HUP apache2 || true'
+    # Graceful restart Apache to pick up the CoreDumpDirectory setting.
+    # Use apachectl/httpd -k graceful, NOT pkill -HUP (which kills PID 1 and
+    # stops the container).
+    echo "Graceful restart Apache to apply CoreDumpDirectory..."
+    dc exec -T openemr sh -c 'httpd -k graceful 2>/dev/null || apachectl graceful 2>/dev/null || apache2ctl graceful 2>/dev/null || true'
     sleep 2
 
     # Verify settings
