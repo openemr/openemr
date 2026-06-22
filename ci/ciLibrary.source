@@ -664,13 +664,170 @@ readonly COREDUMP_DIR
 #      the web user, which clears the dumpable flag; mode 2 restores it
 #      (core owned by root, readable by root).
 # core_pattern is a kernel global shared with the container.
+#
+# After configuration, runs a test crash to verify cores are actually being
+# written. If the test crash doesn't produce a core, logs diagnostics to help
+# debug the issue.
 enable_coredumps() {
+    echo "=== Configuring coredumps ==="
+
     # Create the in-container target up front so the kernel has somewhere to
     # write the core. World-writable + sticky: Apache workers run as the
     # unprivileged web user once privileges are dropped.
+    echo "Creating coredump directory ${COREDUMP_DIR}..."
     dc exec -T openemr sh -c "mkdir -p '${COREDUMP_DIR}' && chmod 1777 '${COREDUMP_DIR}'"
+
+    echo "Setting kernel.core_pattern..."
     sudo sysctl -w "kernel.core_pattern=${COREDUMP_DIR}/core.%e.%p.%t"
+
+    echo "Setting fs.suid_dumpable=2..."
     sudo sysctl -w 'fs.suid_dumpable=2'
+
+    # Verify settings
+    echo ""
+    echo "=== Verifying coredump configuration ==="
+
+    echo "Host kernel.core_pattern:"
+    cat /proc/sys/kernel/core_pattern
+
+    echo "Host fs.suid_dumpable:"
+    cat /proc/sys/fs/suid_dumpable
+
+    echo "Container coredump directory:"
+    dc exec -T openemr ls -la "${COREDUMP_DIR}"
+
+    echo "Container ulimit -c (root):"
+    dc exec -T openemr sh -c 'ulimit -c'
+
+    # Check ulimit as the Apache user (the user that will actually crash)
+    local web_user
+    web_user=$(dc exec -T openemr sh -c 'for u in apache www-data; do if id "$u" >/dev/null 2>&1; then echo "$u"; exit 0; fi; done; exit 1') || web_user=""
+    web_user=${web_user%$'\r'}
+    if [[ -n "${web_user}" ]]; then
+        echo "Container ulimit -c (as ${web_user}):"
+        dc exec -T openemr su -s /bin/sh "${web_user}" -c 'ulimit -c'
+    fi
+
+    echo "Container /proc/self/limits (core file size):"
+    dc exec -T openemr sh -c 'grep -i core /proc/self/limits || cat /proc/self/limits'
+
+    # Test crash: verify cores are actually being written
+    echo ""
+    echo "=== Running test crash to verify coredump generation ==="
+    verify_coredump_works
+}
+
+##
+# Verify that coredumps are actually being written by triggering a test crash
+# and checking for the resulting core file. This catches configuration issues
+# (Docker security profiles, namespace isolation, permission problems) that
+# would otherwise only surface when a real crash occurs.
+#
+# Runs two tests:
+#   1. A crash as root (simplest case, should always work if config is correct)
+#   2. A crash as the web user (mimics Apache worker privilege drop)
+#
+# If either test fails to produce a core, logs detailed diagnostics.
+verify_coredump_works() {
+    local test_core_pattern="${COREDUMP_DIR}/core.test_crash.*"
+
+    # Clean up any previous test cores
+    dc exec -T openemr sh -c "rm -f ${test_core_pattern} 2>/dev/null" || true
+
+    # Test 1: Crash as root
+    echo "Test 1: Triggering test crash as root..."
+    # Use a subshell that sends SIGSEGV to itself. The '|| true' prevents
+    # the non-zero exit from failing the script under set -e.
+    dc exec -T openemr sh -c "sh -c 'kill -SEGV \$\$' || true" 2>/dev/null || true
+
+    # Give the kernel a moment to write the core
+    sleep 1
+
+    echo "Checking for test core files..."
+    local cores_after_root
+    cores_after_root=$(dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}'/core.* 2>/dev/null | head -5") || cores_after_root=""
+
+    if [[ -n "${cores_after_root}" ]]; then
+        echo "SUCCESS: Test crash as root produced a core:"
+        echo "${cores_after_root}"
+    else
+        echo "WARNING: Test crash as root did NOT produce a core."
+        _coredump_diagnostics
+    fi
+
+    # Test 2: Crash as the web user (mimics Apache worker)
+    local web_user
+    web_user=$(dc exec -T openemr sh -c 'for u in apache www-data; do if id "$u" >/dev/null 2>&1; then echo "$u"; exit 0; fi; done; exit 1') || web_user=""
+    web_user=${web_user%$'\r'}
+
+    if [[ -n "${web_user}" ]]; then
+        echo ""
+        echo "Test 2: Triggering test crash as ${web_user} (simulates Apache worker)..."
+        dc exec -T openemr su -s /bin/sh "${web_user}" -c "sh -c 'kill -SEGV \$\$' || true" 2>/dev/null || true
+
+        sleep 1
+
+        local cores_after_web
+        cores_after_web=$(dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}'/core.* 2>/dev/null | wc -l") || cores_after_web="0"
+        cores_after_web=${cores_after_web%$'\r'}
+
+        # We should have at least 2 cores now (one from root, one from web user)
+        if (( cores_after_web >= 2 )); then
+            echo "SUCCESS: Test crash as ${web_user} produced a core."
+            dc exec -T openemr sh -c "ls -la '${COREDUMP_DIR}'/core.* 2>/dev/null | tail -3"
+        else
+            echo "WARNING: Test crash as ${web_user} did NOT produce a core."
+            echo "This may explain missing cores from Apache workers."
+            _coredump_diagnostics
+        fi
+    fi
+
+    # Clean up test cores so they don't pollute the real diagnostics
+    echo ""
+    echo "Cleaning up test cores..."
+    dc exec -T openemr sh -c "rm -f '${COREDUMP_DIR}'/core.sh.* '${COREDUMP_DIR}'/core.test_crash.* 2>/dev/null" || true
+
+    echo "=== Coredump verification complete ==="
+}
+
+##
+# Print detailed diagnostics when coredumps aren't working.
+_coredump_diagnostics() {
+    echo ""
+    echo "=== Coredump Diagnostics ==="
+
+    echo "Docker security options for openemr container:"
+    docker inspect --format='{{json .HostConfig.SecurityOpt}}' "$(dc ps -q openemr)" 2>/dev/null || echo "(could not inspect)"
+
+    echo ""
+    echo "AppArmor profile:"
+    docker inspect --format='{{.AppArmorProfile}}' "$(dc ps -q openemr)" 2>/dev/null || echo "(could not inspect)"
+
+    echo ""
+    echo "Seccomp profile:"
+    docker inspect --format='{{json .HostConfig.Seccomp}}' "$(dc ps -q openemr)" 2>/dev/null || echo "(could not inspect)"
+
+    echo ""
+    echo "Container capabilities:"
+    docker inspect --format='{{json .HostConfig.CapAdd}}' "$(dc ps -q openemr)" 2>/dev/null || echo "(could not inspect)"
+
+    echo ""
+    echo "Ulimits from Docker:"
+    docker inspect --format='{{json .HostConfig.Ulimits}}' "$(dc ps -q openemr)" 2>/dev/null || echo "(could not inspect)"
+
+    echo ""
+    echo "Checking if ptrace is restricted (affects core dumps in some configs):"
+    dc exec -T openemr sh -c 'cat /proc/sys/kernel/yama/ptrace_scope 2>/dev/null || echo "N/A"'
+
+    echo ""
+    echo "Container's view of /proc/sys/kernel/core_pattern:"
+    dc exec -T openemr sh -c 'cat /proc/sys/kernel/core_pattern 2>/dev/null || echo "Cannot read"'
+
+    echo ""
+    echo "dmesg tail (may show permission denied or other errors):"
+    sudo dmesg | tail -20 || echo "(dmesg not available)"
+
+    echo "=== End Diagnostics ==="
 }
 
 ##
