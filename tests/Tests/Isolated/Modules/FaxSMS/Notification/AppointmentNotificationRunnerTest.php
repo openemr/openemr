@@ -47,16 +47,26 @@ use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
 // Module classes live under interface/modules/custom_modules/oe-module-faxsms/
-// and aren't covered by the root composer autoloader. Require the chain
-// the test actually touches; everything else stays lazy.
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/EmailClient.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Exception/EmailException.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Exception/EmailSendFailedException.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Exception/InvalidEmailAddressException.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Exception/SmtpNotConfiguredException.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Notification/DeliveryOutcome.php';
-require_once __DIR__ . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/Notification/AppointmentNotificationRunner.php';
+// and aren't covered by the root composer autoloader, which is why the isolated
+// suite has to load them itself. Rather than maintain an explicit require chain
+// (which goes stale every time a loaded class gains a new module-namespace
+// dependency), register a small PSR-4 autoloader for the module's own namespace
+// pointed at its src/ dir. This mirrors what the module's production Bootstrap
+// does via registerNamespaceIfNotExists(), so every Contracts/Enums/Controller/
+// Exception/Notification class the runner touches resolves on demand.
+spl_autoload_register(static function (string $class): void {
+    $prefix = 'OpenEMR\\Modules\\FaxSMS\\';
+    if (!str_starts_with($class, $prefix)) {
+        return;
+    }
+    $relative = str_replace('\\', '/', substr($class, strlen($prefix))) . '.php';
+    $file = __DIR__
+        . '/../../../../../../interface/modules/custom_modules/oe-module-faxsms/src/'
+        . $relative;
+    if (is_file($file)) {
+        require_once $file;
+    }
+});
 
 // `text()` and the two procedural helpers (`cron_InsertNotificationLogEntryFaxsms`,
 // `rc_sms_notification_cron_update_entry`) are looked up unqualified by the
