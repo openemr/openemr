@@ -151,23 +151,17 @@ class LockingRedisSessionHandler implements \SessionHandlerInterface, \SessionUp
     }
 
     /**
-     * Releases the lock if still held, then closes the inner handler and Redis connection.
+     * Releases the lock if still held, then closes the inner handler.
      *
      * This is the path taken when the session was opened with read_and_close=true:
      * PHP calls open → read (lock acquired here) → close (lock released here).
      * For normal sessions the lock was already released by write/updateTimestamp/destroy,
      * so releaseLock() is a no-op.
-     *
-     * We explicitly close the Redis connection here rather than letting phpredis
-     * clean it up in its destructor. This avoids a race condition in phpredis's
-     * TLS cleanup during PHP shutdown that can cause segfaults (see phpredis#2630).
      */
     public function close(): bool
     {
         $this->releaseLock();
-        $result = $this->inner->close();
-        $this->redis->close();
-        return $result;
+        return $this->inner->close();
     }
 
     public function gc(int $max_lifetime): int|false
