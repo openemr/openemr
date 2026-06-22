@@ -220,6 +220,7 @@ class ServiceContainer
      */
     public static function getEntityManager(): EntityManagerInterface
     {
+        error_log(__METHOD__ . __LINE__);
         return self::resolveOrCreate(
             EntityManagerInterface::class,
             static fn () => self::getContainer()->get(EntityManagerInterface::class),
@@ -228,13 +229,19 @@ class ServiceContainer
 
     private static function getContainer(): TypedContainerInterface
     {
+        error_log(__METHOD__ . __LINE__);
         if (self::$container === null) {
             // Ensure autodetect can actually work, fall back to dev.
+        error_log(__METHOD__ . __LINE__);
             if (!array_key_exists('ENV', $_ENV) && !array_key_exists('ENVIRONMENT', $_ENV)) {
+        error_log(__METHOD__ . __LINE__);
                 $_ENV['ENVIRONMENT'] = 'development';
             }
+        error_log(__METHOD__ . __LINE__);
             self::$container = AutoDetect::instance(dirname(__DIR__, 2) . '/config');
+        error_log(__METHOD__ . __LINE__);
         }
+        error_log(__METHOD__ . __LINE__);
         return self::$container;
     }
 }
