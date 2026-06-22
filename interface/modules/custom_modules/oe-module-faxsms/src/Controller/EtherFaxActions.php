@@ -18,13 +18,14 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 
-class EtherFaxActions extends AppDispatch
+class EtherFaxActions extends AppDispatch implements FaxChannelInterface
 {
     public static $timeZone;
     protected string $baseDir = '';
@@ -122,14 +123,6 @@ class EtherFaxActions extends AppDispatch
         return is_array($upload)
             ? $this->uploadStaging->processUpload($this->baseDir, $upload)
             : '';
-    }
-
-    /**
-     * @return string
-     */
-    public function sendSMS(): string
-    {
-        return text("Not implemented");
     }
 
     /**
@@ -1111,11 +1104,4 @@ SQL;
         }
     }
 
-    /**
-     * @return mixed
-     */
-    public function sendEmail(): mixed
-    {
-        return null;
-    }
 }

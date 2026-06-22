@@ -109,24 +109,6 @@ class VoiceClient extends AppDispatch
         return $this->getSetup();
     }
 
-    function sendFax(): string|bool
-    {
-        return '';
-        // TODO: Implement sendFax() method.
-    }
-
-    function sendSMS(): mixed
-    {
-        return '';
-        // TODO: Implement sendSMS() method.
-    }
-
-    function sendEmail(): mixed
-    {
-        return '';
-        // TODO: Implement sendEmail() method.
-    }
-
     function fetchReminderCount(): string|bool
     {
         return '';

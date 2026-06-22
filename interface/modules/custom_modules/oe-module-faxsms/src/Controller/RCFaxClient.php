@@ -16,13 +16,15 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
 
-class RCFaxClient extends AppDispatch
+class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface
 {
     use AuthenticateTrait;
     use VoiceFunctionsTrait;
@@ -321,7 +323,9 @@ class RCFaxClient extends AppDispatch
                 $file = 'report-' . attr(OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
             } else {
                 if ($isDocuments) {
-                    $content = (new Document($docId))->get_data();
+                    // Enforce patients/docs ACL and patient ownership before
+                    // reading a request-supplied document id (see A3).
+                    $content = $this->readAuthorizedFaxDocument(is_scalar($docId) ? (int) $docId : 0);
                 } elseif (is_file($file)) {
                     $content = file_get_contents($file);
                     if ($content === false) {
@@ -1137,14 +1141,6 @@ class RCFaxClient extends AppDispatch
             $this->setSession('pid', $pid);
         }
 
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function sendEmail(): mixed
-    {
         return null;
     }
 

@@ -18,12 +18,13 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\Client;
 use OpenEMR\Modules\FaxSMS\RestClient\SignalWire\Rest\FaxInstance;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 
-class SignalWireClient extends AppDispatch
+class SignalWireClient extends AppDispatch implements FaxChannelInterface
 {
     const debugLogging = false; // Set to true to enable detailed debug logging in error_log
     /** Max faxes to pull from the SignalWire API in a single check. */
@@ -415,26 +416,6 @@ class SignalWireClient extends AppDispatch
             error_log('SignalWireClient.fetchReminderCount(): ERROR - ' . $e->getMessage());
             return json_encode(['count' => 0]);
         }
-    }
-
-    /**
-     * Send SMS (not implemented for fax-only service)
-     *
-     * @return string
-     */
-    public function sendSMS(): string
-    {
-        return json_encode(['error' => xlt('SMS not implemented for SignalWire Fax')]);
-    }
-
-    /**
-     * Send Email (not implemented)
-     *
-     * @return mixed
-     */
-    public function sendEmail(): mixed
-    {
-        return xlt('Email not implemented for SignalWire Fax');
     }
 
     /**

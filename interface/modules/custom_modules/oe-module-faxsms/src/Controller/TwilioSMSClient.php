@@ -16,11 +16,12 @@ use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
 use OpenEMR\Modules\FaxSMS\RestClient\Twilio\Rest\Client;
 use RuntimeException;
 use Throwable;
 
-class TwilioSMSClient extends AppDispatch
+class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
 {
     public $baseDir;
     public $uriDir;
@@ -250,24 +251,9 @@ class TwilioSMSClient extends AppDispatch
     /**
      * @return string|bool
      */
-    function sendFax(): string|bool
-    {
-        return false;
-    }
-
-    /**
-     * @return string|bool
-     */
     function fetchReminderCount(): string|bool
     {
         return 0;
     }
 
-    /**
-     * @return mixed
-     */
-    function sendEmail(): mixed
-    {
-        return false;
-    }
 }
