@@ -81,6 +81,45 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     const MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE = "Home/Community";
 
+    /**
+     * Official display values for medication request category codes.
+     * @see http://terminology.hl7.org/CodeSystem/medicationrequest-category
+     */
+    private const CATEGORY_DISPLAY = [
+        'community' => 'Community',
+        'inpatient' => 'Inpatient',
+        'outpatient' => 'Outpatient',
+        'discharge' => 'Discharge',
+    ];
+
+    /**
+     * Official display values for timing abbreviation codes.
+     * @see http://terminology.hl7.org/CodeSystem/v3-GTSAbbreviation
+     */
+    private const TIMING_DISPLAY = [
+        'BID' => 'BID',
+        'TID' => 'TID',
+        'QID' => 'QID',
+        'AM' => 'AM',
+        'PM' => 'PM',
+        'QD' => 'QD',
+        'QOD' => 'QOD',
+        'Q1H' => 'every hour',
+        'Q2H' => 'every 2 hours',
+        'Q3H' => 'every 3 hours',
+        'Q4H' => 'Q4H',
+        'Q6H' => 'Q6H',
+        'Q8H' => 'every 8 hours',
+        'WK' => 'weekly',
+    ];
+
+    /**
+     * Official display values for route codes (NCI Thesaurus).
+     * @see http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl
+     */
+    private const ROUTE_DISPLAY = [
+        'C38288' => 'ORAL',
+    ];
 
     const USCGI_PROFILE_URI = "http://hl7.org/fhir/us/core/StructureDefinition/us-core-medicationrequest";
     /**
@@ -268,10 +307,12 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         }
         // Dose and Rate
         if (!empty($dataRecord['interval_codes'])) {
+            $code = $dataRecord['interval_codes'];
+            $display = self::TIMING_DISPLAY[$code] ?? $dataRecord['interval_notes'];
             $intervalConcept = UtilsService::createCodeableConcept([
-                $dataRecord['interval_codes'] => [
-                    'code' => $dataRecord['interval_codes'],
-                    'description' => $dataRecord['interval_notes'],
+                $code => [
+                    'code' => $code,
+                    'description' => $display,
                     'system' => FhirCodeSystemConstants::HL7_TIMING_ABBREVIATION
                 ]
             ]);
@@ -302,6 +343,15 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             if (!empty($dataRecord['route_codes'])) {
                 $codeTypesService = $this->getCodeTypesService();
                 $parsedCodes = $codeTypesService->parseCodesIntoCodeableConcepts($dataRecord['route_codes']);
+                // Override display with official terminology values
+                if (is_array($parsedCodes)) {
+                    foreach ($parsedCodes as $code => &$codeData) {
+                        if (is_string($code) && is_array($codeData) && isset(self::ROUTE_DISPLAY[$code])) {
+                            $codeData['description'] = self::ROUTE_DISPLAY[$code];
+                        }
+                    }
+                    unset($codeData);
+                }
                 $route = UtilsService::createCodeableConcept($parsedCodes);
             } else {
                 $route = new FHIRCodeableConcept();
@@ -469,24 +519,27 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
     public function populateCategory(FHIRMedicationRequest $medRequestResource, array $dataRecord)
     {
-        if (isset($dataRecord['category'])) {
-            $categoryTitle = is_string($dataRecord['category_title'] ?? null) ? $dataRecord['category_title'] : '';
+        $category = $dataRecord['category'] ?? null;
+        if (is_string($category)) {
+            $display = self::CATEGORY_DISPLAY[$category] ?? $dataRecord['category_title'] ?? '';
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    $dataRecord['category'] =>
-                        // @phpstan-ignore argument.type (legacy on-the-fly translation of dynamic value; migration tracked in #11498)
-                        ['code' => $dataRecord['category'], 'description' => xl($categoryTitle)
-                            ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                    $category => [
+                        'code' => $category,
+                        'description' => $display,
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY,
+                    ]
                 ]
             ));
         } else {
             // if no category has been sent then the default is home usage
+            $code = self::MEDICATION_REQUEST_CATEGORY_COMMUNITY;
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    self::MEDICATION_REQUEST_CATEGORY_COMMUNITY => [
-                        'code' => self::MEDICATION_REQUEST_CATEGORY_COMMUNITY,
-                        'description' => xlt(self::MEDICATION_REQUEST_CATEGORY_COMMUNITY_TITLE),
-                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                    $code => [
+                        'code' => $code,
+                        'description' => self::CATEGORY_DISPLAY[$code],
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY,
                     ]
                 ],
             ));
