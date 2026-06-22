@@ -19,7 +19,6 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     KeyId,
     Keys\KeychainInterface,
@@ -46,25 +45,17 @@ final readonly class Crypto implements CryptoInterface
 {
     use ContextualEncryptionTrait;
 
+    private bool $shouldEncryptForDatabase;
+    private bool $shouldEncryptForFilesystem;
+
     public function __construct(
         private KeychainInterface $keychain,
         private LoggerInterface $logger,
-        private bool $shouldEncryptForDatabase,
-        private bool $shouldEncryptForFilesystem,
+        EncryptionConfig $config,
     ) {
-    }
-
-    public static function instance(LoggerInterface $logger): Crypto
-    {
-        // Note: this is NOT a singleton otherwise newly-generated keys don't
-        // get picked up properly.
-        $keychain = LegacyKeychainLoader::load();
-        return new Crypto(
-            keychain: $keychain,
-            logger: $logger,
-            shouldEncryptForDatabase: OEGlobalsBag::getInstance()->getBoolean('database_encryption'),
-            shouldEncryptForFilesystem: OEGlobalsBag::getInstance()->getBoolean('drive_encryption'),
-        );
+        // Passing the config instead of raw values allows full autowiring
+        $this->shouldEncryptForDatabase = $config->databaseEncryption;
+        $this->shouldEncryptForFilesystem = $config->filesystemEncryption;
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
