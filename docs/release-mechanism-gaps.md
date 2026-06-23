@@ -238,19 +238,26 @@ known debt` section:
   prep), then mutators rewrote the release-prep branch with
   wrong content. Recovery: surgical backport in #12611 (just
   `BranchVersionResolver` + `branch-to-version.php`).
-- **Why this matters:** The surgical fix unblocks 8.1.1 but
-  doesn't address the structural drift. Other parts of the
-  conductor (mutators, dispatcher logic, validator workflows)
-  may have similar latent bugs on rel-810/800/704 that haven't
-  fired yet. Each future per-release cycle on these branches
-  carries discovery risk.
+- **Why this matters (for rel-810 only):** The surgical fix
+  unblocks 8.1.1 but doesn't address the structural drift.
+  Other parts of the conductor (mutators, dispatcher logic,
+  validator workflows) may have similar latent bugs on rel-810
+  that haven't fired yet. Each future per-release cycle on
+  rel-810 (8.1.2, 8.1.3, ...) carries discovery risk.
 - **Why this is only on pre-820 rel branches:** rel-820 and
   later are cut from current master, so they inherit current
   conductor at cut time. The drift problem is bounded to
   rel-810, rel-800, rel-704 — branches that pre-date the
   conductor's rapid iteration on master.
-- **The fix:** Sync the following from master to each of
-  rel-810/800/704 as a single coherent PR per branch:
+- **Scope decision (2026-06-23, per maintainer):** rel-800 and
+  rel-704 will **not** get backports. Both branches will rotate
+  out (no future releases planned on either), so latent drift
+  bugs there will never fire. G7 work scopes to rel-810 only.
+  If a need ever surfaces to ship from rel-800 or rel-704
+  before they're retired, that triggers a per-branch surgical
+  backport at that time, not pre-emptive sync now.
+- **The fix (rel-810 only):** Sync the following from master to
+  rel-810 as a single coherent PR:
   - `tools/release/src/` — all conductor PHP classes
   - `tools/release/bin/` — all CLI wrappers
   - `.github/workflows/release-prep.yml` — conductor workflow
@@ -271,11 +278,11 @@ known debt` section:
 - **Risk:** Bigger PR surface = bigger chance of "finds yet
   another rel-vs-master drift bug during review". Recommend
   doing this when there's no active release-prep in flight on
-  the target branch (to avoid coordinating in-flight mutations
-  with the sync PR).
+  rel-810 (to avoid coordinating in-flight mutations with the
+  sync PR).
 - **Status:** Captured for follow-up. Surgical fix #12611
-  unblocks 8.1.1. Full sync recommended after 8.1.1 ships and
-  before the next per-release cycle on any pre-820 rel branch.
+  unblocks 8.1.1. Full rel-810 sync recommended after 8.1.1
+  ships and before the 8.1.2 cycle.
 
 ### G8 — No automated regression test for conductor resolvers  *(complements G7)*
 
@@ -310,15 +317,16 @@ known debt` section:
   - `previousRelease('8.1.1')` against tags `[v8_0_0_3,
     v8_1_0]` → `8.1.0`
 - **Bonus benefit when combined with G7:** running the same
-  test suite on each rel branch's CI catches future drift
+  test suite on rel-810's CI catches future drift
   *automatically* — if rel-810's `BranchVersionResolver`
   diverges from master's expected behavior, the test fails
   on the next push, surfacing the drift before it causes
-  production damage.
+  production damage. (Per the G7 scope decision, rel-800 +
+  rel-704 are out of scope — they won't get the tests
+  either since they won't get future releases.)
 - **Status:** Follow-up. Adding the tests on master is the
-  natural first step; the G7 full sync would carry them to
-  pre-820 rel branches as part of the broader tooling
-  backport.
+  natural first step; the G7 rel-810 sync would carry them
+  along as part of the broader tooling backport.
 
 ### G9 — `release-docs/<version>` PRs on website-openemr don't supersede across version changes
 
