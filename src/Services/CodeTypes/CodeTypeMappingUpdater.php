@@ -203,15 +203,19 @@ readonly class CodeTypeMappingUpdater
 
     private function findCPT4Code(string $codeText): ?Code
     {
-        $codeTypeEntity = $this->em->getRepository(CodeType::class)->find(self::CODE_TYPE_CPT4);
+        $codeTypeEntity = $this->em->getRepository(CodeType::class)
+            ->findOneBy([
+                'key' => self::CODE_TYPE_CPT4,
+            ]);
         if ($codeTypeEntity === null) {
             return null;
         }
 
-        return $this->em->getRepository(Code::class)->findOneBy([
-            'codeText' => $codeText,
-            'codeType' => $codeTypeEntity->id,
-        ]);
+        return $this->em->getRepository(Code::class)
+            ->findOneBy([
+                'codeText' => $codeText,
+                'codeType' => $codeTypeEntity->id,
+            ]);
     }
 
     private function isSnomedCodeType(string $codeType): bool
@@ -221,10 +225,11 @@ readonly class CodeTypeMappingUpdater
 
     private function isCodeTypeActive(string $codeType): bool
     {
-        $entity = $this->em->getRepository(CodeType::class)->findOneBy([
-            'key' => $codeType,
-            'active' => true,
-        ]);
+        $entity = $this->em->getRepository(CodeType::class)
+            ->findOneBy([
+                'key' => $codeType,
+                'active' => true,
+            ]);
 
         return $entity !== null;
     }
@@ -248,10 +253,11 @@ readonly class CodeTypeMappingUpdater
 
     private function getListOption(string $listId, string $optionId): ?ListOption
     {
-        return $this->em->getRepository(ListOption::class)->find([
-            'listId' => $listId,
-            'optionId' => $optionId,
-        ]);
+        return $this->em->getRepository(ListOption::class)
+            ->find([
+                'listId' => $listId,
+                'optionId' => $optionId,
+            ]);
     }
 
     /**

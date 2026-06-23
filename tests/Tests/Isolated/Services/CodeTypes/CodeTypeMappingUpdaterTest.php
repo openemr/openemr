@@ -95,9 +95,6 @@ class CodeTypeMappingUpdaterTest extends TestCase
         $codeType = $this->makeCodeType('CPT4', 1);
         $this->codeTypeRepo->method('findOneBy')
             ->willReturn($codeType);
-        $this->codeTypeRepo->method('find')
-            ->with('CPT4')
-            ->willReturn($codeType);
 
         $code = $this->makeCode('99201', 'New Patient (Brief)', 1);
         $this->codeRepo->method('findOneBy')
@@ -164,8 +161,8 @@ class CodeTypeMappingUpdaterTest extends TestCase
     public function testUpdateCPT4MappingsUpdatesListOptionsAndFlushes(): void
     {
         $codeType = $this->makeCodeType('CPT4', 1);
-        $this->codeTypeRepo->method('find')
-            ->with('CPT4')
+        $this->codeTypeRepo->method('findOneBy')
+            ->with(['key' => 'CPT4'])
             ->willReturn($codeType);
 
         $code = $this->makeCode('99201', 'New Patient (Brief)', 1);
