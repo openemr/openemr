@@ -21,6 +21,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $serviceType = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
+// getApiService() can return null for an unknown/unconfigured service type.
+// Narrow to a concrete AppDispatch here so the downstream helper calls
+// (defaultPhoneExample(), getServiceType(), verifyAcl(), getCredentials())
+// resolve against a real object rather than the nullable union.
+if (!$clientApp instanceof AppDispatch) {
+    die("<h3>" . xlt("Service unavailable.") . "</h3>");
+}
 $service = $clientApp::getServiceType();
 if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -198,91 +205,91 @@ $mode = $_REQUEST['mode'] ?? null;
                             <span style="font-size:12px;font-style: italic">&nbsp;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
                             </span>
-                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
-                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
-                        </div>
-                    <?php break;
+                                <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                    value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                            </div>
+                            <?php break;
                         case ServiceType::RINGCENTRAL: ?> <!-- RC -->
-                        <div class="checkbox">
-                            <label>
-                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
-                                <?php echo xlt("Production Check") ?>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
-                            <input id="form_username" type="text" name="username" class="form-control"
-                                required="required" value='<?php echo attr($c['username']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
-                            <input id="form_password" type="password" name="password" class="form-control"
-                                required="required" value='<?php echo attr($c['password']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
-                            <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
-                                value='<?php echo attr($c['smsNumber']) ?>' required />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
-                            <input id="form_key" type="text" name="key" class="form-control"
-                                required="required" value='<?php echo attr($c['appKey']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
-                            <input id="form_secret" type="password" name="secret" class="form-control"
-                                required="required" value='<?php echo attr($c['appSecret']) ?>' />
-                        </div>
-                        <div class=" form-group">
-                            <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
-                            <input id="form_nhours" type="text" name="smshours" class="form-control"
-                                placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
-                                required="required" value='<?php echo attr($c['smsHours']) ?>' />
-                        </div>
-                        <div class="form-group">
-                            <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
-                            <span style="font-size:12px;font-style: italic">&nbsp;
+                            <div class="checkbox">
+                                <label>
+                                    <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                    <?php echo xlt("Production Check") ?>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="form_username"><?php echo xlt("Twilio Account Sid") ?> *</label>
+                                <input id="form_username" type="text" name="username" class="form-control"
+                                    required="required" value='<?php echo attr($c['username']) ?>' />
+                            </div>
+                            <div class="form-group">
+                                <label for="form_password"><?php echo xlt("Twilio Auth Token") ?> *</label>
+                                <input id="form_password" type="password" name="password" class="form-control"
+                                    required="required" value='<?php echo attr($c['password']) ?>' />
+                            </div>
+                            <div class="form-group">
+                                <label for="form_smsnumber"><?php echo xlt("SMS Number") ?></label>
+                                <input id="form_smsnumber" type="text" name="smsnumber" class="form-control"
+                                    value='<?php echo attr($c['smsNumber']) ?>' required />
+                            </div>
+                            <div class="form-group">
+                                <label for="form_key"><?php echo xlt("Twilio Api Sid") ?> *</label>
+                                <input id="form_key" type="text" name="key" class="form-control"
+                                    required="required" value='<?php echo attr($c['appKey']) ?>' />
+                            </div>
+                            <div class="form-group">
+                                <label for="form_secret"><?php echo xlt("Twilio Api Secret") ?> *</label>
+                                <input id="form_secret" type="password" name="secret" class="form-control"
+                                    required="required" value='<?php echo attr($c['appSecret']) ?>' />
+                            </div>
+                            <div class=" form-group">
+                                <label for="form_nhours"><?php echo xlt("Appointments Advance Notify (Hours)") ?> *</label>
+                                <input id="form_nhours" type="text" name="smshours" class="form-control"
+                                    placeholder="<?php echo xla('Please enter number of hours before appointment') ?> *"
+                                    required="required" value='<?php echo attr($c['smsHours']) ?>' />
+                            </div>
+                            <div class="form-group">
+                                <label for="form_message"><?php echo xlt("Message Template") ?> *</label>
+                                <span style="font-size:12px;font-style: italic">&nbsp;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
                             </span>
-                            <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
-                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
-                        </div>
-                    <?php break;
+                                <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
+                                    value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                            </div>
+                            <?php break;
                         case ServiceType::SIGNALWIRE: ?> <!-- SignalWire -->
-                        <div class="checkbox">
-                            <label>
-                                <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
-                                <?php echo xlt("Production Mode") ?>
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_space_url"><?php echo xlt("Space URL") ?> *</label>
-                            <input id="form_space_url" type="text" name="space_url" class="form-control"
-                                placeholder="<?php echo xla('example.signalwire.com') ?>"
-                                required="required" value='<?php echo attr($c['space_url'] ?? '') ?>' />
-                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire Space URL (without https://)") ?></small>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_project_id"><?php echo xlt("Project ID") ?> *</label>
-                            <input id="form_project_id" type="text" name="project_id" class="form-control"
-                                required="required" value='<?php echo attr($c['project_id'] ?? '') ?>' />
-                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire Project ID (UUID format)") ?></small>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_api_token"><?php echo xlt("API Token") ?> *</label>
-                            <input id="form_api_token" type="password" name="api_token" class="form-control"
-                                required="required" value='<?php echo attr($c['api_token'] ?? '') ?>' />
-                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire API Token") ?></small>
-                        </div>
-                        <div class="form-group">
-                            <label for="form_fax_number"><?php echo xlt("Fax Number") ?> *</label>
-                            <input id="form_fax_number" type="text" name="fax_number" class="form-control"
-                                placeholder="<?php echo xla('+1XXXXXXXXXX') ?>"
-                                required="required" value='<?php echo attr($c['fax_number'] ?? '') ?>' />
-                            <small class="form-text text-muted"><?php echo xlt("Your SignalWire fax number in E.164 format") ?></small>
-                        </div>
-                    <?php break;
+                            <div class="checkbox">
+                                <label>
+                                    <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
+                                    <?php echo xlt("Production Mode") ?>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label for="form_space_url"><?php echo xlt("Space URL") ?> *</label>
+                                <input id="form_space_url" type="text" name="space_url" class="form-control"
+                                    placeholder="<?php echo xla('example.signalwire.com') ?>"
+                                    required="required" value='<?php echo attr($c['space_url'] ?? '') ?>' />
+                                <small class="form-text text-muted"><?php echo xlt("Your SignalWire Space URL (without https://)") ?></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="form_project_id"><?php echo xlt("Project ID") ?> *</label>
+                                <input id="form_project_id" type="text" name="project_id" class="form-control"
+                                    required="required" value='<?php echo attr($c['project_id'] ?? '') ?>' />
+                                <small class="form-text text-muted"><?php echo xlt("Your SignalWire Project ID (UUID format)") ?></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="form_api_token"><?php echo xlt("API Token") ?> *</label>
+                                <input id="form_api_token" type="password" name="api_token" class="form-control"
+                                    required="required" value='<?php echo attr($c['api_token'] ?? '') ?>' />
+                                <small class="form-text text-muted"><?php echo xlt("Your SignalWire API Token") ?></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="form_fax_number"><?php echo xlt("Fax Number") ?> *</label>
+                                <input id="form_fax_number" type="text" name="fax_number" class="form-control"
+                                    placeholder="<?php echo attr($clientApp->defaultPhoneExample()) ?>"
+                                    required="required" value='<?php echo attr($c['fax_number'] ?? '') ?>' />
+                                <small class="form-text text-muted"><?php echo xlt("Your SignalWire fax number in E.164 format") ?></small>
+                            </div>
+                            <?php break;
                         default: break;
                     } ?>
                     <div>

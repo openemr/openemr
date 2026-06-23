@@ -22,6 +22,7 @@ use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
+use OpenEMR\Services\PhoneNumber;
 use RingCentral\SDK\Http\ApiException;
 
 class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface
@@ -778,21 +779,25 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         if (empty($phone)) {
             return '';
         }
-        $normalizedPhone = preg_replace('/[^0-9]/', '', $phone);
-        if (strlen((string)$normalizedPhone) === 11 && str_starts_with((string)$normalizedPhone, '1')) {
-            $normalizedPhone = substr((string)$normalizedPhone, 1);
-        }
 
-        $likePhone = "%" . $normalizedPhone;
+        // Region-aware: a "+CC" number self-describes; a bare national number
+        // is read against the site default region (US fallback). Match on the
+        // national digits against a separator-stripped column so stored values
+        // like "(239) 555-0123" still compare cleanly.
+        $national = PhoneNumber::tryParse($phone, $this->defaultPhoneRegion())?->getNationalDigits();
+        $digits = (string) preg_replace('/\D/', '', $national ?? $phone);
+        if ($digits === '') {
+            return '';
+        }
 
         $sql = "
         SELECT CONCAT(fname, ' ', lname) AS fullname
         FROM patient_data
-        WHERE REPLACE(REPLACE(REPLACE(REPLACE(phone_cell, '-', ''), '(', ''), ')', ''), ' ', '') LIKE ?
+        WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_cell, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
         LIMIT 1
     ";
 
-        $result = sqlQuery($sql, [$likePhone]);
+        $result = sqlQuery($sql, ["%" . $digits]);
         $rtn = $result['fullname'] ?? '';
         if (!empty($rtn)) {
             $rtn .= ' ';

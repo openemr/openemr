@@ -13,6 +13,8 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Exception;
+use libphonenumber\PhoneNumberFormat;
+use libphonenumber\PhoneNumberUtil;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -759,8 +761,67 @@ abstract class AppDispatch
      */
     public function formatPhone(string $number): string
     {
-        $parsed = PhoneNumber::tryParse($number);
+        $parsed = PhoneNumber::tryParse($number, $this->defaultPhoneRegion());
         return $parsed ? $parsed->toE164() : '';
+    }
+
+    /**
+     * Resolve the default phone region for parsing bare national numbers.
+     *
+     * A number that already carries a "+CC" prefix is self-describing and the
+     * region is ignored; this only governs how a number entered without a
+     * country code is interpreted. The value is sourced from OpenEMR's Locale
+     * global "Telephone Country Code" ($GLOBALS['phone_country_code']), which
+     * historically stores a numeric dialing code (1, 44, ...). That is mapped
+     * to the ISO 3166-1 alpha-2 region libphonenumber expects ("US", "GB").
+     * An already-ISO value is accepted as-is, and anything unset or unmappable
+     * falls back to "US" so existing US installs are unaffected.
+     *
+     * @return string ISO 3166-1 alpha-2 region code
+     */
+    public function defaultPhoneRegion(): string
+    {
+        $configured = trim((string) ($GLOBALS['phone_country_code'] ?? ''));
+        if ($configured === '') {
+            return 'US';
+        }
+        // Already an ISO 3166-1 alpha-2 region code (e.g. "US", "GB").
+        if (preg_match('/^[A-Za-z]{2}$/', $configured) === 1) {
+            return strtoupper($configured);
+        }
+        // Otherwise treat it as a numeric dialing code (e.g. "1", "+44").
+        $callingCode = (int) preg_replace('/\D/', '', $configured);
+        if ($callingCode > 0) {
+            $region = PhoneNumberUtil::getInstance()->getRegionCodeForCountryCode($callingCode);
+            if (is_string($region) && $region !== '' && $region !== 'ZZ') {
+                return $region;
+            }
+        }
+        return 'US';
+    }
+
+    /**
+     * Dialing-code prefix for the site's default region, derived (never
+     * hard-coded): "+1" for US, "+44" for GB, and so on. Used as the empty
+     * default for phone inputs so the field nudges toward the right country
+     * without presuming North America.
+     */
+    public function defaultPhonePrefix(): string
+    {
+        $code = PhoneNumberUtil::getInstance()->getCountryCodeForRegion($this->defaultPhoneRegion());
+        return $code > 0 ? '+' . $code : '';
+    }
+
+    /**
+     * A real example phone number for the site's default region, in E.164
+     * (e.g. "+12015550123" for US). Used as input placeholder text so the
+     * expected format is obvious for the configured country.
+     */
+    public function defaultPhoneExample(): string
+    {
+        $util = PhoneNumberUtil::getInstance();
+        $example = $util->getExampleNumber($this->defaultPhoneRegion());
+        return $example !== null ? $util->format($example, PhoneNumberFormat::E164) : '';
     }
 
     /**

@@ -26,6 +26,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
+use OpenEMR\Services\PhoneNumber;
 use OpenEMR\Services\PhoneNumberService;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -349,31 +350,39 @@ class FaxDocumentService
      */
     public function findPatientByPhone(string $fromNumber): int
     {
-        $cleaned = preg_replace('/[^0-9]/', '', $fromNumber);
-
-        if (strlen((string) $cleaned) === 11 && $cleaned[0] === '1') {
-            $cleaned = substr((string) $cleaned, 1);
+        $raw = (string) preg_replace('/\D/', '', $fromNumber);
+        if ($raw === '') {
+            return 0;
         }
 
-        // Try exact match first
-        $patterns = [
-            $cleaned,
-            '+1' . $cleaned,
-            '1' . $cleaned,
-            substr((string) $cleaned, 0, 3) . '-' . substr((string) $cleaned, 3, 3) . '-' . substr((string) $cleaned, 6),
-            '(' . substr((string) $cleaned, 0, 3) . ') ' . substr((string) $cleaned, 3, 3) . '-' . substr((string) $cleaned, 6)
-        ];
+        // Inbound fax numbers arrive in E.164 ("+CC...") and self-describe, so
+        // the US default region only applies to a bare national number. Match
+        // the most specific forms first (E.164, then national digits, then the
+        // raw digits) against separator-stripped columns so stored values like
+        // "(239) 555-0123" still compare cleanly.
+        $e164 = PhoneNumber::tryParse($fromNumber, 'US')?->toE164();
+        $national = PhoneNumber::tryParse($fromNumber, 'US')?->getNationalDigits();
 
-        foreach ($patterns as $pattern) {
+        $needles = [];
+        foreach ([$e164, $national, $raw] as $candidate) {
+            $digits = (string) preg_replace('/\D/', '', (string) $candidate);
+            if ($digits !== '' && !in_array($digits, $needles, true)) {
+                $needles[] = $digits;
+            }
+        }
+
+        foreach ($needles as $digits) {
             $result = QueryUtils::querySingleRow(
                 "SELECT pid FROM patient_data
-                 WHERE (phone_cell LIKE ? OR phone_home LIKE ? OR phone_biz LIKE ?)
+                 WHERE REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_cell, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
+                    OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_home, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
+                    OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone_biz, '-', ''), '(', ''), ')', ''), ' ', ''), '+', '') LIKE ?
                  LIMIT 1",
-                ["%{$pattern}%", "%{$pattern}%", "%{$pattern}%"]
+                ["%{$digits}", "%{$digits}", "%{$digits}"]
             );
 
             if (!empty($result['pid'])) {
-                return (int)$result['pid'];
+                return (int) $result['pid'];
             }
         }
 

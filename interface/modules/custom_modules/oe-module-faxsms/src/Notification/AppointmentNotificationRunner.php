@@ -34,6 +34,7 @@ use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
+use OpenEMR\Services\PhoneNumber;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
@@ -197,20 +198,25 @@ class AppointmentNotificationRunner
     }
 
     /**
-     * Normalize a phone string to 10 digits, stripping a leading country
-     * code of 1. Returns the normalized digits, or null when the input does
-     * not yield exactly 10 digits after cleanup.
+     * Normalize a phone string to E.164 for the SMS gateway.
+     *
+     * Delegates to the core phone parser so numbers from any country are
+     * accepted: a value already carrying a "+CC" prefix is self-describing,
+     * while a bare national number is interpreted against $defaultRegion (an
+     * ISO 3166-1 alpha-2 code such as "US" or "GB"). Returns the E.164 form
+     * (e.g. "+12125551234"), or null when the input is not a possible number.
+     *
+     * Possible-length (not strict-valid) is used on purpose: it matches the
+     * prior digit-count behavior and avoids rejecting otherwise-deliverable
+     * numbers that libphonenumber metadata does not recognize as assigned.
      */
-    public static function normalizePhone(?string $phone): ?string
+    public static function normalizePhone(?string $phone, string $defaultRegion = 'US'): ?string
     {
-        $digits = preg_replace('/[^0-9]/', '', $phone ?? '');
-        if (!is_string($digits)) {
+        $raw = trim($phone ?? '');
+        if ($raw === '') {
             return null;
         }
-        if (strlen($digits) === 11 && $digits[0] === '1') {
-            $digits = substr($digits, 1);
-        }
-        return strlen($digits) === 10 ? $digits : null;
+        return PhoneNumber::tryParse($raw, $defaultRegion)?->toE164();
     }
 
     /**
@@ -271,7 +277,10 @@ class AppointmentNotificationRunner
     private function deliverSms(array $row, string $message, array $logData): DeliveryOutcome
     {
         $phone = self::stringFromRow($row, 'phone_cell');
-        $normalized = self::normalizePhone($phone === '' ? null : $phone);
+        $normalized = self::normalizePhone(
+            $phone === '' ? null : $phone,
+            $this->client->defaultPhoneRegion()
+        );
         if ($normalized === null) {
             $this->logger->warning('Skipping SMS reminder: invalid phone number.', [
                 'pid' => $row['pid'] ?? null,

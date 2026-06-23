@@ -23,6 +23,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $serviceType = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
+// getApiService() can return null for an unknown/unconfigured service type.
+// Narrow to a concrete AppDispatch here so the downstream helper calls
+// (defaultPhonePrefix(), getServiceType(), verifyAcl(), getCredentials())
+// resolve against a real object rather than the nullable union.
+if (!$clientApp instanceof AppDispatch) {
+    die("<h3>" . xlt("Service unavailable.") . "</h3>");
+}
 $service = $clientApp::getServiceType();
 if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -147,12 +154,12 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                         </div>
                         <div class="form-group faxHide">
                             <label for="form_phone"><?php echo xlt("FAX Phone Number") ?> *</label>
-                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone'] ?? '+1') ?>' required />
+                            <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone'] ?? $clientApp->defaultPhonePrefix()) ?>' required />
                         </div>
                         <div class="form-group smsHide">
                             <label for="form_smsnumber"><?php echo xlt("SMS Phone Number") ?> *</label>
                             <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control"
-                                value='<?php echo attr($c['smsNumber']) ?>' required />
+                                value='<?php echo attr($c['smsNumber'] ?? $clientApp->defaultPhonePrefix()) ?>' required />
                         </div>
                     </div>
                     <div class="col-md">
