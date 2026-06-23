@@ -1,4 +1,4 @@
-# MySQL reserved-word snapshot. Engine version: 9.7.0.
+# MySQL reserved-word snapshot. Engine version: 9.7.1.
 # Captured by bin/refresh-reserved-word-supplement.php on cron.
 # Do not edit by hand -- changes here are computed.
 WORD	RESERVED
