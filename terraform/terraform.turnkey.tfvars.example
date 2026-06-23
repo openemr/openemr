@@ -1,0 +1,19 @@
+deployment_preset = "turnkey"
+
+name_prefix = "openemr"
+aws_region  = "us-east-2"
+
+hosted_zone_name     = "example.com"
+openemr_hostname     = "openemr.example.com"
+openemr_hostnames    = ["ehr.example.com"]
+openemr_allowed_cidrs = [
+  "203.0.113.10/32",
+]
+
+openemr_image = "openemr/openemr:8.0.1"
+
+tags = {
+  Project     = "openemr"
+  Environment = "prod"
+  ManagedBy   = "terraform"
+}
