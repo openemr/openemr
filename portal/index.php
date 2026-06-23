@@ -17,8 +17,11 @@
  */
 
 // prevent UI redressing
-Header("X-Frame-Options: DENY");
-Header("Content-Security-Policy: frame-ancestors 'none'");
+Header("X-Frame-Options: DENY"); // Or SAMEORIGIN
+Header("Content-Security-Policy: frame-ancestors 'none'; default-src 'self'; img-src 'self' data:; script-src 'self'; style-src 'self'");
+Header("X-XSS-Protection: 1; mode=block");
+Header("X-Content-Type-Options: nosniff");
+Header("Referrer-Policy: strict-origin-when-cross-origin");
 
 //setting the session & other config options
 
