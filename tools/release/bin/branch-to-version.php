@@ -30,6 +30,7 @@ if (!class_exists(\OpenEMR\Release\BranchVersionResolver::class)) {
 use OpenEMR\Release\BranchVersionResolver;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\SingleCommandApplication;
 
@@ -37,14 +38,22 @@ use Symfony\Component\Console\SingleCommandApplication;
     ->setName('branch-to-version')
     ->setDescription('Translate a rel-* branch name to MAJOR.MINOR.PATCH')
     ->addArgument('branch', InputArgument::REQUIRED, 'Branch name (e.g. rel-810)')
+    ->addOption(
+        'repo-dir',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Repo path (defaults to cwd)',
+        getcwd() === false ? '.' : getcwd(),
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $raw = $input->getArgument('branch');
-        if (!is_string($raw) || $raw === '') {
-            $output->writeln('<error>branch argument is required</error>');
+        $repoDir = $input->getOption('repo-dir');
+        if (!is_string($raw) || $raw === '' || !is_string($repoDir) || $repoDir === '') {
+            $output->writeln('<error>branch argument and --repo-dir are required</error>');
             return 2;
         }
         try {
-            $version = BranchVersionResolver::branchToVersion($raw);
+            $version = (new BranchVersionResolver($repoDir))->branchToVersion($raw);
         } catch (\InvalidArgumentException $e) {
             $output->writeln('<error>' . $e->getMessage() . '</error>');
             return 1;
