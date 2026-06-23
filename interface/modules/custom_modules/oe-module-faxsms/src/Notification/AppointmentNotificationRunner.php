@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OpenEMR\Modules\FaxSMS\Notification;
 
 use OpenEMR\Appointment\Reminder\ReminderRunResult;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Controller\EmailClient;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
@@ -34,7 +35,6 @@ use OpenEMR\Modules\FaxSMS\Enums\NotificationChannel;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
-use OpenEMR\Services\PhoneNumber;
 use PHPMailer\PHPMailer\Exception as PHPMailerException;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
