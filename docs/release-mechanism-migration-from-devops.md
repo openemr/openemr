@@ -84,6 +84,44 @@ The release-mechanism is now the *only* reason `openemr-devops` still receives
 - Co-locates the tooling with the source it operates on
 - Shortens the maintainer iteration loop (one repo, one PR, one CI surface)
 
+## Current execution order (revised 2026-06-23)
+
+The original plan below treated this as one big linear migration ("Phased
+plan" section). Post-8.1.1-prep, the plan re-orders into 6 workstreams
+ordered by **what's next to happen in production**, with the actual
+devops→core migration last (when all the upstream learnings are baked in).
+Workstreams 2 and 3 below are *not* migration work — they're net-new
+optimization on top of release tooling that already lives in
+`openemr/openemr`.
+
+| # | Workstream | Where the code lives | Est. | Rationale |
+|---|---|---|---|---|
+| 1 | **Remove unused stuff in devops** | openemr-devops | ~1 day | Safe drop-in (rotation slice has zero live targets post-docker-migration). No critical-path overlap. Maps to the original Phase 1 PR 1a + 1b detailed below. |
+| 2 | **rel-820 cut readiness** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. |
+| 3 | **Per-release-on-rel-branch optimization** | openemr/openemr (already) | ~3-4 days | Apply 8.1.1 learnings. P1-P4 (docker upgrade machinery, version.php bump, release-targets row bump) are 100% mechanical; build a release-cycle-bot script that takes `X.Y.Z` + rel branch and generates the prep PRs. Folds in G7 (rel-810 surgical conductor sync), G8 (regression tests on master + rel-810). Pays dividends every patch release going forward. **Not migration work** — release-prep tooling already in core. |
+| 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. Lessons feed back into workstream 6's design. Happens whenever 8.1.1 ships (week of 2026-06-23). |
+| 5 | **Automate demo farm derivation (G6)** | demo_farm_openemr | ~3-4 days | Cross-repo work — build automation in `demo_farm_openemr` that derives `ip_map_branch.txt` + `demoLibrary.source` from `openemr/openemr`'s `release-targets.yml` + per-rel-branch Dockerfile ARGs. Orthogonal to release-mechanism migration; can run in parallel with any other workstream. |
+| 6 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-5 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 6 entry (downgraded from blocking — see "Pre-Phase-1 architectural decision" section). Detailed phases in "Phased plan" section below cover the workstream-6 internals. |
+
+**Sequencing notes:**
+
+- **1 + 2 + 3 + 5 can run in parallel** (different repos / different
+  files / no critical-path overlap)
+- **4 happens whenever 8.1.1 ships** — calendar-driven, not blocked by
+  other workstreams
+- **6 (the actual migration) starts after 1-5 are well in hand**
+
+This re-order has the load-bearing property that **most workstreams are
+not migration work** — they're net-new optimizations on tooling already in
+`openemr/openemr` core. The migration shrinks to "move the post-tag
+devops workflows over" rather than "everything moves at once."
+
+The remaining sections of this doc detail workstream 6's internals (the
+actual migration) with the original Phase-1-through-6 structure. Workstreams
+1-5 details + tracking will live in separate planning artifacts (gaps doc
+for G4/G5/G6/G7/G8, plus per-workstream sub-issues when they enter active
+development).
+
 ## Proposed model
 
 ```
@@ -147,12 +185,13 @@ divergence tolerated" pattern, with byte-identity explicitly NOT
 enforced for release tooling (per the gaps doc's decisions-made section).
 
 **The first production-use of the conductor (8.1.1 prep, 2026-06-23)
-exposed why that decision needs revisiting.** Bug G7 — rel-810's
+exposed why that decision deserves consideration.** Bug G7 — rel-810's
 `BranchVersionResolver` had drifted from master's tag-walking version
 without being noticed for weeks. The fix backported master's class to
-rel-810 only (openemr/openemr#12611), but rel-800 and rel-704 still
-carry the old version; a future use of the conductor on those branches
-will hit the same bug.
+rel-810 only (openemr/openemr#12611). rel-800 and rel-704 still carry
+the old version but are out of scope (per maintainer 2026-06-23 —
+those branches will rotate out without future releases). So the
+practical drift surface is just rel-810.
 
 **Two options for migrated workflows + tooling going forward:**
 
@@ -183,23 +222,42 @@ will hit the same bug.
 | Setup cost during migration | Lower (copy existing pattern) | Higher (caller/impl decomposition per workflow) |
 | Surface that needs byte-identity enforcement | Whole workflow + tooling files | Only the thin caller stubs (~3-5 files per branch) |
 
-**Recommendation:** Adopt **reusable workflows** for every workflow
-migrated in Phase 2+. Captured as a Phase-1-blocking decision because
-it changes the destination structure of every phase. The migration's
-Phase 1 (rotation deletion + 2-PR collapse) is unaffected; Phases 2-6
-get restructured around caller+impl as the default architecture.
+**Decision deferred to workstream 6 (migration) entry** (per maintainer,
+2026-06-23). The reusable-workflow POC was originally proposed as
+Phase-1-blocking. Downgraded to "revisit when workstream 6 starts"
+because:
 
-**POC scope before locking the decision:** convert today's already-in-core
-`release-prep.yml` to caller+impl split, deploy thin caller to rel-810
-(currently active rel branch), verify end-to-end behavior on one push
-cycle. ~1-2 days of work. If POC succeeds, structurally fixes G7 for the
-conductor and informs every subsequent phase.
+- The actual G7 fallout is bounded — rel-810 already got the surgical
+  backport (openemr/openemr#12611); rel-800 and rel-704 will rotate out
+  without future releases, so per-branch drift on those branches is
+  effectively a non-issue. The "every future per-release cycle carries
+  discovery risk" framing only applies to rel-810 going forward.
+- Reusable workflows are an *optimization* on top of per-branch copies
+  rather than a prerequisite. The migration can ship with per-branch
+  copies (status quo extended) and adopt reusable workflows later
+  without re-doing migrated work — the caller+impl decomposition is a
+  structural refactor that can land any time.
+- 8.1.1 ships ~1 week out (2026-06-23); locking the POC question pre-ship
+  isn't justified given the bounded blast radius.
+
+**Revisit criteria at workstream 6 entry:**
+- Has any new G7-class bug surfaced on rel-810 between now and migration?
+  Cheap signal — if yes, the case for restructuring strengthens.
+- Are the soon-to-be-migrated workflows (build-release-on-tag,
+  ship-release, release-announcements) the kind that would benefit from
+  single-source-of-truth on master? Likely yes for ship-release (rich PR
+  orchestration logic that benefits from immediate bug-fix propagation);
+  less clear for build-release-on-tag (one-shot artifact creation,
+  per-rel-branch divergence less risky).
+- Has the docker pipeline's canary surface (G10) grown enough that a
+  unified pattern starts feeling more compelling?
 
 **Follow-up consideration (out of scope for this migration):** the docker
 pipeline today uses byte-identical canary; if reusable workflows are
-adopted for release-mechanism, a future consistency pass could migrate
-the docker pipeline to the same pattern, retiring the canary system
-entirely. Tracked as G10 in the gaps doc. Not urgent — canary works.
+ever adopted for release-mechanism, a future consistency pass could
+migrate the docker pipeline to the same pattern, retiring the canary
+system entirely. Tracked as G10 in the gaps doc. Not urgent — canary
+works.
 
 ## Validated foundation
 
@@ -331,7 +389,13 @@ Everything else release-mechanism-related moves out. Devops's other content
 (kubernetes, packages, raspberrypi, utilities/openemr-*, docker/obsolete,
 mariadb-backup-manager, portainer) is unaffected.
 
-## Phased plan
+## Phased plan (workstream 6 internals)
+
+**Note:** This six-phase breakdown covers workstream 6's internals — the
+actual devops→core migration. Workstreams 1-5 from the "Current execution
+order" section above happen first (most of them in parallel) and are not
+detailed here. Phase 1 below is essentially identical to workstream 1
+(pre-migration cleanup); the rest are workstream 6's interior phasing.
 
 Six phases. Phase 1 is pre-migration cleanup (small PRs that don't change
 behavior contracts). Phases 2-6 do the actual move with each phase preserving
@@ -685,15 +749,17 @@ their doc updates.)
     releases before Phase 6 delete" bar; brittle artifact-creation
     workflows keep it strict.
 - **G7-class bugs (per-branch tooling drift) won't surface until first
-  production use** of each migrated workflow on a rel branch. The
-  release-mechanism migration's first production-use was 8.1.1 prep —
-  exposed BranchVersionResolver drift on rel-810 (fixed via #12611).
-  Build-release / ship-release / announcements have not yet been
-  production-fired from rel-810 either; they may carry their own latent
-  drift on rel branches if Phase 2 migrates them as per-branch copies.
-  Adopting reusable workflows (per the Pre-Phase-1 architectural
-  decision section) eliminates this risk structurally for the migration's
-  migrated surfaces.
+  production use** of each migrated workflow on rel-810. The first
+  production-use of the conductor (8.1.1 prep) exposed BranchVersionResolver
+  drift on rel-810 (fixed via #12611). Build-release / ship-release /
+  announcements have not yet been production-fired from rel-810 either;
+  they may carry their own latent drift if Phase 2 migrates them as
+  per-branch copies. Workstream 3 (per-release-on-rel-branch optimization)
+  does a comprehensive rel-810 conductor sync from master which proactively
+  catches these. The reusable-workflow alternative (eliminate drift by
+  construction) is the deferred option — see "Pre-Phase-1 architectural
+  decision" section. (rel-800/rel-704 not in scope — they'll rotate out
+  without future releases, so latent drift bugs there will never fire.)
 - **`ShipReleaseOrchestrator`'s tests** are the densest seam — 19 test
   classes + 4 in-memory fakes, asserting strict ordering, docs-first
   detection, partial-merge recovery, etc. Phase 3 has to carry the test
@@ -785,23 +851,24 @@ post-migration or during the upcoming manual 8.1.1 release work.)
 **Post-2026-06-23 gaps (surfaced during 8.1.1 release prep — see gaps doc
 G7-G10 for full detail):**
 
-- **G7 — Conductor tooling drift on pre-820 rel branches.** rel-810/800/704
-  carry per-branch copies of `tools/release/src/` + `.github/workflows/release-*.yml`
-  that silently diverge from master. Surgical fix #12611 applied to rel-810
-  only; rel-800 + rel-704 still carry stale tooling. **Affects the migration's
-  Pre-Phase-1 architectural decision** (per-branch copies vs reusable
-  workflows) — the migration is the natural time to either backport the full
-  conductor toolchain to all pre-820 rel branches, or restructure to reusable
-  workflows so drift becomes impossible by construction. Recommend tying the
-  G7 cleanup to the reusable-workflow POC: a successful POC obsoletes the
-  need to backport stale code to rel-800/rel-704 (those branches just get
-  thin caller stubs that always invoke master's current impl).
+- **G7 — Conductor tooling drift on rel-810** (scope narrowed 2026-06-23 —
+  rel-800/rel-704 out of scope since they'll rotate out without future
+  releases). rel-810 carries per-branch copies of `tools/release/src/` +
+  `.github/workflows/release-*.yml` that silently diverged from master;
+  surgical fix #12611 caught the BranchVersionResolver instance, but other
+  conductor pieces may have similar latent drift. **Sits in workstream 3
+  (per-release-on-rel-branch optimization)** — natural place to do a
+  comprehensive rel-810 conductor sync from master as part of optimizing
+  the per-release cycle. Was originally tied to a Phase-1-blocking
+  reusable-workflow POC; downgraded (see "Pre-Phase-1 architectural
+  decision" above) because bounded scope (just rel-810) no longer justifies
+  pre-migration restructuring.
 - **G8 — No automated regression test for conductor resolvers.** The G7 bug
   shipped silently because `BranchVersionResolver` has no isolated PHPUnit
   coverage exercising `branchToVersion('rel-810')` against realistic tag
-  fixtures. Adding tests on master is a small high-value PR; combining with
-  the reusable-workflow pattern means rel branches automatically inherit
-  the tests' protection via the impl-on-master architecture.
+  fixtures. Adding tests on master is a small high-value PR; rel-810
+  inherits them via the workstream 3 conductor sync. (rel-800/rel-704 don't
+  need them — they won't get future releases.)
 - **G9 — `release-docs/<version>` PRs on website-openemr don't supersede
   across version changes.** Each conductor re-resolution opens a new PR
   at a new head branch; the old PR sits orphaned. Affects Phase 4 (move
@@ -811,9 +878,10 @@ G7-G10 for full detail):**
   change so requires coordination with website-openemr maintainers.
 - **G10 — Reusable workflows as a replacement for the byte-identical canary
   on the docker pipeline.** Captured as a future post-migration consistency
-  pass. If Phase 2+ adopts reusable workflows for release-mechanism, the
-  docker pipeline becomes the lone holdout using canary; aligning the two
-  on the same pattern is a natural follow-up.
+  pass. If Phase 2+ ever adopts reusable workflows for release-mechanism
+  (deferred decision; see "Pre-Phase-1 architectural decision" above), the
+  docker pipeline would become the lone holdout using canary; aligning the
+  two on the same pattern would be a natural follow-up.
 
 ## Feedback wanted
 
