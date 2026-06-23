@@ -134,6 +134,73 @@ wired). Standard openemr-consumer upgrade flow goes through full minor
 releases (8.1.0 → 8.1.1 → 8.1.2 from rel-810) via the conductor + tag +
 build-release-on-tag chain, not the patch path.
 
+## Pre-Phase-1 architectural decision: per-branch copies vs reusable workflows
+
+**Open question that shapes every phase below.** As of 2026-06-23 the
+release-mechanism migration is structurally similar to the docker-pipeline
+migration: workflows + supporting PHP tooling live per-branch in
+`openemr/openemr`, and rel branches carry their own copies that can drift
+from master. The docker pipeline manages drift via the byte-identical
+canary system (FILES_ALL + auto-sync + classification). The
+release-mechanism doc originally adopted the same "per-branch copy,
+divergence tolerated" pattern, with byte-identity explicitly NOT
+enforced for release tooling (per the gaps doc's decisions-made section).
+
+**The first production-use of the conductor (8.1.1 prep, 2026-06-23)
+exposed why that decision needs revisiting.** Bug G7 — rel-810's
+`BranchVersionResolver` had drifted from master's tag-walking version
+without being noticed for weeks. The fix backported master's class to
+rel-810 only (openemr/openemr#12611), but rel-800 and rel-704 still
+carry the old version; a future use of the conductor on those branches
+will hit the same bug.
+
+**Two options for migrated workflows + tooling going forward:**
+
+1. **Per-branch copies (status quo extended).** Every workflow being
+   migrated (`build-release-on-tag`, `ship-release`,
+   `release-announcements`) lands on every rel branch via copy. Drift
+   managed via either (a) ad-hoc "remember to backport," (b) the
+   byte-identical canary's FILES_ALL set expanded to cover the new
+   files, or (c) tolerated divergence with manual reconciliation when
+   bugs emerge. Today's pattern is (c); G7 is the cost of that choice.
+2. **Reusable workflows (caller + impl split).** Master owns the *real*
+   workflow implementations (`*-impl.yml`); rel branches carry only
+   thin caller stubs (`~10 LOC`) invoking master's impl via
+   `uses: openemr/openemr/.github/workflows/...-impl.yml@master`.
+   Supporting PHP classes live on master only; the impl workflow
+   checks out master's `tools/release/` tree explicitly, regardless of
+   which branch fired the caller. Drift impossible by construction.
+
+**Architectural tradeoffs:**
+
+| Aspect | Per-branch copies | Reusable workflows |
+|---|---|---|
+| Drift | Possible (G7-class bugs) | Eliminated by construction |
+| Master bug fixes reach rel branches | After explicit backport PR per branch | Immediately on master merge |
+| PR queue per rel branch | Sync PRs accumulate (if canary used) | Minimal (only thin caller stubs change) |
+| Ad-hoc inspection (`cat` on a rel-branch workflow) | Shows real logic | Shows a stub pointing at master |
+| Per-branch override flexibility | Native (edit the copy) | Requires editing caller's `uses:` ref |
+| Setup cost during migration | Lower (copy existing pattern) | Higher (caller/impl decomposition per workflow) |
+| Surface that needs byte-identity enforcement | Whole workflow + tooling files | Only the thin caller stubs (~3-5 files per branch) |
+
+**Recommendation:** Adopt **reusable workflows** for every workflow
+migrated in Phase 2+. Captured as a Phase-1-blocking decision because
+it changes the destination structure of every phase. The migration's
+Phase 1 (rotation deletion + 2-PR collapse) is unaffected; Phases 2-6
+get restructured around caller+impl as the default architecture.
+
+**POC scope before locking the decision:** convert today's already-in-core
+`release-prep.yml` to caller+impl split, deploy thin caller to rel-810
+(currently active rel branch), verify end-to-end behavior on one push
+cycle. ~1-2 days of work. If POC succeeds, structurally fixes G7 for the
+conductor and informs every subsequent phase.
+
+**Follow-up consideration (out of scope for this migration):** the docker
+pipeline today uses byte-identical canary; if reusable workflows are
+adopted for release-mechanism, a future consistency pass could migrate
+the docker pipeline to the same pattern, retiring the canary system
+entirely. Tracked as G10 in the gaps doc. Not urgent — canary works.
+
 ## Validated foundation
 
 Empirical findings the plan rests on (audit:
@@ -148,11 +215,28 @@ post-docker-migration phase 5):
   pruned. The next `openemr-rel-cut`/`-update`/`-tag` dispatch crashes
   `SlotRotator::rotate()` at `SlotRotator.php:74` on the first missing file.
   **This is a live regression.**
-- **The conductor (`release-prep.yml`) already lives in this repo.** It
-  mutates `version.php`, `library/globals.inc.php`, `docker/production/docker-compose.yml`,
+- **The conductor (`release-prep.yml`) is already in this repo as
+  net-new tooling** built here in preparation for this migration — not
+  migrated from devops (devops never had it). It mutates `version.php`,
+  `library/globals.inc.php`, `docker/production/docker-compose.yml`,
   `src/RestControllers/OpenApi/OpenApiDefinitions.php`, `swagger/openemr-api.yaml`,
   and every `docker-version` file via a path-agnostic sweep — all targets are
-  in this repo and unaffected by the docker migration.
+  in this repo and unaffected by the docker migration. The release-prep
+  half of the destination state is in place; the migration's remaining
+  job is to move the post-tag pieces (`build-release-on-tag`,
+  `ship-release`, `release-announcements`) over and retire devops's copies.
+- **First production-use of the conductor (8.1.1 release prep,
+  2026-06-23) surfaced an off-by-one bug** in rel-810's
+  `BranchVersionResolver::branchToVersion()` — the old static form
+  decomposed the branch name without walking tags, returning `8.1.0`
+  for `rel-810` regardless of the existing `v8_1_0` tag. Fixed in
+  openemr/openemr#12611 by backporting master's tag-walking
+  instance method. The bug had been latent on rel-810 since 8.1.0
+  shipped (every conductor fire dispatched the wrong VERSION to
+  consumers, but consumers absorbed the no-op until rel-810 HEAD's
+  content diverged from 8.1.0 content). This is **gap G7** in the
+  gaps doc (per-branch tooling drift) — read the deferred-debt
+  section below for how it shapes the migration.
 - **Contracts are already vendored into this repo.**
   `tools/release/contracts/dispatch.schema.json`,
   `tools/release/src/TagVerifier.php`, `tools/release/src/TagVerificationResult.php`
@@ -571,6 +655,13 @@ moves start, since they shape the destination structure:
 (The 3-PR-vs-2-PR question was previously listed here; it's locked to 2 PRs,
 landing as part of Phase 1.)
 
+(The per-branch-copy-vs-reusable-workflow question is now blocking
+**Phase 1** — see the "Pre-Phase-1 architectural decision" section above.
+It changes the destination structure of every workflow migrated in
+Phase 2+, so needs to be settled before Phase 2 starts and ideally
+before the Phase 1 PRs land so they reflect the chosen direction in
+their doc updates.)
+
 ## Risks and wrinkles to plan for
 
 - **Parallel-run window between Phases 2/3/4 and Phase 6** is the highest-risk
@@ -579,6 +670,30 @@ landing as part of Phase 1.)
   green release through the new path. Or use feature-flag-style `if:` guards
   in workflows to disable the old copy as soon as the new copy is verified
   on a single release.
+  - **Empirical observation lowering this risk (2026-06-23):** The
+    conductor's self-heal-on-push pattern (discovered during 8.1.1 prep
+    recovery for #12611) means most misfires auto-correct on the next push
+    to the rel branch. Recovery flow: fix the bug on a feature branch,
+    merge to rel branch, the merge push itself fires the conductor again
+    with the corrected logic, peter-evans updates the existing release-prep
+    PR in place, consumer dispatches re-fire with corrected payload.
+    Mostly applies to the conductor + release-prep PR pattern; less clear
+    whether build-release-on-tag / ship-release have equivalent
+    self-correcting properties (one-shot artifacts like `gh release upload`
+    are harder to redo). Worth empirically validating per-workflow during
+    its parallel-run window — successful self-heal lowers the "N green
+    releases before Phase 6 delete" bar; brittle artifact-creation
+    workflows keep it strict.
+- **G7-class bugs (per-branch tooling drift) won't surface until first
+  production use** of each migrated workflow on a rel branch. The
+  release-mechanism migration's first production-use was 8.1.1 prep —
+  exposed BranchVersionResolver drift on rel-810 (fixed via #12611).
+  Build-release / ship-release / announcements have not yet been
+  production-fired from rel-810 either; they may carry their own latent
+  drift on rel branches if Phase 2 migrates them as per-branch copies.
+  Adopting reusable workflows (per the Pre-Phase-1 architectural
+  decision section) eliminates this risk structurally for the migration's
+  migrated surfaces.
 - **`ShipReleaseOrchestrator`'s tests** are the densest seam — 19 test
   classes + 4 in-memory fakes, asserting strict ordering, docs-first
   detection, partial-merge recovery, etc. Phase 3 has to carry the test
@@ -666,6 +781,39 @@ full minor + a patch).
 (More open gaps tracked in [`release-mechanism-gaps.md`](release-mechanism-gaps.md)
 -- working notes that aren't migration-blocking but warrant follow-up
 post-migration or during the upcoming manual 8.1.1 release work.)
+
+**Post-2026-06-23 gaps (surfaced during 8.1.1 release prep — see gaps doc
+G7-G10 for full detail):**
+
+- **G7 — Conductor tooling drift on pre-820 rel branches.** rel-810/800/704
+  carry per-branch copies of `tools/release/src/` + `.github/workflows/release-*.yml`
+  that silently diverge from master. Surgical fix #12611 applied to rel-810
+  only; rel-800 + rel-704 still carry stale tooling. **Affects the migration's
+  Pre-Phase-1 architectural decision** (per-branch copies vs reusable
+  workflows) — the migration is the natural time to either backport the full
+  conductor toolchain to all pre-820 rel branches, or restructure to reusable
+  workflows so drift becomes impossible by construction. Recommend tying the
+  G7 cleanup to the reusable-workflow POC: a successful POC obsoletes the
+  need to backport stale code to rel-800/rel-704 (those branches just get
+  thin caller stubs that always invoke master's current impl).
+- **G8 — No automated regression test for conductor resolvers.** The G7 bug
+  shipped silently because `BranchVersionResolver` has no isolated PHPUnit
+  coverage exercising `branchToVersion('rel-810')` against realistic tag
+  fixtures. Adding tests on master is a small high-value PR; combining with
+  the reusable-workflow pattern means rel branches automatically inherit
+  the tests' protection via the impl-on-master architecture.
+- **G9 — `release-docs/<version>` PRs on website-openemr don't supersede
+  across version changes.** Each conductor re-resolution opens a new PR
+  at a new head branch; the old PR sits orphaned. Affects Phase 4 (move
+  `release-announcements`) — natural time to also restructure the
+  website-openemr docs PR naming to per-rel-branch (`release-docs/rel-810`),
+  matching openemr/openemr's `release-prep/rel-810` pattern. Cross-repo
+  change so requires coordination with website-openemr maintainers.
+- **G10 — Reusable workflows as a replacement for the byte-identical canary
+  on the docker pipeline.** Captured as a future post-migration consistency
+  pass. If Phase 2+ adopts reusable workflows for release-mechanism, the
+  docker pipeline becomes the lone holdout using canary; aligning the two
+  on the same pattern is a natural follow-up.
 
 ## Feedback wanted
 
