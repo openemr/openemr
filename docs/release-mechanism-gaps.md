@@ -9,7 +9,7 @@ completes, plus discoveries during the upcoming manual 8.1.1 work.
 
 Migration-related gaps also appear in the planning doc's `## Deferred /
 known debt` section:
-[`release-mechanism-migration-from-devops.md`](release-mechanism-migration-from-devops.md)
+`/home/brady2/git/openemr-wt-release-mechanism-migration-doc/docs/release-mechanism-migration-from-devops.md`
 
 ## Quick context
 
@@ -117,6 +117,323 @@ known debt` section:
   bump look like for the next-next minor?).
 - **Status:** Tracked in planning doc's deferred-debt. Natural follow-up
   to G4.
+
+### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
+
+- **What:** Two pieces of state in `openemr/demo_farm_openemr` need
+  to track openemr/openemr's release state but currently don't have
+  any cross-repo sync:
+  - **`ip_map_branch.txt` production rows** (`branch_tag=tag`,
+    cluster `five`/`five_a`/`five_b`) — pinned at a specific release
+    tag. `bump-tag.yml` advances these for patch releases on the
+    same minor line (e.g., v8_0_0_3 → v8_0_0_4), but cross-minor
+    seeding (e.g., the eventual v8_0_0_3 → v8_1_1 cutover) is a
+    manual #111-style PR.
+  - **`docker/scripts/demoLibrary.source` `startDemoWrapper`
+    case statement** — maps each cluster to a flex base image
+    (e.g., `flex-3.22-php-8.4`). Should match the corresponding
+    rel branch's `docker/release/Dockerfile` ARGs (ALPINE_VERSION
+    + PHP_VERSION) in openemr/openemr, so demo runtime matches
+    production runtime. Currently has no cross-repo sync; manual
+    maintenance only.
+- **Concrete drift example (2026-06-23):** Cluster `five` carried
+  `flex-3.23-php-8.5` (rel-810's Dockerfile combo) for the entire
+  pre-#111 v8_0_0_3 era + the post-#133 v8_0_0_3 era, when
+  rel-800's Dockerfile is actually 3.22 + 8.4. demo.openemr.io ran
+  v8_0_0_3 source on a newer runtime than the released image.
+  Closed by demo_farm_openemr#134.
+- **Why this matters:** demo consumers see the "production demo"
+  image as representative of what they'd deploy themselves
+  (`docker pull openemr/openemr:8.0.0.3`). Runtime drift between
+  the demo and the actual release undermines the demo's
+  representativeness. Same concern for rel-810 / rel-704 dev demos
+  if their flex-image mapping drifts from their rel branch's
+  Dockerfile combo.
+- **The auto-generation vision** (per maintainer, 2026-06-23): the
+  recent demo_farm reorg to consolidate around flex docker bases
+  (vs the prior per-version base images) was deliberate preparation
+  for this. **Goal: auto-generate the entire `ip_map_branch.txt` +
+  `demoLibrary.source` `startDemoWrapper` case statement from
+  upstream openemr/openemr state** — with a single hand-curated
+  "Miscellaneous" section reserved for non-standard demos that don't
+  fit any derivable pattern (currently would be empty; reserved
+  bench).
+
+  Each existing section's derivation rule:
+
+  | Section | Derived from |
+  |---|---|
+  | **Production** (cluster `five` + aliases) | The rel branch holding `latest` in `release-targets.yml`'s `docker_tags` (currently rel-800 → v8_0_0_3). Flex image from that branch's `docker/release/Dockerfile` ARGs (ALPINE_VERSION + PHP_VERSION). |
+  | **Up for grabs** (cluster `four` + aliases) | Master content by default — slot stays seeded with master demos until a community member claims it for a specific fork/branch (claim becomes a hand-edit to the misc section, or a transient override the bot respects). |
+  | **Release demos** (clusters `three`, `six`, `eight`, ...) | One row per rel branch in `release-targets.yml`. Each rel branch's flex image derives from that branch's `docker/release/Dockerfile` ARGs. New rel branches automatically get a row. |
+  | **Master demos** (clusters `one`, `two`, `seven`, `eleven`, ...) | One row per supported PHP version (observable via openemr/openemr's CI matrix — `.github/workflows/integration-tests.yml` and similar). Each row pinned to master with a flex image matching `flex-<alpine>-php-<php-version>` for that PHP. New PHP version supported → new master demo row. |
+  | **Parked** (clusters `nine`, `ten`, `edu`, ...) | Bench for hot-swap: where new clusters get parked before promotion, and where retired clusters land. Not derived from upstream state; managed by the bot as the bench when cluster count needs to flex up/down. |
+  | **Miscellaneous** | Empty by default; manually maintained for non-standard demos (e.g., one-off forks, special-purpose runs). Bot leaves this section completely untouched. |
+
+  Single script (in demo_farm_openemr/tools/release/ or similar) is
+  the entry point. Multiple triggers all feed in:
+
+  - **On `openemr-tag` dispatch** (already arrives via
+    `bump-tag.yml`): extend the bump to also touch
+    `demoLibrary.source` if the new tag's branch's
+    Alpine/PHP combo differs from the cluster's current mapping.
+  - **On `openemr-rel-cut` / `openemr-rel-update`** dispatch: seed
+    new rel branch's release-demo row + flex-image mapping; or
+    update existing rel branch's mapping if its Dockerfile combo
+    moved.
+  - **Scheduled (daily/weekly)**: catch manual edits to master's or
+    any rel branch's `docker/release/Dockerfile`, edits to
+    `release-targets.yml`, additions/removals of supported PHP
+    versions in the CI matrix. Bot rederives the full
+    ip_map_branch.txt + demoLibrary.source and opens a PR if
+    anything changed.
+  - **`workflow_dispatch`**: manual recovery / dry-run testing
+    (with optional `dry_run` flag).
+
+  Net behavior: any change in openemr/openemr's release state that
+  affects what demo_farm should publish gets caught and PR'd
+  automatically. Maintainer reviews + merges the PR (review-gated,
+  not auto-merge — same posture as `bump-tag.yml`'s current
+  behavior). Hand-edits to the misc section stay safe (bot never
+  touches it).
+- **Procedural rule until automation lands** (the manual checklist
+  to follow when changing a production-demo row in
+  `ip_map_branch.txt`):
+  1. Identify the target tag (e.g., `v8_0_0_3`) and the rel
+     branch it lives on (e.g., rel-800).
+  2. Read that rel branch's `docker/release/Dockerfile` to find
+     `ARG ALPINE_VERSION=` and `ARG PHP_VERSION=`.
+  3. Update the cluster's flex-image in
+     `demoLibrary.source::startDemoWrapper` to match
+     (`openemr/openemr:flex-<alpine>-php-<php>`).
+  4. Land the ip_map_branch.txt change + the demoLibrary.source
+     change together (or in coordinated PRs back-to-back).
+- **Status:** Not migration-blocking. Captured as a candidate
+  cross-repo automation for the broader release-mechanism work.
+  Could land as a phase in (or after) the release-mechanism
+  migration, since it depends on the same dispatch + scheduled-
+  workflow patterns.
+
+### G7 — Conductor tooling drift on pre-820 rel branches  *(discovered live 2026-06-23)*
+
+- **What:** The release-prep conductor's PHP tooling +
+  workflows under `src/Release/`, `tools/release/`, and
+  `.github/workflows/release-prep.yml` (+ `ship-release.yml`,
+  related validators) live on EACH branch independently and run
+  from whatever's checked into the branch where the workflow
+  fires. Drift between master and rel-810/800/704 silently
+  produces subtle wrong behavior — including stale logic in
+  contexts where master has bug fixes that were never
+  backported.
+- **Concrete bug exposed 2026-06-23** (openemr/openemr#12611):
+  rel-810's `BranchVersionResolver::branchToVersion()` was
+  the OLD static form that decomposed the branch name without
+  walking tags, returning `8.1.0` for `rel-810` regardless of
+  the existing `v8_1_0` tag. Master's version (instance-based,
+  walks annotated `v<MAJOR>_<MINOR>_<PATCH>` tags, returns
+  next patch) was never backported. Surface: every rel-810
+  push since 8.1.0 shipped has dispatched the conductor with
+  `VERSION=8.1.0`. No-op until rel-810 HEAD's content diverged
+  from 8.1.0 content (which happened with P3 of the 8.1.1
+  prep), then mutators rewrote the release-prep branch with
+  wrong content. Recovery: surgical backport in #12611 (just
+  `BranchVersionResolver` + `branch-to-version.php`).
+- **Why this matters:** The surgical fix unblocks 8.1.1 but
+  doesn't address the structural drift. Other parts of the
+  conductor (mutators, dispatcher logic, validator workflows)
+  may have similar latent bugs on rel-810/800/704 that haven't
+  fired yet. Each future per-release cycle on these branches
+  carries discovery risk.
+- **Why this is only on pre-820 rel branches:** rel-820 and
+  later are cut from current master, so they inherit current
+  conductor at cut time. The drift problem is bounded to
+  rel-810, rel-800, rel-704 — branches that pre-date the
+  conductor's rapid iteration on master.
+- **The fix:** Sync the following from master to each of
+  rel-810/800/704 as a single coherent PR per branch:
+  - `tools/release/src/` — all conductor PHP classes
+  - `tools/release/bin/` — all CLI wrappers
+  - `.github/workflows/release-prep.yml` — conductor workflow
+  - `.github/workflows/ship-release.yml` — finalize job (if
+    present on rel branches)
+  - Any conductor-related validator workflows
+    (`docker-validate-release-targets.yml`, etc. — audit
+    which ones rel branches need)
+  - `composer.json` / `composer.lock` — if conductor adds new
+    deps (compare against current rel-810 state)
+
+  Audit each piece for rel-applicability: some master-scope
+  mutators (e.g., `SqlUpgradeSkeletonMutator`, `--scope=master`
+  paths) are master-only by design — they can ship to rel
+  branches harmlessly (just never fire) or be excluded from
+  the sync. Cleaner to ship as-is for parity, accept harmless
+  unused code.
+- **Risk:** Bigger PR surface = bigger chance of "finds yet
+  another rel-vs-master drift bug during review". Recommend
+  doing this when there's no active release-prep in flight on
+  the target branch (to avoid coordinating in-flight mutations
+  with the sync PR).
+- **Status:** Captured for follow-up. Surgical fix #12611
+  unblocks 8.1.1. Full sync recommended after 8.1.1 ships and
+  before the next per-release cycle on any pre-820 rel branch.
+
+### G8 — No automated regression test for conductor resolvers  *(complements G7)*
+
+- **What:** `BranchVersionResolver`, `derivePrevious`,
+  `DispatchDataBuilder`, and the other PHP classes under
+  `tools/release/src/` have no isolated PHPUnit coverage that
+  exercises them against realistic input fixtures. A bug like
+  the static-`branchToVersion()` off-by-one (#12611) ships
+  silently because nothing catches "returns wrong version
+  for `rel-810`" before the conductor actually fires in
+  production.
+- **Why this matters:** Conductor logic is high-blast-radius
+  per-execution (every misfire dispatches to 3 consumer repos
+  + force-pushes a release-prep PR), so the cost of a bug
+  reaching production is much higher than per-feature code.
+  The class boundaries are clean (DI via constructor, no DB,
+  no I/O beyond `Symfony\Process` against a git dir), so
+  testing them is low-friction — set up a temp git repo with
+  realistic tags, instantiate the resolver, assert.
+- **Concrete test surface (BranchVersionResolver as canonical
+  example):**
+  - `branchToVersion('rel-810')` against tags `[v8_0_0_3,
+    v8_1_0]` → `8.1.1`
+  - `branchToVersion('rel-810')` against tags `[]` (no
+    releases yet) → `8.1.0`
+  - `branchToVersion('rel-800')` against tags `[v8_0_0,
+    v8_0_0_1, v8_0_0_2, v8_0_0_3]` → `8.0.4`
+  - `branchToVersion('rel-810')` ignoring lightweight tags
+    `v8_1_0-test.abc` (must be filtered by annotated-only
+    check)
+  - `branchToVersion('master')` → throws InvalidArgumentException
+  - `previousRelease('8.1.1')` against tags `[v8_0_0_3,
+    v8_1_0]` → `8.1.0`
+- **Bonus benefit when combined with G7:** running the same
+  test suite on each rel branch's CI catches future drift
+  *automatically* — if rel-810's `BranchVersionResolver`
+  diverges from master's expected behavior, the test fails
+  on the next push, surfacing the drift before it causes
+  production damage.
+- **Status:** Follow-up. Adding the tests on master is the
+  natural first step; the G7 full sync would carry them to
+  pre-820 rel branches as part of the broader tooling
+  backport.
+
+### G9 — `release-docs/<version>` PRs on website-openemr don't supersede across version changes
+
+- **What:** The release-docs workflow on website-openemr
+  uses `release-docs/<version>` as the head branch name (e.g.,
+  `release-docs/8.1.0`, `release-docs/8.1.1`). When the
+  conductor's resolved `VERSION` changes (e.g., from a buggy
+  `8.1.0` to a corrected `8.1.1`), the workflow opens a
+  *new* PR at the new branch and leaves the prior PR + branch
+  orphaned. peter-evans only updates in place when the head
+  branch name matches.
+- **Concrete instance (2026-06-23):** During 8.1.1 release
+  prep recovery, the BranchVersionResolver bug (G7, #12611)
+  caused two cycles of dispatch:
+  - First cycle: VERSION=8.1.0 → updated existing
+    `release-docs/8.1.0` PR #142 (originally created for the
+    real 8.1.0 prep weeks earlier)
+  - Second cycle (after #12611): VERSION=8.1.1 → opened new
+    `release-docs/8.1.1` PR #160
+  - PR #142 left orphaned; needed manual close as cleanup
+- **Why this matters:** Pattern repeats on every rel branch's
+  per-release cycle. PR #142's stale 8.1.0 entry will recur
+  as N stale PRs over time (one per version bump cycle).
+  Each requires a maintainer to know "this is superseded,
+  close it" — repeatable toil, easy to forget.
+- **Two possible fixes:**
+  - **A. Auto-close on supersede:** when the workflow opens
+    a new `release-docs/<version>` PR, check for prior open
+    PRs with the `release-docs/<other-version>` head pattern
+    targeting the same `rel-*` branch (or the same conductor
+    dispatch source), close them with a "superseded by
+    #<new-PR>" comment.
+  - **B. Per-rel-branch head naming:** match the
+    `release-prep/rel-810` pattern used by openemr/openemr's
+    conductor. Use `release-docs/rel-810` as the head branch,
+    so the same PR updates in place across version cycles
+    (peter-evans flow). PR title encodes the version
+    (rewrites on each run via the `title:` input). One PR
+    per rel branch, never orphaned.
+- **Recommendation:** Option B is structurally cleaner — it
+  removes the orphaning by design rather than papering over
+  it. It also makes the website-openemr side match the
+  openemr/openemr release-prep PR pattern, reducing per-system
+  cognitive load for maintainers.
+- **Status:** Follow-up. Discovered 2026-06-23 during 8.1.1
+  prep recovery; manual close of PR #142 is the one-time
+  cleanup until the underlying pattern changes.
+
+### G10 — Reusable workflows as a replacement for the byte-identical canary system on the docker pipeline  *(future consideration)*
+
+- **What:** The docker pipeline today keeps workflow files,
+  config, and the composite action byte-identical across
+  master + rel-810/800/704 via the canary trio
+  (`validate-byte-identical.yml` + `sync-byte-identical.yml`
+  + `validate-byte-identical.sh`) and the FILES_ALL config
+  (8 entries). Auto-sync opens `sync-byte-identical/rel-*`
+  PRs to mirror master's changes; canary validates each PR
+  before merge.
+- **Alternative pattern:** GitHub reusable workflows would
+  let master own the *real* implementation files
+  (`docker-build-release-impl.yml`,
+  `docker-test-core-impl.yml`,
+  `docker-test-release-impl.yml`); rel branches would carry
+  only thin caller stubs (`~10 LOC`) invoking master's impl
+  via `uses: openemr/openemr/.github/workflows/...-impl.yml@master`.
+  Composite actions + config files (`test-actions-core`,
+  `.github/docker/compose.yml`) are already cross-branch
+  referenceable today; impl-on-master would consume master's
+  copies directly without canary syncing.
+- **What gets deleted under reusable-workflow model:**
+  - `sync-byte-identical.yml` workflow
+  - `validate-byte-identical.yml` workflow
+  - `validate-byte-identical.sh` extracted script
+  - `validate-byte-identical-config.yml` (FILES_ALL config)
+  - The 5-classification-case state machine
+    (identical/add/update/delete-as-rename/demote-skip)
+  - The entire `sync-byte-identical/rel-*` PR stream
+  - ~hundreds of LOC + canary trio infrastructure
+- **What stays:**
+  - Per-branch files that legitimately differ
+    (`docker/release/Dockerfile` with branch-specific ARGs)
+  - A *micro*-canary covering the thin caller stubs
+    themselves (~3-5 files) — they still need byte-identity
+    across branches, but the surface shrinks dramatically
+- **Tradeoffs:**
+  - ✅ Drift eliminated by construction (same benefit as
+    proposed for release-mechanism — see migration doc)
+  - ✅ Master bug fixes apply to rel branches immediately,
+    no per-branch sync PR review cycle
+  - ✅ Per-rel-branch PR queue shrinks significantly
+  - ❌ **Replacing-what-isn't-broken.** Canary system is
+    production-validated end-to-end with all 5 cases handled
+    correctly under real load.
+  - ❌ Slightly worse for ad-hoc inspection (`cat` on a
+    rel-branch workflow shows a stub, not the real logic)
+  - ❌ Lose the per-branch "override" flexibility if it's
+    ever needed (today's `demote-skip` classification case
+    would require editing the caller's `uses:` ref)
+  - ❌ Decomposition cost: caller/impl split per workflow,
+    caller stubs to each rel branch, canary careful retirement
+- **Why canary was chosen originally:** the workflows
+  already existed and ran on rel branches via copy-paste
+  before canary was built. Adding canary was a low-disruption
+  "freeze the current state" answer; restructuring to
+  caller+impl would have been a parallel rewrite. Once
+  canary worked, no pressure to revisit.
+- **Status:** Not urgent. Defensible engineering decision
+  either way given canary works. Natural time to revisit:
+  when a "this would have been easier with single-source-of-
+  truth" moment hits the docker side (something like #12611
+  but for docker). Or as part of a broader "all
+  cross-branch-shared workflows use reusable-workflow pattern"
+  consistency pass after the release-mechanism migration
+  adopts the pattern (see migration doc's pre-Phase-1 decision
+  on reusable workflows).
 
 ## Timing picture: who does what, when
 
@@ -708,6 +1025,15 @@ checklist + the existing master-bump pattern.
   releases are produced by whatever release tooling the branch carries
   (frozen at cut time + manual backports). Revisit only if drift becomes
   a real headache.
+- **One active version per rel branch** (no multi-row-per-branch in
+  `release-targets.yml`). Only the most recent patch on a given
+  MAJOR.MINOR is actively published; older patches get superseded
+  rather than maintained in parallel. The validator's branch-uniqueness
+  check (`docker-validate-release-targets.yml` check 3) stays as-is.
+  Confirmed mechanically straightforward to support multi-row-per-branch
+  if ever needed (drop check 3 + refine `IpMapBumper` disambiguation),
+  but deliberately not pursuing — keeps the model simple and avoids
+  parallel-track maintenance burden.
 
 ## Update log
 
@@ -779,3 +1105,30 @@ checklist + the existing master-bump pattern.
   upcoming-stable owner (a new rel branch if one exists, else
   master alongside `dev`). Refined P6 to capture the full
   multi-row shuffle (not just the ref pin switch).
+- **2026-06-23**: Added G6 — demo_farm_openemr's `ip_map_branch.txt`
+  production rows + `demoLibrary.source` flex-image mappings are
+  manually maintained, no cross-repo sync from openemr/openemr's
+  `release-targets.yml` + per-branch Dockerfile combos. Surfaced
+  via concrete drift on cluster `five` (carried `flex-3.23-php-8.5`
+  while pointing at v8_0_0_3, which is built on Alpine 3.22 + PHP
+  8.4 per rel-800's Dockerfile). Closed by demo_farm_openemr#134.
+  Captured the auto-generation vision (the recent flex-docker
+  reorg was preparation for it) + manual procedural rule until
+  automation lands.
+- **2026-06-23**: Per maintainer, expanded G6's auto-generation
+  vision to the full file. Goal is to derive the entire
+  `ip_map_branch.txt` + `demoLibrary.source` from upstream
+  openemr/openemr state, with a single hand-curated
+  "Miscellaneous" section reserved for non-standard demos. Each
+  existing section's derivation rule documented: production
+  from the `latest`-tag-holder rel branch; up-for-grabs defaults
+  to master; release demos from all rel branches in
+  release-targets.yml; master demos one-per-supported-PHP-version
+  from CI matrix; parked is a managed bench. Single bot script
+  with multiple triggers (`openemr-tag`,
+  `openemr-rel-cut`/`-update`, scheduled, manual dispatch). Bot
+  never touches the misc section.
+- **2026-06-23**: Decision locked — no multi-row-per-branch in
+  `release-targets.yml`. Considered briefly (would support parallel
+  version-line publishing from a single rel branch); deliberately
+  not pursuing to keep the model simple. Recorded in decisions-made.
