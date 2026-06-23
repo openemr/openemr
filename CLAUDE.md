@@ -67,6 +67,17 @@ skips both the state registration and the stack. If you already made that
 mistake, recovery is `git worktree remove <path>` then `openemr-cmd worktree
 add <branch> --start` (omit `-b` since the branch persists).
 
+When `-b` is supplied, the new branch is based on canonical
+`openemr/openemr` master, fetched directly from GitHub at the time of the
+command — *not* the primary repo's HEAD. Override with `--base <ref>`,
+which accepts two forms: a URL (optionally `#<ref>`, e.g.
+`https://github.com/openemr/openemr.git#rel-810`) for a freshly-fetched
+base, or any git `<commit-ish>` (local branch, `origin/master`, tag, SHA,
+`HEAD`) resolved locally with no fetch. Because the primary's HEAD is
+never read or modified on the default path, concurrent worktree creation
+by multiple agents is safe regardless of which branch happens to be
+checked out in the primary.
+
 **Never use `git fetch ... --update-head-ok` in the primary openemr repo,
 regardless of remote or URL.** It overwrites the current branch's ref
 without updating the working tree, leaving the index showing "staged
