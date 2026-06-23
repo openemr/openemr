@@ -9,10 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
-use OpenEMR\Console\Command\{
-    InstallCommand,
-    ShellCommand,
-};
+use OpenEMR\Console\Command;
 use Symfony\Component\Console\Application;
 
 $container = require_once __DIR__ . '/bootstrap.php';
@@ -29,8 +26,9 @@ file_put_contents(
 );
 
 $application = new Application();
-$application->addCommand($container->get(InstallCommand::class));
-$application->addCommand($container->get(ShellCommand::class));
+$application->addCommand($container->get(Command\InstallCommand::class));
+$application->addCommand($container->get(Command\ShellCommand::class));
+$application->addCommand($container->get(Command\Codes\UpdateMappingsCommand::class));
 
 // Doctrine Migrations integration
 MigrationsConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
