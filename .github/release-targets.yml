@@ -71,8 +71,8 @@
   openemr_version_ref: master
 
 - branch: rel-810
-  docker_tags: 8.1.0,next
-  openemr_version_ref: v8_1_0
+  docker_tags: 8.1.1,next
+  openemr_version_ref: rel-810
 
 - branch: rel-800
   # 8.0.0 is the floating "current latest 8.0.0.x" pointer (always advances
