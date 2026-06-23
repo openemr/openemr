@@ -67,6 +67,13 @@ skips both the state registration and the stack. If you already made that
 mistake, recovery is `git worktree remove <path>` then `openemr-cmd worktree
 add <branch> --start` (omit `-b` since the branch persists).
 
+**Never use `git fetch ... --update-head-ok` in the primary openemr repo,
+regardless of remote or URL.** It overwrites the current branch's ref
+without updating the working tree, leaving the index showing "staged
+deletions of everything new on master" — a stray `git commit` after that
+wipes recent work. Use `git pull` or plain `git fetch` (then read via
+tracking ref) instead.
+
 If `openemr-cmd worktree list` shows entries with status `missing` or
 `invalid` (and a footer `(N stale state entries — run "openemr-cmd worktree
 prune" to clean up; directories on disk are left intact)`), a worktree's
@@ -590,12 +597,12 @@ Preserve existing authors/copyrights when editing files.
 - **Pre-commit hooks:** Install with `openemr-cmd prek-install` (alias `pi`).
   This writes git hooks that route through the running openemr container, so
   `git commit` validates against the project's full `.pre-commit-config.yaml`
-  suite (phpstan, rector, phpcs, codespell, actionlint, and more) without
-  requiring PHP, Node, Python, codespell, or actionlint on the host. Manual
-  passthrough is `openemr-cmd prek run [args...]` (use `--all-files` for a
-  whole-codebase check before pushing). See CONTRIBUTING.md's "Pre-commit
-  hooks for the docker dev environment" section (Advanced Use item 2) for
-  the full workflow.
+  suite (phpstan, rector, phpcs, codespell, actionlint, hadolint, and more)
+  without requiring PHP, Node, Python, codespell, actionlint, or hadolint on
+  the host. Manual passthrough is `openemr-cmd prek run [args...]` (use
+  `--all-files` for a whole-codebase check before pushing). See
+  CONTRIBUTING.md's "Pre-commit hooks for the docker dev environment"
+  section (Advanced Use item 2) for the full workflow.
   If you maintain a full host PHP/Composer/Python toolchain instead, use
   `prek install` (or `pre-commit install` if prek is unavailable) for hooks
   that run directly on the host; `prek run --all-files` is the manual form.

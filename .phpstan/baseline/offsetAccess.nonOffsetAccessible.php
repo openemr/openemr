@@ -23667,42 +23667,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'attn\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'cms_id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'id\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'ins_type_code\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'number\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'prefix\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/practice/ins_search.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'x12_default_partner_id\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/practice/ins_search.php',
 ];

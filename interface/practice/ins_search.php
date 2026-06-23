@@ -205,10 +205,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // service (saveFromForm/buildSaveDataFromForm) so they can be unit and
         // integration tested. The view only owns the request boundary (the CSRF
         // check above) and the response (the script below).
+        // saveFromForm() throws RuntimeException on failure; let it propagate.
         $saved = $insuranceCompany->saveFromForm($post);
-        if (!is_array($saved)) {
-            throw new RuntimeException($saved);
-        }
 
         $ins_id = (string) $saved['id'];
         $ins_name = $saved['name'];
@@ -225,14 +223,17 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         echo "</script></body></html>\n";
         exit();
     } else {
-        $ins_id = filter_input(INPUT_GET, 'ins', FILTER_VALIDATE_INT);
-        $ins_id = $ins_id ?: 0;
-        $ins_co = (new InsuranceCompanyService())->getOneById($ins_id) ?? null;
+        // Guard against missing or non-numeric ?ins=. The downstream services
+        // type-hint int and would throw a TypeError on an empty string (#12307).
+        // Default $ins_co to [] (rather than null) so the form-rendering code
+        // below can read $ins_co['name'] ?? '' etc. without a PHP 8 warning
+        // about offset-access-on-null.
         $ins_id = filter_input(INPUT_GET, 'ins', FILTER_VALIDATE_INT) ?: null;
-        $ins_co = $ins_id ? (new InsuranceCompanyService())->getOneById($ins_id) : null;
+        // (array) so that getOneById's untyped return (could be false on
+        // miss) collapses to [] for safe offset access below.
+        $ins_co = (array) ($ins_id ? (new InsuranceCompanyService())->getOneById($ins_id) : []);
         $ins_co_address = $ins_id ? (new AddressService())->getOneByForeignId($ins_id) : null;
         $ins_co_phone = $ins_id ? (new PhoneNumberService())->getOneByForeignId($ins_id) : null;
-        $ins_co_phone = (new PhoneNumberService())->getOneByForeignId($ins_id) ?? null;
     }
 
     // Query x12_partners.
@@ -380,6 +381,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 $cqm_sop_array = $insuranceCompany->getInsuranceCqmSop();
                                 foreach ($cqm_sop_array as $key => $value) {
                                     echo "   <option value='" . attr($key) . "'";
+                                    if (($ins_co['cqm_sop'] ?? '') === $key) {
+                                        echo " selected";
+                                    }
                                     echo ">" . text($value) . "</option>\n";
                                 }
                                 ?>

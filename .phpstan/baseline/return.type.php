@@ -1537,26 +1537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function create_crt\\(\\) should return data but returns OpenSSLCertificate\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function create_csr\\(\\) should return array but returns false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function create_user_certificate\\(\\) should return string but returns false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function create_user_certificate\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function phimail_notify\\(\\) should return true but returns bool\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',

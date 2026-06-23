@@ -29,6 +29,7 @@ use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Services;
 use OpenEMR\Services\Storage\{
     Location,
     Manager,
@@ -89,4 +90,7 @@ return [
     Psr17Factory::class,
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
+
+    // General services
+    Services\CodeTypes\CodeTypeMappingUpdater::class,
 ];

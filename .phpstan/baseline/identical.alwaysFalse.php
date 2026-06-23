@@ -57,21 +57,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_widget.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/usergroup/ssl_certificates_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between data and false will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/usergroup/ssl_certificates_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between string and false will always evaluate to false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/usergroup/ssl_certificates_admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between int and false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/DbRow/Signable.php',
@@ -125,11 +110,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between true and \'continue\' will always evaluate to false\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between array and false will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',

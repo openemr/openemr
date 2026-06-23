@@ -1708,11 +1708,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../interface/usergroup/ssl_certificates_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
@@ -2035,11 +2030,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
@@ -3353,7 +3343,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [

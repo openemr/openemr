@@ -2234,34 +2234,6 @@ $GLOBALS_METADATA = [
             xl('Enable facility/warehouse restrictions in the user administration form.')
         ],
 
-        'is_client_ssl_enabled' => [
-            xl('Enable Client SSL'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Enable client SSL certificate authentication.')
-        ],
-
-        'certificate_authority_crt' => [
-            xl('Path to CA Certificate File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'certificate_authority_key' => [
-            xl('Path to CA Key File'),
-            'text',                           // data type
-            '',                               // default
-            xl('Set this to the full absolute path. For creating client SSL certificates for HTTPS.')
-        ],
-
-        'client_certificate_valid_in_days' => [
-            xl('Client Certificate Expiration Days'),
-            'num',                            // data type
-            '365',                            // default
-            xl('Number of days that the client certificate is valid.')
-        ],
-
         'Emergency_Login_email_id' => [
             xl('Emergency Login Email Address'),
             'text',                           // data type
