@@ -15,6 +15,7 @@ use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
@@ -22,7 +23,6 @@ use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
-use OpenEMR\Services\PhoneNumber;
 use RingCentral\SDK\Http\ApiException;
 
 class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface
@@ -784,7 +784,8 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         // is read against the site default region (US fallback). Match on the
         // national digits against a separator-stripped column so stored values
         // like "(239) 555-0123" still compare cleanly.
-        $national = PhoneNumber::tryParse($phone, $this->defaultPhoneRegion())?->getNationalDigits();
+        $parsed = PhoneNumber::tryParse($phone, $this->defaultPhoneRegion());
+        $national = $parsed?->isPossible() ? $parsed->getNationalDigits() : null;
         $digits = (string) preg_replace('/\D/', '', $national ?? $phone);
         if ($digits === '') {
             return '';

@@ -22,11 +22,11 @@ use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
 use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 use OpenEMR\Modules\FaxSMS\Utils\SignalWireWebhookValidator;
-use OpenEMR\Services\PhoneNumber;
 use OpenEMR\Services\PhoneNumberService;
 use Symfony\Component\Filesystem\Exception\IOException;
 use Symfony\Component\Filesystem\Filesystem;
@@ -360,8 +360,9 @@ class FaxDocumentService
         // the most specific forms first (E.164, then national digits, then the
         // raw digits) against separator-stripped columns so stored values like
         // "(239) 555-0123" still compare cleanly.
-        $e164 = PhoneNumber::tryParse($fromNumber, 'US')?->toE164();
-        $national = PhoneNumber::tryParse($fromNumber, 'US')?->getNationalDigits();
+        $parsed = PhoneNumber::tryParse($fromNumber, 'US');
+        $e164 = $parsed?->isPossible() ? $parsed->toE164() : null;
+        $national = $parsed?->isPossible() ? $parsed->getNationalDigits() : null;
 
         $needles = [];
         foreach ([$e164, $national, $raw] as $candidate) {

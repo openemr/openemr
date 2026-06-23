@@ -234,10 +234,10 @@ class AppointmentNotificationRunnerTest extends TestCase
     public static function phoneProvider(): array
     {
         return [
-            'plain ten digits'             => ['2125551234', '2125551234'],
-            'leading 1 stripped'           => ['12125551234', '2125551234'],
-            'formatted with parens dashes' => ['(212) 555-1234', '2125551234'],
-            'plus-prefixed E.164'          => ['+12125551234', '2125551234'],
+            'plain ten digits'             => ['2125551234', '+12125551234'],
+            'leading 1 stripped'           => ['12125551234', '+12125551234'],
+            'formatted with parens dashes' => ['(212) 555-1234', '+12125551234'],
+            'plus-prefixed E.164'          => ['+12125551234', '+12125551234'],
             'too short'                    => ['555-1234', null],
             'eleven-digit not starting 1'  => ['22125551234', null],
             'empty string'                 => ['', null],

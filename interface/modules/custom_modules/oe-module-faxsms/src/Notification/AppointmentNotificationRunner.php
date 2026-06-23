@@ -216,7 +216,16 @@ class AppointmentNotificationRunner
         if ($raw === '') {
             return null;
         }
-        return PhoneNumber::tryParse($raw, $defaultRegion)?->toE164();
+        $parsed = PhoneNumber::tryParse($raw, $defaultRegion);
+        // Require a complete national number. isPossible() also accepts
+        // local-only 7-digit forms (no area code), which are not deliverable
+        // to an SMS gateway; getNationalDigits() returns null for anything
+        // that isn't a full national number, which also rejects the
+        // 11-digit non-NANP case. We still emit E.164 for the gateway.
+        if ($parsed === null || $parsed->getNationalDigits() === null) {
+            return null;
+        }
+        return $parsed->toE164();
     }
 
     /**
