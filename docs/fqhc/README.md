@@ -50,13 +50,18 @@ project closes those gaps.
 | [`UDS-REPORTING.md`](./UDS-REPORTING.md) | UDS data elements, where OpenEMR already captures them, and the gaps. |
 | [`UX-MODERNIZATION.md`](./UX-MODERNIZATION.md) | Design system, role-based interfaces, and responsive strategy. |
 | [`ROADMAP.md`](./ROADMAP.md) | Phased plan: immediate next steps and longer-term deliverables. |
+| [`BACKLOG.md`](./BACKLOG.md) | Import-ready issue set (program epic, workstream epics, Phase 0 next steps). |
 
 ## How this maps to GitHub issues
 
-The roadmap is mirrored in GitHub issues. There is one **program epic** that
-links to a small number of **workstream epics** (certification safety, UDS,
-design system, role-based UI, responsive, performance). Each workstream epic
-lists concrete, near-term issues. Start from the program epic to navigate.
+The roadmap is mirrored as one **program epic** linking a small number of
+**workstream epics** (certification safety, UDS, design system, role-based UI,
+responsive/performance), each with concrete near-term issues.
+
+> **Note:** GitHub Issues is currently **disabled** on this repository, so the
+> issue set lives in [`BACKLOG.md`](./BACKLOG.md) as import-ready content.
+> Enable Issues (Settings → Features → Issues) and create them top-down from
+> that file. Start from the program epic to navigate.
 
 ## Status
 
