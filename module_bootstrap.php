@@ -6,4 +6,6 @@ use Firehed\Container\AutoDetect;
 
 // This assumes dotenv has already run
 
-return AutoDetect::instance('src/Plugins/config');
+$b = AutoDetect::getBuilder(compiledOutputPath: 'vendor/compiledModuleContainer.php');
+$b->addDirectory('src/Plugins/config/');
+return $b->build();

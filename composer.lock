@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "422f64ffc88f838bd800613ef0c7d219",
+    "content-hash": "51bf66a588b42cf726487285ac50912a",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1970,16 +1970,16 @@
         },
         {
             "name": "firehed/container",
-            "version": "1.1.0",
+            "version": "dev-main",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Firehed/container.git",
-                "reference": "7d170d89a399e896ec1821f236b0e0b552855ee4"
+                "reference": "c1d9b50c42503dd3ffddf3990e7342e71b35525a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Firehed/container/zipball/7d170d89a399e896ec1821f236b0e0b552855ee4",
-                "reference": "7d170d89a399e896ec1821f236b0e0b552855ee4",
+                "url": "https://api.github.com/repos/Firehed/container/zipball/c1d9b50c42503dd3ffddf3990e7342e71b35525a",
+                "reference": "c1d9b50c42503dd3ffddf3990e7342e71b35525a",
                 "shasum": ""
             },
             "require": {
@@ -1999,6 +1999,7 @@
                 "squizlabs/php_codesniffer": "^4.0",
                 "vlucas/phpdotenv": "^5.6"
             },
+            "default-branch": true,
             "type": "library",
             "autoload": {
                 "files": [
@@ -2031,9 +2032,9 @@
             ],
             "support": {
                 "issues": "https://github.com/Firehed/container/issues",
-                "source": "https://github.com/Firehed/container/tree/1.1.0"
+                "source": "https://github.com/Firehed/container/tree/main"
             },
-            "time": "2026-06-10T00:00:27+00:00"
+            "time": "2026-06-24T23:25:04+00:00"
         },
         {
             "name": "giggsey/libphonenumber-for-php",
@@ -6597,6 +6598,7 @@
                 "reference": "0b98dedb2aa9c25d437d0a1b0473d2d83063a77e"
             },
             "require": {
+                "openemr/plugin-interfaces": "@dev",
                 "symfony/console": "^7"
             },
             "type": "openemr-plugin",
@@ -6625,7 +6627,8 @@
                 "reference": "56a821db45f13f4f4dfb6fc07bcc884da1da9d55"
             },
             "require": {
-                "composer-plugin-api": "^2.9"
+                "composer-plugin-api": "^2.9",
+                "openemr/plugin-interfaces": "@dev"
             },
             "require-dev": {
                 "composer/composer": "^2.10",
@@ -18617,6 +18620,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "firehed/container": 20,
         "openemr/plugin-example": 20,
         "openemr/plugin-installer": 20,
         "openemr/plugin-interfaces": 20,
