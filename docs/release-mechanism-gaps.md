@@ -627,7 +627,39 @@ rel-810 HEAD's version.php for `openemr_version_ref: rel-810`).
 ### Ship
 
 **P5. Merge the release-prep PR** (the one peter-evans opened in
-P3). On merge: finalize job creates the annotated `v8_1_1` tag from
+P3). Two paths:
+
+- **Recommended path: via `ship-release.yml`.** From any host with
+  gh: `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=8.1.1 -f rel_branch=rel-810`.
+  The orchestrator's preflight evaluates every unmerged target's
+  readiness, then merges in strict order (today: Infra → Conductor
+  → Docs; post-workstream-1: Conductor → Docs).
+- **Direct path:** simply merging the conductor PR
+  (`openemr:release-prep/rel-810`) in the GitHub UI fires the
+  conductor's `finalize` job, which mints the tag and dispatches
+  `openemr-tag` independently of ship-release.yml. Loses the
+  multi-PR-merge-ordering safety net but works if ship-release.yml
+  is itself blocked.
+
+⚠️ **Pre-ship blocker discovered 2026-06-24:** the current Infra PR
+slot (openemr-devops PR #760, `release-rotation/auto`) is frozen
+with pre-docker-migration content from 2026-06-10. Its diff edits
+paths now deleted on devops master:
+`docker/openemr/8.0.0/Dockerfile`, `docker/openemr/current`,
+`dependabot.yml` references to `docker/openemr/*` (all 404 on master
+today). `release-rotation.yml` runs successfully on every dispatch
+but skips force-push + PR-update because the diff against the
+already-rotated branch is empty — PR #760 stays frozen indefinitely.
+Shipping via `ship-release.yml` today would either (a) block on PR
+#760's unmergeable state or (b) silently undo the docker migration
+on merge. **Workstream 1 (migration doc, ~1 day) collapses
+ship-release to a 2-PR shape that eliminates the Infra slot
+entirely**, unblocking this ship path. After workstream 1, PR #760
+becomes a dangling OPEN PR — close manually as cosmetic cleanup.
+The "Direct path" above sidesteps the blocker but doesn't help if
+the docs PR needs to merge first per the merge-order rules.
+
+On merge: finalize job creates the annotated `v8_1_1` tag from
 the merge commit, dispatches `openemr-tag` to openemr-devops +
 website-openemr + demo_farm_openemr. `build-release-on-tag.yml`
 (in openemr-devops) consumes the dispatch, runs build-release.yml:
@@ -704,6 +736,10 @@ front of it — but that requires renaming `8_1_1-to-8_2_0` →
   validator alignment).
 - P5 must follow both P3 and P4 (release-prep PR can't merge until
   the docker-upgrade-machinery + version.php bump are all in place).
+- **P5 also blocked on workstream 1 of the release-mechanism migration
+  doc** (delete rotation slice + collapse ship-release to 2-PR shape)
+  — see the ⚠️ pre-ship blocker note above. Workstream 1 must land
+  before P5's `ship-release.yml` path will work cleanly.
 - P6, P7, P8 all post-P5.
 - P8's rename dance on master only matters if a next-minor bridge
   file is present on master at that time (currently is).
