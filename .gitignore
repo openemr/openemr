@@ -44,6 +44,7 @@ tmp-phpstan/*
 
 # easy dev worktree support
 .worktrees.json
+.worktrees.json.lock/
 docker/development-easy/docker-compose.override.yml
 docker/development-easy-light/docker-compose.override.yml
 docker/development-easy-redis/docker-compose.override.yml
