@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Modules;
+namespace OpenEMR\Plugins;
 
-interface CliModuleInterface extends ModuleInterface
+interface CliPluginInterface extends PluginInterface
 {
     /**
-     * Provide a list of `doctrine/console` commands that the module exposes.
+     * Provide a list of `doctrine/console` commands that the plugin exposes.
      * This must return the class names of the commands, not instantiated
      * objects.
      *

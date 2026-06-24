@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Modules\Activation;
+namespace OpenEMR\Plugins\Activation;
 
 class EnableAll implements StateProvider
 {

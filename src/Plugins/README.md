@@ -1,8 +1,8 @@
-# Modules Infrastructure
+# Plugins Infrastructure
 
-This contains the tooling for new modules. These are only available on the front-controller and cli paths.
+This contains the tooling for new plugins. These are only available on the front-controller and cli paths.
 
-New modules are:
+New plugins are:
 
 - Managed exclusively as external Composer packages
 - Only given access to a well-defined, relatively narrow set of interfaces, which *are* subject to SemVer
