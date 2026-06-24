@@ -96,20 +96,51 @@ optimization on top of release tooling that already lives in
 
 | # | Workstream | Where the code lives | Est. | Rationale |
 |---|---|---|---|---|
-| 1 | **Remove unused stuff in devops** | openemr-devops | ~1 day | Safe drop-in (rotation slice has zero live targets post-docker-migration). No critical-path overlap. Maps to the original Phase 1 PR 1a + 1b detailed below. |
-| 2 | **rel-820 cut readiness** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. |
+| 1 | **Remove unused stuff in devops** | openemr-devops | ~1 day | Required prerequisite for 8.1.1 ship (workstream 4). Originally framed as "safe drop-in cleanup" — re-classified 2026-06-24 after tracing the ship flow: the Infra PR slot (openemr-devops PR #760, `release-rotation/auto`) is frozen with pre-docker-migration content that would either block ship-release.yml's preflight or silently undo the docker migration on merge. Workstream 1 collapses ship-release to 2-PR shape, eliminating the Infra slot entirely. Maps to the original Phase 1 PR 1a + 1b detailed below. |
+| 2 | **rel-820 cut readiness** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen after the 8.1.1 ship. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. |
 | 3 | **Per-release-on-rel-branch optimization** | openemr/openemr (already) | ~3-4 days | Apply 8.1.1 learnings. P1-P4 (docker upgrade machinery, version.php bump, release-targets row bump) are 100% mechanical; build a release-cycle-bot script that takes `X.Y.Z` + rel branch and generates the prep PRs. Folds in G7 (rel-810 surgical conductor sync), G8 (regression tests on master + rel-810). Pays dividends every patch release going forward. **Not migration work** — release-prep tooling already in core. |
-| 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. Lessons feed back into workstream 6's design. Happens whenever 8.1.1 ships (week of 2026-06-23). |
+| 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. **Blocked by workstream 1** — see analysis below. Lessons feed back into workstream 6's design. |
 | 5 | **Automate demo farm derivation (G6)** | demo_farm_openemr | ~3-4 days | Cross-repo work — build automation in `demo_farm_openemr` that derives `ip_map_branch.txt` + `demoLibrary.source` from `openemr/openemr`'s `release-targets.yml` + per-rel-branch Dockerfile ARGs. Orthogonal to release-mechanism migration; can run in parallel with any other workstream. |
 | 6 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-5 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 6 entry (downgraded from blocking — see "Pre-Phase-1 architectural decision" section). Detailed phases in "Phased plan" section below cover the workstream-6 internals. |
 
 **Sequencing notes:**
 
-- **1 + 2 + 3 + 5 can run in parallel** (different repos / different
-  files / no critical-path overlap)
-- **4 happens whenever 8.1.1 ships** — calendar-driven, not blocked by
-  other workstreams
-- **6 (the actual migration) starts after 1-5 are well in hand**
+- **Workstream 1 is a hard prerequisite for workstream 4** (8.1.1 ship).
+  Discovered 2026-06-24 while tracing the ship flow end-to-end:
+  - `ship-release.yml`'s preflight (via `PullRequestTarget::forRelease()`
+    in `openemr-devops/tools/release/src/`) expects 3 PRs ready to merge:
+    Infra (`openemr-devops:release-rotation/auto`), Conductor
+    (`openemr:release-prep/rel-810`), Docs (`website-openemr:release-docs/8.1.1`).
+  - The current Infra PR #760 was last updated 2026-06-10 (10 days *before*
+    the docker migration completed). Its diff edits paths now deleted on
+    devops master: `docker/openemr/8.0.0/Dockerfile`, `docker/openemr/current`,
+    `dependabot.yml` references to `docker/openemr/*`. All return 404 on
+    devops master today.
+  - `release-rotation.yml` runs successfully on every dispatch but skips
+    `Force-push rotation branch` + `Open or update rotation PR` because
+    its diff is empty (the rotated state is already on the branch from
+    2026-06-10). PR #760 stays frozen indefinitely.
+  - Shipping 8.1.1 through current `ship-release.yml` would either: (a)
+    block preflight on PR #760's unmergeable state, or (b) merge PR #760
+    and silently resurrect the deleted docker/openemr/* tree.
+  - Workstream 1's PR 1a updates `PullRequestTarget::forRelease()` to
+    return 2 targets (Conductor + Docs only). After workstream 1,
+    `ship-release.yml` looks for only those two PRs; PR #760 becomes a
+    dangling ignored OPEN PR (cosmetic; close manually anytime).
+- **Workstreams 2, 3, 5 can run in parallel with each other** (different
+  repos / different files / no critical-path overlap)
+- **Workstream 4 (8.1.1 ship) unblocks the moment workstream 1 lands**
+  — happens whenever 8.1.1 is ready to go after that
+- **Workstream 6 (the actual migration) starts after 1-5 are well in hand**
+
+**Updated execution timeline:**
+
+1. Land workstream 1 (PR 1a coordinated with PR 1b — see Phase 1 detail
+   below). Close PR #760 as cosmetic cleanup after workstream 1 merges.
+2. 8.1.1 ships (workstream 4) — `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=8.1.1 -f rel_branch=rel-810`
+3. Workstreams 2, 3, 5 proceed in parallel after 8.1.1 ships (or alongside,
+   if appetite for concurrent work)
+4. Workstream 6 (actual migration) begins when 2/3/5 are stable
 
 This re-order has the load-bearing property that **most workstreams are
 not migration work** — they're net-new optimizations on tooling already in
