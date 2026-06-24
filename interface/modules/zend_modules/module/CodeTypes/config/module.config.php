@@ -18,6 +18,7 @@ use OpenEMR\ZendModules\CodeTypes\Listener\CodeTypeEventsSubscriber;
 return [
     'service_manager' => [
         'factories' => [
+            // @phpstan-ignore classConstant.deprecatedClass
             CodeTypeEventsSubscriber::class => InvokableFactory::class
         ]
     ]

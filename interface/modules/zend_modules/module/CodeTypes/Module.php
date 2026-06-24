@@ -41,6 +41,7 @@ class Module
         $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
 
         // now we can listen to our module events
+        // @phpstan-ignore classConstant.deprecatedClass
         $subscriber = $serviceManager->get(CodeTypeEventsSubscriber::class);
         $oemrDispatcher->addSubscriber($subscriber);
     }
