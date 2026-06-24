@@ -24,6 +24,7 @@ declare(strict_types=1);
 use Dotenv\Dotenv;
 use Firehed\Container\AutoDetect;
 use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Plugins\PluginManager;
 
 chdir(__DIR__);
 
@@ -44,8 +45,22 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
     Dotenv::createImmutable('.')->load();
 }
 
-// Set up and return the PSR-11 DI container
-$container = AutoDetect::instance('config');
+// Set up and return the PSR-11 DI container.
+// Since plugins can yield additional config files, we can't rely on pure
+// auto-detection.
+$builder = AutoDetect::getBuilder();
+// Start with the system-provided configs
+$builder->addDirectory('config');
+
+// Now load the plugins and layer in their configs.
+$pluginManager = PluginManager::fromConfig();
+$pluginConfigs = $pluginManager->getConfigFiles();
+
+foreach ($pluginConfigs as $pluginConfig) {
+    // TODO: conflict resolution? Library concern?
+    $builder->addFile($pluginConfig);
+}
+$container = $builder->build();
 
 $handler = $container->get(ErrorHandler::class);
 $handler->installErrorHandler(E_ALL);
