@@ -257,7 +257,7 @@ services:
         condition: service_healthy
   couchdb:
     restart: always
-    image: couchdb:3.5.2@sha256:3d084addff475d306e649594c0c160e15061288ea7cebf7aee7423201ccd1137
+    image: couchdb:3.5.2@sha256:e2f17b38f2f83bb3d0d1d68e0902477b21c697c062e97e7aabeff5f247b4c77a
     ports:
     - "${WT_COUCHDB_PORT:-5984}:5984"
     - "${WT_COUCHDB_SSL_PORT:-6984}:6984"
