@@ -95,6 +95,7 @@
         "openemr/mustache": "^2.15.2",
         "openemr/plugin-example": "@dev",
         "openemr/plugin-installer": "@dev",
+        "openemr/plugin-interfaces": "@dev",
         "paragonie/constant_time_encoding": "^3.1.3",
         "particle/validator": "^2.3.6",
         "pear/archive_tar": "^1.6.0",
@@ -162,6 +163,11 @@
         "symfony/panther": "^2.0"
     },
     "repositories": [
+        {
+            "name": "plugin-interfaces",
+            "type": "path",
+            "url": "../../openemr/plugin-interfaces"
+        },
         {
             "name": "plugin-example",
             "type": "path",

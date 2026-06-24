@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04dbfcc21bda267b7fdf4588939db693",
+    "content-hash": "422f64ffc88f838bd800613ef0c7d219",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -6622,7 +6622,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../openemr/plugin-installer",
-                "reference": "7ac483f3f74ad0c66de1072e28b0877f712d0720"
+                "reference": "56a821db45f13f4f4dfb6fc07bcc884da1da9d55"
             },
             "require": {
                 "composer-plugin-api": "^2.9"
@@ -6640,6 +6640,34 @@
             "autoload": {
                 "psr-4": {
                     "OpenEMR\\PluginInstaller\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpstan": [
+                    "phpstan analyze"
+                ]
+            },
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "openemr/plugin-interfaces",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../openemr/plugin-interfaces",
+                "reference": "118ea53859675c610765fd6297ffd253c73379c8"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.2",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "OpenEMR\\Plugin\\": "src/"
                 }
             },
             "scripts": {
@@ -18591,6 +18619,7 @@
     "stability-flags": {
         "openemr/plugin-example": 20,
         "openemr/plugin-installer": 20,
+        "openemr/plugin-interfaces": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,
