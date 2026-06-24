@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a8f65efa52a03945dbc1b1415682478",
+    "content-hash": "04dbfcc21bda267b7fdf4588939db693",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -6587,6 +6587,69 @@
                 "source": "https://github.com/openemr/oe-module-installer-plugin/tree/0.1.5"
             },
             "time": "2021-05-03T14:22:43+00:00"
+        },
+        {
+            "name": "openemr/plugin-example",
+            "version": "dev-example",
+            "dist": {
+                "type": "path",
+                "url": "../../openemr/plugin-example",
+                "reference": "0b98dedb2aa9c25d437d0a1b0473d2d83063a77e"
+            },
+            "require": {
+                "symfony/console": "^7"
+            },
+            "type": "openemr-plugin",
+            "extra": {
+                "openemr-plugin": {
+                    "bootstraps": [
+                        "OpenEMR\\PluginExample\\Bootstrap"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "OpenEMR\\PluginExample\\": "src/"
+                }
+            },
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "openemr/plugin-installer",
+            "version": "1.x-dev",
+            "dist": {
+                "type": "path",
+                "url": "../../openemr/plugin-installer",
+                "reference": "7ac483f3f74ad0c66de1072e28b0877f712d0720"
+            },
+            "require": {
+                "composer-plugin-api": "^2.9"
+            },
+            "require-dev": {
+                "composer/composer": "^2.10",
+                "phpstan/phpstan": "^2.2",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0"
+            },
+            "type": "composer-plugin",
+            "extra": {
+                "class": "OpenEMR\\PluginInstaller\\Installer"
+            },
+            "autoload": {
+                "psr-4": {
+                    "OpenEMR\\PluginInstaller\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpstan": [
+                    "phpstan analyze"
+                ]
+            },
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "paragonie/constant_time_encoding",
@@ -18526,6 +18589,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "openemr/plugin-example": 20,
+        "openemr/plugin-installer": 20,
         "roave/security-advisories": 20
     },
     "prefer-stable": false,
@@ -18603,5 +18668,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
