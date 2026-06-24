@@ -234,12 +234,16 @@ function pnVarCleanFromInput()
     $resarray = [];
     foreach (func_get_args() as $var) {
     // Get var
-        global ${$var};
-        if (empty($var)) {
+        if (empty($var) || !is_string($var)) {
             return;
         }
 
-        $ourvar = ${$var};
+        // Historically this read a global of the same name that a
+        // register_globals emulation (removed) populated from the request
+        // superglobals. Read the request directly instead.
+        $ourvar = filter_input(INPUT_GET, $var)
+            ?? filter_input(INPUT_POST, $var)
+            ?? filter_input(INPUT_COOKIE, $var);
         if (!isset($ourvar)) {
             array_push($resarray, null);
             continue;
