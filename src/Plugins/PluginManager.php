@@ -15,7 +15,25 @@ class PluginManager
 {
     public static function fromConfig(): self
     {
-        // This might also need to be a singleton?
+        /**
+         * This is a little unusual:
+         *
+         * Plugin management needs to happen _really_ early in the application
+         * lifecycle. Even before the main DI container is built, since plugins
+         * influence the contents of the container. Rather than trying to push
+         * more into an existing container after it's built, (fights the API,
+         * would have negative performance consequences), the manager instead
+         * gets its own little mini-container.
+         *
+         * Strictly speaking, this could be done inline just fine, but the env
+         * switching for the `Activation\StateProvider` would be silly to
+         * reinvent.
+         *
+         * Note: the environment must be configured properly prior to this
+         * running. In dev envs, this means dotenv should have run already.
+         */
+
+        // This might also need to be a singleton? The logic to determine
         $builder = AutoDetect::getBuilder(compiledOutputPath: 'vendor/compiledModuleContainer.php');
         $builder->addDirectory(__DIR__ . '/config');
         $container = $builder->build();
