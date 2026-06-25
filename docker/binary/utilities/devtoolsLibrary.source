@@ -674,12 +674,35 @@ importRandomPatients() {
         cd /root/synthea || exit
         wget https://github.com/synthetichealth/synthea/releases/download/master-branch-latest/synthea-with-dependencies.jar
     fi
-    rm -fr /root/synthea/output
-    cd /root/synthea || exit
-    java -jar synthea-with-dependencies.jar --exporter.fhir.export false --exporter.ccda.export true --generate.only_alive_patients true -p "$1"
+    # Synthea writes its output relative to cwd (./output/). The import
+    # step below runs as the apache user via run_php_as_apache (the
+    # RootCliGuard wrapper from #12267), and apache cannot traverse
+    # /root (mode 700, root-only) — so generating into /root/synthea/
+    # would leave the CCDA files unreadable to the importer and glob()
+    # would silently return zero matches. Generate into /tmp/synthea
+    # instead, which is 1777, while keeping the cached JAR in
+    # /root/synthea (apache never needs to touch it). Pass the JAR by
+    # absolute path so the cwd change is harmless.
+    mkdir -p /tmp/synthea
+    rm -fr /tmp/synthea/output
+    cd /tmp/synthea || { echo "FAIL: could not enter /tmp/synthea" >&2; return 1; }
+    if ! java -jar /root/synthea/synthea-with-dependencies.jar --exporter.fhir.export false --exporter.ccda.export true --generate.only_alive_patients true -p "$1"; then
+        echo "FAIL: synthea generation failed; aborting before import" >&2
+        return 1
+    fi
+    # Belt-and-suspenders: synthea may exit 0 without producing CCDA files
+    # in some edge cases. import_ccda.php treats an empty source directory
+    # as a no-op — silently logs "Finished patients import 0" and exits 0,
+    # which is the exact failure mode that hid the unreachable-/root bug
+    # before this fix. Guard explicitly so a future regression in synthea
+    # still fails the irp command loudly.
+    if [[ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null || true)" ]]; then
+        echo "FAIL: no CCDA files produced in /tmp/synthea/output/ccda; nothing to import" >&2
+        return 1
+    fi
     sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
     export OPENEMR_ENABLE_CCDA_IMPORT=1
-    run_php_as_apache /usr/local/bin/php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php --sourcePath=/root/synthea/output/ccda --site=default --openemrPath=/var/www/localhost/htdocs/openemr "--isDev=$2"
+    run_php_as_apache /usr/local/bin/php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php --sourcePath=/tmp/synthea/output/ccda --site=default --openemrPath=/var/www/localhost/htdocs/openemr "--isDev=$2"
     sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
     echo "Completed run for following number of random patients: ${1}"
 }
