@@ -10,7 +10,7 @@ the annotated release tag, which then drives the downstream PR in
 
 ## Role in the flow
 
-```
+```text
 openemr/openemr release-prep PR  ── merge → tag v8_1_0   ← this repo
             │                              │
             └── (push to rel-*) ───────────┴──→ website-openemr docs PR
