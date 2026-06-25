@@ -52,11 +52,9 @@ final class UdsSnapshotAssembler
      */
     public function pendingSections(): array
     {
+        // Income & FPL is rendered as its own (now interactive) card; only the
+        // not-yet-built sections remain generic pending placeholders.
         return [
-            new PendingSection(
-                'Income & Federal Poverty Level',
-                'Not yet recorded — income & FPL capture lands in step #15.',
-            ),
             new PendingSection(
                 'Special populations',
                 'None recorded — special-population capture lands in step #16.',

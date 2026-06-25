@@ -1,13 +1,16 @@
 {#
-  UDS Patient Snapshot (Step 2).
+  UDS Patient Snapshot (Steps 2–3).
 
-  Renders the essential UDS fields for the selected patient: reused demographics
-  shown as data, and the new UDS sections as pending empty-states until their
-  capture steps (#15–#17) land. Server-rendered shell + Web Component islands.
+  Reused demographics shown as data, an interactive Income & FPL card (#15),
+  and the remaining UDS sections as pending empty-states (#16–#17).
+  Server-rendered shell + Web Component islands.
 
   Context:
-    snapshot  — OpenEMR\FQHC\Snapshot\UdsSnapshot, or null when no patient is
-                selected / found.
+    snapshot       — OpenEMR\FQHC\Snapshot\UdsSnapshot, or null (no patient).
+    incomeSummary  — OpenEMR\FQHC\Income\IncomeSummary, or null.
+    incomeForm     — {householdSize, annualIncome, unknown} for form prefill.
+    guidelineLoaded — bool; false when the FPL reference table is unseeded.
+    csrfToken      — CSRF token for the income form.
 
   TwigContainer disables autoescaping, so values are escaped explicitly.
 
@@ -37,6 +40,42 @@
               label="{{ field.label|e('html_attr') }}"
               value="{{ (field.value ?? '')|e('html_attr') }}"></fqhc-field-row>
           {% endfor %}
+        </fqhc-card>
+
+        {# Interactive Income & FPL card (#15). #}
+        <fqhc-card heading="Income & Federal Poverty Level">
+          {% if incomeSummary and incomeSummary.recorded %}
+            <fqhc-field-row label="Household size" value="{{ (incomeSummary.householdSize ?? '')|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="Annual income" value="{{ (incomeSummary.annualIncomeDisplay ?? '')|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="% of FPL" value="{{ (incomeSummary.fplPercent is null ? '' : incomeSummary.fplPercent ~ '%')|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="UDS income band" value="{{ incomeSummary.bandLabel|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="Sliding-fee tier" value="{{ incomeSummary.tierLabel|e('html_attr') }}"></fqhc-field-row>
+          {% else %}
+            <fqhc-empty-state message="Not yet recorded — enter household size and annual income below."></fqhc-empty-state>
+          {% endif %}
+
+          {% if not guidelineLoaded %}
+            <p class="fqhc-note">FPL guidelines are not loaded yet — install/seed the FQHC module to compute the band.</p>
+          {% endif %}
+
+          <form class="fqhc-form" method="post" action="save_income.php">
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|e('html_attr') }}">
+            <label class="fqhc-field">
+              <span>Household size</span>
+              <input type="number" name="household_size" min="1" step="1"
+                     value="{{ (incomeForm.householdSize ?? '')|e('html_attr') }}">
+            </label>
+            <label class="fqhc-field">
+              <span>Annual household income</span>
+              <input type="number" name="annual_income" min="0" step="1"
+                     value="{{ (incomeForm.annualIncome ?? '')|e('html_attr') }}">
+            </label>
+            <label class="fqhc-check">
+              <input type="checkbox" name="income_unknown" value="1" {{ incomeForm.unknown ? 'checked' : '' }}>
+              <span>Income declined / unknown</span>
+            </label>
+            <button type="submit" class="fqhc-button">Save income</button>
+          </form>
         </fqhc-card>
 
         {% for section in snapshot.pending %}

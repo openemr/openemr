@@ -12,7 +12,7 @@ return [
     'name' => 'FQHC',
     'description' => 'UDS-oriented data capture and a modern, responsive, role-aware UI '
         . 'layered additively on the ONC-certified core.',
-    'version' => '0.1.0',
+    'version' => '0.2.0',
     'author' => 'OpenEMR FQHC project',
     'license' => 'GPL-3.0',
     'acl_category' => 'patients',
@@ -23,8 +23,11 @@ return [
         'openemr' => '>=7.0.0',
     ],
 
-    // Database tables created by this module (none yet — added in later steps)
-    'tables' => [],
+    // Database tables created by this module
+    'tables' => [
+        'fqhc_fpl_guideline',
+        'fqhc_patient_income',
+    ],
 
     // Menu items added by this module (also injected at runtime via MenuEvent)
     'menu' => [
