@@ -32,6 +32,8 @@ use OpenEMR\FQHC\Fpl\FplGuidelineRepository;
 use OpenEMR\FQHC\Fpl\FplRegion;
 use OpenEMR\FQHC\Income\IncomeSummaryFactory;
 use OpenEMR\FQHC\Income\PatientIncomeRepository;
+use OpenEMR\FQHC\Payer\PatientPayerRepository;
+use OpenEMR\FQHC\Payer\UdsPayerSummaryFactory;
 use OpenEMR\FQHC\Snapshot\PatientDemographicsRepository;
 use OpenEMR\FQHC\Snapshot\UdsSnapshotAssembler;
 use OpenEMR\FQHC\SpecialPopulation\PatientSpecialPopulationRepository;
@@ -92,12 +94,18 @@ foreach (SpecialPopulation::cases() as $population) {
     $subtypeGroups[] = ['label' => $population->label(), 'options' => $grouped];
 }
 
+// Insurance → UDS payer category (#17). Derived from the patient's existing
+// primary insurance; no new data capture.
+$primaryInsurance = (new PatientPayerRepository())->findPrimaryByPid($pid);
+$payerSummary = (new UdsPayerSummaryFactory())->create($primaryInsurance);
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $content = (new TwigContainer(__DIR__ . '/../templates', $globals->getKernel()))
     ->getTwig()
     ->render('fqhc/snapshot.html.twig', [
         'snapshot' => $snapshot,
+        'payerSummary' => $payerSummary,
         'incomeSummary' => $incomeSummary,
         'incomeForm' => [
             'householdSize' => $income?->householdSize,

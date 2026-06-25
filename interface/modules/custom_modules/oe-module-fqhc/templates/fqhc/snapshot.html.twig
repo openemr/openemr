@@ -130,6 +130,25 @@
           </form>
         </fqhc-card>
 
+        {# Insurance → UDS payer category (#17), derived from existing coverage. #}
+        <fqhc-card heading="Insurance (UDS payer category)">
+          <div class="fqhc-cluster" style="margin-bottom: var(--fqhc-space-2);">
+            {% if not payerSummary.hasCoverage %}
+              <fqhc-status-badge variant="warning">{{ payerSummary.categoryLabel|e('html') }}</fqhc-status-badge>
+            {% elseif payerSummary.classified %}
+              <fqhc-status-badge variant="success">{{ payerSummary.categoryLabel|e('html') }}</fqhc-status-badge>
+            {% else %}
+              <fqhc-status-badge variant="danger">{{ payerSummary.categoryLabel|e('html') }}</fqhc-status-badge>
+            {% endif %}
+          </div>
+          {% if payerSummary.planName %}
+            <fqhc-field-row label="Plan on file" value="{{ payerSummary.planName|e('html_attr') }}"></fqhc-field-row>
+          {% endif %}
+          {% if payerSummary.hasCoverage and not payerSummary.classified %}
+            <p class="fqhc-note">This payer type isn't mapped to a UDS category yet — set the insurance company's type, or configure a payer mapping.</p>
+          {% endif %}
+        </fqhc-card>
+
         {% for section in snapshot.pending %}
           <fqhc-card heading="{{ section.title|e('html_attr') }}">
             <fqhc-empty-state message="{{ section.message|e('html_attr') }}"></fqhc-empty-state>

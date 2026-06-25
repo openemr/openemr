@@ -63,24 +63,19 @@ final class UdsSnapshotAssemblerTest extends TestCase
         self::assertFalse($field->isRecorded());
     }
 
-    public function testPendingSectionsCoverTheRemainingNewAreas(): void
+    public function testNoGenericPendingSectionsRemain(): void
     {
-        $titles = array_map(
-            static fn($section): string => $section->title,
-            $this->assembler->pendingSections(),
-        );
-
-        // Income/FPL and Special populations are now their own interactive cards.
-        self::assertSame(['Insurance (UDS payer category)'], $titles);
+        // Every essential UDS section now has its own dedicated card.
+        self::assertSame([], $this->assembler->pendingSections());
     }
 
-    public function testAssembleCarriesPatientNameAndBothSections(): void
+    public function testAssembleCarriesPatientNameAndDemographics(): void
     {
         $snapshot = $this->assembler->assemble($this->fullDemographics());
 
         self::assertSame('Jane Doe', $snapshot->patientName);
         self::assertCount(5, $snapshot->demographics);
-        self::assertCount(1, $snapshot->pending);
+        self::assertCount(0, $snapshot->pending);
     }
 
     private function fullDemographics(): PatientDemographics

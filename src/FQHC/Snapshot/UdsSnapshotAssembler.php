@@ -52,15 +52,9 @@ final class UdsSnapshotAssembler
      */
     public function pendingSections(): array
     {
-        // Income & FPL and Special populations are rendered as their own
-        // interactive cards; only the not-yet-built sections remain generic
-        // pending placeholders.
-        return [
-            new PendingSection(
-                'Insurance (UDS payer category)',
-                'Not yet classified — UDS payer mapping lands in step #17.',
-            ),
-        ];
+        // Every essential UDS section now has its own dedicated card on the
+        // Snapshot, so there are no generic pending placeholders left.
+        return [];
     }
 
     /**
