@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace OpenEMR\Plugins;
 
 use Firehed\Container\AutoDetect;
+use OpenEMR\Plugin\ApiPluginInterface;
 use OpenEMR\Plugin\CliPluginInterface;
 use OpenEMR\Plugin\DatabasePluginInterface;
 use OpenEMR\PluginInstaller\GeneratedInstalledPlugins;
 use OpenEMR\PluginInstaller\Plugin;
 use Psr\Container\ContainerInterface;
+use Slim\App;
 use Symfony\Component\Console\Application;
 
 class PluginManager
@@ -93,6 +95,9 @@ class PluginManager
         }
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getMigrationsPaths(): array
     {
         $out = [];
@@ -107,5 +112,21 @@ class PluginManager
             }
         }
         return $out;
+    }
+
+    /**
+     * @param App<\Psr\Container\ContainerInterface|null> $app
+     */
+    public function addRoutes(App $app): void
+    {
+        foreach ($this->getActivePlugins() as $plugin) {
+            foreach ($plugin->bootstrapClasses as $bootstrap) {
+                if (!is_a($bootstrap, ApiPluginInterface::class, allow_string: true)) {
+                    continue;
+                }
+                // Future: we may add namespacing to de-risk plugin collisions
+                $app->group('', fn () => $bootstrap::registerRoutes($app));
+            }
+        }
     }
 }

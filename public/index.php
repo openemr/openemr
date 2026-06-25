@@ -13,7 +13,14 @@ declare(strict_types=1);
 use Firehed\Container\TypedContainerInterface;
 use GuzzleHttp\Psr7\ServerRequest;
 use OpenEMR\BC\FallbackRouter;
+use OpenEMR\Plugins\PluginManager;
 use Psr\Log\LoggerInterface;
+
+// Guard against non-web requests
+if (PHP_SAPI === 'cli') {
+    fwrite(STDERR, 'This is the web front-controller. Are you trying to use the built-in webserver? Try `php -S 127.0.0.1:12345 public/index.php`.');
+    exit(1);
+}
 
 $container = require_once __DIR__ . '/../bootstrap.php';
 if (!$container instanceof TypedContainerInterface) {
@@ -22,23 +29,21 @@ if (!$container instanceof TypedContainerInterface) {
 
 $request = ServerRequest::fromGlobals();
 
-// Guard against non-web requests, e.g. PHP_SAPI === 'cli'?
-
 const FRONT_CONTROLLER_USED = true;
 
 $logger = $container->get(LoggerInterface::class);
 $logger->debug('Request routed through front-controller');
 
-// Future scope: Put a router ahead of the fallback routing; any well-formed
-// new routes will be executed without touching the existing systems. Such new
-// routes must rely only on modern conventions (DI, no reliance on globals,
-// etc).
-// primaryRouter = $container->get(Router::class)
-// if router would 404/405, fall back to below?
+// Try the API router first, which handles plugins.
+// Note that this is not fetched from the DI container due to specific needs of
+// PluginManager (see its ::fromConfig() details).
+if ($response = new OpenEMR\Api\Router($container, PluginManager::fromConfig())->route($request)) {
+    new Slim\ResponseEmitter()->emit($response);
+    exit(0);
+}
+unset($response); // It's null, but just for variable scope.
 
-// Future: Plugin routes (assumes Slim as router, adjust as needed)
-// PluginManager::fromConfig()->addRoutes($slim, $container)
-
+// Fall back to legacy routing
 $router = $container->get(FallbackRouter::class);
 $fileToInclude = $router->performLegacyRouting($request);
 if ($fileToInclude === null) {
