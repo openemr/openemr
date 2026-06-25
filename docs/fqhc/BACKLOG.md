@@ -22,6 +22,17 @@
 | TASK-0.4 UDS data-element specs | [#11](https://github.com/Simonparkershames/openemr-fqhc/issues/11) |
 | TASK-0.5 Design-system foundation decision | [#12](https://github.com/Simonparkershames/openemr-fqhc/issues/12) |
 
+### UX-first starter pathway (chosen first path — see [`STARTER-PATHWAY.md`](./STARTER-PATHWAY.md))
+
+| Step | Issue |
+|------|-------|
+| Pathway epic — first milestone (essential UDS fields in a modern UI) | [#13](https://github.com/Simonparkershames/openemr-fqhc/issues/13) |
+| Step 1 — host shell + minimal design system | [#10](https://github.com/Simonparkershames/openemr-fqhc/issues/10) + [#12](https://github.com/Simonparkershames/openemr-fqhc/issues/12) |
+| Step 2 — UDS Patient Snapshot (read-only) | [#14](https://github.com/Simonparkershames/openemr-fqhc/issues/14) |
+| Step 3 — capture income & FPL band | [#15](https://github.com/Simonparkershames/openemr-fqhc/issues/15) |
+| Step 4 — capture special-population statuses | [#16](https://github.com/Simonparkershames/openemr-fqhc/issues/16) |
+| Step 5 — surface insurance as UDS payer category | [#17](https://github.com/Simonparkershames/openemr-fqhc/issues/17) |
+
 ---
 
 ## EPIC-0 — [Program] OpenEMR for FQHCs — UDS compliance + modern UX, certification-safe
