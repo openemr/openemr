@@ -77,6 +77,9 @@ class PluginManager
 
     public function addCommands(Application $cli, ContainerInterface $container): void
     {
+        // TODO: clean this up. Provides type safety for the container read
+        // passed to addCommand.
+        assert($container instanceof \Firehed\Container\TypedContainerInterface);
         // TODO: Figure out how to make these lazy-loaded
         foreach ($this->getActivePlugins() as $plugin) {
             foreach ($plugin->bootstrapClasses as $bootstrap) {
