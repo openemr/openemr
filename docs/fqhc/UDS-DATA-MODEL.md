@@ -20,6 +20,32 @@ schema.
 > this project does **not** add SOGI as a new UDS requirement (OpenEMR already
 > has the fields if a center wants them locally).
 
+### 2026 Proposed PAL changes applied to this spec
+
+Source: **HRSA PAL 2025-05, "Proposed UDS Changes for CY 2026"** (reported Feb
+2027) — stored at
+[`reference/UDS-PAL-2025-05-CY2026-proposed-changes.pdf`](./reference/UDS-PAL-2025-05-CY2026-proposed-changes.pdf).
+These are *proposed*; confirm against the final 2026 UDS Manual. The changes
+that affect our data model:
+
+- **Table 4 managed-care member months (Lines 13a–13c) are REMOVED.** → We do
+  **not** build member-months computation (was previously listed; struck below).
+- **"Enabling Services" → "Patient Support Services"** across Tables 5/6A/8A,
+  with personnel lines reordered/renamed. Use the new name everywhere.
+- **Table 6A** new measures: **Type 1 Diabetes** (9a), **Intellectual &
+  Developmental Disabilities** (20g), **Autism Spectrum Disorder screening**
+  (26g), **Patient Support Services** counts (case management, eligibility
+  assistance, transportation, language assistance — Lines 35–38), and
+  **Health-Related Needs / SDOH** screened-and-received (Lines 39–42, elevated
+  from Appendix D). Removals: COVID lines, abnormal breast/cervical findings,
+  contact dermatitis, mammogram, pap, sealants, oral surgery, rehab.
+  "Health supervision of infant/child" → **"Well Child Visit."**
+- **Table 6B** Dental Sealants measure replaced with **Sealant Receipt on
+  Permanent First Molars (SFM-CH)**.
+- **Tables 6B & 7** realign to specific **2026 CMS eCQM versions** — see §3.
+- Financial tables (8A/9D/9E) shift to **accrual basis** with many line
+  consolidations — still out of scope for the EHR (§6).
+
 ---
 
 ## 1. What OpenEMR already has vs. what UDS needs
@@ -34,7 +60,7 @@ schema.
 | Income as % FPL (Table 4) | — none — | **NEW**: household size + income + versioned FPL table → computed band |
 | Sliding-fee discount tier | partial (`sliding_fee`/fee schedules exist but not FPL-driven) | **NEW**: derive from FPL %, store with effective date |
 | Principal medical insurance, UDS categories (Table 4) | `insurance_data` (payer + type) | **NEW mapping** to UDS buckets + "from last visit" logic |
-| Managed care member months (Table 4) | coverage dates in `insurance_data` | **NEW computation** |
+| ~~Managed care member months (Table 4)~~ | — | **Dropped — removed from Table 4 in CY2026** |
 | Agricultural worker — migratory/seasonal (Table 4) | — none — | **NEW** structured status |
 | Homeless + homeless type (Table 4) | — none — | **NEW** structured status |
 | Resident of public housing (Table 4, line 26) | — none — | **NEW** structured status |
@@ -144,8 +170,10 @@ dropped.
 UDS Table 4 reports **principal third-party medical insurance** in fixed
 categories, generally split by age (under 18 / 18 and older):
 **None/Uninsured, Medicaid (incl. CHIP where applicable), Medicare, Other
-Public (incl. non-Medicaid CHIP), Private.** Plus **managed care member
-months**.
+Public (incl. non-Medicaid CHIP), Private.**
+
+> **2026 change:** managed-care **member months** (old Lines 13a–13c) are
+> removed — do not build that computation.
 
 OpenEMR has `insurance_data` (payer, plan, coverage dates, type) but does not
 classify to UDS buckets. Work:
@@ -154,8 +182,6 @@ classify to UDS buckets. Work:
 - "**Principal insurance from the last visit in the year**" selection logic —
   report by the coverage in effect at the patient's last visit, *even if that
   visit wasn't billed*.
-- **Managed care member months**: compute from coverage spans within the
-  reporting year by payer category.
 
 No new patient table needed — this is a **reporting-time classifier** plus a
 small config/mapping table (`fqhc_payer_uds_map`).
@@ -163,15 +189,20 @@ small config/mapping table (`fqhc_payer_uds_map`).
 ### 2.5 Service / visit classification (utilization, Tables 5 & 6A)
 
 Table 5 needs visits and patients by **service type**: medical, dental, mental
-health, substance use disorder, vision, **enabling services**, pharmacy, and
-other professional services — with provider **FTEs** by personnel type.
+health, substance use disorder, vision, **patient support services**, pharmacy,
+and other professional services — with provider **FTEs** by personnel type.
 
 - Map OpenEMR encounter categories / provider specialties → a
   `UdsServiceLine` enum (config-backed mapping).
-- **Enabling services** (case management, eligibility assistance,
-  transportation, interpretation, outreach, health education) are frequently
-  *not* modeled as countable encounters today → define an enabling-services
-  encounter/visit type so they're captured and counted.
+- **Patient Support Services** (renamed from "Enabling Services" in CY2026 —
+  case management, eligibility assistance, transportation, language assistance,
+  outreach, health education, community health workers) are frequently *not*
+  modeled as countable encounters today → define a patient-support-services
+  encounter/visit type so they're captured and counted. **CY2026 also adds
+  patient-count measures for these on Table 6A (Lines 35–38)**, so capturing
+  them structurally now serves both tables.
+- **Health-Related Needs / SDOH** screening + services move into core Table 6A
+  (Lines 39–42). OpenEMR's SDOH/screening forms feed these — plan the mapping.
 - **FTE / personnel-type** config per user/facility for the staffing lines
   (Table 5 / 5A tenure) — a new config surface, low complexity but new.
 
@@ -185,22 +216,38 @@ clinical measures are the same underlying eCQMs. The work is a **UDS measure
 map** (UDS line ↔ eCQM/CMS id ↔ value sets) plus packaging into the report,
 not a new measure engine.
 
-Representative measures to map (validate the exact set + specs against the 2026
-manual):
+**CY2026 eCQM versions (from PAL 2025-05, aligned to the CMS eCQMs designated
+for the 2026 reporting period).** Map each UDS line to the OpenEMR CQM/AMC
+ruleset for the stated CMS id/version:
 
-- **Table 6B (process):** childhood immunization status; cervical cancer
-  screening; colorectal cancer screening; breast cancer screening; weight
-  assessment & counseling (child/adolescent BMI); adult weight screening &
-  follow-up; tobacco use screening & cessation; depression screening &
-  follow-up; dental sealants; HIV screening; screening for social drivers of
-  health (SDOH).
-- **Table 7 (outcomes/disparities):** controlling high blood pressure;
-  diabetes HbA1c poor control (>9%); early entry into prenatal care (first
-  trimester); low birth weight; HIV linkage to care.
+| UDS clinical measure | CMS eCQM (2026) |
+|----------------------|-----------------|
+| Childhood Immunization Status | CMS117v14 |
+| Cervical Cancer Screening | CMS124v14 |
+| Breast Cancer Screening | CMS125v14 |
+| Weight Assessment & Counseling, Children/Adolescents | CMS155v14 |
+| Preventive Care & BMI Screening and Follow-Up | CMS69v14 |
+| Tobacco Use: Screening & Cessation | CMS138v14 |
+| Statin Therapy for CVD Prevention/Treatment | CMS347v9 |
+| Colorectal Cancer Screening | CMS130v14 |
+| HIV Screening | CMS349v8 |
+| Depression Screening & Follow-Up | CMS2v15 |
+| Depression Remission at Twelve Months | CMS159v15 |
+| Initiation & Engagement of SUD Treatment | CMS137v14 |
+| Controlling High Blood Pressure | CMS165v14 |
+| Diabetes: Glycemic Status Assessment > 9% | CMS122v14 |
+
+Plus **Table 6B Dental Sealants → Sealant Receipt on Permanent First Molars
+(SFM-CH)** (replaces the 6–9 year sealants measure), and **Table 7** outcomes
+(controlling high blood pressure and diabetes glycemic status above feed Table
+7; early entry into prenatal care and low birth weight are reported from
+clinical/birth data).
 
 Each mapped measure needs: numerator/denominator/exclusion definitions tied to
-the engine, the UDS age stratifications, and the disparity stratifications
-(by race/ethnicity/sex/special-population) that Table 7 requires.
+the engine at the **stated CMS version**, the UDS age stratifications, and the
+disparity stratifications (by race/ethnicity/sex/special-population) that Table
+7 requires. Treat the value-set/measure version as data so the annual eCQM
+bump is a config change, not a code change.
 
 ---
 

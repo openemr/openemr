@@ -51,7 +51,9 @@ project closes those gaps.
 | [`UDS-DATA-MODEL.md`](./UDS-DATA-MODEL.md) | **The concrete OpenEMR changes for UDS** — field specs, proposed schema, FHIR/UDS+ notes. |
 | [`UX-MODERNIZATION.md`](./UX-MODERNIZATION.md) | Design system, role-based interfaces, and responsive strategy. |
 | [`ROADMAP.md`](./ROADMAP.md) | Phased plan: immediate next steps and longer-term deliverables. |
-| [`BACKLOG.md`](./BACKLOG.md) | Import-ready issue set (program epic, workstream epics, Phase 0 next steps). |
+| [`STARTER-PATHWAY.md`](./STARTER-PATHWAY.md) | **Start here** — the UX-first path to seeing essential UDS fields in a modern UI. |
+| [`BACKLOG.md`](./BACKLOG.md) | The filed issue set and its mapping. |
+| [`reference/`](./reference/) | Source documents (e.g. the CY2026 UDS Proposed PAL). |
 
 ## How this maps to GitHub issues
 

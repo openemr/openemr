@@ -93,35 +93,30 @@ Broaden coverage and harden.
 - **Performance budgets** met on common workflows on real clinic hardware.
 - WCAG 2.1 AA accessibility and strong multilingual support across new UI.
 
-## Where to start — picking the next ticket (solo-dev guide)
+## Where to start — the UX-first starter pathway (chosen approach)
 
 This project is built mostly by **one developer pairing with an AI assistant**,
-so the sequencing favors small, shippable, independently-verifiable slices over
-big parallel workstreams. Use this quick decision guide each time you sit down:
+and we are starting **UX-first**: the first goal is to *see the essential
+UDS-required fields in a good-looking, responsive screen*, then make them
+editable, and grow the data/reporting behind that.
 
-1. **Is the foundation in place?** If [#10 `OpenEMR\FQHC` module
-   skeleton](https://github.com/Simonparkershames/openemr-fqhc/issues/10) isn't
-   done, **do it first.** Everything else installs into that module, and it
-   proves the certification-safe extension pattern end to end. This is the
-   single best *first build*.
-2. **Want guardrails before you write features?** [#8 CI certification
-   gate](https://github.com/Simonparkershames/openemr-fqhc/issues/8) is cheap,
-   mostly-config, and means you can refactor fearlessly afterward. Good to pair
-   with #10.
-3. **Ready for the first real feature?** Start the UDS data capture as the
-   **smallest vertical slice first**: the FPL foundation (guideline data +
-   income side table + computation service, no UI), per the slice list in
-   [`UDS-DATA-MODEL.md`](./UDS-DATA-MODEL.md) §7. It's pure domain logic, fully
-   unit-testable without the UI, and unblocks the income/SFDP intake screen
-   next.
-4. **Blocked or it's a "thinking" day?** Do the spec work —
-   [#11 UDS data-element specs](https://github.com/Simonparkershames/openemr-fqhc/issues/11)
-   or [#12 design-system decision](https://github.com/Simonparkershames/openemr-fqhc/issues/12).
-   Both are low-code and unblock larger builds.
+**Follow [`STARTER-PATHWAY.md`](./STARTER-PATHWAY.md)** (tracked as pathway epic
+**#13**). The ordered steps:
 
-**Recommended path for the first few sessions:** #10 → #8 → FPL foundation
-slice (#4/#11) → income/FPL intake UI → special-population statuses. Each lands
-green and demoable on its own.
+1. **Host shell + minimal design system** (builds #10 + #12) — a modern,
+   responsive FQHC page exists.
+2. **UDS Patient Snapshot, read-only** (#14) — open a patient, see all the
+   essential UDS fields laid out beautifully; new fields show as empty-states.
+3. **Capture income & FPL band** (#15) — editable income card, live FPL band +
+   sliding-fee tier.
+4. **Capture special-population statuses** (#16).
+5. **Surface insurance as UDS payer category** (#17).
+
+After Step 5 you can open any patient and **see and edit every essential
+UDS-required field** in a modern responsive UI — the first milestone.
+
+Guardrail [#8 CI certification gate](https://github.com/Simonparkershames/openemr-fqhc/issues/8)
+is worth enabling early, in parallel; it does not block the pathway.
 
 **Heuristics for "is this the right next ticket?"**
 - Prefer tickets that are **unblocked**, **small enough to finish in a session**,
@@ -132,9 +127,8 @@ green and demoable on its own.
 - Keep the certification suite green at every step; never start a slice you
   can't finish behind a feature flag.
 
-The issues carry `Phase 0` framing and parent/child links so the next step is
-visible without a project board. When in doubt, ask the assistant to "pick the
-next ticket" — it can apply the rules above against the open issues.
+When in doubt, ask the assistant to "pick the next ticket" — it can apply these
+rules against the open issues and the pathway order.
 
 ## How we track progress
 
