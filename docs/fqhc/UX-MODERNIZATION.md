@@ -36,6 +36,19 @@ screen, rather than rewriting the shell.
    certified pages to render, and must be server-rendering-friendly for
    performance. This choice is an explicit, documented decision (see the
    "Design system foundation" issue) before broad rollout.
+
+   **Decision (recommended) — Web Components islands.** Server-rendered Twig
+   page shells (inheriting OpenEMR's certified routing, ACL, and session) with
+   self-contained **Web Component** widgets for interactive cards. Rationale:
+   delivers a modern, app-like feel; coexists with the legacy Angular/jQuery
+   shell without touching it; needs **no SPA build or framework runtime** for a
+   solo developer to maintain; and **Shadow DOM style encapsulation** keeps the
+   design system isolated from legacy CSS in both directions. A React/Vue island
+   is more tooling than the early screens justify; plain server-rendered
+   Bootstrap is simplest but falls short of the target feel for live
+   interactions (e.g. the FPL calculator). Tokens are authored as CSS custom
+   properties so they work in both the shell and inside Shadow DOM. Revisit only
+   if a screen genuinely needs SPA-grade state.
 3. **Adopt per surface, highest-traffic first.** Reskin and re-flow the
    screens clinicians and front-desk staff touch dozens of times a day before
    the long tail of admin screens. Each adopted screen gets responsive layout,
