@@ -1,0 +1,8 @@
+-- FQHC module — install SQL
+--
+-- No tables yet. The UDS data-capture side tables (income/FPL, special
+-- populations, payer map) are introduced in later pathway steps (#15–#17) as
+-- their own migrations. This file exists so the module installer has a
+-- well-formed, no-op install hook for Step 1.
+--
+-- @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
