@@ -115,6 +115,7 @@
         "ringcentral/ringcentral-php": "^3.0.4",
         "robthree/twofactorauth": "^3.0.2",
         "rospdf/pdf-php": "^0.12.67",
+        "slim/slim": "^4.15",
         "smarty/smarty": "^4.5.6",
         "steverhoades/oauth2-openid-connect-server": "^3.0.1",
         "stripe/stripe-php": "^16.6.0",
