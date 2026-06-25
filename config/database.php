@@ -71,7 +71,6 @@ return [
     },
 
     // Doctrine Migrations
-    // ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
     ConfigurationLoader::class => fn () => new ConfigurationArray([
         'custom_template' => 'db/migration-template.php.tpl',
         'migrations_paths' => [
