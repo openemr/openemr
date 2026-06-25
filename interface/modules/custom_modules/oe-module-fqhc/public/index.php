@@ -18,10 +18,10 @@
 require_once __DIR__ . '/../../../../globals.php';
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FQHC\DesignSystem\DesignSystemAssets;
-use OpenEMR\Common\Twig\TwigContainer;
 
 if (!AclMain::aclCheckCore('patients', 'demo')) {
     echo xlt('Access denied');
