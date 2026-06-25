@@ -63,6 +63,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\Enums {
     final class ServiceTypeTest extends TestCase
     {
         /**
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         *
          * @return array<string, array{mixed, ServiceType}>
          */
         public static function fromValueProvider(): array
@@ -92,6 +94,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\Enums {
          * Unrecognized input must degrade to DISABLED, never throw - setup and
          * dispatch pass through whatever is stored/requested.
          *
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         *
          * @return array<string, array{mixed}>
          */
         public static function unrecognizedProvider(): array
@@ -120,6 +124,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\Enums {
         }
 
         /**
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         *
          * @return list<array{ServiceType, string}>
          */
         public static function vendorKeyProvider(): array
@@ -143,6 +149,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\Enums {
         }
 
         /**
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         *
          * @return array<string, array{string, list<ServiceType>}>
          */
         public static function channelProvider(): array
@@ -166,6 +174,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\Enums {
         }
 
         /**
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         *
          * @return list<array{ServiceType, string}>
          */
         public static function displayNameProvider(): array

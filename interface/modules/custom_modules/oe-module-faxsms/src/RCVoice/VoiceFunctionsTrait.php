@@ -181,7 +181,7 @@ trait VoiceFunctionsTrait
             // Create webhook
             $response = $this->createSubscription();
         } catch (\Throwable $e) {
-            error_log("Installation failed: " . $e->getMessage());
+            \OpenEMR\BC\ServiceContainer::getLogger()->error('Voice webhook registration failed', ['exception' => $e]);
             $response = ['status' => 'ERROR', 'msg' => xlt('Webhook registration failed. See server log.')];
         }
         return  json_encode($response);
@@ -198,6 +198,33 @@ trait VoiceFunctionsTrait
      */
     private function getOrCreateWebhookSecret(): string
     {
+        $existing = $this->loadWebhookSecret();
+        if ($existing !== '') {
+            return $existing;
+        }
+
+        $secret = bin2hex(random_bytes(32));
+        $content = $this->crypto->encryptStandard((string)json_encode(['secret' => $secret]));
+        // Insert without overwriting a row a concurrent install() may have just
+        // written; the no-op UPDATE keeps the existing (already-registered) secret.
+        sqlQuery(
+            "INSERT INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`)
+             VALUES (0, ?, ?)
+             ON DUPLICATE KEY UPDATE `updated` = `updated`",
+            ['_voice_webhook', $content]
+        );
+
+        // Read back the persisted secret (ours, or the winner of a race).
+        $stored = $this->loadWebhookSecret();
+
+        return $stored !== '' ? $stored : $secret;
+    }
+
+    /**
+     * Read and decrypt the persisted webhook secret, or '' when absent/undecryptable.
+     */
+    private function loadWebhookSecret(): string
+    {
         $row = sqlQuery(
             "SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
             ['_voice_webhook']
@@ -210,16 +237,7 @@ trait VoiceFunctionsTrait
             }
         }
 
-        $secret = bin2hex(random_bytes(32));
-        $content = $this->crypto->encryptStandard((string)json_encode(['secret' => $secret]));
-        sqlQuery(
-            "INSERT INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`)
-             VALUES (0, ?, ?)
-             ON DUPLICATE KEY UPDATE `credentials` = ?, `updated` = NOW()",
-            ['_voice_webhook', $content, $content]
-        );
-
-        return $secret;
+        return '';
     }
 
     protected function getWebhookUrl(string $token): string
@@ -598,3 +616,6 @@ trait VoiceFunctionsTrait
         return json_encode($result);
     }
 }
+
+
+

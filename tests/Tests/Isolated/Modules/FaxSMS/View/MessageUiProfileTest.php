@@ -81,6 +81,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\View {
     final class MessageUiProfileTest extends TestCase
     {
         /**
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+         *
          * @return array<string, array{ServiceType, string, list<string>}>
          */
         public static function tabKeyProvider(): array
@@ -113,6 +115,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\View {
         /**
          * The per-vendor column counts are exactly what the old branches +
          * hide-classes produced. These are the values most likely to drift.
+         *
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
          *
          * @return array<string, array{ServiceType, string, string, int}>
          */
@@ -150,6 +154,8 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\View {
          * The Fax Drop Box (dropzone) is fax-only; sms/email never get it, and
          * where present it is a dropzone (no table) with the id messageUI.js
          * targets.
+         *
+         * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
          *
          * @return array<string, array{ServiceType, string, bool}>
          */
@@ -201,7 +207,7 @@ namespace OpenEMR\Tests\Isolated\Modules\FaxSMS\View {
 
         public function testReceivedRefreshesAndPanesCarryAnId(): void
         {
-            foreach (self::tabKeyProvider() as [$service, $channel, $keys]) {
+            foreach (self::tabKeyProvider() as [$service, $channel]) {
                 $tabs = MessageUiProfile::tabs($service, $channel);
 
                 self::assertNotEmpty($tabs['received']['refresh'], 'received tab should wire a refresh');

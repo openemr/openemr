@@ -166,7 +166,8 @@ $site_id = $session->get('site_id');
                             $faxsmsRefresh = is_string($faxsmsTab['refresh'] ?? null) ? $faxsmsTab['refresh'] : '';
                             ?>
                             <li class="nav-item" role="tab">
-                                <a class="nav-link<?php echo $faxsmsFirstTab ? ' active' : ''; ?>" href="#<?php echo attr($faxsmsId); ?>" aria-controls="<?php echo attr($faxsmsId); ?>" role="tab" data-toggle="tab"><?php echo $faxsmsLabel; ?>
+                                <a class="nav-link<?php echo $faxsmsFirstTab ? ' active' : ''; ?>" href="#<?php echo attr($faxsmsId); ?>" aria-controls="<?php echo attr($faxsmsId); ?>" role="tab" data-toggle="tab"><?php echo $faxsmsLabel; // nosemgrep: echoed-request -- xlt()-escaped nav label from MessageUiProfile, not request input
+                                ?>
                                     <?php if ($faxsmsRefresh !== '') { ?>
                                         <span class="fa fa-redo ml-1" onclick="<?php echo attr($faxsmsRefresh); ?>"
                                             title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.'); ?>"></span>
@@ -208,9 +209,9 @@ $site_id = $session->get('site_id');
                                             <tr>
                                                 <?php foreach ($faxsmsCols as $faxsmsCol) {
                                                     if (is_array($faxsmsCol) && isset($faxsmsCol['raw'])) {
-                                                        echo is_string($faxsmsCol['raw']) ? $faxsmsCol['raw'] : '';
+                                                        echo is_string($faxsmsCol['raw']) ? $faxsmsCol['raw'] : ''; // nosemgrep: echoed-request -- controlled pre-built markup from MessageUiProfile
                                                     } else {
-                                                        echo '<th>' . (is_string($faxsmsCol) ? $faxsmsCol : '') . '</th>';
+                                                        echo '<th>' . (is_string($faxsmsCol) ? $faxsmsCol : '') . '</th>'; // nosemgrep: echoed-request -- xlt()-escaped column label from MessageUiProfile
                                                     }
                                                 } ?>
                                             </tr>
@@ -234,3 +235,6 @@ $site_id = $session->get('site_id');
     </div><!-- /.navbar-container -->
 </body>
 </html>
+
+
+

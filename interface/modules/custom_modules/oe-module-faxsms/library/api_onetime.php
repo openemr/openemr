@@ -16,7 +16,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
-use OpenEMR\Modules\FaxSMS\Service\OneTimeRequestGuard;
 use OpenEMR\Services\PatientPortalService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -51,6 +50,9 @@ function doOnetimeInvoiceRequest(): void
     $reqPid = $_REQUEST['pid'] ?? null;
     $ot_pid = OneTimeRequestGuard::resolvePid($service, (is_int($reqPid) || is_string($reqPid)) ? $reqPid : null);
     $patient = $service->getPatientDetails($ot_pid);
+    if (!is_array($patient)) {
+        throw new \Exception(xlt("Error! Patient not found."));
+    }
 
     $message = "Dear " . $patient['fname'] . ' ' . $patient['lname'] . ",\n";
     $message .= xlt("Please review your current invoice by clinking the link to automatically redirect to your billing account portal. Use this PIN to complete authorization");
@@ -91,6 +93,9 @@ function doOnetimeDocumentRequest(): void
     $detailPid = $details['pid'] ?? $service->getRequest('form_pid');
     $ot_pid = OneTimeRequestGuard::resolvePid($service, (is_int($detailPid) || is_string($detailPid)) ? $detailPid : null);
     $patient = $service->getPatientDetails($ot_pid);
+    if (!is_array($patient)) {
+        throw new \Exception(xlt("Error! Patient not found."));
+    }
 
     $data = [
         'pid' => $ot_pid,
@@ -155,8 +160,11 @@ final class OneTimeRequestGuard
      */
     public static function fail(\Throwable $e): never
     {
-        ServiceContainer::getLogger()->error('api_onetime.php: ' . $e->getMessage(), ['exception' => $e]);
+        \OpenEMR\BC\ServiceContainer::getLogger()->error('api_onetime.php request failed', ['exception' => $e]);
         http_response_code(400);
         die(text(xlt('Error: the request could not be completed.')));
     }
 }
+
+
+

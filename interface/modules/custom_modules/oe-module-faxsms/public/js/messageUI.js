@@ -128,16 +128,6 @@ const assignFaxToPatient = function (faxQueueId) {
     dlgopen('../../../main/calendar/find_patient_popup.php', '_blank', 750, 550, false, xl('Select Patient'));
 };
 
-function base64ToArrayBuffer(_base64Str) {
-    let binaryString = window.atob(_base64Str);
-    let binaryLen = binaryString.length;
-    let bytes = new Uint8Array(binaryLen);
-    for (let i = 0; i < binaryLen; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-}
-
 function showPrint(base64, _contentType = 'image/tiff') {
     const binary = atob(base64.replace(/\s/g, ''));
     const len = binary.length;
@@ -202,7 +192,8 @@ async function getDocument(e, docuri, docid, downFlag, deleteFlag = '', massDele
             'docid': docid,
             'pid': pid,
             'download': downFlag,
-            'delete': deleteFlag
+            'delete': deleteFlag,
+            'csrf_token_form': csrfToken
         }).promise();
         $(".brand").removeClass('fa fa-spinner fa-spin');
         let data;
@@ -675,6 +666,9 @@ function makeRingoutCall(callTo, callFrom = '', id = '') {
 const queueMsg = '' + xl('Fax Queue. Drop files or Click here for Fax Contact form.');
 Dropzone.autoDiscover = false;
 $(function () {
+    if (!document.querySelector('#faxQueue')) {
+        return;
+    }
     var fileTypes = '';
     if (currentService === ServiceType.ETHERFAX) {
         fileTypes = "application/pdf, image/*";
@@ -740,3 +734,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+
+

@@ -120,7 +120,6 @@ abstract class AppDispatch
         'fetchTextMessage'       => ['csrf' => false],
         'getCallLogs'            => ['csrf' => false],
         'getNotificationLog'     => ['csrf' => false],
-        'viewFax'                => ['csrf' => false],
         // State-changing endpoints whose emitter (the contact dialog) already
         // posts the 'contact-form' token: CSRF enforced now.
         'sendFax'                => ['csrf' => true],
@@ -132,6 +131,9 @@ abstract class AppDispatch
         // so CSRF is enforced here. disposeDocument's GET download branch
         // appends the same token as a query parameter.
         'saveSetup'              => ['csrf' => true],
+        // viewFax has a delete/download branch (getDocument), so it is
+        // state-changing; messageUI posts the token as 'csrf_token_form'.
+        'viewFax'                => ['csrf' => true],
         'assignFax'              => ['csrf' => true],
         'disposeDocument'        => ['csrf' => true],
         'faxProcessUploads'      => ['csrf' => true],
