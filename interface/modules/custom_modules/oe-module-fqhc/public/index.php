@@ -1,12 +1,15 @@
 <?php
 
 /**
- * FQHC module — host page (Step 1).
+ * FQHC module — UDS Patient Snapshot host page (Step 2).
  *
- * Renders the design-system showcase: the server-rendered OpenEMR shell with
- * the FQHC Twig content and Web Component islands. Demonstrates the
- * certification-safe UI pattern (additive module page, no certified code
- * touched) and is the seed for the UDS Patient Snapshot (#14).
+ * Renders the essential UDS fields for the currently selected patient using the
+ * design-system shell. Reused demographics are shown as data; the new UDS
+ * sections appear as empty-states until their capture steps (#15–#17) land.
+ *
+ * The session patient id is read here, at the entry point, and immediately
+ * parsed into a typed pid passed to the service layer — superglobals do not
+ * leak past this boundary.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -22,6 +25,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FQHC\DesignSystem\DesignSystemAssets;
+use OpenEMR\FQHC\Snapshot\PatientDemographicsRepository;
+use OpenEMR\FQHC\Snapshot\UdsSnapshotAssembler;
 
 if (!AclMain::aclCheckCore('patients', 'demo')) {
     echo xlt('Access denied');
@@ -32,25 +37,22 @@ $globals = OEGlobalsBag::getInstance();
 $publicBaseUrl = $globals->getString('webroot') . '/interface/modules/custom_modules/oe-module-fqhc/public';
 $assets = new DesignSystemAssets(__DIR__, $publicBaseUrl);
 
+$sessionPid = $_SESSION['pid'] ?? 0;
+$pid = is_numeric($sessionPid) ? (int) $sessionPid : 0;
+$demographics = (new PatientDemographicsRepository())->findByPid($pid);
+$snapshot = $demographics !== null
+    ? (new UdsSnapshotAssembler())->assemble($demographics)
+    : null;
+
 $twigContainer = new TwigContainer(__DIR__ . '/../templates', $globals->getKernel());
-$content = $twigContainer->getTwig()->render('fqhc/showcase.html.twig', [
-    'heading' => xl('FQHC'),
-    'subheading' => xl('UDS data capture in a modern, responsive interface'),
-    // Sample demographics so the layout reads as real; the live Snapshot (#14)
-    // pulls these from patient_data.
-    'demographics' => [
-        ['label' => xl('Age / sex'), 'value' => '47 · Female'],
-        ['label' => xl('Race'), 'value' => xl('Black or African American')],
-        ['label' => xl('Ethnicity'), 'value' => xl('Not Hispanic or Latino')],
-        ['label' => xl('Preferred language'), 'value' => xl('Spanish')],
-        ['label' => xl('ZIP code'), 'value' => '78207'],
-    ],
+$content = $twigContainer->getTwig()->render('fqhc/snapshot.html.twig', [
+    'snapshot' => $snapshot,
 ]);
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo xlt('FQHC'); ?></title>
+    <title><?php echo xlt('UDS Patient Snapshot'); ?></title>
     <?php Header::setupHeader(['common']); ?>
     <?php foreach ($assets->styleUrls() as $styleUrl) { ?>
         <link rel="stylesheet" href="<?php echo attr($styleUrl); ?>">

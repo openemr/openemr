@@ -1,0 +1,52 @@
+{#
+  UDS Patient Snapshot (Step 2).
+
+  Renders the essential UDS fields for the selected patient: reused demographics
+  shown as data, and the new UDS sections as pending empty-states until their
+  capture steps (#15–#17) land. Server-rendered shell + Web Component islands.
+
+  Context:
+    snapshot  — OpenEMR\FQHC\Snapshot\UdsSnapshot, or null when no patient is
+                selected / found.
+
+  TwigContainer disables autoescaping, so values are escaped explicitly.
+
+  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="fqhc-root">
+  <div class="fqhc-container">
+
+    <fqhc-page-header
+      heading="UDS Patient Snapshot"
+      subheading="{{ (snapshot and snapshot.patientName ? snapshot.patientName : 'Essential UDS fields for the selected patient')|e('html_attr') }}">
+      <div slot="actions" class="fqhc-cluster">
+        <fqhc-status-badge variant="info">UDS</fqhc-status-badge>
+      </div>
+    </fqhc-page-header>
+
+    {% if snapshot is null %}
+      <fqhc-card heading="No patient selected">
+        <fqhc-empty-state message="Select a patient first, then open FQHC to view their UDS snapshot."></fqhc-empty-state>
+      </fqhc-card>
+    {% else %}
+      <div class="fqhc-grid">
+
+        <fqhc-card heading="Demographics (reused)">
+          {% for field in snapshot.demographics %}
+            <fqhc-field-row
+              label="{{ field.label|e('html_attr') }}"
+              value="{{ (field.value ?? '')|e('html_attr') }}"></fqhc-field-row>
+          {% endfor %}
+        </fqhc-card>
+
+        {% for section in snapshot.pending %}
+          <fqhc-card heading="{{ section.title|e('html_attr') }}">
+            <fqhc-empty-state message="{{ section.message|e('html_attr') }}"></fqhc-empty-state>
+          </fqhc-card>
+        {% endfor %}
+
+      </div>
+    {% endif %}
+
+  </div>
+</div>
