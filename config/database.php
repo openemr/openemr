@@ -73,11 +73,13 @@ return [
     // Doctrine Migrations
     ConfigurationLoader::class => fn () => new ConfigurationArray([
         'custom_template' => 'db/migration-template.php.tpl',
-        'migrations_paths' => [
+        'migrations_paths' => array_merge([
             // A future version of this will integrate w/ the modules system and
             // pull in any vended migrations from installed/active modules.
             'OpenEMR\\Core\\Migrations' => 'db/Migrations',
-        ],
+            // TODO: have PluginManager yield other configs
+        ], \OpenEMR\Plugins\PluginManager::fromConfig()->getMigrationsPaths(),
+        ),
         'table_storage' => [
             'table_name' => 'migrations',
             'execution_time_column_name' => 'execution_duration_ms',

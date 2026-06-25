@@ -6,6 +6,7 @@ namespace OpenEMR\Plugins;
 
 use Firehed\Container\AutoDetect;
 use OpenEMR\Plugin\CliPluginInterface;
+use OpenEMR\Plugin\DatabasePluginInterface;
 use OpenEMR\PluginInstaller\GeneratedInstalledPlugins;
 use OpenEMR\PluginInstaller\Plugin;
 use Psr\Container\ContainerInterface;
@@ -87,5 +88,21 @@ class PluginManager
                 }
             }
         }
+    }
+
+    public function getMigrationsPaths(): array
+    {
+        $out = [];
+        foreach ($this->getActivePlugins() as $plugin) {
+            foreach ($plugin->bootstrapClasses as $bootstrap) {
+                if (!is_a($bootstrap, DatabasePluginInterface::class, allow_string: true)) {
+                    continue;
+                }
+                foreach ($bootstrap::getMigrationsPaths() as $ns => $dir) {
+                    $out[$ns] = $plugin->relativeInstallDirectory . '/' . $dir;
+                };
+            }
+        }
+        return $out;
     }
 }
