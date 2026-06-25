@@ -115,7 +115,7 @@ class PluginManager
     }
 
     /**
-     * @param App<\Psr\Container\ContainerInterface|null> $app
+     * @param App<\Psr\Container\ContainerInterface> $app
      */
     public function addRoutes(App $app): void
     {
