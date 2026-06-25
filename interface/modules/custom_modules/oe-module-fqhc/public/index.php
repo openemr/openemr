@@ -34,6 +34,9 @@ use OpenEMR\FQHC\Income\IncomeSummaryFactory;
 use OpenEMR\FQHC\Income\PatientIncomeRepository;
 use OpenEMR\FQHC\Snapshot\PatientDemographicsRepository;
 use OpenEMR\FQHC\Snapshot\UdsSnapshotAssembler;
+use OpenEMR\FQHC\SpecialPopulation\PatientSpecialPopulationRepository;
+use OpenEMR\FQHC\SpecialPopulation\SpecialPopulation;
+use OpenEMR\FQHC\SpecialPopulation\SpecialPopulationStatus;
 
 if (!AclMain::aclCheckCore('patients', 'demo')) {
     echo xlt('Access denied');
@@ -60,6 +63,35 @@ $incomeSummary = ($income !== null && $guideline !== null)
     ? (new IncomeSummaryFactory())->create($income, $guideline)
     : null;
 
+// Special populations (#16).
+$specialStatuses = (new PatientSpecialPopulationRepository())->findByPid($pid);
+$specialPopulations = array_map(
+    static fn(SpecialPopulationStatus $status): array => [
+        'label' => $status->displayLabel(),
+        'population' => $status->population->value,
+    ],
+    $specialStatuses,
+);
+$populationChoices = array_map(
+    static fn(SpecialPopulation $population): array => [
+        'value' => $population->value,
+        'label' => $population->label(),
+    ],
+    SpecialPopulation::cases(),
+);
+$subtypeGroups = [];
+foreach (SpecialPopulation::cases() as $population) {
+    $options = $population->subtypeOptions();
+    if ($options === []) {
+        continue;
+    }
+    $grouped = [];
+    foreach ($options as $value => $label) {
+        $grouped[] = ['value' => $value, 'label' => $label];
+    }
+    $subtypeGroups[] = ['label' => $population->label(), 'options' => $grouped];
+}
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $content = (new TwigContainer(__DIR__ . '/../templates', $globals->getKernel()))
@@ -73,6 +105,9 @@ $content = (new TwigContainer(__DIR__ . '/../templates', $globals->getKernel()))
             'unknown' => $income !== null && $income->unknown,
         ],
         'guidelineLoaded' => $guideline !== null,
+        'specialPopulations' => $specialPopulations,
+        'populationChoices' => $populationChoices,
+        'subtypeGroups' => $subtypeGroups,
         'csrfToken' => CsrfUtils::collectCsrfToken(session: $session),
     ]);
 ?>

@@ -41,3 +41,20 @@ CREATE TABLE IF NOT EXISTS `fqhc_patient_income` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uniq_pid` (`pid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Per-patient special-population statuses (UDS Table 4). One row per population
+-- per patient; the optional subtype carries the agricultural-worker or homeless
+-- detail. Counted in UDS if held at any point in the reporting year.
+CREATE TABLE IF NOT EXISTS `fqhc_special_population` (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `pid` BIGINT NOT NULL,
+    `population` VARCHAR(40) NOT NULL COMMENT 'agricultural_worker | homeless | public_housing | veteran | school_based',
+    `subtype` VARCHAR(40) DEFAULT NULL,
+    `as_of_date` DATE DEFAULT NULL,
+    `recorded_by` BIGINT DEFAULT NULL,
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uniq_pid_population` (`pid`, `population`),
+    KEY `idx_pid` (`pid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

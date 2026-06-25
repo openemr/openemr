@@ -91,6 +91,7 @@
 }
 
 .fqhc-field input,
+.fqhc-field select,
 .fqhc-form input[type="number"] {
   font: inherit;
   font-size: var(--fqhc-font-size-base);
@@ -102,9 +103,41 @@
 }
 
 .fqhc-field input:focus-visible,
+.fqhc-field select:focus-visible,
 .fqhc-form input:focus-visible {
   outline: none;
   border-color: var(--fqhc-color-accent);
+  box-shadow: var(--fqhc-focus-ring);
+}
+
+.fqhc-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fqhc-space-2);
+}
+
+.fqhc-inline-form {
+  margin: 0;
+}
+
+.fqhc-link-button {
+  font: inherit;
+  font-size: var(--fqhc-font-size-xs);
+  color: var(--fqhc-color-danger);
+  background: none;
+  border: none;
+  padding: var(--fqhc-space-1) var(--fqhc-space-2);
+  cursor: pointer;
+  border-radius: var(--fqhc-radius-sm);
+}
+
+.fqhc-link-button:hover {
+  text-decoration: underline;
+}
+
+.fqhc-link-button:focus-visible {
+  outline: none;
   box-shadow: var(--fqhc-focus-ring);
 }
 

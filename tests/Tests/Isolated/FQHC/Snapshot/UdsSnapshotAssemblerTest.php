@@ -70,11 +70,8 @@ final class UdsSnapshotAssemblerTest extends TestCase
             $this->assembler->pendingSections(),
         );
 
-        // Income & FPL is now its own interactive card, not a generic placeholder.
-        self::assertSame(
-            ['Special populations', 'Insurance (UDS payer category)'],
-            $titles,
-        );
+        // Income/FPL and Special populations are now their own interactive cards.
+        self::assertSame(['Insurance (UDS payer category)'], $titles);
     }
 
     public function testAssembleCarriesPatientNameAndBothSections(): void
@@ -83,7 +80,7 @@ final class UdsSnapshotAssemblerTest extends TestCase
 
         self::assertSame('Jane Doe', $snapshot->patientName);
         self::assertCount(5, $snapshot->demographics);
-        self::assertCount(2, $snapshot->pending);
+        self::assertCount(1, $snapshot->pending);
     }
 
     private function fullDemographics(): PatientDemographics

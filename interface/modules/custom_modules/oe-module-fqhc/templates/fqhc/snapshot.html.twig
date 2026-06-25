@@ -78,6 +78,58 @@
           </form>
         </fqhc-card>
 
+        {# Interactive Special populations card (#16). #}
+        <fqhc-card heading="Special populations">
+          {% if specialPopulations is empty %}
+            <fqhc-empty-state message="None recorded — add a status below."></fqhc-empty-state>
+          {% else %}
+            <div class="fqhc-stack">
+              {% for sp in specialPopulations %}
+                <div class="fqhc-row-between">
+                  <fqhc-status-badge variant="neutral">{{ sp.label|e('html') }}</fqhc-status-badge>
+                  <form method="post" action="save_special_population.php" class="fqhc-inline-form">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|e('html_attr') }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="population" value="{{ sp.population|e('html_attr') }}">
+                    <button type="submit" class="fqhc-link-button">Remove</button>
+                  </form>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <form class="fqhc-form" method="post" action="save_special_population.php">
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|e('html_attr') }}">
+            <input type="hidden" name="action" value="add">
+            <label class="fqhc-field">
+              <span>Population</span>
+              <select name="population">
+                {% for choice in populationChoices %}
+                  <option value="{{ choice.value|e('html_attr') }}">{{ choice.label|e('html') }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="fqhc-field">
+              <span>Subtype (if applicable)</span>
+              <select name="subtype">
+                <option value="">—</option>
+                {% for group in subtypeGroups %}
+                  <optgroup label="{{ group.label|e('html_attr') }}">
+                    {% for opt in group.options %}
+                      <option value="{{ opt.value|e('html_attr') }}">{{ opt.label|e('html') }}</option>
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="fqhc-field">
+              <span>As of date</span>
+              <input type="date" name="as_of_date">
+            </label>
+            <button type="submit" class="fqhc-button">Add status</button>
+          </form>
+        </fqhc-card>
+
         {% for section in snapshot.pending %}
           <fqhc-card heading="{{ section.title|e('html_attr') }}">
             <fqhc-empty-state message="{{ section.message|e('html_attr') }}"></fqhc-empty-state>

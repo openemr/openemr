@@ -27,6 +27,7 @@ return [
     'tables' => [
         'fqhc_fpl_guideline',
         'fqhc_patient_income',
+        'fqhc_special_population',
     ],
 
     // Menu items added by this module (also injected at runtime via MenuEvent)
