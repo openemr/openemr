@@ -70,6 +70,59 @@ flex_timing() {
 . /root/devtoolsLibrary.source
 
 # ============================================================================
+# HOST UID/GID PASSTHROUGH
+# ============================================================================
+# When the host bind-mounts the webroot (e.g., docker/development-easy
+# stacks where the openemr source lives on the host filesystem), allow
+# the host to specify its uid/gid via HOST_UID/HOST_GID env vars so
+# the in-container apache user adopts them. Without this, apache stays
+# at uid=1000 (Alpine default, set in the Dockerfile) and any host
+# whose uid is not 1000 (CI runners, multi-user dev boxes, distros that
+# start uids at 1001, macOS via Docker Desktop) gets bind-mount files
+# apache writes that they can't modify on the host — `git commit`
+# fails with EACCES, IDE writes get rejected, etc.
+#
+# This runs BEFORE any chown operations in the entrypoint so subsequent
+# `chown apache:apache` calls target the adopted uid. The chown of the
+# webroot bind mount (auto_setup) and per-file caches then naturally
+# match the host's ownership.
+#
+# Backwards compatible: if HOST_UID is unset or empty, no change —
+# apache stays at its Dockerfile-baked uid=1000. Idempotent: re-running
+# with the same HOST_UID is a no-op against the same apache identity.
+# Silently no-op on HOST_UID=0 (root) — apache should never run as root.
+#
+# Non-numeric values (e.g., HOST_UID=foo from a compose-env typo) log a
+# warning to stderr and fall back to the default rather than aborting
+# startup under set -euo pipefail.
+#
+# Limitation: changing HOST_UID between container starts against the
+# same set of named volumes leaves old-uid-owned files inside those
+# volumes that the new apache uid can't write. Recover with
+# `docker compose down -v` (purges volumes) then bring up fresh.
+if [[ -z "${HOST_UID:-}" ]] || [[ "${HOST_UID}" = "0" ]]; then
+    : # unset or root — no-op
+elif ! [[ "${HOST_UID}" =~ ^[0-9]+$ ]]; then
+    echo "Warning: HOST_UID='${HOST_UID}' is not numeric; ignoring (apache stays at uid=1000)" >&2
+else
+    # GID is optional; validate it independently so a bad HOST_GID
+    # doesn't block a good HOST_UID adoption.
+    if [[ -n "${HOST_GID:-}" ]] && [[ "${HOST_GID}" != "0" ]]; then
+        if [[ "${HOST_GID}" =~ ^[0-9]+$ ]]; then
+            # -o (non-unique) tolerates a collision with an existing
+            # group (e.g. on some hosts uid/gid 1000 maps to a system
+            # group); the override is intentional.
+            groupmod -o -g "${HOST_GID}" apache
+        else
+            echo "Warning: HOST_GID='${HOST_GID}' is not numeric; ignoring gid override" >&2
+        fi
+    fi
+    echo "Adopting host uid/gid: HOST_UID=${HOST_UID} HOST_GID=${HOST_GID:-(unset)}"
+    # -o (non-unique) for the same reason as groupmod above.
+    usermod -o -u "${HOST_UID}" apache
+fi
+
+# ============================================================================
 # PATH CONFIGURATION
 # ============================================================================
 # Define paths used throughout the script for OpenEMR installation and configuration
