@@ -93,6 +93,49 @@ Broaden coverage and harden.
 - **Performance budgets** met on common workflows on real clinic hardware.
 - WCAG 2.1 AA accessibility and strong multilingual support across new UI.
 
+## Where to start — picking the next ticket (solo-dev guide)
+
+This project is built mostly by **one developer pairing with an AI assistant**,
+so the sequencing favors small, shippable, independently-verifiable slices over
+big parallel workstreams. Use this quick decision guide each time you sit down:
+
+1. **Is the foundation in place?** If [#10 `OpenEMR\FQHC` module
+   skeleton](https://github.com/Simonparkershames/openemr-fqhc/issues/10) isn't
+   done, **do it first.** Everything else installs into that module, and it
+   proves the certification-safe extension pattern end to end. This is the
+   single best *first build*.
+2. **Want guardrails before you write features?** [#8 CI certification
+   gate](https://github.com/Simonparkershames/openemr-fqhc/issues/8) is cheap,
+   mostly-config, and means you can refactor fearlessly afterward. Good to pair
+   with #10.
+3. **Ready for the first real feature?** Start the UDS data capture as the
+   **smallest vertical slice first**: the FPL foundation (guideline data +
+   income side table + computation service, no UI), per the slice list in
+   [`UDS-DATA-MODEL.md`](./UDS-DATA-MODEL.md) §7. It's pure domain logic, fully
+   unit-testable without the UI, and unblocks the income/SFDP intake screen
+   next.
+4. **Blocked or it's a "thinking" day?** Do the spec work —
+   [#11 UDS data-element specs](https://github.com/Simonparkershames/openemr-fqhc/issues/11)
+   or [#12 design-system decision](https://github.com/Simonparkershames/openemr-fqhc/issues/12).
+   Both are low-code and unblock larger builds.
+
+**Recommended path for the first few sessions:** #10 → #8 → FPL foundation
+slice (#4/#11) → income/FPL intake UI → special-population statuses. Each lands
+green and demoable on its own.
+
+**Heuristics for "is this the right next ticket?"**
+- Prefer tickets that are **unblocked**, **small enough to finish in a session**,
+  and **independently verifiable** (a test or a screen you can click).
+- Prefer a thin **vertical slice** (data → service → one screen) over a broad
+  horizontal layer — you learn more and ship something usable.
+- When two are equal, do the one that **unblocks the most** downstream work.
+- Keep the certification suite green at every step; never start a slice you
+  can't finish behind a feature flag.
+
+The issues carry `Phase 0` framing and parent/child links so the next step is
+visible without a project board. When in doubt, ask the assistant to "pick the
+next ticket" — it can apply the rules above against the open issues.
+
 ## How we track progress
 
 - The **program epic** issue links the workstream epics and shows phase status.

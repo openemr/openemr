@@ -48,6 +48,7 @@ project closes those gaps.
 | [`PRINCIPLES.md`](./PRINCIPLES.md) | The non-negotiable rules — especially certification safety. Read first. |
 | [`ARCHITECTURE.md`](./ARCHITECTURE.md) | How we extend OpenEMR without forking or destabilizing the certified core. |
 | [`UDS-REPORTING.md`](./UDS-REPORTING.md) | UDS data elements, where OpenEMR already captures them, and the gaps. |
+| [`UDS-DATA-MODEL.md`](./UDS-DATA-MODEL.md) | **The concrete OpenEMR changes for UDS** — field specs, proposed schema, FHIR/UDS+ notes. |
 | [`UX-MODERNIZATION.md`](./UX-MODERNIZATION.md) | Design system, role-based interfaces, and responsive strategy. |
 | [`ROADMAP.md`](./ROADMAP.md) | Phased plan: immediate next steps and longer-term deliverables. |
 | [`BACKLOG.md`](./BACKLOG.md) | Import-ready issue set (program epic, workstream epics, Phase 0 next steps). |

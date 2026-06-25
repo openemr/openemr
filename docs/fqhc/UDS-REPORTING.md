@@ -9,6 +9,11 @@ already captured, and lists the gaps this project must close.
 > reporting feature is built to the official specification for the reporting
 > year and validated against it.
 
+> **For the concrete OpenEMR changes** — field-level specs, the proposed side-
+> table schema, payer mapping, and FHIR/UDS+ notes — see
+> [`UDS-DATA-MODEL.md`](./UDS-DATA-MODEL.md). This document stays at the level
+> of "which table needs what."
+
 ## UDS tables at a glance
 
 | Table | Subject | Primary OpenEMR source | Coverage today |
