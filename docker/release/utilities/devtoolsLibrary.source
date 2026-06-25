@@ -696,7 +696,7 @@ importRandomPatients() {
     # which is the exact failure mode that hid the unreachable-/root bug
     # before this fix. Guard explicitly so a future regression in synthea
     # still fails the irp command loudly.
-    if [ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null)" ]; then
+    if [[ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null || true)" ]]; then
         echo "FAIL: no CCDA files produced in /tmp/synthea/output/ccda; nothing to import" >&2
         return 1
     fi
