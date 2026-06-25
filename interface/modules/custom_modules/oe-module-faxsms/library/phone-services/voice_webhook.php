@@ -10,13 +10,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
-
 local_log("RingCentral webhook accessed at " . date('Y-m-d H:i:s'));
 
 // Handle RingCentral validation token
 $validationToken = $_SERVER['HTTP_VALIDATION_TOKEN'] ?? '';
-if (!empty($validationToken)) {
+if ($validationToken !== '') {
     header("Validation-Token: {$validationToken}");
     header('Content-Type: text/plain');
     echo $validationToken;
@@ -25,15 +23,26 @@ if (!empty($validationToken)) {
     exit;
 }
 
-// Security: Verify webhook token
+// Security: authenticate the webhook delivery.
 $ignoreAuth = true; // Ignore OpenEMR authentication for this webhook
 require_once(__DIR__ . '/../../../../../globals.php');
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-$expectedToken = $session->get('ringcentral_voice_token') ?? '';
-$providedToken = $_GET['token'] ?? '';
-if (empty($expectedToken) || $providedToken !== $expectedToken) {
-    local_log("RingCentral webhook: Invalid or missing token");
+// RingCentral echoes the subscription's verificationToken in the
+// 'Verification-Token' header on every delivered event. This is a
+// provider-side, server-to-server request: there is NO OpenEMR session, so we
+// authenticate against the secret persisted at subscription time (see
+// VoiceFunctionsTrait::getOrCreateWebhookSecret()), compared in constant time.
+// The previous model read a per-admin SESSION value via ?token=, which a
+// session-less webhook can never see and which leaked through access logs.
+$expectedToken = faxsms_voiceWebhookSecret();
+$providedToken = $_SERVER['HTTP_VERIFICATION_TOKEN'] ?? '';
+if (
+    $expectedToken === ''
+    || !is_string($providedToken)
+    || $providedToken === ''
+    || !hash_equals($expectedToken, $providedToken)
+) {
+    local_log("RingCentral webhook: Invalid or missing Verification-Token");
     http_response_code(403);
     exit('Forbidden');
 }
@@ -375,8 +384,39 @@ function downloadAndStoreRecording($recordingId): void
     // Could download recording file and store it in OpenEMR's document system
 }
 
-function local_log($message): void
+function local_log(string $message): void
 {
     // Custom logging function to handle event logging
-    //error_log("[RingCentral] " . $message);
+    error_log("[RingCentral] " . $message);
 }
+
+/**
+ * Read the persisted RingCentral webhook secret (written, encrypted, by
+ * VoiceFunctionsTrait::getOrCreateWebhookSecret() at subscription time).
+ * Returns '' when absent or undecryptable so the caller fails closed.
+ */
+function faxsms_voiceWebhookSecret(): string
+{
+    $row = sqlQuery(
+        "SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
+        ['_voice_webhook']
+    );
+    $cred = (is_array($row) && isset($row['credentials']) && is_string($row['credentials'])) ? $row['credentials'] : '';
+    if ($cred === '') {
+        return '';
+    }
+    try {
+        $plain = \OpenEMR\BC\ServiceContainer::getCrypto()->decryptStandard($cred);
+    } catch (\Throwable $e) {
+        local_log("voice_webhook: secret decrypt failed: " . $e->getMessage());
+        return '';
+    }
+    $decoded = json_decode(is_string($plain) ? $plain : '', true);
+
+    return (is_array($decoded) && isset($decoded['secret']) && is_string($decoded['secret']) && $decoded['secret'] !== '')
+        ? $decoded['secret']
+        : '';
+}
+
+
+

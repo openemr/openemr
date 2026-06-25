@@ -30,6 +30,15 @@ use Symfony\Component\Filesystem\Filesystem;
 final readonly class FaxUploadStaging
 {
     /**
+     * Hard server-side cap on a single staged fax payload, independent of
+     * php.ini's upload_max_filesize/post_max_size. Mirrors the Dropzone
+     * client limit (maxFilesize: 100 MB) so the server and UI agree, and
+     * bounds disk/memory use even if a caller bypasses the browser. Lower
+     * this if your faxes never approach it.
+     */
+    private const MAX_UPLOAD_BYTES = 100 * 1024 * 1024;
+
+    /**
      * On-disk shape produced by processUpload(): sanitized basename,
      * underscore, 8-char random hex suffix, fax-safe extension.
      */
@@ -92,6 +101,19 @@ final readonly class FaxUploadStaging
             return '';
         }
 
+        // Authoritative server-side size gate. filesize() reads the actual
+        // bytes on disk rather than trusting the client-reported $upload['size'],
+        // and runs before the sniff/read so an oversized file is rejected
+        // without pulling it into memory.
+        $size = filesize($tmpName);
+        if ($size === false || $size > self::MAX_UPLOAD_BYTES) {
+            $this->logger->warning(
+                'Fax upload exceeds size cap',
+                ['bytes' => $size, 'max' => self::MAX_UPLOAD_BYTES]
+            );
+            return '';
+        }
+
         $mime = mime_content_type($tmpName);
         $ext = is_string($mime) ? (self::ACCEPTED_MIME[$mime] ?? null) : null;
         if ($ext === null) {
@@ -147,6 +169,16 @@ final readonly class FaxUploadStaging
         string $hint,
         string $contentType
     ): string {
+        // Same hard cap as processUpload(), applied to the in-memory bytes a
+        // controller hands us (e.g. content fetched from a provider API).
+        if (strlen($content) > self::MAX_UPLOAD_BYTES) {
+            $this->logger->warning(
+                'Fax internal payload exceeds size cap',
+                ['bytes' => strlen($content), 'max' => self::MAX_UPLOAD_BYTES]
+            );
+            return '';
+        }
+
         // Strip RFC 7231 media-type parameters (e.g. "application/pdf; charset=...")
         // so headers from a provider API map cleanly to our MIME whitelist.
         $mediaType = strtolower(trim(strtok($contentType, ';') ?: ''));

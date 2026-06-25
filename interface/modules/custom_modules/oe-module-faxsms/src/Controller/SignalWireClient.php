@@ -712,8 +712,8 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
                         // Sent faxes: view/download icons only.
                         $actions = '';
                         if (in_array($status, self::TERMINAL_FAX_STATUSES, true)) {
-                            $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false')\"><i class='fa fa-file-pdf mr-2' title='" . xla('View fax document') . "'></i></a>";
-                            $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'true')\"><i class='fa fa-file-download mr-2' title='" . xla('Download fax document') . "'></i></a>";
+                            $actions .= "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false')\"><i class='fa fa-file-pdf mr-2' title='" . xla('View fax document') . "'></i></a>";
+                            $actions .= "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'true')\"><i class='fa fa-file-download mr-2' title='" . xla('Download fax document') . "'></i></a>";
                         }
                         $responseMsg[1] .= "<tr><td>" . text($dateLocal) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . $resultCol . "</td><td>" . $statusCol . "</td><td class='text-left'>" . $actions . "</td></tr>";
                         continue;
@@ -728,10 +728,10 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
                     if (in_array($status, self::TERMINAL_FAX_STATUSES, true)) {
                         // Icon actions routed through the shared getDocument() handler
                         // (same contract as every other vendor): chart, view, download, delete.
-                        $actions .= "<a role='button' href='javascript:void(0)' onclick=\"assignFaxToPatient(" . attr_js($sid) . ")\"><i class='fa fa-chart-simple mr-2' title='" . xla('File fax to a patient chart') . "'></i></a>";
-                        $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false')\"><i class='fa fa-file-pdf mr-2' title='" . xla('View fax document') . "'></i></a>";
-                        $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'true')\"><i class='fa fa-file-download mr-2' title='" . xla('Download fax document') . "'></i></a>";
-                        $actions .= "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false', 'true')\"><i class='text-danger fa fa-trash mr-2' title='" . xla('Delete fax') . "'></i></a>";
+                        $actions .= "<a role='button' href='#' onclick=\"assignFaxToPatient(" . attr_js($sid) . ")\"><i class='fa fa-chart-simple mr-2' title='" . xla('File fax to a patient chart') . "'></i></a>";
+                        $actions .= "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false')\"><i class='fa fa-file-pdf mr-2' title='" . xla('View fax document') . "'></i></a>";
+                        $actions .= "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'true')\"><i class='fa fa-file-download mr-2' title='" . xla('Download fax document') . "'></i></a>";
+                        $actions .= "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($sid) . ", 'false', 'true')\"><i class='text-danger fa fa-trash mr-2' title='" . xla('Delete fax') . "'></i></a>";
                     } else {
                         // In-progress: shown for visibility, no actions yet.
                         $statusCol = "<span class='badge badge-secondary'>" . text($status) . "</span>";

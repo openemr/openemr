@@ -537,22 +537,22 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
 
     private function generateActionLinks($id, $record_id, $pid_assumed)
     {
-        return "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
+        return "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(json_encode([])) . ")\">
                 <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($pid_assumed) . ")\">
+            <a role='button' href='#' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($pid_assumed) . ")\">
                 <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\">
+            <a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\">
                 <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\">
+            <a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\">
                 <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\">
+            <a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\">
                 <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i>
             </a>
-            <a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\">
+            <a role='button' href='#' onclick=\"forwardFax(event, " . attr_js($id) . ")\">
                 <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i>
             </a>";
     }
@@ -560,7 +560,7 @@ class EtherFaxActions extends AppDispatch implements FaxChannelInterface
     private function generateDetailLink($id, $recognized)
     {
         $showFlag = count($recognized);
-        return $showFlag ? "<a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
+        return $showFlag ? "<a role='button' href='#' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#" . text($id) . "\")'></a>" . text($showFlag) . ' ' . xlt("Items") : '';
     }
 
     /**

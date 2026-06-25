@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controllers;
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -139,6 +140,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
         <?php } ?>
         <form class="form" id="setup-form" role="form">
             <div class="messages"></div>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'contact-form'); ?>" />
             <div class="row">
                 <div class="col-md-12">
                     <div class="checkbox">

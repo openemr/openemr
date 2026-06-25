@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2026 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
  */
 
@@ -127,16 +127,16 @@ abstract class AppDispatch
         'sendSMS'                => ['csrf' => true],
         'sendEmail'              => ['csrf' => true],
         'forwardFax'             => ['csrf' => true],
-        // State-changing endpoints whose emitter (setup pages, messageUI) does
-        // not yet post a token. Allowlisted now to close the arbitrary-method
-        // surface; 'csrf' flips to true together with the matching
-        // token-emission edit in each emitter, so no live form breaks here.
-        'saveSetup'              => ['csrf' => false],
-        'assignFax'              => ['csrf' => false],
-        'disposeDocument'        => ['csrf' => false],
-        'faxProcessUploads'      => ['csrf' => false],
-        'makeRingoutCall'        => ['csrf' => false],
-        'install'                => ['csrf' => false],
+        // State-changing endpoints. Their emitters (the setup pages and
+        // messageUI) now post the 'contact-form' token as 'csrf_token_form',
+        // so CSRF is enforced here. disposeDocument's GET download branch
+        // appends the same token as a query parameter.
+        'saveSetup'              => ['csrf' => true],
+        'assignFax'              => ['csrf' => true],
+        'disposeDocument'        => ['csrf' => true],
+        'faxProcessUploads'      => ['csrf' => true],
+        'makeRingoutCall'        => ['csrf' => true],
+        'install'                => ['csrf' => true],
     ];
 
     /**
@@ -545,6 +545,9 @@ abstract class AppDispatch
         $appkey = $this->getRequest('key');
         $appsecret = $this->getRequest('secret');
         $production = $this->getRequest('production');
+        // Voice-only: opt-in flag for RingCentral call-event tracking (webhook).
+        // Harmless null for every other vendor whose form does not post it.
+        $enableEvents = $this->getRequest('enable_events');
         $smsNumber = $this->formatPhone($this->getRequest('smsnumber') ?? '');
         $smsMessage = $this->getRequest('smsmessage');
         $smsHours = $this->getRequest('smshours');
@@ -570,6 +573,7 @@ abstract class AppDispatch
             'portal' => "https://service.ringcentral.com/",
             'smsNumber' => "$smsNumber",
             'production' => $production,
+            'enable_events' => $enableEvents,
             'redirect_url' => $this->getRequest('redirect_url'),
             'smsHours' => $smsHours,
             'smsMessage' => $smsMessage,

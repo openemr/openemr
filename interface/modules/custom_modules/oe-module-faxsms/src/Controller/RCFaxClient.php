@@ -19,7 +19,6 @@ use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Contracts\FaxChannelInterface;
 use OpenEMR\Modules\FaxSMS\Contracts\SmsChannelInterface;
-use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Modules\FaxSMS\Service\FaxMailer;
 use OpenEMR\Modules\FaxSMS\Service\FaxUploadStaging;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -28,7 +27,6 @@ use RingCentral\SDK\Http\ApiException;
 class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannelInterface
 {
     use AuthenticateTrait;
-    use VoiceFunctionsTrait;
 
     public string $baseDir = '';
     public $uriDir;
@@ -61,8 +59,6 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         $this->serverUrl = "https://platform.ringcentral.com";
         $this->redirectUrl = $this->credentials['redirect_url'] ?? null;
         $this->initializeSDK();
-        // TODO: initVoice() is not used in this class, move to new voice client.
-        //$this->initVoice($this->platform);
         parent::__construct();
     }
 
@@ -878,7 +874,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                     'page' => $pageCount
                 ]);
                 foreach ($apiResponse->json()->records as $value) {
-                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", $value->startTime)) . "</td><td>" . text($value->type) . "</td><td>" . text($value->from->name) . "</td><td>" . text($value->to->phoneNumber) . "</td><td>" . text($value->action) . "</td><td>" . text($value->result) . "</td><td>" . text($value->message->id) . "</td></tr>";
+                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", (string)($value->startTime ?? ''))) . "</td><td>" . text((string)($value->type ?? '')) . "</td><td>" . text((string)($value->from->name ?? '')) . "</td><td>" . text((string)($value->to->phoneNumber ?? '')) . "</td><td>" . text((string)($value->action ?? '')) . "</td><td>" . text((string)($value->result ?? '')) . "</td><td>" . text((string)($value->message->id ?? '')) . "</td></tr>";
                 }
 
                 $end = microtime(true);
@@ -1114,12 +1110,12 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
 
     private function generateActionLinks($id, $uri): array
     {
-        $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
-        $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(0) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
-        $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
-        $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
-        $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
-        $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
+        $patientLink = "<a role='button' href='#' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(json_encode([])) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
+        $messageLink = "<a role='button' href='#' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($id) . ", " . attr_js(0) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
+        $downloadLink = "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
+        $viewLink = "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
+        $deleteLink = "<a role='button' href='#' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
+        $forwardLink = "<a role='button' href='#' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
         return [
             'inbound' => $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink,
             'outbound' => $viewLink . $downloadLink . $deleteLink
@@ -1128,8 +1124,8 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
 
     private function generateSmsActionLinks($id, $uri, $phone): array
     {
-        $vtoggle = "<a href='javascript:' onclick=messageShow(" . attr_js($id) . "," . attr_js($uri) . ")><span class='mx-1 fas fa-comment fa-1x'></span></a>";
-        $vreply = "<a href='javascript:' onclick=messageReply(" . attr_js($phone) . ")><span class='mx-1 fa fa-reply'></span></a>";
+        $vtoggle = "<a role='button' href='#' onclick=messageShow(" . attr_js($id) . "," . attr_js($uri) . ")><span class='mx-1 fas fa-comment fa-1x'></span></a>";
+        $vreply = "<a role='button' href='#' onclick=messageReply(" . attr_js($phone) . ")><span class='mx-1 fa fa-reply'></span></a>";
 
         return [
             'sms' => $vtoggle . $vreply,

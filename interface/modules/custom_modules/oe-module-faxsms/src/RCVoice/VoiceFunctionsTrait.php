@@ -12,8 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\Platform\Platform;
 
@@ -71,7 +70,13 @@ trait VoiceFunctionsTrait
 
 
     /**
-     * Initialize the Platform instance (call from your constructor).
+     * Initialize the Platform instance and (when permitted) register the
+     * call-event webhook.
+     *
+     * No longer called from VoiceClient's constructor - registration is an
+     * explicit, flag-gated admin action now (see install()). Kept as a
+     * convenience entry for callers that already hold a Platform; install()
+     * self-gates, so this is safe to call when voice/events are disabled.
      */
     protected function initVoice($platform): void
     {
@@ -140,15 +145,36 @@ trait VoiceFunctionsTrait
 
     public function install()
     {
+        // Call-event tracking is a RingCentral-only, strictly opt-in feature.
+        // Touch no RC API unless BOTH are true:
+        //   1. voice (RingCentral) is enabled  -> oe_enable_voice global
+        //   2. the admin turned on event tracking in Voice setup -> enable_events
+        // This keeps webhook subscription registration an explicit admin action
+        // instead of a per-page side effect, and enforces "no RC voice => no
+        // events enable".
+        if (empty(OEGlobalsBag::getInstance()->get('oe_enable_voice'))) {
+            return json_encode([
+                'status' => 'DISABLED',
+                'msg' => xlt('Voice (RingCentral) is not enabled, so call event tracking cannot be registered.'),
+            ]);
+        }
+        if (empty($this->credentials['enable_events'] ?? null)) {
+            return json_encode([
+                'status' => 'DISABLED',
+                'msg' => xlt('Call event tracking is off. Enable it in Voice setup and save before registering.'),
+            ]);
+        }
+
         $response = null;
         try {
-            $session = SessionWrapperFactory::getInstance()->getActiveSession();
-            $token = $session->get('ringcentral_voice_token') ?? 'changeme';
-            if ($token === 'changeme') {
-                // Generate secure token
-                $token = bin2hex(random_bytes(16));
-                SessionUtil::setSession('ringcentral_voice_token', $token);
-            }
+            // Persisted, server-readable webhook secret. RingCentral echoes this
+            // back to voice_webhook.php in the 'Verification-Token' header on
+            // every delivered event, so the secret must live somewhere the
+            // session-less webhook request can read it - NOT in the admin's PHP
+            // session as before (which the provider-side callback can never see,
+            // so the old check failed closed in production and leaked the token
+            // through the ?token= query string in access logs).
+            $token = $this->getOrCreateWebhookSecret();
             // Webhook endpoint
             $this->webhookUrl = $this->getWebhookUrl($token);
             $this->token = $token;
@@ -156,8 +182,44 @@ trait VoiceFunctionsTrait
             $response = $this->createSubscription();
         } catch (\Throwable $e) {
             error_log("Installation failed: " . $e->getMessage());
+            $response = ['status' => 'ERROR', 'msg' => xlt('Webhook registration failed. See server log.')];
         }
         return  json_encode($response);
+    }
+
+    /**
+     * Fetch the persisted RingCentral webhook secret, creating and storing one
+     * (encrypted at rest) on first use.
+     *
+     * Stored under a fixed (auth_user=0, vendor='_voice_webhook') row in
+     * module_faxsms_credentials so the session-less voice_webhook.php can read
+     * it back to authenticate deliveries. One secret per OpenEMR database
+     * (i.e. per site for the standard one-DB-per-site layout).
+     */
+    private function getOrCreateWebhookSecret(): string
+    {
+        $row = sqlQuery(
+            "SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = 0 AND `vendor` = ?",
+            ['_voice_webhook']
+        );
+        if (!empty($row['credentials'])) {
+            $plain = $this->crypto->decryptStandard((string)$row['credentials']);
+            $data = json_decode((string)$plain, true);
+            if (is_array($data) && !empty($data['secret']) && is_string($data['secret'])) {
+                return $data['secret'];
+            }
+        }
+
+        $secret = bin2hex(random_bytes(32));
+        $content = $this->crypto->encryptStandard((string)json_encode(['secret' => $secret]));
+        sqlQuery(
+            "INSERT INTO `module_faxsms_credentials` (`auth_user`, `vendor`, `credentials`)
+             VALUES (0, ?, ?)
+             ON DUPLICATE KEY UPDATE `credentials` = ?, `updated` = NOW()",
+            ['_voice_webhook', $content, $content]
+        );
+
+        return $secret;
     }
 
     protected function getWebhookUrl(string $token): string
@@ -186,7 +248,11 @@ trait VoiceFunctionsTrait
             $response = $this->platform->get('/restapi/v1.0/subscription');
             $subscriptions = $response->json()->records;
 
-            $expectedWebhookUrl = $this->webhookUrl . '?token=' . urlencode($this->token);
+            // The secret is no longer carried in the URL. RingCentral returns
+            // it in the 'Verification-Token' header instead (set via the
+            // verificationToken field on the POST below), so the delivery
+            // address is the bare webhook URL.
+            $expectedWebhookUrl = $this->webhookUrl;
             $expectedEventFilter = '/restapi/v1.0/account/~/extension/~/telephony/sessions';
             $existingSubscription = null;
             $subscriptionsToDelete = [];
@@ -233,7 +299,11 @@ trait VoiceFunctionsTrait
                     'deliveryMode' => [
                         'transportType' => 'WebHook',
                         'address' => $expectedWebhookUrl
-                    ]
+                    ],
+                    // RingCentral echoes this back in the 'Verification-Token'
+                    // header on every delivered event; voice_webhook.php compares
+                    // it constant-time against the persisted secret.
+                    'verificationToken' => $this->token
                 ]);
 
                 $subscription = $response->json();
