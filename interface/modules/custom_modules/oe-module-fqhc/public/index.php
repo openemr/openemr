@@ -29,7 +29,7 @@ if (!AclMain::aclCheckCore('patients', 'demo')) {
 }
 
 $globals = OEGlobalsBag::getInstance();
-$publicBaseUrl = $globals->get('webroot') . '/interface/modules/custom_modules/oe-module-fqhc/public';
+$publicBaseUrl = $globals->getString('webroot') . '/interface/modules/custom_modules/oe-module-fqhc/public';
 $assets = new DesignSystemAssets(__DIR__, $publicBaseUrl);
 
 $twigContainer = new TwigContainer(__DIR__ . '/../templates', $globals->getKernel());

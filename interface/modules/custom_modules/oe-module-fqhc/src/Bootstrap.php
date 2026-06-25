@@ -46,7 +46,7 @@ class Bootstrap
         $menu = $event->getMenu();
 
         foreach ($menu as $item) {
-            if (($item->menu_id ?? null) === self::MENU_ID) {
+            if ($item instanceof stdClass && ($item->menu_id ?? null) === self::MENU_ID) {
                 return $event;
             }
         }
