@@ -453,7 +453,17 @@ importRandomPatients() {
         rm -fr /tmp/synthea/output
         cd /tmp/synthea &&
             java -jar /root/synthea/synthea-with-dependencies.jar --exporter.fhir.export false --exporter.ccda.export true --generate.only_alive_patients true -p "${1}"
-    )
+    ) || { echo "FAIL: synthea setup or generation failed; aborting before import" >&2; return 1; }
+    # Belt-and-suspenders: the subshell exit status above covers most
+    # failure modes, but import_ccda.php treats an empty source directory
+    # as a no-op — silently logs "Finished patients import 0" and exits 0.
+    # That is the exact failure mode that hid the unreachable-/root bug
+    # before this fix; guard against it explicitly so a future regression
+    # in the synthea step still fails the irp command loudly.
+    if [ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null)" ]; then
+        echo "FAIL: no CCDA files produced in /tmp/synthea/output/ccda; nothing to import" >&2
+        return 1
+    fi
     sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
     export OPENEMR_ENABLE_CCDA_IMPORT=1
     run_php_as_apache php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php --sourcePath=/tmp/synthea/output/ccda --site=default --openemrPath=/var/www/localhost/htdocs/openemr "--isDev=${2}"
