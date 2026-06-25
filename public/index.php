@@ -36,6 +36,9 @@ $logger->debug('Request routed through front-controller');
 // primaryRouter = $container->get(Router::class)
 // if router would 404/405, fall back to below?
 
+// Future: Plugin routes (assumes Slim as router, adjust as needed)
+// PluginManager::fromConfig()->addRoutes($slim, $container)
+
 $router = $container->get(FallbackRouter::class);
 $fileToInclude = $router->performLegacyRouting($request);
 if ($fileToInclude === null) {
