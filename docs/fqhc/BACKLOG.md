@@ -1,16 +1,26 @@
-# FQHC Issue Backlog (import-ready)
+# FQHC Issue Backlog
 
-> **Why this file exists:** GitHub Issues is currently **disabled** on this
-> repository, so the program could not be filed as real issues yet. This file
-> holds the intended issue set — one program epic, the workstream epics, and
-> the actionable Phase 0 "next step" issues — written so they can be created
-> verbatim (or scripted via the API) once Issues is enabled. See
+> **Status:** These have been **filed as GitHub issues** (see the mapping
+> below) and linked into a parent/child hierarchy. This file remains the
+> source text for them and the place to draft new issues before filing. See
 > [`ROADMAP.md`](./ROADMAP.md) for sequencing and [`PRINCIPLES.md`](./PRINCIPLES.md)
 > for the non-negotiables every issue inherits.
 
-To enable Issues: repo **Settings → General → Features → Issues**. Then create
-these top-down (epic first) and link the workstream epics as sub-issues of the
-program epic, and each Phase 0 issue under its workstream epic.
+### Filed issues
+
+| Backlog item | Issue |
+|--------------|-------|
+| EPIC-0 Program | [#2](https://github.com/Simonparkershames/openemr-fqhc/issues/2) |
+| EPIC-1 Certification safety & extension architecture | [#3](https://github.com/Simonparkershames/openemr-fqhc/issues/3) |
+| EPIC-2 UDS reporting | [#4](https://github.com/Simonparkershames/openemr-fqhc/issues/4) |
+| EPIC-3 Design system & visual modernization | [#5](https://github.com/Simonparkershames/openemr-fqhc/issues/5) |
+| EPIC-4 True role-based interfaces | [#6](https://github.com/Simonparkershames/openemr-fqhc/issues/6) |
+| EPIC-5 Responsive & performance | [#7](https://github.com/Simonparkershames/openemr-fqhc/issues/7) |
+| TASK-0.1 CI certification gate | [#8](https://github.com/Simonparkershames/openemr-fqhc/issues/8) |
+| TASK-0.2 Upstream-sync process | [#9](https://github.com/Simonparkershames/openemr-fqhc/issues/9) |
+| TASK-0.3 `OpenEMR\FQHC` module skeleton | [#10](https://github.com/Simonparkershames/openemr-fqhc/issues/10) |
+| TASK-0.4 UDS data-element specs | [#11](https://github.com/Simonparkershames/openemr-fqhc/issues/11) |
+| TASK-0.5 Design-system foundation decision | [#12](https://github.com/Simonparkershames/openemr-fqhc/issues/12) |
 
 ---
 

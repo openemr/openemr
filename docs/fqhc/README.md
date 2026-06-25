@@ -56,12 +56,12 @@ project closes those gaps.
 
 The roadmap is mirrored as one **program epic** linking a small number of
 **workstream epics** (certification safety, UDS, design system, role-based UI,
-responsive/performance), each with concrete near-term issues.
+responsive/performance), each with concrete near-term issues. Start from the
+[program epic (#2)](https://github.com/Simonparkershames/openemr-fqhc/issues/2)
+to navigate.
 
-> **Note:** GitHub Issues is currently **disabled** on this repository, so the
-> issue set lives in [`BACKLOG.md`](./BACKLOG.md) as import-ready content.
-> Enable Issues (Settings → Features → Issues) and create them top-down from
-> that file. Start from the program epic to navigate.
+[`BACKLOG.md`](./BACKLOG.md) is the source text for those issues (and the place
+to draft new ones before filing).
 
 ## Status
 
