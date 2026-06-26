@@ -110,34 +110,34 @@ abstract class AppDispatch
      */
     private const ROUTABLE_ACTIONS = [
         // Default action (most clients render nothing here).
-        'index'                  => ['csrf' => false],
+        'index' => ['csrf' => false],
         // Read-only / idempotent endpoints: module ACL only.
         'apiFetchPatientDetails' => ['csrf' => false],
-        'getUser'                => ['csrf' => false],
-        'getPending'             => ['csrf' => false],
-        'fetchSMSList'           => ['csrf' => false],
-        'fetchEmailList'         => ['csrf' => false],
-        'fetchTextMessage'       => ['csrf' => false],
-        'getCallLogs'            => ['csrf' => false],
-        'getNotificationLog'     => ['csrf' => false],
+        'getUser' => ['csrf' => false],
+        'getPending' => ['csrf' => false],
+        'fetchSMSList' => ['csrf' => false],
+        'fetchEmailList' => ['csrf' => false],
+        'fetchTextMessage' => ['csrf' => false],
+        'getCallLogs' => ['csrf' => false],
+        'getNotificationLog' => ['csrf' => false],
         // State-changing endpoints whose emitter (the contact dialog) already
         // posts the 'contact-form' token: CSRF enforced now.
-        'sendFax'                => ['csrf' => true],
-        'sendSMS'                => ['csrf' => true],
-        'sendEmail'              => ['csrf' => true],
-        'forwardFax'             => ['csrf' => true],
+        'sendFax' => ['csrf' => true],
+        'sendSMS' => ['csrf' => true],
+        'sendEmail' => ['csrf' => true],
+        'forwardFax' => ['csrf' => true],
         // State-changing endpoints. Their emitters (the setup pages and
         // messageUI) now post the 'contact-form' token as 'csrf_token_form',
         // so CSRF is enforced here. disposeDocument's GET download branch
         // appends the same token as a query parameter.
-        'saveSetup'              => ['csrf' => true],
+        'saveSetup' => ['csrf' => true],
         // viewFax has a delete/download branch (getDocument), so it is
         // state-changing; messageUI posts the token as 'csrf_token_form'.
-        'viewFax'                => ['csrf' => true],
-        'assignFax'              => ['csrf' => true],
-        'disposeDocument'        => ['csrf' => true],
-        'faxProcessUploads'      => ['csrf' => true],
-        'install'                => ['csrf' => true],
+        'viewFax' => ['csrf' => true],
+        'assignFax' => ['csrf' => true],
+        'disposeDocument' => ['csrf' => true],
+        'faxProcessUploads' => ['csrf' => true],
+        'install' => ['csrf' => true],
     ];
 
     /**
@@ -183,8 +183,8 @@ abstract class AppDispatch
             $serviceType = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
 
-        $serviceType = is_scalar($serviceType) ? (string) $serviceType : null;
-        $action = is_scalar($action) ? (string) $action : null;
+        $serviceType = is_scalar($serviceType) ? (string)$serviceType : null;
+        $action = is_scalar($action) ? (string)$action : null;
 
         return [$serviceType, $action];
     }
@@ -390,7 +390,7 @@ abstract class AppDispatch
 
     static function getServiceInstance($type)
     {
-        $moduleType = is_scalar($type) ? (string) $type : '';
+        $moduleType = is_scalar($type) ? (string)$type : '';
         return ServiceFactory::create($moduleType, self::getServiceType());
     }
 
@@ -506,7 +506,7 @@ abstract class AppDispatch
             $authUser = 0;
         }
         if ($usePrimary) {
-            $authUser = (int) BootstrapService::getPrimaryUser();
+            $authUser = (int)BootstrapService::getPrimaryUser();
         }
         if ($resolvePrimaryAndEditing && (int)$this->getSession('editingUser') > 0) {
             $authUser = (int)$this->getSession('editingUser');
@@ -786,7 +786,7 @@ abstract class AppDispatch
      */
     public function defaultPhoneRegion(): string
     {
-        $configured = trim((string) ($GLOBALS['phone_country_code'] ?? ''));
+        $configured = trim((string)($GLOBALS['phone_country_code'] ?? ''));
         if ($configured === '') {
             return 'US';
         }
@@ -795,7 +795,7 @@ abstract class AppDispatch
             return strtoupper($configured);
         }
         // Otherwise treat it as a numeric dialing code (e.g. "1", "+44").
-        $callingCode = (int) preg_replace('/\D/', '', $configured);
+        $callingCode = (int)preg_replace('/\D/', '', $configured);
         if ($callingCode > 0) {
             $region = PhoneNumberUtil::getInstance()->getRegionCodeForCountryCode($callingCode);
             if (is_string($region) && $region !== '' && $region !== 'ZZ') {

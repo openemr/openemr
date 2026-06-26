@@ -629,7 +629,6 @@ function rc_enable_popup() {
             $(".rc_enable_popup_btn_loader").html(data.msg);
         }
     });
-    $(".rc_enable_popup_btn_loader").removeClass('fa fa-spinner fa-spin');
 }
 
 // drop bucket

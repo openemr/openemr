@@ -67,22 +67,22 @@ $site_id = $session->get('site_id');
                 $datetimepicker_formatInput = false;
                 require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
-            });
-            let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));
-            $("#fromdate").val(dateRange.toJSON().slice(0, 10));
-            $("#todate").val(new Date().toJSON().slice(0, 10));
+            })
+            let dateRange = new Date(new Date().setDate(new Date().getDate() - 1))
+            $('#fromdate').val(dateRange.toJSON().slice(0, 10))
+            $('#todate').val(new Date().toJSON().slice(0, 10))
 
             // Action anchors now use href="#" as a focusable/pointer affordance
             // only; their behavior lives in onclick. Cancel the navigation
             // default so a click never jumps the page. Tab links use
             // href="#<id>" (a fragment) and are not matched by a[href="#"].
             $(document).on('click', 'a[href="#"]', function (e) {
-                e.preventDefault();
-            });
+                e.preventDefault()
+            })
 
-            retrieveMsgs();
-            $('#received').tab('show');
-        });
+            retrieveMsgs()
+            $('#received').tab('show')
+        })
 
         <?php
         $param = [
@@ -166,8 +166,7 @@ $site_id = $session->get('site_id');
                             $faxsmsRefresh = is_string($faxsmsTab['refresh'] ?? null) ? $faxsmsTab['refresh'] : '';
                             ?>
                             <li class="nav-item" role="tab">
-                                <a class="nav-link<?php echo $faxsmsFirstTab ? ' active' : ''; ?>" href="#<?php echo attr($faxsmsId); ?>" aria-controls="<?php echo attr($faxsmsId); ?>" role="tab" data-toggle="tab"><?php echo $faxsmsLabel; // nosemgrep: echoed-request -- xlt()-escaped nav label from MessageUiProfile, not request input
-                                ?>
+                                <a class="nav-link<?php echo $faxsmsFirstTab ? ' active' : ''; ?>" href="#<?php echo attr($faxsmsId); ?>" aria-controls="<?php echo attr($faxsmsId); ?>" role="tab" data-toggle="tab"><?php echo $faxsmsLabel; ?> // nosemgrep: echoed-request -- xlt()-escaped nav label from MessageUiProfile, not request input
                                     <?php if ($faxsmsRefresh !== '') { ?>
                                         <span class="fa fa-redo ml-1" onclick="<?php echo attr($faxsmsRefresh); ?>"
                                             title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.'); ?>"></span>
