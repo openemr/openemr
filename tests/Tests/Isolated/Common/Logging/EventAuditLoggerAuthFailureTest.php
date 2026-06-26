@@ -56,7 +56,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
     private function makeLogger(SinkInterface $sink): EventAuditLogger
     {
         return new EventAuditLogger(
-            sinks: [$sink],
+            sink: $sink,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -73,7 +73,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertSame('mfa', $event->event);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -92,7 +92,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertSame(0, $event->success);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -115,7 +115,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertStringStartsWith('failure:', $decoded);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -135,7 +135,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertSame('physicians', $event->group);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -154,7 +154,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertSame('', $event->user);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -173,7 +173,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertNull($event->patientId);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -192,7 +192,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertSame(42, $event->patientId);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -215,7 +215,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertStringContainsString('10.0.0.1', $decoded);
                 return true;
             }))
-            ->willReturn(true);
+;
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),

@@ -90,11 +90,10 @@ class EventAuditLoggerTest extends TestCase
                 self::assertSame(1, $event->success);
                 self::assertSame('patient-record', $event->category);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $logger = new EventAuditLogger(
-            sinks: [$sink],
+            sink: $sink,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -120,11 +119,10 @@ class EventAuditLoggerTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertSame(base64_encode('Plain text'), $event->comments);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $logger = new EventAuditLogger(
-            sinks: [$sink],
+            sink: $sink,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -140,10 +138,12 @@ class EventAuditLoggerTest extends TestCase
         );
     }
 
-    public function testRecordLogItemWithNoSinksDoesNotError(): void
+    public function testRecordLogItemWithNoOpSinkDoesNotError(): void
     {
+        $sink = $this->createStub(SinkInterface::class);
+
         $logger = new EventAuditLogger(
-            sinks: [],
+            sink: $sink,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -199,11 +199,10 @@ class EventAuditLoggerTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertNull($event->patientId);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $logger = new EventAuditLogger(
-            sinks: [$sink],
+            sink: $sink,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
