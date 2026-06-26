@@ -14,7 +14,8 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 require_once("gacl_admin.inc.php");
 
-function get_system_info(GaclAdminApi $gacl_api) {
+function get_system_info(GaclAdminApi $gacl_api): string
+{
     //Grab system info
     $system_info = 'PHP Version: '.phpversion()."\n";
     $system_info .= 'Zend Version: '.zend_version()."\n";
