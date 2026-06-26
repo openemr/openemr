@@ -82,7 +82,7 @@ class EventAuditLogger
         );
 
         return new self(
-            sinks: $sinks,
+            sink: new Audit\MultiSink($sinks),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
