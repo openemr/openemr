@@ -613,7 +613,7 @@ class X12File
         // get the segment array bounds
         /** @var array<int, string> $segment_ar */
         $seg_first = (reset($segment_ar) !== false) ? (int) key($segment_ar) : 1;
-        $seg_last = (end($segment_ar) !== false) ? key($segment_ar) : count($segment_ar) + $seg_first;
+        $seg_last = (end($segment_ar) !== false) ? (int) key($segment_ar) : count($segment_ar) + $seg_first;
         if (reset($segment_ar) === false) {
             $this->message[] = 'edi_x12_envelopes: reset() error in segment array';
             return $env_ar;
@@ -999,7 +999,7 @@ class X12File
             if (count($this->delimiters)) {
                 $de = $this->delimiters['e'];
             } else {
-                $de = (str_starts_with((string) reset($segment_ar), 'ISA')) ? substr((string) reset($segment_ar), 3, 1) : '';
+                $de = (str_starts_with(reset($seg_ar), 'ISA')) ? substr(reset($seg_ar), 3, 1) : '';
             }
 
             $tp = $this->type ?: $this->edih_x12_type();
@@ -1054,7 +1054,7 @@ class X12File
                 if (isset($st['acct']) && count($st['acct'])) {
                     $ky = array_search($clm01, $st['acct']);
                     if ($ky !== false) {
-                        $srch_ar[$idx]['array'] = array_slice($seg_ar, $st['start'], $st['count'], true);
+                        $srch_ar[$idx]['array'] = array_slice($seg_ar, $this->toInt($st['start']), $this->toInt($st['count']), true);
                         $srch_ar[$idx]['start'] = $st['start'];
                         $srch_ar[$idx]['type'] = $st['type'];
                         $idx++;
@@ -1491,24 +1491,24 @@ class X12File
                 if ($st['trace'] == $trace) {
                 // have to add one to the count to capture the SE segment so html_str has data
                 // when called from edih_835_payment_html function in edih_835_html.php 4-25-17 SMW
-                    $ret_ar = array_slice($seg_ar, $st['start'], $st['count'] + 1, $prskeys);
+                    $ret_ar = array_slice($seg_ar, $this->toInt($st['start']), $this->toInt($st['count']) + 1, $prskeys);
                     break;
                 }
             }
         } elseif ($icn && !($stn || $gsn)) {
             if (isset($env_ar['ISA'][$icn])) {
-                $ret_ar = array_slice($seg_ar, $env_ar['ISA'][$icn]['start'], $env_ar['ISA'][$icn]['count'], $prskeys);
+                $ret_ar = array_slice($seg_ar, $this->toInt($env_ar['ISA'][$icn]['start']), $this->toInt($env_ar['ISA'][$icn]['count']), $prskeys);
             }
         } elseif ($gsn && !$stn) {
             foreach ($env_ar['GS'] as $gs) {
                 if ($icn) {
                     if (($gs['icn'] == $icn) && ($gs['gsn'] == $gsn)) {
-                        $ret_ar = array_slice($seg_ar, $gs['start'], $gs['count'], $prskeys);
+                        $ret_ar = array_slice($seg_ar, $this->toInt($gs['start']), $this->toInt($gs['count']), $prskeys);
                         break;
                     }
                 } else {
                     if ($gs['gsn'] == $gsn) {
-                        $ret_ar = array_slice($seg_ar, $gs['start'], $gs['count'], $prskeys);
+                        $ret_ar = array_slice($seg_ar, $this->toInt($gs['start']), $this->toInt($gs['count']), $prskeys);
                         break;
                     }
                 }
@@ -1519,22 +1519,22 @@ class X12File
                 if ($icn) {
                     if ($gsn) {
                         if ($st['icn'] == $icn && $st['gsn'] == $gsn && $st['stn'] == $stn) {
-                            $ret_ar = array_slice($seg_ar, $st['start'], $st['count'], $prskeys);
+                            $ret_ar = array_slice($seg_ar, $this->toInt($st['start']), $this->toInt($st['count']), $prskeys);
                             break;
                         }
                     } else {
                         if ($st['icn'] == $icn && $st['stn'] == $stn) {
-                            $ret_ar = array_slice($seg_ar, $st['start'], $st['count'], $prskeys);
+                            $ret_ar = array_slice($seg_ar, $this->toInt($st['start']), $this->toInt($st['count']), $prskeys);
                             break;
                         }
                     }
                 } elseif ($gsn) {
                     if ($st['gsn'] == $gsn && $st['stn'] == $stn) {
-                        $ret_ar = array_slice($seg_ar, $st['start'], $st['count'], $prskeys);
+                        $ret_ar = array_slice($seg_ar, $this->toInt($st['start']), $this->toInt($st['count']), $prskeys);
                         break;
                     }
                 } elseif ($st['stn'] == $stn) {
-                    $ret_ar = array_slice($seg_ar, $st['start'], $st['count'], $prskeys);
+                    $ret_ar = array_slice($seg_ar, $this->toInt($st['start']), $this->toInt($st['count']), $prskeys);
                     break;
                 }
             }
@@ -1547,6 +1547,19 @@ class X12File
         }
 
         return $ret_ar;
+    }
+
+    /**
+     * Coerce an envelope offset/length to int.
+     *
+     * Envelope start/count values are read back through the untyped
+     * $this->envelopes structure, so static analysis sees them as mixed even
+     * though the parser writes ints. Narrow before casting; degrade a
+     * non-numeric value to 0 rather than asserting a type.
+     */
+    private function toInt(mixed $value): int
+    {
+        return is_numeric($value) ? (int) $value : 0;
     }
 
 // end class X12File
