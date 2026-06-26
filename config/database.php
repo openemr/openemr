@@ -14,9 +14,12 @@ declare(strict_types=1);
 
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\{
+    Configuration as DbalConfiguration,
     Connection,
     DriverManager,
 };
+use Firehed\DbalLogger\Middleware as LoggingMiddleware;
+use OpenEMR\Common\Database\Middleware\AuditingDbalLogger;
 use Doctrine\Migrations\Configuration\{
     Connection\ExistingConnection,
     EntityManager\ExistingEntityManager,
@@ -48,9 +51,14 @@ return [
         $manager = new ConnectionManager();
         $opts = $c->get(DatabaseConnectionOptions::class);
 
-        // Main connection: middleware will be added here
-        $manager->register(ConnectionType::Main, fn () =>
-            DriverManager::getConnection($opts->toDbalParams()));
+        // Main connection: with audit logging middleware
+        $manager->register(ConnectionType::Main, function () use ($opts) {
+            $config = new DbalConfiguration();
+            $config->setMiddlewares([
+                new LoggingMiddleware(new AuditingDbalLogger()),
+            ]);
+            return DriverManager::getConnection($opts->toDbalParams(), $config);
+        });
 
         // Audit connection: no middleware, used by EventAuditLogger and some
         // application bootstrapping
