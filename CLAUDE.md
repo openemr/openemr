@@ -605,6 +605,13 @@ Preserve existing authors/copyrights when editing files.
 
 - Multiple template engines: check extension (.twig, .html, .php)
 - Event system uses Symfony EventDispatcher
+- **Bind-mount permissions / HOST_UID:** openemr-cmd auto-exports
+  `HOST_UID`/`HOST_GID` on every `up`/`worktree up`, and the in-container
+  apache user adopts your host uid via the entrypoint. Bind-mounted files
+  apache writes are host-owned, so host-side edits (incl. `git commit`)
+  work regardless of your host uid. Use openemr-cmd consistently —
+  bypassing it skips the export and leaves apache at uid=1000, the
+  usual cause when `EACCES` shows up on bind-mount edits.
 - **Pre-commit hooks:** Install with `openemr-cmd prek-install` (alias `pi`).
   This writes git hooks that route through the running openemr container, so
   `git commit` validates against the project's full `.pre-commit-config.yaml`
