@@ -80,7 +80,7 @@ abstract class AppDispatch
         // so verifyAcl() would always fail and AccessDeniedHelper::deny()
         // would exit(1) before the reminder job could run — the silent
         // background-service failure reported in issue #11827.
-        $ignoreAuth = OEGlobalsBag::getInstance()->getBoolean('ignoreAuth');
+        $ignoreAuth = filter_var(OEGlobalsBag::getInstance()->get('ignoreAuth'), FILTER_VALIDATE_BOOLEAN);
         if (!$ignoreAuth && !$this->verifyAcl()) {
             AccessDeniedHelper::deny('FaxSMS module access denied');
         }
@@ -104,7 +104,7 @@ abstract class AppDispatch
      * 'contact-form' CSRF token (state-changing actions).
      *
      * Keys match exactly what the UI sends. PHP resolves method names
-     * case-insensitively, so 'makeRingoutCall' reaches makeRingOutCall().
+     * case-insensitively.
      *
      * @var array<string, array{csrf: bool}>
      */
@@ -137,7 +137,6 @@ abstract class AppDispatch
         'assignFax'              => ['csrf' => true],
         'disposeDocument'        => ['csrf' => true],
         'faxProcessUploads'      => ['csrf' => true],
-        'makeRingoutCall'        => ['csrf' => true],
         'install'                => ['csrf' => true],
     ];
 

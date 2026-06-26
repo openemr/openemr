@@ -57,7 +57,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
      * @param $dateTo
      * @return void
      */
-    public function fetchSMSFilteredList($dateFrom, $dateTo)
+    public function fetchSMSFilteredList(string $dateFrom, string $dateTo): void
     {
     }
 
@@ -65,7 +65,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
      * @param $uiDateRangeFlag
      * @return false|string|null
      */
-    public function fetchSMSList($uiDateRangeFlag = true): false|string|null
+    public function fetchSMSList(bool $uiDateRangeFlag = true): false|string|null
     {
         return $this->_getPending();
     }
@@ -87,7 +87,7 @@ class TwilioSMSClient extends AppDispatch implements SmsChannelInterface
         return $credentials;
     }
 
-    public function sendSMS($toPhone = '', $subject = '', $message = '', $from = ''): mixed
+    public function sendSMS($toPhone = '', string $subject = '', string $message = '', string $from = ''): mixed
     {
         $toPhone = $toPhone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');

@@ -33,7 +33,7 @@ require_once($oeBootstrap . '/globals.php');
 ini_set('display_errors', '0');
 ini_set('zlib.output_compression', '0');
 
-$token = $_GET['t'] ?? '';
+$token = filter_input(INPUT_GET, 't') ?? '';
 if (!is_string($token) || $token === '') {
     http_response_code(400);
     exit;
@@ -92,7 +92,7 @@ try {
         fclose($fh);
     }
     if (!str_starts_with($head, '%PDF-')) {
-        error_log('faxMedia.php: staged file is not a PDF: ' . $name);
+        \OpenEMR\BC\ServiceContainer::getLogger()->error('faxMedia.php: staged file is not a PDF', ['name' => $name]);
         http_response_code(415);
         exit;
     }
@@ -119,7 +119,7 @@ try {
     // while the PHI window stays bounded by the short token TTL.
     exit;
 } catch (\Throwable $e) {
-    error_log('faxMedia.php: ' . $e->getMessage());
+    \OpenEMR\BC\ServiceContainer::getLogger()->error('faxMedia.php request failed', ['exception' => $e]);
     http_response_code(500);
     exit;
 }

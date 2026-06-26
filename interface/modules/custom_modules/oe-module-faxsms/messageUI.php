@@ -235,6 +235,3 @@ $site_id = $session->get('site_id');
     </div><!-- /.navbar-container -->
 </body>
 </html>
-
-
-

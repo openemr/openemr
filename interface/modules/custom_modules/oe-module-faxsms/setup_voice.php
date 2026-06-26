@@ -29,7 +29,7 @@ if (!$clientApp->verifyAcl()) {
 }
 $c = $clientApp->getCredentials();
 $credEnableEvents = is_array($c) ? ($c['enable_events'] ?? null) : null;
-$voiceEnabled = OEGlobalsBag::getInstance()->getBoolean('oe_enable_voice');
+$voiceEnabled = filter_var(OEGlobalsBag::getInstance()->get('oe_enable_voice'), FILTER_VALIDATE_BOOLEAN);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $module_config = $_REQUEST['module_config'] ?? 1;
 $pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid') ?? 0;
@@ -220,6 +220,3 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
     </div>
 </body>
 </html>
-
-
-

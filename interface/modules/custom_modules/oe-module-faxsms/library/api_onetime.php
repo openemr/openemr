@@ -147,7 +147,12 @@ final class OneTimeRequestGuard
             throw new \Exception(xlt("Error! Not authorised. You must be an authorised portal user or admin."));
         }
 
-        $pid = (int) ($requestedPid ?? 0);
+        $rawPid = $requestedPid ?? 0;
+        // Reject malformed ids ("123abc" -> 123) before casting; staff path only.
+        if (is_string($rawPid) && !ctype_digit($rawPid)) {
+            throw new \Exception(xlt("Error! Missing patient id."));
+        }
+        $pid = (int) $rawPid;
         if ($pid <= 0) {
             throw new \Exception(xlt("Error! Missing patient id."));
         }
@@ -165,6 +170,3 @@ final class OneTimeRequestGuard
         die(text(xlt('Error: the request could not be completed.')));
     }
 }
-
-
-

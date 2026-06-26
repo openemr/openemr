@@ -632,36 +632,6 @@ function rc_enable_popup() {
     $(".rc_enable_popup_btn_loader").removeClass('fa fa-spinner fa-spin');
 }
 
-function makeRingoutCall(callTo, callFrom = '', id = '') {
-    $(".brand").addClass('fa fa-spinner fa-spin');
-    let actionUrl = (serviceType === 'fax') ? 'makeRingoutCall?type=fax' : 'makeRingoutCall?type=sms';
-    let data = [];
-    $.post(actionUrl, {
-        'toPhone': callTo,
-        'fromPhone': callFrom,
-        'id': id,
-        'csrf_token_form': csrfToken
-    }, null, 'json').done(function (data) {
-        $(".brand").removeClass('fa fa-spinner fa-spin');
-        if (data && data.error) {
-            alertMsg(data.error);
-            return false;
-        }
-        if (data.msg) {
-            $(".rc_test_call_loader").html(data.msg);
-        }
-        if (id) {
-            $("." + id).empty().append(data);
-        }
-    }).fail(function (xhr, status, error) {
-        const message = `Error: ${error || 'Request to make call failed with Unknown error!'}`;
-        alertMsg(message, 10000);
-        console.error('Request failed: ', status, error);
-    }).always(function () {
-        $(".brand").removeClass('fa fa-spinner fa-spin');
-    });
-}
-
 // drop bucket
 const queueMsg = '' + xl('Fax Queue. Drop files or Click here for Fax Contact form.');
 Dropzone.autoDiscover = false;
@@ -734,6 +704,3 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
-
-

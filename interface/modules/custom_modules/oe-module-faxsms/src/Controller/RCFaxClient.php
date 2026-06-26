@@ -91,7 +91,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         }
         $toPhone = $toPhone ?: $this->getRequest('phone');
         $from = $from ?: $this->getRequest('from');
-        $from = $from ?: $this->credentials['smsNumber'];
+        $from = $from ?: (is_array($this->credentials) ? ($this->credentials['smsNumber'] ?? '') : '');
         $message = $message ?: $this->getRequest('comments');
 
         $smsNumber = $this->formatPhone($from);
@@ -874,7 +874,7 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
                     'page' => $pageCount
                 ]);
                 foreach ($apiResponse->json()->records as $value) {
-                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", (string)($value->startTime ?? ''))) . "</td><td>" . text((string)($value->type ?? '')) . "</td><td>" . text((string)($value->from->name ?? '')) . "</td><td>" . text((string)($value->to->phoneNumber ?? '')) . "</td><td>" . text((string)($value->action ?? '')) . "</td><td>" . text((string)($value->result ?? '')) . "</td><td>" . text((string)($value->message->id ?? '')) . "</td></tr>";
+                    $responseMsg .= "<tr><td>" . text(str_replace(["T", "Z"], " ", self::asText($value->startTime ?? null))) . "</td><td>" . text(self::asText($value->type ?? null)) . "</td><td>" . text(self::asText($value->from->name ?? null)) . "</td><td>" . text(self::asText($value->to->phoneNumber ?? null)) . "</td><td>" . text(self::asText($value->action ?? null)) . "</td><td>" . text(self::asText($value->result ?? null)) . "</td><td>" . text(self::asText($value->message->id ?? null)) . "</td></tr>";
                 }
 
                 $end = microtime(true);
@@ -1218,4 +1218,13 @@ class RCFaxClient extends AppDispatch implements FaxChannelInterface, SmsChannel
         }
     }
 
+    /**
+     * Coerce a mixed value (e.g. an untyped SDK-response field) to a display
+     * string, treating non-scalars as empty. Keeps explicit (string) casts off
+     * mixed values, which strict PHPStan flags as cast.string.
+     */
+    private static function asText(mixed $value): string
+    {
+        return is_scalar($value) ? (string) $value : '';
+    }
 }

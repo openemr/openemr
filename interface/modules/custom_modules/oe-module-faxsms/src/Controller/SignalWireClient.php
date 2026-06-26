@@ -44,7 +44,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
     public string $portalUrl;
     protected CryptoInterface $crypto;
     private readonly FaxUploadStaging $uploadStaging;
-    private $client;
+    private ?Client $client = null;
     private $spaceUrl;
     private $projectId;
     private $apiToken;
@@ -139,7 +139,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
             return $this->authErrorDefault;
         }
 
-        if (empty($this->client)) {
+        if ($this->client === null) {
             return json_encode([
                 'success' => false,
                 'error' => xlt('SignalWire client not initialized. Please configure credentials.')
@@ -398,7 +398,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
      */
     public function fetchReminderCount(): string
     {
-        if (empty($this->client)) {
+        if ($this->client === null) {
             return json_encode(['count' => 0]);
         }
         try {
@@ -465,7 +465,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
             }
 
             $fax = $this->fetchUpstreamFax($sid);
-            $mediaUrl = $fax->mediaUrl ?? '';
+            $mediaUrl = $fax !== null ? ($fax->mediaUrl ?? '') : '';
             if ($fax === null || $mediaUrl === '') {
                 return text(json_encode(['error' => xlt('Fax media not available from provider')]));
             }
@@ -609,8 +609,8 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
 
         try {
             $fax = $this->fetchUpstreamFax($sid);
-            $mediaUrl = $fax->mediaUrl ?? '';
-            $from = $fax->from ?? '';
+            $mediaUrl = $fax !== null ? ($fax->mediaUrl ?? '') : '';
+            $from = $fax !== null ? ($fax->from ?? '') : '';
             if ($fax === null || $mediaUrl === '') {
                 return json_encode(['error' => xlt('Fax media not available from provider')]);
             }
@@ -664,7 +664,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
         // Index 0 = received (inbound), 1 = sent (outbound), 2 = reserved.
         $responseMsg = [0 => '', 1 => '', 2 => xlt('Not Implemented')];
 
-        if (!empty($this->client)) {
+        if ($this->client !== null) {
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $site_id = $session->get('site_id') ?? 'default';
 
@@ -762,7 +762,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
      */
     private function fetchUpstreamFax(string $sid): ?FaxInstance
     {
-        if (empty($this->client) || $sid === '') {
+        if ($this->client === null || $sid === '') {
             return null;
         }
         try {
@@ -779,7 +779,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
      */
     private function deleteUpstreamFax(string $sid): bool
     {
-        if (empty($this->client) || $sid === '') {
+        if ($this->client === null || $sid === '') {
             return false;
         }
         try {
