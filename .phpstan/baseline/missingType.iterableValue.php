@@ -3787,11 +3787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_segments\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\EdiHistory\\\\X12File\\:\\:edih_x12_slice\\(\\) has parameter \\$arg_array with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',

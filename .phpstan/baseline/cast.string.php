@@ -2658,7 +2658,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 92,
+    'count' => 58,
     'path' => __DIR__ . '/../../src/Billing/EdiHistory/X12File.php',
 ];
 $ignoreErrors[] = [
