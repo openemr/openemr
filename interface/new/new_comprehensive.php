@@ -447,6 +447,18 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             }
                         }
 
+                        // On new-patient registration, pre-fill date fields configured to
+                        // default to "now" (e.g. Financial Review Date) with today's date.
+                        // Scoped to this registration form so editing an existing patient
+                        // never silently stamps a blank review date with today.
+                        if (
+                            ($currvalue === null || $currvalue === '')
+                            && (int) ($frow['data_type'] ?? 0) === 4
+                            && ($frow['default_value'] ?? '') === 'now'
+                        ) {
+                            $currvalue = date('Y-m-d');
+                        }
+
                         // Handle a data category (group) change.
                         if (strcmp((string) $this_group, (string) $last_group) != 0) {
                             if (!$SHORT_FORM) {

@@ -3621,7 +3621,7 @@ INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_m
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '2', 'Contact'     , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '3', 'Choices'     , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '4', 'Employer'    , ''    );
-INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '5', 'Stats'       , ''    );
+INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '5', 'Additional Details', ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '6', 'Misc'        , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('DEM', '8', 'Related'    , ''    );
 INSERT INTO layout_group_properties (grp_form_id, grp_group_id, grp_title, grp_mapping) VALUES ('LBTref', '' , 'Referral'        , 'Transactions');
@@ -3769,13 +3769,13 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ethnicity', '5', 'Ethnicity', 2, 33, 1, 0, 0, 'ethnicity', 1, 1, '', '[\"EP\"]', 'Ethnicity', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'race', '5', 'Race', 3, 33, 1, 0, 0, 'race', 1, 1, '', '[\"EP\"]', 'Multi Select race and or race category that describes patient race', 0);
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','nationality_country','5','Nationality',4,43,1,0,0,'nationality_with_country',1,1,'','','Patient Nationality. Type to search.',0,'','F','','','');
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'financial_review', '5', 'Financial Review Date', 5, 2, 1, 10, 20, '', 1, 1, '', 'D', 'Financial Review Date', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'family_size', '5', 'Family Size', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'homeless', '5', 'Homeless, etc.', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'financial_review', '5', 'Financial Review Date', 5, 4, 1, 10, 10, '', 1, 1, 'now', '', 'Date of last financial/sliding-fee review (defaults to today on registration)', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'family_size', '5', 'Family Size', 6, 2, 1, 6, 0, '', 1, 1, '', '', 'Number of people in the household', 0, 'int1');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 7, 2, 1, 10, 0, '', 1, 1, '', '', 'Household monthly income (used for sliding-fee eligibility)', 0, 'pos_num');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'homeless', '5', 'Housing Status', 8, 1, 1, 0, 0, 'housing_status', 1, 1, '', '', 'Patient housing status (UDS Table 4)', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpreter_needed', '5', 'Interpreter', 9, 1, 1, 0, 0, 'yes_no_unknown', 1, 1, '', '', 'Interpreter needed?', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpreter', '5', 'Interpreter Comments', 10, 2, 1, 20, 63, '', 1, 1, '', '', 'Additional notes about interpretation needs', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 11, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migratory/Seasonal', 11, 1, 1, 0, 0, 'migrantseasonal', 1, 1, '', '', 'Migratory or seasonal agricultural worker status (UDS Lines 14-15)', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',12,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',13, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 14, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
@@ -5720,6 +5720,7 @@ INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES 
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','email','E-Mail','{\"email\":true}','40');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','url','URL','{\"url\":true}','50');
 INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','luhn','Luhn','{"numericality": {"onlyInteger": true}, "luhn":true}','80');
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','pos_num','Non-negative Number','{"numericality": {"greaterThanOrEqualTo": 0}}','85');
 
 --  Form Keys
 
@@ -7385,6 +7386,26 @@ VALUES ('yes_no_unknown', 'yes', 'Yes', 10, 'SNOMED-CT:373066001', ''),
        ('yes_no_unknown', 'no', 'No', 20, 'SNOMED-CT:373067005', ''),
        ('yes_no_unknown', 'asked-unknown', 'Asked But Unknown', 30, 'DataAbsentReason:asked-unknown', ''),
        ('yes_no_unknown', 'unknown', 'Unknown', 40, 'DataAbsentReason:unknown', '');
+
+-- Migrant/Seasonal agricultural worker status (UDS) used for the demographics migrantseasonal field
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'migrantseasonal', 'Migratory/Seasonal Status', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES
+    ('migrantseasonal', 'migratory', 'Migratory', 10),
+    ('migrantseasonal', 'seasonal', 'Seasonal', 20),
+    ('migrantseasonal', 'neither', 'Neither', 30),
+    ('migrantseasonal', 'unknown', 'Unknown', 40);
+
+-- Housing status (UDS Table 4 categories) used for the demographics homeless field
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'housing_status', 'Housing Status', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES
+    ('housing_status', 'not_homeless', 'Not homeless', 10),
+    ('housing_status', 'shelter', 'Shelter', 20),
+    ('housing_status', 'transitional', 'Transitional Housing', 30),
+    ('housing_status', 'doubled_up', 'Doubled Up', 40),
+    ('housing_status', 'street', 'Street', 50),
+    ('housing_status', 'permanent_supportive', 'Permanent Supportive Housing', 60),
+    ('housing_status', 'other', 'Other', 70),
+    ('housing_status', 'unknown', 'Unknown', 80);
 
 -- Administrative Sex list used for patient_data.sex_identified field.
 -- This list seems to constantly update with USCDI versions and new administrations so expect the values here to change frequently

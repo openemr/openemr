@@ -718,7 +718,22 @@ function generate_form_field($frow, $currvalue): void
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'
+        // Render numeric-validated fields as an HTML5 number input. The core demographics
+        // form does not execute the LBF validate.js rules, so without this a "numeric"
+        // field would still accept free text. Gated on the validation rule so only fields
+        // explicitly configured as numeric are affected.
+        $inputType = 'text';
+        $numericAttrs = '';
+        $validationRule = $frow['validation'] ?? '';
+        if ($validationRule === 'pos_num') {
+            $inputType = 'number';
+            $numericAttrs = " min='0' step='0.01'";
+        } elseif ($validationRule === 'int1') {
+            $inputType = 'number';
+            $numericAttrs = " min='1' max='100' step='1'";
+        }
+
+        echo "<input type='{$inputType}'{$numericAttrs}
             class='form-control{$smallform}'
             name='form_{$field_id_esc}'
             id='form_{$field_id_esc}'

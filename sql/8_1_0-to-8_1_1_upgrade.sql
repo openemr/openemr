@@ -117,3 +117,55 @@
 ALTER TABLE `form_eye_antseg`
   MODIFY COLUMN OSCONJ text;
 #EndIf
+
+-- Demographics "Stats" group: rename to "Additional Details" and give its UDS/social
+-- fields proper input types (dropdowns, date picker, numeric inputs). Guards are keyed
+-- on the original values so this is re-run safe and skips admin-customized fields.
+
+#IfRow3D layout_group_properties grp_form_id DEM grp_group_id 5 grp_title Stats
+UPDATE layout_group_properties SET grp_title = 'Additional Details' WHERE grp_form_id = 'DEM' AND grp_group_id = '5';
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id migrantseasonal
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'migrantseasonal', 'Migratory/Seasonal Status', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('migrantseasonal', 'migratory', 'Migratory', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('migrantseasonal', 'seasonal', 'Seasonal', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('migrantseasonal', 'neither', 'Neither', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('migrantseasonal', 'unknown', 'Unknown', 40);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id housing_status
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'housing_status', 'Housing Status', 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'not_homeless', 'Not homeless', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'shelter', 'Shelter', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'transitional', 'Transitional Housing', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'doubled_up', 'Doubled Up', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'street', 'Street', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'permanent_supportive', 'Permanent Supportive Housing', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'other', 'Other', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('housing_status', 'unknown', 'Unknown', 80);
+#EndIf
+
+#IfNotRow2D list_options list_id LBF_Validations option_id pos_num
+INSERT INTO `list_options` (`list_id`,`option_id`,`title`,`notes`,`seq`) VALUES ('LBF_Validations','pos_num','Non-negative Number','{"numericality": {"greaterThanOrEqualTo": 0}}','85');
+#EndIf
+
+#IfRow3D layout_options form_id DEM field_id financial_review data_type 2
+UPDATE layout_options SET data_type = 4, max_length = 10, default_value = 'now', edit_options = '', description = 'Date of last financial/sliding-fee review (defaults to today on registration)' WHERE form_id = 'DEM' AND field_id = 'financial_review';
+#EndIf
+
+#IfRow3D layout_options form_id DEM field_id migrantseasonal data_type 2
+UPDATE layout_options SET data_type = 1, fld_length = 0, max_length = 0, list_id = 'migrantseasonal', title = 'Migratory/Seasonal', description = 'Migratory or seasonal agricultural worker status (UDS Lines 14-15)' WHERE form_id = 'DEM' AND field_id = 'migrantseasonal';
+#EndIf
+
+#IfRow3D layout_options form_id DEM field_id homeless data_type 2
+UPDATE layout_options SET data_type = 1, fld_length = 0, max_length = 0, list_id = 'housing_status', title = 'Housing Status', description = 'Patient housing status (UDS Table 4)' WHERE form_id = 'DEM' AND field_id = 'homeless';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id family_size validation int1
+UPDATE layout_options SET fld_length = 6, max_length = 0, validation = 'int1', description = 'Number of people in the household' WHERE form_id = 'DEM' AND field_id = 'family_size';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id monthly_income validation pos_num
+UPDATE layout_options SET fld_length = 10, max_length = 0, validation = 'pos_num', description = 'Household monthly income (used for sliding-fee eligibility)' WHERE form_id = 'DEM' AND field_id = 'monthly_income';
+#EndIf
