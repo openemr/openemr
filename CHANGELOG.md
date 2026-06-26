@@ -1,5 +1,13 @@
 # CHANGELOG.md
 
+## [8.1.1](https://github.com/openemr/openemr/milestone/30?closed=1) - 2026-06-26
+
+### Fixed
+
+#### Bug Fixes
+
+- restore appointments hidden after 8.0→8.1 upgrade ([#12520](https://github.com/openemr/openemr/pull/12520))
+
 ## [8.1.0](https://github.com/openemr/openemr/milestone/25?closed=1) - 2026-06-01
 
 ### Fixed
