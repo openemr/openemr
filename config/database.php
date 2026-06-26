@@ -21,8 +21,8 @@ use Doctrine\DBAL\{
 use Doctrine\Migrations\Configuration\{
     Connection\ExistingConnection,
     EntityManager\ExistingEntityManager,
+    Migration\ConfigurationArray,
     Migration\ConfigurationLoader,
-    Migration\PhpFile,
 };
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\ORM\{
@@ -77,7 +77,18 @@ return [
     },
 
     // Doctrine Migrations
-    ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
+    ConfigurationLoader::class => fn () => new ConfigurationArray([
+        'custom_template' => 'db/migration-template.php.tpl',
+        'migrations_paths' => [
+            // A future version of this will integrate w/ the modules system and
+            // pull in any vended migrations from installed/active modules.
+            'OpenEMR\\Core\\Migrations' => 'db/Migrations',
+        ],
+        'table_storage' => [
+            'table_name' => 'migrations',
+            'execution_time_column_name' => 'execution_duration_ms',
+        ],
+    ]),
     // We use fromEntityManager instead of fromConnection to be able to leverage
     // its EventManager. This is required to subscribe to migration events.
     DependencyFactory::class => fn (TC $c) => DependencyFactory::fromEntityManager(

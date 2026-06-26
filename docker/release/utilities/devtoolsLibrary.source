@@ -1,0 +1,787 @@
+#!/bin/sh
+# shellcheck shell=bash
+# ============================================================================
+# OpenEMR Development Tools Library
+# ============================================================================
+#
+# Purpose:
+#   This library provides utility functions for OpenEMR container development,
+#   testing, and maintenance tasks. Functions are designed to be sourced into
+#   other shell scripts.
+#
+# Note: This file uses bash-specific features ([[ ]]) and should be sourced
+#       by bash scripts. The shebang is /bin/sh for compatibility, but the
+#       actual shell used depends on the script that sources it.
+#
+# Usage:
+#   source /path/to/devtoolsLibrary.source
+#   prepareVariables
+#   resetOpenemr
+#
+# Environment Variables:
+#   The library uses various environment variables for database and OpenEMR
+#   configuration. See individual function documentation for details.
+#
+# ============================================================================
+
+# ============================================================================
+# PRIVILEGE-DROP HELPER
+# ============================================================================
+# Drop privileges to apache and exec the given command + args.
+# OpenEMR's RootCliGuard (openemr#12267) refuses root for any script
+# that loads interface/globals.php or runs through bin/console —
+# invoking those as root would create root-owned files the web
+# server later cannot read, the same failure mode the guard exists
+# to catch. Use this wrapper for any `php <openemr-script>`
+# invocation.
+#
+# Pass the command and its args as separate words, e.g.:
+#     run_php_as_apache php /path/to/script.php "key=${VAL}" "other=${X}"
+#
+# `su-exec` (alpine `su-exec` package, 14 KB static binary) runs the
+# command directly under apache's uid/gid + supplementary groups with
+# no intervening shell. Each arg reaches the target program verbatim
+# — values containing quotes, spaces, `$`, `;`, backticks, control
+# characters, or any other shell-special bytes are passed through
+# unparsed, which the equivalent `su -c "string"` form cannot do
+# without double-shell-parsing risk. su-exec also preserves the env
+# (HOME / PATH / MYSQL_* / OPENEMR_ENABLE_INSTALLER_AUTO etc.), so
+# no `-p` flag analog is needed.
+#
+# We chose su-exec over busybox `su` because busybox `su` rescans
+# its option flags across the entire arg list (not just up to USER),
+# so `-c`, `-f`, `-s` etc. appearing inside the inner command get
+# absorbed as su's own options — breaking argv-passthrough.
+# Util-linux `su` (`shadow` package) would also work but is larger
+# and alpine doesn't ship its `su` binary anyway.
+run_php_as_apache() {
+    su-exec apache "$@"
+}
+
+# ============================================================================
+# CONFIGURATION AND SETUP FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# prepareVariables()
+# ----------------------------------------------------------------------------
+# Prepares configuration string and custom variables from environment variables.
+# Sets defaults for MySQL and OpenEMR configuration if not provided.
+#
+# Environment Variables Used:
+#   - MYSQL_HOST: MySQL server hostname (default: localhost)
+#   - MYSQL_PORT: MySQL server port (default: 3306)
+#   - MYSQL_ROOT_USER: MySQL root username (default: root)
+#   - MYSQL_ROOT_PASS: MySQL root password (required)
+#   - MYSQL_USER: MySQL username for OpenEMR (default: openemr)
+#   - MYSQL_PASS: MySQL password for OpenEMR (default: openemr)
+#   - MYSQL_DATABASE: MySQL database name (default: openemr)
+#   - OE_USER: OpenEMR initial admin username (optional)
+#   - OE_PASS: OpenEMR initial admin password (optional)
+#   - SQL_DATA_DRIVE: Path to directory containing SQL files for import (optional)
+#
+# Output Variables Set:
+#   - CONFIGURATION: Space-separated configuration string for auto_configure.php
+#   - CUSTOM_ROOT_USER: Resolved root user (defaults to 'root')
+#   - CUSTOM_USER: Resolved MySQL user (defaults to 'openemr')
+#   - CUSTOM_PASSWORD: Resolved MySQL password (defaults to 'openemr')
+#   - CUSTOM_DATABASE: Resolved database name (defaults to 'openemr')
+#   - CUSTOM_PORT: Resolved MySQL port (defaults to 3306)
+#
+# ----------------------------------------------------------------------------
+prepareVariables() {
+    # Set default values for environment variables if not provided
+    : "${MYSQL_DATABASE:=}" \
+        "${MYSQL_HOST:=localhost}" \
+        "${MYSQL_PASS:=}" \
+        "${MYSQL_PORT:=}" \
+        "${MYSQL_ROOT_PASS:=}" \
+        "${MYSQL_ROOT_USER:=}" \
+        "${MYSQL_USER:=}" \
+        "${OE_PASS:=}" \
+        "${OE_USER:=}" \
+        "${SQL_DATA_DRIVE:=}"
+
+    CONFIGURATION="server=${MYSQL_HOST} rootpass=${MYSQL_ROOT_PASS} loginhost=%"
+    if [[ "${MYSQL_ROOT_USER}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} root=${MYSQL_ROOT_USER}"
+        CUSTOM_ROOT_USER="${MYSQL_ROOT_USER}"
+    else
+        CUSTOM_ROOT_USER="root"
+    fi
+    if [[ "${MYSQL_USER}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} login=${MYSQL_USER}"
+        CUSTOM_USER="${MYSQL_USER}"
+    else
+        CUSTOM_USER="openemr"
+    fi
+    if [[ "${MYSQL_PASS}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} pass=${MYSQL_PASS}"
+        CUSTOM_PASSWORD="${MYSQL_PASS}"
+    else
+        CUSTOM_PASSWORD="openemr"
+    fi
+    if [[ "${MYSQL_DATABASE}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} dbname=${MYSQL_DATABASE}"
+        CUSTOM_DATABASE="${MYSQL_DATABASE}"
+    else
+        CUSTOM_DATABASE="openemr"
+    fi
+    if [[ "${MYSQL_PORT}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} port=${MYSQL_PORT}"
+        CUSTOM_PORT="${MYSQL_PORT}"
+    else
+        CUSTOM_PORT=3306
+    fi
+    if [[ "${OE_USER}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} iuser=${OE_USER}"
+    fi
+    if [[ "${OE_PASS}" != "" ]]; then
+        CONFIGURATION="${CONFIGURATION} iuserpass=${OE_PASS}"
+    fi
+}
+
+# ----------------------------------------------------------------------------
+# setGlobalSettings()
+# ----------------------------------------------------------------------------
+# Sets OpenEMR global settings from environment variables.
+#
+# Environment Variables Used:
+#   Any environment variable starting with 'OPENEMR_SETTING_' will be processed.
+#   The prefix 'OPENEMR_SETTING_' is stripped to get the setting name.
+#
+# Example:
+#   export OPENEMR_SETTING_my_setting_name="value"
+#   setGlobalSettings
+#
+# This will update the 'my_setting_name' setting in the globals table.
+#
+# ----------------------------------------------------------------------------
+setGlobalSettings() {
+    # Process all environment variables that start with 'OPENEMR_SETTING_'
+    OPENEMR_SETTINGS=$(printenv | grep '^OPENEMR_SETTING_' || true)
+    if [[ -n "${OPENEMR_SETTINGS}" ]]; then
+        echo "${OPENEMR_SETTINGS}" |
+        while IFS= read -r line; do
+            SETTING_TEMP=$(echo "${line}" | cut -d "=" -f 1)
+            # note am omitting the letter O on purpose
+            CORRECT_SETTING_TEMP=$(echo "${SETTING_TEMP}" | awk -F 'PENEMR_SETTING_' '{print $2}')
+            VALUE_TEMP=$(echo "${line}" | awk -F "${CORRECT_SETTING_TEMP}=" '{print $2}')
+            echo "Set ${CORRECT_SETTING_TEMP} to ${VALUE_TEMP}"
+            mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = '${VALUE_TEMP}' WHERE gl_name = '${CORRECT_SETTING_TEMP}'" "${CUSTOM_DATABASE}"
+        done
+    fi
+}
+
+# ============================================================================
+# INSTALLATION AND RESET FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# resetOpenemr()
+# ----------------------------------------------------------------------------
+# Completely resets OpenEMR to a fresh state by:
+#   1. Dropping the database and user
+#   2. Resetting CouchDB data
+#   3. Removing all site files
+#   4. Restoring default site files from source
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - Requires MySQL root access
+#   - Source OpenEMR code must be available at /openemr
+#
+# WARNING:
+#   This function permanently destroys all OpenEMR data!
+#   Use only for development/testing environments.
+#
+# ----------------------------------------------------------------------------
+resetOpenemr() {
+    echo "Remove database"
+    mariadb --skip-ssl -f -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "DROP DATABASE ${CUSTOM_DATABASE}"
+    echo "Remove database user"
+    mariadb --skip-ssl -f -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "Drop user '${CUSTOM_USER}'@'%';FLUSH PRIVILEGES;"
+    echo "Reset couchdb"
+    rsync --delete --recursive --links /couchdb/original/data /couchdb/
+    echo "Remove files"
+    rm -fr /var/www/localhost/htdocs/openemr/sites/*
+    rsync --delete --recursive --links --exclude .git /openemr/sites /var/www/localhost/htdocs/openemr/
+    chmod 666 /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+    chown -R apache /var/www/localhost/htdocs/openemr/
+}
+
+# ----------------------------------------------------------------------------
+# installOpenemr()
+# ----------------------------------------------------------------------------
+# Reinstalls OpenEMR using the auto_configure.php script.
+#
+# Requirements:
+#   - prepareVariables() must be called first to set CONFIGURATION
+#   - auto_configure.php must be available in /root/
+#
+# Process:
+#   1. Copies auto_configure.php to web root
+#   2. Executes auto_configure.php with prepared configuration
+#   3. Removes auto_configure.php from web root after installation
+#
+# ----------------------------------------------------------------------------
+installOpenemr() {
+    echo "Re-installing OpenEMR"
+    cp /root/auto_configure.php /var/www/localhost/htdocs/
+    run_php_as_apache php /var/www/localhost/htdocs/auto_configure.php -f "${CONFIGURATION}"
+    rm -f /var/www/localhost/htdocs/auto_configure.php
+}
+
+# ============================================================================
+# DATA MANAGEMENT FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# demoData()
+# ----------------------------------------------------------------------------
+# Installs demo data (version 5.0.0.5) and upgrades to current version.
+# Also converts database encoding to utf8mb4.
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - demo_5_0_0_5.sql must be available in /root/
+#   - OpenEMR must be installed
+#
+# Process:
+#   1. Drops all existing tables
+#   2. Imports demo_5_0_0_5.sql
+#   3. Upgrades from version 5.0.0 to current
+#   4. Converts encoding to utf8mb4/utf8mb4_general_ci
+#
+# ----------------------------------------------------------------------------
+demoData() {
+    echo "Install demo data"
+    # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
+    mariadb-dump --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" --add-drop-table --no-data "${CUSTOM_DATABASE}" | grep ^DROP | awk ' BEGIN { print "SET FOREIGN_KEY_CHECKS=0;" } { print $0 } END { print "SET FOREIGN_KEY_CHECKS=1;" } ' | mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" || true
+    mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" < /root/demo_5_0_0_5.sql
+    upgradeOpenEMR 5.0.0
+    changeEncodingCollation utf8mb4 utf8mb4_general_ci
+}
+
+# ----------------------------------------------------------------------------
+# upgradeOpenEMR(version)
+# ----------------------------------------------------------------------------
+# Upgrades OpenEMR from a specified version to the current version.
+#
+# Parameters:
+#   $1 - Original OpenEMR version to upgrade from (e.g., "5.0.0")
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - OpenEMR must be installed
+#   - sql_upgrade.php must be available in web root
+#
+# Process:
+#   1. Modifies sql_upgrade.php to auto-submit the upgrade form
+#   2. Sets the old version parameter
+#   3. Executes the upgrade script
+#   4. Cleans up temporary files
+#
+# ----------------------------------------------------------------------------
+upgradeOpenEMR() {
+    # Create a modified version of sql_upgrade.php that auto-submits
+    # Replace form submission check with 'true' to bypass user interaction
+    sed -e "s@!empty(\$_POST\['form_submit'\])@true@" < /var/www/localhost/htdocs/openemr/sql_upgrade.php > /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+
+    # Set the old version parameter directly instead of reading from POST
+    sed -i "s@\$form_old_version = \$_POST\['form_old_version'\];@\$form_old_version = '${1}';@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+
+    # Inject site context at the beginning of the file
+    sed -i "1s@^@<?php \$_GET['site'] = 'default'; ?>@" /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+
+    # Execute the modified upgrade script
+    run_php_as_apache php -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+
+    # Clean up temporary file
+    rm -f /var/www/localhost/htdocs/openemr/sql_upgrade_temp.php
+}
+
+# ----------------------------------------------------------------------------
+# sqlDataDrive()
+# ----------------------------------------------------------------------------
+# Imports all SQL files from a specified directory into the OpenEMR database.
+#
+# Environment Variables Used:
+#   - SQL_DATA_DRIVE: Directory path containing .sql files to import
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - SQL_DATA_DRIVE must be set and point to a valid directory
+#   - OpenEMR database must exist
+#
+# Process:
+#   Loops through all .sql files in SQL_DATA_DRIVE and imports them sequentially.
+#
+# ----------------------------------------------------------------------------
+sqlDataDrive() {
+    echo "Installing sql data from drive"
+    if [[ -d "${SQL_DATA_DRIVE}" ]]; then
+        cd "${SQL_DATA_DRIVE}" || exit
+        # Loop over all sql files inside of the current directory
+        for f in *.sql; do
+            [[ -f "${f}" ]] || continue
+            echo "Loading sql data from ${f}"
+            mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" < "${f}"
+        done
+    fi
+}
+
+# ============================================================================
+# BACKUP AND RESTORE FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# backupOpenemr(identifier)
+# ----------------------------------------------------------------------------
+# Creates a complete backup of OpenEMR installation including database,
+# site files, and CouchDB data.
+#
+# Parameters:
+#   $1 - Identifier/name for the backup (used in filename and directory)
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - /snapshots directory must be writable
+#   - OpenEMR must be installed and configured
+#
+# Output:
+#   Creates a compressed tar.gz file at /snapshots/${identifier}.tgz containing:
+#   - backup.sql: Full database dump (excluding onsite_activity_view)
+#   - sites/: All site directories and files
+#   - data/: CouchDB data directory
+#
+# Example:
+#   backupOpenemr "backup-2025-12-10"
+#   # Creates /snapshots/backup-2025-12-10.tgz
+#
+# ----------------------------------------------------------------------------
+backupOpenemr() {
+    mkdir -p "/snapshots/${1}"
+
+    # Dump database (excluding onsite_activity_view which is a view, not a table)
+    mariadb-dump --skip-ssl --ignore-table="${CUSTOM_DATABASE}".onsite_activity_view --hex-blob -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" > "/snapshots/${1}/backup.sql"
+
+    # Backup site files
+    rsync --delete --recursive --links /var/www/localhost/htdocs/openemr/sites "/snapshots/${1}/"
+
+    # Backup CouchDB data
+    rsync --delete --recursive --links /couchdb/data "/snapshots/${1}/"
+
+    # Create compressed archive
+    cd /snapshots || exit
+    tar -czf "${1}.tgz" "${1}"
+
+    # Remove temporary directory (archive contains everything)
+    rm -fr "/snapshots/${1}"
+}
+
+# ----------------------------------------------------------------------------
+# restoreOpenemr(identifier)
+# ----------------------------------------------------------------------------
+# Restores OpenEMR from a previously created backup.
+#
+# Parameters:
+#   $1 - Identifier/name of the backup to restore
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - Backup file must exist at /snapshots/${identifier}.tgz
+#   - OpenEMR database must exist
+#
+# Process:
+#   1. Extracts backup archive
+#   2. Drops all existing database tables
+#   3. Imports backup.sql
+#   4. Restores site files (preserving current sqlconf.php)
+#   5. Restores CouchDB data if present
+#   6. Cleans up extracted files
+#
+# Note:
+#   Preserves the current sqlconf.php file to maintain database connection
+#   credentials, allowing restores from different environments.
+#
+# Example:
+#   restoreOpenemr "backup-2025-12-10"
+#   # Restores from /snapshots/backup-2025-12-10.tgz
+#
+# ----------------------------------------------------------------------------
+restoreOpenemr() {
+    cd /snapshots || exit
+
+    # Extract backup archive
+    tar -xzf "${1}.tgz"
+
+    # Drop all existing tables before restore (disable foreign key checks temporarily)
+    # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
+    mariadb-dump --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" --add-drop-table --no-data "${CUSTOM_DATABASE}" | grep ^DROP | awk ' BEGIN { print "SET FOREIGN_KEY_CHECKS=0;" } { print $0 } END { print "SET FOREIGN_KEY_CHECKS=1;" } ' | mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" || true
+
+    # Import database backup
+    mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" "${CUSTOM_DATABASE}" < "/snapshots/${1}/backup.sql"
+
+    # Save current sqlconf.php before restoring sites (preserves database credentials)
+    # This allows restoring backups from different environments while keeping current DB config
+    sqlconf=$(cat /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php)
+
+    # Restore site files
+    rsync --delete --recursive --links "/snapshots/${1}/sites" /var/www/localhost/htdocs/openemr/
+
+    # Restore original sqlconf.php (maintains current database connection)
+    echo "${sqlconf}" > /var/www/localhost/htdocs/openemr/sites/default/sqlconf.php
+
+    # Fix ownership
+    chown -R apache /var/www/localhost/htdocs/openemr/
+
+    # Restore CouchDB data if present in backup
+    if [[ -d "/snapshots/${1}/data" ]]; then
+        rsync --delete --recursive --links "/snapshots/${1}/data" /couchdb/
+    fi
+
+    # Clean up extracted directory
+    rm -fr "/snapshots/${1}"
+}
+
+# ============================================================================
+# DATABASE MAINTENANCE FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# changeEncodingCollation(charset, collation)
+# ----------------------------------------------------------------------------
+# Changes the character set and collation for the OpenEMR database and all tables.
+#
+# Parameters:
+#   $1 - Character set (e.g., "utf8mb4")
+#   $2 - Collation (e.g., "utf8mb4_general_ci")
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - Requires MySQL root access
+#   - OpenEMR database must exist
+#
+# Process:
+#   1. Alters the database character set and collation
+#   2. Alters all tables in the database to match
+#
+# Common Usage:
+#   changeEncodingCollation utf8mb4 utf8mb4_general_ci
+#
+# Note:
+#   This is a destructive operation that modifies database structure.
+#   Ensure you have a backup before running this function.
+#
+# ----------------------------------------------------------------------------
+changeEncodingCollation() {
+    # Generate and execute ALTER DATABASE statement
+    # Single quotes intentionally used for SQL syntax - variables expand on server side
+    # shellcheck disable=SC2016,SC2312  # Pipeline return value is intentionally ignored
+    mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e 'SELECT concat("ALTER DATABASE `",TABLE_SCHEMA,"` CHARACTER SET = '"${1}"' COLLATE = '"${2}"';") as _sql FROM `information_schema`.`TABLES` where `TABLE_SCHEMA` like "'"${CUSTOM_DATABASE}"'" and `TABLE_TYPE`="BASE TABLE" group by `TABLE_SCHEMA`;' | grep '^ALTER' | mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" || true
+
+    # Generate and execute ALTER TABLE statements for all tables
+    # Single quotes intentionally used for SQL syntax - variables expand on server side
+    # shellcheck disable=SC2016,SC2312  # Pipeline return value is intentionally ignored
+    mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e 'SELECT concat("ALTER TABLE `",TABLE_SCHEMA,"`.`",TABLE_NAME,"` CONVERT TO CHARACTER SET '"${1}"' COLLATE '"${2}"';") as _sql FROM `information_schema`.`TABLES` where `TABLE_SCHEMA` like "'"${CUSTOM_DATABASE}"'" and `TABLE_TYPE`="BASE TABLE" group by `TABLE_SCHEMA`, `TABLE_NAME`;' | grep '^ALTER' | mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" || true
+}
+
+# ============================================================================
+# SSL/TLS CONFIGURATION FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# forceHttps()
+# ----------------------------------------------------------------------------
+# Enables Apache rewrite rules to force all HTTP traffic to HTTPS.
+#
+# Process:
+#   Uncomments RewriteEngine, RewriteCond, and RewriteRule directives in
+#   /etc/apache2/conf.d/openemr.conf to enable HTTPS redirection.
+#
+# Requirements:
+#   - Apache must be configured
+#   - SSL must be properly set up
+#
+# ----------------------------------------------------------------------------
+forceHttps() {
+    sed -i 's@#RewriteEngine On@ RewriteEngine On@' /etc/apache2/conf.d/openemr.conf
+    sed -i 's@#RewriteCond %{HTTPS} off@ RewriteCond %{HTTPS} off@' /etc/apache2/conf.d/openemr.conf
+    # Single quotes intentionally used for sed replacement - $1 is a sed backreference
+    # shellcheck disable=SC2016
+    sed -i 's@#RewriteRule (\.\*) https://%{HTTP_HOST}/\$1 \[R,L\]@ RewriteRule (.*) https://%{HTTP_HOST}/$1 [R,L]@' /etc/apache2/conf.d/openemr.conf
+}
+
+# ----------------------------------------------------------------------------
+# unForceHttps()
+# ----------------------------------------------------------------------------
+# Disables HTTPS redirection by commenting out Apache rewrite rules.
+#
+# Process:
+#   Comments out RewriteEngine, RewriteCond, and RewriteRule directives in
+#   /etc/apache2/conf.d/openemr.conf to disable HTTPS redirection.
+#
+# ----------------------------------------------------------------------------
+unForceHttps() {
+    sed -i 's@[^#]RewriteEngine On@#RewriteEngine On@' /etc/apache2/conf.d/openemr.conf
+    sed -i 's@[^#]RewriteCond %{HTTPS} off@#RewriteCond %{HTTPS} off@' /etc/apache2/conf.d/openemr.conf
+    # Single quotes intentionally used for sed replacement - $1 is a sed backreference
+    # shellcheck disable=SC2016
+    sed -i 's@[^#]RewriteRule (\.\*) https://%{HTTP_HOST}/\$1 \[R,L\]@#RewriteRule (.*) https://%{HTTP_HOST}/$1 [R,L]@' /etc/apache2/conf.d/openemr.conf
+}
+
+# ============================================================================
+# CLIENT CERTIFICATE AUTHENTICATION FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# setupClientCert(identifier)
+# ----------------------------------------------------------------------------
+# Configures OpenEMR to use client certificate authentication.
+#
+# Parameters:
+#   $1 - Identifier/name for the certificate package (without .zip extension)
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - Certificate ZIP file must exist at /certs/${identifier}.zip
+#   - ZIP must contain:
+#     * Server.crt - Server certificate
+#     * Server.key - Server private key
+#     * CertificateAuthority.crt - CA certificate
+#     * CertificateAuthority.key - CA private key
+#
+# Process:
+#   1. Extracts certificate package
+#   2. Configures Apache SSL certificates and keys
+#   3. Enables client certificate verification in Apache
+#   4. Updates OpenEMR global settings for client SSL
+#
+# ----------------------------------------------------------------------------
+setupClientCert() {
+    if [[ ! -d "/certs/${1}" ]]; then
+        mkdir -p "/certs/${1}"
+    fi
+    cp "/certs/${1}.zip" "/certs/${1}/"
+    cd "/certs/${1}" || exit
+    unzip "${1}.zip"
+    # Install server certificate
+    cp "/certs/${1}/Server.crt" /etc/ssl/certs/customclientbased.cert.pem
+    rm -f /etc/ssl/certs/webserver.cert.pem
+    ln -s /etc/ssl/certs/customclientbased.cert.pem /etc/ssl/certs/webserver.cert.pem
+
+    # Install server private key
+    cp "/certs/${1}/Server.key" /etc/ssl/private/customclientbased.key.pem
+    rm -f /etc/ssl/private/webserver.key.pem
+    ln -s /etc/ssl/private/customclientbased.key.pem /etc/ssl/private/webserver.key.pem
+
+    # Install CA certificate
+    cp "/certs/${1}/CertificateAuthority.crt" /etc/ssl/certs/CAcustomclientbased.cert.pem
+    rm -f /etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem
+    ln -s /etc/ssl/certs/CAcustomclientbased.cert.pem /etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem
+
+    # Install CA private key
+    cp "/certs/${1}/CertificateAuthority.key" /etc/ssl/private/CAcustomclientbased.key.pem
+    rm -f /etc/ssl/private/CAcustomclientbasedwebserver.key.pem
+    ln -s /etc/ssl/private/CAcustomclientbased.key.pem /etc/ssl/private/CAcustomclientbasedwebserver.key.pem
+
+    # Clean up extracted files
+    rm -fr "/certs/${1}"
+    # configure apache
+    sed -i "s@#SSLVerifyClient@ SSLVerifyClient@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@#SSLVerifyDepth@ SSLVerifyDepth@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@#SSLOptions@ SSLOptions@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@#SSLCACertificateFile@ SSLCACertificateFile@" /etc/apache2/conf.d/openemr.conf
+    # configure openemr
+    mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = 1 WHERE gl_name = 'is_client_ssl_enabled'" "${CUSTOM_DATABASE}"
+    mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = '/etc/ssl/certs/CAcustomclientbasedwebserver.cert.pem' WHERE gl_name = 'certificate_authority_crt'" "${CUSTOM_DATABASE}"
+    mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = '/etc/ssl/private/CAcustomclientbasedwebserver.key.pem' WHERE gl_name = 'certificate_authority_key'" "${CUSTOM_DATABASE}"
+}
+
+# ----------------------------------------------------------------------------
+# toggleOnSelfSignedCert()
+# ----------------------------------------------------------------------------
+# Switches OpenEMR back to using self-signed certificates and disables
+# client certificate authentication.
+#
+# Process:
+#   1. Changes Apache SSL certificate/key symlinks to point to self-signed certs
+#   2. Disables client certificate verification in Apache
+#   3. Updates OpenEMR global settings to disable client SSL
+#
+# ----------------------------------------------------------------------------
+toggleOnSelfSignedCert() {
+    # server certificate
+    rm -f /etc/ssl/certs/webserver.cert.pem
+    ln -s /etc/ssl/certs/selfsigned.cert.pem /etc/ssl/certs/webserver.cert.pem
+    # server key
+    rm -f /etc/ssl/private/webserver.key.pem
+    ln -s /etc/ssl/private/selfsigned.key.pem /etc/ssl/private/webserver.key.pem
+    # configure apache
+    sed -i "s@[^#]SSLVerifyClient@#SSLVerifyClient@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@[^#]SSLVerifyDepth@#SSLVerifyDepth@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@[^#]SSLOptions@#SSLOptions@" /etc/apache2/conf.d/openemr.conf
+    sed -i "s@[^#]SSLCACertificateFile@#SSLCACertificateFile@" /etc/apache2/conf.d/openemr.conf
+    # configure openemr
+    mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = 0 WHERE gl_name = 'is_client_ssl_enabled'" "${CUSTOM_DATABASE}"
+    mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = '' WHERE gl_name = 'certificate_authority_crt'" "${CUSTOM_DATABASE}"
+    mariadb --skip-ssl -u "${CUSTOM_USER}" --password="${CUSTOM_PASSWORD}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "UPDATE globals SET gl_value = '' WHERE gl_name = 'certificate_authority_key'" "${CUSTOM_DATABASE}"
+}
+
+# ============================================================================
+# TEST DATA GENERATION FUNCTIONS
+# ============================================================================
+
+# ----------------------------------------------------------------------------
+# importRandomPatients(count, development_mode)
+# ----------------------------------------------------------------------------
+# Generates and imports random patient data using Synthea.
+#
+# Parameters:
+#   $1 - Number of random patients to generate and import
+#   $2 - Development mode: "true" or "false" (passed to import_ccda.php)
+#
+# Requirements:
+#   - Java runtime environment (JRE 11+)
+#   - Internet access for downloading Synthea
+#   - OpenEMR must be installed and configured
+#   - CCDA import functionality must be available
+#
+# Process:
+#   1. Downloads and sets up Synthea if not already present
+#   2. Generates specified number of random patients in CCDA format
+#   3. Temporarily enables CCDA import in OpenEMR
+#   4. Imports all generated patient files
+#   5. Restores CCDA import settings
+#
+# Note:
+#   Each patient generation takes several seconds. Large patient counts
+#   will take significant time to complete.
+#
+# Example:
+#   importRandomPatients 100 "false"
+#
+# ----------------------------------------------------------------------------
+importRandomPatients() {
+    echo "Setting up for following number of random patients (each patient will take several seconds): ${1}"
+    echo "Development mode: ${2}"
+    if [[ ! -d /root/synthea ]]; then
+        echo "Setting up synthea first"
+        apk update
+        apk add openjdk17-jre
+        mkdir /root/synthea
+        cd /root/synthea || exit
+        wget https://github.com/synthetichealth/synthea/releases/download/master-branch-latest/synthea-with-dependencies.jar
+    fi
+    # Synthea writes its output relative to cwd (./output/). The import
+    # step below runs as the apache user via run_php_as_apache (the
+    # RootCliGuard wrapper from #12267), and apache cannot traverse
+    # /root (mode 700, root-only) — so generating into /root/synthea/
+    # would leave the CCDA files unreadable to the importer and glob()
+    # would silently return zero matches. Generate into /tmp/synthea
+    # instead, which is 1777, while keeping the cached JAR in
+    # /root/synthea (apache never needs to touch it). Pass the JAR by
+    # absolute path so the cwd change is harmless.
+    mkdir -p /tmp/synthea
+    rm -fr /tmp/synthea/output
+    cd /tmp/synthea || { echo "FAIL: could not enter /tmp/synthea" >&2; return 1; }
+    if ! java -jar /root/synthea/synthea-with-dependencies.jar --exporter.fhir.export false --exporter.ccda.export true --generate.only_alive_patients true -p "$1"; then
+        echo "FAIL: synthea generation failed; aborting before import" >&2
+        return 1
+    fi
+    # Belt-and-suspenders: synthea may exit 0 without producing CCDA files
+    # in some edge cases. import_ccda.php treats an empty source directory
+    # as a no-op — silently logs "Finished patients import 0" and exits 0,
+    # which is the exact failure mode that hid the unreachable-/root bug
+    # before this fix. Guard explicitly so a future regression in synthea
+    # still fails the irp command loudly.
+    if [[ -z "$(ls -A /tmp/synthea/output/ccda 2>/dev/null || true)" ]]; then
+        echo "FAIL: no CCDA files produced in /tmp/synthea/output/ccda; nothing to import" >&2
+        return 1
+    fi
+    sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
+    export OPENEMR_ENABLE_CCDA_IMPORT=1
+    run_php_as_apache php /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php --sourcePath=/tmp/synthea/output/ccda --site=default --openemrPath=/var/www/localhost/htdocs/openemr "--isDev=$2"
+    sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/ccda_import/import_ccda.php
+    echo "Completed run for following number of random patients: ${1}"
+}
+
+# ----------------------------------------------------------------------------
+# generateMultisiteBank(count)
+# ----------------------------------------------------------------------------
+# Creates a bank of multiple OpenEMR sites (multisite setup) for testing.
+#
+# Parameters:
+#   $1 - Number of multisites to create (labeled run1, run2, run3, ...)
+#
+# Requirements:
+#   - prepareVariables() must be called first
+#   - OpenEMR must be installed with default site configured
+#   - Requires MySQL root access
+#   - InstallerAuto.php must be available
+#
+# Process:
+#   For each multisite (run1, run2, run3, ...):
+#   1. Drops existing database, user, and directory if they exist
+#   2. Creates new database and user
+#   3. Clones the default site using InstallerAuto.php
+#   4. Sets proper file permissions and ownership
+#
+# Environment Variables:
+#   OPENEMR_ENABLE_INSTALLER_AUTO - Set to 1 to enable installer auto mode
+#   (for newer versions that support environment variable activation)
+#
+# Output:
+#   Creates N multisites:
+#   - Databases: run1, run2, run3, ...
+#   - Users: run1, run2, run3, ...
+#   - Directories: /var/www/localhost/htdocs/openemr/sites/run1, run2, run3, ...
+#
+# Example:
+#   generateMultisiteBank 5
+#   # Creates run1, run2, run3, run4, run5 multisites
+#
+# ----------------------------------------------------------------------------
+generateMultisiteBank() {
+    echo "Setting up a multisite bank with following number of multisites (labeled run1, run2, run3, ...): run1...run${1}"
+    # Activate newer versions of InstallerAuto that support environment variable activation.
+    export OPENEMR_ENABLE_INSTALLER_AUTO=1
+    # Activate older versions of InstallerAuto that require `sed` activation.
+    sed -i "s@exit;@//exit;@" /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php
+    a=1
+    while [[ "${a}" -le "$1" ]]
+    do
+        run="run${a}"
+        echo "dropping ${run} sql database, sql user, and directory if they already exist (just ignore any errors that are displayed)"
+        mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "DROP DATABASE ${run}"
+        mariadb --skip-ssl -u "${CUSTOM_ROOT_USER}" --password="${MYSQL_ROOT_PASS}" -h "${MYSQL_HOST}" -P "${CUSTOM_PORT}" -e "DROP USER '${run}'"
+        rm -fr "/var/www/localhost/htdocs/openemr/sites/${run}"
+        rm /tmp/setup_dump.sql
+        echo "adding ${run} multisite"
+        run_php_as_apache php /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php \
+            "rootpass=${MYSQL_ROOT_PASS}" \
+            "server=${MYSQL_HOST}" \
+            "port=${CUSTOM_PORT}" \
+            loginhost=% \
+            "login=${run}" \
+            "pass=${run}" \
+            "dbname=${run}" \
+            "site=${run}" \
+            source_site_id=default \
+            clone_database=yes
+        chown -R apache "/var/www/localhost/htdocs/openemr/sites/${run}"
+        # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
+        find "/var/www/localhost/htdocs/openemr/sites/${run}" -type d -print0 | xargs -0 chmod 500 || true
+        # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
+        find "/var/www/localhost/htdocs/openemr/sites/${run}" -type f -print0 | xargs -0 chmod 400 || true
+        # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
+        find "/var/www/localhost/htdocs/openemr/sites/${run}/documents" -type d -print0 | xargs -0 chmod 700 || true
+        # shellcheck disable=SC2312  # Pipeline return value is intentionally ignored
+        find "/var/www/localhost/htdocs/openemr/sites/${run}/documents" -type f -print0 | xargs -0 chmod 700 || true
+        echo "completed adding ${run} multisite"
+        a=$((a + 1))
+    done
+    sed -i "s@//exit;@exit;@" /var/www/localhost/htdocs/openemr/contrib/util/installScripts/InstallerAuto.php
+    echo "Completed setting up a multisite bank with following number of multisites (labeled run1, run2, run3, ...): run1...run${1}"
+}

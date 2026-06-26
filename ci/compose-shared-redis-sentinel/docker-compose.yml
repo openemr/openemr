@@ -19,7 +19,7 @@
 
 services:
   redis-master:
-    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
+    image: redis:8.8.0@sha256:027002f3d4161eb427643e0cc71023b582fb461c6199e699f46db843f0b39fb1
     container_name: redis-master
     # Config passed via command-line args instead of bind-mounted redis.conf.
     # Docker Compose resolves bind-mount paths relative to the first file in
@@ -27,19 +27,19 @@ services:
     # silently resolves to the wrong directory when this template is combined
     # with other compose files.
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replica-announce-ip
-      - redis-master
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replica-announce-ip
+    - redis-master
     healthcheck:
       test: ["CMD", "redis-cli", "-a", "strongpassword", "ping"]
       interval: 5s
@@ -48,68 +48,68 @@ services:
       start_period: 10s
 
   redis-replica-1:
-    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
+    image: redis:8.8.0@sha256:027002f3d4161eb427643e0cc71023b582fb461c6199e699f46db843f0b39fb1
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --replica-announce-ip
-      - redis-replica-1
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-1
     depends_on:
       redis-master:
         condition: service_healthy
 
   redis-replica-2:
-    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
+    image: redis:8.8.0@sha256:027002f3d4161eb427643e0cc71023b582fb461c6199e699f46db843f0b39fb1
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --replica-announce-ip
-      - redis-replica-2
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --replica-announce-ip
+    - redis-replica-2
     depends_on:
       redis-master:
         condition: service_healthy
 
   sentinel-1:
-    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
+    image: redis:8.8.0@sha256:027002f3d4161eb427643e0cc71023b582fb461c6199e699f46db843f0b39fb1
     # Config is written inline to avoid bind-mount directory pollution — see file header.
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 26379' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy
@@ -122,22 +122,22 @@ services:
       start_period: 15s
 
   sentinel-2:
-    image: redis:8.8.0@sha256:0a972391db0b24ec336e35d1bc98b237237e26f82bf5120cf2f6b1688d1df973
+    image: redis:8.8.0@sha256:027002f3d4161eb427643e0cc71023b582fb461c6199e699f46db843f0b39fb1
     # Config is written inline to avoid bind-mount directory pollution — see file header.
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 26379' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 26379' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     depends_on:
       redis-master:
         condition: service_healthy

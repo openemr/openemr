@@ -5,8 +5,8 @@ on:
     # All PRs
   push:
     branches:
-      - master
-      - rel-*
+    - master
+    - rel-*
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
@@ -26,37 +26,37 @@ jobs:
       fail-fast: false
       matrix:
         database:
-          - name: MySQL 5.7
-            image: mysql:5.7
-            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - name: MySQL 8.4 (LTS)
-            image: mysql:8.4
-            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - name: MySQL 9.7 (LTS)
-            image: mysql:9.7
-            health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
-          - name: MariaDB 10.6 (LTS)
-            image: mariadb:10.6
-            health-cmd: "healthcheck.sh --connect --innodb_initialized"
-          - name: MariaDB 10.11 (LTS)
-            image: mariadb:10.11
-            health-cmd: "healthcheck.sh --connect --innodb_initialized"
-          - name: MariaDB 11.4 (LTS)
-            image: mariadb:11.4
-            health-cmd: "healthcheck.sh --connect --innodb_initialized"
-          - name: MariaDB 11.8 (LTS)
-            image: mariadb:11.8
-            health-cmd: "healthcheck.sh --connect --innodb_initialized"
-          - name: MariaDB 12
-            image: mariadb:12
-            health-cmd: "healthcheck.sh --connect --innodb_initialized"
-            coverage: true
+        - name: MySQL 5.7
+          image: mysql:5.7
+          health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+        - name: MySQL 8.4 (LTS)
+          image: mysql:8.4
+          health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+        - name: MySQL 9.7 (LTS)
+          image: mysql:9.7
+          health-cmd: "mysql -uroot -proot -e 'SELECT 1'"
+        - name: MariaDB 10.6 (LTS)
+          image: mariadb:10.6
+          health-cmd: "healthcheck.sh --connect --innodb_initialized"
+        - name: MariaDB 10.11 (LTS)
+          image: mariadb:10.11
+          health-cmd: "healthcheck.sh --connect --innodb_initialized"
+        - name: MariaDB 11.4 (LTS)
+          image: mariadb:11.4
+          health-cmd: "healthcheck.sh --connect --innodb_initialized"
+        - name: MariaDB 11.8 (LTS)
+          image: mariadb:11.8
+          health-cmd: "healthcheck.sh --connect --innodb_initialized"
+        - name: MariaDB 12
+          image: mariadb:12
+          health-cmd: "healthcheck.sh --connect --innodb_initialized"
+          coverage: true
         php:
-          - version: '8.2'
-          - version: '8.3'
-          - version: '8.4'
-          - version: '8.5'
-            coverage: true
+        - version: '8.2'
+        - version: '8.3'
+        - version: '8.4'
+        - version: '8.5'
+          coverage: true
     env:
       # Only collect coverage on one matrix arm to save time
       COLLECT_COVERAGE: ${{ matrix.php.coverage && matrix.database.coverage }}
@@ -75,53 +75,39 @@ jobs:
           --health-retries=20
 
         ports:
-          - 3306:3306
+        - 3306:3306
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
+    - name: Checkout
+      uses: actions/checkout@v7
 
-      - name: Setup PHP and Composer
-        uses: ./.github/actions/setup-php-composer
-        with:
-          coverage: ${{ env.COLLECT_COVERAGE }}
-          php-version: ${{ matrix.php.version }}
+    - name: Setup PHP and Composer
+      uses: ./.github/actions/setup-php-composer
+      with:
+        coverage: ${{ env.COLLECT_COVERAGE }}
+        php-version: ${{ matrix.php.version }}
 
-      - name: Run CLI installer
-        run: ./cli install
-            --db-host=127.0.0.1
-            --db-port=3306
-            --db-root-user=root
-            --db-root-password=root
-            --db-user=ci
-            --db-password=topsecret
-            --db-name=openemr_test
-            --oe-admin-username=admin
-            --oe-admin-password=pass
-            --no-interaction
-            -vvv
+    - name: Run CLI installer
+      run: ./cli install --db-host=127.0.0.1 --db-port=3306 --db-root-user=root --db-root-password=root --db-user=ci --db-password=topsecret --db-name=openemr_test --oe-admin-username=admin --oe-admin-password=pass --no-interaction -vvv
 
-      - name: Verify installation
-        run: |
-          mysql -h 127.0.0.1 -u ci -ptopsecret openemr_test \
-            -e "SELECT COUNT(*) as user_count FROM users WHERE username='admin';" \
-            | grep -q "1"
+    - name: Verify installation
+      run: |
+        mysql -h 127.0.0.1 -u ci -ptopsecret openemr_test \
+          -e "SELECT COUNT(*) as user_count FROM users WHERE username='admin';" \
+          | grep -q "1"
 
-      - name: Run PHPUnit
-        run: vendor/bin/phpunit
-          ${{ env.COLLECT_COVERAGE == 'true' && '--coverage-text --coverage-clover clover.xml' || '' }}
-          --log-junit junit.xml
-          --testsuite common,controllers,fixtures,validators,unit
+    - name: Run PHPUnit
+      run: vendor/bin/phpunit ${{ env.COLLECT_COVERAGE == 'true' && '--coverage-text --coverage-clover clover.xml' || '' }} --log-junit junit.xml --testsuite common,controllers,fixtures,validators,unit
 
-      - name: Upload coverage
-        if: ${{ !cancelled() && env.COLLECT_COVERAGE == 'true' }}
-        uses: codecov/codecov-action@v7
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Upload coverage
+      if: ${{ !cancelled() && env.COLLECT_COVERAGE == 'true' }}
+      uses: codecov/codecov-action@v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Upload test results
-        if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@v7
-        with:
-          report_type: test_results
-          token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Upload test results
+      if: ${{ !cancelled() }}
+      uses: codecov/codecov-action@v7
+      with:
+        report_type: test_results
+        token: ${{ secrets.CODECOV_TOKEN }}

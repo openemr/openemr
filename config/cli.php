@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace OpenEMR\Console\Command;
 
 return [
+    Codes\UpdateMappingsCommand::class,
     DebugLoadFacilityCommand::class,
     InstallCommand::class,
+    ShellCommand::class,
 ];

@@ -243,9 +243,7 @@ install_configure() {
     	actions_chmod 0666 sites/default/sqlconf.php
     	actions_chmod -R 0777 sites/default/documents
     )
-    # we need this to occur on the docker image of OpenEMR, on local systems this may be the same but in the ci engine its inside the docker container
-    # until we get the devops repo setup we'll just grab the auto_configure.php script and use that
-    _exec sh -c 'curl -v https://raw.githubusercontent.com/openemr/openemr-devops/refs/heads/master/docker/openemr/flex/auto_configure.php > /root/auto_configure.php'
+    _exec cp docker/flex/auto_configure.php /root/auto_configure.php
     # InstallerAuto goes through the Installer class, which RootCliGuard
     # refuses to run as root (PR #12267, def8758). Drop to the web user
     # for the subprocess — same approach as the upgradeOpenEMR override

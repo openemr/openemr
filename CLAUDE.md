@@ -67,6 +67,24 @@ skips both the state registration and the stack. If you already made that
 mistake, recovery is `git worktree remove <path>` then `openemr-cmd worktree
 add <branch> --start` (omit `-b` since the branch persists).
 
+When `-b` is supplied, the new branch is based on canonical
+`openemr/openemr` master, fetched directly from GitHub at the time of the
+command — *not* the primary repo's HEAD. Override with `--base <ref>`,
+which accepts two forms: a URL (optionally `#<ref>`, e.g.
+`https://github.com/openemr/openemr.git#rel-810`) for a freshly-fetched
+base, or any git `<commit-ish>` (local branch, `origin/master`, tag, SHA,
+`HEAD`) resolved locally with no fetch. Because the primary's HEAD is
+never read or modified on the default path, concurrent worktree creation
+by multiple agents is safe regardless of which branch happens to be
+checked out in the primary.
+
+**Never use `git fetch ... --update-head-ok` in the primary openemr repo,
+regardless of remote or URL.** It overwrites the current branch's ref
+without updating the working tree, leaving the index showing "staged
+deletions of everything new on master" — a stray `git commit` after that
+wipes recent work. Use `git pull` or plain `git fetch` (then read via
+tracking ref) instead.
+
 If `openemr-cmd worktree list` shows entries with status `missing` or
 `invalid` (and a footer `(N stale state entries — run "openemr-cmd worktree
 prune" to clean up; directories on disk are left intact)`), a worktree's
@@ -587,15 +605,22 @@ Preserve existing authors/copyrights when editing files.
 
 - Multiple template engines: check extension (.twig, .html, .php)
 - Event system uses Symfony EventDispatcher
+- **Bind-mount permissions / HOST_UID:** openemr-cmd auto-exports
+  `HOST_UID`/`HOST_GID` on every `up`/`worktree up`, and the in-container
+  apache user adopts your host uid via the entrypoint. Bind-mounted files
+  apache writes are host-owned, so host-side edits (incl. `git commit`)
+  work regardless of your host uid. Use openemr-cmd consistently —
+  bypassing it skips the export and leaves apache at uid=1000, the
+  usual cause when `EACCES` shows up on bind-mount edits.
 - **Pre-commit hooks:** Install with `openemr-cmd prek-install` (alias `pi`).
   This writes git hooks that route through the running openemr container, so
   `git commit` validates against the project's full `.pre-commit-config.yaml`
-  suite (phpstan, rector, phpcs, codespell, actionlint, and more) without
-  requiring PHP, Node, Python, codespell, or actionlint on the host. Manual
-  passthrough is `openemr-cmd prek run [args...]` (use `--all-files` for a
-  whole-codebase check before pushing). See CONTRIBUTING.md's "Pre-commit
-  hooks for the docker dev environment" section (Advanced Use item 2) for
-  the full workflow.
+  suite (phpstan, rector, phpcs, codespell, actionlint, hadolint, and more)
+  without requiring PHP, Node, Python, codespell, actionlint, or hadolint on
+  the host. Manual passthrough is `openemr-cmd prek run [args...]` (use
+  `--all-files` for a whole-codebase check before pushing). See
+  CONTRIBUTING.md's "Pre-commit hooks for the docker dev environment"
+  section (Advanced Use item 2) for the full workflow.
   If you maintain a full host PHP/Composer/Python toolchain instead, use
   `prek install` (or `pre-commit install` if prek is unavailable) for hooks
   that run directly on the host; `prek run --all-files` is the manual form.

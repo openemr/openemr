@@ -23,161 +23,160 @@ services:
     image: alpine:3.24.1@sha256:28bd5fe8b56d1bd048e5babf5b10710ebe0bae67db86916198a6eec434943f8b
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        set -ex
+    - |
+      set -ex
 
-        # Idempotent: skip if certs already exist.  docker compose up may
-        # restart this container on subsequent calls; regenerating would
-        # invalidate certs the running Redis/Sentinel containers already loaded.
-        if [ -f /certs/ca.crt ]; then
-            echo "Certs already present — skipping generation."
-            exit 0
-        fi
+      # Idempotent: skip if certs already exist.  docker compose up may
+      # restart this container on subsequent calls; regenerating would
+      # invalidate certs the running Redis/Sentinel containers already loaded.
+      if [ -f /certs/ca.crt ]; then
+          echo "Certs already present — skipping generation."
+          exit 0
+      fi
 
-        apk add --no-cache openssl
-        cd /certs
+      apk add --no-cache openssl
+      cd /certs
 
-        # --- CA ---
-        openssl genrsa -out ca.key 2048
-        openssl req -x509 -new -key ca.key -days 1 -out ca.crt -subj "/CN=test-ca"
+      # --- CA ---
+      openssl genrsa -out ca.key 2048
+      openssl req -x509 -new -key ca.key -days 1 -out ca.crt -subj "/CN=test-ca"
 
-        # --- Server cert (covers every Redis/Sentinel hostname) ---
-        echo "subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:localhost" > /tmp/san.ext
-        openssl genrsa -out server.key 2048
-        openssl req -new -key server.key -subj "/CN=redis" \
-          | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
-              -extfile /tmp/san.ext -days 1 -out server.crt
+      # --- Server cert (covers every Redis/Sentinel hostname) ---
+      echo "subjectAltName=DNS:redis-master,DNS:redis-replica-1,DNS:redis-replica-2,DNS:sentinel-1,DNS:sentinel-2,DNS:localhost" > /tmp/san.ext
+      openssl genrsa -out server.key 2048
+      openssl req -new -key server.key -subj "/CN=redis" \
+        | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
+            -extfile /tmp/san.ext -days 1 -out server.crt
 
-        # --- Client cert (for mTLS variant; harmless to generate always) ---
-        openssl genrsa -out client.key 2048
-        openssl req -new -key client.key -subj "/CN=openemr-client" \
-          | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
-              -days 1 -out client.crt
+      # --- Client cert (for mTLS variant; harmless to generate always) ---
+      openssl genrsa -out client.key 2048
+      openssl req -new -key client.key -subj "/CN=openemr-client" \
+        | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial \
+            -days 1 -out client.crt
 
-        # --- Symlinks matching SentinelUtil's expected filenames ---
-        ln -sf ca.crt redis-sentinel-ca
-        ln -sf client.crt redis-sentinel-cert
-        ln -sf client.key redis-sentinel-key
-        ln -sf ca.crt redis-master-ca
-        ln -sf client.crt redis-master-cert
-        ln -sf client.key redis-master-key
+      # --- Symlinks matching SentinelUtil's expected filenames ---
+      ln -sf ca.crt redis-sentinel-ca
+      ln -sf client.crt redis-sentinel-cert
+      ln -sf client.key redis-sentinel-key
+      ln -sf ca.crt redis-master-ca
+      ln -sf client.crt redis-master-cert
+      ln -sf client.key redis-master-key
 
-        chmod 644 *.crt *.key ca.key
-        ls -la /certs/
+      chmod 644 *.crt *.key ca.key
+      ls -la /certs/
     volumes:
-      - redis-certs:/certs
+    - redis-certs:/certs
 
   # ---------- Redis overrides: enable TLS, disable plain TCP ----------
   redis-master:
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --tls-port
-      - "6379"
-      - --port
-      - "0"
-      - --tls-cert-file
-      - /certs/server.crt
-      - --tls-key-file
-      - /certs/server.key
-      - --tls-ca-cert-file
-      - /certs/ca.crt
-      - --tls-auth-clients
-      - "no"
-      - --tls-replication
-      - "yes"
-      - --replica-announce-ip
-      - redis-master
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --tls-port
+    - "6379"
+    - --port
+    - "0"
+    - --tls-cert-file
+    - /certs/server.crt
+    - --tls-key-file
+    - /certs/server.key
+    - --tls-ca-cert-file
+    - /certs/ca.crt
+    - --tls-auth-clients
+    - "no"
+    - --tls-replication
+    - "yes"
+    - --replica-announce-ip
+    - redis-master
     volumes:
-      - redis-certs:/certs:ro
+    - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt",
-             "-a", "strongpassword", "ping"]
+      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt", "-a", "strongpassword", "ping"]
 
   redis-replica-1:
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --tls-port
-      - "6379"
-      - --port
-      - "0"
-      - --tls-cert-file
-      - /certs/server.crt
-      - --tls-key-file
-      - /certs/server.key
-      - --tls-ca-cert-file
-      - /certs/ca.crt
-      - --tls-auth-clients
-      - "no"
-      - --tls-replication
-      - "yes"
-      - --replica-announce-ip
-      - redis-replica-1
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --tls-port
+    - "6379"
+    - --port
+    - "0"
+    - --tls-cert-file
+    - /certs/server.crt
+    - --tls-key-file
+    - /certs/server.key
+    - --tls-ca-cert-file
+    - /certs/ca.crt
+    - --tls-auth-clients
+    - "no"
+    - --tls-replication
+    - "yes"
+    - --replica-announce-ip
+    - redis-replica-1
     volumes:
-      - redis-certs:/certs:ro
+    - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
 
   redis-replica-2:
     command:
-      - redis-server
-      - --bind
-      - "0.0.0.0"
-      - --protected-mode
-      - "no"
-      - --appendonly
-      - "yes"
-      - --requirepass
-      - strongpassword
-      - --masterauth
-      - strongpassword
-      - --replicaof
-      - redis-master
-      - "6379"
-      - --tls-port
-      - "6379"
-      - --port
-      - "0"
-      - --tls-cert-file
-      - /certs/server.crt
-      - --tls-key-file
-      - /certs/server.key
-      - --tls-ca-cert-file
-      - /certs/ca.crt
-      - --tls-auth-clients
-      - "no"
-      - --tls-replication
-      - "yes"
-      - --replica-announce-ip
-      - redis-replica-2
+    - redis-server
+    - --bind
+    - "0.0.0.0"
+    - --protected-mode
+    - "no"
+    - --appendonly
+    - "yes"
+    - --requirepass
+    - strongpassword
+    - --masterauth
+    - strongpassword
+    - --replicaof
+    - redis-master
+    - "6379"
+    - --tls-port
+    - "6379"
+    - --port
+    - "0"
+    - --tls-cert-file
+    - /certs/server.crt
+    - --tls-key-file
+    - /certs/server.key
+    - --tls-ca-cert-file
+    - /certs/ca.crt
+    - --tls-auth-clients
+    - "no"
+    - --tls-replication
+    - "yes"
+    - --replica-announce-ip
+    - redis-replica-2
     volumes:
-      - redis-certs:/certs:ro
+    - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
@@ -186,71 +185,69 @@ services:
   sentinel-1:
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 0' \
-          'tls-port 26379' \
-          'tls-cert-file /certs/server.crt' \
-          'tls-key-file /certs/server.key' \
-          'tls-ca-cert-file /certs/ca.crt' \
-          'tls-auth-clients no' \
-          'tls-replication yes' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 0' \
+        'tls-port 26379' \
+        'tls-cert-file /certs/server.crt' \
+        'tls-key-file /certs/server.key' \
+        'tls-ca-cert-file /certs/ca.crt' \
+        'tls-auth-clients no' \
+        'tls-replication yes' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     volumes:
-      - redis-certs:/certs:ro
+    - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt",
-             "-p", "26379", "SENTINEL", "masters"]
+      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt", "-p", "26379", "SENTINEL", "masters"]
 
   sentinel-2:
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - |
-        printf '%s\n' \
-          'port 0' \
-          'tls-port 26379' \
-          'tls-cert-file /certs/server.crt' \
-          'tls-key-file /certs/server.key' \
-          'tls-ca-cert-file /certs/ca.crt' \
-          'tls-auth-clients no' \
-          'tls-replication yes' \
-          'daemonize no' \
-          'sentinel resolve-hostnames yes' \
-          'sentinel announce-hostnames yes' \
-          'sentinel monitor redis-master redis-master 6379 2' \
-          'sentinel auth-pass redis-master strongpassword' \
-          'sentinel down-after-milliseconds redis-master 5000' \
-          'sentinel failover-timeout redis-master 60000' \
-          'sentinel parallel-syncs redis-master 1' \
-          > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
+    - |
+      printf '%s\n' \
+        'port 0' \
+        'tls-port 26379' \
+        'tls-cert-file /certs/server.crt' \
+        'tls-key-file /certs/server.key' \
+        'tls-ca-cert-file /certs/ca.crt' \
+        'tls-auth-clients no' \
+        'tls-replication yes' \
+        'daemonize no' \
+        'sentinel resolve-hostnames yes' \
+        'sentinel announce-hostnames yes' \
+        'sentinel monitor redis-master redis-master 6379 2' \
+        'sentinel auth-pass redis-master strongpassword' \
+        'sentinel down-after-milliseconds redis-master 5000' \
+        'sentinel failover-timeout redis-master 60000' \
+        'sentinel parallel-syncs redis-master 1' \
+        > /tmp/sentinel.conf && redis-sentinel /tmp/sentinel.conf
     volumes:
-      - redis-certs:/certs:ro
+    - redis-certs:/certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
     healthcheck:
-      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt",
-             "-p", "26379", "SENTINEL", "masters"]
+      test: ["CMD", "redis-cli", "--tls", "--cacert", "/certs/ca.crt", "-p", "26379", "SENTINEL", "masters"]
 
   # ---------- OpenEMR: add TLS env vars + cert volume ----------
   openemr:
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:09363d62a88752fc6095fd013cc416b324f7b75b2c4f53b3051c66f80a2fa3be
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:1d2c8345a320cf2985c9d02138951267739ec498559ca724b3d5397e4568482e
     environment:
       REDIS_TLS: "yes"
       REDIS_TLS_CERT_KEY_PATH: /redis-certs
     volumes:
-      - redis-certs:/redis-certs:ro
+    - redis-certs:/redis-certs:ro
     depends_on:
       redis-tls-init:
         condition: service_completed_successfully
