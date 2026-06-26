@@ -236,8 +236,12 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
       Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env|prune> [options]
 
-        add <branch> [-b] [--env easy|easy-light|easy-redis] [--start]
-                                  Create worktree (-b creates new branch, default env: easy)
+        add <branch> [-b] [--base <ref>] [--env easy|easy-light|easy-redis] [--start]
+                                  Create worktree (default env: easy)
+                                  -b           : create new branch; default base is canonical openemr/openemr master (fetched fresh)
+                                  --base <ref> : (with -b) base on a specific ref. Two forms:
+                                                   <url>[#<ref>]  -> fetch from URL (e.g. https://github.com/openemr/openemr.git#rel-810)
+                                                   <commit-ish>   -> standard git resolution (local branch, origin/master, tag, SHA, HEAD, ...)
         remove <branch> [--keep-volumes] Remove worktree (volumes deleted by default)
         up <branch>               Start Docker stack for worktree
         down <branch> [--keep-volumes]  Stop Docker stack for worktree (volumes deleted by default)
@@ -255,6 +259,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd worktree add worktree-branch-label -b
       ```
+      The new branch is based on canonical `openemr/openemr` master, fetched directly from GitHub each time (no named remote needed). To base on a different ref, supply `--base <ref>`:
+      ```sh
+      openemr-cmd worktree add my-release-fix -b --base https://github.com/openemr/openemr.git#rel-810
+      ```
+      `--base` accepts two forms: a URL (optionally `#<ref>`) for a freshly-fetched base, or any git `<commit-ish>` (local branch, `origin/master`, tag, SHA, `HEAD`) resolved locally without a fetch.
 
     - Or can create a new worktree on a existing branch:
       ```sh
