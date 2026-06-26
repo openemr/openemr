@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8a8f65efa52a03945dbc1b1415682478",
+    "content-hash": "17703efbc70aa00fc1f65461efd61dcf",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -2034,6 +2034,62 @@
                 "source": "https://github.com/Firehed/container/tree/1.1.0"
             },
             "time": "2026-06-10T00:00:27+00:00"
+        },
+        {
+            "name": "firehed/dbal-logger",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Firehed/doctrine-dbal-logging-middleware.git",
+                "reference": "e66f8eadcc12daad799614fe2b3eb504b61de827"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Firehed/doctrine-dbal-logging-middleware/zipball/e66f8eadcc12daad799614fe2b3eb504b61de827",
+                "reference": "e66f8eadcc12daad799614fe2b3eb504b61de827",
+                "shasum": ""
+            },
+            "require": {
+                "doctrine/dbal": "^4.0",
+                "php": "^8.2"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-deprecation-rules": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^11.0 || ^12.0 || ^13.0",
+                "squizlabs/php_codesniffer": "^4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firehed\\DbalLogger\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eric Stern",
+                    "email": "eric@ericstern.com"
+                }
+            ],
+            "description": "Reimplementation of the SQLLogger",
+            "keywords": [
+                "dbal",
+                "doctrine",
+                "logger",
+                "logging",
+                "sqllogger"
+            ],
+            "support": {
+                "issues": "https://github.com/Firehed/doctrine-dbal-logging-middleware/issues",
+                "source": "https://github.com/Firehed/doctrine-dbal-logging-middleware/tree/3.0.0"
+            },
+            "time": "2026-03-13T19:32:40+00:00"
         },
         {
             "name": "giggsey/libphonenumber-for-php",
@@ -18603,5 +18659,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
