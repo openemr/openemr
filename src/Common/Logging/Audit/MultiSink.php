@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
-class MultiSink implements SinkInterface
+readonly class MultiSink implements SinkInterface
 {
     /**
      * @param SinkInterface[] $sinks
