@@ -947,11 +947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/logview/logview.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$_GLOBALS might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$BS_COL_CLASS might not be defined\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/new/new_comprehensive.php',
