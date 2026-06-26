@@ -328,4 +328,84 @@ class X12FileIsolatedTest extends TestCase
             unlink($path);
         }
     }
+
+    private function build837(string $clm01): string
+    {
+        // Same valid 105-char ISA as build270(); GS01 'HC' + ST 837 with one claim.
+        $isa = 'ISA*00*          *00*          '
+            . '*ZZ*SENDER         *ZZ*RECEIVER       '
+            . '*240101*1200*^*00501*000000001*0*T*:~';
+        $body = 'GS*HC*SENDER*RECEIVER*20240101*1200*1*X*005010X222A1~'
+            . 'ST*837*0001*005010X222A1~'
+            . 'BHT*0019*00*0123*20240101*1200*CH~'
+            . 'NM1*41*2*SUBMITTER ORG*****46*12345~'
+            . 'PER*IC*CONTACT*TE*5551234567~'
+            . 'NM1*40*2*RECEIVER ORG*****46*67890~'
+            . 'HL*1**20*1~'
+            . 'NM1*85*2*BILLING PROVIDER*****XX*1234567890~'
+            . 'N3*123 MAIN ST~'
+            . 'N4*ANYTOWN*VT*05701~'
+            . 'REF*EI*123456789~'
+            . 'HL*2*1*22*0~'
+            . 'SBR*P*18*******MC~'
+            . 'NM1*IL*1*DOE*JOHN****MI*MEMBER001~'
+            . 'N3*456 OAK AVE~'
+            . 'N4*ANYTOWN*VT*05701~'
+            . 'DMG*D8*19800101*M~'
+            . 'NM1*PR*2*INSURANCE CO*****PI*PAYERID~'
+            . 'CLM*' . $clm01 . '*100***11:B:1*Y*A*Y*Y~'
+            . 'DTP*434*RD8*20240101-20240101~'
+            . 'HI*ABK:Z0000~'
+            . 'LX*1~'
+            . 'SV1*HC:99213*100*UN*1***1~'
+            . 'DTP*472*D8*20240101~'
+            . 'SE*24*0001~'
+            . 'GE*1*1~'
+            . 'IEA*1*000000001~';
+
+        return $isa . $body;
+    }
+
+    public function testTransactionLookupOnGeneric837DoesNotThrow(): void
+    {
+        // Regression: under declare(strict_types=1) the envelope parser stored
+        // the ST start/count via strval(), so resolving a claim ran
+        //   array_slice($seg_ar, $st['start'], $st['count'], true)
+        // with string offsets and threw:
+        //   TypeError: array_slice(): Argument #2 ($offset) must be of type int, string given
+        $clm01 = 'PATIENT001';
+        $path = tempnam(sys_get_temp_dir(), 'x12file_837_');
+        file_put_contents($path, $this->build837($clm01));
+
+        try {
+            $x = new X12File($path);
+
+            // Before the fix this call raised a TypeError from array_slice().
+            $result = $x->edih_x12_transaction($clm01);
+
+            $this->assertNotEmpty(
+                $result,
+                "expected one matched 837 transaction for CLM01 '$clm01'",
+            );
+
+            // The matched slice must contain the claim's CLM segment.
+            $hasClaim = false;
+            foreach ($result as $transaction) {
+                if (!is_array($transaction)) {
+                    continue;
+                }
+
+                foreach ($transaction as $segment) {
+                    if (is_string($segment) && str_starts_with($segment, 'CLM*' . $clm01 . '*')) {
+                        $hasClaim = true;
+                        break 2;
+                    }
+                }
+            }
+
+            $this->assertTrue($hasClaim, "sliced transaction should include CLM*$clm01");
+        } finally {
+            unlink($path);
+        }
+    }
 }
