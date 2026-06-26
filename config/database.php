@@ -16,6 +16,7 @@ use Doctrine\Common\EventManager;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
+    Types\Type,
 };
 use Doctrine\Migrations\Configuration\{
     Connection\ExistingConnection,
@@ -36,10 +37,15 @@ use Doctrine\ORM\{
     ORMSetup,
 };
 use Firehed\Container\TypedContainerInterface as TC;
+use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\{
+    Doctrine\UuidBinaryType,
+    UuidInterface,
+};
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 return [
@@ -93,6 +99,13 @@ return [
     ExistingEntityManager::class,
 
     // ORM
+    TypedFieldMapper::class => function (): TypedFieldMapper {
+        Type::addType(UuidBinaryType::NAME, UuidBinaryType::class);
+        return new DefaultTypedFieldMapper([
+            UuidInterface::class => UuidBinaryType::NAME,
+        ]);
+    },
+
     Configuration::class => function (TC $c) {
         $paths = [
             'src/Entities',
@@ -112,7 +125,7 @@ return [
         // Automatically translates classes and properties from UpperCamelCase
         // in PHP to snake_case in the database.
         $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
-        // Future: TypedFieldMapper for custom types.
+        $config->setTypedFieldMapper($c->get(TypedFieldMapper::class));
 
         // These are only used in PHP <= 8.3 where native lazy objects aren't
         // supported or enabled.
@@ -129,9 +142,6 @@ return [
     // Note: Doctrine EntityManager types EventManager not
     // EventManagerInterface, so we use it as the key so it gets wired.
     EventManager::class => function (TC $c): EventManager {
-        $manager = new EventManager();
-        // Future: add ORM/DBAL/Migrations lifecycle hooks in here
-        //
         // Hookable events are defined in:
         // - Doctrine\Migrations\Events
         // - Doctrine\ORM\Events
@@ -145,6 +155,11 @@ return [
         //
         // This should NOT be used for application events; stick with the
         // Symfony EventDispatcher in the kernel.
+        $manager = new EventManager();
+        $manager->addEventListener(
+            events: [Events::prePersist, Events::preUpdate],
+            listener: $c->get(AutoValueSubscriber::class),
+        );
         return $manager;
     },
 ];

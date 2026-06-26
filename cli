@@ -26,6 +26,7 @@ file_put_contents(
 );
 
 $application = new Application();
+$application->addCommand($container->get(Command\DebugLoadFacilityCommand::class));
 $application->addCommand($container->get(Command\InstallCommand::class));
 $application->addCommand($container->get(Command\ShellCommand::class));
 $application->addCommand($container->get(Command\Codes\UpdateMappingsCommand::class));

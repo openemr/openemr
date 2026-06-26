@@ -29,6 +29,7 @@ use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Installer\InstallerInterface;
 use OpenEMR\Core\ErrorHandler;
+use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\Services;
 use OpenEMR\Services\Storage\{
     Location,
@@ -42,6 +43,8 @@ use Psr\Http\Message\{
 };
 
 return [
+    AutoValueSubscriber::class,
+
     // Error handling
     ErrorHandler::class => fn (TC $c) => new ErrorHandler(
         logger: $c->get(LoggerInterface::class),
