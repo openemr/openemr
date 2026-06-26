@@ -13,7 +13,7 @@ use OpenEMR\Common\Logging\{
 return [
     BreakglassCheckerInterface::class => BreakglassChecker::class,
     // See notes in BreakglassChecker's constructor: it must use the
-    // non-audited connection in order to avoid an infinte loop w/ SQL logging
+    // non-audited connection in order to avoid an infinite loop w/ SQL logging
     BreakglassChecker::class => fn (TC $c) => new BreakglassChecker(
         $c->get(ConnectionManager::class)->get(ConnectionType::NonAudited),
     ),
