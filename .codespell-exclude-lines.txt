@@ -3,6 +3,7 @@
 
 # CHANGELOG: documenting a bug fix about misspelling
 - "Retrieve" is sometimes misspelled "retrive" ([#8595](https://github.com/openemr/openemr/issues/8595))
+- correct "Dislay" typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
 
 # Company name in copyright notice (Wrapp was a Swedish mobile commerce company)
  * (c) 2013-2016 Nicklas Ansman, 2013 Wrapp
