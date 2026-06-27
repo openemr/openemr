@@ -337,12 +337,43 @@ known debt` section:
      a `release-auto-update` branch + peter-evans-style PR
      open/update. Concurrency lock to prevent races. First real
      auto-PR.
-  3. **PR #3 on demo_farm:** add eager `repository_dispatch`
-     consumers (openemr-tag / openemr-rel-cut / openemr-rel-update)
-     + the `unreleased: true` skip on release-targets.yml rows.
-     This phase is also where today's `bump-tag.yml` gets retired
-     — its behavior becomes a subset of the new bot's
-     reconciliation.
+  3. **PR #3 on demo_farm: atomic flip — wire dispatch consumers
+     + retire prior automation.** Single PR coordinates:
+
+     **Add:**
+     - Eager `repository_dispatch` consumers on the new bot's
+       workflow (openemr-tag / openemr-rel-cut / openemr-rel-update)
+     - `unreleased: true` skip on release-targets.yml rows (the
+       demo_farm-side consumer of the openemr/openemr#12656 marker)
+
+     **Delete:**
+     - `.github/workflows/bump-tag.yml` (109 lines) — functionally
+       subsumed by the new bot's Production-section reconciliation,
+       which is richer (also handles release demos, master demos,
+       parked, flex images)
+     - `tools/release/src/IpMapBumper.php` — the PHP class
+     - `tools/release/bin/bump-ip-map.php` — the CLI entry
+     - `tools/release/tests/IpMapBumperTest.php` — the tests
+     - `tools/release/Taskfile.yml`, `phpunit.xml.dist`, `phpcs.xml`,
+       `phpstan.neon`, `rector.php`, `composer.json`,
+       `composer.lock`, `.gitignore` — the entire PHP toolchain
+       scaffolding (only used by IpMapBumper today; the new bot is
+       bash so doesn't need it). Future bash tools live in their
+       own dir (e.g., `tools/auto-derive/`); future PHP tools (if
+       ever) re-scaffold their own project.
+
+     **Net:** ~200 LOC + ~10 config files deleted; ~50 LOC added
+     to the new bot's workflow for the dispatch wiring.
+
+     **Why atomic** (single PR vs separate "wire then retire"):
+     - Retiring `bump-tag.yml` BEFORE PR #3 → gap window where
+       openemr-tag dispatches don't update demo_farm (production
+       demo lags real release)
+     - Retiring AFTER PR #3 → both workflows fire on every
+       openemr-tag dispatch → race condition on `ip_map_branch.txt`
+       writes
+     - Atomic → one dispatch consumer running at all times, clean
+       cutover
 - **Procedural rule until automation lands** (the manual checklist
   to follow when changing a production-demo row in
   `ip_map_branch.txt`):
