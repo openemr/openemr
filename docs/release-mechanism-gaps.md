@@ -89,7 +89,7 @@ known debt` section:
   only the rel-branch-side blank + master-side rename dance as manual
   steps.
 
-### G4 — No workflow invocation path for `--scope=master`  *(migration-related)*
+### G4 — No workflow invocation path for `--scope=master`  *(branch-cut prerequisite)*
 
 - **What:** The `openemr:release-prep` console command supports
   `--scope=master` for "post-cut version bump on master" via
@@ -99,24 +99,80 @@ known debt` section:
   master needs `version.php` advanced (e.g., 8.2.0-dev → 8.3.0-dev).
   Today this is purely manual or requires running the console command
   directly on a host checkout.
-- **Possible fix:** Add `scope` input to `release-prep.yml`'s
-  `workflow_dispatch`; propagate through the `php` invocation.
-  Small change.
-- **Status:** Tracked in release-mechanism migration planning doc's
-  `## Deferred / known debt`. Could land during the migration or as
-  immediate post-migration cleanup.
+- **Design (folded into G5's branch-cut automation):** Don't add a
+  `scope` input to `release-prep.yml`. Instead, a separate
+  `branch-cut-automation.yml` workflow (G5) invokes the master-scope
+  mutator as one of its steps when it fires on `on: create`. Keeps
+  `release-prep.yml`'s scope narrow (rel-branch-only) and consolidates
+  cut-time work into one place. The console command's `--scope=master`
+  surface stays as-is for ad-hoc + manual fallback.
+- **Status:** Implementation lives in workstream 2 (rel-820 cut
+  readiness) of the migration plan. See G5 for the full automation
+  design.
 
-### G5 — No automatic trigger when `rel-NNN0` is cut  *(migration-related)*
+### G5 — No automatic trigger when `rel-NNN0` is cut  *(workstream 2 design)*
 
 - **What:** Cutting a new `rel-NNN0` branch is a manual git operation
   (`git push origin master:rel-NNN0`). Nothing fires automatically on
-  this event to bump master's version.
-- **Possible fix:** Branch-creation trigger on the workflow could fire
-  master-scope mutation when a new `rel-*` branch appears. More
-  ambitious — needs design (target version? who tags? what does the
-  bump look like for the next-next minor?).
-- **Status:** Tracked in planning doc's deferred-debt. Natural follow-up
-  to G4.
+  this event to:
+  - Advance master's `version.php` from `8.X.0-dev` → `8.X+1.0-dev`
+  - Add the new rel-NNN0 row to `.github/release-targets.yml`
+  - Rotate the `next` Docker tag from master to rel-NNN0
+  - Add the new SQL upgrade skeleton + adjust the bridge file chain
+  - Edit rel-NNN0's `docker/release/Dockerfile`
+    (`ARG OPENEMR_VERSION=master` → `ARG OPENEMR_VERSION=rel-NNN0`)
+- **Design (2026-06-27):** New workflow
+  `.github/workflows/branch-cut-automation.yml` on master with:
+
+  ```yaml
+  on:
+    create:
+      # No path filter — `create` events fire per-ref-creation,
+      # not per-file-change.
+  ```
+
+  Inside the job:
+  - Check `github.event.ref_type == 'branch'` and `github.event.ref`
+    matches `rel-[0-9]+0` (otherwise return early — only fires for
+    actual rel-branch creation, not tags or other branches).
+  - Derive target version from the branch name
+    (`branch-to-version.php` already does this — extends to handle
+    the freshly-cut case where no tag exists yet, returning the base
+    version).
+  - Open **two coordinated PRs** (same shape as the release-time
+    partner PR pattern from G11):
+    - **rel-NNN0-side**: small PR with the
+      `docker/release/Dockerfile` ARG edit. CI overrides this via
+      `--build-arg`, so it's cosmetic for local builds, but worth
+      keeping consistent with branch identity.
+    - **master-side**: version.php advance via
+      `VersionPhpMasterMutator` (existing — see G4), add the rel-NNN0
+      row to release-targets.yml via a new
+      `AddReleaseTargetsRowMutator`, rotate `next` from master to
+      rel-NNN0, add the SQL skeleton + bridge-file-rename dance via
+      a new `SqlSkeletonAdvanceMutator`.
+
+- **Interaction with `release-prep.yml` (conductor):** The conductor
+  ALSO fires on the cut push (it has `on: push:` matching
+  `rel-[0-9]*0`). On a freshly-cut rel-NNN0:
+  - `branch-to-version.php('rel-NNN0')` returns the base version
+    (e.g., `8.2.0` for rel-820, since no `v8_2_0` tag yet)
+  - Mutators run, suggest 8.2.0 release-prep content
+  - Opens `release-prep/rel-NNN0` draft PR
+
+  This is **premature** — 8.2.0 isn't shipping at cut time. Two ways
+  to handle:
+  - **(a) Accept** the draft PR existing from day one; mostly inert;
+    re-rendered on each push during the dev cycle. **Recommended**
+    — small visual nuisance, low engineering cost.
+  - **(b) Conductor suppresses** its first run after a cut event.
+    Possible via a "cut-marker" file the cut workflow writes that
+    the conductor checks. Adds non-trivial logic with edge cases.
+
+- **Status:** Workstream 2 (rel-820 cut readiness). Tightly coupled
+  with G4 (master-scope mutator wiring) — same workflow handles both.
+  Implementation depends on whether the project has an upcoming rel
+  cut event to use as the proving ground.
 
 ### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
 
@@ -442,6 +498,63 @@ known debt` section:
   consistency pass after the release-mechanism migration
   adopts the pattern (see migration doc's pre-Phase-1 decision
   on reusable workflows).
+
+### G11 — Post-release release-targets.yml updates are manual  *(workstream 3 design)*
+
+- **What:** After a rel-branch ships (e.g., 8.1.1 ships from
+  rel-810), `.github/release-targets.yml` on master needs three
+  coordinated edits that no automation produces today:
+  - **Pin the rel branch's `openemr_version_ref` to the new tag**
+    (e.g., `rel-810 → v8_1_1`). Stops daily builds from tracking
+    the rel branch tip; locks them to the immutable tag content.
+  - **Slot shuffle across rows** (per the slot-promotion model
+    documented in this doc's "Docker Hub tag model" section):
+    - The newly-shipped rel branch promotes its `next` tag →
+      `latest` (e.g., `rel-810: 8.1.1,next → 8.1.1,latest`).
+    - The previous `latest` holder drops it (e.g.,
+      `rel-800: 8.0.0,8.0.0.3,latest → 8.0.0,8.0.0.3`).
+    - `next` moves to the next upcoming-stable owner — to a
+      newly-cut rel branch if one exists, else back to master
+      (e.g., `master: 8.2.0,dev → 8.2.0,dev,next`).
+  - **Drop the unreleased placeholder row** for the same rel
+    branch (per the multi-row mechanism added in
+    openemr/openemr#12656). If the multi-row was set up for
+    the in-dev publish-prior-stable case, the prior-version row
+    becomes redundant once the new version ships and gets removed.
+
+  Today: P6 in the canonical 8.1.1 release sequence is purely
+  manual — operator opens the PR by hand after the tag is created.
+
+- **Design (2026-06-27):** Extend the conductor (or add a sibling
+  workflow firing on the same triggers) to open a SECOND PR —
+  `release-finalize/<rel-branch>` — on **master**, paired with
+  the existing `release-prep/<rel-branch>` PR on the rel branch.
+  The second PR carries the post-release release-targets.yml
+  mutations + dropping the unreleased placeholder.
+
+  **Lifecycle:**
+  1. Conductor fires on push to rel-810 → opens BOTH
+     `release-prep/rel-810` (on rel-810) AND
+     `release-finalize/rel-810` (on master) as drafts.
+  2. Maintainer marks both Ready.
+  3. ship-release.yml merges conductor PR → tag fires →
+     openemr-tag dispatch consumer either auto-merges the master
+     partner PR, or marks it Ready for manual merge.
+  4. Optional: master partner PR has a guard refusing to merge if
+     the tag doesn't exist yet (mirrors the docs-first refusal
+     pattern in ship-release.yml).
+
+- **What gets implemented:**
+  - New mutator: `PostReleaseTargetsMutator` (computes the slot
+    shuffle, ref pin, and unreleased-row drop in one pass).
+  - Conductor extension: opens the second PR via peter-evans
+    against master.
+  - openemr-tag consumer extension: after the tag fires, marks
+    `release-finalize/<rel-branch>` Ready and/or auto-merges it.
+
+- **Status:** Workstream 3 (per-release-on-rel-branch
+  optimization). Tightly coupled with the broader release-cycle-bot
+  for P1-P4 automation.
 
 ## Timing picture: who does what, when
 
