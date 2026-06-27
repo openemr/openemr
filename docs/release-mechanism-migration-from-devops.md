@@ -245,39 +245,49 @@ matches production rows by `MAJOR.MINOR` and updates them on
 `openemr-tag`; cluster-to-flex-image mapping is hand-maintained) is
 itself going to change as part of workstream 5 / gap G6.
 
-The auto-generation vision (per maintainer 2026-06-23, expanded
-2026-06-23): derive the entire `ip_map_branch.txt` +
+The auto-generation vision (per maintainer 2026-06-23, design
+refined 2026-06-27): derive the entire `ip_map_branch.txt` +
 `demoLibrary.source` from upstream openemr/openemr state, with a
 single hand-curated "Miscellaneous" section reserved for non-standard
-demos. Each section's derivation rule documented in gaps doc G6:
+demos. **Reconciliation, not from-scratch render** — cluster
+identity is sticky across runs because each cluster name maps to a
+subdomain (e.g., `eight` → `eight.openemr.io`) referenced from
+external surfaces (wiki, social, mail). The bot preserves
+cluster→subdomain stability by reading current state + applying a
+reconciliation diff. Each section's derivation rule (full matrix in
+gaps doc G6):
 
-- Production (cluster `five` + aliases) from the rel branch holding
-  `latest` in release-targets.yml
-- Up-for-grabs (cluster `four`) defaults to master
-- Release demos (clusters `three`/`six`/`eight`/...) one per rel
-  branch in release-targets.yml
-- Master demos (clusters `one`/`two`/`seven`/...) one per supported
-  PHP version from openemr/openemr's CI matrix
-- Parked + Miscellaneous: hand-curated
+- **Production** (cluster `five` + aliases): from the rel branch
+  holding `latest` in release-targets.yml; flex from that branch's
+  Dockerfile ARGs
+- **Up-for-grabs** (cluster `four` + aliases): branch preserved
+  (community claims); flex always from **master's** Dockerfile
+- **Master demos** (clusters `one`/`two`/`seven`/...): sticky from
+  prior state; new ones from parked when a PHP version is added
+- **Release demos** (clusters `three`/`six`/`eight`/...): sticky
+  from prior state; new ones from parked when a rel branch appears
+- **Parked**: dynamic bench (overflow + retired-from-active)
+- **Miscellaneous**: hand-curated, bot never touches
 
-This re-architecture changes what "release mechanism for demo farm"
-means: instead of imperative bump-tag.yml dispatched on
-`openemr-tag`, a single bot script derives the full file state from
-upstream + opens a PR on every relevant trigger (openemr-tag dispatch,
-openemr-rel-cut/-update dispatch, scheduled rederive, manual
-dispatch).
+Bot trigger composition: daily cron (load-bearing self-healing) +
+eager `repository_dispatch` consumers (openemr-tag /
+openemr-rel-cut / openemr-rel-update) + manual workflow_dispatch.
+Implementation: bash + yq + curl + awk; demo_farm self-contained.
+Three-PR scaffolding plan (dry-run → live PR → eager dispatch +
+unreleased skip).
 
-Implication for workstreams 2 + 3 above: the release-time partner PR
-+ branch-cut automation should be **demo-farm-aware** — when the
+Implication for workstreams 2 + 3 above: the release-time partner
+PR + branch-cut automation should be **demo-farm-aware** — when the
 new demo_farm bot exists, it consumes the same release-targets.yml
 state that the partner PR mutates. Coordination boundary:
-release-targets.yml is the contract between master-side automation
+`release-targets.yml` is the contract between master-side automation
 and the demo_farm bot. As long as the partner PR + branch-cut
-automation correctly produce release-targets.yml state, the demo_farm
-bot rederives correctly. No tight coupling between them at the
-workflow level.
+automation correctly produce `release-targets.yml` state, the
+demo_farm bot rederives correctly. **No tight coupling at the
+workflow level** — they're decoupled via the data file.
 
-Full design in gaps doc G6.
+Full design (algorithm, per-input source map, section ownership
+matrix, edge cases, 3-PR scaffolding plan) in gaps doc G6.
 
 The remaining sections of this doc detail workstream 6's internals (the
 actual migration) with the original Phase-1-through-6 structure. Workstreams
