@@ -81,7 +81,12 @@ jobs:
             ) |
             select(
               ($exc | split(",") | map(. == $row.branch) | any) | not
-            )
+            ) |
+            # Skip rows flagged unreleased — placeholder entries that
+            # the validator still checks for ready-to-flip-live, but
+            # consumers do not process. See .github/release-targets.yml
+            # header for the multi-row-per-branch mechanism this enables.
+            select(.unreleased != true)
           ]
         ')
 
