@@ -692,21 +692,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method ServerInfo\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_schema_version\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_version\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method GetRows\\(\\) on ADORecordSet\\|bool\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_test2.php',

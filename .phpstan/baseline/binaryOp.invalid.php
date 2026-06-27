@@ -792,36 +792,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  Database Prefix\\: \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  Database Type\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  Database Version\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  Database…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  phpGACL Schema…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'  phpGACL Version\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \' Browser\\: \' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/about.php',

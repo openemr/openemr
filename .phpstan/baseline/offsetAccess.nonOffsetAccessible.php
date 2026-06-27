@@ -1717,16 +1717,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'description\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'version\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/about.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access an offset on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
