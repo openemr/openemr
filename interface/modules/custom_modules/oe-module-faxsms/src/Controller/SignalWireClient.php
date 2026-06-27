@@ -140,10 +140,7 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
         }
 
         if ($this->client === null) {
-            return json_encode([
-                'success' => false,
-                'error' => xlt('SignalWire client not initialized. Please configure credentials.')
-            ]);
+            return xlt('SignalWire client not initialized. Please configure credentials.');
         }
 
         // Get request parameters - initialize all to avoid PHPStan warnings
@@ -233,16 +230,21 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
         // content ($isContent). The staged-upload branch left $file
         // pointing at a plaintext path, so the else branch in
         // mailUploadedDocument sends it directly.
+        $error = false;
         $emailPath = null;
         if ($hasEmail && $smtpEnabled) {
-            $payloadIsContent = (bool)$isDocuments || !empty($isContent);
-            $emailPath = FaxMailer::mailUploadedDocument(
-                $email,
-                '',
-                $file,
-                $user,
-                $payloadIsContent,
-            );
+            try {
+                $payloadIsContent = (bool)$isDocuments || !empty($isContent);
+                $emailPath = FaxMailer::mailUploadedDocument(
+                    $email,
+                    '',
+                    $file,
+                    $user,
+                    $payloadIsContent,
+                );
+            } catch (\PHPMailer\PHPMailer\Exception) {
+                $error = true;
+            }
         }
 
         // Validate phone number
@@ -278,18 +280,10 @@ class SignalWireClient extends AppDispatch implements FaxChannelInterface
                 error_log("SignalWireClient.sendFax(): DEBUG - SignalWire accepted fax sid=" . ($fax->sid ?? '') . " status=" . ($fax->status ?? ''));
             }
 
-            return json_encode([
-                'success' => true,
-                'message' => xlt('Fax queued successfully'),
-                'fax_sid' => $fax->sid,
-                'status' => $fax->status
-            ]);
+            return xlt('Fax Successfully Sent') . ($error === true ? ("<br />" . xlt("Email Failed")) : '');
         } catch (\Throwable $e) {
             error_log('SignalWire Fax Error: ' . $e->getMessage());
-            return json_encode([
-                'success' => false,
-                'error' => xlt('Error sending fax')
-            ]);
+            return 'Error: ' . text(js_escape($e->getMessage()));
         } finally {
             $this->uploadStaging->removeStagedArtifacts(
                 $stagedPath,
