@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use Lcobucci\Clock\FrozenClock;
+use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -132,7 +133,7 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            sinks: [],
+            sink: $this->createStub(SinkInterface::class),
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -178,7 +179,6 @@ final class EventAuditLoggerTest extends TestCase
             'REQUEST_METHOD' => 'GET',
             'SCRIPT_NAME' => '/test/script.php',
             'QUERY_STRING' => 'param=value',
-            'SSL_CLIENT_S_DN_CN' => 'test-client',
             'REMOTE_ADDR' => '127.0.0.1'
         ];
 
@@ -254,9 +254,9 @@ final class EventAuditLoggerTest extends TestCase
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
         // Return positional array matching constructor parameter order:
-        // sinks, cryptoGen,  session, config, breakglassChecker, clock
+        // sink, session, config, breakglassChecker, clock
         return [
-            [],                                         // sinks
+            $this->createStub(SinkInterface::class),
             $sessionMock,                               // session
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
@@ -508,7 +508,7 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
 
         $eventAuditLogger = new EventAuditLogger(
-            sinks: [],
+            sink: $this->createStub(SinkInterface::class),
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,

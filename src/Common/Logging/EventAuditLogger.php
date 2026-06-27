@@ -82,7 +82,7 @@ class EventAuditLogger
         );
 
         return new self(
-            sinks: $sinks,
+            sink: new Audit\MultiSink($sinks),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
@@ -90,11 +90,8 @@ class EventAuditLogger
         );
     }
 
-    /**
-     * @param Audit\SinkInterface[] $sinks
-     */
     public function __construct(
-        private readonly array $sinks,
+        private readonly Audit\SinkInterface $sink,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
@@ -666,9 +663,7 @@ class EventAuditLogger
         // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
         $comments = base64_encode($comments);
 
-        // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
-        $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.
         //  Need to keep to maintain backward compatibility since the checksum is used when calculating checksum stored in log_comment_encrypt table
@@ -690,16 +685,13 @@ class EventAuditLogger
             $user_notes,
             $patientId,
             $success,
-            $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
             $ccdaDocId,
             $api,
         );
 
-        foreach ($this->sinks as $sink) {
-            $sink->record($auditEvent);
-        }
+        $this->sink->record($auditEvent);
     }
 
     /**

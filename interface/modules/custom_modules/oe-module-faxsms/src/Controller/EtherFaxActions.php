@@ -796,32 +796,6 @@ class EtherFaxActions extends AppDispatch
     /**
      * @return string
      */
-    public function getNotificationLog(): string
-    {
-        $fromDate = $this->getRequest('datefrom');
-        $toDate = $this->getRequest('dateto');
-
-        try {
-            $query = "SELECT * FROM notification_log WHERE dSentDateTime > ? AND dSentDateTime < ?";
-            $result = sqlStatement($query, [$fromDate, $toDate]);
-            $rows = sqlFetchArray($result);
-            $responseMsgs = '';
-
-            foreach ($rows as $row) {
-                $adate = $row['pc_eventDate'] . '::' . $row['pc_startTime'];
-                $pinfo = str_replace("|||", " ", $row['patient_info']);
-                $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
-            }
-        } catch (\Throwable $e) {
-            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
-        }
-
-        return $responseMsgs;
-    }
-
-    /**
-     * @return string
-     */
     public function getCallLogs()
     {
         return xlt('Not Implemented');

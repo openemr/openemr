@@ -16,8 +16,8 @@ For larger changes — new features, architectural changes, or anything that wou
 
 OpenEMR is split across multiple repositories. Make sure your contribution targets the right one:
 
-- **[openemr/openemr](https://github.com/openemr/openemr)** — The application itself: PHP code, frontend, APIs, clinical features, tests.
-- **[openemr/openemr-devops](https://github.com/openemr/openemr-devops)** — Infrastructure and deployment: Docker, Kubernetes, cloud provisioning (CloudFormation, Terraform), and operational tooling.
+- **[openemr/openemr](https://github.com/openemr/openemr)** — The application itself: PHP code, frontend, APIs, clinical features, tests. Also owns the production Docker image pipeline (Dockerfiles, build/publish workflows, Docker Hub readme rendering) — see [DOCKER_README.md](DOCKER_README.md) and [docs/docker-migration-from-devops.md](docs/docker-migration-from-devops.md).
+- **[openemr/openemr-devops](https://github.com/openemr/openemr-devops)** — Deployment + operational tooling: Kubernetes manifests, cloud provisioning (CloudFormation, Terraform, ECS, EKS), AWS packaging, Raspberry Pi installer, and developer utilities (`openemr-cmd`, env-installer, monitor, portainer, env-migrator).
 
 When in doubt, ask on the forum or open an issue to discuss where the work belongs.
 
@@ -118,6 +118,7 @@ You will need a "local" version of OpenEMR to make changes to the source code. T
     - [Install `openemr-cmd`](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-cmd) — the canonical CLI for working with the development docker environment. It runs from any directory, dispatches commands into the running openemr container, manages git worktrees, installs pre-commit hooks, and replaces the longer `docker compose exec openemr /root/devtools <cmd>` form throughout this document.
         - **Windows note:** `openemr-cmd` is a bash script. Install it inside WSL2 (recommended) or Git Bash. Native cmd.exe / PowerShell cannot invoke a bash script directly; if you stay on those, fall back to the underlying `docker compose exec openemr /root/devtools <cmd>` form for each example below.
         - Verify with `openemr-cmd --version` and `openemr-cmd --help` (or `openemr-cmd-h <keyword>` to search). All examples below assume openemr-cmd is on your PATH.
+        - **Host uid alignment (transparent):** openemr-cmd auto-exports `HOST_UID`/`HOST_GID` (your `id -u` / `id -g`) on every `up` and `worktree up`, and the in-container apache user adopts that uid via the container entrypoint. Bind-mounted files apache writes are owned by you on the host — `git commit`, IDE edits, and file deletes work without permission friction regardless of your host uid. If you have a long-lived openemr checkout from before this was added and see `EACCES` on host-side edits (root-owned mount-point dirs left over from older docker runs), one-shot cleanup: `sudo chown -R "$(id -u):$(id -g)" .` from the openemr checkout root. New checkouts and worktrees: nothing to do, it just works.
     - (optional) If you want to monitor and easily manage the docker environment, also [install openemr-monitor](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-monitor) and [install portainer](https://github.com/openemr/openemr-devops/tree/master/utilities/portainer) for your system.
     - (optional) If you want to migrate the running docker environment, try [openemr-env-migrator](https://github.com/openemr/openemr-devops/tree/master/utilities/openemr-env-migrator).
     - (optional) If you want to set up with an orchestration tool, try [OpenEMR Kubernetes Orchestrations](https://github.com/openemr/openemr-devops/tree/master/kubernetes/minikube).
@@ -236,8 +237,12 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```
       Usage: openemr-cmd worktree <add|remove|up|down|start|stop|exec|list|regen|set-env|prune> [options]
 
-        add <branch> [-b] [--env easy|easy-light|easy-redis] [--start]
-                                  Create worktree (-b creates new branch, default env: easy)
+        add <branch> [-b] [--base <ref>] [--env easy|easy-light|easy-redis] [--start]
+                                  Create worktree (default env: easy)
+                                  -b           : create new branch; default base is canonical openemr/openemr master (fetched fresh)
+                                  --base <ref> : (with -b) base on a specific ref. Two forms:
+                                                   <url>[#<ref>]  -> fetch from URL (e.g. https://github.com/openemr/openemr.git#rel-810)
+                                                   <commit-ish>   -> standard git resolution (local branch, origin/master, tag, SHA, HEAD, ...)
         remove <branch> [--keep-volumes] Remove worktree (volumes deleted by default)
         up <branch>               Start Docker stack for worktree
         down <branch> [--keep-volumes]  Stop Docker stack for worktree (volumes deleted by default)
@@ -255,6 +260,11 @@ The OpenEMR development docker environment has a very rich advanced feature set.
       ```sh
       openemr-cmd worktree add worktree-branch-label -b
       ```
+      The new branch is based on canonical `openemr/openemr` master, fetched directly from GitHub each time (no named remote needed). To base on a different ref, supply `--base <ref>`:
+      ```sh
+      openemr-cmd worktree add my-release-fix -b --base https://github.com/openemr/openemr.git#rel-810
+      ```
+      `--base` accepts two forms: a URL (optionally `#<ref>`) for a freshly-fetched base, or any git `<commit-ish>` (local branch, `origin/master`, tag, SHA, `HEAD`) resolved locally without a fetch.
 
     - Or can create a new worktree on a existing branch:
       ```sh
@@ -318,7 +328,7 @@ The OpenEMR development docker environment has a very rich advanced feature set.
     - Lots of other cool stuff is listed in the usage description via `openemr-cmd worktree`
 
 
-2. <a name="precommit"></a>Pre-commit hooks for the docker dev environment can be installed so that `git commit` validates staged changes against the project's full `.pre-commit-config.yaml` suite (phpstan, rector, phpcs, codespell, actionlint, etc.) inside the running openemr container. No host install of PHP, Node, Python, codespell, or actionlint is required — only Docker. Routing is cwd-aware: a commit fired from worktree `foo` dispatches to `foo`'s container.
+2. <a name="precommit"></a>Pre-commit hooks for the docker dev environment can be installed so that `git commit` validates staged changes against the project's full `.pre-commit-config.yaml` suite (phpstan, rector, phpcs, codespell, actionlint, hadolint, etc.) inside the running openemr container. No host install of PHP, Node, Python, codespell, actionlint, or hadolint is required — only Docker. Routing is cwd-aware: a commit fired from worktree `foo` dispatches to `foo`'s container.
 
     - One-time install per clone (run from the base repo on master):
       ```sh

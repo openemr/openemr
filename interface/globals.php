@@ -90,13 +90,15 @@ $handler->installExceptionHandler();
 if (!(extension_loaded('openssl'))) {
     http_response_code(500);
     $logger->critical('OpenEMR is not working since the php openssl module is not installed');
-    die("OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.");
+    echo "OpenEMR Error : OpenEMR is not working since the php openssl module is not installed.";
+    exit(1);
 }
 // Throw error if the openssl aes-256-cbc cipher is not available.
 if (!(in_array('aes-256-cbc', openssl_get_cipher_methods()))) {
     http_response_code(500);
     $logger->critical('OpenEMR is not working since the openssl aes-256-cbc cipher is not available');
-    die("OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.");
+    echo "OpenEMR Error : OpenEMR is not working since the openssl aes-256-cbc cipher is not available.";
+    exit(1);
 }
 
 
@@ -311,7 +313,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
             header('Location: ../login/login.php?site=' . urlencode((string)$tmp)); // Assuming in the interface/main directory
         }
 
-        exit;
+        exit(1);
     }
 
     if ($siteId === null || $siteId != $tmp) {
@@ -375,7 +377,7 @@ try {
 } catch (\Throwable $e) {
     $logger->error($e->getMessage(), ['exception' => $e]);
     http_response_code(500);
-    die();
+    exit(1);
 }
 
 // This will open the openemr mysql connection.
@@ -753,11 +755,11 @@ if (!empty($checkModulesTableExists)) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
         $logger->warning($accessDeniedException->getMessage(), ['exception' => $accessDeniedException]);
-        die();
+        exit(1);
     } catch (\Throwable $ex) {
         http_response_code(500);
         $logger->error($ex->getMessage(), ['exception' => $ex]);
-        die();
+        exit(1);
     }
 }
 

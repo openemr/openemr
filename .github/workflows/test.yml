@@ -98,7 +98,7 @@ jobs:
       ccda_build_key: ${{ steps.cache-keys.outputs.ccda-build }}
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Parse Configuration
       id: parse
@@ -479,7 +479,7 @@ jobs:
       ENABLE_COVERAGE: ${{ inputs.enable_coverage }}
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2

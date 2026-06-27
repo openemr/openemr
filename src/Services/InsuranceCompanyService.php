@@ -67,7 +67,7 @@ class InsuranceCompanyService extends BaseService
         parent::__construct(self::INSURANCE_TABLE);
     }
 
-    public function getInsuranceDisplayName($insuranceId)
+    public function getInsuranceDisplayName($insuranceId): string
     {
         $searchResults = $this->search(['id' => $insuranceId]);
         $insuranceCompany = null;
@@ -79,7 +79,7 @@ class InsuranceCompanyService extends BaseService
         }
         return "";
     }
-    public static function getDisplayNameForInsuranceRecord($insuranceCompany)
+    public static function getDisplayNameForInsuranceRecord($insuranceCompany): string
     {
         switch (OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
@@ -113,8 +113,9 @@ class InsuranceCompanyService extends BaseService
                 $returnval = $insuranceCompany['name'];
                 break;
         }
-        return $returnval;
+        return (string) $returnval;
     }
+
     public function getUuidFields(): array
     {
         return ['uuid'];
@@ -203,7 +204,7 @@ class InsuranceCompanyService extends BaseService
             ServiceContainer::getLogger()->error(
                 $exception->getMessage(),
                 ['trace' => $exception->getTraceAsString(),
-                 'field' => $exception->getField()]
+                    'field' => $exception->getField()]
             );
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
@@ -349,7 +350,85 @@ class InsuranceCompanyService extends BaseService
         return $cqm_sops;
     }
 
-    public function insert($data)
+    /**
+     * Map the posted insurance company search/add form ($_POST style keys) to the
+     * canonical data array consumed by insert() and update().
+     *
+     * Pure: no database access and no superglobals, so the field mapping and the
+     * "Save as New" vs. update branch can be tested in isolation.
+     *
+     * @param array<string, mixed> $form Raw posted form values (form_* keys).
+     * @return array<string, mixed>
+     */
+    public function buildSaveDataFromForm(array $form): array
+    {
+        $isNew = (($form['form_save'] ?? '') === 'Save as New' || ($form['form_id'] ?? null) === null || $form['form_id'] === '');
+        $foreignId = $isNew ? '' : $form['form_id'];
+
+        return [
+            'name' => $form['form_name'] ?? '',
+            'attn' => $form['form_attn'] ?? '',
+            'cms_id' => $form['form_cms_id'] ?? '',
+            'ins_type_code' => $form['form_ins_type_code'] ?? '',
+            'x12_receiver_id' => $form['form_x12_receiver'] ?? null,
+            'x12_default_partner_id' => $form['form_partner'] ?? '',
+            'alt_cms_id' => null,
+            'line1' => $form['form_addr1'] ?? '',
+            'line2' => $form['form_addr2'] ?? '',
+            'city' => $form['form_city'] ?? '',
+            'state' => $form['form_state'] ?? '',
+            'zip' => $form['form_zip'] ?? '',
+            'country' => $form['form_country'] ?? '',
+            'phone' => $form['form_phone'] ?? '',
+            'foreign_id' => $foreignId,
+            'cqm_sop' => $form['form_cqm_sop'] ?? '',
+        ];
+    }
+
+    /**
+     * Persist the insurance company search/add form. Inserts a new company when
+     * "Save as New" was used (or no id is present), otherwise updates the existing
+     * company identified by form_id. Returns the resulting id and the display name
+     * the opener should show.
+     *
+     * @param array<string, mixed> $form
+     * @return array{id: int, name: string}
+     * @throws \RuntimeException When the underlying insert/update fails or the
+     *     resulting id is not a valid integer.
+     */
+    public function saveFromForm(array $form): array
+    {
+        $isNew = (
+            ($form['form_save'] ?? '') === 'Save as New'
+            || ($form['form_id'] ?? null) === null
+            || $form['form_id'] === ''
+        );
+
+        $data = $this->buildSaveDataFromForm($form);
+
+        if ($isNew) {
+            $id = $this->insert($data);
+        } else {
+            $id = $form['form_id'];
+            $result = $this->update($data, $id);
+            if ($result === false) {
+                throw new \RuntimeException(xl('Failed to update insurance company'));
+            }
+        }
+
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+
+        if ($id === false) {
+            throw new \RuntimeException(xl('Invalid insurance company id'));
+        }
+
+        return [
+            'id' => $id,
+            'name' => $this->getInsuranceDisplayName($id),
+        ];
+    }
+
+    public function insert($data): int|string
     {
         // insurance companies need to use sequences table since they share the
         // addresses table with pharmacies
@@ -359,6 +438,9 @@ class InsuranceCompanyService extends BaseService
             $data["id"] = QueryUtils::generateId();
         }
         $freshId = $data['id'];
+        if (!is_int($freshId) && !is_string($freshId)) {
+            throw new \RuntimeException(xl('Invalid insurance company id'));
+        }
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";

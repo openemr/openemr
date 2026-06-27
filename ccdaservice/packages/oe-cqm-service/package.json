@@ -16,7 +16,6 @@
   "devDependencies": {
     "mocha": "^11.7.6"
   },
-
   "deprecated": false,
   "license": "MIT",
   "main": "server.js",

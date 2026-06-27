@@ -57,13 +57,13 @@
     <div class="row gx-2 py-sm-2">
         <label for="phone" class="col-form-label col-sm-2">{xlt t='Phone'}</label>
         <div class="col-sm-8">
-            <input type="text" id="phone" name="phone" class="form-control" value="{$pharmacy->get_phone()|attr}" onKeyDown="PreventIt(event)" />
+            <input type="tel" id="phone" name="phone" class="form-control" value="{$pharmacy->get_phone()|attr}" pattern="(?:\(\d\d\d\)|\d\d\d)[\s.\-]?\d\d\d[\s.\-]?\d\d\d\d" title="{xla t='Enter a 10-digit phone number, e.g. 555-123-4567'}" onKeyDown="PreventIt(event)" />
         </div>
     </div>
     <div class="row gx-2 py-sm-2">
         <label for="fax" class="col-form-label col-sm-2">{xlt t='Fax'}</label>
         <div class="col-sm-8">
-            <input type="text" id="fax" name="fax" class="form-control" value="{$pharmacy->get_fax()|attr}" onKeyDown="PreventIt(event)" />
+            <input type="tel" id="fax" name="fax" class="form-control" value="{$pharmacy->get_fax()|attr}" pattern="(?:\(\d\d\d\)|\d\d\d)[\s.\-]?\d\d\d[\s.\-]?\d\d\d\d" title="{xla t='Enter a 10-digit fax number, e.g. 555-123-4567'}" onKeyDown="PreventIt(event)" />
         </div>
     </div>
     <div class="row gx-2 py-sm-2">
@@ -101,17 +101,20 @@
 <script>
 function submit_pharmacy()
 {
-    if(document.pharmacy.name.value.length>0)
-    {
-        top.restoreSession();
-        document.pharmacy.submit();
-        //Z&H Removed redirection
-    }
-    else
-    {
-        document.pharmacy.name.style.backgroundColor="red";
+    if (document.pharmacy.name.value.length === 0) {
+        document.pharmacy.name.style.backgroundColor = "red";
         document.pharmacy.name.focus();
+        return;
     }
+    // Honor the pattern= constraints on phone/fax. reportValidity() shows the
+    // browser's native error bubble pointing at the first invalid field;
+    // without this the JS submit() bypasses HTML5 validation entirely.
+    if (!document.pharmacy.reportValidity()) {
+        return;
+    }
+    top.restoreSession();
+    document.pharmacy.submit();
+    //Z&H Removed redirection
 }
 
  function Waittoredirect(delaymsec) {
