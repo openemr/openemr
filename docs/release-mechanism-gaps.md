@@ -205,53 +205,144 @@ known debt` section:
   representativeness. Same concern for rel-810 / rel-704 dev demos
   if their flex-image mapping drifts from their rel branch's
   Dockerfile combo.
-- **The auto-generation vision** (per maintainer, 2026-06-23): the
-  recent demo_farm reorg to consolidate around flex docker bases
-  (vs the prior per-version base images) was deliberate preparation
-  for this. **Goal: auto-generate the entire `ip_map_branch.txt` +
-  `demoLibrary.source` `startDemoWrapper` case statement from
-  upstream openemr/openemr state** — with a single hand-curated
-  "Miscellaneous" section reserved for non-standard demos that don't
-  fit any derivable pattern (currently would be empty; reserved
-  bench).
+- **The auto-generation vision** (per maintainer, 2026-06-23,
+  refined 2026-06-27): the recent demo_farm reorg to consolidate
+  around flex docker bases (vs the prior per-version base images)
+  was deliberate preparation for this. **Goal: auto-derive the
+  entire `ip_map_branch.txt` + `demoLibrary.source`
+  `startDemoWrapper` case statement from upstream openemr/openemr
+  state via a daily reconciliation script** — with a single hand-
+  curated "Miscellaneous" section reserved for non-standard demos
+  that don't fit any derivable pattern.
 
-  Each existing section's derivation rule:
+  **Reconciliation, not from-scratch render.** Cluster identity is
+  sticky across runs because each cluster name maps to a subdomain
+  (e.g., `eight` → `eight.openemr.io`) that's referenced from
+  external surfaces (wiki, social, mail). Reassigning a cluster's
+  meaning breaks those external references. The bot reads the
+  CURRENT `ip_map_branch.txt` as state, applies a reconciliation
+  diff against the desired state computed from upstream, and writes
+  the new file preserving cluster→subdomain stability.
 
-  | Section | Derived from |
-  |---|---|
-  | **Production** (cluster `five` + aliases) | The rel branch holding `latest` in `release-targets.yml`'s `docker_tags` (currently rel-800 → v8_0_0_3). Flex image from that branch's `docker/release/Dockerfile` ARGs (ALPINE_VERSION + PHP_VERSION). |
-  | **Up for grabs** (cluster `four` + aliases) | Master content by default — slot stays seeded with master demos until a community member claims it for a specific fork/branch (claim becomes a hand-edit to the misc section, or a transient override the bot respects). |
-  | **Release demos** (clusters `three`, `six`, `eight`, ...) | One row per rel branch in `release-targets.yml`. Each rel branch's flex image derives from that branch's `docker/release/Dockerfile` ARGs. New rel branches automatically get a row. |
-  | **Master demos** (clusters `one`, `two`, `seven`, `eleven`, ...) | One row per supported PHP version (observable via openemr/openemr's CI matrix — `.github/workflows/integration-tests.yml` and similar). Each row pinned to master with a flex image matching `flex-<alpine>-php-<php-version>` for that PHP. New PHP version supported → new master demo row. |
-  | **Parked** (clusters `nine`, `ten`, `edu`, ...) | Bench for hot-swap: where new clusters get parked before promotion, and where retired clusters land. Not derived from upstream state; managed by the bot as the bench when cluster count needs to flex up/down. |
-  | **Miscellaneous** | Empty by default; manually maintained for non-standard demos (e.g., one-off forks, special-purpose runs). Bot leaves this section completely untouched. |
+  **Per-input source map:**
 
-  Single script (in demo_farm_openemr/tools/release/ or similar) is
-  the entry point. Multiple triggers all feed in:
+  | Input | Read from | Per-branch or master-only |
+  |---|---|---|
+  | `release-targets.yml` (list of rel branches, latest holder, `unreleased` flags) | openemr/openemr **master** | master-only (file is master-authoritative) |
+  | `docker/release/Dockerfile` (ARGs for ALPINE + PHP) | openemr/openemr each rel branch + master | **per-branch** (each branch's Alpine/PHP can drift independently) |
+  | Integration-tests workflow (supported PHP matrix) | openemr/openemr **master** | master-only |
+  | Current `ip_map_branch.txt` + `demoLibrary.source` | demo_farm_openemr **master** | current-state read for reconciliation |
 
-  - **On `openemr-tag` dispatch** (already arrives via
-    `bump-tag.yml`): extend the bump to also touch
-    `demoLibrary.source` if the new tag's branch's
-    Alpine/PHP combo differs from the cluster's current mapping.
-  - **On `openemr-rel-cut` / `openemr-rel-update`** dispatch: seed
-    new rel branch's release-demo row + flex-image mapping; or
-    update existing rel branch's mapping if its Dockerfile combo
-    moved.
-  - **Scheduled (daily/weekly)**: catch manual edits to master's or
-    any rel branch's `docker/release/Dockerfile`, edits to
-    `release-targets.yml`, additions/removals of supported PHP
-    versions in the CI matrix. Bot rederives the full
-    ip_map_branch.txt + demoLibrary.source and opens a PR if
-    anything changed.
-  - **`workflow_dispatch`**: manual recovery / dry-run testing
-    (with optional `dry_run` flag).
+  **Section ownership matrix:**
 
-  Net behavior: any change in openemr/openemr's release state that
-  affects what demo_farm should publish gets caught and PR'd
-  automatically. Maintainer reviews + merges the PR (review-gated,
-  not auto-merge — same posture as `bump-tag.yml`'s current
-  behavior). Hand-edits to the misc section stay safe (bot never
-  touches it).
+  | Section | Cluster identity | Branch/tag | Flex image |
+  |---|---|---|---|
+  | **Production** (five + aliases) | fixed | derived from latest holder's `openemr_version_ref` | from latest holder's Dockerfile ARGs |
+  | **Up-for-grabs** (four + aliases) | fixed | **preserved** (community claims as overrides) | from **master's** Dockerfile, always (independent of any claim) |
+  | **Master demos** | sticky from prior state; new from parked | derived (master) | master's Alpine + the cluster's assigned PHP |
+  | **Release demos** | sticky from prior state; new from parked | derived (rel branch name) | from the assigned rel branch's Dockerfile ARGs |
+  | **Parked** | dynamic (overflow + retired-from-active) | preserved from when active | preserved |
+  | **Miscellaneous** | hand-curated | preserved | preserved (bot never touches) |
+
+  **Cluster count derivation:** counts derive from the current
+  per-cluster state (preserves the production=3, up-for-grabs=3,
+  rest=2 pattern naturally). Default 2 for newly-assigned clusters
+  (which only happens in dynamic categories — master demos +
+  release demos).
+
+  **Reconciliation algorithm (high-level):**
+
+  1. Read inputs (upstream openemr/openemr + current demo_farm state)
+  2. Validate upstream: **exactly one** non-unreleased row carries
+     `latest` — else **FAIL LOUD** (this should never happen; if it
+     does, surface immediately rather than fall back)
+  3. Parse current `ip_map_branch.txt` → cluster→{section, branch,
+     branch_tag, count, ...} map
+  4. Compute desired cluster assignments per section:
+     - Production / Up-for-grabs: fixed cluster identities; branch
+       per the section's derivation rule
+     - Master demos: for each supported PHP, find sticky cluster or
+       take from parked; PHPs retired upstream → matching cluster
+       moves to parked
+     - Release demos: for each non-latest non-unreleased rel branch,
+       find sticky cluster or take from parked; branches dropped
+       from release-targets.yml → matching cluster moves to parked
+     - Parked: bench (overflow)
+     - Misc: preserved verbatim
+  5. For each cluster, derive row + flex image per section rule
+  6. Diff vs current; PR if diff
+
+  **Triggers:**
+
+  - **Scheduled (daily cron)** at `0 7 * * *` UTC (1h after
+    openemr's docker-release-orchestrator at 06:00). The
+    load-bearing trigger — catches everything (manual Dockerfile
+    edits, CI matrix changes, anything not announced via dispatch).
+    Self-healing.
+  - **`repository_dispatch`** on `openemr-tag`,
+    `openemr-rel-cut`, `openemr-rel-update`: eager updates so the
+    demo doesn't lag a full day after a release. Optional
+    optimization — daily cron alone is functionally sufficient.
+  - **`workflow_dispatch`**: manual recovery + dry-run testing
+    (optional `dry_run` flag).
+
+  Net behavior: any upstream change that affects what demo_farm
+  should publish gets caught + PR'd automatically (eagerly via
+  dispatch when possible, falling back to daily cron). Maintainer
+  reviews + merges the PR (review-gated, not auto-merge — same
+  posture as `bump-tag.yml`'s current behavior). Hand-edits to the
+  misc section stay safe (bot never touches it).
+
+  **Edge cases to handle explicitly:**
+
+  - **Parked bench empty when a new cluster is needed** (rel-820
+    cuts, no parked cluster available) → **fail loud**, asking
+    maintainer to add a parked cluster first. Don't invent cluster
+    names — that would break the cluster→subdomain stability
+    contract.
+  - **`unreleased: true` rows** in release-targets.yml → skipped
+    when deriving release demos (this is the demo_farm-side
+    consumer the openemr/openemr#12656 PR description tracks).
+  - **No `latest` holder** in release-targets.yml → fail loud (per
+    Validate step). Should never happen.
+  - **Dockerfile ARG parsing fails** (regex doesn't match, ARG
+    removed) → fail with clear error pointing at the source file +
+    line.
+  - **CI matrix workflow not found** at the expected path → fail
+    with clear error; don't silently default to a wrong PHP list.
+  - **Misc section markers missing** in current ip_map_branch.txt
+    → assume empty misc; surface a warning so the maintainer can
+    fix the section markers.
+
+  **Implementation language:** Bash + `yq` + `curl` + `awk`. Data
+  manipulation isn't complex enough to justify Python/PHP/Node
+  infrastructure; demo_farm's existing tooling is bash; keeps
+  contributor barrier low + repo self-contained.
+
+  **Coordination boundary with workstreams 2 + 3:** the new bot
+  consumes `release-targets.yml` state; the conductor's release-
+  time partner PR (G11) + branch-cut automation (G5) produce it.
+  No tight workflow-level coupling — they're decoupled via the
+  data file. When workstream 3's partner PR mutates
+  `release-targets.yml`, the demo_farm bot picks up the change on
+  its next run (daily cron or eager dispatch).
+
+  **Three-PR scaffolding plan:**
+
+  1. **PR #1 on demo_farm:** scaffold the bot + sticky-
+     reconciliation logic in dry-run mode. Outputs a diff artifact
+     on PRs/schedule. No live PR yet — just renders + compares.
+     Verifies the algorithm end-to-end before going live.
+  2. **PR #2 on demo_farm:** open PR on diff. Force-push pattern to
+     a `release-auto-update` branch + peter-evans-style PR
+     open/update. Concurrency lock to prevent races. First real
+     auto-PR.
+  3. **PR #3 on demo_farm:** add eager `repository_dispatch`
+     consumers (openemr-tag / openemr-rel-cut / openemr-rel-update)
+     + the `unreleased: true` skip on release-targets.yml rows.
+     This phase is also where today's `bump-tag.yml` gets retired
+     — its behavior becomes a subset of the new bot's
+     reconciliation.
 - **Procedural rule until automation lands** (the manual checklist
   to follow when changing a production-demo row in
   `ip_map_branch.txt`):
