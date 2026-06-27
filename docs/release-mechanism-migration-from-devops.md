@@ -147,6 +147,138 @@ not migration work** — they're net-new optimizations on tooling already in
 `openemr/openemr` core. The migration shrinks to "move the post-tag
 devops workflows over" rather than "everything moves at once."
 
+### Workstream 2 detail — branch-cut automation (rel-820 readiness)
+
+Currently: cutting a new `rel-NNN0` branch is a manual git operation
+that requires coordinated by-hand updates on the new branch + on
+master. Tracked as gaps G4 (master-scope mutator wiring) and G5
+(no auto-trigger on cut) in the gaps doc.
+
+**Design:** New workflow `.github/workflows/branch-cut-automation.yml`
+on master with `on: create` trigger. Fires exactly once when a new
+`rel-NNN0` branch is created (filter by
+`github.event.ref_type == 'branch'` + regex match on the ref name).
+
+Inside the job:
+
+- Derive target version from the branch name
+  (`branch-to-version.php` already does this — extends to handle the
+  freshly-cut case where no tag exists yet, returning the base version)
+- Open **two coordinated PRs** (same shape as the release-time
+  partner PR pattern below):
+  - **rel-NNN0-side**: small PR with the `docker/release/Dockerfile`
+    ARG edit (`OPENEMR_VERSION=master → rel-NNN0`). CI overrides via
+    `--build-arg`, so it's cosmetic for local builds — but worth
+    keeping consistent with branch identity.
+  - **master-side**: version.php advance via `VersionPhpMasterMutator`
+    (existing), add the rel-NNN0 row to `release-targets.yml` via a
+    new `AddReleaseTargetsRowMutator`, rotate `next` from master to
+    rel-NNN0, add the SQL skeleton + bridge-file-rename dance via a
+    new `SqlSkeletonAdvanceMutator`.
+
+**Interaction with the conductor:** `release-prep.yml` ALSO fires on
+the cut push (it has `on: push:` matching `rel-[0-9]*0`). On a
+freshly-cut rel-NNN0, the conductor will open a premature
+`release-prep/rel-NNN0` draft PR suggesting 8.X.0 release content.
+**Accept this** — the draft PR stays mostly inert through the dev
+cycle, re-rendered on each push, eventually marked Ready + merged
+when 8.X.0 actually ships. Suppressing the conductor's first run
+adds non-trivial logic with edge cases; the visual nuisance is small.
+
+Full design in gaps doc G5.
+
+### Workstream 3 detail — release-time partner PR + release-cycle-bot
+
+Currently: per-release work on a rel branch (P1-P4 in the canonical
+sequence) is fully manual edits to docker upgrade machinery,
+version.php, and release-targets.yml. Plus a post-release manual PR
+to master for the release-targets.yml slot shuffle + ref pin (P6).
+
+**Two sub-components:**
+
+#### Release-cycle-bot (P1-P4 automation)
+
+Single CLI: `openemr-release-cycle <X.Y.Z> <rel-branch>` generates
+the four prep PRs needed before the conductor opens its release-prep
+PR:
+
+- P1: docker upgrade machinery on the rel branch (3 docker-version
+  bumps + new fsupgrade-N.sh + Dockerfile two-block manifest)
+- P2: same on master (cross-branch sync requirement)
+- P3: version.php bump on the rel branch (X.Y.(Z-1) → X.Y.Z-dev)
+- P4: release-targets.yml row update on master (docker_tags +
+  openemr_version_ref)
+
+Each is 100% mechanical given the version + rel branch. Compresses
+hours of manual work to a single command. Folds in G7 (rel-810
+surgical conductor sync) and G8 (regression tests).
+
+#### Release-time partner PR (post-release automation)
+
+Extend the conductor to open a SECOND PR — `release-finalize/<rel-branch>`
+— on **master**, paired with the existing `release-prep/<rel-branch>`
+PR on the rel branch. The second PR carries the post-release
+release-targets.yml mutations:
+
+- Pin the rel branch's `openemr_version_ref` to the new tag (e.g.,
+  `rel-810 → v8_1_1`)
+- Slot shuffle across rows (next → latest promotion + previous-latest
+  drops + next moves master-ward or to a newer rel branch)
+- Drop the unreleased placeholder row (per the multi-row mechanism
+  added in openemr/openemr#12656)
+
+**Lifecycle:**
+
+1. Conductor fires on push to the rel branch → opens BOTH PRs as
+   drafts
+2. Maintainer marks both Ready
+3. ship-release.yml merges conductor PR → tag fires → openemr-tag
+   dispatch consumer either auto-merges the master partner PR, or
+   marks it Ready for manual merge
+
+Full design in gaps doc G11.
+
+### Workstream 5 note — demo farm release mechanism is changing
+
+The `demo_farm_openemr` release mechanism (today: `bump-tag.yml`
+matches production rows by `MAJOR.MINOR` and updates them on
+`openemr-tag`; cluster-to-flex-image mapping is hand-maintained) is
+itself going to change as part of workstream 5 / gap G6.
+
+The auto-generation vision (per maintainer 2026-06-23, expanded
+2026-06-23): derive the entire `ip_map_branch.txt` +
+`demoLibrary.source` from upstream openemr/openemr state, with a
+single hand-curated "Miscellaneous" section reserved for non-standard
+demos. Each section's derivation rule documented in gaps doc G6:
+
+- Production (cluster `five` + aliases) from the rel branch holding
+  `latest` in release-targets.yml
+- Up-for-grabs (cluster `four`) defaults to master
+- Release demos (clusters `three`/`six`/`eight`/...) one per rel
+  branch in release-targets.yml
+- Master demos (clusters `one`/`two`/`seven`/...) one per supported
+  PHP version from openemr/openemr's CI matrix
+- Parked + Miscellaneous: hand-curated
+
+This re-architecture changes what "release mechanism for demo farm"
+means: instead of imperative bump-tag.yml dispatched on
+`openemr-tag`, a single bot script derives the full file state from
+upstream + opens a PR on every relevant trigger (openemr-tag dispatch,
+openemr-rel-cut/-update dispatch, scheduled rederive, manual
+dispatch).
+
+Implication for workstreams 2 + 3 above: the release-time partner PR
++ branch-cut automation should be **demo-farm-aware** — when the
+new demo_farm bot exists, it consumes the same release-targets.yml
+state that the partner PR mutates. Coordination boundary:
+release-targets.yml is the contract between master-side automation
+and the demo_farm bot. As long as the partner PR + branch-cut
+automation correctly produce release-targets.yml state, the demo_farm
+bot rederives correctly. No tight coupling between them at the
+workflow level.
+
+Full design in gaps doc G6.
+
 The remaining sections of this doc detail workstream 6's internals (the
 actual migration) with the original Phase-1-through-6 structure. Workstreams
 1-5 details + tracking will live in separate planning artifacts (gaps doc
