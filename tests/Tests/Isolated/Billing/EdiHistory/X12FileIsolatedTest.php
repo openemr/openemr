@@ -374,11 +374,12 @@ class X12FileIsolatedTest extends TestCase
         // with string offsets and threw:
         //   TypeError: array_slice(): Argument #2 ($offset) must be of type int, string given
         $clm01 = 'PATIENT001';
-        $path = tempnam(sys_get_temp_dir(), 'x12file_837_');
-        self::assertIsString($path);
-        self::assertNotFalse(file_put_contents($path, $this->build837($clm01)));
-
+        $path = null;
         try {
+            $path = tempnam(sys_get_temp_dir(), 'x12file_837_');
+            self::assertIsString($path);
+            self::assertNotFalse(file_put_contents($path, $this->build837($clm01)));
+
             $x = new X12File($path);
 
             // Before the fix this call raised a TypeError from array_slice().
@@ -406,7 +407,7 @@ class X12FileIsolatedTest extends TestCase
 
             $this->assertTrue($hasClaim, "sliced transaction should include CLM*$clm01");
         } finally {
-            if (is_file($path)) {
+            if (is_string($path) && is_file($path)) {
                 unlink($path);
             }
         }
