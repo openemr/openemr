@@ -1069,15 +1069,22 @@ checklist + the existing master-bump pattern.
   releases are produced by whatever release tooling the branch carries
   (frozen at cut time + manual backports). Revisit only if drift becomes
   a real headache.
-- **One active version per rel branch** (no multi-row-per-branch in
-  `release-targets.yml`). Only the most recent patch on a given
-  MAJOR.MINOR is actively published; older patches get superseded
-  rather than maintained in parallel. The validator's branch-uniqueness
-  check (`docker-validate-release-targets.yml` check 3) stays as-is.
-  Confirmed mechanically straightforward to support multi-row-per-branch
-  if ever needed (drop check 3 + refine `IpMapBumper` disambiguation),
-  but deliberately not pursuing — keeps the model simple and avoids
-  parallel-track maintenance burden.
+- **Multi-row-per-branch IS supported** in `release-targets.yml`
+  (decision reversed 2026-06-27 — see update log). Original framing
+  was "one active version per rel branch" — older patches get
+  superseded rather than maintained in parallel. Realized that
+  doesn't work for the in-dev patch release case: when a rel branch
+  enters dev mode for a new patch (e.g., rel-810 → 8.1.2-dev), the
+  daily orchestrator still needs to publish the prior stable image
+  (8.1.1) until the new dev actually ships. One row per branch
+  can't express this — the row only targets one version at a time.
+  Reversal landed via openemr/openemr#12656: validator's
+  branch-uniqueness check (was check 3) removed; duplicate-
+  docker_tag check (now check 3) retained because two rows pushing
+  the same image:tag would race on Docker Hub. New optional
+  `unreleased: true` row marker lets consumers skip placeholder
+  rows while the validator still applies per-row checks for
+  ready-to-flip-live confidence.
 
 ## Update log
 
@@ -1176,3 +1183,15 @@ checklist + the existing master-bump pattern.
   `release-targets.yml`. Considered briefly (would support parallel
   version-line publishing from a single rel branch); deliberately
   not pursuing to keep the model simple. Recorded in decisions-made.
+- **2026-06-27**: Reversed the no-multi-row decision via
+  openemr/openemr#12656. The in-dev patch release case requires it:
+  when a rel branch enters dev mode for a new patch (e.g., rel-810
+  hits 8.1.2-dev after 8.1.1 ships), daily builds still need to
+  publish the prior stable image (8.1.1) until the new dev ships.
+  PR drops the validator's branch-uniqueness check, adds an
+  optional `unreleased: true` row marker for placeholders (consumer-
+  side skip), wires the orchestrator's skip filter, and adds an
+  example unreleased row (second rel-810 entry with
+  docker_tags: 8.1.0 + openemr_version_ref: v8_1_0 +
+  unreleased: true) to wire up the mechanism without immediately
+  publishing 8.1.0 daily images.
