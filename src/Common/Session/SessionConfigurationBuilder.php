@@ -84,7 +84,7 @@ class SessionConfigurationBuilder
     {
         return (new self())
             ->setName(SessionUtil::CORE_SESSION_ID)
-            ->setCookiePath((!empty($webRoot)) ? $webRoot . '/' : '/')
+            ->setCookiePath($webRoot . '/')
             ->setCookieHttpOnly(false)
             ->setReadOnly($readOnly)
             ->build();
@@ -95,7 +95,7 @@ class SessionConfigurationBuilder
     {
         return (new self())
             ->setName(SessionUtil::OAUTH_SESSION_ID)
-            ->setCookiePath((!empty($webRoot)) ? $webRoot . SessionUtil::OAUTH_WEBROOT : SessionUtil::OAUTH_WEBROOT)
+            ->setCookiePath($webRoot . SessionUtil::OAUTH_WEBROOT)
             ->setCookieSameSite('None')
             ->setCookieSecure(true)
             ->build();
@@ -106,7 +106,7 @@ class SessionConfigurationBuilder
     {
         return (new self())
             ->setName(SessionUtil::API_SESSION_ID)
-            ->setCookiePath((!empty($webRoot)) ? $webRoot . SessionUtil::API_WEBROOT : SessionUtil::API_WEBROOT)
+            ->setCookiePath($webRoot . SessionUtil::API_WEBROOT)
             ->setCookieSecure(true)
             ->build();
     }
@@ -116,7 +116,7 @@ class SessionConfigurationBuilder
     {
         return (new self())
             ->setName(SessionUtil::PORTAL_SESSION_ID)
-            ->setCookiePath($webRoot !== '' ? $webRoot . '/' : '/')
+            ->setCookiePath($webRoot . '/')
             ->setReadOnly($readOnly)
             ->build();
     }
