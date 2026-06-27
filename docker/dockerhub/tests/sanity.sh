@@ -209,11 +209,11 @@ fi
 # ---------------------------------------------------------------------------
 declare -A EXPECTED_BULLETS_PER_BRANCH
 while read -r BRANCH; do
-    EXPECTED_BULLETS_PER_BRANCH[$BRANCH]=$(( ${EXPECTED_BULLETS_PER_BRANCH[$BRANCH]:-0} + 1 ))
+    EXPECTED_BULLETS_PER_BRANCH[${BRANCH}]=$(( ${EXPECTED_BULLETS_PER_BRANCH[${BRANCH}]:-0} + 1 ))
 done < <(yq -r '.[] | select(.unreleased != true) | .branch' "${RELEASE_TARGETS}")
 MISSING_BRANCHES=()
 for BRANCH in "${!EXPECTED_BULLETS_PER_BRANCH[@]}"; do
-    EXPECTED="${EXPECTED_BULLETS_PER_BRANCH[$BRANCH]}"
+    EXPECTED="${EXPECTED_BULLETS_PER_BRANCH[${BRANCH}]}"
     OCCURRENCES=$(grep -cE "blob/${BRANCH}/docker/release/Dockerfile" "${RENDERED}" || true)
     if [[ "${OCCURRENCES}" -ne "${EXPECTED}" ]]; then
         MISSING_BRANCHES+=("${BRANCH}(${OCCURRENCES}/expected ${EXPECTED})")
