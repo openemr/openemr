@@ -333,8 +333,14 @@ jobs:
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         TAG_NAME: ${{ steps.tag.outputs.tag-name }}
       run: |
+        # Demo_farm_openemr no longer consumes openemr-tag: its bump-tag.yml
+        # was retired in demo_farm_openemr#141 in favor of the auto-derive
+        # bot, which subscribes to release-targets-changed instead. Explicit
+        # --target-repos to drop demo_farm from the default list so the
+        # dispatch doesn't fire into a void.
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
+          --target-repos=openemr/openemr-devops,openemr/website-openemr \
           --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \
