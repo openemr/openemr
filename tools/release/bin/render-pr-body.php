@@ -24,7 +24,7 @@ use Symfony\Component\Console\SingleCommandApplication;
 
 (new SingleCommandApplication())
     ->setName('render-pr-body')
-    ->setDescription('Render the release-prep PR body for a given version')
+    ->setDescription('Render a release PR body (prep or finalize) for a given version')
     ->addArgument('version', InputArgument::REQUIRED, 'Release version (MAJOR.MINOR.PATCH)')
     ->addOption(
         'template',
@@ -40,10 +40,17 @@ use Symfony\Component\Console\SingleCommandApplication;
         'Repo path (defaults to cwd)',
         getcwd() === false ? '.' : getcwd(),
     )
+    ->addOption(
+        'rel-branch',
+        null,
+        InputOption::VALUE_REQUIRED,
+        'Rel branch identifier (e.g. rel-810). Substituted for <REL_BRANCH> in the template; required for the release-finalize template.',
+    )
     ->setCode(function (InputInterface $input, OutputInterface $output): int {
         $version = $input->getArgument('version');
         $templateRel = $input->getOption('template');
         $repoDir = $input->getOption('repo-dir');
+        $relBranch = $input->getOption('rel-branch');
         if (
             !is_string($version) || $version === ''
             || !is_string($templateRel) || $templateRel === ''
@@ -58,7 +65,11 @@ use Symfony\Component\Console\SingleCommandApplication;
             $output->writeln('<error>cannot read template at ' . $path . '</error>');
             return 1;
         }
-        $output->write(str_replace('<VERSION>', $version, $template));
+        $rendered = str_replace('<VERSION>', $version, $template);
+        if (is_string($relBranch) && $relBranch !== '') {
+            $rendered = str_replace('<REL_BRANCH>', $relBranch, $rendered);
+        }
+        $output->write($rendered);
         return 0;
     })
     ->run();

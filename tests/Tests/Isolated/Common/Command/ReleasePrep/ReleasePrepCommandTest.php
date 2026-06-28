@@ -54,10 +54,37 @@ final class ReleasePrepCommandTest extends TestCase
         $tester->execute([
             '--target-version' => '8.1.1',
             '--scope' => 'master',
+            '--rel-branch' => 'rel-810',
             '--project-dir' => sys_get_temp_dir(),
         ]);
         self::assertSame(0, $rel->callCount);
         self::assertSame(1, $master->callCount);
+    }
+
+    public function testMasterScopeRequiresRelBranch(): void
+    {
+        $tester = $this->buildTester([], [new RecordingMutator('master-mutator')]);
+        $exit = $tester->execute([
+            '--target-version' => '8.1.1',
+            '--scope' => 'master',
+            '--project-dir' => sys_get_temp_dir(),
+        ]);
+        self::assertSame(Command::INVALID, $exit);
+    }
+
+    public function testRelBranchIsPlumbedToMutatorContext(): void
+    {
+        $contextSpy = new ContextRecordingMutator();
+        $tester = $this->buildTester([], [$contextSpy]);
+        $tester->execute([
+            '--target-version' => '8.1.1',
+            '--scope' => 'master',
+            '--rel-branch' => 'rel-810',
+            '--project-dir' => sys_get_temp_dir(),
+        ]);
+        self::assertNotNull($contextSpy->lastContext);
+        self::assertSame('rel-810', $contextSpy->lastContext->relBranch);
+        self::assertSame('v8_1_1', $contextSpy->lastContext->tagName());
     }
 
     public function testInvalidScopeReturnsInvalidExitCode(): void
@@ -127,6 +154,22 @@ final class RecordingMutator implements MutatorInterface
     {
         $this->callCount++;
         $this->lastCalledAt = self::$sequence++;
+        return MutatorResult::noop();
+    }
+}
+
+final class ContextRecordingMutator implements MutatorInterface
+{
+    public ?MutatorContext $lastContext = null;
+
+    public function name(): string
+    {
+        return 'context-recording-mutator';
+    }
+
+    public function apply(MutatorContext $context): MutatorResult
+    {
+        $this->lastContext = $context;
         return MutatorResult::noop();
     }
 }
