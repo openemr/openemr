@@ -26,7 +26,6 @@ $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");
 
-/** @var \OpenEMR\Gacl\GaclAdminApi $gacl */
 /** @var \OpenEMR\Gacl\GaclAdminApi $gacl_api */
 /** @var \ADOConnection $db */
 /** @var \Smarty $smarty */
@@ -79,7 +78,7 @@ foreach ($rows as $row) {
     [$aco_section_value, $aco_section_name, $aco_value, $aco_name, $aro_section_value, $aro_section_name, $aro_value, $aro_name, $axo_section_value, $axo_section_name, $axo_value, $axo_name] = $row;
 
     $acl_check_begin_time = $profiler->getMicroTime();
-    $acl_result = $gacl->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value);
+    $acl_result = $gacl_api->acl_query($aco_section_value, $aco_value, $aro_section_value, $aro_value, $axo_section_value, $axo_value);
     $acl_check_end_time = $profiler->getMicroTime();
 
     $access = &$acl_result['allow'];

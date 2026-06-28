@@ -88,7 +88,7 @@ fi
 #    `latest`. release-targets-validator already enforces that exactly one row
 #    can publish `latest`, so the head -1 is defensive only.
 # ---------------------------------------------------------------------------
-LATEST_DOCKER_TAGS=$(yq -r '.[] | select(.docker_tags | split(",") | map(. == "latest") | any) | .docker_tags' "${RELEASE_TARGETS}" | head -1)
+LATEST_DOCKER_TAGS=$(yq -r '.[] | select(.unreleased != true) | select(.docker_tags | split(",") | map(. == "latest") | any) | .docker_tags' "${RELEASE_TARGETS}" | head -1)
 if [[ -z "${LATEST_DOCKER_TAGS}" ]]; then
     echo "warning: no release-targets.yml row carries the 'latest' tag" >&2
     LATEST_VERSION="unknown"
@@ -121,7 +121,11 @@ fi
 RELEASE_BULLETS_FILE="${TMPDIR}/release_bullets"
 : > "${RELEASE_BULLETS_FILE}"
 
-ROW_COUNT=$(yq -r '. | length' "${RELEASE_TARGETS}")
+# Live row indices = rows that consumers should process. Skip rows flagged
+# `unreleased: true` (placeholder entries for the multi-row-per-branch dev
+# pattern, see .github/release-targets.yml header). Preserves the original
+# YAML index for each kept row so downstream yq lookups by index still work.
+mapfile -t LIVE_INDICES < <(yq -r 'to_entries | .[] | select(.value.unreleased != true) | .key' "${RELEASE_TARGETS}")
 
 # Bucket rows by their floating-tag role. A row carrying `latest` is the
 # current-production row (singleton by validator). A row carrying `dev` is
@@ -134,7 +138,7 @@ LATEST_IDX=""
 DEV_IDX=""
 NEXT_IDX=""
 OLDER_INDICES=()
-for ((i = 0; i < ROW_COUNT; i++)); do
+for i in "${LIVE_INDICES[@]}"; do
     ROW_TAGS=$(yq -r ".[${i}].docker_tags" "${RELEASE_TARGETS}")
     HAS_LATEST=0; HAS_DEV=0; HAS_NEXT=0
     printf '%s\n' "${ROW_TAGS}" | tr ',' '\n' | grep -qx 'latest' && HAS_LATEST=1

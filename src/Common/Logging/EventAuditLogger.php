@@ -82,7 +82,7 @@ class EventAuditLogger
         );
 
         return new self(
-            sinks: $sinks,
+            sink: new Audit\MultiSink($sinks),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
@@ -90,11 +90,8 @@ class EventAuditLogger
         );
     }
 
-    /**
-     * @param Audit\SinkInterface[] $sinks
-     */
     public function __construct(
-        private readonly array $sinks,
+        private readonly Audit\SinkInterface $sink,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
@@ -694,9 +691,7 @@ class EventAuditLogger
             $api,
         );
 
-        foreach ($this->sinks as $sink) {
-            $sink->record($auditEvent);
-        }
+        $this->sink->record($auditEvent);
     }
 
     /**

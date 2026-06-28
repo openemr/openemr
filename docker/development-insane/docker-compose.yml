@@ -77,6 +77,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -107,6 +109,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -137,6 +141,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -167,6 +173,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -198,6 +206,8 @@ services:
     - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -267,6 +277,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -297,6 +309,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -328,6 +342,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -359,6 +375,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -390,6 +408,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -421,6 +441,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -452,6 +474,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
