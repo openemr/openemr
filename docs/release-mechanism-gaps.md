@@ -176,6 +176,20 @@ known debt` section:
 
 ### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
 
+**STATUS: SHIPPED 2026-06-28.** Bot operational end-to-end. Demo_farm PRs: #135 (scaffold + dry-run), #138 (write + auto-PR mode), #141 (atomic flip retiring `bump-tag.yml` + `tools/release/` PHP toolchain), #142 (printf-dash bash bug fix), #143 (first real bot-produced reconciliation PR — `rel-704/800/810` col-3 tag-pin transitions). Sibling infra: #136 (dependabot github-actions weekly), #139 (shellcheck workflow with ratchet `.shellcheckrc`), #140 (issue tracking first ratchet: SC2115 rm-rf guard, 5 sites in demo_build.sh). Cross-repo dispatch event: openemr-devops#846 (canonical `release-targets-changed` event in dispatch.schema.json), openemr/openemr#12657 (vendored schema + `EVENT_RELEASE_TARGETS_CHANGED` + DispatchDataBuilder case + `.github/workflows/notify-release-targets-changed.yml` firing on push to release-targets.yml). Bonus phpstan CI cleanup: openemr#12658 (COMPOSER_AUTH band-aid for the wkhtmltopdf 429 flake) + openemr#12659 (real fix: dropped vestigial `Remove Rector` step — empirically verified phpstan output is byte-identical with rector installed vs removed).
+
+**Bot behavior now:** daily 07:00 UTC + `repository_dispatch types=release-targets-changed` (immediate on upstream push) + manual `workflow_dispatch` (mode=reconcile|dry-run). On diff: force-push stable branch `auto-derive/reconciliation` + open/update PR. On no-diff: close any open reconciliation PR + delete remote branch. Stable-branch design = at-most-one bot PR open at any time; bot updates the same PR across days rather than spamming new ones.
+
+**G6 shipping notes (lessons worth keeping):**
+
+1. **Vendor sync dance is required when the canonical dispatch schema changes.** The dispatch.schema.json canonical lives in openemr-devops; openemr/openemr (and previously demo_farm via tools/release/) vendor it. Adding a new event required a devops PR (#846) BEFORE the openemr-side PR (#12657) could clear the check-vendored-contract drift check that #12619 wired into openemr CI. The check-vendored test fixtures under `tests/fixtures/vendored/good/` + `good-overrides/` also need re-sync — they're byte-identical copies of the canonical and break if you forget.
+
+2. **The phpstan flake had a real root cause.** `composer remove` triggers full dep resolution which re-probes every `repositories.type=vcs` URL in composer.json. The wkhtmltopdf-openemr vcs entry is from 2021, isn't required by any package, but Composer probes it every time. GitHub's secondary rate limit on `/repos/.../commits/<sha>` fires on the burst. Other openemr workflows do `composer install` (reads lock, no probes) — phpstan was uniquely affected. Real fix: drop the Remove Rector step entirely (modern rector + phpstan don't interfere anymore, empirically verified byte-identical output).
+
+3. **bash printf with format starting with `-` aborts with "invalid option".** Caught in the wild by #142 when the scheduled bot run first hit the diff-path code: `printf '- bullet\n'` is parsed as printf trying to take a `- ` option. Fix: `printf '%s\n' '- bullet'`. Worth grepping for in any new shell-heredoc workflow.
+
+4. **For PR triggers, GitHub Actions uses the workflow file from the PR's HEAD branch, not master.** So workflow fixes that land in master don't help open PRs until they rebase. Forced this dance for #12657: rebase to pick up #12658 → still failed (same flake) → land #12659 → rebase again → passed.
+
 - **What:** Two pieces of state in `openemr/demo_farm_openemr` need
   to track openemr/openemr's release state but currently don't have
   any cross-repo sync:
@@ -433,7 +447,7 @@ known debt` section:
   bugs there will never fire. G7 work scopes to rel-810 only.
   If a need ever surfaces to ship from rel-800 or rel-704
   before they're retired, that triggers a per-branch surgical
-  backport at that time, not pre-emptive sync now.
+  backport at that time, not preemptive sync now.
 - **The fix (rel-810 only):** Sync the following from master to
   rel-810 as a single coherent PR:
   - `tools/release/src/` — all conductor PHP classes
