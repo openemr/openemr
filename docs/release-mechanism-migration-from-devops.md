@@ -238,6 +238,27 @@ release-targets.yml mutations:
 
 Full design in gaps doc G11.
 
+**Phase A scoped 2026-06-28** (first slice — in active development):
+build PostReleaseTargetsMutator + ReleasePrepCommand extension
+(`--rel-branch` option, master mutator list) + conductor workflow
+extension (second checkout/run/PR cycle against master). For 8.1.1
+ship, Phase B follows: cherry-pick the conductor + PHP changes to
+rel-810. Auto-merge of the master partner PR on `openemr-tag` is a
+stretch goal deferred to a follow-up — for 8.1.1, maintainer marks
+Ready + merges manually after the tag fires.
+
+**The "partner PR" pattern generalizes** to branch-cut (workstream
+2). Same shape: one workflow opens two coordinated PRs targeting
+different branches; both drafts → mark Ready → merge. Phase A's
+shared infrastructure (extended MutatorContext with `relBranch`,
+dual-checkout workflow structure, peter-evans pattern) is designed
+so workstream 2's branch-cut mutators inherit the framework.
+Workstream 2's instance: cut detection fires → opens post-cut PRs
+on the new rel branch (e.g., copy translation file from prior rel,
+turn off dummy-translation global) + opens post-cut PR on master
+(bump version.php to next-dev via `VersionPhpMasterMutator`, which
+stays as a dormant class until workstream 2 wires it).
+
 ### Workstream 5 note — demo farm release mechanism is changing
 
 **STATUS: SHIPPED 2026-06-28.** All G6 work landed across three repos:
