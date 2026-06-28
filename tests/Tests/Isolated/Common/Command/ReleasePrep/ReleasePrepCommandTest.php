@@ -63,13 +63,16 @@ final class ReleasePrepCommandTest extends TestCase
 
     public function testMasterScopeRequiresRelBranch(): void
     {
-        $tester = $this->buildTester([], [new RecordingMutator('master-mutator')]);
+        $master = new RecordingMutator('master-mutator');
+        $tester = $this->buildTester([], [$master]);
         $exit = $tester->execute([
             '--target-version' => '8.1.1',
             '--scope' => 'master',
             '--project-dir' => sys_get_temp_dir(),
         ]);
         self::assertSame(Command::INVALID, $exit);
+        self::assertSame(0, $master->callCount);
+        self::assertStringContainsString('--rel-branch', $tester->getDisplay());
     }
 
     public function testRelBranchIsPlumbedToMutatorContext(): void

@@ -69,6 +69,18 @@ use Symfony\Component\Console\SingleCommandApplication;
         if (is_string($relBranch) && $relBranch !== '') {
             $rendered = str_replace('<REL_BRANCH>', $relBranch, $rendered);
         }
+        // Fail fast if a required-when-given placeholder is still in the
+        // output. Silently shipping `<REL_BRANCH>` (or `<VERSION>`) into a
+        // PR body produces broken release-finalize PRs that look correct
+        // at a glance.
+        if (str_contains($rendered, '<REL_BRANCH>')) {
+            fwrite(STDERR, "render-pr-body: template contains <REL_BRANCH> placeholder but --rel-branch was not provided\n");
+            return 2;
+        }
+        if (str_contains($rendered, '<VERSION>')) {
+            fwrite(STDERR, "render-pr-body: template contains <VERSION> placeholder that was not substituted\n");
+            return 2;
+        }
         $output->write($rendered);
         return 0;
     })

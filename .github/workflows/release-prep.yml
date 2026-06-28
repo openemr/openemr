@@ -209,6 +209,16 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
         fetch-depth: 0
 
+    # The setup-php-composer composite action installs into the workflow's
+    # default working directory only (no working-directory input). The
+    # second checkout above has no vendor/ — install composer deps there
+    # directly so `php bin/console` can boot the autoloader.
+    - name: Install Composer dependencies (master-checkout)
+      if: steps.resolve.outputs.prep-prefix == 'release-prep'
+      working-directory: master-checkout
+      shell: bash
+      run: composer install --prefer-dist --no-progress --no-interaction
+
     - name: Run release-prep mutators (master scope, release-finalize)
       if: steps.resolve.outputs.prep-prefix == 'release-prep'
       working-directory: master-checkout

@@ -195,6 +195,70 @@ YAML;
         self::assertSame('8.0.0', $byBranch['rel-800']['docker_tags']);
     }
 
+    public function testInlineCommentsOnScalarsArePreserved(): void
+    {
+        // The reader must not slurp inline `# ...` comments into scalar
+        // values, and the rewriter must preserve any trailing inline
+        // comment on the line it edits. Verifies both halves at once:
+        // docker_tags carries an inline comment that should survive the
+        // promote-to-latest edit; openemr_version_ref carries one that
+        // should survive the pin edit.
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.2.0,dev
+  openemr_version_ref: master
+
+- branch: rel-810
+  docker_tags: 8.1.1,next  # comment here
+  openemr_version_ref: rel-810  # tracks tip until release
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '8.1.1', null, 'rel-810');
+        (new PostReleaseTargetsMutator())->apply($context);
+
+        $output = $this->readTarget();
+        self::assertStringContainsString(
+            '  docker_tags: 8.1.1,latest  # comment here',
+            $output,
+            'inline comment on docker_tags should survive the slot-shuffle edit',
+        );
+        self::assertStringContainsString(
+            '  openemr_version_ref: v8_1_1  # tracks tip until release',
+            $output,
+            'inline comment on openemr_version_ref should survive the pin edit',
+        );
+        // YAML must still parse cleanly with the inline comments intact.
+        $parsed = Yaml::parse($output);
+        self::assertIsArray($parsed);
+    }
+
+    public function testLegacyRelBranchRel704Idempotency(): void
+    {
+        // Legacy rel-NMP shapes (e.g. rel-704) don't fit the modern
+        // rel-NN0 regex. isVersionTagFor() must still treat v7_0_X as
+        // the "active" tag for rel-704 so re-running on already-mutated
+        // input is a no-op (idempotency requirement).
+        $input = <<<'YAML'
+- branch: master
+  docker_tags: 8.2.0,dev,next
+  openemr_version_ref: master
+
+- branch: rel-704
+  docker_tags: 7.0.4,latest
+  openemr_version_ref: v7_0_4
+YAML;
+        $this->writeTarget($input);
+        $context = MutatorContext::fromVersionString($this->tmpDir, '7.0.4', null, 'rel-704');
+
+        $mutator = new PostReleaseTargetsMutator();
+        $first = $mutator->apply($context);
+        self::assertFalse(
+            $first->changed(),
+            'already-shipped rel-704 should be a no-op (active row recognised via v7_0_X tag)',
+        );
+        self::assertSame($input, $this->readTarget());
+    }
+
     public function testRequiresRelBranchOnContext(): void
     {
         $this->copyFixture('canonical_input.yml');

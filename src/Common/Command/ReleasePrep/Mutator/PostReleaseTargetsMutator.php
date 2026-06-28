@@ -133,18 +133,18 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
             if ($current === null) {
                 continue;
             }
-            if (preg_match('/^  docker_tags:\s*(.+?)\s*$/', $line, $m) === 1) {
-                $current['dockerTags'] = $m[1];
+            if (preg_match('/^  docker_tags:\s*([^#\n]*?)(?:\s+#.*)?$/', $line, $m) === 1) {
+                $current['dockerTags'] = trim($m[1]);
                 $current['dockerTagsLine'] = $i;
                 continue;
             }
-            if (preg_match('/^  openemr_version_ref:\s*(.+?)\s*$/', $line, $m) === 1) {
-                $current['openemrVersionRef'] = $m[1];
+            if (preg_match('/^  openemr_version_ref:\s*([^#\n]*?)(?:\s+#.*)?$/', $line, $m) === 1) {
+                $current['openemrVersionRef'] = trim($m[1]);
                 $current['openemrVersionRefLine'] = $i;
                 continue;
             }
-            if (preg_match('/^  unreleased:\s*(.+?)\s*$/', $line, $m) === 1) {
-                $current['unreleased'] = $m[1];
+            if (preg_match('/^  unreleased:\s*([^#\n]*?)(?:\s+#.*)?$/', $line, $m) === 1) {
+                $current['unreleased'] = trim($m[1]);
             }
         }
         if ($current !== null) {
@@ -245,7 +245,7 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
         $lines = explode("\n", $text);
         $lineIndex = $target['openemrVersionRefLine'];
         $replaced = preg_replace(
-            '/^(  openemr_version_ref:\s*)\S+(\s*)$/',
+            '/^(  openemr_version_ref:\s*)[^#\s]+(\s*(?:#.*)?)$/',
             '${1}' . $tagName . '${2}',
             $lines[$lineIndex],
             1,
@@ -353,11 +353,17 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
      * Heuristic: does this version-ref look like a release tag for the
      * relBranch? Used so the second run (after pin) still finds the
      * "active" row. Recognises `v<MAJOR>_<MINOR>_<anything>` matching
-     * the rel branch's `rel-<MAJOR><MINOR>0` shape.
+     * the rel branch's MAJOR/MINOR. Supports both the modern shape
+     * `rel-<MAJOR><MINOR>0` (e.g. rel-810) where the trailing digit is
+     * a "new minor line" sentinel, and legacy shapes like `rel-704`
+     * (rel-NMP, third digit was a patch) and `rel-800`.
      */
     private function isVersionTagFor(string $versionRef, string $relBranch): bool
     {
-        if (preg_match('/^rel-(\d+)(\d)0$/', $relBranch, $bm) !== 1) {
+        // Accept any rel-<digits>; parse first digit as MAJOR and second
+        // as MINOR. (Two-digit majors don't yet exist in the openemr
+        // version space; revisit if/when they do.)
+        if (preg_match('/^rel-(\d)(\d)\d*$/', $relBranch, $bm) !== 1) {
             return false;
         }
         if (preg_match('/^v(\d+)_(\d+)_\d+$/', $versionRef, $vm) !== 1) {
@@ -444,7 +450,7 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
     {
         $value = implode(',', $tags);
         $replaced = preg_replace(
-            '/^(  docker_tags:\s*)\S.*?(\s*)$/',
+            '/^(  docker_tags:\s*)[^#\n]*?(\s*(?:#.*)?)$/',
             '${1}' . $value . '${2}',
             $originalLine,
             1,
@@ -454,9 +460,9 @@ final readonly class PostReleaseTargetsMutator implements MutatorInterface
 
     private function extractDockerTagsValue(string $line): string
     {
-        if (preg_match('/^  docker_tags:\s*(.+?)\s*$/', $line, $m) !== 1) {
+        if (preg_match('/^  docker_tags:\s*([^#\n]*?)(?:\s+#.*)?$/', $line, $m) !== 1) {
             return '';
         }
-        return $m[1];
+        return trim($m[1]);
     }
 }
