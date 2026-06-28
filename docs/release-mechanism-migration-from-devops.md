@@ -240,6 +240,19 @@ Full design in gaps doc G11.
 
 ### Workstream 5 note — demo farm release mechanism is changing
 
+**STATUS: SHIPPED 2026-06-28.** All G6 work landed across three repos:
+demo_farm_openemr (#135 scaffold, #138 write+PR, #141 atomic flip retiring
+`bump-tag.yml` + `tools/release/`, #142 printf-dash fix, #143 first real
+reconciliation PR; plus #136 dependabot, #139 shellcheck ratchet, #140 first
+ratchet issue), openemr-devops (#846 canonical schema event), openemr/openemr
+(#12657 vendored schema + workflow firing on push to release-targets.yml).
+Bonus phpstan plumbing: #12658 + #12659. The bot is operational end-to-end:
+daily 07:00 UTC cron + immediate `repository_dispatch types=release-targets-changed`
+from openemr master + manual `workflow_dispatch`. Opens/updates a single stable
+PR `auto-derive/reconciliation` on diff; closes it on no-diff. See gaps doc G6
+for the full shipping notes (vendor sync dance, phpstan flake root cause,
+bash printf `-` trap, PR-rebase pickup of master workflow fixes).
+
 The `demo_farm_openemr` release mechanism (today: `bump-tag.yml`
 matches production rows by `MAJOR.MINOR` and updates them on
 `openemr-tag`; cluster-to-flex-image mapping is hand-maintained) is
