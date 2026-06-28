@@ -28,6 +28,8 @@ final class DispatchSchemaTest extends TestCase
 
     /**
      * @return iterable<string, array{0: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function goodFixtures(): iterable
     {
@@ -41,6 +43,8 @@ final class DispatchSchemaTest extends TestCase
 
     /**
      * @return iterable<string, array{0: string, 1: string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
     public static function badFixtures(): iterable
     {

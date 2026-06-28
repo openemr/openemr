@@ -42,6 +42,9 @@ jobs:
         private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
         owner: ${{ github.repository_owner }}
         repositories: demo_farm_openemr
+        # Repository_dispatch only needs contents:write; without this the
+        # token inherits every permission the App installation has.
+        permission-contents: write
 
     - name: Checkout
       uses: actions/checkout@v7
