@@ -96,7 +96,7 @@ optimization on top of release tooling that already lives in
 
 | # | Workstream | Where the code lives | Est. | Rationale |
 |---|---|---|---|---|
-| 1 | **Remove unused stuff in devops** | openemr-devops | ~1 day | Required prerequisite for 8.1.1 ship (workstream 4). Originally framed as "safe drop-in cleanup" — re-classified 2026-06-24 after tracing the ship flow: the Infra PR slot (openemr-devops PR #760, `release-rotation/auto`) is frozen with pre-docker-migration content that would either block ship-release.yml's preflight or silently undo the docker migration on merge. Workstream 1 collapses ship-release to 2-PR shape, eliminating the Infra slot entirely. Maps to the original Phase 1 PR 1a + 1b detailed below. |
+| 1 | **Remove unused stuff in devops** — **SHIPPED 2026-06-28** | openemr-devops + openemr/openemr | ~1 day | Required prerequisite for 8.1.1 ship (workstream 4). Trio of PRs landed 2026-06-28: openemr-devops#835 (collapse ship-release to 2-PR shape + delete dead rotation slice), openemr/openemr#12631 (docs collapsed to 2-PR shape), openemr/openemr#12619 (wire vendored-contract drift check via devops reusable workflow). Originally framed as "safe drop-in cleanup" — re-classified 2026-06-24 after tracing the ship flow: the Infra PR slot (openemr-devops PR #760, `release-rotation/auto`) was frozen with pre-docker-migration content that would either block ship-release.yml's preflight or silently undo the docker migration on merge. Workstream 1 collapsed ship-release to 2-PR shape, eliminating the Infra slot entirely. Maps to the original Phase 1 PR 1a + 1b + 1c detailed below. |
 | 2 | **rel-820 cut readiness** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen after the 8.1.1 ship. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. |
 | 3 | **Per-release-on-rel-branch optimization** | openemr/openemr (already) | ~3-4 days | Apply 8.1.1 learnings. P1-P4 (docker upgrade machinery, version.php bump, release-targets row bump) are 100% mechanical; build a release-cycle-bot script that takes `X.Y.Z` + rel branch and generates the prep PRs. Folds in G7 (rel-810 surgical conductor sync), G8 (regression tests on master + rel-810). Pays dividends every patch release going forward. **Not migration work** — release-prep tooling already in core. |
 | 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. **Blocked by workstream 1** — see analysis below. Lessons feed back into workstream 6's design. |
@@ -486,10 +486,13 @@ post-docker-migration phase 5):
   `tools/release/src/TagVerifier.php`, `tools/release/src/TagVerificationResult.php`
   exist here as vendored copies pointing back at devops as canonical owner.
   Migration just inverts the canonical/vendored relationship.
-- **The vendored-contract drift check is NOT currently wired into openemr-core's
-  CI.** Devops's `check-vendored-contracts.yml` is reusable but no openemr-core
-  workflow calls it. Drift could silently land today. **Pre-existing bug,
-  must fix before the migration changes canonical seams.**
+- **The vendored-contract drift check IS NOW wired into openemr-core's CI**
+  as of #12619 (2026-06-28). Devops's `check-vendored-contracts.yml` is a
+  reusable workflow; openemr-core's `.github/workflows/check-vendored-contracts.yml`
+  is the thin caller. Verified live by openemr#12657 (added
+  `release-targets-changed` event) — the drift check correctly failed until
+  the canonical was updated via openemr-devops#846, then passed after rebase.
+  Originally tracked as a pre-existing bug; closed by workstream 1.
 - **`tools/release/`'s architecture pattern is documented** in
   `openemr-devops/tools/release/README.md`: PHP 8.5 + PHPStan level 10 + strict
   rules, thin workflow + thick PHP, `gh` CLI as network layer, interface +
@@ -599,7 +602,15 @@ the 3-PR (or post-collapse) ship-release contract throughout.
 Total active engineering: **~5 days** assuming parallel-run validation windows
 between each phase are quick.
 
-### Phase 1 detail (drafted, ready to execute)
+### Phase 1 detail (SHIPPED 2026-06-28)
+
+**All three PRs landed:** PR 1a = openemr-devops#835 (rotation deletion +
+2-PR collapse), PR 1b = openemr/openemr#12631 (docs collapsed), PR 1c =
+openemr/openemr#12619 (vendored-contract drift check wired). The drift
+check was exercised in the wild within hours by openemr/openemr#12657 (G6
+work added a new dispatch event), confirming the trio works end-to-end:
+canonical updated in devops, vendored copy in openemr/openemr re-synced,
+CI passed. Phase 1 closed.
 
 Three PRs. **PR 1a (devops) and PR 1b (core) must land coordinated** — both
 together or neither — because PR 1a deletes the rotation slice + collapses
