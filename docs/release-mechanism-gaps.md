@@ -692,6 +692,69 @@ known debt` section:
   optimization). Tightly coupled with the broader release-cycle-bot
   for P1-P4 automation.
 
+- **Phase A refinement (2026-06-28):** Sliced the work into
+  master-side and rel-branch-side cherry-pick. Phase A scope (next
+  PR being scoped):
+  - **New mutator** `PostReleaseTargetsMutator` at
+    `src/Common/Command/ReleasePrep/Mutator/`. Implements existing
+    `MutatorInterface` (`name()`, `apply(MutatorContext): MutatorResult`).
+    Operates on `.github/release-targets.yml`. Performs the three
+    coordinated edits (pin / slot shuffle / drop placeholder)
+    idempotently — re-running on already-mutated input yields no
+    diff.
+  - **`MutatorContext` extension**: add `?string $relBranch` property.
+    Existing mutators ignore it; PostReleaseTargetsMutator needs it
+    to know which branch's row to mutate. The extension is also
+    forward-useful for workstream 2's branch-cut mutators.
+  - **ReleasePrepCommand extension**: add `--rel-branch` CLI option
+    plumbed through to context. Register `PostReleaseTargetsMutator`
+    as the sole entry in the `masterMutators` list. Document
+    `--scope=master` as **release-time only**; the existing
+    `VersionPhpMasterMutator` stays as a class but is **not in any
+    wired list** — workstream 2 (G4) will introduce a separate
+    branch-cut workflow + invocation path for it.
+  - **Conductor extension** (`.github/workflows/release-prep.yml`):
+    after the existing "Create or update release-prep PR" step,
+    add a second cycle (checkout master / run mutators with
+    `--scope=master` / peter-evans to open
+    `release-finalize/<rel-branch>` PR against master as a draft).
+  - **Tests**: `PostReleaseTargetsMutatorTest` with fixture
+    release-targets.yml inputs + expected outputs. Covers the
+    three transformations + the single-rel-branch idempotency + the
+    multi-row unreleased-placeholder drop case.
+  - **YAML comment preservation**: line-based surgical edits (regex
+    or string replace), not parse-and-dump via Symfony YAML — the
+    release-targets.yml file has substantial human-authored comments
+    that explain each field, and losing them would degrade
+    maintainer experience. The mutations are small + structurally
+    predictable (3 specific transformations), so surgical edits are
+    tractable.
+
+- **Phase B scope (post-Phase-A merge):** Cherry-pick the conductor
+  extension to rel-810 so the 8.1.1 release benefits. Per
+  `feedback_rel_branch_workflow.md`: worktree from
+  `--base https://github.com/openemr/openemr.git#rel-810`, commit
+  with `--no-verify`. Needs both the workflow YAML cherry-pick AND
+  the PHP changes (PostReleaseTargetsMutator + MutatorContext +
+  command extension) because rel-810's conductor invokes its own
+  `src/Common/Command/...` tree, not master's.
+
+- **The "partner PR" pattern generalizes**. The dual-PR
+  (rel-branch + master, both managed by one workflow, both drafts
+  → mark Ready → merge) pattern appears in TWO contexts:
+  - **Release-time** (workstream 3 / G11 / this work): conductor
+    fires on rel-* push → opens release-prep PR on rel-* + opens
+    release-finalize PR on master.
+  - **Branch-cut** (workstream 2 / G4 + G5): cut detection fires →
+    opens post-cut PRs on the new rel branch (e.g., copy translation
+    file from prior rel, turn off dummy-translation global, other
+    post-cut hygiene) + opens post-cut PR on master (bump version.php
+    to next-dev via `VersionPhpMasterMutator`).
+
+  The shared infrastructure (extended MutatorContext, dual-checkout
+  workflow structure, peter-evans pattern) built in Phase A is
+  designed to be reusable by workstream 2 without rework.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
