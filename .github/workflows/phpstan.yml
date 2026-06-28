@@ -20,6 +20,13 @@ concurrency:
 jobs:
   phpstan:
     runs-on: ubuntu-24.04
+    env:
+      # Authenticate Composer with the workflow token so its GitHub API
+      # calls (e.g. resolving commit refs for the openemr/wkhtmltopdf-openemr
+      # vcs dep) get the 5000/hr authenticated rate limit instead of the
+      # ~60/hr anonymous one. Without this the "Remove Rector" step
+      # intermittently HTTP-429s.
+      COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ secrets.GITHUB_TOKEN }}"}}'
     strategy:
       matrix:
         # Single-element matrix provides named variable and job title
