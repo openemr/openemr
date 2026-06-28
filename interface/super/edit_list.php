@@ -1503,7 +1503,7 @@ function writeITLine($it_array): void
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"></button>
                     </div>
                     <div class="modal-body">
-                        <label for="newlistname" class="control-label"><?php echo xlt('List Name'); ?></label>
+                        <label for="newlistname" class="col-form-label"><?php echo xlt('List Name'); ?></label>
                         <input type="text" size="20" class="form-control" maxlength="100" name="newlistname" id="newlistname" />
                         <input type="hidden" name="formaction" value="addlist">
 

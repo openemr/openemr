@@ -1129,7 +1129,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             <legend><?php echo xlt('Collect Payment'); ?></legend>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_discount"><?php echo OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
+                                    <label class="col-form-label" for="form_discount"><?php echo OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value='' />
@@ -1137,7 +1137,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             </div>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
+                                    <label class="col-form-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <select name='form_method' id='form_method' class='form-control'>
@@ -1157,7 +1157,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             </div>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_source"><?php echo xlt('Check/Reference Number'); ?>:</label>
+                                    <label class="col-form-label" for="form_source"><?php echo xlt('Check/Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input name='form_source' id='form_source' class= 'form-control' type='text' value='' />
@@ -1165,7 +1165,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             </div>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_amount"><?php echo xlt('Amount Paid'); ?>:</label>
+                                    <label class="col-form-label" for="form_amount"><?php echo xlt('Amount Paid'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input name='form_amount' id='form_amount'class='form-control' type='text' value='0.00' />
@@ -1173,7 +1173,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             </div>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
+                                    <label class="col-form-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input class='form-control datepicker' id='form_date' name='form_date' title='yyyy-mm-dd date of service' type='text' value='<?php echo attr($inv_date) ?>' />
@@ -1187,7 +1187,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                 ?>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_tentative"><?php echo xlt('Tentative Invoice Ref No'); ?>:</label>
+                                    <label class="col-form-label" for="form_tentative"><?php echo xlt('Tentative Invoice Ref No'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <div name='form_source' id='form_tentative' id='form_tentative' class= 'form-control'><?php echo text($irnumber); ?></div>
@@ -1199,7 +1199,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                 ?>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
+                                    <label class="col-form-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>)' onblur='maskblur(this,<?php echo attr_js(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>)' />

@@ -102,7 +102,7 @@ $mode = $_REQUEST['mode'] ?? null;
                 <div class="col">
                     <?php switch ($serviceEnum) {
                         case ServiceType::CLICKATELL_SMS: ?> <!-- Clickatell -->
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="form_extension"><?php echo xlt("Account Sending Number") ?> *</label>
                             <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('') ?>" required />
                         </div>

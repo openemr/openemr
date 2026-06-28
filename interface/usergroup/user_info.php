@@ -110,25 +110,25 @@ $row = sqlFetchArray($res);
                 <fieldset>
                     <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
                     <div class="mb-3">
-                        <label class='control-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
+                        <label class='col-form-label col-sm-2'><?php echo xlt('Full Name') . ":"; ?></label>
                         <div class="col-sm-10">
                             <p class="form-control-static"><?php echo text($iter["fname"]) . " " . text($iter["lname"]) ?></p>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class='control-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
+                        <label class='col-form-label col-sm-2'><?php echo xlt('User Name') . ":"; ?></label>
                         <div class="col-sm-10">
                             <p class="form-control-static"><?php echo text($iter["username"]) ?></p>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for='curPass' class='control-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
+                        <label for='curPass' class='col-form-label col-sm-2'><?php echo xlt('Current Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control'  name='curPass'  id='curPass' value="" autocomplete='off'>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
+                        <label class='col-form-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
                             <!-- Password Strength Meter -->
@@ -139,7 +139,7 @@ $row = sqlFetchArray($res);
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class='control-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
+                        <label class='col-form-label col-sm-2'><?php echo xlt('Repeat New Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control' name=newPass2  value="" autocomplete='off'>
                         </div>

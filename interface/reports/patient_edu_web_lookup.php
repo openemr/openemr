@@ -69,8 +69,8 @@ $form_diagnosis = $_POST['form_diagnosis'] ?? '';
             <div class="col-12">
                 <form method='post' action='patient_edu_web_lookup.php' id='theform' class='form-horizontal' onsubmit='return top.restoreSession()'>
                     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                    <div class="form-group">
-                        <label for='form_lookup_at' class='control-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
+                    <div class="mb-3">
+                        <label for='form_lookup_at' class='col-form-label col-sm-2'><?php echo xlt('Patient Resource'); ?></label>
                         <div class='col-sm-12'>
                             <select name='form_lookup_at' id='form_lookup_at'  class='form-control'>
                                 <?php
@@ -85,11 +85,11 @@ $form_diagnosis = $_POST['form_diagnosis'] ?? '';
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for='form_diagnosis' class='control-label col-sm-2'><?php echo xlt('Search'); ?></label>
+                        <label for='form_diagnosis' class='col-form-label col-sm-2'><?php echo xlt('Search'); ?></label>
                         <div class='col-sm-12'>
                             <input type='text' name='form_diagnosis' id='form_diagnosis' class='form-control' aria-describedby='searchHelpBox'
                                 value='<?php echo attr($form_diagnosis); ?>' title='<?php echo xla('Search Text'); ?>'>
-                            <span id="searchHelpBox" class="help-block">
+                            <span id="searchHelpBox" class="form-text">
                                 <?php echo xlt('Please input search criteria above, and click Submit to view results. (Results will be displayed in a pop up window)'); ?>
                             </span>
                         </div>

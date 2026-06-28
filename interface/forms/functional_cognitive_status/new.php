@@ -155,7 +155,7 @@ $check_res = $formid ? $check_res : [];
                                         <div class="forms col-md-2">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
-                                            <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"></span>
+                                            <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext form-text"></span>
                                             <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"]); ?>">
                                         </div>
                                         <div class="forms col-md-2">
@@ -187,7 +187,7 @@ $check_res = $formid ? $check_res : [];
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
-                                            <span id="displaytext_1"  class="displaytext help-block"></span>
+                                            <span id="displaytext_1"  class="displaytext form-text"></span>
                                             <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo text($obj["codetext"] ?? ''); ?>">
                                         </div>
                                         <div class="forms col-md-2">

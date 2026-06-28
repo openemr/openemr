@@ -1917,7 +1917,7 @@ class Display extends Base
 
                         <div class="row mb-3">
                             <div class="col-md-3">
-                                <div class="form-group mb-3">
+                                <div class="mb-3 mb-3">
                                     <select class="form-control" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
@@ -1937,7 +1937,7 @@ class Display extends Base
                                     </select>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <input placeholder="<?php echo xla('Patient ID'); ?>"
                                         class="form-control text-center"
                                         type="text"
@@ -1947,7 +1947,7 @@ class Display extends Base
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <div class="form-group mb-3">
+                                <div class="mb-3 mb-3">
                                     <?php
                                     # Build a drop-down list of providers.
                                     $query = "SELECT id, lname, fname FROM users WHERE " .
@@ -1982,7 +1982,7 @@ class Display extends Base
                                     </select>
                                 </div>
 
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <input type="text"
                                         placeholder="<?php echo xla('Patient Name'); ?>"
                                         class="form-control text-center"
@@ -1992,14 +1992,14 @@ class Display extends Base
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <div class="form-group mb-3">
+                                <div class="mb-3 mb-3">
                                     <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
                                     <input id="form_from_date" name="form_from_date" class="datepicker form-control text-center"
                                         value="<?php echo attr(oeFormatShortDate($from_date)); ?>" />
                                 </div>
                             </div>
                             <div class="col-md-3">
-                                <div class="form-group mb-3">
+                                <div class="mb-3 mb-3">
                                     <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
                                     <input id="form_to_date" name="form_to_date" class="datepicker form-control text-center"
                                         value="<?php echo attr(oeFormatShortDate($to_date)); ?>" />
@@ -2596,8 +2596,8 @@ class Display extends Base
                 <input type="hidden" name="action" id="go" value="addRecall" />
                 <div class="col-4 divTable m-2 ms-auto">
                     <div class="row divTableBody prefs">
-                            <div class="divTableCell divTableHeading text-end form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?><span class="text-danger">*</span></label></div>
-                            <div class="divTableCell indent20 form-group col-8 col-md-8">
+                            <div class="divTableCell divTableHeading text-end mb-3 col-4 col-md-4"><label><?php echo xlt('Name'); ?><span class="text-danger">*</span></label></div>
+                            <div class="divTableCell indent20 mb-3 col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
                                         value="<?php echo attr($result_pat['fname']) . " " . attr($result_pat['lname']); ?>" />
@@ -2655,7 +2655,7 @@ class Display extends Base
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
-                            <div class="text-end form-group col-4 col-md-4 divTableCell divTableHeading">
+                            <div class="text-end mb-3 col-4 col-md-4 divTableCell divTableHeading">
                                 <label><?php echo xlt('Provider'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="mb-3 col-8 col-md-8 divTableCell indent20">
@@ -2695,7 +2695,7 @@ class Display extends Base
                             </div>
                     </div>
                     <div class="row divTableBody prefs">
-                            <div class="text-end form-group col-4 col-md-4 divTableCell divTableHeading">
+                            <div class="text-end mb-3 col-4 col-md-4 divTableCell divTableHeading">
                                 <label><?php echo xlt('Facility'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="mb-3 col-8 col-md-8 divTableCell indent20">

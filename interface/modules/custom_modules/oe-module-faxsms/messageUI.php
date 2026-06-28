@@ -1076,7 +1076,7 @@ $site_id = $session->get('site_id');
                                 </div>
                             </div>
                             <div role="tabpanel" class="container-fluid tab-pane fade" id="upLoad">
-                                <div class="panel container-fluid">
+                                <div class="card container-fluid">
                                     <div id="fax-queue-container">
                                         <div id="fax-queue">
                                             <form id="faxQueue" method="post" enctype="multipart/form-data" class="dropzone"></form>
@@ -1245,7 +1245,7 @@ $site_id = $session->get('site_id');
                                 </div>
                             </div>
                             <div role="tabpanel" class="container-fluid tab-pane sms-hide email-hide fade in active" id="upLoad">
-                                <div class="panel container-fluid">
+                                <div class="card container-fluid">
                                     <div id="fax-queue-container">
                                         <div id="fax-queue">
                                             <form id="faxQueue" method="post" enctype="multipart/form-data" class="dropzone"></form>

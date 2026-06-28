@@ -72,7 +72,7 @@ echo "<script>var form=" . js_escape($form) . "</script>";
 <body>
     <?php if ($disablePreviousNameAdds === 1) {
         $form = '';
-        $frameMassage = "<p class='text-center bg-light text-dark'><strong>" . xlt('Sorry! Add New not allowed here') . "</strong></p><p class='text-justify'>" .
+        $frameMassage = "<p class='text-center bg-light text-dark'><strong>" . xlt('Sorry! Add New not allowed here') . "</strong></p><p>" .
             xlt("Since we are creating a new patient and an associated patient id has not been created yet, we are unable to establish a relationship between patient and the new name to save.") .
             "<br />" . xlt("You can add Previous Names after saving the new patient.") . "</p>";
         ?>

@@ -1090,7 +1090,7 @@ function make_insurance() {
                             $prepayment_bal = get_unallocated_patient_balance($pid);
                         if ($prepayment_bal > 0) : ?>
                                 <div class="col-12 oe-custom-line">
-                                    <label class="control-label" for="unallocated"><?php
+                                    <label class="col-form-label" for="unallocated"><?php
                                                 echo xlt('Patient has an unallocated pre-payment amount of ') .
                                                     text($prepayment_bal); ?></label><br>
                                     <a href="../billing/edit_payment.php?payment_id=<?php
@@ -1099,7 +1099,7 @@ function make_insurance() {
                                 </div><br>
                             <?php endif;  ?>
                         <div class="col-12 oe-custom-line">
-                            <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
+                            <label class="col-form-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
                                 $query1112 = "SELECT * FROM `list_options` where activity=1 AND list_id=?  ORDER BY seq, title ";
@@ -1115,12 +1115,12 @@ function make_insurance() {
                             </select>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <label class="control-label" for="check_number"><?php echo xlt('Check or Reference Number'); ?>:</label>
+                            <label class="col-form-label" for="check_number"><?php echo xlt('Check or Reference Number'); ?>:</label>
                             <div id="ajax_div_patient" style="display:none;"></div>
                             <input type='text' id="check_number" name='form_source' class='form-control' value='<?php echo attr($payrow['source'] ?? ''); ?>' />
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <label class="control-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
+                            <label class="col-form-label" for="form_discount"><?php echo xla('Patient Coverage'); ?>:</label>
                             <div class="ps-3">
                                 <label class="radio-inline">
                                     <input id="radio_type_of_coverage1" name="radio_type_of_coverage" onclick="make_visible_radio();make_self();" type="radio" value="self"><?php echo xlt('Self'); ?>
@@ -1131,7 +1131,7 @@ function make_insurance() {
                             </div>
                         </div>
                         <div class="col-12 oe-custom-line">
-                            <label class="control-label" for=""><?php echo xlt('Payment against'); ?>:</label>
+                            <label class="col-form-label" for=""><?php echo xlt('Payment against'); ?>:</label>
                             <div id="tr_radio1" style="padding-left:15px; display:none"><!-- For radio Insurance -->
                                 <label class="radio-inline">
                                   <input id="radio_type_of_payment_self1" name="radio_type_of_payment" onclick="make_visible_row();make_it_hide_enc_pay();cursor_pointer();" type="radio" value="cash"><?php echo xlt('Encounter Payment'); ?>
@@ -1151,7 +1151,7 @@ function make_insurance() {
                         </div>
                         <div class="col-12 oe-custom-line">
                             <div id="table_display_prepayment" style="display:none">
-                                <label class="control-label" for="form_prepayment"><?php echo xlt('Pre Payment'); ?>:</label>
+                                <label class="col-form-label" for="form_prepayment"><?php echo xlt('Pre Payment'); ?>:</label>
                                 <input name='form_prepayment' id='form_prepayment'class='form-control' type='text' value ='' />
                             </div>
                         </div>
@@ -1446,7 +1446,7 @@ function make_insurance() {
                                 <fieldset>
                                     <div class="mb-3">
                                         <label
-                                            class="control-label"><?php echo xlt('Name on Card'); ?></label>
+                                            class="col-form-label"><?php echo xlt('Name on Card'); ?></label>
                                         <div class="controls">
                                             <input name="cardHolderName" id="cardHolderName" type="text" class="form-control"
                                                 pattern="\w+ \w+.*"
@@ -1458,7 +1458,7 @@ function make_insurance() {
                                     <div class="mb-3">
                                         <div class="row">
                                             <div class="col-sm-6">
-                                                <label class="control-label"><?php echo xlt('Card Number'); ?></label>
+                                                <label class="col-form-label"><?php echo xlt('Card Number'); ?></label>
                                                 <input name="cardNumber" id="cardNumber" type="text"
                                                     class="form-control"
                                                     autocomplete="off" maxlength="19" pattern="\d"
@@ -1466,14 +1466,14 @@ function make_insurance() {
                                                     title="<?php echo xla('Card Number'); ?>" value="" />&nbsp;&nbsp;
                                             </div>
                                             <span class="col-sm-6">
-                                                    <label class="control-label"><?php echo xlt('Entry Status'); ?></label>
+                                                    <label class="col-form-label"><?php echo xlt('Entry Status'); ?></label>
                                                     <h5 name="cardtype" id="cardtype" style="color:#cc0000;"><?php echo xlt('Validating') ?></h5>
                                                 </span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label
-                                            class="control-label"><?php echo xlt('Card Expiry Date and Card Holders Zip'); ?></label>
+                                            class="col-form-label"><?php echo xlt('Card Expiry Date and Card Holders Zip'); ?></label>
                                         <div class="row">
                                             <div class="col-md-4">
                                                 <select name="month" id="expMonth" class="form-control">
@@ -1498,7 +1498,7 @@ function make_insurance() {
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="control-label"><?php echo xlt('Card CVV'); ?></label>
+                                        <label class="col-form-label"><?php echo xlt('Card CVV'); ?></label>
                                         <div class="row">
                                             <div class="col-md-3">
                                                 <input name="cardCode" id="cardCode" type="text" class="form-control"
@@ -1532,7 +1532,7 @@ function make_insurance() {
                             <form class="form" method="post" name="payment-form" id="payment-form">
                                 <fieldset>
                                     <div class="mb-3">
-                                        <label for="cardHolderName" class="control-label"><?php echo xlt('Name on Card'); ?></label>
+                                        <label for="cardHolderName" class="col-form-label"><?php echo xlt('Name on Card'); ?></label>
                                         <input name="cardHolderName" id="cardHolderName" type="text"
                                             class="form-control"
                                             pattern="\w+ \w+.*"

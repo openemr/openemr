@@ -594,7 +594,7 @@ ENDDIV;
                                     I have already created the database
                                 </label>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <div class="col mt-3">
                                     <button type='submit' class='btn btn-primary' value='Continue'>
                                         <i class="fas fa-chevron-right"></i>  Proceed to Step 2
@@ -635,7 +635,7 @@ STP2TOP;
                     <legend name="form_legend" id="form_legend" class='oe-setup-legend'>MySQL Server Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
                     <div class="ms-2 row">
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="server">Server Host:</label>
                                     <a href="#server_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -651,7 +651,7 @@ STP2TOP;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="port">Server Port:</label>
                                     <a href="#port_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -667,7 +667,7 @@ STP2TOP;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="dbname">Database Name:</label> <a href="#dbname_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -685,7 +685,7 @@ STP2TOP;
                     </div>
                     <div class="ms-2 row">
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="login">Login Name:</label> <a href="#login_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -700,7 +700,7 @@ STP2TOP;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="pass">Password:</label>
                                     <a href="#pass_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -721,7 +721,7 @@ STP2TBLTOP1;
                     if ($inst != 2) {
                         $step2tabletop2 = <<<STP2TBLTOP2
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="root">Name for Root Account:</label>
                                     <a href="#root_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -739,7 +739,7 @@ STP2TBLTOP1;
                     </div>
                     <div class="ms-2 row">
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="rootpass">Root Password:</label>
                                     <a href="#rootpass_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -754,7 +754,7 @@ STP2TBLTOP1;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="loginhost">User Hostname:</label>
                                     <a href="#loginhost_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -770,7 +770,7 @@ STP2TBLTOP1;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="collate">UTF-8 Collation:</label> <a href="#collate_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -905,7 +905,7 @@ STP2TBLTOP2;
                         $source_site_top = <<<SOURCESITETOP
                     <div class="ms-2 row">
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="source_site_id">Source Site:</label>
                                     <a href="#source_site_id_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -933,7 +933,7 @@ SOURCESITETOP;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="clone_database">Clone Source Database:</label>
                                     <a href="#clone_database_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -981,7 +981,7 @@ SOURCESITEBOT;
                     <legend name="form_legend" id="form_legend" class='oe-setup-legend'>OpenEMR Initial User Details<i id="enter-details-tooltip" class="fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip" aria-hidden="true"></i></legend>
                     <div class="ms-2 row">
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="iuser">Initial User Login Name:</label> <a href="#iuser_info"  class="info-anchor icon-tooltip"  data-bs-toggle="collapse" ><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                 </div>
@@ -996,7 +996,7 @@ SOURCESITEBOT;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="iuserpass">Initial User Password:</label>
                                     <a href="#iuserpass_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -1011,7 +1011,7 @@ SOURCESITEBOT;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="iufname">Initial User's First Name:</label>
                                     <a href="#iufname_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -1028,7 +1028,7 @@ SOURCESITEBOT;
                     </div>
                     <div class="ms-2 row">
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="iuname">Initial User's Last Name:</label>
                                     <a href="#iuname_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -1043,7 +1043,7 @@ SOURCESITEBOT;
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="igroup">Initial Group:</label>
                                     <a href="#igroup_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -1065,7 +1065,7 @@ SOURCESITEBOT;
                     <legend name="form_legend" id="form_legend" class='oe-setup-legend text-danger'>Enable 2 Factor Authentication for Initial User (more secure - optional) <i id="2fa-section" class="fa fa-info-circle oe-text-black oe-superscript 2fa-section-tooltip" aria-hidden="true"></i></legend>
                     <div class="ms-2 row">
                         <div class="col-sm-3">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <div class="label-div">
                                     <label class="fw-bold" for="i2fa">Configure 2FA:</label>
                                     <a href="#i2fa_info"  class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
@@ -1082,13 +1082,13 @@ SOURCESITEBOT;
                             </div>
                         </div>
                         <div class="col-sm-5">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <p class="text-danger fw-bold">IMPORTANT IF ENABLED</p>
                                 <p>If enabled, you must have an authenticator app on your phone ready to scan the QR code displayed next.</p>
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="clearfix form-group">
+                            <div class="clearfix mb-3">
                                 <p>Example authenticator apps include:</p>
                                 <ul>
                                     <li>Google Auth
@@ -1878,7 +1878,7 @@ CHKDIR;
                                         <input name='state' type='hidden' value='1' />
                                         <input name='site' type='hidden' value='$site_id_esc' />
                                         <input name='csrf_token_form' type='hidden' value='$csrf_id' />
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <div class="col">
                                                 <button type='submit' class='btn btn-primary' value='Continue'>
                                                     <i class="fas fa-chevron-right"></i>  Proceed to Step 1

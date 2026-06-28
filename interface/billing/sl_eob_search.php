@@ -819,7 +819,7 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                     </legend>
                     <div class="row gx-2 p-2">
                         <div class="mb-3 col-lg">
-                            <label class="control-label" for="form_payer_id"> <?php echo xlt('Payer'); ?>:</label>
+                            <label class="col-form-label" for="form_payer_id"> <?php echo xlt('Payer'); ?>:</label>
                             <?php
                             $insurancei = getInsuranceProviders();
                             echo "   <select name='form_payer_id'id='form_payer_id' class='form-control'>\n";
@@ -835,25 +835,25 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                             ?>
                         </div>
                         <div class="mb-3 col-lg">
-                            <label class="control-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
+                            <label class="col-form-label" for="form_source"><?php echo xlt('Source'); ?>:</label>
                             <input type='text' name='form_source' id='form_source' class='form-control' value='<?php echo attr($_REQUEST['form_source'] ?? ''); ?>' title='<?php echo xla("A check number or claim number to identify the payment"); ?>' />
                         </div>
                         <div class="mb-3 col-lg">
-                            <label class="control-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
+                            <label class="col-form-label" for="form_paydate"><?php echo xlt('Pay Date'); ?>:</label>
                             <input type='text' name='form_paydate' id='form_paydate' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_paydate'] ?? ''); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of payment yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="mb-3 col-lg">
-                            <label class="control-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
-                            <label class="control-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
+                            <label class="col-form-label oe-large" for="form_deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                            <label class="col-form-label oe-small" for="form_deposit_date"><?php echo xlt('Dep Date'); ?>:</label>
                             <input type='text' name='form_deposit_date' id='form_deposit_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_deposit_date'] ?? ''); ?>' onkeyup='datekeyup(this,mypcc)' onblur='dateblur(this,mypcc)' title='<?php echo xla("Date of bank deposit yyyy-mm-dd"); ?>' />
                         </div>
                         <div class="mb-3 col-lg">
-                            <label class="control-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
+                            <label class="col-form-label" for="form_amount"><?php echo xlt('Amount'); ?>:</label>
                             <input type='text' name='form_amount' id='form_amount' class='form-control' value='<?php echo attr($_REQUEST['form_amount'] ?? ''); ?>' title='<?php echo xla("Paid amount that you will allocate"); ?>' />
                         </div>
                         <div class="mb-3 col-lg">
-                            <label class="control-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
-                            <label class="control-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
+                            <label class="col-form-label oe-large" for="only_with_debt"><?php echo xlt('Pt Debt'); ?>:</label>
+                            <label class="col-form-label oe-small" for="only_with_debt"><?php echo xlt('Debt'); ?>:</label>
                             <input <?php echo (!empty($_REQUEST['only_with_debt'])) ? 'checked=checked' : ''; ?> type="checkbox" name="only_with_debt" id="only_with_debt" />
                         </div>
                     </div>
@@ -880,28 +880,28 @@ $language_direction = $session->get('language_direction'); // fetch before the <
                     <div class="oe-show-hide" id='inv-search'>
                         <div class="row gx-2 p-2">
                             <div class="mb-3 col-lg">
-                                <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
+                                <label class="col-form-label" for="form_name"><?php echo xlt('Name'); ?>:</label>
                                 <input type='text' name='form_name' id='form_name' class='form-control' value='<?php echo attr($_REQUEST['form_name'] ?? ''); ?>' title='<?php echo xla("Any part of the patient name, or \"last,first\", or \"X-Y\""); ?>' placeholder='<?php echo xla('Last name, First name'); ?>' />
                             </div>
                             <div class="mb-3 col-lg">
-                                <label class="control-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
+                                <label class="col-form-label" for="form_pid"><?php echo xlt('Chart ID'); ?>:</label>
                                 <input type='text' name='form_pid' id='form_pid' class='form-control' value='<?php echo attr($_REQUEST['form_pid'] ?? ''); ?>' title='<?php echo xla("Patient chart ID"); ?>' />
                             </div>
                             <div class="mb-3 col-lg">
-                                <label class="control-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
+                                <label class="col-form-label" for="form_encounter"><?php echo xlt('Encounter'); ?>:</label>
                                 <input type='text' name='form_encounter' id='form_encounter' class='form-control' value='<?php echo attr($_REQUEST['form_encounter'] ?? ''); ?>' title='<?php echo xla("Encounter number"); ?>' />
                             </div>
                             <div class="mb-3 col-lg">
-                                <label class="control-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
-                                <label class="control-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
+                                <label class="col-form-label oe-large" for="form_date"><?php echo xlt('Service Date From'); ?>:</label>
+                                <label class="col-form-label oe-small" for="form_date"><?php echo xlt('Svc Date'); ?>:</label>
                                 <input type='text' name='form_date' id='form_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_date'] ?? ''); ?>' title='<?php echo xla("Date of service mm/dd/yyyy"); ?>' />
                             </div>
                             <div class="mb-3 col-lg">
-                                <label class="control-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
+                                <label class="col-form-label" for="form_to_date"><?php echo xlt('Service Date To'); ?>:</label>
                                 <input type='text' name='form_to_date' id='form_to_date' class='form-control datepicker' value='<?php echo attr($_REQUEST['form_to_date'] ?? ''); ?>' title='<?php echo xla("Ending DOS mm/dd/yyyy if you wish to enter a range"); ?>' />
                             </div>
                             <div class="mb-3 col-lg" style="padding-right:0px">
-                                <label class="control-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
+                                <label class="col-form-label" for="type_name"><?php echo xlt('Type'); ?>:</label>
                                 <select name='form_category' id='form_category' class='form-control'>
                                     <?php
                                     foreach ([xl('Open'), xl('All'), xl('Due Pt'), xl('Due Ins')] as $value) {

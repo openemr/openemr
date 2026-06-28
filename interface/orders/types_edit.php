@@ -330,7 +330,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label>
+                                        <label class="col-form-label" for="form_procedure_type"><?php echo xlt('Procedure Tier'); ?>:</label>
                                         <a href="#procedure_type_info" class="info-anchor icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
@@ -375,7 +375,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div ordonly">
-                                        <label for="form_procedure_type_names" class="control-label"><?php echo xlt('Order Test Type') . " (" . xlt('Required') . ")"; ?></label>
+                                        <label for="form_procedure_type_names" class="col-form-label"><?php echo xlt('Order Test Type') . " (" . xlt('Required') . ")"; ?></label>
                                     </div>
                                     <div class="col-sm-12 ordonly">
                                         <?php
@@ -398,7 +398,7 @@ function recursiveDelete($typeid): void
                                         </select>
                                     </div>
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_name"><?php echo xlt('Name'); ?>:</label><a href="#name_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_name' id='form_name ' maxlength='63'
@@ -417,7 +417,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_description"><?php echo xlt('Description'); ?>:</label><a href="#description_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_description"><?php echo xlt('Description'); ?>:</label><a href="#description_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_description' id='form_description'
@@ -437,7 +437,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_seq"><?php echo xlt('Sequence'); ?>:</label><a href="#sequence_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_seq"><?php echo xlt('Sequence'); ?>:</label><a href="#sequence_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_seq' id=='form_seq' maxlength='11'
@@ -457,7 +457,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly fgponly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_lab_id"><?php echo xlt('Order From'); ?>:</label><a href="#order_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
@@ -507,7 +507,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly resonly fgponly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_procedure_code"><?php echo xlt('Identifying Code'); ?>:</label><a href="#procedure_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_procedure_code' id='form_procedure_code'
@@ -529,7 +529,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_standard_code"><?php echo xlt('Standard Code (LOINC)'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_standard_code"><?php echo xlt('Standard Code (LOINC)'); ?>:</label><a href="#standard_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_standard_code' id='form_standard_code'
@@ -550,7 +550,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_diagnosis_code"><?php echo xlt('Diagnosis Codes'); ?>:</label><a href="#diagnosis_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_diagnosis_code"><?php echo xlt('Diagnosis Codes'); ?>:</label><a href="#diagnosis_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_diagnosis_code' id='form_diagnosis_code'
@@ -571,7 +571,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_body_site"><?php echo xlt('Body Site'); ?>:</label><a href="#body_site_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
@@ -594,7 +594,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_specimen"><?php echo xlt('Specimen Type'); ?>:</label><a href="#specimen_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
@@ -618,7 +618,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_route_admin"><?php echo xlt('Administer Via'); ?>:</label><a href="#administer_via_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
@@ -642,7 +642,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 ordonly foronly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_laterality"><?php echo xlt('Laterality'); ?>:</label><a href="#laterality_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
@@ -666,7 +666,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 resonly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_units"><?php echo xlt('Default Units'); ?>:</label><a href="#units_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_units"><?php echo xlt('Default Units'); ?>:</label><a href="#units_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <?php
@@ -690,7 +690,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 resonly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_range"><?php echo xlt('Default Range'); ?>:</label><a href="#range_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_range"><?php echo xlt('Default Range'); ?>:</label><a href="#range_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_range' id='form_range' maxlength='255'
@@ -710,7 +710,7 @@ function recursiveDelete($typeid): void
                             <div class="col-sm-12 resonly">
                                 <div class="clearfix">
                                     <div class="col-sm-12 label-div">
-                                        <label class="control-label" for="form_related_code"><?php echo xlt('Followup Services'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+                                        <label class="col-form-label" for="form_related_code"><?php echo xlt('Followup Services'); ?>:</label><a href="#related_code_info" class="icon-tooltip" data-bs-toggle="collapse"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
                                     </div>
                                     <div class="col-sm-12">
                                         <input type='text' name='form_related_code' id='form_related_code'

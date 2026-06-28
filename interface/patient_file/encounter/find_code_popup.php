@@ -111,7 +111,7 @@ $focus = "document.theform.search_term.select();";
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="input-group mt-1">
                 <?php
                 if (!empty($allowed_codes)) { ?>

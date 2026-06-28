@@ -274,7 +274,7 @@ $help_icon = '';
                             <div class="clearfix"></div>
                         </div>
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) { ?>
-                            <div class="col-md-6 form-group row" id="therapy_group_name" style="display: none">
+                            <div class="col-md-6 mb-3 row" id="therapy_group_name" style="display: none">
                                 <label for="form_group" class="col-form-label col-sm-2"><?php echo xlt('Group name'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text'name='form_group' class='form-control' id="form_group" placeholder='<?php echo xla('Click to select');?>' value='<?php echo $viewmode && in_array($result['pc_catid'], $therapyGroupCategories) ? attr(getGroup($result['external_id'])['group_name']) : ''; ?>' onclick='sel_group()' title='<?php echo xla('Click to select group'); ?>' readonly />
@@ -284,7 +284,7 @@ $help_icon = '';
                             </div>
                         <?php }?>
                         <?php if (OEGlobalsBag::getInstance()->getBoolean('set_pos_code_encounter')) { ?>
-                            <div class="col-md-6 form-group row">
+                            <div class="col-md-6 mb-3 row">
                                 <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('POS Code'); ?>:</label>
                                 <div class="col-sm-8">
                                     <select name="pos_code" id="pos_code" class='form-control'>

@@ -599,7 +599,7 @@ if ($fend > ($count ?? null)) {
                 <?php echo xlt('Service Reporting'); ?>
             </div>
         </div>
-        <div class="form-group row">
+        <div class="mb-3 row">
             <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 echo 'd-none';
                                                                     } ?>"><?php echo xlt('CYP Factor'); ?>:</label>

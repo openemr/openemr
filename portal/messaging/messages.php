@@ -207,7 +207,7 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                         </a>
                         <div class="btn-group btn-group float-end">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
-                            <ul class="dropdown-menu dropdown-menu-right">
+                            <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
                                     <a class="dropdown-item" href="javascript:;" id="btnReadAll"><?php echo xlt('Mark all as read'); ?></a>
                                 </li>
@@ -267,12 +267,12 @@ $jsVersion = $globalsBag->getString('v_js_includes', '');
                     <div class="modal-content">
                         <div class="modal-header">
                             <h4 class="modal-title"><?php echo xlt('Compose Message'); ?></h4>
-                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body ">
                             <div class="col-12">
                                 <label id="referLabel" style="display:none;"><?php echo xlt('Refer to Message') . ' # '; ?><span id="referMsgId"></span></label>
-                                <div class="jumbotron col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" style="display:none;"></div>
+                                <div class="col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" style="display:none;"></div>
 
                                 <form role="form" class="form-horizontal" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
                                     <fieldset class="row">

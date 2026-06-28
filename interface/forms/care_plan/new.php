@@ -125,7 +125,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code"
                                                 value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo attr_js(OEGlobalsBag::getInstance()->getWebRoot()) ?>,
                                                 this.parentElement.parentElement.parentElement.id);' data-bs-toggle='tooltip' data-bs-placement='bottom' title='<?php echo attr($obj['code'] ?? ''); ?>' />
-                                            <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>
+                                            <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext form-text"><?php echo text($obj["codetext"] ?? ''); ?></span>
                                             <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>" />
                                             <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $session->get('authUser')); ?>" />
                                         </div>

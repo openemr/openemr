@@ -155,15 +155,15 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
     ?>
     <div class="row">
         <div class="forms col-3">
-            <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
+            <label class="col-form-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
             <input class="form-control datepicker" id='check_date' name='check_date' type='text' value="<?php echo attr(oeFormatShortDate($CheckDate)); ?>" autocomplete="off">
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
+            <label class="col-form-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
             <input class="form-control datepicker" id='post_to_date' name='post_to_date' type='text' value="<?php echo ($screen == 'new_payment') ? attr(oeFormatShortDate(date('Y-m-d'))) : attr(oeFormatShortDate($PostToDate)); ?>" autocomplete="off">
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
+            <label class="col-form-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
             <div class="ps-0">
                 <?php
                 $blankValue = $PaymentMethod == '' && $screen == 'edit_payment' ? ' ' : '';
@@ -172,7 +172,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             </div>
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="check_number"><?php echo xlt('Check Number'); ?>:</label>
+            <label class="col-form-label" for="check_number"><?php echo xlt('Check Number'); ?>:</label>
             <?php
             if ($PaymentMethod == 'check_payment' || $PaymentMethod == 'bank_draft' || $CheckNumber != '' || $screen == 'new_payment') {
                 $CheckDisplay = '';
@@ -188,18 +188,18 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
     </div>
     <div class="row">
         <div class="forms col-3">
-            <label class="control-label" for="payment_method"><?php echo xlt('Payment Amount'); ?>:</label>
+            <label class="col-form-label" for="payment_method"><?php echo xlt('Payment Amount'); ?>:</label>
             <input type="text" name="payment_amount" autocomplete="off" id="payment_amount" onchange="ValidateNumeric(this);<?php echo $screen == 'new_payment' ? 'FillUnappliedAmount();' : 'FillAmount();'; ?>" value="<?php echo ($screen == 'new_payment') ? attr('0.00') : attr($PayTotal); ?>" class="form-control text-end" />
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
+            <label class="col-form-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
             <?php
             $blankValue = $PaymentType == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_select_list("type_name", "payment_type", "$PaymentType", "Paying Entity", "$blankValue", "form-control", 'PayingEntityAction()');
             ?>
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
+            <label class="col-form-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
             <?php
             $blankValue = $AdjustmentCode == '' && $screen == 'edit_payment' ? ' ' : '';
             echo generate_list_payment_category(
@@ -218,7 +218,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
     </div>
     <div class="row">
         <div class="forms col-6">
-            <label class="control-label" for="type_code"><?php echo xlt('Payment From'); ?>:</label>
+            <label class="col-form-label" for="type_code"><?php echo xlt('Payment From'); ?>:</label>
             <input type="hidden" id="hidden_ajax_close_value" value="<?php echo attr($div_after_save); ?>" />
             <input name='type_code' id='type_code' type="text" class="form-control" onKeyDown="PreventIt(event)" value="<?php echo attr($div_after_save); ?>" autocomplete="off" />
             <!-- onKeyUp="ajaxFunction(event,'non','edit_payment.php');" -->
@@ -229,22 +229,22 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             </div>
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Payor ID'); ?>:</label>
+            <label class="col-form-label" for="div_insurance_or_patient"><?php echo xlt('Payor ID'); ?>:</label>
             <!--<input class="form-control" type="text"  value = '<?php //echo attr($TypeCode);?>' name="div_insurance_or_patient" id="div_insurance_or_patient" placeholder="Payor ID…"  />-->
             <div name="div_insurance_or_patient" id="div_insurance_or_patient" class="form-control"><?php echo text($TypeCode); ?></div>
         </div>
     </div>
     <div class="row">
         <div class="forms col-2">
-            <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+            <label class="col-form-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
             <input type='text' class='form-control datepicker' name='deposit_date' id='deposit_date' onKeyDown="PreventIt(event)" value="<?php echo attr(oeFormatShortDate($DepositDate)); ?>" autocomplete="off" />
         </div>
         <div class="forms col-6">
-            <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
+            <label class="col-form-label" for="description"><?php echo xlt('Description'); ?>:</label>
             <input type="text" name="description" id="description" onKeyDown="PreventIt(event)" value="<?php echo attr($Description); ?>" class="form-control" />
         </div>
         <div class="forms col-2">
-            <label class="control-label" for="GlobalReset"><?php echo xlt('Distributed to Global'); ?>:</label>
+            <label class="col-form-label" for="GlobalReset"><?php echo xlt('Distributed to Global'); ?>:</label>
             <div class="input-group">
                 <button class="btn btn-secondary btn-delete" onclick="getElementById('GlobalReset').value='-0.00';this.classList.remove('btn-delete');event.target.classList.add('fa', 'fa-ban');">
                 </button>
@@ -252,7 +252,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
             </div>
         </div>
         <div class="forms col-2">
-            <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
+            <label class="col-form-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
             <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?>" type="hidden" />
             <input name="HidUnpostedAmount" id="HidUnpostedAmount" value="<?php echo attr($UndistributedAmount); ?>" type="hidden" />
@@ -285,15 +285,15 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
     </div>
     <div class="row">
         <div class="forms col-3">
-            <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
+            <label class="col-form-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
             <input class="form-control" id='check_date' name='check_date' type='text' value="<?php echo attr(oeFormatShortDate($CheckDate)); ?> " disabled>
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
+            <label class="col-form-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
             <input class="form-control" id='post_to_date' name='post_to_date' type='text' value="<?php echo ($screen == 'new_payment') ? attr(oeFormatShortDate(date('Y-m-d'))) : attr(oeFormatShortDate($PostToDate)); ?>" disabled>
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
+            <label class="col-form-label" for="payment_method"><?php echo xlt('Payment Method'); ?>:</label>
             <input type="text" class="form-control" name="payment_method1" id="payment_method" value="<?php
             $list = 'payment_method';
             $option = $PaymentMethod;
@@ -301,17 +301,17 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
             <input type="hidden" name="payment_method" value="<?php echo attr($PaymentMethod); ?>" />
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="checknumber"><?php echo xlt('Check Number'); ?>:</label>
+            <label class="col-form-label" for="checknumber"><?php echo xlt('Check Number'); ?>:</label>
             <input type="text" class="form-control" name="check_number" id="checknumber" value="<?php echo attr($CheckNumber); ?>" disabled />
         </div>
     </div>
     <div class="row">
         <div class="forms col-3">
-            <label class="control-label" for="payment_amount"><?php echo xlt('Payment Amount'); ?>:</label>
+            <label class="col-form-label" for="payment_amount"><?php echo xlt('Payment Amount'); ?>:</label>
             <input type="text" class="form-control" name="payment_amount" id="payment_amount" value="<?php echo attr($PayTotal); ?>" disabled />
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
+            <label class="col-form-label" for="type_name"><?php echo xlt('Paying Entity'); ?>:</label>
             <input type="text" class="form-control" name="type_name1" id="type_name1" value="<?php
             $list = 'payment_type';
             $option = $PaymentType;
@@ -319,7 +319,7 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
             <input type="hidden" name="type_name" id="type_name" value="<?php echo attr($PaymentType); ?>" />
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
+            <label class="col-form-label" for="adjustment_code"><?php echo xlt('Payment Category'); ?>:</label>
             <input type="text" class="form-control" name="adjustment_code1" id="adjustment_code1" value="<?php
             $list = 'payment_adjustment_code';
             $option = $AdjustmentCode;
@@ -329,29 +329,29 @@ if ($screen == 'new_payment' && $payment_id * 1 > 0) {//After saving from the Ne
     </div>
     <div class="row">
         <div class="forms col-6">
-            <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Payment From'); ?>:</label>
+            <label class="col-form-label" for="div_insurance_or_patient"><?php echo xlt('Payment From'); ?>:</label>
             <input name='div_insurance_or_patient' id='div_insurance_or_patient' type="text" class="form-control" value="<?php echo attr($div_after_save); ?>" disabled />
         </div>
         <div class="forms col-3">
-            <label class="control-label" for="type_code"><?php echo xlt('Payor ID'); ?>:</label>
+            <label class="col-form-label" for="type_code"><?php echo xlt('Payor ID'); ?>:</label>
             <input type="text" name="type_code" id="type_code" class="form-control" value="<?php echo attr($TypeCode); ?>" disabled />
         </div>
     </div>
     <div class="row oe-custom-line">
         <div class="forms col-2">
-            <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+            <label class="col-form-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
             <input type="text" class='form-control' name="deposit_date" id="deposit_date" value="<?php echo attr(oeFormatShortDate($DepositDate)); ?>" disabled />
         </div>
         <div class="forms col-6">
-            <label class="control-label" for="description"><?php echo xlt('Description'); ?>:</label>
+            <label class="col-form-label" for="description"><?php echo xlt('Description'); ?>:</label>
             <input type="text" name="description" id="description" value="<?php echo attr($Description); ?>" class="form-control" disabled />
         </div>
         <div class="forms col-2">
-            <label class="control-label" for="GlobalResetView"><?php echo xlt('Distributed to Global'); ?>:</label>
+            <label class="col-form-label" for="GlobalResetView"><?php echo xlt('Distributed to Global'); ?>:</label>
             <input id="GlobalResetView" name="global_reset_view" class="form-control" value="<?php echo ($global_amount * 1 == 0) ? attr("0.00") : attr(number_format($global_amount, 2, '.', ',')); ?>" disabled />
         </div>
         <div class="forms col-2">
-            <label class="control-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
+            <label class="col-form-label" for="TdUnappliedAmount"><?php echo xlt('Undistributed'); ?>:</label>
             <div id="TdUnappliedAmount" class="form-control bg-danger text-light"><?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?></div>
             <input name="HidUnappliedAmount" id="HidUnappliedAmount" value="<?php echo ($UndistributedAmount * 1 == 0) ? attr("0.00") : attr(number_format($UndistributedAmount, 2, '.', ',')); ?>" type="hidden" />
             <input name="HidUnpostedAmount" id="HidUnpostedAmount" value="<?php echo attr($UndistributedAmount); ?>" type="hidden" />

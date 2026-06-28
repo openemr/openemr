@@ -2661,7 +2661,7 @@ echo " </tr>\n";
     <tr>
         <td class='bold' colspan='<?php echo ($form_num_type_columns + $form_num_method_columns + $form_num_ref_columns) +
             (empty(OEGlobalsBag::getInstance()->get('gbl_charge_categories')) ? 0 : 1); ?>' align='right'>
-            <label class="control-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
+            <label class="col-form-label" for="form_date"><?php echo xlt('Posting Date'); ?>:</label>
         </td>
         <td class='text' colspan='<?php echo $form_num_amount_columns; ?>' align='right'>
             <input type='text' class='form-control datepicker' id='form_date' name='form_date'

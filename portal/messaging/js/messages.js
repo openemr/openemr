@@ -500,12 +500,12 @@
                 html += `<span class="col-sm px-1"><span>${limitTo(htmlToText(item.body), 35)}</span></span>`;
             }
 
-            html += `<span class='btn-group float-right m-0'>`;
+            html += `<span class='btn-group float-end m-0'>`;
             if (showReply) {
-                html += `<button class="btn btn-primary btn-small btn-compose-reply" data-toggle="modal" data-mode="reply" data-noteid="${escapeHtml(sel.id)}" data-whoto="${escapeHtml(sel.sender_id)}" data-mtitle="${escapeHtml(sel.title)}" data-username="${escapeHtml(sel.sender_name)}" data-mailchain="${escapeHtml(sel.mail_chain)}" data-target="#modalCompose"><i class="fa fa-reply"></i></button>`;
+                html += `<button class="btn btn-primary btn-small btn-compose-reply" data-bs-toggle="modal" data-mode="reply" data-noteid="${escapeHtml(sel.id)}" data-whoto="${escapeHtml(sel.sender_id)}" data-mtitle="${escapeHtml(sel.title)}" data-username="${escapeHtml(sel.sender_name)}" data-mailchain="${escapeHtml(sel.mail_chain)}" data-bs-target="#modalCompose"><i class="fa fa-reply"></i></button>`;
             }
             if (showForward) {
-                html += `<button class="btn btn-primary btn-small btn-compose-fwd" data-toggle="modal" data-mode="forward" data-noteid="${escapeHtml(sel.id)}" data-whoto="${escapeHtml(sel.sender_id)}" data-mtitle="${escapeHtml(sel.title)}" data-username="${escapeHtml(sel.sender_name)}" data-mailchain="${escapeHtml(sel.mail_chain)}" data-target="#modalCompose"><i class="fa fa-share"></i></button>`;
+                html += `<button class="btn btn-primary btn-small btn-compose-fwd" data-bs-toggle="modal" data-mode="forward" data-noteid="${escapeHtml(sel.id)}" data-whoto="${escapeHtml(sel.sender_id)}" data-mtitle="${escapeHtml(sel.title)}" data-username="${escapeHtml(sel.sender_name)}" data-mailchain="${escapeHtml(sel.mail_chain)}" data-bs-target="#modalCompose"><i class="fa fa-share"></i></button>`;
             }
             if (showDelete) {
                 html += `<button class="btn btn-small btn-primary btn-delete-item" data-item-id="${escapeHtml(sel.id)}" title="${escapeHtml(config.strings.archiveTitle)}"><i class="fa fa-trash fa-1x"></i></button>`;
@@ -513,7 +513,7 @@
             html += `</span>`;
 
             if (isSelected) {
-                html += `<div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info'><span>${renderMessageBody(sel.body)}</span></div>`;
+                html += `<div class='col my-3 p-1 bg-light text-dark rounded border border-info'><span>${renderMessageBody(sel.body)}</span></div>`;
             }
             html += `</td></tr>`;
         });

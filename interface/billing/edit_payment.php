@@ -599,7 +599,7 @@ $ResultSearchSub = sqlStatement(
             padding-left: 10px;
         }
 
-        .form-horizontal .control-label {
+        .form-horizontal .col-form-label {
             padding-top: 2px;
         }
 

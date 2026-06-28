@@ -389,7 +389,7 @@ tr.selected {
                 ?>
             </div>
             <div class="col-12">
-                <form class="jumbotron p-4" action="immunizations.php" name="add_immunization" id="add_immunization">
+                <form class="p-4 bg-light rounded" action="immunizations.php" name="add_immunization" id="add_immunization">
                     <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <input type="hidden" name="mode" id="mode" value="add" />

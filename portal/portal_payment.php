@@ -1061,14 +1061,14 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                         <fieldset>
                             <div class="mb-3">
                                 <label label-default="label-default"
-                                       class="control-label"><?php echo xlt('Name on Card'); ?></label>
+                                       class="col-form-label"><?php echo xlt('Name on Card'); ?></label>
                                 <div class="controls">
                                     <?php /** @phpstan-ignore-next-line */ ?>
                                     <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label class="control-label"><?php echo xlt('Card Number'); ?></label>
+                                <label class="col-form-label"><?php echo xlt('Card Number'); ?></label>
                                 <div class="controls">
                                     <div class="row">
                                         <div class="col-sm-12">
@@ -1101,7 +1101,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label label-default="label-default" class="control-label"><?php echo xlt('Card CVV'); ?></label>
+                                <label label-default="label-default" class="col-form-label"><?php echo xlt('Card CVV'); ?></label>
                                 <div class="controls">
                                     <div class="row">
                                         <div class="col-md-3">

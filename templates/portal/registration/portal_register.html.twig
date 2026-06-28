@@ -119,11 +119,11 @@
 
         function validateInputs(inputs) {
             let isValid = true;
-            $(".mb-3").removeClass("has-error");
+            inputs.removeClass("is-invalid");
             inputs.each(function () {
                 if (!this.validity.valid) {
                     isValid = false;
-                    $(this).closest(".mb-3").addClass("has-error");
+                    $(this).addClass("is-invalid");
                 }
             });
             return isValid;

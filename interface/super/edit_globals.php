@@ -844,7 +844,7 @@ function checkBackgroundServices(): void
         $(function () {
             tabbify();
             <?php // mdsupport - Highlight search results ?>
-            $('.srch div.control-label').wrapInner("<mark></mark>");
+            $('.srch div.col-form-label').wrapInner("<mark></mark>");
             $('.tab .row.srch :first-child').closest('.tab').each(function () {
                 $('.tabNav li:nth-child(' + ($(this).index() + 1) + ') a').wrapInner("<mark></mark>");
             });

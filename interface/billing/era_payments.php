@@ -370,28 +370,28 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
                             </div>
                             <div class="row">
                                 <div class="mb-3 col-3">
-                                    <label class="control-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
+                                    <label class="col-form-label" for="check_date"><?php echo xlt('Date'); ?>:</label>
                                     <input class="form-control datepicker" id='check_date' name='check_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($check_date); ?>" />
                                 </div>
                                 <div class="mb-3 col-3">
-                                    <label class="control-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
+                                    <label class="col-form-label" for="post_to_date"><?php echo xlt('Post To Date'); ?>:</label>
                                     <input class="form-control datepicker" id='post_to_date' name='post_to_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($post_to_date); ?>" />
                                 </div>
                                 <div class="mb-3 col-3 clearfix">
-                                    <label class="control-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
+                                    <label class="col-form-label" for="form_without"><?php echo xlt('Select'); ?>:</label>
                                     <label class="checkbox">
                                         <input name='form_without'  id='form_without' type='checkbox' value='1' />
                                         <span class="oe-ckbox-label"><?php echo xlt('Without Update'); ?></span>
                                     </label>
                                 </div>
                                 <div class="mb-3 col-3">
-                                    <label class="control-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
+                                    <label class="col-form-label" for="deposit_date"><?php echo xlt('Deposit Date'); ?>:</label>
                                     <input class="form-control datepicker" id='deposit_date' name='deposit_date' onkeydown="PreventIt(event)" type='text' value="<?php echo attr($deposit_date); ?>" />
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="mb-3 col-6">
-                                    <label class="control-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
+                                    <label class="col-form-label" for="type_code"><?php echo xlt('Insurance'); ?>:</label>
                                     <input id="hidden_ajax_close_value" type="hidden" value="<?php echo attr($type_code); ?>" />
                                     <input autocomplete="off" class="form-control" id='type_code' name='type_code' onkeydown="PreventIt(event)"  type="text" value="<?php echo attr($type_code); ?>" />
                                     <br />
@@ -402,7 +402,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
                                     </div>
                                 </div>
                                 <div class="mb-3 col-6">
-                                    <label class="control-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
+                                    <label class="col-form-label" for="div_insurance_or_patient"><?php echo xlt('Insurance ID'); ?>:</label>
                                     <div class="form-control" id="div_insurance_or_patient" >
                                         <?php echo text($hidden_type_code); ?>
                                     </div>

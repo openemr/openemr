@@ -885,9 +885,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 <div class="modal-content">
                   <div class="modal-header pt-2 pt-md-3 pb-2 pb-md-3">
                     <h5 class="modal-title">` + jsText(translations.TELEHEALTH_MODAL_TITLE) + `</h5>
-                    <button type="button" class="close btn-telehealth-provider-close" aria-label="Close">
-                      <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close btn-telehealth-provider-close" aria-label="Close"></button>
                   </div>
                   <div class="modal-body d-flex">
                   ${content}

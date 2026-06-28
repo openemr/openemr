@@ -551,7 +551,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             <div class='col-12'>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="title_field"><?php echo xlt('Title'); ?>:</label>
+                                        <label class="col-form-label" for="title_field"><?php echo xlt('Title'); ?>:</label>
                                         <input id="title_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
@@ -560,7 +560,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="id_field"><?php echo xlt('Identifier(one word)'); ?>:</label>
+                                        <label class="col-form-label" for="id_field"><?php echo xlt('Identifier(one word)'); ?>:</label>
                                         <input id="id_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
@@ -569,7 +569,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="return_field"><?php echo xlt('Return Value'); ?>:</label>
+                                        <label class="col-form-label" for="return_field"><?php echo xlt('Return Value'); ?>:</label>
                                         <select id="return_field" class="form-control">
                                         </select>
                                     </div>
@@ -579,7 +579,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                 </div>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="desc_field"><?php echo xlt('Description'); ?>:</label>
+                                        <label class="col-form-label" for="desc_field"><?php echo xlt('Description'); ?>:</label>
                                         <input id="desc_field" type="text" class="form-control">
                                     </div>
                                     <div class='col-6'>
@@ -605,7 +605,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             <div class='col-12'>
                                 <div class='row'>
                                     <div class='col-4'>
-                                        <label class="control-label" for="acl_field"><?php echo xlt('Group'); ?>:</label>
+                                        <label class="col-form-label" for="acl_field"><?php echo xlt('Group'); ?>:</label>
                                         <select id="acl_field" class='form-control'>
                                         </select>
                                     </div>

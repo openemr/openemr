@@ -17,7 +17,7 @@
     <div class="row">
         <div class="col-12 mb-3">
             <a href="{{ webroot }}/interface/main/main_info.php" class="btn btn-secondary btn-lg" onclick="top.restoreSession()">
-                <i class="fa fa-arrow-left mr-1"></i> {{ 'Return to Calendar'|xlt }}
+                <i class="fa fa-arrow-left me-1"></i> {{ 'Return to Calendar'|xlt }}
             </a>
         </div>
         <div class="col-12">
@@ -26,9 +26,9 @@
         <div class="col-12">
             <form name="theform" id="theform" action="{{ FORM_ACTION|safe_href }}" method="post"> <!-- onsubmit="return top.restoreSession()"> -->
                 <!-- Keywords -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="pc_keywords">{{ 'Keywords'|xlt }}:</label>
-                    <div class="form-row">
+                    <div class="row g-2">
                         <div class="col-md-8">
                             <input type="text" class="form-control" name="pc_keywords" id="pc_keywords"
                                 placeholder="{{ 'Search patients, providers, appointments, or comments'|xla }}"
@@ -44,7 +44,7 @@
                     <small class="form-text text-muted">{{ 'For multiple words, separate with spaces and select AND/OR'|xlt }}</small>
                 </div>
                 <!-- In Category -->
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="pc_category">{{ 'In'|xlt }}:</label>
                     <select class="form-control" name="pc_category" id="pc_category">
                         <option value="">{{ 'Any Category'|xlt }}</option>
@@ -53,7 +53,7 @@
                 </div>
                 <!-- Topic -->
                 {% if USE_TOPICS %}
-                <div class="form-group">
+                <div class="mb-3">
                     <select name="pc_topic">
                         <option value="">{{ 'Any Topic'|xlt }}</option>
                         {{ TOPIC_OPTIONS|raw }}
@@ -62,7 +62,7 @@
                 {% endif %}
                 <br />
                 <!-- Between -->
-                <div class="form-row">
+                <div class="row g-2">
                     <div class="col">
                         <label for="start">{{ 'Between'|xlt }}:</label>
                         <input type="text" class="form-control datepicker" name="start" id="start" value="{{ DATE_START|attr }}" size="10"/>
@@ -74,7 +74,7 @@
                 </div>
                 <br />
                 <!-- For At -->
-                <div class="form-row">
+                <div class="row g-2">
                     <div class="col">
                         <label for="provider_id">{{ 'For'|xlt }}</label>
                         <select class="form-control" name="provider_id" id="provider_id">

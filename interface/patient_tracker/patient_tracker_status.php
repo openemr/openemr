@@ -105,7 +105,7 @@ $row = sqlQuery("select fname, lname " .
         </div>
         <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" enctype="multipart/form-data" >
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="statustype"><?php echo xlt('Status Type'); ?></label>
                 <?php echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type')); ?>
             </div>

@@ -62,17 +62,17 @@ if (isset($_POST["mode"])) {
                     <div class="row pb-2" id="TablePatientPortion">
                         <div class="frames col-3">
                             <input id="hidden_ajax_patient_close_value" type="hidden" value="<?php echo (empty($Message)) ? attr($NameNew ?? '') : '' ;?>" />
-                            <label class="control-label" for="patient_code"><?php echo xlt('Patient'); ?>:</label>
+                            <label class="col-form-label" for="patient_code"><?php echo xlt('Patient'); ?>:</label>
                             <input class="form-control" name='patient_code' class="text" id='patient_code' onKeyDown="PreventIt(event)" value="<?php echo (empty($Message)) ? attr($NameNew ?? '') : '' ;?>" autocomplete="off" />
                         </div>
                         <div class="frames col-2">
-                            <label class="control-label" for="patient_name"><?php echo xlt('Patient Id'); ?>:</label>
+                            <label class="col-form-label" for="patient_name"><?php echo xlt('Patient Id'); ?>:</label>
                             <div class="form-control" name="patient_name" id="patient_name">
                                 <?php echo (empty($Message)) ? text($hidden_patient_code ?? '') : ''; ?>
                             </div>
                         </div>
                         <div class="frames col">
-                            <label class="control-label" for="type_code"><?php echo xlt('Select'); ?>:</label>
+                            <label class="col-form-label" for="type_code"><?php echo xlt('Select'); ?>:</label>
                             <div>
                                 <label class="radio-inline">
                                   <input type="radio" id="Non_Paid" name="RadioPaid" onclick="SearchOnceMore()" <?php echo (empty($_REQUEST['RadioPaid']) || ($_REQUEST['RadioPaid'] == 'Non_Paid')) ? 'checked' : '' ; ?> value="Non_Paid" /><?php echo xlt('Non Paid'); ?>

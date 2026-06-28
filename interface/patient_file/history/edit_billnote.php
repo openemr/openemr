@@ -69,7 +69,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     <div class="container">
         <h2><?php echo xlt('Billing Note'); ?></h2>
         <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
-            <div class="form-group">
+            <div class="mb-3">
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
             </div>

@@ -348,7 +348,7 @@ $vendors = $boot->getVendorGlobals();
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
                 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
-                <div class="form-group">
+                <div class="mb-3">
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
                             <strong>

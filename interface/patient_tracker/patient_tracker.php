@@ -673,7 +673,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 if ($appt_enc != 0) {
                                     echo text($appt_enc);
                                     if (is_numeric($appt_enc) && isset($lockedEncounters[(int)$appt_enc])) {
-                                        echo "<span class='text-success ml-1' title='" . xla('Signed') . "'>"
+                                        echo "<span class='text-success ms-1' title='" . xla('Signed') . "'>"
                                             . "<i class='fa fa-lock' aria-hidden='true'></i>"
                                             . "</span>";
                                     }
