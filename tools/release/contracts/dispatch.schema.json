@@ -15,13 +15,14 @@
   "additionalProperties": false,
   "properties": {
     "event": {
-      "description": "Dispatch event name. Conductor emits the first three; website-openemr emits openemr-docs-binaries to website-openemr-files.",
+      "description": "Dispatch event name. Conductor emits the first three (rel-cut/rel-update/tag) plus release-targets-changed; website-openemr emits openemr-docs-binaries to website-openemr-files.",
       "type": "string",
       "enum": [
         "openemr-rel-cut",
         "openemr-rel-update",
         "openemr-tag",
-        "openemr-docs-binaries"
+        "openemr-docs-binaries",
+        "release-targets-changed"
       ]
     },
     "repo": {
@@ -86,6 +87,16 @@
         },
         "data": {
           "$ref": "#/definitions/docsBinariesData"
+        }
+      }
+    },
+    {
+      "properties": {
+        "event": {
+          "const": "release-targets-changed"
+        },
+        "data": {
+          "$ref": "#/definitions/releaseTargetsChangedData"
         }
       }
     }
@@ -190,6 +201,12 @@
           }
         }
       }
+    },
+    "releaseTargetsChangedData": {
+      "description": "Notification that openemr/openemr's .github/release-targets.yml was updated on master. Carries no event-specific fields; the envelope's sha/actor/dispatched_at fully identify the change. Consumers (e.g. demo_farm_openemr's auto-derive bot) re-read the file directly from openemr/openemr@master.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
     }
   }
 }

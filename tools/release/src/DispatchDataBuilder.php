@@ -40,6 +40,7 @@ final readonly class DispatchDataBuilder
                 'branch' => $this->opts->string('branch'),
                 'version' => $this->opts->string('release-version'),
             ],
+            DispatchRequest::EVENT_RELEASE_TARGETS_CHANGED => [],
             DispatchRequest::EVENT_PROBE => [
                 'note' => 'release-permissions-probe; ignored by consumers',
             ],
