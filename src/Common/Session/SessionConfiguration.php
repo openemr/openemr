@@ -48,7 +48,7 @@ final readonly class SessionConfiguration
             'use_only_cookies' => $this->useOnlyCookies,
             'cookie_samesite' => $this->cookieSameSite,
             'cookie_secure' => $this->cookieSecure,
-            'cooke_httponly' => $this->cookieHttpOnly,
+            'cookie_httponly' => $this->cookieHttpOnly,
             'read_and_close' => $this->readAndClose,
         ];
     }
