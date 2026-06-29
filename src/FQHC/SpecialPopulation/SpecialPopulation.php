@@ -58,6 +58,7 @@ enum SpecialPopulation: string
                 HomelessStatus::DoublingUp->value => HomelessStatus::DoublingUp->label(),
                 HomelessStatus::PermanentSupportiveHousing->value => HomelessStatus::PermanentSupportiveHousing->label(),
                 HomelessStatus::Other->value => HomelessStatus::Other->label(),
+                HomelessStatus::Unknown->value => HomelessStatus::Unknown->label(),
             ],
             self::PublicHousing, self::Veteran, self::SchoolBased => [],
         };

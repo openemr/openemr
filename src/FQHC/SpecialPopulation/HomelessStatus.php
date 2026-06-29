@@ -24,6 +24,7 @@ enum HomelessStatus: string
     case DoublingUp = 'doubling_up';
     case PermanentSupportiveHousing = 'permanent_supportive_housing';
     case Other = 'other';
+    case Unknown = 'unknown';
 
     public function label(): string
     {
@@ -34,6 +35,7 @@ enum HomelessStatus: string
             self::DoublingUp => 'Doubling up',
             self::PermanentSupportiveHousing => 'Permanent supportive housing',
             self::Other => 'Other',
+            self::Unknown => 'Unknown',
         };
     }
 }

@@ -29,6 +29,17 @@ final class SpecialPopulationStatusTest extends TestCase
         self::assertSame('Homeless — Sheltered', $status->displayLabel());
     }
 
+    public function testAcceptsUnknownHomelessSubtype(): void
+    {
+        // UDS Table 4 Line 22: patients known to be homeless whose housing
+        // arrangement is unknown. Required so the homeless total (Line 23) is
+        // complete.
+        $status = new SpecialPopulationStatus(SpecialPopulation::Homeless, 'unknown');
+
+        self::assertSame('Unknown', $status->subtypeLabel());
+        self::assertSame('Homeless — Unknown', $status->displayLabel());
+    }
+
     public function testAgriculturalWorkerSubtype(): void
     {
         $status = new SpecialPopulationStatus(SpecialPopulation::AgriculturalWorker, 'migratory');
@@ -59,7 +70,10 @@ final class SpecialPopulationStatusTest extends TestCase
     public function testSubtypeOptionsCounts(): void
     {
         self::assertCount(2, SpecialPopulation::AgriculturalWorker->subtypeOptions());
-        self::assertCount(6, SpecialPopulation::Homeless->subtypeOptions());
+        // Seven homeless housing types matching UDS Table 4 Lines 17-22
+        // (Shelter, Transitional, Doubling Up, Street, Permanent Supportive
+        // Housing, Other, Unknown).
+        self::assertCount(7, SpecialPopulation::Homeless->subtypeOptions());
         self::assertCount(0, SpecialPopulation::PublicHousing->subtypeOptions());
     }
 }
