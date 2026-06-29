@@ -27,4 +27,29 @@ final readonly class SessionConfiguration
         public bool $readAndClose = false,
     ) {
     }
+
+    /**
+     * Returns an array of session configuration directives, without the
+     * `session.` prefix.
+     *
+     * @see https://www.php.net/manual/en/session.configuration.php
+     * @see https://php.net/session_start
+     *
+     * @return array<string, mixed>
+     */
+    public function toSessionStartOptions(): array
+    {
+        return [
+            'name' => $this->name,
+            'cookie_path' => $this->cookiePath,
+            'gc_maxlifetime' => $this->gcMaxLifetime,
+            'use_strict_mode' => $this->useStrictMode,
+            'use_cookies' => $this->useCookies,
+            'use_only_cookies' => $this->useOnlyCookies,
+            'cookie_samesite' => $this->cookieSameSite,
+            'cookie_secure' => $this->cookieSecure,
+            'cooke_httponly' => $this->cookieHttpOnly,
+            'read_and_close' => $this->readAndClose,
+        ];
+    }
 }
