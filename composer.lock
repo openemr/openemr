@@ -2037,16 +2037,16 @@
         },
         {
             "name": "giggsey/libphonenumber-for-php",
-            "version": "9.0.32",
+            "version": "9.0.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/giggsey/libphonenumber-for-php.git",
-                "reference": "0945459d64ac6f583825bd5b9fa0645bfe791c72"
+                "reference": "13bd0e7a835dcc80315c3d389b34349f4a3214f9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/0945459d64ac6f583825bd5b9fa0645bfe791c72",
-                "reference": "0945459d64ac6f583825bd5b9fa0645bfe791c72",
+                "url": "https://api.github.com/repos/giggsey/libphonenumber-for-php/zipball/13bd0e7a835dcc80315c3d389b34349f4a3214f9",
+                "reference": "13bd0e7a835dcc80315c3d389b34349f4a3214f9",
                 "shasum": ""
             },
             "require": {
@@ -2109,7 +2109,7 @@
                 "issues": "https://github.com/giggsey/libphonenumber-for-php/issues",
                 "source": "https://github.com/giggsey/libphonenumber-for-php"
             },
-            "time": "2026-06-05T07:34:44+00:00"
+            "time": "2026-06-22T10:35:35+00:00"
         },
         {
             "name": "giggsey/locale",
@@ -18603,5 +18603,5 @@
         "ext-zlib": "8.2",
         "php": "8.2"
     },
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.9.0"
 }
