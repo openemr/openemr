@@ -27,7 +27,7 @@
     "@xmldom/xmldom": "0.9.10",
     "compression": "1.8.1",
     "cqm-execution": "4.4.1",
-    "cqm-models": "4.3.1",
+    "cqm-models": "4.3.2",
     "express": "4.22.2",
     "xpath": "0.0.34"
   }
