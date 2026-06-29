@@ -47,7 +47,7 @@ jobs:
     - name: Restore PHPStan Cache
       # https://phpstan.org/user-guide/result-cache
       id: phpstan-cache
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: tmp-phpstan # same as in phpstan.neon
         key: phpstan-result-cache-${{ steps.phpstan-version.outputs.version }}-${{ hashFiles('phpstan.neon.dist', '.phpstan/**', 'tests/PHPStan/**') }}-${{ github.run_id }}
@@ -103,7 +103,7 @@ jobs:
     # speeds up the next run.
     - name: Save PHPStan Cache
       if: always()
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         path: tmp-phpstan
         key: ${{ steps.phpstan-cache.outputs.cache-primary-key }}

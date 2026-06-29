@@ -182,7 +182,7 @@ jobs:
     # We don't need to run composer install at all if we get a hit.
     - name: Restore vendor artifacts
       id: vendor-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -211,7 +211,7 @@ jobs:
     - name: Restore composer downloads
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -246,7 +246,7 @@ jobs:
     # This does not include ccda.
     - name: Restore npm build artifacts
       id: npm-build-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -276,7 +276,7 @@ jobs:
     # We don't need to run npm ci in ccdaservice at all if we get a hit.
     - name: Restore CCDA build artifacts
       id: ccda-build-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: |
           ccdaservice/node_modules/
@@ -306,7 +306,7 @@ jobs:
     - name: Restore npm cache
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
@@ -351,14 +351,14 @@ jobs:
     # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
     - name: Save npm cache
       if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
       if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         path: |
@@ -367,7 +367,7 @@ jobs:
 
     - name: Save NPM build artifacts
       if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -377,14 +377,14 @@ jobs:
 
     - name: Save composer cache
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
 
     - name: Save vendor artifacts
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -495,7 +495,7 @@ jobs:
     ##
     # Restore build artifacts from GHA cache (populated by setup job)
     - name: Restore vendor artifacts
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ needs.setup.outputs.vendor_key }}
         path: vendor/
@@ -504,7 +504,7 @@ jobs:
           ${{ runner.os }}-vendor-
 
     - name: Restore npm build artifacts
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ needs.setup.outputs.npm_build_key }}
         path: |
@@ -516,7 +516,7 @@ jobs:
           ${{ runner.os }}-npm-build-
 
     - name: Restore CCDA build artifacts
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ needs.setup.outputs.ccda_build_key }}
         path: |
