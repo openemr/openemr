@@ -88,9 +88,10 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Release bullet count matches release-targets.yml row count.
+# 3. Release bullet count matches release-targets.yml row count (excluding
+#    `unreleased: true` placeholder rows, which the renderer skips).
 # ---------------------------------------------------------------------------
-EXPECTED_RELEASE_ROWS=$(yq -r '. | length' "${RELEASE_TARGETS}")
+EXPECTED_RELEASE_ROWS=$(yq -r '[.[] | select(.unreleased != true)] | length' "${RELEASE_TARGETS}")
 # Release bullets link into docker/release on a branch; flex bullets link
 # into docker/flex on master. Distinguish on the link substring.
 ACTUAL_RELEASE_BULLETS=$(grep -cE '^\* `.*\[Dockerfile\]\(https://github\.com/openemr/openemr/blob/[^)]+/docker/release/Dockerfile\)' "${RENDERED}" || true)
@@ -144,7 +145,7 @@ fi
 #    `latest` in release-targets.yml. Catches the renderer using a different
 #    row's version (or picking the wrong tag from a multi-tag row).
 # ---------------------------------------------------------------------------
-EXPECTED_LATEST=$(yq -r '.[] | select(.docker_tags | split(",") | map(. == "latest") | any) | .docker_tags' "${RELEASE_TARGETS}" \
+EXPECTED_LATEST=$(yq -r '.[] | select(.unreleased != true) | select(.docker_tags | split(",") | map(. == "latest") | any) | .docker_tags' "${RELEASE_TARGETS}" \
     | head -1 | tr ',' '\n' | grep -E '^[0-9]+(\.[0-9]+)+$' | head -1)
 ACTUAL_LATEST=$(grep -oE 'Current production OpenEMR version is [0-9]+(\.[0-9]+)+' "${RENDERED}" \
     | sed 's/Current production OpenEMR version is //')
@@ -197,24 +198,32 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 10. Every release-targets.yml branch shows up exactly once in a release
-#     bullet's Dockerfile link. Catches a row silently getting skipped (which
+# 10. Every release-targets.yml branch's Dockerfile link occurs in the
+#     rendered output exactly as many times as it has non-unreleased rows.
+#     A single-row branch -> 1 bullet. A multi-row branch (e.g., rel-810
+#     during dev mode with both a new-dev row and a prior-stable row) ->
+#     N bullets. Rows flagged `unreleased: true` don't count -- the
+#     renderer skips them. Catches a row silently getting skipped (which
 #     check 3 also catches via count), AND a row getting rendered against
 #     the wrong branch (which check 3 wouldn't catch).
 # ---------------------------------------------------------------------------
+declare -A EXPECTED_BULLETS_PER_BRANCH
+while read -r BRANCH; do
+    EXPECTED_BULLETS_PER_BRANCH[${BRANCH}]=$(( ${EXPECTED_BULLETS_PER_BRANCH[${BRANCH}]:-0} + 1 ))
+done < <(yq -r '.[] | select(.unreleased != true) | .branch' "${RELEASE_TARGETS}")
 MISSING_BRANCHES=()
-mapfile -t TARGET_BRANCHES < <(yq -r '.[].branch' "${RELEASE_TARGETS}")
-for BRANCH in "${TARGET_BRANCHES[@]}"; do
+for BRANCH in "${!EXPECTED_BULLETS_PER_BRANCH[@]}"; do
+    EXPECTED="${EXPECTED_BULLETS_PER_BRANCH[${BRANCH}]}"
     OCCURRENCES=$(grep -cE "blob/${BRANCH}/docker/release/Dockerfile" "${RENDERED}" || true)
-    if [[ "${OCCURRENCES}" -ne 1 ]]; then
-        MISSING_BRANCHES+=("${BRANCH}(${OCCURRENCES})")
+    if [[ "${OCCURRENCES}" -ne "${EXPECTED}" ]]; then
+        MISSING_BRANCHES+=("${BRANCH}(${OCCURRENCES}/expected ${EXPECTED})")
     fi
 done
 if [[ ${#MISSING_BRANCHES[@]} -eq 0 ]]; then
-    assert "every release-targets.yml branch appears in exactly one release bullet" pass
+    assert "every release-targets.yml branch appears as the expected number of release bullets" pass
 else
-    assert "every release-targets.yml branch appears in exactly one release bullet" fail \
-        "expected count != 1 for: ${MISSING_BRANCHES[*]}"
+    assert "every release-targets.yml branch appears as the expected number of release bullets" fail \
+        "branch(actual/expected) mismatch: ${MISSING_BRANCHES[*]}"
 fi
 
 # ---------------------------------------------------------------------------
@@ -227,7 +236,7 @@ RELEASE_BULLET_LINES=$(grep -nE '^\* `.*\[Dockerfile\]\(https://github\.com/open
 FIRST_RELEASE_LINE=$(printf '%s\n' "${RELEASE_BULLET_LINES}" | head -1)
 LAST_RELEASE_LINE=$(printf '%s\n' "${RELEASE_BULLET_LINES}" | tail -1)
 ORDER_ERRORS=()
-LATEST_PRESENT=$(yq -r '.[] | select(.docker_tags | split(",") | map(. == "latest") | any) | .branch' "${RELEASE_TARGETS}" | head -1)
+LATEST_PRESENT=$(yq -r '.[] | select(.unreleased != true) | select(.docker_tags | split(",") | map(. == "latest") | any) | .branch' "${RELEASE_TARGETS}" | head -1)
 if [[ -n "${LATEST_PRESENT}" ]]; then
     # Backticks below are literal markdown code-span delimiters; single
     # quotes prevent shell interpretation, not expansion.
@@ -236,7 +245,7 @@ if [[ -n "${LATEST_PRESENT}" ]]; then
         ORDER_ERRORS+=("first release bullet missing \`latest\`")
     fi
 fi
-DEV_NEXT_PRESENT=$(yq -r '.[] | select(.docker_tags | split(",") | map(. == "dev" or . == "next") | any) | .branch' "${RELEASE_TARGETS}" | head -1)
+DEV_NEXT_PRESENT=$(yq -r '.[] | select(.unreleased != true) | select(.docker_tags | split(",") | map(. == "dev" or . == "next") | any) | .branch' "${RELEASE_TARGETS}" | head -1)
 if [[ -n "${DEV_NEXT_PRESENT}" ]]; then
     # shellcheck disable=SC2016
     if ! sed -n "${LAST_RELEASE_LINE}p" "${RENDERED}" | grep -qE '`(dev|next)`'; then

@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Tests\Isolated\Common\Session;
 
+use OpenEMR\Common\Session\SessionConfiguration;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
@@ -96,11 +97,12 @@ class SessionUtilReadAndCloseTest extends TestCase
     private function createReadAndCloseSession(): array
     {
         // First create a writable session to establish session data
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestSessionUtil'));
         $setupSession->start();
         // Sentinel value prevents write() from short-circuiting to destroy()
@@ -110,12 +112,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Now open the same session with read_and_close
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new WriteThroughSession($storage, new AttributeBag('TestSessionUtil'));
         $session->start();
 
@@ -156,12 +159,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify the data was persisted
         session_id($ctx['sessionId']);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestSessionUtil'));
         $verifySession->start();
 
@@ -188,12 +192,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify persistence
         session_id($ctx['sessionId']);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestSessionUtil'));
         $verifySession->start();
 
@@ -206,11 +211,12 @@ class SessionUtilReadAndCloseTest extends TestCase
      */
     public function testSetSessionWorksWithWritableSession(): void
     {
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestWritable',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestWritable',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $session = new Session($storage, new AttributeBag('TestWritable'));
         $session->start();
 
@@ -241,11 +247,12 @@ class SessionUtilReadAndCloseTest extends TestCase
     public function testUnsetSessionReopensAndClosesReadAndCloseSession(): void
     {
         // Create session with initial data
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestUnset',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestUnset',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestUnset'));
         $setupSession->start();
         $setupSession->set('to_remove', 'exists');
@@ -255,12 +262,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Reopen with read_and_close
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestUnset',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestUnset',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new Session($storage, new AttributeBag('TestUnset'));
         $session->start();
 
@@ -275,12 +283,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify the key was removed and the other key remains
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestUnset',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestUnset',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestUnset'));
         $verifySession->start();
 
@@ -300,11 +309,12 @@ class SessionUtilReadAndCloseTest extends TestCase
      */
     public function testUnsetSessionArrayReopensAndClosesReadAndCloseSession(): void
     {
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestUnsetArr',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestUnsetArr',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestUnsetArr'));
         $setupSession->start();
         $setupSession->set('rem1', 'a');
@@ -314,12 +324,13 @@ class SessionUtilReadAndCloseTest extends TestCase
         $setupSession->save();
 
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestUnsetArr',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestUnsetArr',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new Session($storage, new AttributeBag('TestUnsetArr'));
         $session->start();
 
@@ -330,12 +341,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestUnsetArr',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestUnsetArr',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestUnsetArr'));
         $verifySession->start();
 
@@ -353,11 +365,12 @@ class SessionUtilReadAndCloseTest extends TestCase
      */
     public function testSetUnsetSessionReopensAndClosesReadAndCloseSession(): void
     {
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSetUnset',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSetUnset',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestSetUnset'));
         $setupSession->start();
         $setupSession->set('old_key', 'old_value');
@@ -365,12 +378,13 @@ class SessionUtilReadAndCloseTest extends TestCase
         $setupSession->save();
 
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSetUnset',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSetUnset',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new Session($storage, new AttributeBag('TestSetUnset'));
         $session->start();
 
@@ -388,12 +402,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSetUnset',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSetUnset',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestSetUnset'));
         $verifySession->start();
 
@@ -437,12 +452,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify all three values were persisted
         session_id($ctx['sessionId']);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestSessionUtil'));
         $verifySession->start();
 
@@ -457,11 +473,12 @@ class SessionUtilReadAndCloseTest extends TestCase
     public function testMixedSetAndUnsetSessionCallsPersistOnReadAndCloseSession(): void
     {
         // Create session with initial data
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestMixed',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestMixed',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestMixed'));
         $setupSession->start();
         $setupSession->set('existing_key', 'old_value');
@@ -470,12 +487,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Open with read_and_close
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestMixed',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestMixed',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new Session($storage, new AttributeBag('TestMixed'));
         $session->start();
 
@@ -489,12 +507,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestMixed',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestMixed',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestMixed'));
         $verifySession->start();
 
@@ -543,12 +562,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify persistence
         session_id($ctx['sessionId']);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestSessionUtil'));
         $verifySession->start();
 
@@ -565,11 +585,12 @@ class SessionUtilReadAndCloseTest extends TestCase
     public function testClearSessionReopensAndClosesReadAndCloseSession(): void
     {
         // Create session with initial data
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClear',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClear',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestClear'));
         $setupSession->start();
         $setupSession->set('key1', 'value1');
@@ -580,12 +601,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Reopen with read_and_close
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClear',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClear',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new Session($storage, new AttributeBag('TestClear'));
         $session->start();
 
@@ -603,12 +625,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify all keys were removed
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClear',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClear',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestClear'));
         $verifySession->start();
 
@@ -623,11 +646,12 @@ class SessionUtilReadAndCloseTest extends TestCase
      */
     public function testClearSessionWorksWithWritableSession(): void
     {
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClearWritable',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClearWritable',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $session = new Session($storage, new AttributeBag('TestClearWritable'));
         $session->start();
         $session->set('key1', 'value1');
@@ -650,11 +674,12 @@ class SessionUtilReadAndCloseTest extends TestCase
     public function testSetSessionAfterClearSessionOnReadAndCloseSession(): void
     {
         // Create session with initial data
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClearThenSet',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClearThenSet',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestClearThenSet'));
         $setupSession->start();
         $setupSession->set('old_key', 'old_value');
@@ -663,12 +688,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Reopen with read_and_close
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClearThenSet',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClearThenSet',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new Session($storage, new AttributeBag('TestClearThenSet'));
         $session->start();
 
@@ -681,12 +707,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify old data gone, new data present
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestClearThenSet',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestClearThenSet',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestClearThenSet'));
         $verifySession->start();
 
@@ -722,12 +749,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify data is persisted to the session file
         session_id($ctx['sessionId']);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestSessionUtil',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestSessionUtil',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestSessionUtil'));
         $verifySession->start();
 
@@ -747,11 +775,12 @@ class SessionUtilReadAndCloseTest extends TestCase
     public function testDirectRemoveOnReadAndCloseSessionPersists(): void
     {
         // Create session with initial data
-        $setupStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestDirectRemove',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $setupStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestDirectRemove',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $setupSession = new Session($setupStorage, new AttributeBag('TestDirectRemove'));
         $setupSession->start();
         $setupSession->set('relogin', 1);
@@ -760,12 +789,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Reopen with read_and_close
         session_id($sessionId);
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestDirectRemove',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestDirectRemove',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new WriteThroughSession($storage, new AttributeBag('TestDirectRemove'));
         $session->start();
 
@@ -779,12 +809,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         // Verify the removal persisted
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestDirectRemove',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestDirectRemove',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestDirectRemove'));
         $verifySession->start();
 
@@ -810,12 +841,13 @@ class SessionUtilReadAndCloseTest extends TestCase
         $factory = SessionWrapperFactory::getInstance();
 
         // readOnly defaults to true, so this creates a read_and_close session
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestOrdering',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestOrdering',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $session = new WriteThroughSession($storage, new AttributeBag('TestOrdering'));
         $session->start();
         $sessionId = $session->getId();
@@ -838,12 +870,13 @@ class SessionUtilReadAndCloseTest extends TestCase
         $session->set('late_write', 'should_persist');
 
         session_id($sessionId);
-        $verifyStorage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestOrdering',
-            'read_and_close' => true,
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestOrdering',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+            readAndClose: true,
+        ));
         $verifySession = new Session($verifyStorage, new AttributeBag('TestOrdering'));
         $verifySession->start();
 
@@ -864,11 +897,12 @@ class SessionUtilReadAndCloseTest extends TestCase
      */
     public function testSetSessionWorksWhenStorageIsNull(): void
     {
-        $storage = new ReadAndCloseNativeSessionStorage([
-            'name' => 'TestNullStorage',
-            'use_cookies' => false,
-            'use_only_cookies' => false,
-        ]);
+        $storage = new ReadAndCloseNativeSessionStorage(new SessionConfiguration(
+            name: 'TestNullStorage',
+            cookiePath: '/',
+            useCookies: false,
+            useOnlyCookies: false,
+        ));
         $session = new Session($storage, new AttributeBag('TestNullStorage'));
         $session->start();
 

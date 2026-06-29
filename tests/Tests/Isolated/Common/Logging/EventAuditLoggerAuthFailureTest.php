@@ -56,7 +56,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
     private function makeLogger(SinkInterface $sink): EventAuditLogger
     {
         return new EventAuditLogger(
-            sinks: [$sink],
+            sink: $sink,
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
@@ -72,8 +72,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertSame('mfa', $event->event);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -91,8 +90,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertSame(0, $event->success);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -114,8 +112,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertStringContainsString('TOTP code incorrect', $decoded);
                 self::assertStringStartsWith('failure:', $decoded);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -134,8 +131,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 self::assertSame('drsmith', $event->user);
                 self::assertSame('physicians', $event->group);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -153,8 +149,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertSame('', $event->user);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -172,8 +167,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertNull($event->patientId);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -191,8 +185,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
             ->with(self::callback(function (Event $event): bool {
                 self::assertSame(42, $event->patientId);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),
@@ -214,8 +207,7 @@ class EventAuditLoggerAuthFailureTest extends TestCase
                 $decoded = base64_decode($event->comments);
                 self::assertStringContainsString('10.0.0.1', $decoded);
                 return true;
-            }))
-            ->willReturn(true);
+            }));
 
         $this->makeLogger($sink)->logAuthFailure(
             AuthEvent::mfa(),

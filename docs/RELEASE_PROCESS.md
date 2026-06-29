@@ -2,7 +2,7 @@
 
 This document is the **complete release runbook** for tagged OpenEMR releases — every step from pre-release QA through post-release announcements, including the parts that are automated, the parts that aren't yet, and the parts that are irreducibly manual.
 
-The automation core spans four repositories and is driven by `repository_dispatch` events emitted by this repo as the conductor. Three of them open reviewable PRs that cover code/version bumps, install/upgrade/release-notes pages, and CI/Docker pin rotation; the fourth (`demo_farm_openemr`) is updated by a direct automated push rather than a PR. Two steps are still done by hand today (merging the `website-openemr` docs PR, social/forum/email announcement fan-out); see [Automation gaps](#automation-gaps).
+The automation core spans four repositories and is driven by `repository_dispatch` events emitted by this repo as the conductor. Three of them open reviewable PRs — the conductor PR here (code/version bumps), the docs PR in `website-openemr` (install/upgrade/release-notes pages), and the auto-derive reconciliation PR in `demo_farm_openemr` (`ip_map_branch.txt` + `demoLibrary.source` regenerated from upstream state). The fourth (`openemr-devops`) consumes `openemr-tag` to produce the GitHub Release object + per-channel announcement drafts. Two steps are still done by hand today (merging the `website-openemr` docs PR, social/forum/email announcement fan-out); see [Automation gaps](#automation-gaps).
 
 For background on why the flow is shaped this way, see [openemr/openemr-devops#664](https://github.com/openemr/openemr-devops/issues/664). For the per-slice plan documents, see the [Slice plans](#slice-plans) section below. For the end-to-end ordered checklist a release manager actually walks through, jump to [Release runbook](#release-runbook).
 
@@ -12,8 +12,8 @@ For background on why the flow is shaped this way, see [openemr/openemr-devops#6
 | --- | --- |
 | [`openemr/openemr`](https://github.com/openemr/openemr) | **Conductor.** Owns the release-prep PR. Merging it is the "we're shipping" decision; the merge commit gets the annotated release tag. Emits `repository_dispatch` to `openemr-devops`, `website-openemr`, and `demo_farm_openemr`. |
 | [`openemr/website-openemr`](https://github.com/openemr/website-openemr) | **Docs consumer.** Subscribes to `rel-*` and tag events. Generates per-version Hugo pages (install, upgrade, OpenAPI, release notes draft, acknowledgements). On `openemr-tag` it also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation and publishes it under `/documentation/<version>/b10/` (tracked by git-lfs) in the same docs PR. DRAFT until the tag event flips it to FINAL. |
-| [`openemr/openemr-devops`](https://github.com/openemr/openemr-devops) | **Infra consumer.** Subscribes to `rel-*` and tag events. Rotates the `current` / `next` / `dev` slot in CI matrices and package versions. Owns the canonical source for the cross-repo dispatch contract and tag verifier. Note: Docker pins now rotate in **this repo** via [`.github/release-targets.yml`](../.github/release-targets.yml) after the docker pipeline migration (see [`docker-migration-from-devops.md`](docker-migration-from-devops.md)); the openemr-devops rotation workflow's docker-pin slice is part of the deferred release-mechanism follow-up. |
-| [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr) | **Demo-farm consumer.** Subscribes to the `openemr-tag` event. `bump-tag.yml` rewrites matching production-demo rows in `ip_map_branch.txt` and pushes directly to `master` (no reviewable PR); the demo-farm host's nightly reset picks up the new tag. |
+| [`openemr/openemr-devops`](https://github.com/openemr/openemr-devops) | **Build/announcements consumer.** Subscribes to `openemr-tag`. `build-release-on-tag.yml` produces distribution packages + checksums + the GitHub Release object; `release-announcements.yml` renders per-channel announcement drafts (forum, chat, social, mail) into a workflow artifact. Also owns the canonical source for the cross-repo dispatch contract (`dispatch.schema.json`) and tag verifier (`TagVerifier`). The CI matrix / package pin rotation slice was retired in the release-mechanism cleanup (post-docker-migration: Docker pins live in **this repo**'s [`.github/release-targets.yml`](../.github/release-targets.yml); CI matrix rotation went away with the slot system). |
+| [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr) | **Demo-farm consumer.** Subscribes to `release-targets-changed`. The `derive-ip-map` auto-derive bot regenerates `ip_map_branch.txt` + `docker/scripts/demoLibrary.source` from upstream `openemr/openemr` state (`.github/release-targets.yml` + per-rel-branch Dockerfile ARGs + `ci/apache_*` listing + flex Dockerfile). On diff it force-pushes the stable `auto-derive/reconciliation` branch and opens (or updates) a reviewable PR titled `[auto-derive] reconcile demo_farm against upstream openemr master`; on no-diff it closes any open reconciliation PR and deletes the branch. Runs on the `release-targets-changed` dispatch (immediate), a daily 07:00 UTC cron (self-healing fallback), and `workflow_dispatch` (manual). A maintainer merges the PR and manually updates wiki pages if applicable; the demo-farm host's nightly reset then picks up the new pins. |
 
 ## Cross-repo flow
 
@@ -38,12 +38,11 @@ flowchart TB
     end
 
     subgraph od["openemr/openemr-devops"]
-        ship{{"ship-release.yml<br/>merges 3 PRs in order"}}
-        infraPR(["release-rotation/auto PR<br/>reviewable"])
+        ship{{"ship-release.yml<br/>merges 2 PRs in order"}}
     end
 
     subgraph df["openemr/demo_farm_openemr"]
-        bump{{"bump-tag.yml<br/>direct push to master"}}
+        derivePR(["auto-derive/reconciliation PR<br/>reviewable"])
     end
 
     cut -->|push rel-*| prepPR
@@ -51,42 +50,39 @@ flowchart TB
     edit -.-> docsPR
     sign -.-> docsPR
     trigger -->|workflow_dispatch| ship
-    ship -->|1. merges| infraPR
-    ship -->|2. merges| prepPR
-    ship -->|3. merges| docsPR
+    ship -->|1. merges| prepPR
+    ship -->|2. merges| docsPR
 
     prepPR ==>|merge creates| tag
     tag -. "build-release-on-tag.yml" .-> rel
 
     prepPR -. openemr-rel-cut .-> docsPR
     prepPR -. openemr-rel-update .-> docsPR
-    prepPR -. openemr-rel-cut .-> infraPR
-    prepPR -. openemr-rel-update .-> infraPR
     tag -. openemr-tag .-> docsPR
-    tag -. openemr-tag .-> infraPR
-    tag -. openemr-tag .-> bump
+    oe -. release-targets-changed<br/>(master push touching<br/>.github/release-targets.yml) .-> derivePR
 
     classDef manualStep fill:#fff4cc,stroke:#b58900
     classDef autoArtifact fill:#e8f0ff,stroke:#3b6fb8
     classDef autoTag fill:#d4f1d4,stroke:#2a7f2a
     classDef autoWorkflow fill:#f0e8ff,stroke:#7a3bb8
     class cut,edit,sign,trigger manualStep
-    class prepPR,docsPR,infraPR autoArtifact
+    class prepPR,docsPR,derivePR autoArtifact
     class tag autoTag
-    class ship,bump autoWorkflow
+    class ship autoWorkflow
 ```
 
-**Legend.** Yellow nodes are maintainer actions. Blue nodes are reviewable PRs that workflows open and force-update on every dispatch. The green node is the annotated tag the conductor creates on merge. Purple hexagons are workflows: `ship-release.yml` (in `openemr-devops`), which an operator triggers via `workflow_dispatch` to merge the three PRs in order (infra → conductor → docs) with mergeability gates; and `bump-tag.yml` (in `demo_farm_openemr`), which consumes `openemr-tag` and pushes the new tag to the demo-farm config directly. Solid arrows are git/PR actions and workflow triggers; dotted arrows are `repository_dispatch` events labeled with the event name.
+**Legend.** Yellow nodes are maintainer actions. Blue nodes are reviewable PRs that workflows open and force-update on every dispatch (the conductor PR, the docs PR, and the demo_farm auto-derive reconciliation PR). The green node is the annotated tag the conductor creates on merge. Purple hexagons are workflows: `ship-release.yml` in `openemr-devops`, which an operator triggers via `workflow_dispatch` to merge the two release-cycle PRs in order (conductor → docs) with mergeability gates. The demo_farm reconciliation PR is opened by the `derive-ip-map` bot in `demo_farm_openemr`, which re-derives `ip_map_branch.txt` + `demoLibrary.source` from upstream `openemr/openemr` state and writes the result via a reviewable PR; it runs on the `release-targets-changed` dispatch (fired by this repo on pushes to master that touch `.github/release-targets.yml`), a daily 07:00 UTC cron (self-healing fallback), and `workflow_dispatch`. The `openemr-tag` event also flows to `openemr-devops`'s `build-release-on-tag.yml` (which produces the GitHub Release object) and `release-announcements.yml` (which renders per-channel announcement drafts) — both omitted from the diagram to keep the cross-repo PR flow legible. Solid arrows are git/PR actions and workflow triggers; dotted arrows are `repository_dispatch` events labeled with the event name.
 
 ## Cross-repo events
 
-The conductor in `openemr/openemr` emits `repository_dispatch` on every push to `rel-*` and on tag creation, targeting `openemr/openemr-devops`, `openemr/website-openemr`, and `openemr/demo_farm_openemr`. Consumers subscribe via the matching `repository_dispatch` workflow trigger; `demo_farm_openemr` acts only on `openemr-tag`.
+`openemr/openemr` emits `repository_dispatch` on every push to `rel-*`, on tag creation, and on master pushes that change `.github/release-targets.yml`, targeting `openemr/openemr-devops`, `openemr/website-openemr`, and `openemr/demo_farm_openemr`. Consumers subscribe via the matching `repository_dispatch` workflow trigger; `demo_farm_openemr` acts on `release-targets-changed` (its auto-derive bot is the canonical writer for the demo-farm config) and is no longer a consumer of `openemr-tag`.
 
 | Event | Emitter → target | When | `data` payload |
 | --- | --- | --- | --- |
-| `openemr-rel-cut` | `openemr/openemr` → devops, website-openemr | First push to a new `rel-*` branch | `{ branch, version, prev_release }` |
-| `openemr-rel-update` | `openemr/openemr` → devops, website-openemr | Subsequent push to an existing `rel-*` branch | `{ branch, version, prev_release }` |
-| `openemr-tag` | `openemr/openemr` → devops, website-openemr, demo_farm_openemr | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
+| `openemr-rel-cut` | `openemr/openemr` → website-openemr | First push to a new `rel-*` branch | `{ branch, version, prev_release }` |
+| `openemr-rel-update` | `openemr/openemr` → website-openemr | Subsequent push to an existing `rel-*` branch | `{ branch, version, prev_release }` |
+| `openemr-tag` | `openemr/openemr` → devops, website-openemr | Annotated tag created on `rel-*` HEAD | `{ tag, branch, version }` |
+| `release-targets-changed` | `openemr/openemr` → demo_farm_openemr | Push to `master` touching `.github/release-targets.yml` (emitted by [`.github/workflows/notify-release-targets-changed.yml`](../.github/workflows/notify-release-targets-changed.yml)) | `{}` (no event-specific fields; the common envelope's `sha`, `actor`, and `dispatched_at` fully identify the change) |
 
 Common envelope on every event: `{ event, repo, sha, actor, dispatched_at, data }`.
 
@@ -108,18 +104,6 @@ Long-lived PR per release. Generated content: install/upgrade Hugo pages, OpenAP
 
 On the `openemr-tag` event, the same workflow also regenerates the EHI / ONC (b)(10) SchemaSpy schema documentation from the tagged release's schema and commits it under `static/documentation/<version>/b10/` (tracked by git-lfs) in this same docs PR. It is served at `/documentation/<version>/b10/`. The table set in scope is read from `Documentation/EHI_Export/b10-tables.yml` in the tagged openemr checkout, so it always matches that release's schema.
 
-### Infra PR — `release-rotation/auto` in `openemr/openemr-devops`
-
-Long-lived PR against `master`, force-updated on each dispatch. Rotates the three CI/version slots:
-
-| Slot | Meaning |
-| --- | --- |
-| `current` | Most recent tagged release |
-| `next` | Active `rel-*` branch (release candidate) |
-| `dev` | Head of master (edge) |
-
-Touches CI matrices, package version refs, raspberrypi pinned versions. Driven by `tools/release/versions.yml`. Note: Docker pinned versions used to be rotated by this workflow too; that slice now lives in **this repo**'s [`.github/release-targets.yml`](../.github/release-targets.yml) per the docker pipeline migration (see [`docker-migration-from-devops.md`](docker-migration-from-devops.md)). The openemr-devops rotation workflow's docker-pin handling is part of the deferred release-mechanism follow-up.
-
 ## Orientation: finding the current release state
 
 This document describes the *process*. The *current* state lives in Git and the GitHub API — discover it before acting; do not assume a release is or isn't in flight.
@@ -132,11 +116,10 @@ This document describes the *process*. The *current* state lives in Git and the 
     --jq '.[] | select(.headRefName | startswith("release-prep/"))'
   ```
 
-- **The three sibling PRs** (given a version `X.Y.Z` and branch `rel-<MAJOR><MINOR>0`):
+- **The two sibling PRs** (given a version `X.Y.Z` and branch `rel-<MAJOR><MINOR>0`):
 
   ```
   gh pr list --repo openemr/openemr        --state open --json number,headRefName --jq '.[]|select(.headRefName|startswith("release-prep/"))'   # conductor
-  gh pr list --repo openemr/openemr-devops --head release-rotation/auto --state open                                                          # infra
   gh pr list --repo openemr/website-openemr --head "release-docs/X.Y.Z" --state open                                                          # docs
   ```
 
@@ -161,10 +144,9 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 
 ### Phase 2 — Branch cut and PR generation
 
-2. **[Manual — judgment]** Cut the release branch: `rel-<MAJOR><MINOR>0` (e.g. `rel-810`) from `master`. This is the only step that creates new state from nothing. When this is a **new minor line** (no prior `rel-<MAJOR><MINOR>0` released), seed the [`demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr) production-demo rows for that line (`branch_tag=tag` rows on the `<MAJOR>.<MINOR>` line) before the first tag — `bump-tag.yml` only advances rows whose existing tag shares the new tag's `MAJOR.MINOR`, so an unseeded minor would silently skip step 15.
+2. **[Manual — judgment]** Cut the release branch: `rel-<MAJOR><MINOR>0` (e.g. `rel-810`) from `master`. This is the only step that creates new state from nothing. The demo-farm side requires no manual seeding for new minor lines — the `derive-ip-map` bot in `demo_farm_openemr` derives `ip_map_branch.txt` and `demoLibrary.source` entirely from upstream `openemr/openemr` state (chiefly `.github/release-targets.yml` plus per-rel-branch Dockerfile ARGs), so a new minor flows through naturally once it's represented in `release-targets.yml` (see step 15).
 3. **[Automated]** Conductor workflow (`release-prep.yml` in `openemr/openemr`) opens or updates the `release-prep/<rel-branch>` draft PR with all mechanical version bumps. Re-fires on every relevant push.
 4. **[Automated]** Docs workflow (in `website-openemr`) opens or updates the `release-docs/<version>` draft PR with install/upgrade pages, OpenAPI YAML, release-notes draft, acknowledgements, Hugo aliases. Pages render with a `DRAFT — based on rel-* @ <sha>` banner.
-5. **[Automated]** Infra workflow (`release-rotation.yml` in `openemr-devops`) opens or updates the `release-rotation/auto` draft PR rotating CI/version slots.
 
 ### Phase 3 — Manual editorial work (in the open PRs)
 
@@ -172,15 +154,15 @@ The complete ordered checklist for cutting a release. Each step is marked **[Aut
 7. **[Manual — judgment]** *(Major releases only)* In the `website-openemr` PR, sign off on the ONC Ambulatory EHR Certification Requirements page.
 8. **[Manual — judgment]** *(Major releases only)* Write the marketing piece for the website.
 
-### Phase 4 — Ship: merge the three PRs
+### Phase 4 — Ship: merge the two PRs
 
-The three PRs merge in strict order **infra → conductor → docs.** Infra readies CI for the new branch; the conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and triggers the infra rotation's `next` → `current` promotion); merging the docs PR ships the now-FINAL pages.
+The two PRs merge in strict order **conductor → docs.** The conductor merge creates the annotated tag (which flips the docs PR's banner from DRAFT to FINAL and fires the `openemr-tag` cascade for the Release object and announcement drafts); merging the docs PR ships the now-FINAL pages. The demo-farm reconciliation runs on its own track — see step 15.
 
-> **Today the `website-openemr` docs PR is merged by hand.** The ship automation does not yet merge it: after the conductor merge creates the tag, an operator manually merges the `release-docs/<version>` PR to ship its pages. Automating this merge on `openemr-tag` is a tracked gap — see [Automation gaps](#automation-gaps).
+> **Manual prerequisite before triggering ship-release:** the `release-docs/<version>` PR on `website-openemr` is opened as a GitHub **draft** by its generator workflow. An operator must mark it Ready in the GitHub UI before ship-release.yml's preflight will pass — preflight rejects draft PRs as "not ready" (`PullRequestReadiness` checks `isDraft`). Once the docs PR is Ready, ship-release.yml merges both PRs (conductor → docs) in order. Automating the mark-Ready step on `openemr-tag` is a tracked gap — see [Automation gaps](#automation-gaps).
 
-9. **[Automated]** Run the **ship-release workflow** in `openemr-devops` (`workflow_dispatch` on `.github/workflows/ship-release.yml`, or `task release:ship` locally for a dry-run). One operator action: pick the version + rel-branch and trigger. The workflow locates the three sibling PRs by branch convention, posts a `release/ship-approved` commit status on each, and merges in order with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles partial-merge recovery — see [Partial merges and recovery](#partial-merges-and-recovery)).
+9. **[Automated]** Run the **ship-release workflow** in `openemr-devops` (`workflow_dispatch` on `.github/workflows/ship-release.yml`, or `task release:ship` locally for a dry-run). One operator action: pick the version + rel-branch and trigger. The workflow locates the two sibling PRs by branch convention, posts a `release/ship-approved` commit status on each, and merges in order (conductor → docs) with mergeability gates between steps. Already-merged PRs are detected and skipped (so the same trigger handles the replayable PR-merge recovery cases — see [Partial merges and recovery](#partial-merges-and-recovery); docs-first and out-of-band-tag states still need manual handling). The docs PR must already be marked Ready (see the prerequisite note above) — preflight blocks otherwise.
 
-   **Manual fallback** (only if the workflow is unavailable): merge in order — infra PR, then conductor PR (creates the annotated tag), then docs PR (flips DRAFT → FINAL). Direct merges should be blocked by branch protection requiring the `release/ship-approved` status the workflow posts; admin-override the protection only if the workflow itself is broken.
+   **Manual fallback** (only if the workflow is unavailable): merge in order — conductor PR (creates the annotated tag), then docs PR (flips DRAFT → FINAL). Direct merges should be blocked by branch protection requiring the `release/ship-approved` status the workflow posts; admin-override the protection only if the workflow itself is broken.
 
 ### Phase 5 — Post-merge artifact and download verification
 
@@ -201,7 +183,9 @@ Standalone patch releases (`v<MAJOR>_<MINOR>_<PATCH>_<N>` tags with a `<M>-<m>-<
 
 ### Phase 6 — Demo and promotion
 
-15. **[Automated]** Point the demo farm (live demo servers at open-emr.org) to the new tag. The `bump-tag.yml` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/bump-tag.yml) consumes the `openemr-tag` event, rewrites matching production-demo rows in `ip_map_branch.txt`, and pushes to master; the demo-farm host's nightly reset picks up the new tag automatically. The match condition is `branch_tag=tag` **and** the existing tag's `MAJOR.MINOR` equals the new tag's `MAJOR.MINOR`, so the first release on a new minor line is a no-op against the demo farm until production-demo rows for that line have been seeded (see Phase 2 step 2).
+15. **[Automated]** Point the demo farm (live demo servers at open-emr.org) at the new upstream state. The `derive-ip-map` workflow in [`openemr/demo_farm_openemr`](https://github.com/openemr/demo_farm_openemr/blob/master/.github/workflows/derive-ip-map.yml) is the canonical writer for `ip_map_branch.txt` + `docker/scripts/demoLibrary.source`. It regenerates both files from upstream `openemr/openemr` state — `.github/release-targets.yml`, each rel branch's Dockerfile ARGs (PHP/MySQL/Apache pins), the `ci/apache_*` snippet listing, and the flex Dockerfile — and reconciles them onto the `auto-derive/reconciliation` stable branch. On diff it force-pushes the branch and opens (or updates) a reviewable PR titled `[auto-derive] reconcile demo_farm against upstream openemr master`; on no-diff it closes any open reconciliation PR and deletes the remote branch. A maintainer reviews and merges the PR and manually updates the wiki page(s) if needed; the demo-farm host's nightly reset then picks up the new pins.
+
+    The bot runs on three triggers: (a) `repository_dispatch types: [release-targets-changed]`, fired immediately by this repo's [`notify-release-targets-changed.yml`](../.github/workflows/notify-release-targets-changed.yml) on master pushes that touch `.github/release-targets.yml`; (b) a daily 07:00 UTC cron as a self-healing fallback; (c) `workflow_dispatch` for manual reruns. Because release-targets.yml is the contract, new minor lines flow through naturally as soon as their entry lands on master — no manual seeding required.
 16. **[Manual]** Announce the release:
     - Forums
     - Chat
@@ -218,21 +202,20 @@ This section tracks every post-automation gap, not just the manual runbook steps
 
 | Step | What | Tracking |
 | --- | --- | --- |
-| 2 / 15 | Seed `demo_farm_openemr` production-demo rows for a new minor line at branch cut, so the first tag on that line is not a no-op against the demo farm (today this is the manual step 2 prerequisite for step 15) | [openemr/demo_farm_openemr#110](https://github.com/openemr/demo_farm_openemr/issues/110) |
-| 9 | Auto-merge the `website-openemr` docs PR on `openemr-tag`; the page banner already flips to FINAL via the manifest, but the PR stays a GitHub draft that an operator marks ready and merges by hand | [openemr/openemr-devops#761](https://github.com/openemr/openemr-devops/issues/761) |
+| 9 | Auto-mark the `website-openemr` docs PR Ready **before `ship-release.yml` is dispatched** — either by having the docs workflow open it as Ready instead of draft, or by some pre-ship signal that fires earlier than `openemr-tag` (which is emitted only after the conductor merge and so is too late to unblock the preflight). The PR currently stays a GitHub draft that an operator must mark Ready manually; once Ready, ship-release.yml's preflight clears it and the workflow merges both PRs. The manual step is the mark-Ready, not the merge itself. | [openemr/openemr-devops#761](https://github.com/openemr/openemr-devops/issues/761) |
 | 10 | Verify the `openemr-tag` exists in `openemr/openemr` before the docs workflow flips pages DRAFT→FINAL — a guard so docs can never ship FINAL for a version that was never tagged | [openemr/website-openemr#132](https://github.com/openemr/website-openemr/issues/132) |
 | 16 | Automated post-release announcement fan-out (forums, chat, social, mailing list) | [openemr/openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711) |
 | Recovery | Docs-first reconciliation workflow — re-render orphaned FINAL pages against the real tag after a docs-first partial merge (see [Docs-first recovery](#docs-first-recovery-manual-today)) | [openemr/website-openemr#133](https://github.com/openemr/website-openemr/issues/133) |
 
-Recently closed: the Release-object creation for **runbook step 10** (automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`) shipped via [openemr/openemr-devops#757](https://github.com/openemr/openemr-devops/pull/757), closing [#756](https://github.com/openemr/openemr-devops/issues/756). The v8.1.0 release surfaced the gap — tag landed, no Release object did; `build-release-on-tag.yml` now creates the Release object automatically when the conductor emits `openemr-tag`. The remaining open gap in the table's step-10 row, #132, is a different concern: the **docs DRAFT→FINAL tag-exists guard**, not the Release-object creation.
+Recently closed: the Release-object creation for **runbook step 10** (automated GitHub Release object creation + checksum/changelog upload on `openemr-tag`) shipped via [openemr/openemr-devops#757](https://github.com/openemr/openemr-devops/pull/757), closing [#756](https://github.com/openemr/openemr-devops/issues/756). The v8.1.0 release surfaced the gap — tag landed, no Release object did; `build-release-on-tag.yml` now creates the Release object automatically when the conductor emits `openemr-tag`. The remaining open gap in the table's step-10 row, #132, is a different concern: the **docs DRAFT→FINAL tag-exists guard**, not the Release-object creation. Also closed: the demo-farm new-minor-line seeding gap ([openemr/demo_farm_openemr#110](https://github.com/openemr/demo_farm_openemr/issues/110)) was retired by the auto-derive bot rewrite (2026-06-28) — the bot derives `ip_map_branch.txt` from `release-targets.yml` instead of advancing pre-seeded rows, so new minor lines no longer require any manual seeding step.
 
-Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706). Its open sub-issues are the five rows above: [openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711), [openemr-devops#761](https://github.com/openemr/openemr-devops/issues/761), [website-openemr#132](https://github.com/openemr/website-openemr/issues/132), [website-openemr#133](https://github.com/openemr/website-openemr/issues/133), and [demo_farm_openemr#110](https://github.com/openemr/demo_farm_openemr/issues/110).
+Umbrella issue tracking the full gap closure: [openemr/openemr-devops#706](https://github.com/openemr/openemr-devops/issues/706). Its open sub-issues are the four rows above: [openemr-devops#711](https://github.com/openemr/openemr-devops/issues/711), [openemr-devops#761](https://github.com/openemr/openemr-devops/issues/761), [website-openemr#132](https://github.com/openemr/website-openemr/issues/132), and [website-openemr#133](https://github.com/openemr/website-openemr/issues/133).
 
 ## Partial merges and recovery
 
-The three PRs are coupled only by `repository_dispatch`. Branch protection should block direct merges and require the [ship-release workflow](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/ship-release.yml) as the only merge path (via the `release/ship-approved` commit status the workflow posts), but admin-overrides and misconfigurations happen — this section documents the recovery path when they do.
+The two PRs are coupled only by `repository_dispatch`. Branch protection should block direct merges and require the [ship-release workflow](https://github.com/openemr/openemr-devops/blob/master/.github/workflows/ship-release.yml) as the only merge path (via the `release/ship-approved` commit status the workflow posts), but admin-overrides and misconfigurations happen — this section documents the recovery path when they do.
 
-**Re-running `ship-release.yml` is the normal recovery mechanism for partial *PR merges*, not a special bootstrap path.** Its idempotency is scoped to PR-merge state: it snapshots all three sibling PRs, skips any already merged, and merges the rest in order (infra → conductor → docs) after a readiness check. So re-triggering is safe when a subset of the PRs merged (by admin-override or a prior interrupted run) and the rest are still open and ready. Treat "re-run ship-release and let it reconcile" as the default response to a stuck *PR-merge* state.
+**Re-running `ship-release.yml` is the normal recovery mechanism for partial *PR merges*, not a special bootstrap path.** Its idempotency is scoped to PR-merge state: it snapshots both sibling PRs, skips any already merged, and merges the rest in order (conductor → docs) after a readiness check. So re-triggering is safe when one of the PRs merged (by admin-override or a prior interrupted run) and the other is still open and ready. Treat "re-run ship-release and let it reconcile" as the default response to a stuck *PR-merge* state.
 
 What it does **not** do today is inspect the annotated tag or the GitHub Release object — it never reads `refs/tags` or the Release API. The tag is created as a side effect of merging the conductor PR (`release-prep.yml` runs `create-tag.php` on merge), and the Release object follows from the `openemr-tag` dispatch. This matters for one state re-running ship-release cannot fix: a tag that already exists with the conductor PR still open (see the out-of-band-tag row below). The partial-merge table enumerates the states re-running recovers from and the two it does not (docs-first and out-of-band-tag).
 
@@ -242,29 +225,25 @@ What it does **not** do today is inspect the annotated tag or the GitHub Release
 
 | Merged | Effect |
 | --- | --- |
-| Conductor only | Annotated tag exists; the Release object follows automatically once `build-release-on-tag.yml` in `openemr-devops` consumes the `openemr-tag` dispatch and finishes the build (step 10). No Release object is now a transient state, not a resting one. CI matrices and Docker pins still target the prior `current`; website still advertises the prior version. GitHub's auto-generated source archives exist as soon as the tag does; the full distribution packages (and the website's "Download" buttons that point at them) appear when that build completes. |
-| Infra only | CI matrices roll forward to a `current` slot whose tag does not exist; builds for `current` fail until the conductor merges. Recoverable but noisy. |
+| Conductor only | Annotated tag exists; the Release object follows automatically once `build-release-on-tag.yml` in `openemr-devops` consumes the `openemr-tag` dispatch and finishes the build (step 10). No Release object is now a transient state, not a resting one. Website still advertises the prior version. GitHub's auto-generated source archives exist as soon as the tag does; the full distribution packages (and the website's "Download" buttons that point at them) appear when that build completes. |
 | Docs only | Cannot reach FINAL — the DRAFT/FINAL banner is driven by the `openemr-tag` event, which the conductor never emitted. Merging publishes pages permanently stamped DRAFT for a version that was never tagged. **Worst case.** See "Docs-first recovery" below. |
-| Conductor + infra (no docs) | Tag exists, CI green, but website still serves prior-version install/upgrade pages and no release notes. |
-| Conductor + docs (no infra) | Tag exists, docs FINAL, but CI matrices still build the prior `current`/`next` slots — release-CI signal lags until the rotation PR merges. |
-| Infra + docs (no conductor) | Both PRs reference a version whose tag does not exist. Docs stay DRAFT; CI builds for `current` fail. |
-| None merged, but tag + Release object already exist | The annotated tag and its GitHub Release object exist, yet all three sibling PRs are still open — the tag was cut out-of-band rather than by a conductor-PR merge. CI matrices and Docker pins still target the prior `current`; the website still advertises the prior version; docs are still DRAFT. **Re-running ship-release does not fix this**, and is in fact unsafe here: ship-release inspects only PR state, so it will try to merge the still-open conductor PR, whose merge runs `create-tag.php` — and that fails (HTTP 422 on `POST /git/refs`) because the tag already exists, aborting the conductor step. Recovery is manual today (see [Out-of-band tag recovery](#out-of-band-tag-recovery-manual)); the [desired end state](#partial-merges-and-recovery) is for ship-release to recognize the existing tag/Release and reconcile this automatically. This state has happened in practice: v8.1.0's Release object published while its conductor, infra, and docs PRs remained open — `release-docs.yml` carries dedicated retroactive-8.1.0 fallback logic because that tag's SHA predates `b10-tables.yml`, which is what let the tag land ahead of its PRs. (As always, discover the actual current state from Git and the GitHub API before acting; the v8.1.0 case is an example, not a standing assertion about today.) |
+| None merged, but tag already exists | The annotated tag exists, yet both sibling PRs are still open — the tag was cut out-of-band rather than by a conductor-PR merge. Two sub-cases depending on whether the `openemr-tag` dispatch already fired: (a) **dispatch fired**: the docs PR may already be FINAL and `build-release-on-tag.yml` may already have run, so downstream state is partial-but-non-trivial; (b) **dispatch did not fire**: ship-release fails preflight on the docs PR's still-DRAFT state before any conductor merge attempt. In either sub-case, **re-running ship-release does not fix this**: ship-release inspects only PR state, so once docs is marked Ready it tries to merge the still-open conductor PR, whose merge runs `create-tag.php` — and that fails (HTTP 422 on `POST /git/refs`) because the tag already exists, aborting the conductor step. Recovery is manual today (see [Out-of-band tag recovery](#out-of-band-tag-recovery-manual)); the [desired end state](#partial-merges-and-recovery) is for ship-release to recognize the existing tag/Release and reconcile this automatically. This state has happened in practice: v8.1.0's Release object published while its conductor and docs PRs remained open — `release-docs.yml` carries dedicated retroactive-8.1.0 fallback logic because that tag's SHA predates `b10-tables.yml`, which is what let the tag land ahead of its PRs. (As always, discover the actual current state from Git and the GitHub API before acting; the v8.1.0 case is an example, not a standing assertion about today.) |
 
 ### Recovery
 
-For partial *PR-merge* states (some sibling PRs merged, the rest still open and ready) **except docs-first and out-of-band-tag**: re-trigger the ship-release workflow. Its idempotency is scoped to PR-merge state (see the section intro) — it re-reads the PRs, detects already-merged ones, skips them, and merges the rest in dependency order with the same preconditions check (mergeable + green + required approvals). The website may serve stale content and CI may be red against `current` until the workflow completes, but no manual intervention is needed.
+For partial *PR-merge* states (one sibling PR merged, the other still open and ready) **except docs-first and out-of-band-tag**: re-trigger the ship-release workflow. Its idempotency is scoped to PR-merge state (see the section intro) — it re-reads the PRs, detects the already-merged one, skips it, and merges the other in dependency order with the same preconditions check (mergeable + green + required approvals). The website may serve stale content until the workflow completes, but no manual intervention is needed.
 
-Re-running ship-release does **not** cover the case where the tag (and Release object) already exist with the conductor PR still open — it inspects only PR state, so it would attempt the conductor merge and fail when `create-tag.php` hits the existing tag. See [Out-of-band tag recovery](#out-of-band-tag-recovery-manual) for that case.
+Re-running ship-release does **not** cover the case where the tag already exists with the conductor PR still open — it inspects only PR state, so it would attempt the conductor merge and fail when `create-tag.php` hits the existing tag. See [Out-of-band tag recovery](#out-of-band-tag-recovery-manual) for that case.
 
 ### Docs-first recovery (manual, today)
 
-This is the worst case and recovery is currently manual. The ship-release workflow detects docs-first up front and **refuses to do anything** — it will not even merge the remaining PRs, because doing so would create a tag for a version whose docs have already shipped FINAL with no tag link. A docs-side reconciliation workflow to automate the recovery is tracked in [openemr/website-openemr#133](https://github.com/openemr/website-openemr/issues/133); until it ships, follow the manual steps below.
+This is the worst case and recovery is currently manual. The ship-release workflow detects docs-first up front and **refuses to do anything** — it will not even merge the conductor PR, because doing so would create a tag for a version whose docs have already shipped FINAL with no tag link. A docs-side reconciliation workflow to automate the recovery is tracked in [openemr/website-openemr#133](https://github.com/openemr/website-openemr/issues/133); until it ships, follow the manual steps below.
 
-The docs PR has already shipped FINAL pages for a version that has no tag yet. After the operator manually merges the conductor (creating the tag) and infra, the existing FINAL-flip mechanism doesn't help — it fires on docs-PR updates, but the docs PR is already merged and closed. The published pages are orphaned: they reference a version that now exists, but with stale DRAFT-era SHAs and no tag link.
+The docs PR has already shipped FINAL pages for a version that has no tag yet. After the operator manually merges the conductor (creating the tag), the existing FINAL-flip mechanism doesn't help — it fires on docs-PR updates, but the docs PR is already merged and closed. The published pages are orphaned: they reference a version that now exists, but with stale DRAFT-era SHAs and no tag link.
 
 Manual steps:
 
-1. Manually merge the conductor and infra PRs (the ship-release workflow refuses to act once docs-first is detected; admin-override the branch protection or merge directly via the GitHub UI). This creates the tag and rotates CI.
+1. Manually merge the conductor PR (the ship-release workflow refuses to act once docs-first is detected; admin-override the branch protection or merge directly via the GitHub UI). This creates the tag.
 2. In `openemr/website-openemr`, open a follow-up PR that re-renders the affected install/upgrade/release-notes pages against the now-real tag. Easiest path is to manually re-run the docs-PR generator script with the new tag SHA, commit the regenerated output, and merge.
 3. Verify the live website pages now show the FINAL banner with the correct tag link, not DRAFT.
 4. If anyone scraped or linked the DRAFT-stamped pages between merge and reconciliation, the URLs are stable — they now serve correct FINAL content.
@@ -273,7 +252,7 @@ Folding this reconciliation into a workflow is tracked in [openemr/website-opene
 
 ### Out-of-band tag recovery (manual)
 
-This is the "tag + Release object exist, all PRs still open" row above — the tag was created outside the conductor-merge path. (This has happened in practice: it was v8.1.0's state. As always, discover the real current state before acting rather than assuming this is today's.) Recovery is manual because **re-running ship-release does not work here**: ship-release inspects only PR state, sees the conductor PR open, and tries to merge it; the conductor's post-merge tag step then fails with HTTP 422 because `refs/tags/<tag>` already exists. The squash-merge lands but the tag/dispatch step errors, leaving a half-finished conductor merge.
+This is the "tag exists, all PRs still open" row above — the tag was created outside the conductor-merge path. (This has happened in practice: it was v8.1.0's state. As always, discover the real current state before acting rather than assuming this is today's.) Recovery is manual because **re-running ship-release does not work here**: ship-release inspects only PR state, sees the conductor PR open, and tries to merge it; the conductor's post-merge tag step then fails with HTTP 422 because `refs/tags/<tag>` already exists. The squash-merge lands but the tag/dispatch step errors, leaving a half-finished conductor merge.
 
 The reason the conductor PR can't simply be merged: `release-prep.yml`'s `finalize` job runs `create-tag.php` on the merge of **any** PR whose head ref starts with `release-prep/` (or `release-prep-test/`) — there is no in-PR switch to skip it. So merging the existing conductor PR as-is always re-attempts the tag and fails on the existing ref.
 
@@ -281,9 +260,8 @@ First discover the real state from Git and the GitHub API — which PRs are open
 
 1. **Conductor version bumps:** the conductor PR's two effects are the version-bump edits (still needed) and the tag (already done). Land the version-bump content via a branch **not** named `release-prep/*`, so the `finalize` tag job doesn't trigger: open a new PR from a plain branch (e.g. `release-reconcile/<version>`) carrying the same edits against the rel-branch, merge it, and close the original `release-prep/*` PR unmerged. Confirm the existing tag already points at the intended commit.
 2. **Dispatch:** if the `openemr-tag` dispatch never fired for the existing tag (Release object or downstream consumers not up to date), fire it manually so `build-release-on-tag.yml` and the consumer repos pick it up.
-3. **Infra:** once the tag and dispatch are settled and the `release-prep/*` PR is closed, merge the infra rotation PR — or re-run ship-release for the remaining PRs now that no `release-prep/*` PR is open to trip the tag step.
-4. **Docs:** merge/flip docs to FINAL against the now-confirmed tag.
-5. Verify CI matrices target the new `current`, the website advertises the new version, and docs show FINAL with the correct tag link.
+3. **Docs:** once the `release-prep/*` PR is closed, merge/flip docs to FINAL against the now-confirmed tag (re-run ship-release if the conductor PR is closed and the docs PR is the only remaining one).
+4. Verify the website advertises the new version and docs show FINAL with the correct tag link.
 
 This whole manual path exists only because ship-release is PR-state-only today. The [desired end state](#partial-merges-and-recovery) — ship-release reading the tag/Release object and treating an already-correct tag as done — would let the operator just re-run the workflow here instead of hand-reconciling. Until that lands, the steps above are the path.
 
@@ -295,7 +273,6 @@ This whole manual path exists only because ship-release is PR-state-only today. 
 | Release tag | `v<MAJOR>_<MINOR>_<PATCH>` | `v8_1_0` |
 | Hugo version param | `<MAJOR>.<MINOR>.<PATCH>` | `8.1.0` |
 | Conductor PR branch | `release-prep/<rel-branch>` | `release-prep/rel-810` |
-| Devops rotation PR branch | `release-rotation/auto` | — |
 | Docs PR branch | `release-docs/<version>` | `release-docs/8.1.0` |
 
 **Tags are always annotated** (Git object type `tag`, not `commit`). Lightweight tags lack author/date/message metadata and break `git describe`, downstream tooling, and consumers that introspect tag objects. The `TagVerifier` enforces this in CI on all three repos.
@@ -326,8 +303,10 @@ This repo's check is at [`.github/workflows/release-permissions-check.yml`](../.
 Each repo's slice has its own plan document with the per-slice mechanical detail (mutators, registry shape, consumer wiring, hypotheses, testing strategy):
 
 - **Conductor:** [`docs/release-automation-plan.md`](release-automation-plan.md) in this repo.
-- **Infra:** [`docs/release-automation-plan.md`](https://github.com/openemr/openemr-devops/blob/master/docs/release-automation-plan.md) in `openemr-devops`.
 - **Docs:** the website-openemr slice was implemented in [openemr/website-openemr#82](https://github.com/openemr/website-openemr/pull/82); see the PR description for its design.
+
+(The former `openemr-devops` rotation-slice plan was retired when the
+docker-pipeline migration removed all of its live targets.)
 
 ## Checklist templates
 

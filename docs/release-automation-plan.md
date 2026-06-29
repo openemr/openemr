@@ -2,19 +2,18 @@
 
 Tracks: openemr/openemr-devops#664 (refines #662, overlaps with #638)
 
-This repo owns the **release-prep PR** — the conductor in the three-PR release
+This repo owns the **release-prep PR** — the conductor in the two-PR release
 flow. Merging this PR is the "we're shipping" decision; the merge commit gets
-the annotated release tag, which then drives the downstream PRs in
-`website-openemr` and `openemr-devops`.
+the annotated release tag, which then drives the downstream PR in
+`website-openemr` plus the `openemr-tag` cascade into `openemr-devops`
+(Release object + announcement drafts) and `demo_farm_openemr` (demo bump).
 
 ## Role in the flow
 
-```
+```text
 openemr/openemr release-prep PR  ── merge → tag v8_1_0   ← this repo
             │                              │
-            └── (push to rel-*) ───────────┼──→ website-openemr docs PR
-                                           │
-                                           └──→ openemr-devops infra PR
+            └── (push to rel-*) ───────────┴──→ website-openemr docs PR
 ```
 
 ## Pattern
@@ -146,8 +145,11 @@ on this repo and the consumer repos; re-run if secrets are rotated.
 ## Out of scope here
 
 - Docs publishing — `website-openemr` PR.
-- Test-matrix / package pin rotations — `openemr-devops` PR.
 - Wiki content migration — handled in `website-openemr`.
+
+(Test-matrix / package-pin rotation used to live in an `openemr-devops`
+infra PR but was retired when the docker-pipeline migration removed all
+of its live targets — there is no longer a separate rotation slice.)
 
 ## Open questions
 

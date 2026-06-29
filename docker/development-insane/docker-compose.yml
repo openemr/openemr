@@ -77,6 +77,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -100,13 +102,15 @@ services:
       timeout: 5s
   openemr-8-2:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.2@sha256:ea6b482b7052429b458fa63c32fca0064b3a9d5b0bbc9112672d92163acffd24
+    image: openemr/openemr:flex-3.22-php-8.2@sha256:0d6ab05b4041d43438f7e2e590d4b40ffd156f0a3f81c80045ae4772adfca9da
     ports:
     - 8084:80
     - 9084:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -130,13 +134,15 @@ services:
       timeout: 5s
   openemr-8-3:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.3@sha256:7631618b7dd4406835560a55241b812671cf4b0a0985e50469c59b8e65e34445
+    image: openemr/openemr:flex-3.23-php-8.3@sha256:8bc8941591c13624d7fcae8d23e48e202bf29a28c4eaae6e171abfd8c162409a
     ports:
     - 8085:80
     - 9085:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -160,13 +166,15 @@ services:
       timeout: 5s
   openemr-8-4:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.4@sha256:f77f8fdedfeea631c3f8a6c4dd5e6c8e37a2a079d01804a5bbfcd084cd65a788
+    image: openemr/openemr:flex-3.23-php-8.4@sha256:61dd94e088fa212b428fcf0df7d8284137f90a1f463ef516f40e86227fe7e462
     ports:
     - 8086:80
     - 9086:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -190,7 +198,7 @@ services:
       timeout: 5s
   openemr-8-5:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:1d2c8345a320cf2985c9d02138951267739ec498559ca724b3d5397e4568482e
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:11233ca5ebf93973dd7bf32b68a1eb1191972505a97d06c6365ef6e182aa1ddb
     ports:
     - 8087:80
     - 9087:443
@@ -198,6 +206,8 @@ services:
     - ../..:/var/www/localhost/htdocs/openemr
     - couchdbvolume:/couchdb/data
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -260,13 +270,15 @@ services:
       timeout: 5s
   openemr-edge:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:c2cf218ec2e46b31bda4d74d96c5a4947687d7077247041bb6fff62b3336cbc4
+    image: openemr/openemr:flex-edge@sha256:272a629078e324859e50566ff4105c988c22fc3252df6c40ebf449a83c77f013
     ports:
     - 8088:80
     - 9088:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -297,6 +309,8 @@ services:
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -321,13 +335,15 @@ services:
       timeout: 5s
   openemr-8-2-redis:
     restart: always
-    image: openemr/openemr:flex-3.22-php-8.2@sha256:ea6b482b7052429b458fa63c32fca0064b3a9d5b0bbc9112672d92163acffd24
+    image: openemr/openemr:flex-3.22-php-8.2@sha256:0d6ab05b4041d43438f7e2e590d4b40ffd156f0a3f81c80045ae4772adfca9da
     ports:
     - 8094:80
     - 9094:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -352,13 +368,15 @@ services:
       timeout: 5s
   openemr-8-3-redis:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.3@sha256:7631618b7dd4406835560a55241b812671cf4b0a0985e50469c59b8e65e34445
+    image: openemr/openemr:flex-3.23-php-8.3@sha256:8bc8941591c13624d7fcae8d23e48e202bf29a28c4eaae6e171abfd8c162409a
     ports:
     - 8095:80
     - 9095:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -383,13 +401,15 @@ services:
       timeout: 5s
   openemr-8-4-redis:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.4@sha256:f77f8fdedfeea631c3f8a6c4dd5e6c8e37a2a079d01804a5bbfcd084cd65a788
+    image: openemr/openemr:flex-3.23-php-8.4@sha256:61dd94e088fa212b428fcf0df7d8284137f90a1f463ef516f40e86227fe7e462
     ports:
     - 8096:80
     - 9096:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -414,13 +434,15 @@ services:
       timeout: 5s
   openemr-8-5-redis:
     restart: always
-    image: openemr/openemr:flex-3.23-php-8.5@sha256:1d2c8345a320cf2985c9d02138951267739ec498559ca724b3d5397e4568482e
+    image: openemr/openemr:flex-3.23-php-8.5@sha256:11233ca5ebf93973dd7bf32b68a1eb1191972505a97d06c6365ef6e182aa1ddb
     ports:
     - 8097:80
     - 9097:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -445,13 +467,15 @@ services:
       timeout: 5s
   openemr-edge-redis:
     restart: always
-    image: openemr/openemr:flex-edge@sha256:c2cf218ec2e46b31bda4d74d96c5a4947687d7077247041bb6fff62b3336cbc4
+    image: openemr/openemr:flex-edge@sha256:272a629078e324859e50566ff4105c988c22fc3252df6c40ebf449a83c77f013
     ports:
     - 8098:80
     - 9098:443
     volumes:
     - ../..:/var/www/localhost/htdocs/openemr
     environment:
+      HOST_UID: "${HOST_UID:-1000}"
+      HOST_GID: "${HOST_GID:-1000}"
       DEBUG_COLORS: 'true'
       TERM: xterm-256color
       COLORTERM: truecolor
@@ -619,7 +643,7 @@ services:
       retries: 3
   phpmyadmin:
     restart: always
-    image: phpmyadmin:5.2.3@sha256:b16dc88d6e62b186dc4864adac4996fe0238587aa9f5ed507dcfc3894903a3f6
+    image: phpmyadmin:5.2.3@sha256:3c57518c9e8a483020021f7dd878376030778b1a425e2f58fac19c66423dec7c
     ports:
     - 8200:80
     environment:
@@ -693,7 +717,7 @@ services:
     - dev-php-fpm-8-6-redis
   dev-php-fpm-8-1:
     restart: always
-    image: openemr/dev-php-fpm:8.1@sha256:d53a1b0f71016248b022ee2f8f2daab4d53d7588bacf66c39e1786eaf5eb1a2a
+    image: openemr/dev-php-fpm:8.1@sha256:582619cb9d6db25991f48f44e81d8af2f5b5384e05e9689d0362128c938a10f0
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-1/php.ini:/usr/local/etc/php/php.ini:ro
@@ -701,7 +725,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-2:
     restart: always
-    image: openemr/dev-php-fpm:8.2@sha256:0513282d628e6b0240974fe51c9c6bd4b576db67dc6d5c9a522c6e7808e8147a
+    image: openemr/dev-php-fpm:8.2@sha256:82bc2b2c2d2c8b73109abf56c40e49662cc6263408c13dcb354520e85b3fb2b9
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2/php.ini:/usr/local/etc/php/php.ini:ro
@@ -709,7 +733,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-3:
     restart: always
-    image: openemr/dev-php-fpm:8.3@sha256:2ed0433423a95e4da4c364c05d03ce08d1d39b81e89a3493e09abe481269d334
+    image: openemr/dev-php-fpm:8.3@sha256:c58b58a70129c112a81951d5351d955687d22246dac416a49abbb9371c745d4d
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-3/php.ini:/usr/local/etc/php/php.ini:ro
@@ -717,7 +741,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-4:
     restart: always
-    image: openemr/dev-php-fpm:8.4@sha256:23bcc9d16a13f887178db6a92927987422c848bcf2b5ec4a12e91e01e4ba3cc1
+    image: openemr/dev-php-fpm:8.4@sha256:f23f286cc761237c2a7a93c01945edd9167583ab8ecc1a84082b971450bcead3
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-4/php.ini:/usr/local/etc/php/php.ini:ro
@@ -725,7 +749,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-5:
     restart: always
-    image: openemr/dev-php-fpm:8.5@sha256:bc73931cc0d383a984a8aa5759145f41e651057ca53b2c9f5f1eb280a84bc45e
+    image: openemr/dev-php-fpm:8.5@sha256:33b77b0b248fdc67f1f1a6387a9e5e4f800b500c5ad7f8ba140bd19f373738d1
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5/php.ini:/usr/local/etc/php/php.ini:ro
@@ -741,7 +765,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-1-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.1-redis@sha256:52ad2e8930837c1870ea3b286a3e6e0848f51abd6ae9b68204f7326b0fd5aedd
+    image: openemr/dev-php-fpm:8.1-redis@sha256:86970dd289770f644cdcb63b5c5fc304d131a66a73206bcec987fc63e88d0ff9
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-1-redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -749,7 +773,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-2-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.2-redis@sha256:5ef4c52d7e9611509af838e274ff0444027bd0265324c04729d94989f780cd05
+    image: openemr/dev-php-fpm:8.2-redis@sha256:2bf90df74a8c5c7b7b859bcf9595529c60cf07f6c0b292c9827f227073318cf0
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-2-redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -757,7 +781,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-3-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.3-redis@sha256:61995a8ee85196d90dffdb52cfdd0dbfec579958952380eda50a90b92a737a56
+    image: openemr/dev-php-fpm:8.3-redis@sha256:8c604af621f3849ddbc08530b52e46f3817036169c8e85bef12e89d2d617b6a5
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-3-redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -765,7 +789,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-4-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.4-redis@sha256:4c1ffda0ccec403313369ba1724c1bd0a7e8e1222ded38e25a23eb10579fa77f
+    image: openemr/dev-php-fpm:8.4-redis@sha256:c80518f471fdd6b33ee1340ff6d5525e5fa743fff7d2c5686a9ae5c6a04fbed7
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-4-redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -773,7 +797,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   dev-php-fpm-8-5-redis:
     restart: always
-    image: openemr/dev-php-fpm:8.5-redis@sha256:8d69228796e8a3fd8ac30aa064b4166e45008258e32b5894fd8dfb8578357ccd
+    image: openemr/dev-php-fpm:8.5-redis@sha256:f967259e7aa6745df5c426aa4e630602f557fda03f93596c2b99465ec8898358
     volumes:
     - ../..:/usr/share/nginx/html/openemr
     - ../library/dockers/dev-php-fpm-8-5-redis/php.ini:/usr/local/etc/php/php.ini:ro
@@ -789,7 +813,7 @@ services:
       OPENEMR_DOCKER_ENV_TAG: insane-dev-docker
   redis:
     restart: always
-    image: redis:8.8.0@sha256:027002f3d4161eb427643e0cc71023b582fb461c6199e699f46db843f0b39fb1
+    image: redis:8.8.0@sha256:2838d5524559494f6f1cd66e97e76b200d64a633a8614200620755ed395daf32
   openldap:
     restart: always
     image: openemr/dev-ldap:insane@sha256:24b023a969e3a2e43bfab56e22474a036553c3d69687f8e0f9d8da968ed744a7
@@ -825,7 +849,7 @@ services:
       retries: 3
   mailpit:
     restart: unless-stopped
-    image: axllent/mailpit:v1.30.2@sha256:37a38e48e9338cd7e89dfeb487f37b02ebfcd9cb23111bed2d345e79d37d6dd6
+    image: axllent/mailpit:v1.30.3@sha256:956d688cbd13dca36c72d8e94c34d6d1cdf4a005aa6aa4ff6edaaac56c34d8df
     ports:
     - 8025:8025    # Web UI and API
     - 1025:1025    # SMTP server

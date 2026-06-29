@@ -214,7 +214,7 @@ class SessionUtil
     {
         $settings = SessionConfigurationBuilder::forSetup();
         $handler = self::getSessionHandler();
-        $storage = new NativeSessionStorage($settings, $handler);
+        $storage = new NativeSessionStorage($settings->toSessionStartOptions(), $handler);
         $session = new Session($storage);
         $session->start();
         SessionWrapperFactory::getInstance()->setActiveSession($session);

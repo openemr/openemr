@@ -253,8 +253,13 @@ jobs:
         # Scope the installation token to this repo plus the dispatch
         # targets, otherwise repository_dispatch to the consumer repos
         # returns 403 "Resource not accessible by integration".
+        # demo_farm_openemr dropped (was: ...,demo_farm_openemr) because
+        # the only dispatch in this `finalize` job is openemr-tag, and
+        # demo_farm no longer consumes it (demo_farm_openemr#141 retired
+        # bump-tag.yml; the auto-derive bot subscribes to
+        # release-targets-changed instead).
         owner: ${{ github.repository_owner }}
-        repositories: openemr,openemr-devops,website-openemr,demo_farm_openemr
+        repositories: openemr,openemr-devops,website-openemr
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
@@ -333,8 +338,14 @@ jobs:
         MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
         TAG_NAME: ${{ steps.tag.outputs.tag-name }}
       run: |
+        # Demo_farm_openemr no longer consumes openemr-tag: its bump-tag.yml
+        # was retired in demo_farm_openemr#141 in favor of the auto-derive
+        # bot, which subscribes to release-targets-changed instead. Explicit
+        # --target-repos to drop demo_farm from the default list so the
+        # dispatch doesn't fire into a void.
         php tools/release/bin/dispatch.php \
           --event=openemr-tag \
+          --target-repos=openemr/openemr-devops,openemr/website-openemr \
           --sha="${MERGE_SHA}" \
           --actor='openemr-release-bot' \
           --branch="${REL_BRANCH}" \

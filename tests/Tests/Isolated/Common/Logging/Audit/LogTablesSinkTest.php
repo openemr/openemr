@@ -88,8 +88,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink = new LogTablesSink(conn: $this->connection);
 
-        $result = $sink->record($event);
-        self::assertTrue($result);
+        $sink->record($event);
     }
 
     public function testRecordInsertsIntoLogCommentEncryptWithCorrectChecksum(): void

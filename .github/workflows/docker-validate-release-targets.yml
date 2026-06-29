@@ -7,13 +7,16 @@
 # Checks:
 #   1. The YAML parses cleanly.
 #   2. Every row has all three required fields (branch, docker_tags,
-#      openemr_version_ref).
-#   3. Every `branch` value appears at most once.
-#   4. No two rows declare the same docker_tag (which would race when both
-#      builds tried to push the same image:tag).
-#   5. Every `openemr_version_ref` resolves to a real git ref in
+#      openemr_version_ref). `unreleased` is an optional boolean.
+#   3. No two rows declare the same docker_tag (which would race when both
+#      builds tried to push the same image:tag). Multiple rows for the same
+#      `branch` ARE allowed — the multi-row mechanism enables the in-dev
+#      patch-release pattern (rel branch keeps publishing the prior stable
+#      while a new dev iterates on the same branch). See the
+#      release-targets.yml header for the full mechanism description.
+#   4. Every `openemr_version_ref` resolves to a real git ref in
 #      openemr/openemr.
-#   6. Every version-number entry in each row's docker_tags aligns with the
+#   5. Every version-number entry in each row's docker_tags aligns with the
 #      major.minor.patch from version.php at the same row's
 #      openemr_version_ref. Each tag must match either the base
 #      (X.Y.Z, when realpatch == 0) or the base.realpatch form
@@ -25,6 +28,12 @@
 #      PR merges") so a PR that coordinately bumps BOTH docker_tags and
 #      version.php validates cleanly; non-master rows use raw URL fetch
 #      against the stable git tag in openemr_version_ref.
+#
+# Rows flagged `unreleased: true` are still validated for required fields,
+# version-ref resolution, and docker_tag<->version.php alignment so they
+# stay ready-to-flip-live. Consumers (orchestrator, dockerhub readme
+# pusher, demo_farm bumper) are responsible for skipping these rows -- the
+# validator does not.
 
 name: Validate release-targets.yml
 
@@ -66,16 +75,7 @@ jobs:
           exit 1
         fi
 
-        # 3. No duplicate branches
-        DUPE_BRANCHES=$(yq -o=json -I=0 . .github/release-targets.yml | jq -r '
-          [.[].branch] | group_by(.) | map(select(length > 1) | .[0]) | .[]
-        ')
-        if [ -n "$DUPE_BRANCHES" ]; then
-          echo "::error::Duplicate branch entries (each branch must appear at most once): $DUPE_BRANCHES"
-          exit 1
-        fi
-
-        # 4. No duplicate docker_tags across rows
+        # 3. No duplicate docker_tags across rows
         DUPE_TAGS=$(yq -o=json -I=0 . .github/release-targets.yml | jq -r '
           [.[] | .docker_tags | split(",") | .[] | gsub("\\s"; "")] |
           group_by(.) | map(select(length > 1) | .[0]) | .[]
