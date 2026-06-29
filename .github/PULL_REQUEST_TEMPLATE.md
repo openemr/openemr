@@ -17,6 +17,19 @@ If this resolves an existing issue, link to one or more issues in the short desc
 #### Changes proposed in this pull request:
 
 
+#### Certification impact
+
+<!--
+Required for all PRs targeting `master` on this fork. The ONC-certified
+core (e.g. CCDA/CCDS export, clinical quality measures, e-prescribing,
+audit logging) must not regress. See CONTRIBUTING.md > "Certification
+Safety" for what counts as certified code and which checks must be green.
+-->
+
+- [ ] Certified code touched: <!-- list files/areas, or write "None" -->
+- [ ] Why this change is safe: <!-- e.g. "additive only", "covered by Inferno suite", "n/a, FQHC module only" -->
+- [ ] Test evidence: <!-- link to CI run, or note which suites you ran locally and their result -->
+
 #### Was an AI assistant used? Yes / No
 
 <!--

@@ -96,6 +96,39 @@ Use `Generated-By` when AI produced the code directly, or `Assisted-By` when AI 
 
 If the AI made the commit directly (e.g., Claude Code), the trailer is typically added automatically. This records AI involvement in git history without cluttering the source code, and works for all change types including deletions and refactors.
 
+## Certification Safety
+
+This fork carries OpenEMR's ONC certification (2015 Edition Cures Update).
+Any change can put that certification at risk, not just changes inside
+`certification/` or `ci/inferno/` — certified functionality is woven through
+CCDA/CCDS import-export, clinical quality measures (CQM), e-prescribing,
+audit logging, and patient summary generation across `/src/`, `/library/`,
+and `/interface/`.
+
+**Required checks before merging to `master`:**
+
+- The full test suites: unit, API, services, e2e, and isolated tests
+  (`docker compose exec openemr /root/devtools clean-sweep-tests`, or
+  `composer phpunit-isolated` for the host-only subset).
+- The **Inferno Certification Test** workflow
+  (`.github/workflows/inferno-test.yml`), which runs the ONC certification
+  test kit against a live instance. This is the authoritative check for
+  certification regressions — a red Inferno run blocks merge.
+- PHPStan (level 10) and phpcs, which catch many regressions in typed
+  boundaries before they reach the certification suite.
+
+Repository administrators should configure these as required status
+checks in the `master` branch protection rule so a red run blocks merge
+automatically; this cannot be set from a pull request and must be done in
+repository Settings > Branches.
+
+**Every PR must state its certification impact** using the checklist in
+the PR template: what certified code was touched (or "none"), why the
+change is safe (e.g. additive-only, covered by an existing suite), and
+what test evidence backs that claim. FQHC-specific code added under
+`OpenEMR\FQHC` (module, routes, side tables) should be additive — it must
+not modify certified code paths in place.
+
 ## Code Quality on Host
 
 If you have PHP and Node.js installed locally, you can run code quality checks without Docker:
