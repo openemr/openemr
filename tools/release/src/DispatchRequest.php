@@ -24,6 +24,7 @@ final readonly class DispatchRequest
     public const EVENT_REL_UPDATE = 'openemr-rel-update';
     public const EVENT_TAG = 'openemr-tag';
     public const EVENT_DOCS_BINARIES = 'openemr-docs-binaries';
+    public const EVENT_RELEASE_TARGETS_CHANGED = 'release-targets-changed';
     public const EVENT_PROBE = 'release-permissions-probe';
 
     /**
