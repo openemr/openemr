@@ -21,6 +21,35 @@ OpenEMR is split across multiple repositories. Make sure your contribution targe
 
 When in doubt, ask on the forum or open an issue to discuss where the work belongs.
 
+## Upstream Sync
+
+This fork carries FQHC-specific additions on top of `openemr/openemr`.
+To keep divergence small and catch upstream changes that interact badly
+with the FQHC additions, a scheduled workflow
+(`.github/workflows/upstream-sync.yml`) runs weekly (and can be triggered
+manually via `workflow_dispatch`):
+
+1. It fetches `openemr/openemr:master` and merges it into a `chore/upstream-sync`
+   branch.
+2. If the merge is clean and there are new upstream commits, it opens (or
+   updates) a PR from `chore/upstream-sync` into this fork's `master`. The
+   PR goes through the normal required checks — including the Inferno
+   certification gate — before anyone merges it, so a sync never lands
+   without certification proof it didn't regress.
+3. If the merge has conflicts, the workflow run fails instead of opening a
+   PR. A maintainer needs to resolve the conflict manually:
+
+   ```sh
+   git fetch upstream master   # add the remote first if you haven't: git remote add upstream https://github.com/openemr/openemr.git
+   git checkout -B chore/upstream-sync
+   git merge upstream/master
+   # resolve conflicts, then:
+   git push -u origin chore/upstream-sync
+   ```
+
+   Open a PR from that branch once it merges cleanly; the workflow will
+   pick up subsequent syncs against the new `master` automatically.
+
 ## Commit Messages
 
 OpenEMR uses [Conventional Commits](https://www.conventionalcommits.org/) for all commits merged to `master` and `rel-*` branches. Your PR title must follow this format:

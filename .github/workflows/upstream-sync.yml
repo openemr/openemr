@@ -1,0 +1,66 @@
+name: Upstream Sync
+
+# Opens (or updates) a PR merging openemr/openemr:master into this fork's
+# master, so the merge gets the full CI suite — including the Inferno
+# certification gate — before anyone merges it. See issue #9 and
+# CONTRIBUTING.md > "Upstream Sync".
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Every Monday at 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/openemr/openemr.git
+          git fetch upstream master
+
+      - name: Check for new upstream commits
+        id: diff
+        run: |
+          count=$(git rev-list --count master..upstream/master)
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          echo "Upstream is $count commit(s) ahead of master."
+
+      - name: Create sync branch and merge upstream
+        if: ${{ steps.diff.outputs.count != '0' }}
+        run: |
+          git checkout -B chore/upstream-sync
+          git merge upstream/master --no-edit
+          git push --force origin chore/upstream-sync
+
+      - name: Open or update sync PR
+        if: ${{ steps.diff.outputs.count != '0' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh pr view chore/upstream-sync --json number >/dev/null 2>&1; then
+            echo "Sync PR already open, branch updated."
+          else
+            gh pr create \
+              --base master \
+              --head chore/upstream-sync \
+              --title "chore(deps): sync with upstream openemr/openemr" \
+              --body "Automated merge of \`openemr/openemr:master\` (${{ steps.diff.outputs.count }} new commit(s)) into this fork's \`master\`.
+
+This PR exists to run the full CI suite — including the Inferno certification gate — against the merge before it lands. If the merge step in this workflow failed instead of opening this PR, upstream and this fork have diverged with conflicts that need manual resolution; see CONTRIBUTING.md > \"Upstream Sync\"."
+          fi
