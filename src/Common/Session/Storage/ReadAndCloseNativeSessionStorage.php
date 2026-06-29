@@ -37,15 +37,15 @@ class ReadAndCloseNativeSessionStorage extends NativeSessionStorage
 
     private bool $wasOriginallyReadAndClose = false;
 
-    /**
-     * @param AbstractProxy|\SessionHandlerInterface|null $handler
-     */
-    public function __construct(SessionConfiguration $options, AbstractProxy|\SessionHandlerInterface|null $handler = null, ?MetadataBag $metaBag = null)
-    {
+    public function __construct(
+        SessionConfiguration $options,
+        AbstractProxy|\SessionHandlerInterface|null $handler = null,
+        ?MetadataBag $metaBag = null,
+    ) {
         // Extract read_and_close before parent sees it (parent would silently drop it)
         $this->readAndClose = $options->readAndClose;
 
-        parent::__construct($options, $handler, $metaBag);
+        parent::__construct($options->toSessionStartOptions(), $handler, $metaBag);
     }
 
     /**
