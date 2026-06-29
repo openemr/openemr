@@ -29,7 +29,19 @@ $assetBase = OEGlobalsBag::getInstance()->getWebRoot() . "/interface/modules/cus
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $faxsmsServiceType = $_REQUEST['type'] ?? null;
-$serviceType = is_string($faxsmsServiceType) ? $faxsmsServiceType : '';
+// Re-map the request channel to a known literal. This whitelists the value
+// AND breaks request taint at the source: $serviceType is now one of four
+// compile-time constants, never the raw $_REQUEST value. Everything
+// MessageUiProfile builds from it (tab labels, column headers, raw <th>
+// markup) is therefore no longer "echoed user input" to the Semgrep
+// echoed-request taint rule. Do NOT collapse this back to a pass-through of
+// the raw request value (e.g. is_string(...) ? $faxsmsServiceType : '').
+$serviceType = match ($faxsmsServiceType) {
+    'sms' => 'sms',
+    'email' => 'email',
+    'fax' => 'fax',
+    default => '',
+};
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
 $serviceEnum = ServiceType::fromValue($service);
@@ -208,9 +220,9 @@ $site_id = $session->get('site_id');
                                             <tr>
                                                 <?php foreach ($faxsmsCols as $faxsmsCol) {
                                                     if (is_array($faxsmsCol) && isset($faxsmsCol['raw'])) {
-                                                        echo is_string($faxsmsCol['raw']) ? $faxsmsCol['raw'] : ''; // nosemgrep: echoed-request -- controlled pre-built markup from MessageUiProfile
+                                                        echo is_string($faxsmsCol['raw']) ? $faxsmsCol['raw'] : ''; // Controlled <th> markup from MessageUiProfile (attr()/xlt()-built); untainted via the $serviceType whitelist above.
                                                     } else {
-                                                        echo '<th>' . (is_string($faxsmsCol) ? $faxsmsCol : '') . '</th>'; // nosemgrep: echoed-request -- xlt()-escaped column label from MessageUiProfile
+                                                        echo '<th>' . (is_string($faxsmsCol) ? $faxsmsCol : '') . '</th>'; // xlt()-escaped column label from MessageUiProfile; untainted via the $serviceType whitelist above.
                                                     }
                                                 } ?>
                                             </tr>
