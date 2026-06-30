@@ -84,24 +84,32 @@ The release-mechanism is now the *only* reason `openemr-devops` still receives
 - Co-locates the tooling with the source it operates on
 - Shortens the maintainer iteration loop (one repo, one PR, one CI surface)
 
-## Current execution order (revised 2026-06-23)
+## Current execution order (revised 2026-06-23; renumbered 2026-06-30)
 
 The original plan below treated this as one big linear migration ("Phased
-plan" section). Post-8.1.1-prep, the plan re-orders into 6 workstreams
+plan" section). Post-8.1.1-prep, the plan re-orders into 7 workstreams
 ordered by **what's next to happen in production**, with the actual
 devops→core migration last (when all the upstream learnings are baked in).
-Workstreams 2 and 3 below are *not* migration work — they're net-new
+Workstreams 2, 3, and 6 below are *not* migration work — they're net-new
 optimization on top of release tooling that already lives in
 `openemr/openemr`.
+
+**Renumbering note (2026-06-30):** the actual devops→core migration was
+previously slot 6. Workstream 6 is now patch-prep automation (PR #12697
+in-flight); the migration moved to slot 7. References to "workstream 6"
+elsewhere in this doc that pre-date 2026-06-30 mean the migration —
+treated as workstream 7 going forward, and updated in place where
+encountered.
 
 | # | Workstream | Where the code lives | Est. | Rationale |
 |---|---|---|---|---|
 | 1 | **Remove unused stuff in devops** — **SHIPPED 2026-06-28** | openemr-devops + openemr/openemr | ~1 day | Required prerequisite for 8.1.1 ship (workstream 4). Trio of PRs landed 2026-06-28: openemr-devops#835 (collapse ship-release to 2-PR shape + delete dead rotation slice), openemr/openemr#12631 (docs collapsed to 2-PR shape), openemr/openemr#12619 (wire vendored-contract drift check via devops reusable workflow). Originally framed as "safe drop-in cleanup" — re-classified 2026-06-24 after tracing the ship flow: the Infra PR slot (openemr-devops PR #760, `release-rotation/auto`) was frozen with pre-docker-migration content that would either block ship-release.yml's preflight or silently undo the docker migration on merge. Workstream 1 collapsed ship-release to 2-PR shape, eliminating the Infra slot entirely. Maps to the original Phase 1 PR 1a + 1b + 1c detailed below. |
-| 2 | **rel-820 cut readiness** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen after the 8.1.1 ship. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. |
+| 2 | **rel-820 cut readiness** | openemr/openemr (already) | ~2-3 days | Next thing actually scheduled to happen after the 8.1.1 ship. Address G4 (master-scope mutator wiring for `8.X.0-dev → 8.X+1.0-dev` advance) + G5 (auto-trigger when `rel-NNN0` cut). Plus cross-branch-cut automation script. **Not migration work** — the conductor + mutators all already live in `openemr/openemr` core; this workstream extends them. PR #12696 open as of 2026-06-30. |
 | 3 | **Per-release-on-rel-branch optimization** | openemr/openemr (already) | ~3-4 days | Apply 8.1.1 learnings. P1-P4 (docker upgrade machinery, version.php bump, release-targets row bump) are 100% mechanical; build a release-cycle-bot script that takes `X.Y.Z` + rel branch and generates the prep PRs. Folds in G7 (rel-810 surgical conductor sync), G8 (regression tests on master + rel-810). Pays dividends every patch release going forward. **Not migration work** — release-prep tooling already in core. |
-| 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. **Blocked by workstream 1** — see analysis below. Lessons feed back into workstream 6's design. |
+| 4 | **Ensure 8.1.1 ship works** | openemr/openemr (validation) | hours | When PR #12377 lands and the post-tag flow fires for the first time end-to-end. Most consumer dispatches fire to devops's still-live workflows; this is the validation of the half-migrated state. **Blocked by workstream 1** — see analysis below. Lessons feed back into workstream 7's design. |
 | 5 | **Automate demo farm derivation (G6)** | demo_farm_openemr | ~3-4 days | Cross-repo work — build automation in `demo_farm_openemr` that derives `ip_map_branch.txt` + `demoLibrary.source` from `openemr/openemr`'s `release-targets.yml` + per-rel-branch Dockerfile ARGs. Orthogonal to release-mechanism migration; can run in parallel with any other workstream. |
-| 6 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-5 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 6 entry (downgraded from blocking — see "Pre-Phase-1 architectural decision" section). Detailed phases in "Phased plan" section below cover the workstream-6 internals. |
+| 6 | **Patch-prep automation** | openemr/openemr (already) | ~2-3 days | Sibling to workstream 2 but for patch-dev-cycle start instead of minor-branch cut: when a maintainer bumps `$v_patch` in `version.php` on a `rel-*` branch, fire a workflow that opens 2 coordinated ready-for-review PRs (rel-side + master-side) carrying the mechanical bootstrap work — docker upgrade scaffolding on both, new SQL upgrade skeleton on both, master bridge-file rename, master release-targets row insert + placeholder drop. Reuses the workstream 2 mutator framework (`DockerUpgradeScaffoldMutator`, `SqlUpgradeSkeletonMutator`) plus 2 new mutators. PR #12697 open as of 2026-06-30 (built on PR #12696's branch). **Not migration work** — patch-prep tooling lives entirely in `openemr/openemr` core. |
+| 7 | **Migrate release stuff from devops to core** | openemr-devops → openemr/openemr | ~5+ days | The actual migration. All workstream 1-6 learnings baked in. Reusable-workflow-pattern decision revisited at workstream 7 entry (downgraded from blocking — see "Pre-Phase-1 architectural decision" section). Detailed phases in "Phased plan" section below cover the workstream-7 internals. (Previously numbered workstream 6 before the 2026-06-30 renumber for patch-prep.) |
 
 **Sequencing notes:**
 
@@ -131,16 +139,20 @@ optimization on top of release tooling that already lives in
   repos / different files / no critical-path overlap)
 - **Workstream 4 (8.1.1 ship) unblocks the moment workstream 1 lands**
   — happens whenever 8.1.1 is ready to go after that
-- **Workstream 6 (the actual migration) starts after 1-5 are well in hand**
+- **Workstream 6 (patch-prep automation) shares its mutator framework with
+  workstream 2** — PR #12697 is based on PR #12696's branch. Lands after
+  workstream 2 lands and rebases.
+- **Workstream 7 (the actual migration) starts after 1-6 are well in hand**
 
 **Updated execution timeline:**
 
 1. Land workstream 1 (PR 1a coordinated with PR 1b — see Phase 1 detail
    below). Close PR #760 as cosmetic cleanup after workstream 1 merges.
 2. 8.1.1 ships (workstream 4) — `gh workflow run ship-release.yml --repo openemr/openemr-devops -f version=8.1.1 -f rel_branch=rel-810`
-3. Workstreams 2, 3, 5 proceed in parallel after 8.1.1 ships (or alongside,
-   if appetite for concurrent work)
-4. Workstream 6 (actual migration) begins when 2/3/5 are stable
+3. Workstreams 2, 3, 5, 6 proceed in parallel after 8.1.1 ships (or
+   alongside, if appetite for concurrent work). Workstream 6 rebases
+   onto landed workstream 2.
+4. Workstream 7 (actual migration) begins when 2/3/5/6 are stable
 
 This re-order has the load-bearing property that **most workstreams are
 not migration work** — they're net-new optimizations on tooling already in
@@ -232,12 +244,21 @@ subsection.
 
 - **If pursuing 8.1.1** (rel-810 ships per original plan): workstream 3
   Phase B (cherry-pick PR #12662's conductor extension to rel-810) lands
-  first; workstream 2 follows.
+  first; workstream 2 follows. **Workstream 6 (patch-prep automation,
+  PR #12697) interaction:** if patch-prep ships before 8.1.1 ships, the
+  workstream 3 Phase B cherry-pick to rel-810 also needs to include the
+  patch-prep workflow + supporting PHP — otherwise rel-810's first
+  $v_patch bump (8.1.1 → 8.1.2-dev right after ship) fires nothing.
+  Practically: bundle the patch-prep workflow YAML + new mutators into
+  the same Phase B cherry-pick set, or accept a one-time manual
+  patch-prep PR pair for the 8.1.1 → 8.1.2 transition.
 - **If skipping 8.1.1 → 8.2.0**: workstream 3 Phase B becomes
   unnecessary (rel-820 inherits master's post-Phase-A conductor). The
   rel-820 cut becomes the first end-to-end exercise of both the
   conductor's master partner PR (Phase A) AND the branch-cut workflow
-  (workstream 2).
+  (workstream 2). Workstream 6's patch-prep workflow rides along on
+  master from the start and fires correctly on rel-820's first $v_patch
+  bump (8.2.0 → 8.2.1-dev) without any cherry-pick needed.
 
 ### Workstream 3 detail — release-time partner PR + release-cycle-bot
 
@@ -375,11 +396,114 @@ workflow level** — they're decoupled via the data file.
 Full design (algorithm, per-input source map, section ownership
 matrix, edge cases, 3-PR scaffolding plan) in gaps doc G6.
 
-The remaining sections of this doc detail workstream 6's internals (the
-actual migration) with the original Phase-1-through-6 structure. Workstreams
-1-5 details + tracking will live in separate planning artifacts (gaps doc
-for G4/G5/G6/G7/G8, plus per-workstream sub-issues when they enter active
-development).
+### Workstream 6 — patch-prep automation
+
+**Status:** In-flight as of 2026-06-30. PR #12697 open (built on top of
+workstream 2's PR #12696 branch; rebases cleanly once #12696 lands).
+
+**What it automates.** The per-patch-cycle bootstrap work that mirrors
+workstream 2's per-cut bootstrap. When a maintainer bumps `$v_patch` in
+`version.php` on a `rel-*` branch — e.g., rel-810 going `8.1.0` →
+`8.1.1-dev` to open the next dev cycle — the workflow opens **two
+coordinated ready-for-review PRs** (not drafts; patch-prep PRs should
+land fast, paving the way for the new dev cycle):
+
+- **Rel-side** (`patch-prep/<rel-branch>` → base `<rel-branch>`): docker
+  upgrade scaffolding (3 docker-version files bumped + new
+  `fsupgrade-(N+1).sh` stub + Dockerfile manifest update in BOTH the
+  `COPY upgrade/...` block AND the `RUN chmod 500 ...` block) + new SQL
+  upgrade skeleton `sql/X_Y_(P-1)-to-X_Y_P_upgrade.sql`.
+- **Master-side** (`patch-prep/<rel-branch>-master` → base `master`):
+  same docker upgrade scaffolding (cross-branch sync) + same new SQL
+  upgrade skeleton (mirrored from rel) + master bridge-file rename
+  (`sql/X_Y_(P-1)-to-X_(Y+1)_0_upgrade.sql` → `sql/X_Y_P-to-X_(Y+1)_0_upgrade.sql`,
+  contents preserved) + `.github/release-targets.yml` row insert (new
+  dev row for the next patch) + drop any `unreleased: true` placeholder
+  rows for that rel branch.
+
+**Mutator reuse from workstreams 2 + 3.** No code duplication —
+patch-prep is a new conductor command (`openemr:patch-prep`) over the
+existing mutator framework:
+
+- `DockerUpgradeScaffoldMutator` — reused as-is from workstream 2. Same
+  scaffold operation both sides, same cross-branch sync requirement.
+- `SqlUpgradeSkeletonMutator` — reused with extension. Patch-prep
+  introduces `MutatorContext::$fromVersion` (optional, `MAJOR.MINOR.PATCH`)
+  because rel-side `version.php` has already been bumped at workflow
+  trigger time — the post-bump `$v_patch` is the *target*, not the
+  *from*. The mutator falls through to its existing version.php-derived
+  behavior when `fromVersion` is null, so workstream 2's branch-cut
+  callers don't need updates. **Back-compat by construction.**
+- 2 new mutators introduced by this workstream:
+  - `MasterSqlPatchBridgeMutator` — master-side. Renames the long-lived
+    bridge file as above; preserves the file body verbatim (it
+    accumulates in-flight dev-cycle SQL). Reports BOTH old + new paths
+    in `MutatorResult::changedFiles` since rename = delete + create.
+  - `PatchPrepReleaseTargetsMutator` — master-side. Inserts the new dev
+    row for the target rel branch (`docker_tags: <target>,next`) and
+    drops `unreleased: true` rows scoped to that same rel branch only
+    (unlike `BranchCutReleaseTargetsMutator` which drops uniformly).
+    Same line-based surgical-edit approach as the existing release-targets
+    mutators to preserve comments; Symfony YAML parser used as a
+    structural sanity check on the result.
+
+**Trigger.** `on: push` to `branches: rel-*` with `paths: version.php`.
+A resolver step then:
+
+1. Skips cleanly on branch-creation events (`before` SHA all zeros) —
+   workstream 2 owns that lifecycle event.
+2. Fetches before-state + after-state `version.php` via the GitHub API
+   (`github.event.before` vs `github.event.after`) and parses
+   `$v_major`, `$v_minor`, `$v_patch`, `$v_tag`.
+3. **Gate 1**: `$v_patch` must have strictly increased. Cosmetic edits
+   to other parts of `version.php` skip cleanly.
+4. **Gate 2**: after-state `$v_tag` must be `-dev`. Release-prep's
+   mid-flight `-dev` strip during a ship flow also bumps `$v_patch` in
+   some scenarios; that's not our event.
+5. **Gate 3**: same major + same minor before/after (catches edge
+   cases).
+
+If all gates pass, derives `target_version = MAJOR.MINOR.after_patch`
+and `prev_version = MAJOR.MINOR.before_patch`, then runs the conductor
+both sides via dual-checkout + peter-evans pattern (same as workstream
+2 and workstream 3 Phase A).
+
+`workflow_dispatch` escape hatch with explicit `rel-branch`,
+`target-version`, `prev-version` inputs for manual recovery from a
+workflow miss.
+
+**PR shape.** Ready-for-review (not draft). Mirrors workstream 2's
+branch-cut PRs in this respect — bootstrap work should be reviewed and
+merged fast. Branch names: `patch-prep/<rel-branch>` (rel-side) and
+`patch-prep/<rel-branch>-master` (master-side).
+
+**Lifecycle relationship to workstreams 2 + 3.**
+
+| Lifecycle event | Workstream | Trigger |
+|---|---|---|
+| Minor branch cut (`rel-NNN0` created) | 2 | `on: create:` for `rel-NNN0` refs |
+| Patch dev cycle start ($v_patch bump on rel branch) | **6** | `on: push:` `rel-*` w/ `paths: version.php` + resolver gate |
+| Per-release ship (rel branch merges to tag) | 3 | conductor `on: push:` `rel-*` (existing) |
+
+Together, workstreams 2 + 3 + 6 cover the full release-lifecycle
+automation surface. Workstream 2 fires once per minor at cut time;
+workstream 6 fires once per patch at dev-cycle start (between ships);
+workstream 3's conductor + release-finalize fires once per ship.
+
+**Implementation goal: ONE PR (#12697)** for the entire workstream 6
+(new command + 2 new mutators + `MutatorContext` extension + new
+workflow + tests). Same single-PR rationale as workstream 2 — the
+pieces only make sense together.
+
+Full design (gates, sample diffs both sides, mutator order, edge cases)
+in gaps doc G12.
+
+The remaining sections of this doc detail workstream 7's internals (the
+actual migration; formerly numbered workstream 6 before the 2026-06-30
+renumber for patch-prep) with the original Phase-1-through-6 structure.
+Workstreams 1-6 details + tracking live in separate planning artifacts
+(gaps doc for G4/G5/G6/G7/G8/G11/G12, plus per-workstream sub-issues
+when they enter active development).
 
 ## Proposed model
 
@@ -481,10 +605,10 @@ practical drift surface is just rel-810.
 | Setup cost during migration | Lower (copy existing pattern) | Higher (caller/impl decomposition per workflow) |
 | Surface that needs byte-identity enforcement | Whole workflow + tooling files | Only the thin caller stubs (~3-5 files per branch) |
 
-**Decision deferred to workstream 6 (migration) entry** (per maintainer,
-2026-06-23). The reusable-workflow POC was originally proposed as
-Phase-1-blocking. Downgraded to "revisit when workstream 6 starts"
-because:
+**Decision deferred to workstream 7 (migration) entry** (per maintainer,
+2026-06-23; renumbered from workstream 6 on 2026-06-30). The
+reusable-workflow POC was originally proposed as Phase-1-blocking.
+Downgraded to "revisit when workstream 7 starts" because:
 
 - The actual G7 fallout is bounded — rel-810 already got the surgical
   backport (openemr/openemr#12611); rel-800 and rel-704 will rotate out
@@ -499,7 +623,7 @@ because:
 - 8.1.1 ships ~1 week out (2026-06-23); locking the POC question pre-ship
   isn't justified given the bounded blast radius.
 
-**Revisit criteria at workstream 6 entry:**
+**Revisit criteria at workstream 7 entry:**
 - Has any new G7-class bug surfaced on rel-810 between now and migration?
   Cheap signal — if yes, the case for restructuring strengthens.
 - Are the soon-to-be-migrated workflows (build-release-on-tag,
@@ -651,13 +775,15 @@ Everything else release-mechanism-related moves out. Devops's other content
 (kubernetes, packages, raspberrypi, utilities/openemr-*, docker/obsolete,
 mariadb-backup-manager, portainer) is unaffected.
 
-## Phased plan (workstream 6 internals)
+## Phased plan (workstream 7 internals)
 
-**Note:** This six-phase breakdown covers workstream 6's internals — the
-actual devops→core migration. Workstreams 1-5 from the "Current execution
-order" section above happen first (most of them in parallel) and are not
-detailed here. Phase 1 below is essentially identical to workstream 1
-(pre-migration cleanup); the rest are workstream 6's interior phasing.
+**Note:** This six-phase breakdown covers workstream 7's internals — the
+actual devops→core migration. (Workstream 7 was previously numbered
+workstream 6 before the 2026-06-30 renumber for patch-prep.) Workstreams
+1-6 from the "Current execution order" section above happen first (most
+of them in parallel) and are not detailed here. Phase 1 below is
+essentially identical to workstream 1 (pre-migration cleanup); the rest
+are workstream 7's interior phasing.
 
 Six phases. Phase 1 is pre-migration cleanup (small PRs that don't change
 behavior contracts). Phases 2-6 do the actual move with each phase preserving
