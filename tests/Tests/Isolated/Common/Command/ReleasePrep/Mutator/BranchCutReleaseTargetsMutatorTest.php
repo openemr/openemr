@@ -189,12 +189,19 @@ final class BranchCutReleaseTargetsMutatorTest extends TestCase
 
         $parsed = Yaml::parse($this->readTarget());
         self::assertIsArray($parsed);
+        $masterRow = null;
         foreach ($parsed as $row) {
             self::assertIsArray($row);
             if ($row['branch'] === 'master') {
-                self::assertSame('8.3.0,dev', $row['docker_tags']);
+                $masterRow = $row;
+                break;
             }
         }
+        self::assertNotNull(
+            $masterRow,
+            'master row must remain present after branch-cut; a regression that dropped it would otherwise silently pass.',
+        );
+        self::assertSame('8.3.0,dev', $masterRow['docker_tags']);
     }
 
     public function testCommentsArePreservedOnMasterBumpAndRelInsert(): void

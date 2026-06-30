@@ -71,6 +71,9 @@ final readonly class TranslationFileCopyFromPriorRelMutator implements MutatorIn
             ['git', 'fetch', '--no-tags', '--depth=1', $this->remoteUrl, $prev],
             $context->projectDir,
         );
+        // The translation blob is ~23 MB; pulling it over a slow network
+        // can exceed Symfony Process's 60s default. Match the show step.
+        $fetch->setTimeout(300);
         $fetch->run();
         if (!$fetch->isSuccessful()) {
             throw new \RuntimeException(
@@ -84,7 +87,8 @@ final readonly class TranslationFileCopyFromPriorRelMutator implements MutatorIn
             ['git', 'show', 'FETCH_HEAD:' . self::RELATIVE_PATH],
             $context->projectDir,
         );
-        // git show emits binary-clean output; raise the output buffer cap.
+        // git show streams the full ~23 MB blob; raise the execution
+        // timeout above Symfony Process's 60s default.
         $show->setTimeout(300);
         $show->run();
         if (!$show->isSuccessful()) {

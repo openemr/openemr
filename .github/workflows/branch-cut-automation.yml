@@ -18,6 +18,11 @@ on:
         description: 'rel-NNN0 branch name (e.g., rel-820). Required when running manually.'
         type: string
         required: true
+      prev-rel-branch:
+        description: 'Prior rel-NNN0 branch name (e.g., rel-810). Optional override; required for first-minor cuts (e.g., rel-810) where auto-derivation cannot decrement minor below 1.'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -65,6 +70,7 @@ jobs:
         EVENT_NAME: ${{ github.event_name }}
         EVENT_REF: ${{ github.event.ref }}
         INPUT_REL_BRANCH: ${{ inputs.rel-branch }}
+        INPUT_PREV_REL_BRANCH: ${{ inputs.prev-rel-branch }}
       run: |
         case "${EVENT_NAME}" in
           workflow_dispatch)
@@ -88,11 +94,20 @@ jobs:
             major="${BASH_REMATCH[1]}"
             minor="${BASH_REMATCH[2]}"
             target_version="${major}.${minor}.0"
-            if [ "${minor}" -gt 1 ]; then
+            # Manual dispatch may override prev-rel-branch (required for
+            # first-minor cuts where auto-derivation can't decrement
+            # below minor=1; also useful as a general escape hatch).
+            if [ -n "${INPUT_PREV_REL_BRANCH}" ]; then
+              if ! [[ "${INPUT_PREV_REL_BRANCH}" =~ ^rel-[0-9]+$ ]]; then
+                echo "::error::workflow_dispatch input prev-rel-branch '${INPUT_PREV_REL_BRANCH}' does not match expected rel-<digits> pattern"
+                exit 1
+              fi
+              prev_rel_branch="${INPUT_PREV_REL_BRANCH}"
+            elif [ "${minor}" -gt 1 ]; then
               prev_minor=$((minor - 1))
               prev_rel_branch="rel-${major}${prev_minor}0"
             else
-              echo "::error::cannot auto-derive prev-rel-branch for first-minor cut '${rel_branch}'; supply via workflow_dispatch input or hand-edit"
+              echo "::error::cannot auto-derive prev-rel-branch for first-minor cut '${rel_branch}' (minor=${minor}); re-run via workflow_dispatch with the prev-rel-branch input set"
               exit 1
             fi
         else
