@@ -3,10 +3,13 @@
 /**
  * Context passed to every release-prep mutator. Holds the parsed target
  * version and the project root each mutator operates against, plus
- * optional inputs (image digest, rel branch identifier) supplied by the
- * conductor workflow. Existing mutators ignore the optional fields they
- * don't need; PostReleaseTargetsMutator requires `relBranch` to know
- * which row of release-targets.yml to mutate.
+ * optional inputs (image digest, rel branch identifier, prior rel branch
+ * identifier) supplied by the conductor or branch-cut workflows. Existing
+ * mutators ignore the optional fields they don't need;
+ * PostReleaseTargetsMutator requires `relBranch` to know which row of
+ * release-targets.yml to mutate; TranslationFileCopyFromPriorRelMutator
+ * requires `prevRelBranch` to know which rel branch to fetch the
+ * translation blob from.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -28,6 +31,7 @@ final readonly class MutatorContext
         public int $patch,
         public ?string $imageDigest = null,
         public ?string $relBranch = null,
+        public ?string $prevRelBranch = null,
     ) {
         if ($imageDigest !== null && preg_match('/^sha256:[0-9a-f]{64}$/', $imageDigest) !== 1) {
             throw new \InvalidArgumentException(
@@ -39,6 +43,11 @@ final readonly class MutatorContext
                 'relBranch must match rel-<digits>; got: ' . $relBranch,
             );
         }
+        if ($prevRelBranch !== null && preg_match('/^rel-\d+$/', $prevRelBranch) !== 1) {
+            throw new \InvalidArgumentException(
+                'prevRelBranch must match rel-<digits>; got: ' . $prevRelBranch,
+            );
+        }
     }
 
     public static function fromVersionString(
@@ -46,13 +55,22 @@ final readonly class MutatorContext
         string $version,
         ?string $imageDigest = null,
         ?string $relBranch = null,
+        ?string $prevRelBranch = null,
     ): self {
         if (preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $version, $m) !== 1) {
             throw new \InvalidArgumentException(
                 'Target version must be MAJOR.MINOR.PATCH; got: ' . $version,
             );
         }
-        return new self($projectDir, (int) $m[1], (int) $m[2], (int) $m[3], $imageDigest, $relBranch);
+        return new self(
+            $projectDir,
+            (int) $m[1],
+            (int) $m[2],
+            (int) $m[3],
+            $imageDigest,
+            $relBranch,
+            $prevRelBranch,
+        );
     }
 
     /**
