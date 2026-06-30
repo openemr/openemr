@@ -1017,7 +1017,16 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                // Fill in any missing keys with empty strings so every field below resolves.
+                $loc = (is_array($loc) ? $loc : []) + [
+                    'event_location' => '',
+                    'event_street1'  => '',
+                    'event_street2'  => '',
+                    'event_city'     => '',
+                    'event_state'    => '',
+                    'event_postal'   => '',
+                ];
                 $events[$i]['location']   = $prepFunction($loc['event_location']);
                 $events[$i]['street1']    = $prepFunction($loc['event_street1']);
                 $events[$i]['street2']    = $prepFunction($loc['event_street2']);
@@ -1371,7 +1380,16 @@ function &postcalendar_userapi_pcQueryEvents($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = unserialize($tmp['location'], ['allowed_classes' => false]);
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                // Fill in any missing keys with empty strings so every field below resolves.
+                $loc = (is_array($loc) ? $loc : []) + [
+                    'event_location' => '',
+                    'event_street1'  => '',
+                    'event_street2'  => '',
+                    'event_city'     => '',
+                    'event_state'    => '',
+                    'event_postal'   => '',
+                ];
                 $events[$i]['location']   = $prepFunction($loc['event_location']);
                 $events[$i]['street1']    = $prepFunction($loc['event_street1']);
                 $events[$i]['street2']    = $prepFunction($loc['event_street2']);
