@@ -319,11 +319,8 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
 
         while ($totalPaidRecord = sqlFetchArray($totalPaidAmountSql)) {
-            $date = (string) $totalPaidRecord['Date'];
-            $facilityName = (string) $totalPaidRecord['facilityName'];
-            $providerName = (string) $totalPaidRecord['provider_name'];
-            $totalPaid[$date][$facilityName][$providerName]['paidAmount'] ??= 0;
-            $totalPaid[$date][$facilityName][$providerName]['paidAmount'] += (float) $totalPaidRecord['totalPaidAmount'];
+            $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] ??= 0;
+            $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] += $totalPaidRecord['totalPaidAmount'];
         }
 
         // merge all array recursive in to one array

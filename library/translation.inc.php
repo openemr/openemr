@@ -31,7 +31,8 @@ if (!(function_exists('xl'))) {
      */
     function xl($constant)
     {
-        if ($constant === '') {
+        // @phpstan-ignore identical.alwaysFalse (callers pass null at runtime despite the literal-string hint; guard avoids preg_replace(null) deprecation)
+        if ($constant === null || $constant === '') {
             return '';
         }
         if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
