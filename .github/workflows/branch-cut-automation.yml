@@ -1,10 +1,12 @@
 name: Branch-Cut Automation
 
 # Fires when a new rel-NNN0 branch is created (or via manual dispatch for
-# recovery). Opens two coordinated draft PRs: one on the new rel branch
-# (rel-side mutations) and one on master (next-dev advance + release-targets
-# row insert + slot shuffle). See docs/release-mechanism-gaps.md (G4 + G5)
-# and docs/release-mechanism-migration-from-devops.md (workstream 2 detail).
+# recovery). Opens two coordinated ready-for-review PRs (not drafts — cut
+# PRs should be brought in as quickly as possible after the cut): one on
+# the new rel branch (rel-side mutations) and one on master (next-dev
+# advance + release-targets row insert + slot shuffle). See
+# docs/release-mechanism-gaps.md (G4 + G5) and
+# docs/release-mechanism-migration-from-devops.md (workstream 2 detail).
 
 on:
   create:
@@ -175,7 +177,7 @@ jobs:
         commit-message: 'chore(release): branch-cut ${{ steps.resolve.outputs.rel-branch }} (rel-side)'
         author: 'openemr-release-bot <release-bot@openemr.invalid>'
         committer: 'openemr-release-bot <release-bot@openemr.invalid>'
-        draft: true
+        draft: false
         delete-branch: false
 
     # --- Master-side --------------------------------------------------
@@ -232,5 +234,5 @@ jobs:
         commit-message: 'chore(release): branch-cut ${{ steps.resolve.outputs.rel-branch }} (master-side)'
         author: 'openemr-release-bot <release-bot@openemr.invalid>'
         committer: 'openemr-release-bot <release-bot@openemr.invalid>'
-        draft: true
+        draft: false
         delete-branch: false
