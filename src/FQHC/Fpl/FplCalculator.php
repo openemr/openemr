@@ -10,6 +10,13 @@
  * guessed band), and the band is decided from the exact income ratio while the
  * displayed percentage is rounded.
  *
+ * The band is a function of income and household size ONLY. The manual forbids
+ * inferring it from any other signal — homeless, migratory/seasonal or Medicaid
+ * status must never be treated as below-poverty on that basis alone
+ * (UDS-DATA-MODEL-VALIDATION.md §1). This method takes only an
+ * `IncomeDetermination`, so no such inference is structurally possible; keep it
+ * that way — do not add a "derive band from status" shortcut.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Claude Code

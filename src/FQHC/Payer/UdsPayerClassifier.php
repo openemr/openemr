@@ -9,6 +9,15 @@
  * missing code so the UI can flag it as unclassified rather than guessing a
  * bucket (UDS numbers must not be fabricated).
  *
+ * Reporting-layer note (epic #4): Table 4 has no "Unknown"/"Unclassified"
+ * insurance column — every counted patient lands in one of the five buckets.
+ * The report generator must therefore coerce a null here to None/Uninsured
+ * (Line 7) at counting time, and apply the principal-insurance tie-breaks the
+ * single-code mapping cannot (dually eligible → Medicare; Medicaid/CHIP managed
+ * care administered by a private plan → Medicaid/Other Public, not Private),
+ * plus the 8a/8b, 9a, 10a/10b sub-line granularity. Those rules belong with the
+ * report, not this Snapshot-facing classifier — see UDS-DATA-MODEL-VALIDATION.md §4.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Claude Code

@@ -20,6 +20,27 @@ schema.
 > this project does **not** add SOGI as a new UDS requirement (OpenEMR already
 > has the fields if a center wants them locally).
 
+> **Validated against the authoritative 2025 manual.** Every data element here
+> has been cross-checked against the in-force *2025 UDS Manual* text in
+> [`Documentation/UDS/`](../../Documentation/UDS/), with the line-by-line proof
+> and the resulting corrections recorded in
+> [`UDS-DATA-MODEL-VALIDATION.md`](./UDS-DATA-MODEL-VALIDATION.md). When that doc
+> and this spec disagree, the manual wins. Status of its §7 corrections in the
+> shipped `OpenEMR\FQHC` code:
+>
+> - **Homeless `Unknown` (Table 4 Line 22)** — present in `HomelessStatus`. ✅
+> - **Income never inferred from status/Medicaid** — band derives only from
+>   `IncomeDetermination`; `FplBand::Unknown` is first-class, never defaulted to
+>   ≤100%. ✅
+> - **Payer never emits "Unknown" at the Snapshot** — no coverage maps to
+>   None/Uninsured; an unrecognized code is surfaced as *unclassified*, not
+>   guessed. ✅ The Table-4 null→None coercion, dually-eligible→Medicare and
+>   managed-care tie-breaks, and sub-line (8a/8b/9a/10a/10b) granularity are
+>   **reporting-layer** rules deferred to the report generator (epic #4).
+> - **Reporting-year awareness** (member months / SOGI are version-scoped, not
+>   schema deletions) follows the §8 design and is implemented with the
+>   reporting layer (epic #4).
+
 ### 2026 Proposed PAL changes applied to this spec
 
 Source: **HRSA PAL 2025-05, "Proposed UDS Changes for CY 2026"** (reported Feb
