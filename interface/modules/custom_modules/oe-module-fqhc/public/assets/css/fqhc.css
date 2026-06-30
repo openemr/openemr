@@ -190,3 +190,41 @@
   border-radius: var(--fqhc-radius-sm);
   box-shadow: var(--fqhc-focus-ring);
 }
+
+/* Tabular report data. The design system has no table component, so report
+   tables use this style inside an fqhc-card. */
+.fqhc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fqhc-font-size-sm);
+}
+.fqhc-table th,
+.fqhc-table td {
+  padding: var(--fqhc-space-2) var(--fqhc-space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--fqhc-border);
+}
+.fqhc-table th + th,
+.fqhc-table td + td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.fqhc-table thead th {
+  color: var(--fqhc-color-primary-strong);
+  font-size: var(--fqhc-font-size-xs);
+  font-weight: var(--fqhc-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.fqhc-table tfoot th {
+  border-top: 2px solid var(--fqhc-border-strong);
+  border-bottom: none;
+  font-weight: var(--fqhc-font-weight-semibold);
+}
+.fqhc-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.fqhc-table-detail td:first-child {
+  padding-left: var(--fqhc-space-5);
+  color: var(--fqhc-text-muted);
+}

@@ -1,0 +1,167 @@
+{#
+  UDS patient-characteristics report (epic #4).
+
+  Renders Tables 3A, 3B, 4 and the ZIP Code Table for a reporting year, with the
+  cross-table reconciliation status. Server-rendered shell + design-system
+  components; tabular data uses the .fqhc-table style.
+
+  Context:
+    year        — selected reporting calendar year (int).
+    yearOptions — list<int> of selectable years.
+    report      — view model from OpenEMR\FQHC\Reporting\UdsReportPresenter::present().
+
+  TwigContainer disables autoescaping, so values are escaped explicitly.
+
+  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="fqhc-root">
+  <div class="fqhc-container">
+
+    <fqhc-page-header
+      heading="UDS Report — {{ year }}"
+      subheading="Patient characteristics for {{ report.summary.cohortSize }} patient(s) seen in {{ year }}">
+      <div slot="actions" class="fqhc-cluster">
+        {% if report.summary.consistent %}
+          <fqhc-status-badge variant="success">Reconciled</fqhc-status-badge>
+        {% else %}
+          <fqhc-status-badge variant="warning">Review needed</fqhc-status-badge>
+        {% endif %}
+      </div>
+    </fqhc-page-header>
+
+    <form method="get" class="fqhc-row-between fqhc-inline-form">
+      <div class="fqhc-field">
+        <label for="year">Reporting year</label>
+        <select id="year" name="year" onchange="this.form.submit()">
+          {% for option in yearOptions %}
+            <option value="{{ option }}"{{ option == year ? ' selected' : '' }}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="fqhc-button">View</button>
+    </form>
+
+    {% if report.summary.cohortSize == 0 %}
+      <fqhc-card heading="No patients">
+        <fqhc-empty-state message="No patients had a visit in {{ year }}."></fqhc-empty-state>
+      </fqhc-card>
+    {% else %}
+      <div class="fqhc-stack">
+
+        {% if not report.summary.consistent %}
+          <fqhc-card heading="Reconciliation">
+            <p class="fqhc-note">
+              The unduplicated patient totals do not yet agree across all tables
+              (patient totals agree: {{ report.summary.patientTotalsAgree ? 'yes' : 'no' }};
+              ZIP insurance columns match Table 4: {{ report.summary.zipColumnsAgree ? 'yes' : 'no' }}).
+              Patients missing an age or sex are dropped from Tables 3A/4 and need data-quality cleanup.
+            </p>
+          </fqhc-card>
+        {% endif %}
+
+        <fqhc-card heading="Table 4 — Income as a percentage of the Federal Poverty Level">
+          <table class="fqhc-table">
+            <thead><tr><th>Income band</th><th>Patients</th></tr></thead>
+            <tbody>
+              {% for row in report.income.rows %}
+                <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+              {% endfor %}
+            </tbody>
+            <tfoot><tr><th>Total patients</th><th>{{ report.income.total }}</th></tr></tfoot>
+          </table>
+        </fqhc-card>
+
+        <fqhc-card heading="Table 4 — Principal third-party medical insurance">
+          <table class="fqhc-table">
+            <thead><tr><th>Category</th><th>0–17</th><th>18 and over</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for row in report.insurance.rows %}
+                <tr>
+                  <td>{{ row.label|e('html') }}</td>
+                  <td>{{ row.age0to17 }}</td>
+                  <td>{{ row.age18AndOver }}</td>
+                  <td>{{ row.total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot><tr><th>Total patients</th><th></th><th></th><th>{{ report.insurance.total }}</th></tr></tfoot>
+          </table>
+        </fqhc-card>
+
+        <fqhc-card heading="Table 4 — Special populations">
+          <table class="fqhc-table">
+            <thead><tr><th>Population</th><th>Patients</th></tr></thead>
+            <tbody>
+              {% for row in report.specialPopulations %}
+                <tr><td>{{ row.label|e('html') }}</td><td>{{ row.count }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </fqhc-card>
+
+        <fqhc-card heading="Table 3A — Patients by age and by sex">
+          <table class="fqhc-table">
+            <thead><tr><th>Age group</th><th>Male</th><th>Female</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for row in report.ageSex.rows %}
+                <tr>
+                  <td>{{ row.label|e('html') }}</td>
+                  <td>{{ row.male }}</td>
+                  <td>{{ row.female }}</td>
+                  <td>{{ row.total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr><th>Total patients</th><th>{{ report.ageSex.male }}</th><th>{{ report.ageSex.female }}</th><th>{{ report.ageSex.total }}</th></tr>
+            </tfoot>
+          </table>
+        </fqhc-card>
+
+        <fqhc-card heading="Table 3B — Race and Hispanic/Latino ethnicity">
+          <table class="fqhc-table">
+            <thead><tr><th>Race</th><th>Hispanic</th><th>Not Hispanic</th><th>Unreported</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for row in report.race.rows %}
+                <tr class="{{ row.detail ? 'fqhc-table-detail' : '' }}">
+                  <td>{{ row.label|e('html') }}</td>
+                  <td>{{ row.hispanic }}</td>
+                  <td>{{ row.notHispanic }}</td>
+                  <td>{{ row.unreported }}</td>
+                  <td>{{ row.total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr><th>Total patients</th><th>{{ report.race.hispanic }}</th><th>{{ report.race.notHispanic }}</th><th>{{ report.race.unreported }}</th><th>{{ report.race.total }}</th></tr>
+            </tfoot>
+          </table>
+          <fqhc-field-row label="Best served in a language other than English" value="{{ report.race.language }}"></fqhc-field-row>
+        </fqhc-card>
+
+        <fqhc-card heading="Patients by ZIP Code">
+          <table class="fqhc-table">
+            <thead><tr><th>ZIP</th><th>Uninsured</th><th>Medicaid / CHIP / Other Public</th><th>Medicare</th><th>Private</th><th>Total</th></tr></thead>
+            <tbody>
+              {% for row in report.zip.rows %}
+                <tr>
+                  <td>{{ row.label|e('html') }}</td>
+                  <td>{{ row.uninsured }}</td>
+                  <td>{{ row.publicInsurance }}</td>
+                  <td>{{ row.medicare }}</td>
+                  <td>{{ row.private }}</td>
+                  <td>{{ row.total }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+            <tfoot>
+              <tr><th>Total patients</th><th>{{ report.zip.uninsured }}</th><th>{{ report.zip.publicInsurance }}</th><th>{{ report.zip.medicare }}</th><th>{{ report.zip.private }}</th><th>{{ report.zip.total }}</th></tr>
+            </tfoot>
+          </table>
+        </fqhc-card>
+
+      </div>
+    {% endif %}
+
+  </div>
+</div>
