@@ -19,7 +19,7 @@
   "homepage": "https://github.com/openemr/cda-schematron#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "eslint": "^10.5.0",
+    "eslint": "^10.6.0",
     "globals": "^17.7.0",
     "mocha": "^11.7.6"
   },
