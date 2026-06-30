@@ -246,8 +246,10 @@ class SessionUtil
             ]
         );
 
-        // Destroy the session.
-        session_destroy();
+        // Destroy the session if active.
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
         ServiceContainer::getLogger()->debug("SessionUtil: destroyed session and cookie", [
             'session_name' => $sessionName,
         ]);
