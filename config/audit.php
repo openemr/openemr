@@ -40,8 +40,9 @@ return [
     EventAuditLogger::class,
 
     AuditConfig::class => function (TC $c) {
+        // Parse the types into enum values; fail loudly on mismatch.
         $enabledCategories = array_filter(array_map(
-            fn (string $s) => EventCategory::tryFrom($s),
+            EventCategory::from(...),
             explode(',', $c->getString('AUDIT_EVENT_TYPES')),
         ));
         return new AuditConfig(
