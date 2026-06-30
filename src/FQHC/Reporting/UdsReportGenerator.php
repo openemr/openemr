@@ -50,13 +50,9 @@ final class UdsReportGenerator
     {
         $cohort = $this->source->cohortForYear($year);
 
-        /** @var list<Table3aPatientRecord> $table3aRecords */
         $table3aRecords = [];
-        /** @var list<Table3bPatientRecord> $table3bRecords */
         $table3bRecords = [];
-        /** @var list<ZipCodeTablePatientRecord> $zipRecords */
         $zipRecords = [];
-        /** @var list<Table4PatientRecord> $table4Records */
         $table4Records = [];
 
         foreach ($cohort as $pid) {

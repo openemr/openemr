@@ -28,9 +28,7 @@ final class ZipCodeTableReportBuilder
      */
     public function build(iterable $records): ZipCodeTableReport
     {
-        /** @var array<string, ZipResidence> $residences */
         $residences = [];
-        /** @var array<string, array<string, int>> $counts */
         $counts = [];
 
         foreach ($records as $record) {
