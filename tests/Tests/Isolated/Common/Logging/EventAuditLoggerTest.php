@@ -20,6 +20,7 @@ use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Logging\EventCategory;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +42,7 @@ class EventAuditLoggerTest extends TestCase
             forceBreakglass: false,
             queryEvents: true,
             httpRequestEvents: true,
-            eventTypeFlags: [],
+            enabledEventTypes: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
         $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
@@ -209,7 +210,7 @@ class EventAuditLoggerTest extends TestCase
             forceBreakglass: $forceBreakglass,
             queryEvents: true,
             httpRequestEvents: false,
-            eventTypeFlags: ['patient-record' => true, 'other' => true],
+            enabledEventTypes: [EventCategory::PatientRecord, EventCategory::Other],
         );
 
         $logger = new EventAuditLogger(

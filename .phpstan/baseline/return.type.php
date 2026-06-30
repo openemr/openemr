@@ -3257,6 +3257,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperFactory\\:\\:createInstance\\(\\) should return static\\(OpenEMR\\\\Common\\\\Session\\\\SessionWrapperFactory\\) but returns OpenEMR\\\\Common\\\\Session\\\\SessionWrapperFactory\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperFactory.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Utils\\\\FileUtils\\:\\:getExtensionFromMimeType\\(\\) should return string but returns int\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
