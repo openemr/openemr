@@ -18,9 +18,15 @@ use OpenEMR\Common\Database\{
     ConnectionType,
 };
 use OpenEMR\Common\Logging\{
+    Audit,
+    AuditConfig,
     BreakglassChecker,
     BreakglassCheckerInterface,
+    EventAuditLogger,
 };
+use Psr\Clock\ClockInterface;
+
+use function Firehed\Container\env;
 
 return [
     BreakglassCheckerInterface::class => BreakglassChecker::class,
@@ -29,4 +35,44 @@ return [
     BreakglassChecker::class => fn (TC $c) => new BreakglassChecker(
         $c->get(ConnectionManager::class)->get(ConnectionType::NonAudited),
     ),
+
+    EventAuditLogger::class,
+    // TODO: GET THESE VALUES FROM SOMEWHERE
+    AuditConfig::class => fn (TC $c) => new AuditConfig(
+        enabled: false,
+        forceBreakglass: false,
+        queryEvents: false,
+        httpRequestEvents: false,
+        eventTypeFlags: [],
+    ),
+    Audit\SinkInterface::class => Audit\MultiSink::class,
+    Audit\MultiSink::class => function (TC $c) {
+        $sinks = [];
+        if ($c->getBool('ATNA_ENABLED')) {
+            $sinks[] = $c->get(Audit\AtnaSink::class);
+        }
+        return new Audit\MultiSink($sinks);
+    },
+
+
+    // ATNA logging config
+    Audit\Atna\TcpWriter::class => fn (TC $c) => new Audit\Atna\TcpWriter(
+        host: $c->getString('ATNA_AUDIT_HOST'),
+        port: $c->getInt('ATNA_AUDIT_PORT'),
+        localCert: $c->getString('ATNA_AUDIT_LOCALCERT'),
+        caCert: $c->getString('ATNA_AUDIT_CACERT'),
+    ),
+    Audit\AtnaSink::class => fn (TC $c) => new Audit\AtnaSink(
+        clock: $c->get(ClockInterface::class),
+        writer: $c->get(Audit\Atna\TcpWriter::class),
+        host: $c->getString('ATNA_AUDIT_HOST'),
+        serverName: '', // SERVER[SERVER_NAME]
+        serverAddress: '', // SERVER[SERVER_ADDRESS]
+    ),
+
+    'ATNA_ENABLED' => env('ATNA_ENABLED', 'false')->asBool(),
+    'ATNA_AUDIT_HOST' => env('ATNA_AUDIT_HOST'),
+    'ATNA_AUDIT_PORT' => env('ATNA_AUDIT_PORT', '6514')->asInt(),
+    'ATNA_AUDIT_LOCALCERT' => env('ATNA_AUDIT_LOCALCERT', ''),
+    'ATNA_AUDIT_CACERT' => env('ATNA_AUDIT_CACERT', ''),
 ];
