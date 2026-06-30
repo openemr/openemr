@@ -100,13 +100,25 @@ class EventAuditLogger
     }
 
     /**
-     * Returns true when the breakglass override should force logging for this
-     * user, even when logging would otherwise be disabled.
+     * Determines whether a SQL event should be logged based on config settings
+     * and breakglass overrides.
      */
-    private function shouldForceLogForUser(string $user): bool
+    private function shouldLogSqlEvent(string $user, string $querytype, string $event): bool
     {
-        return $this->config->forceBreakglass
-            && $this->breakglassChecker->isBreakglassUser($user);
+        // Selects from uncategorized tables are never logged
+        if ($querytype === 'select' && $event === 'other') {
+            return false;
+        }
+
+        // Breakglass override: log everything for emergency access users
+        if ($this->config->forceBreakglass && $this->breakglassChecker->isBreakglassUser($user)) {
+            return true;
+        }
+
+        // Normal path: all config flags must be satisfied
+        return $this->config->enabled
+            && ($querytype !== 'select' || $this->config->queryEvents)
+            && $this->config->isEventTypeEnabled($event);
     }
 
     /**
@@ -414,12 +426,6 @@ class EventAuditLogger
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $user = (string) ($this->session->get('authUser') ?? '');
-
-        if (!$this->config->enabled && !$this->shouldForceLogForUser($user)) {
-            return;
-        }
-
         $statement = trim((string) $statement);
 
         if (
@@ -441,10 +447,6 @@ class EventAuditLogger
                 $querytype = $qtype;
                 break;
             }
-        }
-
-        if ($querytype === 'select' && !$this->config->queryEvents && !$this->shouldForceLogForUser($user)) {
-            return;
         }
 
         $comments = $statement;
@@ -499,13 +501,10 @@ class EventAuditLogger
             }
         }
 
-        /* Avoid filling the audit log with trivial SELECT statements.
-         * Skip SELECTs from unknown tables.
-         */
-        if ($querytype == "select") {
-            if ($event == "other") {
-                return;
-            }
+        // Now that we know _what_ to log, check _if_ it should be logged
+        $user = (string) ($this->session->get('authUser') ?? '');
+        if (!$this->shouldLogSqlEvent($user, $querytype, $event)) {
+            return;
         }
 
         /* If the event is a patient-record, then note the patient id */
@@ -515,10 +514,6 @@ class EventAuditLogger
             if ($sessionPid !== null && $sessionPid != '') {
                 $pid = $sessionPid;
             }
-        }
-
-        if (!$this->config->isEventTypeEnabled($event) && !$this->shouldForceLogForUser($user)) {
-            return;
         }
 
         $event = $event . "-" . $querytype;
