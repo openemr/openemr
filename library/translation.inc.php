@@ -26,15 +26,18 @@ if (!(function_exists('xl'))) {
      * Note: In some installation scenarios this function may already be declared,
      * so we check to ensure it hasn't been declared yet.
      *
+     * The parameter is typed `literal-string` on purpose: translatable text is
+     * looked up by exact match against the lang_constants table, so it must be a
+     * source-code literal that the string-extraction tooling can collect. Passing
+     * a dynamic value (a database column, request input, a concatenation) cannot
+     * be translated and signals that the value should have been narrowed to a
+     * known string at the call site instead of handed to xl().
+     *
      * @param literal-string $constant The text constant to translate
      * @return string The translated string
      */
     function xl($constant)
     {
-        // @phpstan-ignore identical.alwaysFalse (callers pass null at runtime despite the literal-string hint; guard avoids preg_replace(null) deprecation)
-        if ($constant === null || $constant === '') {
-            return '';
-        }
         if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
             return $constant;
         }
