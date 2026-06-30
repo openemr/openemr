@@ -174,6 +174,120 @@ known debt` section:
   Implementation depends on whether the project has an upcoming rel
   cut event to use as the proving ground.
 
+- **Refinement (2026-06-30) — concrete file inventory + mutator audit:**
+
+  Concretely, at the cut of `rel-NNN0` (e.g., rel-820), the workflow
+  opens **two coordinated PRs** with the following contents.
+
+  **Both sides — docker upgrade scaffolding** (per PRs #12608/#12609 +
+  `feedback_docker_upgrade_actions_mandatory.md` memory):
+  1. Bump 3 docker-version files (currently `11` → `12` at rel-820 cut):
+     `docker-version`, `docker/release/upgrade/docker-version`,
+     `sites/default/docker-version`.
+  2. Create `docker/release/upgrade/fsupgrade-(N+1).sh` as a stub; per-
+     release work fills in the actual upgrade body before each ship.
+  3. Update `docker/release/Dockerfile` to add `fsupgrade-(N+1).sh` to
+     BOTH the `COPY upgrade/...` block AND the `RUN chmod 500 ...` block.
+
+  **Rel-NNN0 side specific** (the new branch):
+  4. Replace `contrib/util/language_translations/currentLanguage_utf8.sql`
+     with the file contents from the most recent prior rel branch (for
+     rel-820 cut, from rel-810). The file is ~250k lines; the bot fetches
+     prior rel's blob via git, doesn't synthesize.
+  5. In `library/globals.inc.php`: flip `allow_debug_language` default
+     from `'1'` (dev) to `'0'` (production). The comment in-file
+     spells it out: *"default = true during development and false for
+     production releases."*
+  6. In `docker/release/Dockerfile`: change `ARG OPENEMR_VERSION=master`
+     to `ARG OPENEMR_VERSION=rel-NNN0`. Single-line surgical edit.
+
+  **Master side specific** (next-dev advance):
+  7. `version.php`: bump `$v_minor` (8.M.0-dev → 8.(M+1).0-dev), reset
+     `$v_patch = '0'`, keep `$v_tag = '-dev'`.
+  8. `src/RestControllers/OpenApi/OpenApiDefinitions.php`: bump the
+     `#[OA\Info(version: '8.M.0')]` attribute to `8.(M+1).0`.
+  9. `swagger/openemr-api.yaml`: regenerated from #8 via the existing
+     `openemr:create-api-documentation` command.
+  10. Create `sql/8_M_0-to-8_(M+1)_0_upgrade.sql` as a stub containing
+      the "Comment Meta Language Constructs" big header (~150 lines of
+      `--` comments documenting `#IfNotTable`, `#IfColumn`, etc.; no
+      body).
+  11. `.github/release-targets.yml`: add a new row for rel-NNN0
+      (`docker_tags: 8.M.0,next`, `openemr_version_ref: rel-NNN0`),
+      bump the master row's docker_tags (drop `next` if present + bump
+      minor, e.g., `8.2.0,dev,next` → `8.3.0,dev`), drop any rows
+      marked `unreleased: true` (covers the skip-line scenario; see
+      below).
+
+  **Mutator audit (2026-06-30) — most of this already exists:**
+
+  | Mutator | Reusable as-is for cut? |
+  | --- | --- |
+  | `VersionPhpMasterMutator` | ✅ Already exists. Item #7 above. |
+  | `OpenApiVersionMutator` | ✅ Already exists. Item #8. |
+  | `SwaggerRegenMutator` | ✅ Already exists. Item #9. Runs AFTER OpenApiVersionMutator. |
+  | `SqlUpgradeSkeletonMutator` | ✅ Already exists. Item #10. Reads "from" from version.php; "to" from target. |
+  | `GlobalsIncMutator` | ✅ Already exists. Item #5. |
+  | `DockerUpgradeScaffoldMutator` | **NEW** — items #1, #2, #3 (could be 1 mutator or split into 3). |
+  | `DockerfileOpenemrVersionMutator` | **NEW** — item #6 (rel-side only). |
+  | `TranslationFileCopyFromPriorRelMutator` | **NEW** — item #4 (rel-side only). Needs git fetch of prior rel's blob. |
+  | `BranchCutReleaseTargetsMutator` | **NEW** — item #11. Sibling to G11's `PostReleaseTargetsMutator`; same line-based surgical-edit approach to preserve comments. |
+
+  **Command + workflow shape:**
+
+  - **New command** `openemr:branch-cut` (sibling to `openemr:release-prep`,
+    not an extension of `--scope=master` — Phase A in G11 established
+    `--scope=master` as release-time only). Takes `--target-version`,
+    `--rel-branch`, `--prev-rel-branch`, internal `--side=rel|master`
+    to pick mutator list. Each side has its own list:
+    - `relSideMutators`: `[DockerUpgradeScaffoldMutator,
+      DockerfileOpenemrVersionMutator, TranslationFileCopyFromPriorRelMutator,
+      GlobalsIncMutator]`
+    - `masterSideMutators`: `[DockerUpgradeScaffoldMutator,
+      VersionPhpMasterMutator, OpenApiVersionMutator, SwaggerRegenMutator,
+      SqlUpgradeSkeletonMutator, BranchCutReleaseTargetsMutator]`
+  - **New workflow** `.github/workflows/branch-cut-automation.yml` on
+    master. Triggers: `on: create:` filtered to `refs/heads/rel-[0-9]*0`
+    via `github.event.ref_type == 'branch'` + regex match in a job
+    `if:`. Plus `workflow_dispatch:` with `rel-branch` input for manual
+    override/recovery. Mirrors Phase A's dual-checkout pattern: one
+    job, two PRs opened via peter-evans against different branches.
+
+  **Skip-line cut scenario (e.g., 8.1.1 skipped; rel-820 cut while
+  rel-810 still exists but won't ship):** Maintainer pre-flags BOTH
+  rel-810 rows with `unreleased: true` BEFORE the cut. Once both rel-810
+  rows are unreleased, the `next` slot has no published owner, so master
+  acquires `next` interim (master's docker_tags becomes `8.2.0,dev,next`).
+  When the branch-cut workflow fires:
+  - `BranchCutReleaseTargetsMutator` adds the rel-820 row with `8.2.0,next`
+    (rel-820 takes the `next` slot from master).
+  - Same mutator drops master's `next` (back to `8.3.0,dev`) and bumps
+    minor.
+  - Same mutator removes the `unreleased: true` rows uniformly (covers
+    skip-line cleanup AND normal cut cases — no-op if none present).
+
+  The "normal cut" path (rel-810 shipped 8.1.1, slot already shuffled
+  by G11's PostReleaseTargetsMutator) produces an end-state identical to
+  the skip-line path: master `8.3.0,dev`, new rel `8.M.0,next`. The
+  mutator handles both cases uniformly without conditionals.
+
+  **Goal for the implementation PR: ONE PR for the entire workstream 2**
+  (new command + 4 new mutators + new workflow + tests). Keeps review
+  surface manageable for OpenEMR admin review. Trade-off vs. splitting:
+  a single coordinated PR is easier to reason about end-to-end (the
+  pieces only make sense together) and reviewers don't have to mentally
+  stitch together a half-shipped feature across multiple commits.
+
+  **Conditional sequencing depending on 8.1.1 decision (open as of
+  2026-06-30):**
+  - **If pursuing 8.1.1**: workstream 3's Phase B (cherry-pick PR
+    #12662 to rel-810) is the next milestone. Workstream 2 (this
+    branch-cut work) follows.
+  - **If skipping 8.1.1 → 8.2.0**: Phase B is unnecessary (rel-820
+    inherits the post-Phase-A conductor). Workstream 2 becomes the
+    next milestone immediately; the rel-820 cut is where everything
+    is exercised end-to-end for the first time.
+
 ### G6 — demo_farm_openemr's production-demo + flex-image mappings are manually maintained
 
 **STATUS: SHIPPED 2026-06-28.** Bot operational end-to-end. Demo_farm PRs: #135 (scaffold + dry-run), #138 (write + auto-PR mode), #141 (atomic flip retiring `bump-tag.yml` + `tools/release/` PHP toolchain), #142 (printf-dash bash bug fix), #143 (first real bot-produced reconciliation PR — `rel-704/800/810` col-3 tag-pin transitions). Sibling infra: #136 (dependabot github-actions weekly), #139 (shellcheck workflow with ratchet `.shellcheckrc`), #140 (issue tracking first ratchet: SC2115 rm-rf guard, 5 sites in demo_build.sh). Cross-repo dispatch event: openemr-devops#846 (canonical `release-targets-changed` event in dispatch.schema.json), openemr/openemr#12657 (vendored schema + `EVENT_RELEASE_TARGETS_CHANGED` + DispatchDataBuilder case + `.github/workflows/notify-release-targets-changed.yml` firing on push to release-targets.yml). Bonus phpstan CI cleanup: openemr#12658 (COMPOSER_AUTH band-aid for the wkhtmltopdf 429 flake) + openemr#12659 (real fix: dropped vestigial `Remove Rector` step — empirically verified phpstan output is byte-identical with rector installed vs removed).
