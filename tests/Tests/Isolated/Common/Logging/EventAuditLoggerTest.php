@@ -20,6 +20,7 @@ use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -134,5 +135,91 @@ class EventAuditLoggerTest extends TestCase
             comments: 'Test comments',
             patientId: 'NULL',
         );
+    }
+
+    /**
+     * @return array<string, array{
+     *   sql: string,
+     *   enabled: bool,
+     *   forceBreakglass: bool,
+     *   isBreakglassUser: bool,
+     *   expectLog: bool,
+     * }>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function breakglassOverrideProvider(): array
+    {
+        return [
+            'breakglass active: logs despite disabled config' => [
+                'sql' => 'SELECT * FROM patient_data WHERE pid = 1',
+                'enabled' => false,
+                'forceBreakglass' => true,
+                'isBreakglassUser' => true,
+                'expectLog' => true,
+            ],
+            'breakglass config off: skips even if user in group' => [
+                'sql' => 'SELECT * FROM patient_data WHERE pid = 1',
+                'enabled' => false,
+                'forceBreakglass' => false,
+                'isBreakglassUser' => true,
+                'expectLog' => false,
+            ],
+            'user not in breakglass group: skips even if config on' => [
+                'sql' => 'SELECT * FROM patient_data WHERE pid = 1',
+                'enabled' => false,
+                'forceBreakglass' => true,
+                'isBreakglassUser' => false,
+                'expectLog' => false,
+            ],
+            'breakglass does not override select from unknown table' => [
+                'sql' => 'SELECT * FROM some_unknown_table',
+                'enabled' => false,
+                'forceBreakglass' => true,
+                'isBreakglassUser' => true,
+                'expectLog' => false,
+            ],
+        ];
+    }
+
+    #[DataProvider('breakglassOverrideProvider')]
+    public function testAuditSQLEventBreakglassOverride(
+        string $sql,
+        bool $enabled,
+        bool $forceBreakglass,
+        bool $isBreakglassUser,
+        bool $expectLog,
+    ): void {
+        $sink = $this->createMock(SinkInterface::class);
+        $sink->expects($expectLog ? $this->once() : $this->never())
+            ->method('record');
+
+        $this->session->method('get')
+            ->willReturnMap([
+                ['authUser', null, 'testuser'],
+                ['authProvider', null, 'default'],
+                ['pid', null, null],
+            ]);
+
+        $this->breakglassChecker->method('isBreakglassUser')
+            ->willReturn($isBreakglassUser);
+
+        $config = new AuditConfig(
+            enabled: $enabled,
+            forceBreakglass: $forceBreakglass,
+            queryEvents: true,
+            httpRequestEvents: false,
+            eventTypeFlags: ['patient-record' => true, 'other' => true],
+        );
+
+        $logger = new EventAuditLogger(
+            sink: $sink,
+            session: $this->session,
+            config: $config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
+        );
+
+        $logger->auditSQLEvent($sql, true);
     }
 }
