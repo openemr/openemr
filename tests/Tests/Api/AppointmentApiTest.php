@@ -51,7 +51,9 @@ class AppointmentApiTest extends TestCase
 
         /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $postResponse->getBody(), true);
-        $this->appointmentEid = (int) $responseBody['id'];
+        $appointmentId = $responseBody['id'];
+        $this->assertIsInt($appointmentId);
+        $this->appointmentEid = $appointmentId;
         $this->assertGreaterThan(0, $this->appointmentEid);
     }
 
@@ -69,10 +71,9 @@ class AppointmentApiTest extends TestCase
 
         /** @var list<array<string, mixed>> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
-        $this->assertIsArray($responseBody);
         $this->assertNotEmpty($responseBody);
 
-        $eids = array_map(fn(array $record) => (int) $record['pc_eid'], $responseBody);
+        $eids = array_column($responseBody, 'pc_eid');
         $this->assertContains($this->appointmentEid, $eids);
     }
 
@@ -88,11 +89,10 @@ class AppointmentApiTest extends TestCase
 
         /** @var list<array<string, mixed>> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
-        $this->assertIsArray($responseBody);
         $this->assertNotEmpty($responseBody);
 
         $appointment = $responseBody[0];
-        $this->assertEquals($this->appointmentEid, (int) $appointment['pc_eid']);
+        $this->assertEquals($this->appointmentEid, $appointment['pc_eid']);
         $this->assertArrayHasKey('pc_title', $appointment);
         $this->assertArrayHasKey('pc_eventDate', $appointment);
         $this->assertArrayHasKey('pc_startTime', $appointment);
