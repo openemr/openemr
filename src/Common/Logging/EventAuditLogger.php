@@ -110,7 +110,10 @@ class EventAuditLogger
             return false;
         }
 
-        // Breakglass override: log everything for emergency access users
+        // Breakglass override: log everything for emergency access users,
+        // except uncategorized reads above (this has been preserved across
+        // refactors, not entirely clear if this was the originally intended
+        // behavior)
         if ($this->config->forceBreakglass && $this->breakglassChecker->isBreakglassUser($user)) {
             return true;
         }
