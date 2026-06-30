@@ -41,8 +41,8 @@ return [
     AuditConfig::class => fn (TC $c) => new AuditConfig(
         enabled: $c->getBool('AUDIT_ENABLE'),
         forceBreakglass: $c->getBool('AUDIT_BREAKGLASS_ACTIVITY'),
-        queryEvents: false,
-        httpRequestEvents: false,
+        queryEvents: $c->getBool('AUDIT_QUERIES'),
+        httpRequestEvents: $c->getBool('AUDIT_HTTP_REQUESTS'),
         eventTypeFlags: [],
     ),
     Audit\SinkInterface::class => Audit\MultiSink::class,
@@ -71,7 +71,9 @@ return [
         serverAddress: '', // SERVER[SERVER_ADDRESS]
     ),
     'AUDIT_ENABLE' => env('AUDIT_EVENTS', 'true')->asBool(),
-    'AUDIT_EVENTS' => env('AUDIT_EVENTS', 'query,http-request,patient-record,scheduling,order,lab-order,lab-results,security-administrator,other'),
+    'AUDIT_QUERIES' => env('AUDIT_QUERIES', 'true')->asBool(),
+    'AUDIT_HTTP_REQUESTS' => env('AUDIT_HTTP_REQUESTS', 'true')->asBool(),
+    'AUDIT_EVENT_TYPES' => env('AUDIT_EVENT_TYPES', 'patient-record,scheduling,order,lab-order,lab-results,security-administrator,other'),
     'AUDIT_BREAKGLASS_ACTIVITY' => env('AUDIT_BREAKGLASS_ACTIVITY', 'true')->asBool(),
 
 
