@@ -49,7 +49,10 @@ return [
     Audit\SinkInterface::class => Audit\MultiSink::class,
     Audit\MultiSink::class => function (TC $c) {
         $sinks = [];
-        // TODO: LogTablesSink
+        $auditConn = $c->get(ConnectionManager::class)
+            ->get(ConnectionType::NonAudited);
+        // Future: make this configurable
+        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
         if ($c->getBool('ATNA_ENABLED')) {
             $sinks[] = $c->get(Audit\AtnaSink::class);
         }
