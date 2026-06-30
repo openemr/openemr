@@ -52,10 +52,36 @@ final readonly class MutatorContext
                 'prevRelBranch must match rel-<digits>; got: ' . $prevRelBranch,
             );
         }
-        if ($fromVersion !== null && preg_match('/^\d+\.\d+\.\d+$/', $fromVersion) !== 1) {
-            throw new \InvalidArgumentException(
-                'fromVersion must match MAJOR.MINOR.PATCH; got: ' . $fromVersion,
-            );
+        if ($fromVersion !== null) {
+            if (preg_match('/^(\d+)\.(\d+)\.(\d+)$/', $fromVersion, $fm) !== 1) {
+                throw new \InvalidArgumentException(
+                    'fromVersion must match MAJOR.MINOR.PATCH; got: ' . $fromVersion,
+                );
+            }
+            $fromMajor = (int) $fm[1];
+            $fromMinor = (int) $fm[2];
+            $fromPatch = (int) $fm[3];
+            if ($fromMajor !== $major || $fromMinor !== $minor) {
+                throw new \InvalidArgumentException(sprintf(
+                    'fromVersion must share major.minor with target (target=%d.%d.%d, got fromVersion=%s)',
+                    $major,
+                    $minor,
+                    $patch,
+                    $fromVersion,
+                ));
+            }
+            if ($fromPatch !== $patch - 1) {
+                throw new \InvalidArgumentException(sprintf(
+                    'fromVersion must be the immediate prior patch of target (target=%d.%d.%d expects fromVersion=%d.%d.%d, got %s)',
+                    $major,
+                    $minor,
+                    $patch,
+                    $major,
+                    $minor,
+                    $patch - 1,
+                    $fromVersion,
+                ));
+            }
         }
     }
 

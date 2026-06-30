@@ -120,8 +120,20 @@ jobs:
             fi
             # Fetch version.php contents at before + after via the API so
             # we can compare them without checking out the whole tree.
-            before_raw="$(gh api "repos/${REPO}/contents/version.php?ref=${EVENT_BEFORE}" --jq '.content' | base64 -d)"
-            after_raw="$(gh api "repos/${REPO}/contents/version.php?ref=${EVENT_AFTER}" --jq '.content' | base64 -d)"
+            # Silently dropping API errors here is intentional — under
+            # `set -euo pipefail` a 404 (e.g., the push is the commit that
+            # first adds version.php on a rel branch) or transient API
+            # blip would crash the whole step. The workflow has many
+            # other guards downstream; the goal here is to never crash
+            # the resolver on a non-event.
+            if ! before_b64="$(gh api "repos/${REPO}/contents/version.php?ref=${EVENT_BEFORE}" --jq '.content' 2>/dev/null)" \
+               || ! after_b64="$(gh api "repos/${REPO}/contents/version.php?ref=${EVENT_AFTER}" --jq '.content' 2>/dev/null)"; then
+              echo "Could not fetch version.php at before or after ref; skipping (likely first-time-adds version.php or transient API issue)."
+              echo "should-run=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            before_raw="$(printf '%s' "${before_b64}" | base64 -d)"
+            after_raw="$(printf '%s' "${after_b64}" | base64 -d)"
             parse_version_php() {
               local raw="$1" var
               for var in v_major v_minor v_patch v_tag; do
@@ -159,6 +171,25 @@ jobs:
             # strips -dev to ship; that's not our event.
             if [ "${after_tag}" != '-dev' ]; then
               echo "after $v_tag is '${after_tag}', not '-dev'; not a dev-cycle entry, skipping."
+              echo "should-run=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            # Gate: major/minor must be unchanged. A change crossing minor
+            # boundaries isn't a patch bump — it's a different lifecycle
+            # event (branch-cut or something stranger). Skip cleanly.
+            if [ "${before_major}" != "${after_major}" ] || [ "${before_minor}" != "${after_minor}" ]; then
+              echo "major/minor changed (before=${before_major}.${before_minor}, after=${after_major}.${after_minor}); not a patch-prep event."
+              echo "should-run=false" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            # Gate: before-state must have been -dev too. A non-dev -> -dev
+            # transition would mean we're re-entering dev right after a
+            # ship — that's a fresh patch dev cycle, but the before-state
+            # shape suggests something pushed release-prep finalization
+            # (-dev stripped) immediately followed by the patch bump in a
+            # single push; let a human inspect rather than auto-firing.
+            if [ "${before_tag}" != '-dev' ]; then
+              echo "before \$v_tag is '${before_tag}', not '-dev'; unusual transition, skipping."
               echo "should-run=false" >> "$GITHUB_OUTPUT"
               exit 0
             fi

@@ -145,4 +145,89 @@ final class MutatorContextTest extends TestCase
             self::assertStringContainsString('fromVersion', $e->getMessage());
         }
     }
+
+    public function testFromVersionWithMismatchedMajorRejected(): void
+    {
+        // target 8.1.2 with fromVersion 7.1.1 — major mismatch.
+        try {
+            new MutatorContext('/tmp/proj', 8, 1, 2, null, null, null, '7.1.1');
+            self::fail('Expected InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('share major.minor', $e->getMessage());
+        }
+    }
+
+    public function testFromVersionWithMismatchedMinorRejected(): void
+    {
+        // target 8.1.2 with fromVersion 8.0.9 — manual recovery passing
+        // a stale prior-minor patch would silently produce a wrong-anchor
+        // context. Must be rejected.
+        try {
+            MutatorContext::fromVersionString(
+                '/tmp/proj',
+                '8.1.2',
+                null,
+                'rel-810',
+                null,
+                '8.0.9',
+            );
+            self::fail('Expected InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('share major.minor', $e->getMessage());
+        }
+    }
+
+    public function testFromVersionWithNonImmediatePriorPatchRejected(): void
+    {
+        // target 8.1.3 with fromVersion 8.1.1 — gap of more than 1.
+        try {
+            MutatorContext::fromVersionString(
+                '/tmp/proj',
+                '8.1.3',
+                null,
+                'rel-810',
+                null,
+                '8.1.1',
+            );
+            self::fail('Expected InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('immediate prior patch', $e->getMessage());
+        }
+    }
+
+    public function testFromVersionEqualToTargetPatchRejected(): void
+    {
+        // target 8.1.1 with fromVersion 8.1.1 — must differ by exactly 1.
+        try {
+            MutatorContext::fromVersionString(
+                '/tmp/proj',
+                '8.1.1',
+                null,
+                'rel-810',
+                null,
+                '8.1.1',
+            );
+            self::fail('Expected InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('immediate prior patch', $e->getMessage());
+        }
+    }
+
+    public function testFromVersionAheadOfTargetRejected(): void
+    {
+        // target 8.1.1 with fromVersion 8.1.2 — backwards bump.
+        try {
+            MutatorContext::fromVersionString(
+                '/tmp/proj',
+                '8.1.1',
+                null,
+                'rel-810',
+                null,
+                '8.1.2',
+            );
+            self::fail('Expected InvalidArgumentException');
+        } catch (\InvalidArgumentException $e) {
+            self::assertStringContainsString('immediate prior patch', $e->getMessage());
+        }
+    }
 }
