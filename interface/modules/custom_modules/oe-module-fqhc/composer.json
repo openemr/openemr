@@ -1,0 +1,35 @@
+{
+    "name": "openemr/oe-module-fqhc",
+    "description": "FQHC module for OpenEMR — UDS-oriented data capture and a modern, responsive, role-aware UI layered additively on the ONC-certified core.",
+    "type": "openemr-module",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "OpenEMR FQHC project"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Modules\\Fqhc\\": "src/"
+        }
+    },
+    "extra": {
+        "openemr": {
+            "type": "custom-module",
+            "directory": "oe-module-fqhc"
+        }
+    },
+    "keywords": [
+        "openemr",
+        "module",
+        "fqhc",
+        "uds",
+        "design-system"
+    ],
+    "support": {
+        "issues": "https://github.com/Simonparkershames/openemr-fqhc/issues"
+    }
+}

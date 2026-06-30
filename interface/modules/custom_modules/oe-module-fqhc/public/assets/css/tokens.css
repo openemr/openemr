@@ -1,0 +1,91 @@
+/**
+ * FQHC Design System — Design Tokens
+ *
+ * The single source of truth for the FQHC look & feel. Tokens are CSS custom
+ * properties so they cascade into both the server-rendered shell and the
+ * Shadow DOM of the Web Component islands (custom properties pierce the shadow
+ * boundary, our components consume these names).
+ *
+ * Layered on top of the existing OpenEMR theme — these do not modify any
+ * certified stylesheet. Change values here, not in component files.
+ *
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+:root {
+  /* ----- Color: brand ----- */
+  --fqhc-color-primary: #0f766e;          /* teal-700 — calm, clinical, accessible */
+  --fqhc-color-primary-strong: #115e59;   /* teal-800 — hover/active */
+  --fqhc-color-primary-soft: #ccfbf1;     /* teal-100 — tints, selected rows */
+  --fqhc-color-accent: #4f46e5;           /* indigo-600 — links, focus accents */
+
+  /* ----- Color: semantic ----- */
+  --fqhc-color-success: #15803d;
+  --fqhc-color-success-soft: #dcfce7;
+  --fqhc-color-warning: #b45309;
+  --fqhc-color-warning-soft: #fef3c7;
+  --fqhc-color-danger: #b91c1c;
+  --fqhc-color-danger-soft: #fee2e2;
+  --fqhc-color-info: #1d4ed8;
+  --fqhc-color-info-soft: #dbeafe;
+  --fqhc-color-neutral: #475569;
+  --fqhc-color-neutral-soft: #f1f5f9;
+
+  /* ----- Color: surface & text ----- */
+  --fqhc-surface-page: #f8fafc;           /* slate-50 — page background */
+  --fqhc-surface-card: #ffffff;
+  --fqhc-surface-sunken: #f1f5f9;
+  --fqhc-border: #e2e8f0;                 /* slate-200 */
+  --fqhc-border-strong: #cbd5e1;          /* slate-300 */
+  --fqhc-text: #0f172a;                   /* slate-900 */
+  --fqhc-text-muted: #64748b;             /* slate-500 */
+  --fqhc-text-on-primary: #ffffff;
+
+  /* ----- Typography ----- */
+  --fqhc-font-sans: "Inter", "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --fqhc-font-size-xs: 0.75rem;     /* 12px */
+  --fqhc-font-size-sm: 0.8125rem;   /* 13px */
+  --fqhc-font-size-base: 0.9375rem; /* 15px */
+  --fqhc-font-size-lg: 1.125rem;    /* 18px */
+  --fqhc-font-size-xl: 1.375rem;    /* 22px */
+  --fqhc-font-size-2xl: 1.75rem;    /* 28px */
+  --fqhc-font-weight-regular: 400;
+  --fqhc-font-weight-medium: 500;
+  --fqhc-font-weight-semibold: 600;
+  --fqhc-line-height: 1.5;
+
+  /* ----- Spacing (4px base scale) ----- */
+  --fqhc-space-1: 0.25rem;
+  --fqhc-space-2: 0.5rem;
+  --fqhc-space-3: 0.75rem;
+  --fqhc-space-4: 1rem;
+  --fqhc-space-5: 1.5rem;
+  --fqhc-space-6: 2rem;
+  --fqhc-space-8: 3rem;
+
+  /* ----- Radius ----- */
+  --fqhc-radius-sm: 6px;
+  --fqhc-radius-md: 10px;
+  --fqhc-radius-lg: 16px;
+  --fqhc-radius-pill: 999px;
+
+  /* ----- Elevation ----- */
+  --fqhc-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --fqhc-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --fqhc-shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+
+  /* ----- Focus (WCAG 2.1 AA visible focus) ----- */
+  --fqhc-focus-ring: 0 0 0 3px rgba(79, 70, 229, 0.45);
+
+  /* ----- Motion ----- */
+  --fqhc-transition: 150ms ease;
+
+  /* ----- Layout ----- */
+  --fqhc-container-max: 1200px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --fqhc-transition: 0ms;
+  }
+}

@@ -1,0 +1,192 @@
+/**
+ * FQHC Design System — Layout & base
+ *
+ * Layout primitives and base typography for the FQHC content area. Scoped under
+ * `.fqhc-root` so it never bleeds into the surrounding OpenEMR shell. Consumes
+ * tokens from tokens.css — no hard-coded colors or sizes here.
+ *
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+.fqhc-root,
+.fqhc-root *,
+.fqhc-root *::before,
+.fqhc-root *::after {
+  box-sizing: border-box;
+}
+
+.fqhc-root {
+  font-family: var(--fqhc-font-sans);
+  font-size: var(--fqhc-font-size-base);
+  line-height: var(--fqhc-line-height);
+  color: var(--fqhc-text);
+  background: var(--fqhc-surface-page);
+  -webkit-font-smoothing: antialiased;
+  padding: var(--fqhc-space-5) var(--fqhc-space-4) var(--fqhc-space-8);
+  min-height: 100%;
+}
+
+.fqhc-container {
+  max-width: var(--fqhc-container-max);
+  margin-inline: auto;
+}
+
+/* Responsive card grid: single column on phones, auto-fills on larger viewports. */
+.fqhc-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--fqhc-space-4);
+  margin-top: var(--fqhc-space-5);
+}
+
+/* Prevent long values from blowing out a grid track on small screens. */
+.fqhc-grid > * {
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  .fqhc-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .fqhc-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .fqhc-grid > .fqhc-grid-wide {
+    grid-column: span 2;
+  }
+}
+
+.fqhc-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fqhc-space-3);
+}
+
+.fqhc-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--fqhc-space-2);
+  align-items: center;
+}
+
+/* Income form (and future inline forms). */
+.fqhc-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fqhc-space-3);
+  margin-top: var(--fqhc-space-4);
+  padding-top: var(--fqhc-space-4);
+  border-top: 1px solid var(--fqhc-border);
+}
+
+.fqhc-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fqhc-space-1);
+  font-size: var(--fqhc-font-size-sm);
+  color: var(--fqhc-text-muted);
+}
+
+.fqhc-field input,
+.fqhc-field select,
+.fqhc-form input[type="number"] {
+  font: inherit;
+  font-size: var(--fqhc-font-size-base);
+  color: var(--fqhc-text);
+  padding: var(--fqhc-space-2) var(--fqhc-space-3);
+  border: 1px solid var(--fqhc-border-strong);
+  border-radius: var(--fqhc-radius-sm);
+  background: var(--fqhc-surface-card);
+}
+
+.fqhc-field input:focus-visible,
+.fqhc-field select:focus-visible,
+.fqhc-form input:focus-visible {
+  outline: none;
+  border-color: var(--fqhc-color-accent);
+  box-shadow: var(--fqhc-focus-ring);
+}
+
+.fqhc-row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fqhc-space-2);
+}
+
+.fqhc-inline-form {
+  margin: 0;
+}
+
+.fqhc-link-button {
+  font: inherit;
+  font-size: var(--fqhc-font-size-xs);
+  color: var(--fqhc-color-danger);
+  background: none;
+  border: none;
+  padding: var(--fqhc-space-1) var(--fqhc-space-2);
+  cursor: pointer;
+  border-radius: var(--fqhc-radius-sm);
+}
+
+.fqhc-link-button:hover {
+  text-decoration: underline;
+}
+
+.fqhc-link-button:focus-visible {
+  outline: none;
+  box-shadow: var(--fqhc-focus-ring);
+}
+
+.fqhc-check {
+  display: flex;
+  align-items: center;
+  gap: var(--fqhc-space-2);
+  font-size: var(--fqhc-font-size-sm);
+  color: var(--fqhc-text);
+}
+
+.fqhc-button {
+  align-self: flex-start;
+  font: inherit;
+  font-weight: var(--fqhc-font-weight-semibold);
+  color: var(--fqhc-text-on-primary);
+  background: var(--fqhc-color-primary);
+  border: none;
+  border-radius: var(--fqhc-radius-sm);
+  padding: var(--fqhc-space-2) var(--fqhc-space-5);
+  cursor: pointer;
+  transition: background var(--fqhc-transition);
+}
+
+.fqhc-button:hover {
+  background: var(--fqhc-color-primary-strong);
+}
+
+.fqhc-button:focus-visible {
+  outline: none;
+  box-shadow: var(--fqhc-focus-ring);
+}
+
+.fqhc-note {
+  margin: var(--fqhc-space-3) 0 0;
+  font-size: var(--fqhc-font-size-sm);
+  color: var(--fqhc-color-warning);
+}
+
+/* Links inside the FQHC area. */
+.fqhc-root a {
+  color: var(--fqhc-color-accent);
+  text-decoration: none;
+}
+.fqhc-root a:hover {
+  text-decoration: underline;
+}
+.fqhc-root a:focus-visible {
+  outline: none;
+  border-radius: var(--fqhc-radius-sm);
+  box-shadow: var(--fqhc-focus-ring);
+}
