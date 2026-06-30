@@ -100,6 +100,16 @@ class EventAuditLogger
     }
 
     /**
+     * Returns true when the breakglass override should force logging for this
+     * user, even when logging would otherwise be disabled.
+     */
+    private function shouldForceLogForUser(string $user): bool
+    {
+        return $this->config->forceBreakglass
+            && $this->breakglassChecker->isBreakglassUser($user);
+    }
+
+    /**
      * Keep track of the table mapping in a class constant to prevent reloading the data each time the method is called.
      *
      * @var array
@@ -406,11 +416,8 @@ class EventAuditLogger
     {
         $user = (string) ($this->session->get('authUser') ?? '');
 
-        /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (!$this->config->enabled) {
-            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
-                return;
-            }
+        if (!$this->config->enabled && !$this->shouldForceLogForUser($user)) {
+            return;
         }
 
         $statement = trim((string) $statement);
@@ -436,11 +443,8 @@ class EventAuditLogger
             }
         }
 
-        /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !$this->config->queryEvents) {
-            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
-                return;
-            }
+        if ($querytype === 'select' && !$this->config->queryEvents && !$this->shouldForceLogForUser($user)) {
+            return;
         }
 
         $comments = $statement;
@@ -513,7 +517,7 @@ class EventAuditLogger
             }
         }
 
-        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user))) {
+        if (!$this->config->isEventTypeEnabled($event) && !$this->shouldForceLogForUser($user)) {
             return;
         }
 
