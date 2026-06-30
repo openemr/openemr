@@ -185,7 +185,59 @@ cycle, re-rendered on each push, eventually marked Ready + merged
 when 8.X.0 actually ships. Suppressing the conductor's first run
 adds non-trivial logic with edge cases; the visual nuisance is small.
 
-Full design in gaps doc G5.
+**Refinement (2026-06-30) — audit reduces new code burden + concrete plan:**
+Audit of existing mutators (in `src/Common/Command/ReleasePrep/Mutator/`)
+revealed that 5 of them already do exactly what branch-cut needs on
+master-side and rel-side: `VersionPhpMasterMutator` (already exists),
+`OpenApiVersionMutator` (already exists), `SwaggerRegenMutator` (already
+exists), `SqlUpgradeSkeletonMutator` (already exists, scaffold the new
+SQL upgrade stub), `GlobalsIncMutator` (already exists, flips the
+`allow_debug_language` global). Workstream 2 implementation only needs
+**4 new mutators**: `DockerUpgradeScaffoldMutator` (both sides — 3
+docker-version bumps + new `fsupgrade-N.sh` stub + Dockerfile manifest
+update per PRs #12608/#12609), `DockerfileOpenemrVersionMutator`
+(rel-side, flip `ARG OPENEMR_VERSION=master → rel-NNN0`),
+`TranslationFileCopyFromPriorRelMutator` (rel-side, copy
+`contrib/util/language_translations/currentLanguage_utf8.sql` from prior
+rel branch), `BranchCutReleaseTargetsMutator` (master-side, sibling to
+G11's PostReleaseTargetsMutator: adds the new rel row with `next` tag,
+drops `next` from master row + bumps minor, removes any `unreleased:
+true` rows — uniformly handles both normal-cut and skip-line-cut paths).
+
+**Slot dynamics at cut:** rel-NNN0 takes the `next` slot from master
+(rel-820 row gets `docker_tags: 8.2.0,next`; master row drops `next` +
+bumps from `8.2.0,dev,next` → `8.3.0,dev`). Master only has `next` in
+the interim when no other rel branch holds it (covered by both the
+"normal cut" path after G11's PostReleaseTargetsMutator runs at the
+prior release's ship, AND the "skip-line cut" path where the maintainer
+flagged the prior rel branch's rows as `unreleased: true`).
+
+**Command + workflow shape:** new sibling command `openemr:branch-cut`
+(NOT a `--scope=branch-cut` extension to `openemr:release-prep`; Phase A
+in G11 established `--scope=master` as release-time only). Takes
+`--target-version`, `--rel-branch`, `--prev-rel-branch`, internal
+`--side=rel|master` for mutator-list selection. New workflow
+`.github/workflows/branch-cut-automation.yml` on master, `on: create:`
+filtered to `refs/heads/rel-[0-9]*0` (plus `workflow_dispatch:` escape
+hatch). Same dual-checkout / peter-evans pattern as Phase A.
+
+**Implementation goal: ONE PR for the entire workstream 2** (new
+command + 4 new mutators + new workflow + tests). Easier review for
+OpenEMR admins — the pieces only make sense together. Full file-level
+inventory + mutator audit in gaps doc G5 "Refinement (2026-06-30)"
+subsection.
+
+**Conditional sequencing depending on 8.1.1 decision** (open as of
+2026-06-30):
+
+- **If pursuing 8.1.1** (rel-810 ships per original plan): workstream 3
+  Phase B (cherry-pick PR #12662's conductor extension to rel-810) lands
+  first; workstream 2 follows.
+- **If skipping 8.1.1 → 8.2.0**: workstream 3 Phase B becomes
+  unnecessary (rel-820 inherits master's post-Phase-A conductor). The
+  rel-820 cut becomes the first end-to-end exercise of both the
+  conductor's master partner PR (Phase A) AND the branch-cut workflow
+  (workstream 2).
 
 ### Workstream 3 detail — release-time partner PR + release-cycle-bot
 
