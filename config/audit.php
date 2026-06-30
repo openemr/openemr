@@ -40,17 +40,16 @@ return [
     EventAuditLogger::class,
 
     AuditConfig::class => function (TC $c) {
-        // Parse the types into enum values; fail loudly on mismatch.
-        $enabledCategories = array_filter(array_map(
+        $enabledCategories = array_map(
             EventCategory::from(...),
             explode(',', $c->getString('AUDIT_EVENT_TYPES')),
-        ));
+        );
         return new AuditConfig(
             enabled: $c->getBool('AUDIT_ENABLE'),
             forceBreakglass: $c->getBool('AUDIT_BREAKGLASS_ACTIVITY'),
             queryEvents: $c->getBool('AUDIT_QUERIES'),
             httpRequestEvents: $c->getBool('AUDIT_HTTP_REQUESTS'),
-            enabledEventTypes: array_values($enabledCategories),
+            enabledEventTypes: $enabledCategories,
         );
     },
     Audit\SinkInterface::class => Audit\MultiSink::class,
