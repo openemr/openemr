@@ -195,11 +195,11 @@ class EventAuditLoggerTest extends TestCase
             ->method('record');
 
         $this->session->method('get')
-            ->willReturnMap([
-                ['authUser', null, 'testuser'],
-                ['authProvider', null, 'default'],
-                ['pid', null, null],
-            ]);
+            ->willReturnCallback(fn (string $key) => match ($key) {
+                'authUser' => 'testuser',
+                'authProvider' => 'default',
+                default => null,
+            });
 
         $this->breakglassChecker->method('isBreakglassUser')
             ->willReturn($isBreakglassUser);
