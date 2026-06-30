@@ -7,6 +7,34 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
+/**
+ * Server-side credential provider for the in-browser RingCentral softphone.
+ *
+ * **Do not remove this class because the `sendFax/sendSMS/sendEmail/fetchReminderCount`
+ * methods look like unimplemented stubs.** They are stubs, and they are not the
+ * execution path. Voice does not use them.
+ *
+ * The voice feature is a sponsored, production RingCentral integration. The
+ * server's only job is to mint credentials; the actual softphone runs entirely
+ * in the browser. The execution path is:
+ *
+ *   1. `VoiceClient::getCredentials()` / `getVoiceCredentials()` decrypt the
+ *      RingCentral appKey / appSecret / JWT from `module_faxsms_credentials`.
+ *   2. `NotificationEventListener::renderPhoneWidget()` injects those
+ *      credentials into `templates/phone_widget.html.twig` on every page.
+ *   3. The twig template loads RingCentral Embeddable
+ *      (apps.ringcentral.com/integration/ringcentral-embeddable/3.x/adapter.js)
+ *      and handles login, dialing, and call control client-side.
+ *
+ * Removing any of {this class, `setup_voice.php`, `phone_widget.html.twig`,
+ * `ServiceType::VOICE`, the voice subscriptions in `NotificationEventListener`}
+ * breaks the integration for every deployment that uses it. There is no CI
+ * coverage of this path yet — see #12230. Until that exists, treat removal as
+ * load-bearing and confirm with @sjpadgett.
+ *
+ * History: PR #12020 deleted this on the (incorrect) read that the stub
+ * methods meant the feature was unimplemented. PR #12229 reverted it.
+ */
 class VoiceClient extends AppDispatch
 {
     use AuthenticateTrait;
@@ -23,7 +51,6 @@ class VoiceClient extends AppDispatch
     protected $platform;
     protected $rcsdk;
     protected CryptoInterface $crypto;
-    private VoiceClient $client;
     public function __construct()
     {
         if (empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null)) {

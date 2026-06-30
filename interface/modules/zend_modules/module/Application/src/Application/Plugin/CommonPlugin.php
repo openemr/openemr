@@ -125,6 +125,7 @@ class CommonPlugin extends AbstractPlugin
         $this->listenerObject = new Listener();
         $res = QueryUtils::fetchRecords("SELECT * FROM list_options WHERE list_id=? ORDER BY seq, title", [$list_id]);
         $i = 0;
+        $rows = [];
         if ($opt == 'search') {
             $rows[$i] = [
                 'value' => 'all',

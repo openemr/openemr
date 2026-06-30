@@ -10,7 +10,7 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +19,7 @@
 use GuzzleHttp\Client;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -58,7 +59,12 @@ function processRecaptcha($gRecaptchaResponse): bool
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
-    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
+    try {
+        $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptFromDatabase(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
+    } catch (CryptoGenException) {
+        ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key decryption failed, so unable to verify recaptcha");
+        return false;
+    }
     if (empty($googleRecaptchaSecretKey)) {
         ServiceContainer::getLogger()->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;
@@ -133,31 +139,24 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         ServiceContainer::getLogger()->debug("verifyEmail function: the email will be used to register the patient");
 
         // create token (1 hour expiry) and ensure the token is unique
-        $unique = false;
-        for ($i = 1; $i <= 10; $i++) {
-            $expiry = new DateTime('NOW');
-            $expiry->add(new DateInterval('PT01H'));
-            $token_raw = RandomGenUtils::createUniqueToken(32);
-            $token_encrypt = (ServiceContainer::getCrypto())->encryptStandard($token_raw);
-            if (empty($token_encrypt)) {
-                // Serious issue if this is case, so return that something bad happened.
-                ServiceContainer::getLogger()->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
-                return false;
-            }
-            $token_database = $token_raw . bin2hex($expiry->format('U'));
-
-            $sqlVerify = sqlQueryNoLog("SELECT `id` FROM `verify_email` WHERE `token_onetime` LIKE BINARY ?", [$token_raw . '%']);
-            if (empty($sqlVerify['id'])) {
-                $unique = true;
-                break;
-            } else {
+        $expiry = new DateTime('NOW');
+        $expiry->add(new DateInterval('PT01H'));
+        $attempt = 0;
+        do {
+            $attempt++;
+            $token = RandomGenUtils::createUniqueToken(RandomGenUtils::DEFAULT_TOKEN_LENGTH);
+            $sqlVerify = sqlQueryNoLog("SELECT `id` FROM `verify_email` WHERE `token_onetime` LIKE BINARY ?", [$token . '%']);
+            $isUnique = empty($sqlVerify['id']);
+            if (!$isUnique) {
                 ServiceContainer::getLogger()->error("was unable to create a unique token in verifyEmail function, which is very odd, so will try again (will try up to 10 times)");
             }
-        }
-        if (!$unique) {
+        } while (!$isUnique && $attempt < 10);
+
+        if (!$isUnique) {
             ServiceContainer::getLogger()->error("was unable to create a unique token in verifyEmail function, so failed");
             return false;
         }
+        $token_database = $token . bin2hex($expiry->format('U'));
 
         // place/replace database entry
         $sql = sqlQuery("SELECT `id` FROM `verify_email` WHERE `email` = ?", [$email]);
@@ -194,12 +193,12 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         $site_id = $session->get('site_id');
         if (stripos($site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
-                'forward_email_verify' => $token_encrypt,
+                'forward_email_verify' => $token,
                 'site' => $site_id
             ]));
         } else {
             $encoded_link = sprintf("%s&%s", attr($site_addr), http_build_query([
-                'forward_email_verify' => $token_encrypt
+                'forward_email_verify' => $token
             ]));
         }
         $template = 'verify-success';
@@ -384,26 +383,11 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $expiry = new DateTime('NOW');
     $expiry->add(new DateInterval('PT01H'));
 
-    $token_new = RandomGenUtils::createUniqueToken(32);
+    $token = RandomGenUtils::createUniqueToken(RandomGenUtils::DEFAULT_TOKEN_LENGTH);
     $pin = RandomGenUtils::createUniqueToken(6);
     if (!$resetPass) {
         $clear_pass = RandomGenUtils::generatePortalPassword();
         $uname = $newpd['fname'] . $newpd['id'];
-    }
-
-    // Will send a link to user with encrypted token
-    $token = (ServiceContainer::getCrypto())->encryptStandard($token_new);
-    if (empty($token)) {
-        // Serious issue if this is case, so exit.
-        if ($resetPass) {
-            EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
-            ServiceContainer::getLogger()->error("Error : Token encryption failed during patient password reset - exiting");
-            return false;
-        } else { // !$resetPass
-            EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
-            ServiceContainer::getLogger()->error("Error : Token encryption failed during patient registration - exiting");
-            return false;
-        }
     }
     $site_addr = $globalsBag->getString('portal_onsite_two_address');
     $site_id = $session->get('site_id');
@@ -428,8 +412,8 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         }
     }
 
-    // Will store unencrypted token in database with the pin and expiration date
-    $one_time = $token_new . $pin . bin2hex($expiry->format('U'));
+    // Store token in database with the pin and expiration date
+    $one_time = $token . $pin . bin2hex($expiry->format('U'));
     if ($resetPass) {
         // already confirmed there is an entry in patient_access_onsite in previously called resetPassword function
         // (note that portal_username, portal_pwd_status and portal_pwd are not touched here since password needs to remain valid until patient

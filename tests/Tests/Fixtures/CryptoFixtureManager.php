@@ -10,7 +10,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CryptoFixtureManager
 {
@@ -147,10 +148,18 @@ class CryptoFixtureManager
 
     public function __construct(?string $siteDir = null)
     {
+        // @codeCoverageIgnoreStart Defensive config guards; the happy path passes $siteDir explicitly.
         if ($siteDir === null) {
-            $siteDir = $GLOBALS['OE_SITE_DIR'];
-            assert(is_string($siteDir));
+            $globalsBag = OEGlobalsBag::getInstance();
+            if (!$globalsBag->has('OE_SITE_DIR')) {
+                throw new \RuntimeException('OE_SITE_DIR must be configured to install crypto fixtures');
+            }
+            $siteDir = $globalsBag->getString('OE_SITE_DIR');
         }
+        if ($siteDir === '') {
+            throw new \RuntimeException('OE_SITE_DIR must not be empty');
+        }
+        // @codeCoverageIgnoreEnd
         $this->siteDir = $siteDir;
     }
 

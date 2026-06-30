@@ -18,7 +18,6 @@ require_once('../globals.php');
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -28,13 +27,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: File management", xl("File management"));
 }
 
-$educationdir = "$OE_SITE_DIR/documents/education";
+$educationdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/education";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_save'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
      // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
@@ -55,9 +51,7 @@ if (!empty($_POST['bn_save'])) {
         }
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
-        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $fileData = (ServiceContainer::getCrypto())->encryptStandard($fileData, keySource: KeySource::Database);
-        }
+        $fileData = ServiceContainer::getCrypto()->encryptForFilesystem($fileData);
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));
         }
@@ -70,10 +64,7 @@ if (!empty($_POST['bn_save'])) {
  */
 
 if (isset($_POST['generate_thumbnails'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $thumb_generator = new ThumbnailGenerator();
     $results = $thumb_generator->generate_all();
@@ -135,10 +126,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) {
     }
 
     if (isset($_POST['submit_form'])) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $new_white_list = empty($_POST['white_list']) ? [] : $_POST['white_list'];
 

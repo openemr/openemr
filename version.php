@@ -16,8 +16,8 @@
 // upgrade file is the starting point for the next upgrade.
 
 $v_major = '8';
-$v_minor = '1';
-$v_patch = '1';
+$v_minor = '2';
+$v_patch = '0';
 $v_tag   = '-dev'; // minor revision number, should be empty for production releases
 
 // A real patch identifier. This is incremented when we release a patch for a
@@ -31,7 +31,7 @@ $v_realpatch = '0';
 //
 // Keep in sync with the v_database comment in sql/database.sql.
 // CI will fail if they don't match.
-$v_database = 535;
+$v_database = 541;
 
 // Access control version identifier, this is to be incremented whenever there
 // is a access control change in the course of development.  It is used
@@ -39,7 +39,7 @@ $v_database = 535;
 // controls is (subsequently the acl_upgrade.php script then is used to
 // upgrade and track this value)
 //
-$v_acl = 12;
+$v_acl = 13;
 
 // Version for JavaScript and stylesheet includes. Increment whenever a .js or .css file changes.
 // Also whenever you change a .js or .css file, make sure that all URLs referencing it

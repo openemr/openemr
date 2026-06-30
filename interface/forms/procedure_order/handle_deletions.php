@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -70,9 +71,7 @@ function deleteProcedure()
         return ['success' => false, 'error' => 'Missing required parameters'];
     }
 
-    sqlBeginTrans();
-
-    try {
+    return QueryUtils::inTransaction(function () use ($orderId, $orderSeq) {
         // Delete procedure answers (QOE)
         sqlStatement(
             "DELETE FROM procedure_answers
@@ -110,16 +109,11 @@ function deleteProcedure()
             );
         }
 
-        sqlCommitTrans();
-
         return [
             'success' => true,
             'orderEmpty' => ($remaining['cnt'] == 0)
         ];
-    } catch (\Throwable $e) {
-        sqlRollbackTrans();
-        throw $e;
-    }
+    });
 }
 
 /**

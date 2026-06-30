@@ -16,12 +16,10 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 function orderDate($order)
 {
@@ -80,7 +78,7 @@ if ($action === 'print_labels') {
     }
 
     $pdf = new mPDF([
-        'tempDir' => OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR'),
+        'tempDir' => (new CacheDirectory())->for('openemr-mpdf'),
         'mode' => 'utf-8',
         'format' => [45, 19],
         'default_font_size' => '9',

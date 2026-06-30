@@ -17,6 +17,6 @@ use ESign\Router;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once "../globals.php";
-require_once OEGlobalsBag::getInstance()->get('srcdir') . "/ESign/Router.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/ESign/Router.php";
 $router = new Router();
 $router->route();

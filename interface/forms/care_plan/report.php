@@ -18,7 +18,7 @@
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 function care_plan_report($pid, $encounter, $cols, $id): void
 {
@@ -30,6 +30,7 @@ function care_plan_report($pid, $encounter, $cols, $id): void
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, [$id, $pid, $encounter]);
 
+    $data = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $data[$iter] = $row;
     }

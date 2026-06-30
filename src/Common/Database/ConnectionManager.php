@@ -33,7 +33,7 @@ class ConnectionManager
     /**
      * Register a factory for a connection type.
      *
-     * @param Closure(): Connection $factory
+     * @param Connection $factory Closure():
      */
     public function register(ConnectionType $type, Closure $factory): void
     {

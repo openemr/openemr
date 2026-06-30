@@ -26,19 +26,18 @@
  *
  * {xla t="some words"}
  *
- * @param array
- * @param Smarty
+ * @param array $params
+ * @param mixed $smarty
  */
 
 
 function smarty_function_xla($params, &$smarty): void
 {
-    if (empty($params['t'])) {
-        trigger_error("xla: missing 't' parameter", E_USER_WARNING);
+    if (empty($params['t']) || !is_string($params['t'])) {
+        trigger_error("xla: missing or non-string 't' parameter", E_USER_WARNING);
         return;
-    } else {
-        $translate = $params['t'];
     }
 
-    echo xla($translate);
+    // @phpstan-ignore argument.type (Smarty template strings are not statically analyzable as literal-string)
+    echo xla($params['t']);
 }

@@ -28,7 +28,7 @@ readonly class Aes256CbcNoHmac implements CipherInterface
 
     public function decrypt(Ciphertext $ciphertext): Plaintext
     {
-        $ciphertext = $ciphertext->wrapped;
+        $ciphertext = $ciphertext->value;
         $iv = substr($ciphertext, 0, self::IV_LENGTH);
         $data = substr($ciphertext, self::IV_LENGTH);
 

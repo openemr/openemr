@@ -25,9 +25,7 @@ use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Might want something different here.
@@ -43,6 +41,7 @@ $from_date     = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form
 $form_facility = $_POST['form_facility'] ?? '';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
 
+$report_type = filter_input(INPUT_GET, 't', FILTER_UNSAFE_RAW) ?: '';
 $report_title = xl('Clinic Daily Record');
 $report_col_count = 12;
 
@@ -145,7 +144,7 @@ if ($form_output == 3) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

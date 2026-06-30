@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,7 +18,7 @@ use UnexpectedValueException;
 final readonly class Message
 {
     public function __construct(
-        public Keys\Id $keyId,
+        public KeyId $keyId,
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
@@ -51,7 +51,9 @@ final readonly class Message
      */
     private static function parseImplicitKey(string $encodedMessage): Message
     {
-        assert(strlen($encodedMessage) >= 3);
+        if (strlen($encodedMessage) < 3) {
+            throw new UnexpectedValueException('Encoded message is too short to contain an implicit key id');
+        }
 
         // `001`-`007`
         $numericKeyId = substr($encodedMessage, 0, 3);
@@ -63,7 +65,7 @@ final readonly class Message
 
         return new Message(
             format: MessageFormat::ImplicitKey,
-            keyId: new Keys\Id($numericKeyId),
+            keyId: new KeyId($numericKeyId),
             ciphertext: new Ciphertext($ciphertext),
         );
     }
@@ -80,10 +82,10 @@ final readonly class Message
 
     private function encodeImplicitKey(): string
     {
-        assert($this->format === MessageFormat::ImplicitKey);
+        // Called only from encode()'s match on $this->format === ImplicitKey.
         return sprintf('%s%s',
             $this->keyId->id,
-            base64_encode($this->ciphertext->wrapped),
+            base64_encode($this->ciphertext->value),
         );
     }
 }

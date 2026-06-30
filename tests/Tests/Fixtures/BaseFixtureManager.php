@@ -75,7 +75,7 @@ abstract class BaseFixtureManager
      * This will return a recorded uuid (recorded in uuid_registry)
      *
      * @param $tableName The target OpenEMR DB table name.
-     * @return uuid.
+     * @return string uuid
      */
     protected function getUuid($tableName)
     {
@@ -83,7 +83,7 @@ abstract class BaseFixtureManager
     }
 
     /**
-     * @return the next available id/identifier in the table.
+     * @return int the next available id/identifier in the table.
      */
     protected function getNextId($tableName, $idField)
     {
@@ -95,7 +95,7 @@ abstract class BaseFixtureManager
 
     /**
      * Returns an unregistered/unlogged UUID for use in testing fixtures
-     * @return uuid4 string value
+     * @return string a uuid4 string value
      */
     public function getUnregisteredUuid()
     {
@@ -107,7 +107,7 @@ abstract class BaseFixtureManager
      *
      * @param $tableName The target OpenEMR DB table name.
      * @param $fixtures Array of fixture objects to install.
-     * @return the number of fixtures installed.
+     * @return int the number of fixtures installed.
      */
     protected function installFixturesForTable($tableName, $fixtures)
     {

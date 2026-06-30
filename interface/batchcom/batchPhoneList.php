@@ -19,10 +19,15 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
+// This script is meant to be required from batchcom.php, which sets $res
+// (the SQL result of the patient query). Direct access has nothing to render.
+if (!isset($res)) {
+    require_once(__DIR__ . '/batchcom.php');
+    exit;
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 ?>
 <html>

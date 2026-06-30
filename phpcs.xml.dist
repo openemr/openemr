@@ -62,6 +62,14 @@
   <file>.</file>
 
   <exclude-pattern>*/gacl/gacl.ini.php</exclude-pattern>
+  <!--
+      oe-module-claimrev-connect is a Composer dependency
+      (claimrevolution/oe-module-claimrev-connect), relocated into this path by
+      the oe-module-installer-plugin during `composer install`. It is
+      third-party code, not maintained in this repo, so exclude it from style
+      checks the same way vendor/ is excluded.
+  -->
+  <exclude-pattern>*/interface/modules/custom_modules/oe-module-claimrev-connect/*</exclude-pattern>
   <exclude-pattern>*/node_modules/*</exclude-pattern>
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/sites/default/documents/*</exclude-pattern>

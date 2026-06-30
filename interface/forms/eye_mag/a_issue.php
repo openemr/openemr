@@ -33,18 +33,23 @@ $form_folder = "eye_mag";
 require_once('../../globals.php');
 
 
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
-require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/lists.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/patient.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/options.inc.php');
+require_once(OEGlobalsBag::getInstance()->getProjectDir() . '/custom/code_types.inc.php');
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
 
-$pid = (int) (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = (int) ($_REQUEST['pid'] ?? $session->get('pid', 0));
 $info_msg = "";
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
+// $ISSUE_TYPES and $ISSUE_CLASSIFICATIONS are populated by lists.inc.php
+// (required above) at file scope; declare defaults so PHPStan can verify the
+// reads below.
+$ISSUE_TYPES ??= [];
+$ISSUE_CLASSIFICATIONS ??= [];
 
 // A nonempty thisenc means we are to link the issue to the encounter.
 // ie. we are going to use this as a billing issue?
@@ -54,9 +59,6 @@ $encounter = 0 + (empty($_REQUEST['encounter']) ? $session->get('encounter') : $
 $issue = $_REQUEST['issue'] ?? '';
 $deletion = $_REQUEST['deletion'] ?? '';
 $form_save = $_REQUEST['form_save'] ?? '';
-if (!$pid) {
-    $pid = $session->get('pid');
-}
 
 $form_id = $_REQUEST['form_id'];
 $form_type = $_REQUEST['form_type'];
@@ -83,6 +85,7 @@ if (!($session->get('providerID') ?? '') && $providerID) {
 }
 
 $irow = [];
+$subtype = '';
 if ($issue) {
     $irow = sqlQuery("SELECT * FROM lists WHERE id = ?", [
         $issue
@@ -92,6 +95,7 @@ if ($issue) {
     $irow['subtype'] = $subtype;
 }
 
+$type_index = 0;
 if (!empty($irow['type'])) {
     foreach ($ISSUE_TYPES as $key => $value) {
         if ($key == $irow['type']) {
@@ -101,15 +105,24 @@ if (!empty($irow['type'])) {
     }
 }
 
-$given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
-$query = "SELECT $given from form_eye_ros where id=? and pid=?";
-$rres = sqlQuery($query, [
-    $form_id,
-    $pid
-]);
-foreach (explode(',', $given) as $item) {
-    ${$item} = $rres[$item];
-}
+$rres = sqlQuery(
+    "SELECT ROSGENERAL, ROSHEENT, ROSCV, ROSPULM, ROSGI, ROSGU, ROSDERM, ROSNEURO, ROSPSYCH, ROSMUSCULO, ROSIMMUNO, ROSENDOCRINE, ROSCOMMENTS"
+    . " FROM form_eye_ros WHERE id = ? AND pid = ?",
+    [$form_id, $pid]
+);
+$ROSGENERAL    = $rres['ROSGENERAL']    ?? '';
+$ROSHEENT      = $rres['ROSHEENT']      ?? '';
+$ROSCV         = $rres['ROSCV']         ?? '';
+$ROSPULM       = $rres['ROSPULM']       ?? '';
+$ROSGI         = $rres['ROSGI']         ?? '';
+$ROSGU         = $rres['ROSGU']         ?? '';
+$ROSDERM       = $rres['ROSDERM']       ?? '';
+$ROSNEURO      = $rres['ROSNEURO']      ?? '';
+$ROSPSYCH      = $rres['ROSPSYCH']      ?? '';
+$ROSMUSCULO    = $rres['ROSMUSCULO']    ?? '';
+$ROSIMMUNO     = $rres['ROSIMMUNO']     ?? '';
+$ROSENDOCRINE  = $rres['ROSENDOCRINE']  ?? '';
+$ROSCOMMENTS   = $rres['ROSCOMMENTS']   ?? '';
 ?>
 <html>
 <head>
@@ -221,7 +234,7 @@ foreach (explode(',', $given) as $item) {
 
         ?>
 
-        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php"); ?>
 
         function newtype(index) {
             var f = document.forms[0];
@@ -502,12 +515,12 @@ foreach (explode(',', $given) as $item) {
         function validate() {
             var f = document.forms[0];
             if (f.form_begin.value > f.form_end.value && (f.form_end.value)) {
-                alert("<?php echo addslashes(xl('Please Enter End Date greater than Begin Date!')); ?>");
+                alert(<?php echo xlj('Please Enter End Date greater than Begin Date!'); ?>);
                 return false;
             }
             if (f.form_type.value != 'ROS' && f.form_type.value != 'FH' && f.form_type.value != 'SOCH') {
                 if (!f.form_title.value) {
-                    alert("<?php echo addslashes(xl('Please enter a title!')); ?>");
+                    alert(<?php echo xlj('Please enter a title!'); ?>);
                     return false;
                 }
             }
@@ -605,8 +618,8 @@ foreach (explode(',', $given) as $item) {
 
     <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener', 'dialog'  ]); ?>
 
-    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('rootdir'); ?>/forms/<?php echo $form_folder; ?>/css/style.css">
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir(); ?>/forms/<?php echo $form_folder; ?>/css/style.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
 
 <body>
@@ -621,42 +634,36 @@ foreach (explode(',', $given) as $item) {
                 global $counter_header;
                 $count_header = '0';
                 $output = [];
+                $HELLO = [];
                 foreach ($PMSFH[0] as $key => $value) {
                     $checked = '';
                     if ($key == "POH") {
                         $checked = " checked='checked' ";
                     }
 
-                    $key_short_title = $key;
-                    if ($key == "Medication") {
-                        $key_short_title = "Meds";
-                        $title = "Medications";
-                    }
-
-                    if ($key == "Problem") {
-                        $key_short_title = "PMH";
-                        $title = "Past Medical History";
-                    }
-
-                    if ($key == "Surgery") {
-                        $key_short_title = "Surg";
-                        $title = "Past Surgical History";
-                    }
-
-                    if ($key == "SOCH") {
-                        $key_short_title = "Soc";
-                        $title = "Social History";
-                    }
-                    if ($key == "Allergy") {
-                        $key_short_title = "All";
-                        $title = "Allergies";
-                    }
-                    if ($key == "Eye Meds") {
-                        $key_short_title = "EyeM";
-                        $title = "Eye Medications";
-                    }
-
-                    $HELLO[attr($key) ] = '<input type="radio" name="form_type" id="PMSFH_' . attr($key) . '" value="' . attr($key) . '" ' . $checked . ' onclick="top.restoreSession();newtype(\'' . attr($key) . '\');" /><span>' . '<label class="input-helper input-helper--checkbox" for="PMSFH_' . attr($key) . '" title="' . xla($title ?? '') . '" />' . xlt($key_short_title) . '</label></span>&nbsp;';
+                    // Translate fixed section labels with literal xla()/xlt() so
+                    // translation does not depend on the translate_lists global.
+                    [$titleAttr, $shortTitleText] = match ($key) {
+                        "Medication" => [xla("Medications"), xlt("Meds")],
+                        "Surgery"    => [xla("Past Surgical History"), xlt("Surg")],
+                        "SOCH"       => [xla("Social History"), xlt("Soc")],
+                        "Allergy"    => [xla("Allergies"), xlt("All")],
+                        "Eye Meds"   => [xla("Eye Medications"), xlt("EyeM")],
+                        "PMH"        => [xla("Past Medical History"), xlt("PMH")],
+                        "POH"        => ['', xlt("POH")],
+                        "POS"        => ['', xlt("POS")],
+                        "FH"         => ['', xlt("FH")],
+                        "ROS"        => ['', xlt("ROS")],
+                        default      => ['', is_string($key) ? text($key) : ''],
+                    };
+                    $keyAttr = attr($key);
+                    $inputId = "PMSFH_{$keyAttr}";
+                    $HELLO[$keyAttr] = <<<HTML
+                        <input type="radio" name="form_type" id="{$inputId}" value="{$keyAttr}" {$checked} onclick="top.restoreSession();newtype('{$keyAttr}');" />
+                        <span>
+                            <label class="input-helper input-helper--checkbox" for="{$inputId}" title="{$titleAttr}">{$shortTitleText}</label>
+                        </span>&nbsp;
+                        HTML;
                 }
 
 //put them in the desired display order
@@ -734,7 +741,7 @@ foreach (explode(',', $given) as $item) {
                             ?>
                         </td>
                         <td class="indent20">
-                            <a class="text-body" href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil-alt fa-fw"></i></a>
+                            <a class="text-body" href="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil-alt fa-fw"></i></a>
                         </td>
                     </tr>
 
@@ -837,6 +844,7 @@ foreach (explode(',', $given) as $item) {
                     }
 
                     $group_fields_query = sqlStatement("SELECT * FROM layout_options " . "WHERE form_id = 'HIS' AND group_id = '4' AND uor > 0 " . "ORDER BY seq");
+                    $result2 = [];
                     while ($group_fields = sqlFetchArray($group_fields_query)) {
                         $titlecols = $group_fields['titlecols'];
                         $datacols = $group_fields['datacols'];
@@ -878,8 +886,8 @@ foreach (explode(',', $given) as $item) {
 
                             $fldlength = empty($frow['fld_length']) ? 20 : $frow['fld_length'];
                             $fldlength = htmlspecialchars((string) $fldlength, ENT_QUOTES);
-                            $result2[$field_id]['resnote'] = htmlspecialchars((string) $result2[$field_id]['resnote'], ENT_QUOTES);
-                            $result2[$field_id]['resdate'] = htmlspecialchars((string) $result2[$field_id]['resdate'], ENT_QUOTES);
+                            $result2[$field_id]['resnote'] = htmlspecialchars($result2[$field_id]['resnote'], ENT_QUOTES);
+                            $result2[$field_id]['resdate'] = htmlspecialchars($result2[$field_id]['resdate'], ENT_QUOTES);
                         } elseif ($data_type == 2) {
                             $result2[$field_id]['resnote'] = nl2br(htmlspecialchars($currvalue, ENT_NOQUOTES));
                         }
@@ -1377,7 +1385,7 @@ foreach (explode(',', $given) as $item) {
             <?php $datetimepicker_formatInput = true; ?>
             <?php $datetimepicker_minDate = false; ?>
             <?php $datetimepicker_maxDate = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
         $('.datepicker-past').datetimepicker({
@@ -1386,7 +1394,7 @@ foreach (explode(',', $given) as $item) {
             <?php $datetimepicker_formatInput = true; ?>
             <?php $datetimepicker_minDate = false; ?>
             <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
         $('.datepicker-future').datetimepicker({
@@ -1395,7 +1403,7 @@ foreach (explode(',', $given) as $item) {
             <?php $datetimepicker_formatInput = true; ?>
             <?php $datetimepicker_minDate = '-1970/01/01'; ?>
             <?php $datetimepicker_maxDate = false; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

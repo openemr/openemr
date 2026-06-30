@@ -37,7 +37,7 @@ function getErxCredentials()
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
     $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_name');
     $cryptoGen = ServiceContainer::getCrypto();
-    $cred[] = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('erx_account_password'));
+    $cred[] = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('erx_account_password'));
 
     return $cred;
 }
@@ -125,7 +125,7 @@ function credentials($doc, $r): void
     $b->appendChild($productName);
     $productVersion = $doc->createElement("productVersion");
     $productVersion->appendChild(
-        $doc->createTextNode((new VersionService())->asString())
+        $doc->createTextNode((string) (new VersionService())->getSoftwareVersion())
     );
     $b->appendChild($productVersion);
     $r->appendChild($b);

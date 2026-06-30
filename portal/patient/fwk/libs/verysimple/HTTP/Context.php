@@ -36,29 +36,24 @@ class Context
     /**
      * Returns a persisted object or value
      *
-     * @param
-     *          var
-     * @param
-     *          default value (default = null)
+     * @param mixed $var
+     * @param mixed $default value (default = null)
      * @return value of var (or default)
      */
     public function Get($var, $default = null)
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        return $session->has($this->GUID . "_" . $var) ? unserialize($session->get($this->GUID . "_" . $var)) : null;
+        return $session->has($this->GUID . "_" . $var) ? unserialize($session->get($this->GUID . "_" . $var), ['allowed_classes' => true]) : null;
     }
 
     /**
      * Persists an object or value
      *
      * @access public
-     * @param
-     *          var
-     * @param
-     *          value
-     * @return object || null
+     * @param mixed $var
+     * @param mixed $val
      */
-    public function Set($var, $val)
+    public function Set($var, $val): void
     {
         SessionUtil::setSession($this->GUID . "_" . $var, serialize($val));
     }

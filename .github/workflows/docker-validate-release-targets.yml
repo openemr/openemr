@@ -1,0 +1,171 @@
+# Validates .github/release-targets.yml on every PR that touches it.
+#
+# Catches typos, structural mistakes, and source-vs-config drift BEFORE they
+# break a nightly orchestrator run. Cheap (one ubuntu-24.04 minute or less),
+# runs only when the data file changes.
+#
+# Checks:
+#   1. The YAML parses cleanly.
+#   2. Every row has all three required fields (branch, docker_tags,
+#      openemr_version_ref). `unreleased` is an optional boolean.
+#   3. No two rows declare the same docker_tag (which would race when both
+#      builds tried to push the same image:tag). Multiple rows for the same
+#      `branch` ARE allowed — the multi-row mechanism enables the in-dev
+#      patch-release pattern (rel branch keeps publishing the prior stable
+#      while a new dev iterates on the same branch). See the
+#      release-targets.yml header for the full mechanism description.
+#   4. Every `openemr_version_ref` resolves to a real git ref in
+#      openemr/openemr.
+#   5. Every version-number entry in each row's docker_tags aligns with the
+#      major.minor.patch from version.php at the same row's
+#      openemr_version_ref. Each tag must match either the base
+#      (X.Y.Z, when realpatch == 0) or the base.realpatch form
+#      (X.Y.Z.W, when realpatch > 0). Catches both the version.php-bump-
+#      without-release-targets-bump drift case AND typo'd secondary tags
+#      like `8.0.0,9.9.9` in a multi-tag row. For the master row the
+#      check reads version.php from the PR's local checkout (which is
+#      the merge-commit state -- "what master will look like after this
+#      PR merges") so a PR that coordinately bumps BOTH docker_tags and
+#      version.php validates cleanly; non-master rows use raw URL fetch
+#      against the stable git tag in openemr_version_ref.
+#
+# Rows flagged `unreleased: true` are still validated for required fields,
+# version-ref resolution, and docker_tag<->version.php alignment so they
+# stay ready-to-flip-live. Consumers (orchestrator, dockerhub readme
+# pusher, demo_farm bumper) are responsible for skipping these rows -- the
+# validator does not.
+
+name: Validate release-targets.yml
+
+on:
+  pull_request:
+    branches: [master]
+    paths:
+    - '.github/release-targets.yml'
+    - '.github/workflows/docker-validate-release-targets.yml'
+    # version.php is the source of truth for the master row's IMAGE_VERSION
+    # derivation. A bump to $v_major/$v_minor/$v_patch/$v_tag/$v_realpatch
+    # can invalidate assumptions in release-targets.yml (e.g. docker_tags
+    # that hardcode an old version segment), so fire validation on master
+    # version bumps too.
+    - 'version.php'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    if: github.repository_owner == 'openemr' && github.repository == 'openemr/openemr'
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Parse + structural checks
+      run: |
+        # 1. Valid YAML
+        yq -e . .github/release-targets.yml > /dev/null
+
+        # 2. Every row has all three required fields
+        MISSING=$(yq -o=json -I=0 . .github/release-targets.yml | jq -r '
+          .[] | select(.branch == null or .docker_tags == null or .openemr_version_ref == null)
+          | (.branch // "<unnamed>")
+        ')
+        if [ -n "$MISSING" ]; then
+          echo "::error::Rows missing required field(s) [branch, docker_tags, openemr_version_ref]: $MISSING"
+          exit 1
+        fi
+
+        # 3. No duplicate docker_tags across rows
+        DUPE_TAGS=$(yq -o=json -I=0 . .github/release-targets.yml | jq -r '
+          [.[] | .docker_tags | split(",") | .[] | gsub("\\s"; "")] |
+          group_by(.) | map(select(length > 1) | .[0]) | .[]
+        ')
+        if [ -n "$DUPE_TAGS" ]; then
+          echo "::error::Same docker_tag declared by multiple rows (push races; pick one): $DUPE_TAGS"
+          exit 1
+        fi
+
+        echo "✓ Schema check passed."
+
+    - name: Verify every openemr_version_ref resolves in openemr/openemr
+      run: |
+        yq -o=json -I=0 . .github/release-targets.yml | jq -r '.[] | "\(.branch)\t\(.openemr_version_ref)"' | \
+        while IFS=$'\t' read -r BRANCH REF; do
+          # raw.githubusercontent.com returns 200 only when the ref resolves.
+          URL="https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php"
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$URL")
+          if [ "$STATUS" != "200" ]; then
+            echo "::error::Row '$BRANCH': openemr_version_ref '$REF' does not resolve in openemr/openemr (HTTP $STATUS at $URL)"
+            exit 1
+          fi
+          echo "✓ $BRANCH: openemr_version_ref '$REF' resolves."
+        done
+
+    - name: Cross-check docker_tag version against version.php at openemr_version_ref
+      run: |
+        # Use process substitution so the loop body runs in the current shell
+        # (no subshell), letting FAIL increments propagate.
+        FAIL=0
+        while read -r ROW; do
+          BRANCH=$(echo "$ROW" | jq -r '.branch')
+          REF=$(echo "$ROW" | jq -r '.openemr_version_ref')
+
+          # Every version-number docker_tag (digits-and-dots), one per line.
+          # Floating-name tags (latest, dev, next, ...) are skipped.
+          VERSION_TAGS=$(echo "$ROW" | jq -r '.docker_tags' | tr ',' '\n' | tr -d ' ' \
+            | grep -E '^[0-9]+(\.[0-9]+)+$' || true)
+
+          if [ -z "$VERSION_TAGS" ]; then
+            echo "ℹ $BRANCH: no version-number docker_tag (floating-only); skipping alignment check."
+            continue
+          fi
+
+          # Wipe any /tmp/v.php from a prior iteration before fetching, so a
+          # transient curl failure can't fall through to parsing a stale file
+          # for the wrong branch's version.
+          rm -f /tmp/v.php
+          if [ "$REF" = "master" ]; then
+            # Use the PR's local checkout instead of raw.githubusercontent.com.
+            # This workflow only fires on `pull_request: branches: [master]`,
+            # so the checkout is always the PR's merge-commit content -- i.e.,
+            # "what master will look like after this PR merges." Validating
+            # against that closes a chicken-and-egg: a PR that coordinately
+            # bumps BOTH .github/release-targets.yml's master row docker_tags
+            # AND version.php would otherwise fail here because the new
+            # docker_tags would be compared against the upstream master's
+            # PRE-bump version.php (the PR hasn't merged yet, so raw URL
+            # serves the old content). Non-master rows continue to use the
+            # raw URL because their openemr_version_ref is a stable git tag
+            # that a PR can't modify locally.
+            cp version.php /tmp/v.php
+          elif ! curl -fsSL "https://raw.githubusercontent.com/openemr/openemr/${REF}/version.php" -o /tmp/v.php; then
+            echo "::error::Row '$BRANCH': failed to fetch version.php at ref '$REF' from raw.githubusercontent.com"
+            FAIL=1
+            continue
+          fi
+          MAJ=$(awk -F"'" '/^\$v_major[[:space:]]*=/ {print $2}' /tmp/v.php)
+          MIN=$(awk -F"'" '/^\$v_minor[[:space:]]*=/ {print $2}' /tmp/v.php)
+          PAT=$(awk -F"'" '/^\$v_patch[[:space:]]*=/ {print $2}' /tmp/v.php)
+          RP=$(awk -F"'" '/^\$v_realpatch[[:space:]]*=/ {print $2}' /tmp/v.php)
+          SRC_BASE="${MAJ}.${MIN}.${PAT}"
+          SRC_WITH_REALPATCH="${SRC_BASE}.${RP}"
+
+          # Check EVERY version-number tag in the row -- not just the first.
+          # Each must independently match one of:
+          #   - the base (e.g., "8.1.0" == version.php base "8.1.0", realpatch=0)
+          #   - base.realpatch when realpatch > 0 (e.g., "8.0.0.3" for v_realpatch='3')
+          # So a row like `docker_tags: 8.0.0,8.0.0.3` with openemr_version_ref
+          # v8_0_0_3 validates both pointers; a typo like `8.0.0,9.9.9` fails on
+          # the second; and `8.0.0,8.0.0.4` with v_realpatch=3 catches the
+          # patch-tag-ahead-of-source class of drift.
+          while IFS= read -r TAG_VER; do
+            if [ "$TAG_VER" = "$SRC_BASE" ] || { [ "$RP" != "0" ] && [ "$TAG_VER" = "$SRC_WITH_REALPATCH" ]; }; then
+              echo "✓ $BRANCH: docker_tag '$TAG_VER' aligns with version.php '$SRC_BASE' (realpatch=$RP) at $REF"
+            else
+              echo "::error::Row '$BRANCH': docker_tag '$TAG_VER' doesn't match version.php base '$SRC_BASE' or base.realpatch '$SRC_WITH_REALPATCH' at $REF (realpatch=$RP)."
+              echo "  Either bump release-targets.yml to match the source, or bump version.php on the openemr branch."
+              FAIL=1
+            fi
+          done <<< "$VERSION_TAGS"
+        done < <(yq -o=json -I=0 . .github/release-targets.yml | jq -c '.[]')
+        exit $FAIL

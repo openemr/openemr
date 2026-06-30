@@ -28,7 +28,7 @@ class FhirOperationDefinitionRestController
 
     /**
      * Queries for FHIR OperationDefinition resources using various search parameters.
-     * @param @searchParams
+     * @param mixed $searchParams @searchParams
      * @return FHIR bundle with query results, if found
      */
     #[OA\Get(

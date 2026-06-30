@@ -26,8 +26,8 @@
  */
 
 require_once __DIR__ . '/base_controller.php';
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/appointments.inc.php");
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/pid.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/appointments.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/pid.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -135,13 +135,13 @@ class TherapyGroupsController extends BaseController
             }
 
             $filters = [
-                'group_name' => FILTER_DEFAULT,
+                'group_name' => FILTER_UNSAFE_RAW,
                 'group_start_date' => FILTER_SANITIZE_SPECIAL_CHARS,
                 'group_type' => FILTER_VALIDATE_INT,
                 'group_participation' => FILTER_VALIDATE_INT,
                 'group_status' => FILTER_VALIDATE_INT,
-                'group_notes' => FILTER_DEFAULT,
-                'group_guest_counselors' => FILTER_DEFAULT,
+                'group_notes' => FILTER_UNSAFE_RAW,
+                'group_guest_counselors' => FILTER_UNSAFE_RAW,
                 'counselors' => ['filter'    => FILTER_VALIDATE_INT,
                                       'flags'     => FILTER_FORCE_ARRAY]
             ];

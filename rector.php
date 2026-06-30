@@ -28,13 +28,20 @@ return RectorConfig::configure()
         __DIR__ . '/gacl',
         __DIR__ . '/interface',
         __DIR__ . '/library',
-        __DIR__ . '/modules',
         __DIR__ . '/oauth2',
         __DIR__ . '/portal',
         __DIR__ . '/sites',
         __DIR__ . '/sphere',
         __DIR__ . '/src',
         __DIR__ . '/tests',
+    ])
+    // oe-module-claimrev-connect is a Composer dependency
+    // (claimrevolution/oe-module-claimrev-connect), relocated into this path by
+    // the oe-module-installer-plugin during `composer install`. It is
+    // third-party code, not maintained in this repo, so skip it the same way
+    // vendor/ is skipped.
+    ->withSkip([
+        __DIR__ . '/interface/modules/custom_modules/oe-module-claimrev-connect',
     ])
     ->withCache(
         // ensure file system caching is used instead of in-memory
@@ -65,7 +72,4 @@ return RectorConfig::configure()
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()
-    ->withSkip([
-        __DIR__ . '/sites/default/documents/smarty'
-    ])
     ->withTypeCoverageLevel(5);

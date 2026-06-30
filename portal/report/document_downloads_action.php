@@ -21,9 +21,7 @@ require_once("../verify_session.php");
 require_once("{$globalsBag->getString('srcdir')}/documents.php");
 require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 // Check if documents are selected
 if (empty($_POST['documents'])) {

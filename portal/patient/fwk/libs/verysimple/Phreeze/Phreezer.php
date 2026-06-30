@@ -79,7 +79,7 @@ class Phreezer extends Observable
     public $LockFilePath;
 /**
 *
-* @var array
+* @var ICache
 */
     private $_mapCache;
 /**
@@ -121,8 +121,7 @@ class Phreezer extends Observable
 * If a single ConnectionSetting is supplied, it will be assigned the key "default"
 *
 * @access public
-* @param
-*          ConnectionSetting || Associative Array of ConnectionSetting objects
+* @param ConnectionSetting|array<string, ConnectionSetting> $csetting Array of ConnectionSetting objects
 * @param Observable $observer
 */
     public function __construct($csetting, $observer = null)
@@ -267,8 +266,7 @@ class Phreezer extends Observable
 * @param Phreezable $val
 * @param bool $includeCacheLevel2
 *          true = cache both level 1 and 2. false = cache only level 1. (default true)
-* @param
-*          int optionally override the default cache timeout of Phreezer->ObjectCacheTimeout (in seconds)
+* @param int $timeout optionally override the default cache timeout of Phreezer->ObjectCacheTimeout (in seconds)
 */
     public function SetCache($objectclass, $id, Phreezable $val, $includeCacheLevel2 = true, $timeout = null)
     {
@@ -355,11 +353,9 @@ class Phreezer extends Observable
 /**
 * Phreezer::Compare is used internally by Phreezer::Sort
 *
-* @param
-*          object
-* @param
-*          object
-* @return bool
+* @param mixed $a
+* @param mixed $b
+* @return int
 */
     static function Compare($a, $b)
     {
@@ -396,8 +392,7 @@ class Phreezer extends Observable
 *          a Criteria object to limit results
 * @param bool $crash_if_multiple_found
 *          default value = true
-* @param
-*          int cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
+* @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
 * @return Phreezable
 */
     public function GetByCriteria($objectclass, $criteria, $crash_if_multiple_found = true, $cache_timeout = null)
@@ -433,8 +428,7 @@ class Phreezer extends Observable
 *          the type of object that your DataSet will contain
 * @param Criteria $criteria
 *          a Criteria object to limit results
-* @param
-*          int cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
+* @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ValueCacheTimeout. Set to 0 for no cache
 * @return DataSet
 */
     public function Query($objectclass, $criteria = null, $cache_timeout = null)
@@ -487,8 +481,7 @@ class Phreezer extends Observable
 *          to query
 * @param variant $id
 *          the value of the primary key
-* @param
-*          int cache timeout (in seconds). Default is Phreezer->ObjectCacheTimeout. Set to 0 for no cache
+* @param int $cache_timeout cache timeout (in seconds). Default is Phreezer->ObjectCacheTimeout. Set to 0 for no cache
 * @return Phreezable
 */
     public function Get($objectclass, $id, $cache_timeout = null)
@@ -697,7 +690,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          the type of object that your DataSet will contain
-* @return Array of FieldMap objects
+* @return array<string, FieldMap>
 */
     public function GetFieldMaps($objectclass)
     {
@@ -755,7 +748,7 @@ class Phreezer extends Observable
 * @access public
 * @param string $objectclass
 *          the type of object
-* @return Array of KeyMap objects
+* @return array<string, KeyMap>
 */
     public function GetKeyMaps($objectclass)
     {
@@ -792,7 +785,7 @@ class Phreezer extends Observable
 *          the type of object
 * @param string $propertyname
 *          the name of the property
-* @return Array of FieldMap objects
+* @return FieldMap
 */
     public function GetFieldMap($objectclass, $propertyname)
     {
@@ -808,7 +801,7 @@ class Phreezer extends Observable
 *          the type of object
 * @param string $keyname
 *          the name of the key
-* @return Array of KeyMap objects
+* @return KeyMap
 */
     public function GetKeyMap($objectclass, $keyname)
     {

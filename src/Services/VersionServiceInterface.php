@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,31 +17,22 @@ namespace OpenEMR\Services;
 interface VersionServiceInterface extends BaseServiceInterface
 {
     /**
-     * @return array the sole version entry in the database.
+     * @return array{v_major: int, v_minor: int, v_patch: int, v_realpatch: int, v_tag: string, v_database: int, v_acl: int}
      */
     public function fetch(): array;
 
-    /**
-     * Return the compounded major, minor, patch and tag versions as a string
-     *
-     * @var $includeTag bool Include the tag
-     * @var $includeRealpatch bool Include the realpatch
-     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
-     */
-    public function asString(bool $includeTag = true, bool $includeRealpatch = true): string;
+    public function getSoftwareVersion(): SoftwareVersion;
+
+    public function getSchemaVersion(): SchemaVersion;
 
     /**
-     * Updates the sole version entry in the database. If the release contains
-     * a patch file, also updates the real patch indicator.
-     *
-     * @param $version array the new version entry.
-     * @return void.
+     * Update the sole version entry in the database. If the release contains
+     * a patch file, also update the real patch indicator.
      */
     public function update(array $version): void;
 
     /**
-     * @param $version array
-     * @return bool if the release contains a patch file or not.
+     * @return bool whether the release contains a patch file
      */
     public function canRealPatchBeApplied(array $version): bool;
 }

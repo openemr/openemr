@@ -11,17 +11,28 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once "C_FormVitals.class.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+
+require_once("$srcdir/api.inc.php");
+require_once "C_FormVitals.class.php";
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $c = new C_FormVitals();
-echo $c->default_action_process();
-@formJump();
+$c->default_action_process();
+
+$validationErrors = $session->get('vitals_validation_errors');
+if ($validationErrors !== null && $validationErrors !== []) {
+    $formUrl = OEGlobalsBag::getInstance()->getWebRoot()
+        . '/interface/forms/vitals/new.php?id=' . (int) filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+    formJump($formUrl);
+} else {
+    formJump();
+}

@@ -12,11 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Set $sessionAllowWrite to true since the encounter is written to the session via setencounter() below.
+$sessionAllowWrite = true;
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -27,11 +28,17 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+$pid = PatientSessionUtil::getPid();
+
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/encounter.inc.php");
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $facilityService = new FacilityService();
 $encounterService = new EncounterService();

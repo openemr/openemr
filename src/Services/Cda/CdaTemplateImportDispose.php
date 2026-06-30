@@ -155,6 +155,7 @@ class CdaTemplateImportDispose
                 }
             }
 
+            $res_q_sel_allergies = [];
             if (!empty($value['extension'])) {
                 $q_sel_allergies = "SELECT *
                               FROM lists
@@ -371,6 +372,12 @@ class CdaTemplateImportDispose
         $encounter_for_billing = 0;
         foreach ($proc_array as $value) {
             $procedure_date_value = null;
+            $end_date = null;
+            $facility_id = null;
+            $facility_id2 = null;
+            $pro_id = null;
+            $res3 = [];
+            $res6 = [];
             if (!empty($value['date']) && ($revapprove == 0 || $revapprove == 1)) {
                 $procedure_date_value = !empty($value['date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
                 $end_date = !empty($value['end_date']) ? date("Y-m-d H:i:s", $this->str_to_time($value['end_date'])) : null;
@@ -583,9 +590,14 @@ class CdaTemplateImportDispose
             $session->set('authUser', $isuser['username']);
         }
 
+        $encounter_id = null;
         foreach ($enc_array as $value) {
             $encounter_id = QueryUtils::generateId();
 
+            $provider_id = null;
+            $facility_id = null;
+            $res_query_sel_users = [];
+            $res_query_sel_fac = [];
             $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
                 $query_sel_users = "SELECT * FROM users WHERE (npi > '' && npi = ?) OR (`fname` = ? AND `lname` = ?)";// abook_type='external_provider' AND
@@ -686,6 +698,7 @@ class CdaTemplateImportDispose
             }
             $pc_catid = $pc_catid ?: $pc_catid_default;
 
+            $res_q_sel_encounter = [];
             if (!empty($value['extension'])) {
                 $q_sel_encounter = "SELECT * FROM form_encounter WHERE external_id = ? AND pid = ?";
                 $res_q_sel_encounter = QueryUtils::fetchRecords($q_sel_encounter, [$value['extension'], $pid]);
@@ -775,6 +788,7 @@ class CdaTemplateImportDispose
                     $diag_date = !empty($ddate[$k]) ? date("Y-m-d H:i:s", $this->str_to_time($ddate[$k])) : null;
                     $query_select = "SELECT * FROM lists WHERE begdate = ? AND title = ? AND pid = ?";
                     $result = QueryUtils::fetchRecords($query_select, [$diag_date, $dissue[$k], $pid]);
+                    $list_id = null;
                     if (count($result) > 0) {
                         foreach ($result as $value1) {
                             $list_id = $value1['id'];
@@ -799,7 +813,9 @@ class CdaTemplateImportDispose
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
             QueryUtils::sqlStatementThrowException($insertEX, [$encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)]);
         }
-        $this->currentEncounter = $encounter_id;
+        if ($encounter_id !== null) {
+            $this->currentEncounter = $encounter_id;
+        }
     }
 
     /**
@@ -818,11 +834,19 @@ class CdaTemplateImportDispose
 
         $qc_select = "SELECT ct_id FROM code_types WHERE ct_key = ?";
         $c_result = QueryUtils::fetchRecords($qc_select, ['CVX']);
+        $ct_id = null;
         foreach ($c_result as $val) {
             $ct_id = $val['ct_id'];
         }
 
         foreach ($imm_array as $value) {
+            $provider_id = null;
+            $facility_id = null;
+            $immunization_date_value = null;
+            $oid_unit = null;
+            $res_query_sel_users = [];
+            $res_query_sel_fac = [];
+            $res_q_sel_imm = [];
             //provider
             $value['provider_npi'] ??= '';
             if (!empty($value['provider_npi']) || (!empty($value['provider_name']) && !empty($value['provider_family']))) {
@@ -1090,6 +1114,8 @@ class CdaTemplateImportDispose
 
         $oid_route = $unit_option_id = $oidu_unit = '';
         foreach ($pres_array as $value) {
+            $provider_id = null;
+            $res_query_sel_users = [];
             $active = 1;
             if (empty($value['enddate'])) {
                 $value['enddate'] = (null);
@@ -1406,6 +1432,10 @@ class CdaTemplateImportDispose
 
         foreach ($med_pblm_array as $value) {
             $activity = 1;
+            $med_pblm_begdate_value = null;
+            $med_pblm_enddate_value = null;
+            $o_id = null;
+            $res_q_sel_med_pblm = [];
 
             if (!empty($value['begdate']) && $revapprove == 0) {
                 $med_pblm_begdate_value = date("Y-m-d H:i:s", $this->str_to_time($value['begdate']));
@@ -1592,6 +1622,7 @@ class CdaTemplateImportDispose
             $pro_name = xlt('Qrda Lab');
         }
         foreach ($lab_results as $value) {
+            $pro_id = null;
             $date = !empty($value['date'] ?? null) ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             $value['proc_text'] ??= xl('Results') . ' ' . date("Y-m-d", $this->str_to_time($value['date']));
             $query_select_pro = "SELECT * FROM procedure_providers WHERE name = ?";
@@ -1702,6 +1733,8 @@ class CdaTemplateImportDispose
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $authProvider = $session->get('authProvider');
         $authUser = $session->get('authUser');
+        $date = date('Y-m-d');
+        $encounter_for_forms = null;
         foreach ($functional_cognitive_status_array as $value) {
             $date = $value['date'] != '' ? $carecoordinationTable->formatDate($value['date']) : date('Y-m-d');
 
@@ -1748,6 +1781,8 @@ class CdaTemplateImportDispose
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $authProvider = $session->get('authProvider');
         $authUser = $session->get('authUser');
+        $date = null;
+        $forms_encounters = [];
         foreach ($functional_cognitive_status_array as $value) {
             if ($value['date'] != '') {
                 $date = $value['date'] ? date("Y-m-d", $this->str_to_time($value['date'])) : null;
@@ -1833,6 +1868,7 @@ class CdaTemplateImportDispose
     {
         $query = "SELECT encounter FROM documents d inner join form_encounter e on ( e.pid = d.foreign_id and e.date = d.docdate ) where d.id = ? and pid = ? and d.deleted = 0";
         $docEnc = QueryUtils::fetchRecords($query, [$doc_id, $pid]);
+        $enc_id = 0;
 
         if (count($docEnc) == 0) {
             $enc = QueryUtils::fetchRecords("SELECT encounter
@@ -1868,6 +1904,9 @@ class CdaTemplateImportDispose
             return;
         }
         foreach ($vitals_array as $value) {
+            $vitals_date_value = null;
+            $vitals_id = null;
+            $res_q_sel_vitals = [];
             if (!empty($value['date']) && $revapprove == 0) {
                 $vitals_date_value = $value['date'] ? date("Y-m-d H:i:s", $this->str_to_time($value['date'])) : null;
             } elseif (!empty($value['date']) && $revapprove == 1) {
@@ -2065,6 +2104,8 @@ class CdaTemplateImportDispose
         $authProvider = $session->get('authProvider');
         foreach ($observation_preformed_array as $key => $value) {
             $date_end = null;
+            $enc_date = null;
+            $encounter_for_forms = null;
             if (!empty($value['date'])) {
                 $enc_date = date("Y-m-d", $this->str_to_time($value['date']));
                 $date = date("Y-m-d H:i:s", $this->str_to_time($value['date']));
@@ -2175,6 +2216,7 @@ class CdaTemplateImportDispose
         $data["plan_name"] = 'QRDA Payer';
         $data["policy_number"] = $payer['code'] ?? '1';
 
+        $id_data = null;
         if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
             $insuranceEntry = $insuranceData->search(['type' => 'primary', 'pid' => $pid]);
             if ($insuranceEntry->hasData()) {
@@ -2184,7 +2226,7 @@ class CdaTemplateImportDispose
         } else {
             $id_data = $insuranceData->insert($data);
         }
-        if (!$id_data->isValid()) {
+        if ($id_data === null || !$id_data->isValid()) {
             ServiceContainer::getLogger()->error(
                 'Error inserting insurance data: {validationErrors} {internalErrors}',
                 [

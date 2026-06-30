@@ -1,7 +1,9 @@
 <?php
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\PostCalendar\CalendarRenderer;
 
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
@@ -73,7 +75,11 @@ function postcalendar_user_view()
         $pc_username = $sessionPcUsername;
     }
 
-    return postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]) . postcalendar_footer();
+    $displayResult = postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]);
+    $footer = postcalendar_footer();
+    $displayStr = is_string($displayResult) ? $displayResult : '';
+    $footerStr = is_string($footer) ? $footer : '';
+    return $displayStr . $footerStr;
 }
 
 /**
@@ -83,10 +89,9 @@ function postcalendar_user_view()
  */
 function postcalendar_user_display($args)
 {
-    [$eid, $viewtype, $tplview, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
+    [$eid, $viewtype, $pc_username, $Date, $print, $category, $topic, $pc_facility] = pnVarCleanFromInput(
         'eid',
         'viewtype',
-        'tplview',
         'pc_username',
         'Date',
         'print',
@@ -123,9 +128,12 @@ function postcalendar_user_display($args)
  */
 function postcalendar_user_search()
 {
-    $tpl = new pcSmarty();
+    $tpl = CalendarRenderer::create();
     $k = pnVarCleanFromInput('pc_keywords') ?? '';
     $k_andor = pnVarCleanFromInput('pc_keywords_andor');
+    // Twig template expects the POST-derived values pre-extracted.
+    $tpl->assign('keywords_value', $k);
+    $tpl->assign('keywords_andor', $k_andor);
     $pc_category = pnVarCleanFromInput('pc_category');
     $pc_facility = pnVarCleanFromInput('pc_facility');
     $pc_topic = pnVarCleanFromInput('pc_topic');
@@ -258,39 +266,35 @@ function postcalendar_user_search()
     $tpl->assign("event_category", pnVarCleanFromInput("event_category"));
     $tpl->assign("event_subject", pnVarCleanFromInput("event_subject"));
     $output = new pnHTML();
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if (_SETTING_USE_INT_DATES) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $day,'selected' => $event_startday]);
-        $formdata = $output->FormSelectMultiple('event_startday', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $month,'selected' => $event_startmonth]);
-        $formdata .= $output->FormSelectMultiple('event_startmonth', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_startday]);
+        $formdata = $output->generateFormSelectMultiple('event_startday', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_startmonth]);
+        $formdata .= $output->generateFormSelectMultiple('event_startmonth', $sel_data);
     } else {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => ($month ?? null),'selected' => $event_startmonth]);
-        $formdata = $output->FormSelectMultiple('event_startmonth', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => ($day ?? null),'selected' => $event_startday]);
-        $formdata .= $output->FormSelectMultiple('event_startday', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_startmonth]);
+        $formdata = $output->generateFormSelectMultiple('event_startmonth', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_startday]);
+        $formdata .= $output->generateFormSelectMultiple('event_startday', $sel_data);
     }
 
-    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => ($year ?? null),'selected' => $event_startyear]);
-    $formdata .= $output->FormSelectMultiple('event_startyear', $sel_data);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
+    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => null,'selected' => $event_startyear]);
+    $formdata .= $output->generateFormSelectMultiple('event_startyear', $sel_data);
     $tpl->assign('SelectDateTimeStart', $formdata);
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
     if (_SETTING_USE_INT_DATES) {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => $day,'selected' => $event_endday]);
-        $formdata = $output->FormSelectMultiple('event_endday', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => $month,'selected' => $event_endmonth]);
-        $formdata .= $output->FormSelectMultiple('event_endmonth', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_endday]);
+        $formdata = $output->generateFormSelectMultiple('event_endday', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_endmonth]);
+        $formdata .= $output->generateFormSelectMultiple('event_endmonth', $sel_data);
     } else {
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => ($month ?? null),'selected' => $event_endmonth]);
-        $formdata = $output->FormSelectMultiple('event_endmonth', $sel_data);
-        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => ($day ?? null),'selected' => $event_endday ]);
-        $formdata .= $output->FormSelectMultiple('event_endday', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildMonthSelect', ['pc_month' => null,'selected' => $event_endmonth]);
+        $formdata = $output->generateFormSelectMultiple('event_endmonth', $sel_data);
+        $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildDaySelect', ['pc_day' => null,'selected' => $event_endday ]);
+        $formdata .= $output->generateFormSelectMultiple('event_endday', $sel_data);
     }
 
-    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => ($year ?? null),'selected' => $event_endyear]);
-    $formdata .= $output->FormSelectMultiple('event_endyear', $sel_data);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
+    $sel_data = pnModAPIFunc(__POSTCALENDAR__, 'user', 'buildYearSelect', ['pc_year' => null,'selected' => $event_endyear]);
+    $formdata .= $output->generateFormSelectMultiple('event_endyear', $sel_data);
     $tpl->assign('SelectDateTimeEnd', $formdata);
     $output = null;
     if (_SETTING_DISPLAY_TOPICS) {
@@ -301,14 +305,6 @@ function postcalendar_user_search()
         }
 
         $tpl->assign_by_ref('TOPIC_OPTIONS', $top_options);
-    }
-
-    //=================================================================
-    //  Find out what Template we're using
-    //=================================================================
-    $template_name = _SETTING_TEMPLATE;
-    if (!isset($template_name)) {
-        $template_name = 'default';
     }
 
     //=================================================================
@@ -355,7 +351,7 @@ function postcalendar_user_search()
         $searchargs['patient_id'] = pnVarCleanFromInput("patient_id");
         $searchargs['listappsFlag'] = true;
 
-        $sqlKeywords .= "(a.pc_pid = '" . add_escape_custom(pnVarCleanFromInput("patient_id")) . "' )";
+        $sqlKeywords = "(a.pc_pid = '" . add_escape_custom(pnVarCleanFromInput("patient_id")) . "' )";
 
         $searchargs['s_keywords'] = $sqlKeywords;
         //print_r($searchargs);
@@ -437,9 +433,91 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS', $eventsByDate);
     }
 
-    $tpl->caching = false;
     $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
-    $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
-    $return = $pageSetup . $tpl->fetch($template_name . '/user/ajax_search.html');
-    return $return;
+    $tpl->assign('USE_TOPICS', _SETTING_DISPLAY_TOPICS);
+
+    // Pre-decorate search_results from A_EVENTS (replaces the legacy
+    // [-php-] block in ajax_search.html that did sqlStatement(provider)
+    // lookups per row during render).
+    $searchResultsForTwig = [];
+    $rawEvents = $tpl->getVar('A_EVENTS');
+    if (is_array($rawEvents)) {
+        foreach ($rawEvents as $eDate => $dateEvents) {
+            if (!is_string($eDate) || !is_array($dateEvents)) {
+                continue;
+            }
+            $eventDateYmd = substr($eDate, 0, 4) . substr($eDate, 5, 2) . substr($eDate, 8, 2);
+            foreach ($dateEvents as $event) {
+                if (!is_array($event)) {
+                    continue;
+                }
+                $aid = $event['aid'] ?? null;
+                $provInfo = null;
+                if (is_int($aid) || (is_string($aid) && $aid !== '')) {
+                    $provRows = QueryUtils::fetchRecords('SELECT * FROM users WHERE id=?', [$aid]);
+                    $provInfo = $provRows[0] ?? null;
+                }
+
+                $startTimeRaw = $event['startTime'] ?? '00:00:00';
+                $startTimeStr = is_string($startTimeRaw) ? $startTimeRaw : '00:00:00';
+                $eventTs = strtotime($eDate . ' ' . $startTimeStr);
+                $datetimeDisplay = $eventTs !== false ? date('Y-m-d h:i a', $eventTs) : '';
+
+                $provFname = is_array($provInfo) && is_string($provInfo['fname'] ?? null) ? $provInfo['fname'] : '';
+                $provPhone = is_array($provInfo) && is_string($provInfo['phonew1'] ?? null) ? $provInfo['phonew1'] : '';
+                $provStreet = is_array($provInfo) && is_string($provInfo['street'] ?? null) ? $provInfo['street'] : '';
+                $provCity = is_array($provInfo) && is_string($provInfo['city'] ?? null) ? $provInfo['city'] : '';
+                $provState = is_array($provInfo) && is_string($provInfo['state'] ?? null) ? $provInfo['state'] : '';
+
+                $provInfoTitle = $provFname . ' ' . xl('contact info') . ":\n";
+                if (is_array($provInfo)) {
+                    $provInfoTitle .= $provPhone . "\n"
+                        . $provStreet . "\n"
+                        . $provCity . ' ' . $provState;
+                }
+
+                $eid = $event['eid'] ?? '';
+                $eidStr = is_int($eid) || is_string($eid) ? (string) $eid : '';
+
+                $searchResultsForTwig[] = [
+                    'event_id_token'      => $eidStr . '~' . $eventDateYmd,
+                    'datetime_display'    => $datetimeDisplay,
+                    'provider_name'       => is_string($event['provider_name'] ?? null) ? $event['provider_name'] : '',
+                    'provider_info_title' => $provInfoTitle,
+                    'catname'             => is_string($event['catname'] ?? null) ? $event['catname'] : '',
+                    'patient_name'        => is_string($event['patient_name'] ?? null) ? $event['patient_name'] : '',
+                ];
+            }
+        }
+    }
+    $tpl->assign('search_results', $searchResultsForTwig);
+
+    // datepicker_xl: capture the JS-config output the legacy template
+    // emitted by require-ing jquery-datetimepicker-2-5-4.js.php inline.
+    $datetimepicker_timepicker = false;
+    $datetimepicker_showseconds = false;
+    $datetimepicker_formatInput = false;
+    ob_start();
+    require OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+    $datepicker_xl = ob_get_clean();
+    $tpl->assign('datepicker_xl', is_string($datepicker_xl) ? $datepicker_xl : '');
+
+    // Templates need a small fixed subset of globals; avoid dumping
+    // the whole $GLOBALS into template scope (it exposes secrets,
+    // paths, DB handles, etc.). ajax_search.html.twig reads
+    // images_static_relative for the provinfo icon.
+    $tpl->assign('globals', [
+        'images_static_relative' => OEGlobalsBag::getInstance()->getString('images_static_relative'),
+    ]);
+    // header.html.twig reads body_class from the consumer (legacy got it
+    // from session.language_direction inside a [-php-] block).
+    $languageDirection = $session->get('language_direction');
+    $tpl->assign('body_class', is_string($languageDirection) ? $languageDirection : '');
+    $pageSetup = pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
+    $pageSetupStr = is_string($pageSetup) ? $pageSetup : '';
+    // Only the 'default' PostCalendar template set ships with the
+    // codebase (per the earlier tplview removal — see 2f84202232);
+    // hardcoding the template name matches what pnuserapi.php does
+    // for the same render path.
+    return $pageSetupStr . $tpl->render('calendar/default/user/ajax_search.html.twig');
 }

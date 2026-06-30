@@ -12,22 +12,35 @@
 
 declare(strict_types=1);
 
+use Doctrine\Common\EventManager;
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
 };
 use Doctrine\Migrations\Configuration\{
-    Connection\ConnectionLoader,
     Connection\ExistingConnection,
+    EntityManager\ExistingEntityManager,
+    Migration\ConfigurationArray,
     Migration\ConfigurationLoader,
-    Migration\PhpFile,
 };
 use Doctrine\Migrations\DependencyFactory;
+use Doctrine\ORM\{
+    Configuration,
+    EntityManager,
+    EntityManagerInterface,
+    Events,
+    Mapping\DefaultTypedFieldMapper,
+    Mapping\NamingStrategy,
+    Mapping\TypedFieldMapper,
+    Mapping\UnderscoreNamingStrategy,
+    ORMSetup,
+};
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Database\ConnectionManager;
 use OpenEMR\Common\Database\ConnectionType;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 
 return [
     // Connection Manager - manages named connections with different middleware
@@ -35,12 +48,13 @@ return [
         $manager = new ConnectionManager();
         $opts = $c->get(DatabaseConnectionOptions::class);
 
-        // Audit connection: no middleware, used by EventAuditLogger
-        $manager->register(ConnectionType::Audit, fn () =>
-            DriverManager::getConnection($opts->toDbalParams()));
-
         // Main connection: middleware will be added here
         $manager->register(ConnectionType::Main, fn () =>
+            DriverManager::getConnection($opts->toDbalParams()));
+
+        // Audit connection: no middleware, used by EventAuditLogger and some
+        // application bootstrapping
+        $manager->register(ConnectionType::NonAudited, fn () =>
             DriverManager::getConnection($opts->toDbalParams()));
 
         return $manager;
@@ -57,12 +71,80 @@ return [
     },
 
     // Doctrine Migrations
-    ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
-    ConnectionLoader::class => fn (TC $c) => new ExistingConnection($c->get(Connection::class)),
-    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromConnection(
+    ConfigurationLoader::class => fn () => new ConfigurationArray([
+        'custom_template' => 'db/migration-template.php.tpl',
+        'migrations_paths' => [
+            // A future version of this will integrate w/ the modules system and
+            // pull in any vended migrations from installed/active modules.
+            'OpenEMR\\Core\\Migrations' => 'db/Migrations',
+        ],
+        'table_storage' => [
+            'table_name' => 'migrations',
+            'execution_time_column_name' => 'execution_duration_ms',
+        ],
+    ]),
+    // We use fromEntityManager instead of fromConnection to be able to leverage
+    // its EventManager. This is required to subscribe to migration events.
+    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromEntityManager(
         $c->get(ConfigurationLoader::class),
-        $c->get(ConnectionLoader::class),
+        $c->get(ExistingEntityManager::class),
         $c->get(LoggerInterface::class),
     ),
+    ExistingEntityManager::class,
 
+    // ORM
+    Configuration::class => function (TC $c) {
+        $paths = [
+            'src/Entities',
+            // Future: load additional paths from modules?
+            // this may need a ClassLoader instead.
+        ];
+        // FIXME: before this gets integrated, isDevMode needs to be derived
+        // and an appropriate cache adapter provided (probably apcu for web and
+        // still array for cli)
+        $isDevMode = true;
+        $config = ORMSetup::createAttributeMetadataConfig(
+            paths: $paths,
+            isDevMode: $isDevMode,
+            cache: new ArrayAdapter(),
+        );
+
+        // Automatically translates classes and properties from UpperCamelCase
+        // in PHP to snake_case in the database.
+        $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
+        // Future: TypedFieldMapper for custom types.
+
+        // These are only used in PHP <= 8.3 where native lazy objects aren't
+        // supported or enabled.
+        $config->enableNativeLazyObjects(version_compare(PHP_VERSION, '8.4.0', '>='));
+        $config->setProxyDir(sys_get_temp_dir());
+        $config->setProxyNamespace('DoctrineProxies');
+        $config->setAutoGenerateProxyClasses($isDevMode);
+        return $config;
+    },
+
+    EntityManager::class,
+    EntityManagerInterface::class => EntityManager::class,
+
+    // Note: Doctrine EntityManager types EventManager not
+    // EventManagerInterface, so we use it as the key so it gets wired.
+    EventManager::class => function (TC $c): EventManager {
+        $manager = new EventManager();
+        // Future: add ORM/DBAL/Migrations lifecycle hooks in here
+        //
+        // Hookable events are defined in:
+        // - Doctrine\Migrations\Events
+        // - Doctrine\ORM\Events
+        // - Doctrine\ORM\Tools\ToolEvents
+        //
+        // Listeners are convention-based: they must have a public method of the
+        // event's name which will be called upon event dispatching. E.g. an
+        // event named `fooEvent` means the listener must have `public function
+        // fooEvent(): void`. Some events emit additional data as an argument,
+        // see their definitions for more detail.
+        //
+        // This should NOT be used for application events; stick with the
+        // Symfony EventDispatcher in the kernel.
+        return $manager;
+    },
 ];

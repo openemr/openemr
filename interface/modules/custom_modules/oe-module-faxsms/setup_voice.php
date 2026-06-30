@@ -14,6 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controllers;
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
@@ -26,12 +27,13 @@ if (!$clientApp->verifyAcl()) {
 }
 $c = $clientApp->getCredentials();
 $module_config = $_REQUEST['module_config'] ?? 1;
+$pid = SessionWrapperFactory::getInstance()->getActiveSession()->get('pid') ?? 0;
 echo "<script>var pid=" . js_escape($pid) . "</script>";
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>><?php echo xlt("Setup") ?></title>
+    <title><?php echo xlt("Setup") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
     echo "<script>let Service=" . js_escape($serviceType) . "</script>";

@@ -187,7 +187,7 @@ class EtherFaxActions extends AppDispatch
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docid');
         $phone = $this->formatPhone($this->getRequest('phone'));
-        $isDocuments = (int)$this->getRequest('isDocuments');
+        $isDocuments = (bool)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_PASS') ?? null) && !empty(OEGlobalsBag::getInstance()->getString('SMTP_USER') ?? null);
@@ -791,32 +791,6 @@ class EtherFaxActions extends AppDispatch
         $user = sqlFetchArray($result);
 
         return json_encode([$user['fname'], $user['lname'], $user['fax'], $user['facility'], $user['email']]);
-    }
-
-    /**
-     * @return string
-     */
-    public function getNotificationLog(): string
-    {
-        $fromDate = $this->getRequest('datefrom');
-        $toDate = $this->getRequest('dateto');
-
-        try {
-            $query = "SELECT * FROM notification_log WHERE dSentDateTime > ? AND dSentDateTime < ?";
-            $result = sqlStatement($query, [$fromDate, $toDate]);
-            $rows = sqlFetchArray($result);
-            $responseMsgs = '';
-
-            foreach ($rows as $row) {
-                $adate = $row['pc_eventDate'] . '::' . $row['pc_startTime'];
-                $pinfo = str_replace("|||", " ", $row['patient_info']);
-                $responseMsgs .= "<tr><td>" . text($row["pc_eid"]) . "</td><td>" . text($row["dSentDateTime"]) . "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($row["message"]) . "</td></tr>";
-            }
-        } catch (\Throwable $e) {
-            return 'Error: ' . text($e->getMessage()) . PHP_EOL;
-        }
-
-        return $responseMsgs;
     }
 
     /**

@@ -46,7 +46,7 @@ class DocumentService extends BaseService
             $queryParams['patient_id'] = $pid;
         }
         $query = http_build_query($queryParams);
-        return OEGlobalsBag::getInstance()->get('web_root') . '/controller.php?' . $query;
+        return OEGlobalsBag::getInstance()->getKernel()->getWebRoot() . '/controller.php?' . $query;
     }
 
     public function isValidPath($path)

@@ -26,9 +26,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $content_type = "text/plain";
 
@@ -47,6 +45,7 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 // the loc, if set, may tell us where the file is
 $location = $_GET['location'] ?? '';
 $claim_file_found = false;
+$claim_file_dir = '';
 if ($location === 'tmp') {
     $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (file_exists($claim_file_dir . $fname)) {

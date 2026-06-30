@@ -19,16 +19,23 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/payment.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Billing\Payments\DeletePayment;
 use OpenEMR\OeUI\OemrUI;
+
+$srcDir = OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcDir . '/patient.inc.php');
+require_once($srcDir . '/options.inc.php');
+require_once($srcDir . '/payment.inc.php');
+
+$ResultSearch = null;
+$PaymentDateString = '';
+$StringSessionId = '';
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Search Payment", xl("Search Payment"));
@@ -188,7 +195,7 @@ if (isset($_POST["mode"])) {
                 $StringSessionId .= $rowrs['session_id'] . ',';
             }
 
-            $StringSessionId = substr((string) $StringSessionId, 0, -1);
+            $StringSessionId = substr($StringSessionId, 0, -1);
             if ($PaymentStatus == 'fully_paid') {
                 $QueryString .= " $And session_id in(" . add_escape_custom($StringSessionId) . ") ";
             } elseif ($PaymentStatus == 'unapplied') {
@@ -222,8 +229,8 @@ if (isset($_POST["mode"])) {
 <title><?php echo xlt("Search Payment") ?></title>
 <?php Header::setupHeader(['datetime-picker']); ?>
 
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/payment_jav.inc.php"); ?>
-<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/payment_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->getSrcDir() . "/ajax/payment_ajax_jav.inc.php"); ?>
 
 <script>
     function refreshSearch() {
@@ -254,7 +261,7 @@ if (isset($_POST["mode"])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -509,7 +516,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <a class="medium_modal" href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo text($RowSearch['session_id']); ?></a>
                                             </td>
                                             <td>
-                                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['check_date'] == '0000-00-00' ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
+                                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo Utilities::isDateEmpty($RowSearch['check_date']) ? '&nbsp;' : text(oeFormatShortDate($RowSearch['check_date'])); ?></a>
                                             </td>
                                             <td>
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">

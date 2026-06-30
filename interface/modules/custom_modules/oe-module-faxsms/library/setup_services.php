@@ -14,6 +14,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
@@ -27,15 +28,14 @@ $boot = new BootstrapService();
 $taskManager = new NotificationTaskManager();
 $services = ['sms', 'email'];
 $actions = ['create', 'enable', 'disable', 'delete'];
+$selectedService = null;
+$period = null;
 
 if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $selectedService = $_POST['selected_service'] ?? null;
     $selectedAction = $_POST['action'] ?? null;
-    $status = $taskManager->getServiceStatus($selectedService);
 
     $period = $_POST['period'] ?? null;
     if (empty($period)) {
@@ -66,21 +66,15 @@ if (($_POST['action'] ?? null) || ($_POST['selected_service'] ?? null)) {
     }
 }
 
-$currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : null;
-
 if ($_POST['form_save'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
-    $session->set('editingUser', ($_POST['editingUser'] ?? 0));
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    SessionUtil::setSession('editingUser', ($_POST['editingUser'] ?? 0));
     $boot->saveVendorGlobals($_POST);
 }
 
 // Handle user permissions form submission
 if ($_POST['form_save_permissions'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Get all active users
     $users_query = "SELECT id, username FROM users WHERE active = 1 AND username IS NOT NULL AND fname IS NOT NULL";
@@ -203,10 +197,11 @@ $vendors = $boot->getVendorGlobals();
         $boot->createVendorGlobals();
         $vendors = $boot->getVendorGlobals();
     }
+    $selectedService ??= '';
     $isSmsEnabled = $vendors['oefax_enable_sms'] > 0 ? 'sms' : '';
     $isEmailEnable = $vendors['oe_enable_email'] > 0 ? 'email' : '';
-    $isVoiceEnable = $vendors['oe_enable_voice'] > 0 ? 'voice' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
+    $currentStatus = $selectedService ? $taskManager->getServiceStatus($selectedService) : false;
 
     $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
     $faxVendor = ServiceType::fromValue($vendors['oefax_enable_fax']);
@@ -318,7 +313,7 @@ $vendors = $boot->getVendorGlobals();
                     sizeHeight: 'full',
                     allowDrag: false,
                     type: 'iframe',
-                    url: './../setup_voice.php?type=email&module_config=-1'
+                    url: './../setup_voice.php?type=voice&module_config=-1'
                 }
                 return dlgopen('', '', 'modal-lg', '', '', title, params);
             }
@@ -434,8 +429,8 @@ $vendors = $boot->getVendorGlobals();
                     <hr>
                     <div class="clearfix"></div>
                     <div class="row form-group">
-                        <label for="allow_dialog" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
-                        <div class="col-sm-6" title=<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?> >
+                        <label for="oeenable_users_permissions" class="col-sm-6"><?php echo xlt("Enable User Permission Management (Recommended)"); ?></label>
+                        <div class="col-sm-6" title="<?php echo xla("Enable User Permission Management. Allows setting individual user access to modules.") ?>">
                             <input type="checkbox" class="checkbox persist" name="oeenable_users_permissions" id="oeenable_users_permissions" value="1" <?php echo $vendors['oeenable_users_permissions'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
@@ -529,8 +524,8 @@ $vendors = $boot->getVendorGlobals();
                                 <button type="button" class="btn btn-info" onclick="toggleHelpCard()"><?php echo xlt('Help'); ?></button>
                             </span>
                             </div>
-                            <?php if ($currentStatus !== null && isset($currentStatus[$selectedService])) { ?>
-                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string) $selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
+                            <?php if ($currentStatus && ($currentStatus[$selectedService] ?? false) !== false) { ?>
+                                <span><strong><?php echo xlt('Status of'); ?> <?php echo text(ucfirst((string)$selectedService)); ?> <?php echo xlt('Service'); ?>:</strong></span>
                                 <ul>
                                     <li><strong><?php echo xlt('Service Status'); ?>: </strong><?php echo text($currentStatus[$selectedService]['active']) ? xlt('Enabled to Run.') : xlt('Disabled or not Created.'); ?></li>
                                     <li><strong><?php echo xlt('Execution Run Interval'); ?>: </strong><?php echo text($currentStatus[$selectedService]['execute_interval']) . ' ' . xlt('Minutes'); ?></li>

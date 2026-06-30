@@ -14,11 +14,12 @@
 
 // removed as jquery is already called in messages page (if you need to use jQuery, uncomment it further down)
 require_once(__DIR__ . '/../../globals.php');
-require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/dated_reminder_functions.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -41,9 +42,7 @@ $updateDelay *= 1000;
 // Javascript will send a post
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // set as processed
     setReminderAsProcessed($_POST['drR']);
@@ -109,14 +108,14 @@ $(function () {
 function openAddScreen(id){
   if (id == 0){
     top.restoreSession();
-    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
   } else {
     top.restoreSession();
     const params = new URLSearchParams({
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
         mID: id
     });
-    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
   }
 }
 
@@ -134,7 +133,7 @@ function updateme(id){
 
   // Send the skip_timeout_reset parameter to not count this as a manual entry in the
   // timing out mechanism in OpenEMR.
-  $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders.php",
+  $.post("<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/dated_reminders/dated_reminders.php",
     {
       drR: id,
       skip_timeout_reset: "1",
@@ -157,7 +156,7 @@ function updateme(id){
 
 function openLogScreen(){
   top.restoreSession();
-    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
 }
 
 function goPid(pid) {

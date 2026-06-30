@@ -31,9 +31,9 @@ class ApplicationTable
      *            SQL Query Statement
      * @param array $params
      *            SQL Parameters
-     * @param boolean $log
+     * @param bool $log
      *            Logging True / False
-     * @param boolean $error
+     * @param bool $error
      *            Error Display True / False
      * @return mixed
      */
@@ -125,11 +125,11 @@ class ApplicationTable
      *            Parameters for actions
      * @param array $auditvals
      *            Parameters of audit
-     * @param boolean $log
+     * @param bool $log
      *            openemr Logging True / False
-     * @param boolean $error
+     * @param bool $error
      *            Error Display True / False
-     * @param type audit array params for portal audits
+     * @param mixed $type audit array params for portal audits
      *         $audit = Array();
      *         $audit['patient_id']="";
      *         $audit['activity']="";

@@ -67,10 +67,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     error_log($msg);
     echo $msg;
 }
-// confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $logit = new ApplicationTable();
 $htmlin = $_POST['content'] ?? null;

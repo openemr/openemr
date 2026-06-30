@@ -392,7 +392,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     /**
      * Searches for OpenEMR records using OpenEMR search parameters
-     * @param <string, ISearchField> $openEMRSearchParameters OpenEMR search fields
+     * @param array<string, \OpenEMR\Services\Search\ISearchField> $openEMRSearchParameters OpenEMR search fields
      * @return ProcessingResult OpenEMR records
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
@@ -895,6 +895,9 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             );
     }
 
+    /**
+     * @param literal-string $description
+     */
     private function populateComponentColumn(FHIRObservation $observation, $dataRecord, $column, $code, $description): void
     {
         $component = new FHIRObservationComponent();

@@ -159,7 +159,7 @@ class TelehealthGlobalConfig
     /**
      * Checks if the core telehealth configuration settings are properly setup.
      *
-     * @return false|void
+     * @return bool
      */
     public function isTelehealthCoreSettingsConfigured()
     {
@@ -211,7 +211,7 @@ class TelehealthGlobalConfig
         return false;
     }
 
-    private function isThirdPartyConfigurationSetup()
+    private function isThirdPartyConfigurationSetup(): bool
     {
         // check to make sure the dependent portal settings are setup correctly
         $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
@@ -285,7 +285,7 @@ class TelehealthGlobalConfig
     public function getRegistrationAPIPassword()
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
-        return $this->cryptoGen->decryptStandard(is_string($encryptedValue) ? $encryptedValue : null);
+        return $this->cryptoGen->decryptFromDatabase(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     public function getRegistrationAPICmsId()

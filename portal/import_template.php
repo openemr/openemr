@@ -117,9 +117,7 @@ if (($_POST['mode'] ?? null) === 'send') {
 }
 
 if (($_POST['mode'] ?? null) === 'save') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-save')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-save', dieOnFail: true);
     if (!$authUploadTemplates) {
         AccessDeniedHelper::deny('Not authorized to edit template');
     }
@@ -136,9 +134,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Invalid File'));
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-delete')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-delete', dieOnFail: true);
     if (!$authUploadTemplates) {
         AccessDeniedHelper::deny('Not authorized to delete template');
     }
@@ -157,9 +153,7 @@ if (($_POST['mode'] ?? null) === 'save') {
 }
 
 if (isset($_POST['blank-nav-button'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -190,9 +184,7 @@ if (isset($_POST['blank-nav-button'])) {
 }
 
 if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -223,9 +215,7 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
 
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -242,10 +232,10 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
         }
         // parse out what we need
         $name = preg_replace("/[^A-Z0-9.]/i", " ", (string)$_FILES['template_files']['name'][$i]);
-        if (preg_match("/(.*)\.(php|php7|php8|doc|docx)$/i", (string)$name) !== 0) {
+        $parts = pathinfo((string)$name);
+        if (in_array(strtolower($parts['extension'] ?? ''), ['php', 'php7', 'php8', 'doc', 'docx'], true)) {
             die(xlt('Invalid file type.'));
         }
-        $parts = pathinfo((string)$name);
         $name = ucwords(strtolower($parts["filename"]));
         if (empty($patient)) {
             $patient = ['-1'];
@@ -269,9 +259,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
 }
 
 if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;

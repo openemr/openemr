@@ -17,8 +17,8 @@ namespace ESign;
 
 use OpenEMR\Core\OEGlobalsBag;
 
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Viewer.php';
-require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ViewableIF.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/Viewer.php';
+require_once OEGlobalsBag::getInstance()->getSrcDir() . '/ESign/ViewableIF.php';
 
 abstract class Abstract_Controller implements ViewableIF
 {
@@ -37,7 +37,7 @@ abstract class Abstract_Controller implements ViewableIF
     {
         $this->_request = $request;
         $this->_method = $this->_request->getParam('method');
-        $this->_viewDir = OEGlobalsBag::getInstance()->get('srcdir') . "/ESign/views";
+        $this->_viewDir = OEGlobalsBag::getInstance()->getSrcDir() . "/ESign/views";
         $this->_viewScript = 'esign_error.php';
         $this->_view = new Viewer();
     }

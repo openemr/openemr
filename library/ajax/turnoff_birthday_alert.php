@@ -19,9 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Reminder\BirthdayReminder;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 if (!empty($_POST['pid']) && !empty($_POST['user_id'])) {
     $birthdayReminder = new BirthdayReminder($_POST['pid'], $_POST['user_id']);

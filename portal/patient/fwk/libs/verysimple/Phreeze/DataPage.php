@@ -85,10 +85,8 @@ class DataPage implements Iterator
      * Phreezable object (the default is a stdClass with all public properties)
      *
      * @access public
-     * @param
-     *          bool asSimpleObject if true then populate the array with ToObject on each item in the array
-     * @param
-     *          array options (only relevant if asSimpleObject is true) passed through to ToObject
+     * @param bool $asSimpleObject asSimpleObject if true then populate the array with ToObject on each item in the array
+     * @param array $options options (only relevant if asSimpleObject is true) passed through to ToObject
      * @return array
      */
     function ToObjectArray($asSimpleObject = false, $options = null)

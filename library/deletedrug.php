@@ -26,9 +26,7 @@ if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $id = (isset($_POST['drugid'])) ? (int)$_POST['drugid'] : '';
 if ((!empty($id)) && ($id > 0)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     /**
      * find the drug name in the prescription table

@@ -17,6 +17,7 @@
 /* global addEditEventConfig */
 
 const IN_OFFICE_CAT_ID = '2';
+const OUT_OF_OFFICE_CAT_ID = '3';
 
 // This is for callback by the find-patient popup.
 function setpatient(pid, lname, fname, dob) {

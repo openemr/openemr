@@ -17,8 +17,8 @@
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
 require_once('../globals.php');
-require_once("$srcdir/classes/Totp.class.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/classes/Totp.class.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
@@ -136,9 +136,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 2 is to validate password and display qr code
                         } elseif ($action == 'reg2') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                             // Redirect back to step 1 if user password is incorrect
                             if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $_POST['clearPass'])) {
@@ -157,7 +155,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 $doesExist = false;
                             } else {
                                 $cryptoGen = ServiceContainer::getCrypto();
-                                $secret = $cryptoGen->decryptStandard(is_string($existingSecret['var1']) ? $existingSecret['var1'] : null);
+                                $secret = $cryptoGen->decryptFromDatabase(is_string($existingSecret['var1']) ? $existingSecret['var1'] : null);
                                 $doesExist = true;
                             }
 
@@ -220,9 +218,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 3 is to save the qr code
                         } elseif ($action == 'reg3') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                             echo "<script>\n";
 
@@ -240,7 +236,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                     "INSERT INTO login_mfa_registrations " .
                                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .
                                     "(?, 'TOTP', 'App Based 2FA', ?, '')",
-                                    [$userid, $cryptoGen->encryptStandard(is_string($totpSecret) ? $totpSecret : null)]
+                                    [$userid, $cryptoGen->encryptForDatabase(is_string($totpSecret) ? $totpSecret : null)]
                                 );
                                 $session->remove('totpSecret');
                             } else {

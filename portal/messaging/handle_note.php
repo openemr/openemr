@@ -13,8 +13,10 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\PortalMessagingSender;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -75,6 +77,21 @@ if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
     }
     //owner is the user authUser
     $owner = $session->get('authUser');
+
+    // For staff/dashboard sessions, derive sender identity from authenticated
+    // session to prevent impersonation via client-supplied values.
+    $authUser = $session->get('authUser');
+    $staffSenderId = is_string($authUser) ? $authUser : '';
+    $staffDisplayName = QueryUtils::fetchSingleValue(
+        <<<'SQL'
+        SELECT CONCAT(fname, ' ', lname) AS display_name FROM users WHERE username = ?
+        SQL,
+        'display_name',
+        [$staffSenderId]
+    );
+    $staffSenderName = is_string($staffDisplayName) && trim($staffDisplayName) !== ''
+        ? $staffDisplayName
+        : $staffSenderId;
 }
 
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
@@ -85,10 +102,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
-// confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'messages-portal')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'messages-portal', dieOnFail: true);
 
 if (empty($owner)) {
     echo xlt('Critical error, so exiting');
@@ -105,11 +119,20 @@ $notejson = ($_POST['notejson'] ?? null) ? json_decode((string) $_POST['notejson
 $reply_noteid = $_POST['replyid'] ?? null ?: 0;
 $note = $_POST['inputBody'] ?? null;
 $title = $_POST['title'] ?? null;
-$sid = $_POST['sender_id'] ?? null;
-$sn = $_POST['sender_name'] ?? null;
 $rid = $_POST['recipient_id'] ?? null;
 $rn = $_POST['recipient_name'] ?? null;
 $header = '';
+
+$postedSenderId = $_POST['sender_id'] ?? null;
+$postedSenderName = $_POST['sender_name'] ?? null;
+$resolvedStaffSenderId = $staffSenderId ?? null;
+$resolvedStaffSenderName = $staffSenderName ?? null;
+[$sid, $sn] = (new PortalMessagingSender())->resolve(
+    is_string($resolvedStaffSenderId) ? $resolvedStaffSenderId : null,
+    is_string($resolvedStaffSenderName) ? $resolvedStaffSenderName : null,
+    is_string($postedSenderId) ? $postedSenderId : null,
+    is_string($postedSenderName) ? $postedSenderName : null,
+);
 
 switch ($task) {
     case "forward":

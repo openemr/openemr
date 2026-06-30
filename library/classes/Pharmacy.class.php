@@ -8,7 +8,7 @@
  * @author    duhlman
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) duhlman
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -217,15 +217,34 @@ class Pharmacy extends ORDataObject
 
     function persist()
     {
-        parent::persist();
-        $this->address->persist($this->id);
-        $phoneService = new PhoneNumberService();
-        foreach ($this->phone_numbers as $phone) {
-            $phoneData = ['phone' => $phone->phoneNumber->getNationalDigits()];
-            $phoneService->type = $phone->type->value;
-            // Always insert for now - PhoneNumberService handles upsert logic
-            $phoneService->insert($phoneData, $this->id);
-        }
+        // Wrap the whole logical save (parent row, address row, phone_numbers
+        // delete + re-insert) in a single transaction. See the matching note
+        // in InsuranceCompany::persist() — the delete-then-insert pattern is
+        // what stops the duplicate-phone-row accumulation, and the
+        // transaction keeps a mid-loop failure from leaving the record with
+        // partial or no phone data instead of just the buggy duplicates.
+        QueryUtils::inTransaction(function (): void {
+            parent::persist();
+            $this->address->persist($this->id);
+            $phoneService = new PhoneNumberService();
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM phone_numbers WHERE foreign_id = ?",
+                [$this->id]
+            );
+            foreach ($this->phone_numbers as $phone) {
+                $nationalDigits = $phone->phoneNumber->getNationalDigits();
+                if ($nationalDigits === null) {
+                    // The legacy phone_numbers table stores 10-digit NANP parts
+                    // (area_code / prefix / number). Skip numbers we can't
+                    // represent in that schema rather than throwing a TypeError
+                    // from PhoneNumberService::getPhoneParts().
+                    continue;
+                }
+                $phoneData = ['phone' => $nationalDigits];
+                $phoneService->type = $phone->type->value;
+                $phoneService->insert($phoneData, $this->id);
+            }
+        });
     }
 
     function utility_pharmacy_array()

@@ -53,9 +53,6 @@ class EmailClient extends AppDispatch
     {
         $credentials = AppDispatch::getSetup();
 
-        $this->sid = $credentials['username'];
-        $this->appKey = $credentials['appKey'];
-        $this->appSecret = $credentials['appSecret'];
         $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
@@ -163,6 +160,7 @@ class EmailClient extends AppDispatch
             throw new EmailSendFailedException($mail->ErrorInfo);
         }
     }
+
     /**
      * @return false|string
      */
@@ -212,5 +210,13 @@ class EmailClient extends AppDispatch
     public function fetchEmailList($uiDateRangeFlag = true): false|string|null
     {
         return "[]"; // Caller expects JSON result, not HTML;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallLogs()
+    {
+        return xlt('Not Implemented');
     }
 }

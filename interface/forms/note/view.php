@@ -15,12 +15,17 @@
 
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+// Hoist legacy `globals.php` locals so PHPStan can see them (#11792 Phase 5).
+$srcdir = OEGlobalsBag::getInstance()->getSrcDir();
+$rootdir = OEGlobalsBag::getInstance()->getString('rootdir');
+
+require_once("$srcdir/api.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -32,6 +37,7 @@ $provider_results = sqlQuery("select fname, lname from users where username=?", 
 $form_name = "note";
 
 // get the record from the database
+$obj = [];
 if ($_GET['id'] != "") {
     $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
@@ -50,7 +56,7 @@ $(function () {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

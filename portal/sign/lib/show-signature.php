@@ -41,7 +41,7 @@ if ($isPortal) {
         $user = $req_pid;
     } else {
         SessionWrapperFactory::getInstance()->destroyPortalSession();
-        echo js_escape("error");
+        echo '"error"';
         exit();
     }
 }
@@ -68,12 +68,12 @@ if ($isAdmin) {
     $req_pid = 0;
 }
 if ($type === 'witness-signature') {
-    echo(js_escape('Witness Signature'));
+    echo '"Witness Signature"';
     exit();
 }
 if ($req_pid === 0 || empty($user)) {
     if (!$isAdmin) {
-        echo(js_escape('error not an admin'));
+        echo '"error not an admin"';
         exit();
     }
 }
@@ -88,7 +88,7 @@ if (($data['mode'] ?? null) === 'fetch_info') {
 
     $signer = $isAdmin ? $user_result['userName'] : $pt_result['ptName'];
     if (!$signer) {
-        echo js_escape("error");
+        echo '"error"';
         exit();
     }
 }

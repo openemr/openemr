@@ -37,7 +37,8 @@ class CouchDB
         $this->host = OEGlobalsBag::getInstance()->getString('couchdb_host');
         $this->user = (OEGlobalsBag::getInstance()->getString('couchdb_user') != '') ? OEGlobalsBag::getInstance()->getString('couchdb_user') : null;
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->pass = ($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('couchdb_pass')) != '') ? $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('couchdb_pass')) : null;
+        $decryptedPass = $cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->getString('couchdb_pass'));
+        $this->pass = $decryptedPass !== '' ? $decryptedPass : null;
         $this->port = OEGlobalsBag::getInstance()->getString('couchdb_port');
         $this->dbase = OEGlobalsBag::getInstance()->getString('couchdb_dbase');
     }

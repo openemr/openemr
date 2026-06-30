@@ -165,8 +165,8 @@ function sanitizeNumber($number)
  * Function to get sql statement for empty datetime check.
  *
  * @param  string  $sqlColumn     SQL column/field name
- * @param  boolean  $time         flag used to determine if it's a datetime or a date
- * @param  boolean  $rev          flag used to reverse the condition
+ * @param bool $time flag used to determine if it's a datetime or a date
+ * @param bool $rev flag used to reverse the condition
  * @return string                 SQL statement checking if passed column is empty
  */
 

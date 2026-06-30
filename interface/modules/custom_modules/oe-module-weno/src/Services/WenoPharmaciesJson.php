@@ -83,15 +83,16 @@ class WenoPharmaciesJson
         if (empty(OEGlobalsBag::getInstance()->get('weno_admin_password'))) {
             return '';
         }
-        return md5($this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password')));
+        return md5($this->cryptoGen->decryptFromDatabase(OEGlobalsBag::getInstance()->get('weno_admin_password')));
     }
 
-    private function wenoEncryptionKey(): bool|string
+    private function wenoEncryptionKey(): string
     {
-        if (empty(OEGlobalsBag::getInstance()->get('weno_encryption_key'))) {
-            return '';
+        $key = OEGlobalsBag::getInstance()->getString('weno_encryption_key');
+        if ($key === '') {
+            throw new \RuntimeException('Weno key missing');
         }
-        return $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key'));
+        return $this->cryptoGen->decryptFromDatabase($key);
     }
 
     private function wenoPharmacyDirectoryLink(): string

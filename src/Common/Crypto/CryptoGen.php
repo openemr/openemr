@@ -26,18 +26,23 @@
  * @copyright Copyright (c) 2015 Ensoftek, Inc
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Crypto;
 
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\{
+    Crypto\ContextualEncryptionTrait,
+    ServiceContainer,
+};
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
 class CryptoGen implements CryptoInterface
 {
+    use ContextualEncryptionTrait;
+
     /**
      * Key cache to optimize key collection, which avoids numerous repeat
      * calls to collect the key sets (and repeat decryption of the key set
@@ -49,10 +54,34 @@ class CryptoGen implements CryptoInterface
 
     private readonly string $siteDir;
 
-    public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
-    {
+    /**
+     * Installations using databases backed with external security measures
+     * like TDE may opt-out of column-level encryption, in order to rely on
+     * external key management and other security considerations.
+     *
+     * Using this without database-managed encryption technologies will reduce
+     * security and can lead to non-compliance.
+     *
+     * Caveat: this will only impact code that uses the `encryptForDatabase`
+     * path. Not all code does at this time.
+     */
+    private readonly bool $shouldEncryptForDatabase;
+
+    private readonly bool $shouldEncryptForFilesystem;
+
+    public function __construct(
+        ?LoggerInterface $logger = null,
+        ?string $siteDir = null,
+        ?bool $shouldEncryptForDatabase = null,
+        ?bool $shouldEncryptForFilesystem = null,
+    ) {
+        $bag = OEGlobalsBag::getInstance();
         $this->logger = $logger ?? ServiceContainer::getLogger();
-        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $this->siteDir = $siteDir ?? $bag->getString('OE_SITE_DIR');
+        $this->shouldEncryptForDatabase = $shouldEncryptForDatabase
+            ?? $bag->getBoolean('database_encryption');
+        $this->shouldEncryptForFilesystem = $shouldEncryptForFilesystem
+            ?? $bag->getBoolean('drive_encryption');
     }
 
     /**
@@ -79,7 +108,7 @@ class CryptoGen implements CryptoInterface
             $this->logger->error('Invalid encryption version prefix');
             return false;
         }
-        $trimmedValue = mb_substr($value, 3, null, '8bit');
+        $trimmedValue = substr($value, 3);
 
         if (!empty($minimumVersion)) {
             try {
@@ -213,9 +242,9 @@ class CryptoGen implements CryptoInterface
         }
 
         $ivLength = $this->getOpenSSLCipherIvLength('aes-256-cbc');
-        $hmacHash = mb_substr($raw, 0, 48, '8bit');
-        $iv = mb_substr($raw, 48, $ivLength, '8bit');
-        $encrypted_data = mb_substr($raw, ($ivLength + 48), null, '8bit');
+        $hmacHash = substr($raw, 0, 48);
+        $iv = substr($raw, 48, $ivLength);
+        $encrypted_data = substr($raw, $ivLength + 48);
 
         $calculatedHmacHash = $this->hashHmac('sha384', $iv . $encrypted_data, $sSecretKeyHmac, true);
 
@@ -264,9 +293,9 @@ class CryptoGen implements CryptoInterface
         }
 
         $ivLength = $this->getOpenSSLCipherIvLength('aes-256-cbc');
-        $hmacHash = mb_substr($raw, 0, 32, '8bit');
-        $iv = mb_substr($raw, 32, $ivLength, '8bit');
-        $encrypted_data = mb_substr($raw, ($ivLength + 32), null, '8bit');
+        $hmacHash = substr($raw, 0, 32);
+        $iv = substr($raw, 32, $ivLength);
+        $encrypted_data = substr($raw, $ivLength + 32);
 
         $calculatedHmacHash = $this->hashHmac('sha256', $iv . $encrypted_data, $sSecretKeyHmac, true);
 

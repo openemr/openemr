@@ -5,6 +5,14 @@ services:
     - 443:443
     volumes:
     - ../:/var/www/localhost/htdocs/openemr
+    # Allow the container to write coredumps when an Apache worker segfaults
+    # (issue #12438/#12439): the kernel will not dump a process whose core
+    # ulimit is 0. The on-failure CI diagnostics step extracts and backtraces
+    # any core found here to identify the faulting native extension.
+    ulimits:
+      core:
+        soft: -1
+        hard: -1
     environment:
       EMPTY: yes
       FORCE_NO_BUILD_MODE: yes
@@ -12,6 +20,9 @@ services:
       ENABLE_COVERAGE: ${ENABLE_COVERAGE:-false}
       PCOV_ON: ${ENABLE_COVERAGE:-false}
       SELENIUM_BASE_URL: http://openemr
+      # Disable the patient birthday-alert modal so e2e tests don't get blocked
+      # on the seed patient's birthday (DOB 1958-05-02). See issue #11980.
+      OPENEMR_SETTING_patient_birthday_alert: '0'
     healthcheck:
       test:
       - CMD

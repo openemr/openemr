@@ -22,7 +22,7 @@
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 */
 
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -231,7 +231,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
             $d = new Document($result_document_id);
             echo "  <td colspan='3'>";
             if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
-                echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document";
+                echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/controller.php?document";
                 echo "&retrieve&patient_id=" . attr_url($ctx['patient_id']) . "&document_id=" . attr_url($result_document_id) . "' ";
                 echo "onclick='top.restoreSession()'>";
             }
@@ -409,7 +409,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 <?php } ?>
 
     <?php if ($input_form) { ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/textformat.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/textformat.js"></script>
     <?php } // end if input form
     ?>
 
@@ -454,7 +454,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 <td width='45%'>
                     <?php
                     if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
-                        echo "   <a href='" . OEGlobalsBag::getInstance()->get('webroot');
+                        echo "   <a href='" . OEGlobalsBag::getInstance()->getWebRoot();
                         echo "/interface/orders/order_manifest.php?orderid=";
                         echo attr_url($orow['procedure_order_id']);
                         echo "' target='_blank' onclick='top.restoreSession()'>";

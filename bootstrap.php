@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 use Dotenv\Dotenv;
 use Firehed\Container\AutoDetect;
+use OpenEMR\Core\ErrorHandler;
 
 chdir(__DIR__);
 
@@ -44,4 +45,10 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
 }
 
 // Set up and return the PSR-11 DI container
-return AutoDetect::instance('config');
+$container = AutoDetect::instance('config');
+
+$handler = $container->get(ErrorHandler::class);
+$handler->installErrorHandler(E_ALL);
+$handler->installExceptionHandler();
+
+return $container;

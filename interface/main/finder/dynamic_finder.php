@@ -17,14 +17,15 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once "$srcdir/user.inc.php";
-require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/user.inc.php";
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
@@ -285,7 +286,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = ['search' => (xla('Search all columns') . ':')]; ?>
             <?php $translationsDatatablesOverride = ['processing' => $loading]; ?>
-            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/datatables-net.js.php'); ?>
         });
 
 
@@ -382,7 +383,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $event->setPrimaryMenuItem(new BaseMenuItem([
             'displayText' => xl('Add New Patient'),
             'linkClassList' => ['btn-add'],
-            'id' => OEGlobalsBag::getInstance()->get('webroot') . '/interface/new/new.php',
+            'id' => OEGlobalsBag::getInstance()->getWebRoot() . '/interface/new/new.php',
             'acl' => ['patients', 'demo', ['write', 'addonly']]
         ]));
     });

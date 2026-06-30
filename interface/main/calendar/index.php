@@ -17,14 +17,15 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/calendar.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once 'includes/pnAPI.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/calendar.inc.php");
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once 'includes/pnAPI.php';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
@@ -164,22 +165,19 @@ if (pnModAvailable($module)) {
 if ((empty($return)) || ($return == false)) {
     // Failed to load the module
     $output = new pnHTML();
-    $output->StartPage();
-    $output->Text('Failed to load module ' . text($module) . ' ( At function: "' . text($func) . '" )');
-    $output->EndPage();
-    $output->PrintPage();
+    $body  = $output->generateStartPage();
+    $body .= $output->generateText('Failed to load module ' . text($module) . ' ( At function: "' . text($func) . '" )');
+    $body .= $output->generateEndPage();
+    $output->PrintPage($body);
     exit;
 } elseif (strlen((string) $return) > 1) {
     // Text
     $output = new pnHTML();
-    //$output->StartPage();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
-    $output->Text($return);
+    $body = $output->generateText($return);
     $output->SetInputMode(_PNH_PARSEINPUT);
-    //$output->EndPage();
-    $output->PrintPage();
-} else {
-    // duh?
+    $output->PrintPage($body);
 }
 
+// $return === true means "finished"; fall through to exit.
 exit;

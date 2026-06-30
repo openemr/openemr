@@ -126,7 +126,7 @@ if (str_starts_with($hidden_mode, 'add')) {
             QueryUtils::sqlStatementThrowException("DELETE FROM {$tbl_camos_subcategory} WHERE id = ?", [$to_delete_id]);
         }
     } elseif ($hidden_selection == 'change_item') {
-        $select_item = filter_input(INPUT_POST, 'select_item', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+        $select_item = filter_input(INPUT_POST, 'select_item', FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY);
         if (is_array($select_item) && count($select_item) > 1) {
             foreach ($select_item as $v) {
                 $itemId = filter_var($v, FILTER_VALIDATE_INT);
@@ -405,7 +405,10 @@ $i = 0;
 $statement = QueryUtils::sqlStatementThrowException("SELECT id, item, content, subcategory_id FROM {$tbl_camos_item} ORDER BY item");
 /** @var array{id: int, item: ?string, content: ?string, subcategory_id: int} $itemRow */
 while ($itemRow = QueryUtils::fetchArrayFromResultSet($statement)) {
-    echo "array3[" . $i . "] = new Array(" . js_escape($itemRow['item'] ?? '') . ", " . js_escape_protected(strip_tags($itemRow['content'] ?? '', "<b>,<i>"), '\r\n') . ", " . js_escape(strval($itemRow['subcategory_id'])) .
+    // Convert the literal \r\n placeholder stored by CAMOS input handling
+    // back to a real CRLF sequence so json_encode produces correct JS escapes.
+    $content = str_replace('\r\n', "\r\n", strip_tags($itemRow['content'] ?? '', "<b>,<i>"));
+    echo "array3[" . $i . "] = new Array(" . js_escape($itemRow['item'] ?? '') . ", " . js_escape($content) . ", " . js_escape(strval($itemRow['subcategory_id'])) .
     "," . js_escape(strval($itemRow['id'])) . ");\n";
     $i++;
 }
@@ -797,7 +800,7 @@ function click_item() {
   for (var i1=0;i1<array3.length;i1++) {
     if (array3[i1][3] == sel) {
       //display text in content box
-      f2.textarea_content.value= array3[i1][1].replace(/\\/g,'');
+      f2.textarea_content.value= array3[i1][1];
     }
   }
 }
@@ -1008,11 +1011,11 @@ if ( (mode == 'add') || (mode == 'alter') ) {
 <?php
 if (!$out_of_encounter) {
     ?>
-    f2.action = '<?php print OEGlobalsBag::getInstance()->getString('webroot') ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
+    f2.action = '<?php print OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
     <?php
 } else {
     ?>
-    f2.action = '<?php print OEGlobalsBag::getInstance()->getString('webroot') ?>/interface/forms/CAMOS/new.php?mode=external';
+    f2.action = '<?php print OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/CAMOS/new.php?mode=external';
     <?php
 }
 ?>
@@ -1034,7 +1037,7 @@ if (!$out_of_encounter) {
     myarray['csrf_token_form'] = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
-    processajax ('<?php print OEGlobalsBag::getInstance()->getString('webroot') ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
+    processajax ('<?php print OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
 //    alert("submitted!");
 //ajax code
 }
@@ -1072,7 +1075,7 @@ $(function (body) {
 </head>
 <body class="body_top">
 <div name="form_container" onKeyPress="gotoOne(event)">
-<form method='post' action="<?php echo OEGlobalsBag::getInstance()->getString('rootdir');?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
+<form method='post' action="<?php echo OEGlobalsBag::getInstance()->getKernel()->getRootDir();?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <?php
 if (!$out_of_encounter) {
@@ -1232,7 +1235,7 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
     echo "<a href='" . OEGlobalsBag::getInstance()->getString('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
-    echo "<a href='" . OEGlobalsBag::getInstance()->getString('webroot') . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
+    echo "<a href='" . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>

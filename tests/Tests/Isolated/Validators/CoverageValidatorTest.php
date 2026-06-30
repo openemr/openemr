@@ -339,7 +339,7 @@ class CoverageValidatorStub extends CoverageValidator
     /**
      * Override configureValidator to avoid complex database-dependent callbacks
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         // Configure only the basic contexts without calling parent which has database calls
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);

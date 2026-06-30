@@ -36,7 +36,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Force logging off
 OEGlobalsBag::getInstance()->set("enable_auditlog", 0);
 
-$EMRversion = trim((string) preg_replace('/\s*\([^)]*\)/', '', (new VersionService())->asString()));
+$EMRversion = (new VersionService())->getSoftwareVersion()->base;
 
 $sqlUpgradeService = new SQLUpgradeService();
 ?>

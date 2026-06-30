@@ -120,8 +120,8 @@ class UserService
 
         if (!empty($user)) {
             if (empty($user['uuid'])) {
-                // we should always have this setup, but create them just in case.
-                UuidRegistry::createMissingUuidsForTables(['users']);
+                // we should always have this setup, but create it just in case.
+                UuidRegistry::createMissingUuidForRow('users', 'id', $user['id']);
             }
         }
         return $user;
@@ -237,7 +237,7 @@ class UserService
         return ($records ?? null);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search(array $search, $isAndCondition = true)
     {
         $sql = "SELECT  id,
                         uuid,
@@ -300,11 +300,11 @@ class UserService
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
-     * @param  $search search array parameters
+     * @param array<string, string> $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @return array of users that matched the results.
      */
-    public function getAll($search = [], $isAndCondition = true)
+    public function getAll(array $search = [], $isAndCondition = true)
     {
         $sqlBindArray = [];
 

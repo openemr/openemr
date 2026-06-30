@@ -18,7 +18,7 @@ use CouchDB;
 use DOMDocument;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
@@ -46,7 +46,7 @@ class CDADocumentService extends BaseService
      */
     private function getXslPath(): string
     {
-        return OEGlobalsBag::getInstance()->get('fileroot') . self::XSL_PATH;
+        return OEGlobalsBag::getInstance()->getKernel()->getProjectDir() . self::XSL_PATH;
     }
 
     /**
@@ -83,7 +83,7 @@ class CDADocumentService extends BaseService
             $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : '', keySource: KeySource::Database);
+                $content = $cryptoGen->decryptFromFilesystem(is_string($respData) ? $respData : '');
             } else {
                 $content = base64_decode(is_string($respData) ? $respData : '');
             }
@@ -94,7 +94,7 @@ class CDADocumentService extends BaseService
             }
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
+                $content = $cryptoGen->decryptFromFilesystem($fileData);
             } else {
                 $content = $fileData;
             }
@@ -130,8 +130,6 @@ class CDADocumentService extends BaseService
             []
         );
         $content = $result->getContent();
-        unset($result);
-
         if (str_starts_with($content, 'ERROR:')) {
             ServiceContainer::getLogger()->error("Error generating CCDA: {message}", ['message' => $content]);
             throw new Exception(xlt("Error generating CCDA") . ": " . $content);
@@ -276,12 +274,14 @@ class CDADocumentService extends BaseService
             throw new RuntimeException(xlt("CDA stylesheet not found"));
         }
 
-        $xml = simplexml_load_string($content);
-        if ($xml === false) {
-            $errors = libxml_get_errors();
-            libxml_clear_errors();
-            ServiceContainer::getLogger()->error("Failed to parse CCDA XML", ['errors' => $errors]);
-            throw new RuntimeException(xlt("Failed to parse CCDA XML"));
+        try {
+            $xml = XmlUtils::loadString($content);
+        } catch (RuntimeException $e) {
+            ServiceContainer::getLogger()->error(
+                'Failed to parse CCDA XML for HTML transformation: {error}',
+                ['error' => $e->getMessage()]
+            );
+            throw new RuntimeException(xlt("Failed to parse CCDA XML"), 0, $e);
         }
 
         $xsl = new DOMDocument();

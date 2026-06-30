@@ -52,8 +52,13 @@ abstract class MenuRole implements MenuRoleInterface
                 }
             }
 
-            // Translate the labels
-            $entry->label = xlt($entry->label);
+            // Translate the labels with HTML escaping. At least one render
+            // site (twAddTab in src/Tabs/TabsWrapper.php) concatenates the
+            // label directly into an anchor and an id attribute without
+            // escaping, so labels must be HTML-safe at rest.
+            $rawLabel = $entry->label ?? null;
+            // @phpstan-ignore argument.type (menu labels are dynamic content)
+            $entry->label = xlt(is_string($rawLabel) ? $rawLabel : '');
             // Recursive update of children
             if (isset($entry->children)) {
                 $this->menuUpdateEntries($entry->children);

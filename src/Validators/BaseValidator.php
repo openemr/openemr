@@ -25,16 +25,17 @@ abstract class BaseValidator
     public const DATABASE_INSERT_CONTEXT = "db-insert";
     public const DATABASE_UPDATE_CONTEXT = "db-update";
 
-    protected $validator;
+    protected Validator $validator;
 
-    protected $supportedContexts;
+    /** @var list<string> */
+    protected array $supportedContexts;
 
     /**
      * Configures the validator instance with validation requirements and rules.
      * This default implementation sets the validator's supported context to include
      * database inserts and updates.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);
     }
@@ -48,10 +49,7 @@ abstract class BaseValidator
 
     protected function getInnerValidator(): Validator
     {
-        if (empty($this->validator)) {
-            $this->validator = new Validator();
-        }
-        return $this->validator;
+        return new Validator();
     }
 
     /**
@@ -65,13 +63,9 @@ abstract class BaseValidator
     /**
      * Performs a data validation using the configured rules and requirements.
      *
-     * Validation results are conveyed by an array with the following keys:
-     * - isValid => true|false
-     * - messages => array(validationMessage, validationMessage, etc)
-     *
      * @param $dataFields -  The fields to validate.
      * @param $context - The validation context to utilize. This is simply a "handle" for the rules.
-     * @return $validationResult array
+     * @return ProcessingResult containing any validation messages from the configured rules.
      */
     public function validate($dataFields, $context)
     {
@@ -134,7 +128,7 @@ abstract class BaseValidator
      * @param $code The code which needs to be verified
      * @param $table The table in database
      * @param $valueset Name of the particular Valueset
-     * @return boolean
+     * @return bool
      */
     public function validateCode($code, $table, $valueset)
     {

@@ -22,8 +22,8 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -42,9 +42,7 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // This controls whether we show pt name, policy number and DOS.
@@ -186,7 +184,7 @@ function showLineItem(
                 "p.pid = ? AND fe.pid = p.pid AND " .
                 "fe.encounter = ? LIMIT 1", [$patient_id, $encounter_id]);
             if (!empty($irnumber)) {
-                echo text($invnumber);
+                echo text($irnumber);
             } else {
                 echo "<input type='button' class='btn btn-sm btn-secondary' value='" .
                       attr($patient_id) . "-" . attr($encounter_id) .
@@ -315,7 +313,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -653,6 +651,7 @@ if (!empty($_POST['form_refresh'])) {
             }
 
           // Compute reporting key: insurance company name or payment method.
+            $rowmethod = '';
             if ($form_report_by == '1') {
                 if (empty($row['payer_id'])) {
                     // 'ar_session' is not capturing payer_id when entering payments through invoice or era posting
@@ -669,8 +668,19 @@ if (!empty($_POST['form_refresh'])) {
                         $rowmethod = xl('Unnamed insurance company');
                     }
                     if (!empty($insurance_id['provider'])) {
-                        $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?? '';
-                        $rowmethod = xl($insurance_company['name']);
+                        // getOneById delegates to sqlQuery which can return
+                        // array|false|null. Normalize to [] so the ['name']
+                        // lookup below can't trip on a non-array value.
+                        $insurance_company = (new InsuranceCompanyService())->getOneById($insurance_id['provider']) ?: [];
+                        $insurance_company_name = $insurance_company['name'] ?? null;
+                        if (is_string($insurance_company_name) && trim($insurance_company_name) !== '') {
+                            $rowmethod = $insurance_company_name;
+                        } else {
+                            // Fall back to the same label the missing-provider
+                            // branch below uses, so empty payer keys don't get
+                            // bucketed as "Patient"/"Unknown" downstream.
+                            $rowmethod = xl('Unnamed insurance company');
+                        }
                     } elseif (!($row['payer_type'] == '0')) {
                         $rowmethod = xl('Unnamed insurance company');
                     }

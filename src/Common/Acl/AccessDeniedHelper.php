@@ -92,7 +92,7 @@ class AccessDeniedHelper
             $beforeExit();
         }
 
-        exit;
+        exit(1);
     }
 
     /**

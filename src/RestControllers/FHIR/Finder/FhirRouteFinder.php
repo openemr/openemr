@@ -15,9 +15,13 @@ class FhirRouteFinder implements IRouteFinder
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function find(HttpRestRequest $request): array
     {
         // TODO: this is where we can differentiate between different FHIR versions or profiles
+        /** @var array<string, mixed> $routes */
         $routes = include __DIR__ . '/../../../../apis/routes/_rest_routes_fhir_r4_us_core_3_1_0.inc.php';
 
         // This method is intended to handle the request and extend routes.

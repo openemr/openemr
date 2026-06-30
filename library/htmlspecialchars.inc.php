@@ -10,6 +10,31 @@
  * @copyright Copyright (c) 2011 Boyd Stephen Smith Jr.
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * Design note for the escape helpers below (attr, text, js_escape, attr_js,
+ * attr_url, js_url, xmlEscape, errorLogEscape, csvEscape, ...):
+ *
+ *   The `@param string` annotations are deliberately NARROW. They exist so
+ *   PHPStan tells you when an escape is being applied to something that
+ *   does NOT need escaping. An int, float, bool, or already-sanitized
+ *   primitive carries no characters that any of these functions would
+ *   modify, so wrapping it is dead work that hides intent at the call
+ *   site.
+ *
+ *   When PHPStan reports "expects string, int given" (or similar) at a
+ *   call site, treat it as a signal — not noise to silence. The right
+ *   responses, in order of preference:
+ *
+ *     1. Drop the escape entirely. If the value is already a safe
+ *        primitive (e.g., `echo (int) $pid`), emit it directly.
+ *     2. If the value is a true union (e.g., `int|string` from a row
+ *        cell), narrow it explicitly at the call site:
+ *        `attr((string) $cell)`. The cast is harmless and makes the
+ *        intent clear.
+ *
+ *   Do NOT widen these `@param` types to `mixed`/`scalar` to make the
+ *   warnings disappear. That throws away the signal everywhere else and
+ *   re-hides the dead-escape sites this file is trying to surface.
  */
 
 /**
@@ -21,21 +46,6 @@
 function js_escape($text)
 {
     return json_encode($text);
-}
-
-/**
- * Escape a javascript literal with a protected string
- *
- * @param string $text
- * @return string
- */
-function js_escape_protected($text, string $protected = '\r\n')
-{
-    if (empty($text)) {
-        return '""';
-    }
-    $bookmark = '___PROTECTED_STRING___';
-    return str_replace($bookmark, $protected, json_encode(str_replace($protected, $bookmark, $text)));
 }
 
 /**
@@ -284,26 +294,24 @@ function attr($text): string
 }
 
 /**
- * Don't call this function.  You don't see this function.  This function
- * doesn't exist.
+ * Private helper used by xlt()/xla()/xlj()/xlx() to look up a translation.
+ *
+ * library/translation.inc.php (which declares xl()) and this file are both
+ * in composer's autoload.files list, so xl() is always defined by the time
+ * any caller can reach this helper. The null check exists so the xl*
+ * wrappers can accept nullable input without sprinkling coalesces.
  *
  * TODO: Hide this function so it can be called from this file but not from
- * PHP that includes / requires this file.  Either that, or write reasonable
+ * PHP that includes / requires this file. Either that, or write reasonable
  * documentation and clean up the name.
- * @return string
  */
-function hsc_private_xl_or_warn($key)
+function hsc_private_xl_or_warn(?string $key): string
 {
-    if (function_exists('xl')) {
-        return xl($key ?? '');
-    } else {
-        trigger_error(
-            'Translation via xl() was requested, but the xl()'
-            . ' function is not defined, yet.',
-            E_USER_WARNING
-        );
-        return $key;
+    if ($key === null) {
+        return '';
     }
+    // @phpstan-ignore argument.type (intentional pass-through wrapper for translation)
+    return xl($key);
 }
 
 /**

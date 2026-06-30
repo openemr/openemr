@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -31,9 +32,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 ?>
@@ -322,6 +321,7 @@ if (!empty($_GET)) {
                                                 $patterns = ['/^success/', '/^failure/', '/ encounter/'];
                                                 $replace = [xl('success'), xl('failure'), sprintf(' %s', xl('encounter'))];
 
+                                                // Note: new data no longer written encrypted. Kept for compatibility. See #12118+12120.
                                                 $commentEncrStatus = !empty($iter['encrypt']) ? $iter['encrypt'] : "No";
                                                 $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
@@ -337,10 +337,10 @@ if (!empty($_GET)) {
                                                         $comments = $encryptVersionInt < 3
                                                             ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
                                                             : $iterComments;
-                                                        $trans_comments = $cryptoGen->decryptStandard($comments);
-                                                        if (is_string($trans_comments)) {
+                                                        try {
+                                                            $trans_comments = $cryptoGen->decryptFromDatabase($comments);
                                                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
-                                                        } else {
+                                                        } catch (CryptoGenException) {
                                                             $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
                                                         }
                                                     }
@@ -507,7 +507,7 @@ if (!empty($_GET)) {
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });

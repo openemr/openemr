@@ -16,7 +16,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -31,9 +31,7 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $popup = empty($_GET['popup']) ? 0 : 1;
@@ -232,7 +230,7 @@ while ($row = sqlFetchArray($res)) {
 <script>
 
 <?php if ($popup) {
-    require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->getSrcDir() . "/restoreSession.php");
 } ?>
 
 // Callback from popups to refresh this display.

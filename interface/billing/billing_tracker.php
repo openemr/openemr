@@ -14,7 +14,6 @@
  */
 
 require_once(__DIR__ . "/../globals.php");
-require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\{
     Acl\AccessDeniedHelper,
@@ -25,6 +24,8 @@ use OpenEMR\Common\{
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->getSrcDir() . "/options.inc.php";
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -52,7 +53,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     </style>
     <script type="text/javascript">
         $(document).ready(function() {
-            const serverUrl = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/billing_tracker_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+            const serverUrl = "<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/library/ajax/billing_tracker_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             const oTable = $('#billing-tracker-table').DataTable({
                 "processing": true,
                 // next 2 lines invoke server side processing
@@ -73,18 +74,16 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     {
                         "data": "status",
                         "render": function(data, type, row, meta) {
-                            // Format the status with a nice looking badge
-                            if (type === 'display') {
-                                if (data == 'success') {
-                                    data = '<span class="badge badge-success">' + jsText(data) + '</span>';
-                                } else if (data == 'waiting') {
-                                    data = '<span class="badge badge-info">' + jsText(data) + '</span>';
-                                } else {
-                                    data = '<span class="badge badge-warning">' + jsText(data) + '</span>';
-                                }
+                            // Format the status with a nice looking badge.
+                            // Compare against the raw enum (`row.status`) but
+                            // display the translated label (`row.status_label`).
+                            if (type !== 'display') {
+                                return data;
                             }
-
-                            return data;
+                            const variants = { success: 'success', waiting: 'info' };
+                            const variant = variants[data] || 'warning';
+                            const label = row.status_label || data;
+                            return `<span class="badge badge-${variant}">${jsText(label)}</span>`;
                         }
                     },
                     { "data": "x12_partner_name" },
@@ -98,7 +97,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                                     key: data,
                                     partner: row.x12_partner_id
                                 });
-                                const url = '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/billing/get_claim_file.php?' + params;
+                                const url = '<?php echo OEGlobalsBag::getInstance()->getWebRoot(); ?>/interface/billing/get_claim_file.php?' + params;
                                 data = '<a href="' + jsAttr(url) + '">' + jsText(data) + '</a>';
                             }
 

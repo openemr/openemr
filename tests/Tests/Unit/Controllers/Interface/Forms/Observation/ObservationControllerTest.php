@@ -77,8 +77,14 @@ class ObservationControllerTest extends TestCase
         $this->globalKernelBackup = $globalsBag->getKernel();
         $this->globalDateFormat = $GLOBALS['date_display_format'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
-        $globalsBag->set('kernel', null);
         $GLOBALS['date_display_format'] = 0; // YYYY-MM-DD
+
+        // Provide a mock Kernel with path stubs instead of nulling
+        $mockKernel = $this->createMock(Kernel::class);
+        $mockKernel->method('getProjectDir')->willReturn(dirname(__DIR__, 7));
+        $mockKernel->method('getWebRoot')->willReturn('/openemr');
+        $mockKernel->method('getEventDispatcher')->willReturn(new \Symfony\Component\EventDispatcher\EventDispatcher());
+        $globalsBag->set('kernel', $mockKernel);
 
         // Create mock dependencies
         $this->mockObservationService = $this->createMock(ObservationService::class);

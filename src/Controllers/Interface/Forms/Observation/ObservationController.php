@@ -262,9 +262,7 @@ class ObservationController
 
             // we have to keep id as the formId due to backwards compatibility
             return $this->createRedirectResponse(
-                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id="
-                . urlencode((string) $observation['form_id'])
-                . "&status=saved"
+                $this->buildObservationFormUrl((int) $observation['form_id'], 'saved')
             );
         } catch (\Throwable $e) {
             $this->getSystemLogger()->error("Error saving observation", [
@@ -492,8 +490,7 @@ class ObservationController
             if (!$observation) {
                 // observation may have already been deleted, just redirect to list with success to avoid error loops
                 return $this->createRedirectResponse(
-                    OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
-                    . "&status=delete_success" // still redirect to list with success to avoid error loops
+                    $this->buildObservationFormUrl($formId, 'delete_success')
                 );
             }
             if ($observation['form_id'] != $formId) {
@@ -509,8 +506,7 @@ class ObservationController
             QueryUtils::commitTransaction();
             $committed = true;
             return $this->createRedirectResponse(
-                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
-                . "&status=delete_success" // still redirect to list with success to avoid error loops
+                $this->buildObservationFormUrl($formId, 'delete_success')
             );
         } catch (\Throwable $e) {
             $this->getSystemLogger()->error("Error deleting observation", [
@@ -518,8 +514,7 @@ class ObservationController
                 'formId' => $formId
             ]);
             return $this->createRedirectResponse(
-                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
-                . "&status=delete_failed" // let them know that the delete failed
+                $this->buildObservationFormUrl($formId, 'delete_failed')
             );
         } finally {
             if (!$committed) {
@@ -574,6 +569,13 @@ class ObservationController
     private function createRedirectResponse(string $url, int $status = Response::HTTP_SEE_OTHER): Response
     {
         return new RedirectResponse($url, $status);
+    }
+
+    private function buildObservationFormUrl(int|string $formId, string $status): string
+    {
+        return OEGlobalsBag::getInstance()->getWebRoot()
+            . "/interface/forms/observation/new.php?id=" . urlencode((string) $formId)
+            . "&status=" . urlencode($status);
     }
 
     /**

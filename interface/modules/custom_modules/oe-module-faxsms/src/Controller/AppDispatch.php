@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
+use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -20,11 +21,14 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Common\ValueObjects\PhoneNumber;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
-use OpenEMR\Services\PhoneNumberService;
+use OpenEMR\Services\PatientPortalService;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Throwable;
 
 /**
  * Class AppDispatch
@@ -42,11 +46,11 @@ abstract class AppDispatch
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies;
-    private readonly SessionInterface $_session;
+    private ?SessionInterface $_session = null;
     protected $authUser;
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function __construct()
     {
@@ -55,14 +59,22 @@ abstract class AppDispatch
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->_session ??= SessionWrapperFactory::getInstance()->getActiveSession();
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = ServiceContainer::getCrypto();
-        if (!$this->verifyAcl()) {
+        // Background-service workers (bin/console background:services run,
+        // ajax/execute_background_services.php under cron) bootstrap with
+        // $ignoreAuth = true because there is no interactive session. In
+        // that context there is no authUser for AclMain to check against,
+        // so verifyAcl() would always fail and AccessDeniedHelper::deny()
+        // would exit(1) before the reminder job could run — the silent
+        // background-service failure reported in issue #11827.
+        $ignoreAuth = OEGlobalsBag::getInstance()->getBoolean('ignoreAuth');
+        if (!$ignoreAuth && !$this->verifyAcl()) {
             AccessDeniedHelper::deny('FaxSMS module access denied');
         }
         $this->dispatchActions();
@@ -82,7 +94,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $serviceType = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
+            $serviceType = $_REQUEST['type'] ?? $this->session()->get('oefax_current_module_type') ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -96,7 +108,7 @@ abstract class AppDispatch
                 );
             } else {
                 $this->setHeader("HTTP/1.0 404 Not Found");
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     xlt("Requested") . ' ' . text($action) . ' '
                     . xlt("or service is not found.") . ' ' . xlt("Install or turn service on!")
                 );
@@ -142,16 +154,29 @@ abstract class AppDispatch
 
     /**
      * @param string|null $param
-     * @param mixed|null $default
+     * @param mixed|null  $default
      * @return mixed|null
      */
-    public function getSession(string $param = null, mixed $default = null): mixed
+    public function getSession(?string $param = null, mixed $default = null): mixed
     {
+        $session = $this->session();
         if ($param) {
-            return $this->_session->get($param) ?? $default;
+            return $session->get($param) ?? $default;
         }
 
-        return $this->_session;
+        return $session;
+    }
+
+    /**
+     * Lazily resolve the active session wrapper.
+     *
+     * Service clients reach this method via the static factory path
+     * (AppDispatch::getApiService → new RCFaxClient → getCredentials → getSession)
+     * *before* parent::__construct() has run, so the property is not yet set.
+     */
+    private function session(): SessionInterface
+    {
+        return $this->_session ??= SessionWrapperFactory::getInstance()->getActiveSession();
     }
 
     /**
@@ -198,7 +223,7 @@ abstract class AppDispatch
 
     /**
      * @return void
-     * @throws \Exception
+     * @throws Exception
      */
     private function render(): void
     {
@@ -206,7 +231,7 @@ abstract class AppDispatch
             if (is_scalar($this->_response)) {
                 echo $this->_response;
             } else {
-                throw new \Exception(xlt('Response content must be scalar'));
+                throw new Exception(xlt('Response content must be scalar'));
             }
             exit;
         }
@@ -220,18 +245,13 @@ abstract class AppDispatch
      */
     static function getApiService(string $type)
     {
-        try {
-            if (empty($type)) {
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
-            }
-            self::setModuleType($type);
-            self::$_apiService = self::getServiceInstance($type);
-            return self::$_apiService;
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            exit;
+        if ($type === '') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
         }
+        self::setModuleType($type);
+        self::$_apiService = self::getServiceInstance($type);
+        return self::$_apiService;
     }
 
     /**
@@ -242,17 +262,12 @@ abstract class AppDispatch
      */
     static function setApiService(string $type): void
     {
-        try {
-            if (empty($type)) {
-                $session = SessionWrapperFactory::getInstance()->getActiveSession();
-                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
-            }
-            self::setModuleType($type);
-            self::$_apiService = self::getServiceInstance($type);
-        } catch (\Throwable $e) {
-            echo $e->getMessage();
-            exit;
+        if ($type === '') {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
         }
+        self::setModuleType($type);
+        self::$_apiService = self::getServiceInstance($type);
     }
 
     /**
@@ -261,8 +276,7 @@ abstract class AppDispatch
      */
     static function setModuleType($type): void
     {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $session->set('oefax_current_module_type', $type);
+        SessionUtil::setSession('oefax_current_module_type', $type);
         self::$_apiModule = $type;
     }
 
@@ -294,7 +308,7 @@ abstract class AppDispatch
             return $factory();
         }
 
-        throw new \RuntimeException(
+        throw new RuntimeException(
             xlt("Requested") . ' ' . text($type) . ' '
             . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
         );
@@ -325,7 +339,7 @@ abstract class AppDispatch
             return OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null;
         }
 
-        throw new \RuntimeException(
+        throw new RuntimeException(
             xlt("Requested") . ' ' . text(self::$_apiModule) . ' '
             . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
         );
@@ -377,7 +391,7 @@ abstract class AppDispatch
 
     /**
      * @param string $key
-     * @param mixed $value
+     * @param mixed  $value
      * @return $this
      */
     public function setSession(string $key, $value): static
@@ -451,7 +465,7 @@ abstract class AppDispatch
 
         // encrypt for safety.
         $jsonSetup = json_encode($setup);
-        $content = $this->crypto->encryptStandard($jsonSetup !== false ? $jsonSetup : null);
+        $content = $this->crypto->encryptForDatabase($jsonSetup !== false ? $jsonSetup : null);
         if (empty($vendor) || empty($setup)) {
             return xlt('Error: Missing vendor, user or credential items');
         }
@@ -460,6 +474,34 @@ abstract class AppDispatch
         sqlStatement($sql, ['', $this->authUser, $vendor, $content, $this->authUser, $vendor, $content]);
 
         return xlt('Save Success');
+    }
+
+    /**
+     * REST endpoint for the module contact dialog.
+     *
+     * Returns a JSON-encoded object — either the patient details (when ?pid
+     * resolves to a real patient) or an empty object {} (when the id is
+     * missing, non-numeric, or doesn't resolve). The contract is "always a
+     * JSON object string" so the JS caller can `JSON.parse` and access
+     * fields without first defending against false/null.
+     */
+    public function apiFetchPatientDetails(): string
+    {
+        $idRaw = $this->getRequest('pid');
+        $id = is_numeric($idRaw) ? (int)$idRaw : 0;
+        $result = $id > 0
+            ? (new PatientPortalService())->getPatientDetails($id)
+            : null;
+
+        try {
+            return json_encode($result ?: new \stdClass(), JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            ServiceContainer::getLogger()->error(
+                'apiFetchPatientDetails: failed to encode response',
+                ['exception' => $e]
+            );
+            return '{}';
+        }
     }
 
     /**
@@ -516,7 +558,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
+        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $credentials = json_decode($decrypt, true);
         if (empty($credentials['email_message'] ?? '')) {
             $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -532,7 +574,7 @@ abstract class AppDispatch
             $this->authUser = 0;
         }
         $encoded = json_encode($credentials);
-        $encrypted = $this->crypto->encryptStandard($encoded !== false ? $encoded : null);
+        $encrypted = $this->crypto->encryptForDatabase($encoded !== false ? $encoded : null);
         sqlStatement(
             "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
@@ -591,7 +633,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
+        $decrypt = $this->crypto->decryptFromDatabase(is_string($credentials) ? $credentials : null);
         $decode = json_decode($decrypt, true);
         if (empty($decode['smsMessage'])) {
             $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -625,6 +667,7 @@ abstract class AppDispatch
     /**
      * This is available to all services
      * regardless if EmailClient is enabled.
+     *
      * @param        $email
      * @param        $from_name
      * @param        $body
@@ -645,24 +688,25 @@ abstract class AppDispatch
             $content = text($body) . "\n";
             $from_name = text($from_name);
             $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
-            $mail->AddReplyTo($from, $from_name);
-            $mail->SetFrom($from, $from);
+            $mail->addReplyTo($from, $from_name);
+            $mail->setFrom($from, $from);
             $to = $email;
             $to_name = $email;
-            $mail->AddAddress($to, $to_name);
+            $mail->addAddress($to, $to_name);
             $subject = text($subject);
             $mail->Subject = $subject;
             $mail->Body = $content;
             if (!empty($htmlContent)) {
-                $mail->MsgHTML(text($htmlContent));
-                $mail->IsHTML(true);
+                $mail->msgHTML(text($htmlContent));
+                $mail->isHTML(true);
             }
-            if ($mail->Send()) {
-                $status = $mail->Send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . text($mail->ErrorInfo);
-            }
-        } catch (\Throwable $e) {
-            $message = $e->getMessage();
-            $status = 'Error: ' . $message;
+            $status = $mail->send() ? xlt("Email successfully sent.") : xlt("Error: Email failed") . ' ' . text($mail->ErrorInfo);
+        } catch (Throwable $e) {
+            ServiceContainer::getLogger()->error(
+                'mailEmail: send failed',
+                ['exception' => $e]
+            );
+            $status = xlt('Error: Unable to send email at this time.');
         }
         return $status;
     }
@@ -687,7 +731,8 @@ abstract class AppDispatch
      */
     public function formatPhone(string $number): string
     {
-        return PhoneNumberService::toE164($number) ?? '';
+        $parsed = PhoneNumber::tryParse($number);
+        return $parsed ? $parsed->toE164() : '';
     }
 
     /**
@@ -728,9 +773,12 @@ abstract class AppDispatch
                 $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
-        } catch (\Throwable $e) {
-            $message = $e->getMessage();
-            return 'Error: ' . text($message) . PHP_EOL;
+        } catch (Throwable $e) {
+            ServiceContainer::getLogger()->error(
+                'getNotificationLog: query failed',
+                ['exception' => $e]
+            );
+            return xlt('Error: Unable to load notification log.') . PHP_EOL;
         }
 
         return $responseMsgs;
@@ -741,6 +789,6 @@ abstract class AppDispatch
      */
     public function getCredentials(): mixed
     {
-        return AppDispatch::getSetup();
+        return $this->getSetup();
     }
 }

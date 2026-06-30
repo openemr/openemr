@@ -48,28 +48,94 @@ exclude: |
     public/assets/modified/|
     swagger/
   )
+
+# Constrain every hook to the pre-commit stage by default. Without this, hooks
+# whose upstream definitions omit `stages:` run at every stage (including
+# commit-msg), causing the file-content hooks to fire a second time when the
+# Conventional Commits hook runs at commit-msg. The conventional-commits hook
+# below sets its own `stages: [commit-msg]` which overrides this default.
+default_stages: [pre-commit]
+
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.5.0
+  rev: v6.0.0
   hooks:
   - id: trailing-whitespace
   - id: end-of-file-fixer
   - id: check-yaml
+    # Strict YAML validation for everything except the two docker-compose
+    # files that use the non-standard !override tag. PyYAML rejects
+    # unknown tags by default, so those need the relaxed check below.
+    exclude: ^(\.github/docker/compose\.yml|ci/inferno/compose\.yml)$
+  - id: check-yaml
+    # Relaxed YAML validation scoped to the two compose files that use
+    # Docker Compose's !override tag for service-extension blocks. The
+    # --unsafe flag tells PyYAML to accept user-defined tags as long as
+    # the document parses, instead of rejecting unknown tags outright.
+    name: check-yaml (docker compose with !override)
+    files: ^(\.github/docker/compose\.yml|ci/inferno/compose\.yml)$
+    args:
+    - --unsafe
   - id: check-added-large-files
   - id: check-merge-conflict
   - id: check-json
+  # Two pretty-format-json instances split by ecosystem -- the same pattern
+  # check-yaml uses for compose-with-!override files. The split exists
+  # because the repo has two coherent JSON-indent cultures that one global
+  # `--indent` setting can never satisfy at once:
+  #
+  #   2-space: JS/npm packages, JSON Schemas. Matches `npm init` defaults
+  #            and the wider npm ecosystem.
+  #   4-space: PHP composer modules, OpenEMR data files, healthcare-spec
+  #            content. Matches the HL7 FHIR / SDC IG / CMS QRDA / QDM
+  #            convention used by most upstream healthcare data the repo
+  #            consumes, and the project's PHP 4-space style extended to
+  #            non-PHP data.
+  #
+  # Upstream-derived healthcare data is excluded from both blocks so the
+  # repo can re-sync against upstream sources (HL7 FHIR examples, SDC IG
+  # questionnaires, CMS QRDA patients, QDM/HQMF OID maps, RFC 7517 JWK
+  # samples) without diff noise from our formatter.
   - id: pretty-format-json
+    name: pretty-format-json (2-space — JS/npm/JSON-schema)
+    # Files paired with the dispatch JSON Schema (which lives at
+    # tools/release/contracts/dispatch.schema.json -- itself caught by
+    # `.*\.schema\.json$` below) stay in 2-space so the schema and its
+    # fixture instances format identically.
+    files: |
+      (?x)
+      (^|/)(package(-lock)?\.json|.*\.schema\.json)$|
+      ^tests/Tests/Isolated/Release/fixtures/dispatch/.*\.json$
     args:
     - --autofix
     - --indent=2
     - --no-sort-keys
-    exclude: ^composer\.json$
+  - id: pretty-format-json
+    name: pretty-format-json (4-space — PHP/data files)
+    args:
+    - --autofix
+    - --indent=4
+    - --no-sort-keys
+    exclude: |
+      (?x)^(
+        composer\.json$|                                          # composer-normalize owns this
+        (.*/)?(package(-lock)?\.json|.*\.schema\.json)$|          # covered by 2-space block
+        tests/Tests/Isolated/Release/fixtures/dispatch/.*\.json$| # covered by 2-space block
+        contrib/portal_templates/assessments/SDC\ FHIR/|          # HL7 SDC IG examples
+        src/Cqm/.*\.json$|                                        # QDM/HQMF OID maps from CMS
+        tests/Tests/ECQM/|                                        # CMS QRDA/CQM patient fixtures
+        tests/Tests/Fixtures/FHIR/|                               # FHIR sample resources
+        tests/Tests/data/Services/FHIR/|                          # FHIR IG examples (US Core, SDC)
+        tests/Tests/data/Unit/FHIR/SMART/|                        # FHIR SMART IG examples
+        tests/Tests/data/Unit/Common/Auth/Grant/|                 # RFC 7517 JWK samples
+        tests/Tests/data/single_patient_api_test_run.*\.json$     # Inferno G10 cert test-run outputs
+      )
   - id: mixed-line-ending
     args:
     - --fix=lf
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.14.0
+  rev: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args:
@@ -78,7 +144,7 @@ repos:
     - --preserve-quotes
 
 - repo: https://github.com/codespell-project/codespell
-  rev: v2.4.1
+  rev: v2.4.2
   hooks:
   - id: codespell
     # Configuration in .codespellrc
@@ -88,6 +154,28 @@ repos:
   rev: v1.7.10
   hooks:
   - id: actionlint-docker
+
+# hadolint for Dockerfile linting. Mirrors the CI workflow
+# (.github/workflows/docker-lint-hadolint.yml) so devs see the same findings
+# locally as CI. Shares .hadolint.yaml with CI.
+#
+# Uses the AleksaC/hadolint-py shim (vs. upstream hadolint/hadolint's
+# hadolint-docker hook) so the hook runs in any env where pre-commit runs --
+# including the in-container prek path (no docker socket required). The shim
+# downloads the official hadolint binary from the upstream GitHub release
+# (SHA256-pinned in its setup.py), so it executes the same hadolint binary
+# upstream publishes. CI's docker image (hadolint/hadolint, untagged ->
+# floating :latest) and this hook's pinned rev can drift between upstream
+# releases, so findings are consistent in steady state but may diverge
+# briefly when upstream ships a new version. Dependabot bumps the hook rev
+# to close that window.
+- repo: https://github.com/AleksaC/hadolint-py
+  rev: v2.14.0
+  hooks:
+  - id: hadolint
+    args:
+    - --config
+    - .hadolint.yaml
 
 - repo: local
   hooks:
@@ -135,6 +223,7 @@ repos:
     entry: composer rector-fix --
     language: system
     files: \.php$
+    exclude: ^vendor/
 
   - id: composer-require-checker
     name: Composer Require Checker
@@ -145,7 +234,7 @@ repos:
 
   - id: conventional-commits
     name: Conventional Commits
-    entry: composer conventional-commits:check --
+    entry: bash -c 'composer conventional-commits:check -- "$(<"$1")"' --
     language: system
     stages:
     - commit-msg

@@ -11,10 +11,11 @@
  */
 
 require_once('../../globals.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/pnotes.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
-require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/gprelations.inc.php');
+$srcdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir();
+require_once($srcdir . '/pnotes.inc.php');
+require_once($srcdir . '/patient.inc.php');
+require_once($srcdir . '/options.inc.php');
+require_once($srcdir . '/gprelations.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -27,9 +28,14 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
+$userauthorized = OEGlobalsBag::getInstance()->get('userauthorized', 0);
+$result_count = 0;
+$result_sent_count = 0;
+$notes_sent_count = 0;
 
 if (!empty($_GET['set_pid'])) {
-    require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/pid.inc.php');
+    require_once($srcdir . '/pid.inc.php');
     setpid($_GET['set_pid']);
 }
 
@@ -108,9 +114,7 @@ if ($form_active) {
 // this code handles changing the state of activity tags when the user updates
 // them through the interface
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($mode == "update") {
         foreach ($_POST as $var => $val) {

@@ -15,11 +15,18 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/layout.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->getSrcDir() . "/layout.inc.php");
 
+/** @var array<int,string> $datatypes */
+/** @var list<int> $typesUsingList */
+/** @var array<string,string> $sources */
+
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Http\RawPostParser;
+use OpenEMR\Common\Http\RawPostParserException;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -86,7 +93,10 @@ function nextGroupOrder($order)
 // Included also are parent groups containing only sub-groups.  Groups are listed
 // in the same order as they appear in the layout.
 //
-function genGroupSelector($name, $layout_id, $default = '')
+/**
+ * @param literal-string $name
+ */
+function genGroupSelector(string $name, $layout_id, $default = '')
 {
     $res = sqlStatement(
         "SELECT grp_group_id, grp_title " .
@@ -428,13 +438,39 @@ $lbfonly = str_starts_with(attr($layout_id), 'LBF') ? "" : "style='display:none;
 
 // Handle the Form actions
 
+$saveError = null;
 if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
+    // The save form serialises one fld[N][...] subarray per layout row. For
+    // large layouts this exceeds PHP's max_input_vars, silently truncating
+    // $_POST['fld'] and dropping the tail rows from the save. Re-parse the
+    // raw body so every row survives. On parser failure we keep the
+    // truncated $_POST (current pre-fix behaviour) and surface an error
+    // banner in the editor instead of die()ing on the user.
+    $parsedPost = [];
+    try {
+        $parsedPost = RawPostParser::fromGlobals()->applyToGlobals();
+    } catch (RawPostParserException $e) {
+        $saveError = xl('Save did not complete: the form data could not be re-parsed. Please contact your administrator. Your edits in the browser have not been discarded.');
+        ServiceContainer::getLogger()->warning('raw POST parse failed', [
+            'component' => 'edit_layout',
+            'layout_id' => $layout_id,
+            'content_length' => filter_input(INPUT_SERVER, 'CONTENT_LENGTH', FILTER_VALIDATE_INT),
+            'max_input_vars' => filter_var(ini_get('max_input_vars'), FILTER_VALIDATE_INT),
+            'exception' => $e,
+        ]);
+    }
+    $fldPayload = $parsedPost['fld'] ?? null;
+    if ($saveError === null && (!is_array($fldPayload) || $fldPayload === [])) {
+        $saveError = xl('Save did not complete: no field rows were submitted. Please contact your administrator.');
+        ServiceContainer::getLogger()->warning('save received no fld[] payload', [
+            'component' => 'edit_layout',
+            'layout_id' => $layout_id,
+        ]);
     }
     // If we are saving, then save.
-    $fld = $_POST['fld'];
-    for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
+    $fld = is_array($fldPayload) ? $fldPayload : [];
+    for ($lino = 1; $saveError === null && isset($fld[$lino]['id']); ++$lino) {
         $iter = $fld[$lino];
         $field_id = trim((string) $iter['id']);
         $field_id_original = trim((string) $iter['originalid']);
@@ -506,9 +542,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         }
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Add a new field to a specific group
     $data_type = trim((string) $_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
@@ -546,9 +580,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Move field(s) to a new group in the layout
     // AI/Claude Code change: refactored to use query parameters
     $fields = explode(" ", (string) $_POST['selectedfields']);
@@ -601,9 +633,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         setLayoutTimestamp($tlayout);
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Delete a field from a specific group
     // AI/Claude Code change: refactored to use query parameters
     $fieldsToDelete = [];
@@ -626,9 +656,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     }
     // End of AI/Claude Code changes
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Generate new value for layout_items.group_id.
     $newgroupid = genGroupId($_POST['newgroupparent']);
     sqlStatement(
@@ -640,9 +668,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // drop the fields from the related table (this is critical)
     $res = sqlStatement(
         "SELECT field_id FROM layout_options WHERE " .
@@ -665,9 +691,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Note that in some cases below the swapGroups() call will do nothing.
     $res = sqlStatement(
         "SELECT DISTINCT group_id " .
@@ -694,9 +718,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
     // Renaming a group. This might include moving to a different parent group.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $newparent = $_POST['renamegroupparent'];  // this is an ID
     $oldid     = $_POST['renameoldgroupname']; // this is an ID
     $oldparent = substr((string) $oldid, 0, -1);
@@ -799,7 +821,8 @@ function writeFieldLine($linedata): void
 
     // if not english and set to translate layout labels, then show the translation
     if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-        echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
+        $titleStr = is_string($linedata['title'] ?? null) ? $linedata['title'] : '';
+        echo "<td class='text-center translation'>" . text(xl_layout_label($titleStr)) . "</td>\n";
     }
 
     echo "  <td class='text-center optcell'>";
@@ -954,7 +977,8 @@ function writeFieldLine($linedata): void
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
         if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $session->get('language_choice') > 1) {
-            echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
+            $descStr = is_string($linedata['description'] ?? null) ? $linedata['description'] : '';
+            echo "<td class='text-center translation'>" . text(xl_layout_label($descStr)) . "</td>\n";
         }
     }
     echo "  <td class='text-center optcell'>";
@@ -1487,6 +1511,11 @@ function myChangeCheck() {
 </head>
 
 <body class="body_top admin-layout">
+<?php if ($saveError !== null) { ?>
+<div class="alert alert-danger m-2" role="alert" id="layout-save-error">
+    <?php echo text($saveError); ?>
+</div>
+<?php } ?>
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="" />
@@ -1625,7 +1654,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) ? xlt($gdispname) : "",
+                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $language_choice > 1) ? text(xl_layout_label($gdispname)) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
@@ -1961,7 +1990,7 @@ $(function () {
             minimumResultsForSearch: 'Infinity',
             containerCssClass: ':all:',
             allowClear: false,
-            <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/select2.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/select2.js.php'); ?>
         });
     });
       // Populate field option selects

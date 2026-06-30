@@ -9,7 +9,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Claude <noreply@anthropic.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -58,7 +58,7 @@ final class Aes256CbcHmacSha256Test extends TestCase
 
         $result = $cipher->decrypt($rawCiphertext);
 
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->bytes);
     }
 
     public function testThrowsOnTamperedHmac(): void
@@ -69,7 +69,7 @@ final class Aes256CbcHmacSha256Test extends TestCase
         );
 
         $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(2))
-            ->wrapped;
+            ->value;
 
         // Tamper with HMAC (first 32 bytes for SHA256)
         $tampered = chr(ord($rawCiphertext[0]) ^ 0xFF) . substr($rawCiphertext, 1);
@@ -87,7 +87,7 @@ final class Aes256CbcHmacSha256Test extends TestCase
         );
 
         $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(2))
-            ->wrapped;
+            ->value;
 
         // Tamper with ciphertext (after HMAC + IV = 32 + 16 = 48 bytes)
         $tampered = substr($rawCiphertext, 0, 48)

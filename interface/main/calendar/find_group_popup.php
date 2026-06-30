@@ -17,22 +17,22 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/group.inc.php");
-require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+require_once(OEGlobalsBag::getInstance()->getSrcDir() . "/group.inc.php");
+require_once("../../therapy_groups/therapy_groups_controllers/therapy_groups_controller.php");
+
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $info_msg = "";
+$result = [];
 $group_types = TherapyGroupsController::prepareGroupTypesList();
 // If we are searching, search.
 //
@@ -195,7 +195,7 @@ if ($searchby && $searchparm) {
         <?php echo xlt('for') . ':'; ?>
         <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo attr($searchparam ?? ""); ?>'>        &nbsp;
         <input type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>'>
-        <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif"></div>
+        <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/interface/pic/ajax-loader.gif"></div>
     </form>
 </div>
 

@@ -25,6 +25,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -143,7 +144,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
      * Parses an OpenEMR location record, returning the equivalent FHIR Location Resource
      *
      * @param array $dataRecord The source OpenEMR data record
-     * @param boolean $encode Indicates if the returned resource is encoded into a string. Defaults to false.
+     * @param bool $encode Indicates if the returned resource is encoded into a string. Defaults to false.
      * @return FHIRLocation
      */
     public function parseOpenEMRRecord($dataRecord = [], $encode = false)
@@ -169,11 +170,13 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
         $locationResource->setStatus("active");
 
         if (!empty($dataRecord['name'])) {
-            $name = $dataRecord['name'];
+            $name = is_string($dataRecord['name']) ? $dataRecord['name'] : '';
             if ($dataRecord['type'] != 'facility') {
-                $name = xlt($name);
+                // LocationService hard-codes patient/user `name` to the literal
+                // "Home Address" — translate the known literal directly.
+                $name = xl('Home Address');
             }
-            $locationResource->setName($name);
+            $locationResource->setName(new FHIRString($name));
         } else {
             $locationResource->setName(UtilsService::createDataMissingExtension());
         }

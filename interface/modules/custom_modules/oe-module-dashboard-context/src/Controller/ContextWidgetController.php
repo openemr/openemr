@@ -53,7 +53,7 @@ class ContextWidgetController
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
-        $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
 
         // Get current context label for display
@@ -712,7 +712,7 @@ class ContextWidgetController
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
-        $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
+        $webRoot = OEGlobalsBag::getInstance()->getWebRoot();
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
         ob_start();
         ?>

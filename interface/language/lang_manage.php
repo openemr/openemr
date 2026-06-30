@@ -30,9 +30,7 @@ if (!$thisauth) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // set up flag if only checking for changes (ie not performing synchronization)
     $checkOnly = 0;

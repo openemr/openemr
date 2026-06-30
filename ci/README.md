@@ -68,7 +68,7 @@ The CI process uses several important environment variables:
 - `DOCKER_DIR`: The directory containing the Docker Compose configuration
 - `ENABLE_COVERAGE`: Whether to enable code coverage reporting (true/false)
 - `OPENEMR_DIR`: The directory containing OpenEMR inside the Docker container
-- `COMPOSE_FILE`: The Docker Compose COMPOSE_FILE environment variable is set to store the templates for the multi-file composition. The first file is the template for the web server configuration (Apache or Nginx). The second file is the template for the database configuration (MariaDB or MySQL). The third file is the template for the PHP version and MariaDB/MySQL version.
+- `COMPOSE_FILE`: The Docker Compose COMPOSE_FILE environment variable is set to store the templates for the multi-file composition. The first file is the template for the database configuration (MariaDB or MySQL) — it must be directly in `ci/` (not a subdirectory) because Docker Compose resolves all relative paths from the first file's directory. The remaining files are the webserver template, Selenium Grid template, Mailpit template, and the per-configuration `docker-compose.yml`.
 
 ### Docker Compose Extension System
 
@@ -79,9 +79,10 @@ The CI system uses Docker Compose's multi-file composition (otherwise known as c
 1. **Shared Configuration Files**:
    - `compose-shared-selenium/docker-compose.yml`: Contains the Selenium Grid configuration for running E2E tests. It is always included.
    - `compose-shared-apache.yml`: Contains the base configuration for Apache-based setups with database specific items not included.
-   - `compose-shared-nginx.yml`: Contains the base configuration for Nginx-based setups with database specific items not included.
+   - `compose-shared-nginx/compose.yml`: Contains the base configuration for Nginx-based setups with database specific items not included.
    - `compose-shared-mariadb.yml`: Contains MariaDB specific items.
    - `compose-shared-mysql.yml`: Contains MySQL specific items.
+   - `compose-shared-mailpit/compose.yml`: Contains the Mailpit configuration for email testing.
 
 2. **Individual Test Environment Setup**:
    Each test directory (e.g., `apache_83_116`) has its own `docker-compose.yml` that:
@@ -110,7 +111,7 @@ To add a new test configuration:
 
 1. Decide if your new environment needs Apache or Nginx:
    - For Apache-based environments, will use `compose-shared-apache.yml`
-   - For Nginx-based environments, will use `compose-shared-nginx.yml`
+   - For Nginx-based environments, will use `compose-shared-nginx/compose.yml`
 
 2. Decide if your new environment needs MariaDB or MySQL:
    - For MariaDB, will use `compose-shared-mariadb.yml`
@@ -161,7 +162,7 @@ To add a new test configuration:
    #  multi-file composition command line commands.
    x-includes:
      selenium-template: "compose-shared-selenium/docker-compose.yml"  # Show the Selenium Grid template
-     webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
+     webserver-template: "compose-shared-nginx/compose.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mariadb.yml"  # Show the MariaDB database template
 
    services:
@@ -177,7 +178,7 @@ To add a new test configuration:
    #  multi-file composition command line commands.
    x-includes:
      selenium-template: "compose-shared-selenium/docker-compose.yml"  # Show the Selenium Grid template
-     webserver-template: "compose-shared-nginx.yml"   # Show the Nginx web server template
+     webserver-template: "compose-shared-nginx/compose.yml"   # Show the Nginx web server template
      database-template: "compose-shared-mysql.yml"    # Show the MySQL database template
 
    services:
@@ -192,7 +193,7 @@ To add a new test configuration:
 #### Modifying Shared Configurations
 
 When updating the shared configuration files:
-- Changes to `compose-shared-selenium/docker-compose.yml`, ```compose-shared-apache.yml`, `compose-shared-nginx.yml`, `compose-shared-mariadb.yml`, and  `compose-shared-mysql.yml` will affect all test environments that use them
+- Changes to `compose-shared-selenium/docker-compose.yml`, `compose-shared-apache.yml`, `compose-shared-nginx/compose.yml`, `compose-shared-mariadb.yml`, `compose-shared-mysql.yml`, and `compose-shared-mailpit/compose.yml` will affect all test environments that use them
 - Make sure your changes are backward compatible or update the individual environment files as needed
 - Test the changes across multiple environments to ensure they work correctly
 
@@ -207,28 +208,28 @@ If tests are failing in CI but passing locally, check:
 
 ### Debugging Configurations
 
--For below commands:
+- For below commands:
   - Replace `apache_84_114` with the configuration directory you want to test.
-  - Replace `compose-shared-apache.yml` and `compose-shared-mariadb.yml` with the `x-includes` values that are included in the main docker-compose.yml file.
+  - Replace `compose-shared-mariadb.yml` and `compose-shared-apache.yml` with the database and webserver `x-includes` values from the configuration's docker-compose.yml file.
   - Run the below commands from the base openemr directory.
   - Note that for future: the first entry (-f) in the command needs to be in ci/ (if it has a subdirectory then it breaks things)
 
 You can view the fully merged configuration file with the following `config` command:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" config
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" config
 ```
 
 You can also run the same Docker Compose setup locally:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" up -d
 ```
 
 You can go directly into the OpenEMR testing container:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" exec -it openemr sh
 ```
 
 You can shut down the Docker Compose setup:
 ```bash
-docker compose -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
+docker compose -f "ci/compose-shared-mariadb.yml" -f "ci/compose-shared-apache.yml" -f "ci/compose-shared-selenium/docker-compose.yml" -f "ci/compose-shared-mailpit/compose.yml" -f "ci/apache_84_114/docker-compose.yml" down -v
 ```

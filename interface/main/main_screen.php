@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,10 +21,13 @@ $sessionAllowWrite = true;
 require_once('../globals.php');
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -64,7 +69,7 @@ function generate_html_u2f(): void
 {
     global $appId;
     ?>
-    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/u2f-api.js"></script>
     <script>
         function doAuth() {
             var f = document.getElementById("u2fform");
@@ -194,7 +199,11 @@ if (isset($_POST['new_login_session_management'])) {
                 // Decrypt the secret
                 // First, try standard method that uses standard key
                 $cryptoGen = ServiceContainer::getCrypto();
-                $secret = $cryptoGen->decryptStandard(is_string($registrationSecret) ? $registrationSecret : null);
+                try {
+                    $secret = $cryptoGen->decryptFromDatabase(is_string($registrationSecret) ? $registrationSecret : null);
+                } catch (CryptoGenException) {
+                    $secret = null;
+                }
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary
                     $passwordResults = privQuery(
@@ -205,13 +214,13 @@ if (isset($_POST['new_login_session_management'])) {
                         $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
                         try {
                             $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
-                        } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                        } catch (CryptoGenException) {
                             $secret = null;
                         }
                         if (!empty($secret)) {
                             error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                             // Re-encrypt with the more secure standard key
-                            $secretEncrypt = $cryptoGen->encryptStandard($secret);
+                            $secretEncrypt = $cryptoGen->encryptForDatabase($secret);
                             privStatement(
                                 "UPDATE login_mfa_registrations SET var1 = ? where user_id = ? AND method = 'TOTP'",
                                 [$secretEncrypt, $userid]
@@ -232,6 +241,14 @@ if (isset($_POST['new_login_session_management'])) {
                         [$session->get('authUserID')]
                     );
                 } else {
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'TOTP code incorrect'
+                    );
                     $errormsg = xl("The code you entered was not valid");
                     $errortype = "TOTP";
                 }
@@ -264,6 +281,14 @@ if (isset($_POST['new_login_session_management'])) {
                 } catch (\u2flib_server\Error $e) {
                     // Authentication failed so we will build the U2F form again.
                     $form_response = '';
+                    $mfaUsername = $session->get('authUser');
+                    $mfaAuthGroup = $session->get('authProvider');
+                    EventAuditLogger::getInstance()->logAuthFailure(
+                        AuthEvent::mfa(),
+                        is_string($mfaUsername) ? $mfaUsername : null,
+                        is_string($mfaAuthGroup) ? $mfaAuthGroup : '',
+                        'U2F authentication error: ' . $e->getMessage()
+                    );
                     $errormsg = xl('U2F Key Authentication error') . ": " . $e->getMessage();
                     $errortype = "U2F";
                 }
@@ -382,17 +407,17 @@ if (isset($_POST['new_login_session_management'])) {
     } else {
         $_POST["clearPass"] = '';
     }
+    // Set up the csrf private_key
+    //  Note this key always remains private and never leaves server session. It is used to create
+    //  the csrf tokens.
+    //  Generated only on the new-login path. Rotating it on every main_screen.php load
+    //  invalidates CSRF tokens already embedded in long-lived iframes (e.g. dated_reminders,
+    //  which polls every 60s with the token captured at render time).
+    CsrfUtils::setupCsrfKey($session);
 } else {
-    // This is not a new login, so check csrf and then create a new session id and do NOT remove the old session
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $session->migrate(false);
 }
-// Set up the csrf private_key
-//  Note this key always remains private and never leaves server session. It is used to create
-//  the csrf tokens.
-CsrfUtils::setupCsrfKey($session);
 // Set up the session uuid. This will be used for mapping session setting to database.
 //  At this time only used for lastupdate tracking
 SessionTracker::setupSessionDatabaseTracker();
@@ -410,7 +435,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $session->set('facilityId', $facility_id);
     if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->get('webroot')]);
+        setcookie("pc_facility", (string) $session->get('facilityId'), ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->getWebRoot()]);
     }
 }
 
@@ -442,7 +467,7 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
+        'notes' => "interface/main/pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);
@@ -480,6 +505,6 @@ if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
 // Pass a unique token, so main.php script can not be run on its own
 $tokenMainPhp = RandomGenUtils::createUniqueToken();
 $session->set('token_main_php', $tokenMainPhp);
-header('Location: ' . $web_root . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
+header('Location: ' . OEGlobalsBag::getInstance()->getWebRoot() . "/interface/main/tabs/main.php?token_main=" . urlencode($tokenMainPhp));
 exit();
 ?>

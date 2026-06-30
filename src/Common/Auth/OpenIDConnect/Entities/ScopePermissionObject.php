@@ -84,7 +84,7 @@ class ScopePermissionObject
     }
 
     // generated using chatgpt July 31st 2025
-    public static function isOrderedCrudString($input)
+    public static function isOrderedCrudString(string $input): bool
     {
 
         // we could go with a regex, but let's do it manually for clarity
@@ -96,10 +96,10 @@ class ScopePermissionObject
         $lastPos = -1;
 
         $seen = [];
-        $strlen = strlen((string) $input);
+        $strlen = strlen($input);
         for ($i = 0; $i < $strlen; $i++) {
             $char = $input[$i];
-            $pos = strpos($allowed, (string) $char);
+            $pos = strpos($allowed, $char);
             if ($pos === false) {
                 return false; // invalid character
             }
@@ -124,9 +124,13 @@ class ScopePermissionObject
     public bool $delete = false;
     public bool $search = false;
 
+    /** @var array<string, mixed> */
     private array $constraints = [];
 
-    public function getPermissionsAsArray()
+    /**
+     * @return array<string, bool>
+     */
+    public function getPermissionsAsArray(): array
     {
         return [
             'create' => $this->create,
@@ -139,11 +143,17 @@ class ScopePermissionObject
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
+    /**
+     * @param array<string, mixed> $constraints
+     */
     public function addConstraints(array $constraints): void
     {
         foreach ($constraints as $key => $value) {

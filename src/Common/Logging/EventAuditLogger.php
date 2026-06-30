@@ -19,7 +19,7 @@ use OpenEMR\BC\{
     DatabaseConnectionOptions,
     ServiceContainer,
 };
-use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Auth\AuthEvent;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
@@ -82,9 +82,7 @@ class EventAuditLogger
         );
 
         return new self(
-            sinks: $sinks,
-            cryptoGen: ServiceContainer::getCrypto(),
-            shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
+            sink: new Audit\MultiSink($sinks),
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
@@ -92,13 +90,8 @@ class EventAuditLogger
         );
     }
 
-    /**
-     * @param Audit\SinkInterface[] $sinks
-     */
     public function __construct(
-        private readonly array $sinks,
-        private readonly CryptoInterface $cryptoGen,
-        private readonly bool $shouldEncrypt,
+        private readonly Audit\SinkInterface $sink,
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
@@ -223,6 +216,30 @@ class EventAuditLogger
         } else {
             $this->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, $category);
         }
+    }
+
+    /**
+     * Log a failed authentication event.
+     *
+     * Collects the client IP internally so callers do not need to repeat the
+     * collectIpAddresses() + comment-formatting boilerplate.
+     *
+     * @param AuthEvent                      $event      The auth event type (e.g. AuthEvent::mfa())
+     * @param string|null                    $username   Username, or null when not yet resolved
+     * @param string                         $authGroup  Auth group name, or '' when not resolved
+     * @param non-empty-string               $reason     Human-readable failure reason
+     * @param int|null                       $patientId  Patient ID for portal auth paths; null otherwise
+     */
+    public function logAuthFailure(
+        AuthEvent $event,
+        ?string $username,
+        string $authGroup,
+        string $reason,
+        ?int $patientId = null,
+    ): void {
+        $ip = collectIpAddresses();
+        $comments = "failure: " . $ip['ip_string'] . ". " . $reason;
+        $this->newEvent($event->value, $username ?? '', $authGroup, 0, $comments, $patientId);
     }
 
     /******************
@@ -640,24 +657,13 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        if ($this->shouldEncrypt) {
-            $comments = $this->cryptoGen->encryptStandard($comments);
-            if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
-            }
-        } else {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode($comments);
+        // Note: this used to have an encryption path; it was removed as part
+        // of #12118+12120.
 
-            // Should this blank out the api fields? Previous behavior was that
-            // it did not.
-        }
+        // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+        $comments = base64_encode($comments);
 
-        // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
-        $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.
         //  Need to keep to maintain backward compatibility since the checksum is used when calculating checksum stored in log_comment_encrypt table
@@ -670,7 +676,6 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         $auditEvent = new Audit\Event(
-            $this->shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -680,16 +685,13 @@ class EventAuditLogger
             $user_notes,
             $patientId,
             $success,
-            $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
             $ccdaDocId,
             $api,
         );
 
-        foreach ($this->sinks as $sink) {
-            $sink->record($auditEvent);
-        }
+        $this->sink->record($auditEvent);
     }
 
     /**

@@ -25,8 +25,11 @@ use OpenEMR\Core\Header;
 $line_id = $_REQUEST['lineid'];
 $info_msg = "";
 
-if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    AccessDeniedHelper::deny('Editing physical exam diagnoses is not authorized');
+if (!AclMain::aclCheckCore('patients', 'med', '', 'write')) {
+    AccessDeniedHelper::denyWithTemplate(
+        'Editing physical exam diagnoses is not authorized',
+        xl('Access Denied'),
+    );
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -44,9 +47,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
     sqlStatement($query, [$line_id]);

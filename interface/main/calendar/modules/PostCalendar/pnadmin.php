@@ -34,6 +34,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\PostCalendar\CalendarRenderer;
+use OpenEMR\Services\Storage\CacheDirectory;
 
 //=========================================================================
 //  Load the API Functions
@@ -49,26 +51,28 @@ function postcalendar_admin_modifyconfig($msg = '', $showMenu = true)
     $header = "<html><head><title>" . xlt("Calendar") . "</title>";
     $header .= Header::setupHeader('', false)  . '</head><body>';
 
-    $output->Text($header);
+    $body  = $output->generateText($header);
 
     if (!empty($msg)) {
-        $output->Text(postcalendar_adminmenu("clearCache"));
-        $output -> Text('<div class="alert alert-success mx-1 text-center" role="alert">');
-        $output->Text("<b>$msg</b>");
-        $output -> Text('</div>');
+        $body .= $output->generateText(postcalendar_adminmenu("clearCache"));
+        $body .= $output->generateText('<div class="alert alert-success mx-1 text-center" role="alert">');
+        $body .= $output->generateText("<b>$msg</b>");
+        $body .= $output->generateText('</div>');
     } else {
         if ($showMenu) {
-            $output->Text(postcalendar_adminmenu(""));
+            $body .= $output->generateText(postcalendar_adminmenu(""));
         }
     }
 
-    $output->Text("</body></html>");
+    $body .= $output->generateText("</body></html>");
 
-    return $output->GetOutput();
+    return $output->GetOutput($body);
 }
 
 function postcalendar_admin_categoriesConfirm()
 {
+    $msg = '';
+    $dels = '';
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
     $header = <<<EOF
@@ -76,8 +80,8 @@ function postcalendar_admin_categoriesConfirm()
 	<head>
 EOF;
     $header .= Header::setupHeader('', false)  . '</head><body><div class="container">';
-    $output->Text($header);
-    $output->Text(postcalendar_adminmenu("category"));
+    $body  = $output->generateText($header);
+    $body .= $output->generateText(postcalendar_adminmenu("category"));
     [$id, $del, $name, $constantid, $value_cat_type, $desc, $color, $event_repeat, $event_repeat_freq, $event_repeat_freq_type, $event_repeat_on_num, $event_repeat_on_day, $event_repeat_on_freq, $durationh, $durationm, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $active, $sequence, $aco, $newname, $newconstantid, $newdesc, $newcolor, $new_event_repeat, $new_event_repeat_freq, $new_event_repeat_freq_type, $new_event_repeat_on_num, $new_event_repeat_on_day, $new_event_repeat_on_freq, $new_durationh, $new_durationm, $new_limitid, $new_end_date_flag, $new_end_date_type, $new_end_date_freq, $new_end_all_day, $new_value_cat_type, $newactive, $newsequence, $newaco] = pnVarCleanFromInput(
         'id',
         'del',
@@ -126,23 +130,23 @@ EOF;
     //data validation
     foreach ($name as $i => $item) {
         if (empty($item)) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Names must contain a value!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Names must contain a value!"));
+            return $output->GetOutput($body);
         }
         if (empty($constantid[$i])) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            return $output->GetOutput($body);
         }
         $tmp = $constantid[$i];
         if (strpos(trim((string) $tmp), ' ')) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
+            return $output->GetOutput($body);
         }
         $tmp = $color[$i];
         if (strlen((string) $tmp) != 7 || $tmp[0] != "#") {
             $e = $tmp . " size " . strlen((string) $tmp) . " at 0 " . $tmp[0];
-            $output->Text(postcalendar_admin_categories($msg, "You entered an invalid color(USE Pick) $e!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "You entered an invalid color(USE Pick) $e!"));
+            return $output->GetOutput($body);
         }
     }
     foreach ($durationh as $i => $val) {
@@ -151,11 +155,11 @@ EOF;
             !is_numeric($event_repeat_freq[$i]) ||
             !is_numeric($event_repeat_on_freq[$i]) || !is_numeric($end_date_freq[$i])
         ) {
-            $output->Text(postcalendar_admin_categories(
+            $body .= $output->generateText(postcalendar_admin_categories(
                 $msg,
                 " Hours, Minutes and recurrence values must be numeric!"
             ));
-            return $output->GetOutput();
+            return $output->GetOutput($body);
         }
     }
     if (!empty($newnam)) {
@@ -166,8 +170,8 @@ EOF;
             !is_numeric($new_event_repeat_on_freq) ||
             !is_numeric($new_end_date_freq)
         ) {
-            $output->Text(postcalendar_admin_categories($msg, "Hours, Minutes and recurrence values must be numeric!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Hours, Minutes and recurrence values must be numeric!"));
+            return $output->GetOutput($body);
         }
     }
     $new_duration = ($new_durationh * (60 * 60)) + ($new_durationm * 60);
@@ -189,67 +193,67 @@ EOF;
         $dels = implode(',', $del);
         $delText = _PC_DELETE_CATS . $dels . '.';
     }
-    $output->FormStart(pnModURL(__POSTCALENDAR__, 'admin', 'categoriesUpdate'));
-    $output->Text(_PC_ARE_YOU_SURE);
-    $output->Linebreak(2);
+    $body .= $output->generateFormStart(pnModURL(__POSTCALENDAR__, 'admin', 'categoriesUpdate'));
+    $body .= $output->generateText(_PC_ARE_YOU_SURE);
+    $body .= $output->generateLinebreak(2);
     // deletions
     if (isset($delText)) {
-        $output->FormHidden('dels', $dels);
-        $output->Text($delText);
-        $output->Linebreak();
+        $body .= $output->generateFormHidden('dels', $dels);
+        $body .= $output->generateText($delText);
+        $body .= $output->generateLinebreak();
     }
     if (!empty($newname)) {
         if (empty($newconstantid)) {
-            $output->Text(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            return $output->GetOutput($body);
         }
         if (strpos(trim((string) $newconstantid), ' ')) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
-            return $output->GetOutput();
+            $body .= $output->generateText(postcalendar_admin_categories($msg, "Category Identifiers must be one word!"));
+            return $output->GetOutput($body);
         }
-        $output->FormHidden('newname', $newname);
-        $output->FormHidden('newconstantid', $newconstantid);
-        $output->FormHidden('newdesc', $newdesc);
-        $output->FormHidden('newvalue_cat_type', $new_value_cat_type);
-        $output->FormHidden('newcolor', $newcolor);
-        $output->FormHidden('newevent_repeat', $new_event_repeat);
-        $output->FormHidden('newevent_recurrfreq', $new_event_repeat_freq);
-        $output->FormHidden('newevent_recurrspec', $new_event_recurrspec);
-        $output->FormHidden('newduration', $new_duration);
-        $output->FormHidden('newlimitid', $new_limitid);
-        $output->FormHidden('newend_date_flag', $new_end_date_flag);
-        $output->FormHidden('newend_date_type', $new_end_date_type);
-        $output->FormHidden('newend_date_freq', $new_end_date_freq);
-        $output->FormHidden('newend_all_day', $new_end_all_day);
-        $output->FormHidden("newactive", $newactive);
-        $output->FormHidden("newsequence", $newsequence);
-        $output->FormHidden("newaco", $newaco);
-        $output->Text(_PC_ADD_CAT . text($newname) . '.');
-        $output->Linebreak();
+        $body .= $output->generateFormHidden('newname', $newname);
+        $body .= $output->generateFormHidden('newconstantid', $newconstantid);
+        $body .= $output->generateFormHidden('newdesc', $newdesc);
+        $body .= $output->generateFormHidden('newvalue_cat_type', $new_value_cat_type);
+        $body .= $output->generateFormHidden('newcolor', $newcolor);
+        $body .= $output->generateFormHidden('newevent_repeat', $new_event_repeat);
+        $body .= $output->generateFormHidden('newevent_recurrfreq', $new_event_repeat_freq);
+        $body .= $output->generateFormHidden('newevent_recurrspec', $new_event_recurrspec);
+        $body .= $output->generateFormHidden('newduration', $new_duration);
+        $body .= $output->generateFormHidden('newlimitid', $new_limitid);
+        $body .= $output->generateFormHidden('newend_date_flag', $new_end_date_flag);
+        $body .= $output->generateFormHidden('newend_date_type', $new_end_date_type);
+        $body .= $output->generateFormHidden('newend_date_freq', $new_end_date_freq);
+        $body .= $output->generateFormHidden('newend_all_day', $new_end_all_day);
+        $body .= $output->generateFormHidden("newactive", $newactive);
+        $body .= $output->generateFormHidden("newsequence", $newsequence);
+        $body .= $output->generateFormHidden("newaco", $newaco);
+        $body .= $output->generateText(_PC_ADD_CAT . text($newname) . '.');
+        $body .= $output->generateLinebreak();
     }
-    $output->Text(_PC_MODIFY_CATS);
-    $output->FormHidden('id', serialize($id));
-    $output->FormHidden('del', serialize($del));
-    $output->FormHidden('name', serialize($name));
-    $output->FormHidden('constantid', serialize($constantid));
-    $output->FormHidden('desc', serialize($desc));
-    $output->FormHidden('value_cat_type', serialize($value_cat_type));
-    $output->FormHidden('color', serialize($color));
-    $output->FormHidden('event_repeat', serialize($event_repeat));
-    $output->FormHidden('event_recurrspec', $event_recurrspec);
-    $output->FormHidden('durationh', serialize($durationh));
-    $output->FormHidden('durationm', serialize($durationm));
-    $output->FormHidden('end_date_flag', serialize($end_date_flag));
-    $output->FormHidden('end_date_type', serialize($end_date_type));
-    $output->FormHidden('end_date_freq', serialize($end_date_freq));
-    $output->FormHidden('end_all_day', serialize($end_all_day));
-    $output->FormHidden("active", serialize($active));
-    $output->FormHidden("sequence", serialize($sequence));
-    $output->FormHidden("aco", serialize($aco));
-    $output->Linebreak();
-    $output->FormSubmit(_PC_CATS_CONFIRM);
-    $output->FormEnd();
-    return $output->GetOutput();
+    $body .= $output->generateText(_PC_MODIFY_CATS);
+    $body .= $output->generateFormHidden('id', serialize($id));
+    $body .= $output->generateFormHidden('del', serialize($del));
+    $body .= $output->generateFormHidden('name', serialize($name));
+    $body .= $output->generateFormHidden('constantid', serialize($constantid));
+    $body .= $output->generateFormHidden('desc', serialize($desc));
+    $body .= $output->generateFormHidden('value_cat_type', serialize($value_cat_type));
+    $body .= $output->generateFormHidden('color', serialize($color));
+    $body .= $output->generateFormHidden('event_repeat', serialize($event_repeat));
+    $body .= $output->generateFormHidden('event_recurrspec', $event_recurrspec);
+    $body .= $output->generateFormHidden('durationh', serialize($durationh));
+    $body .= $output->generateFormHidden('durationm', serialize($durationm));
+    $body .= $output->generateFormHidden('end_date_flag', serialize($end_date_flag));
+    $body .= $output->generateFormHidden('end_date_type', serialize($end_date_type));
+    $body .= $output->generateFormHidden('end_date_freq', serialize($end_date_freq));
+    $body .= $output->generateFormHidden('end_all_day', serialize($end_all_day));
+    $body .= $output->generateFormHidden("active", serialize($active));
+    $body .= $output->generateFormHidden("sequence", serialize($sequence));
+    $body .= $output->generateFormHidden("aco", serialize($aco));
+    $body .= $output->generateLinebreak();
+    $body .= $output->generateFormSubmit(_PC_CATS_CONFIRM);
+    $body .= $output->generateFormEnd();
+    return $output->GetOutput($body);
 }
 
 function postcalendar_admin_categoriesUpdate()
@@ -402,7 +406,7 @@ function postcalendar_admin_categoriesUpdate()
                 'addCategories',
                 ['name' => $newname,'constantid' => $newconstantid,'desc' => $newdesc,'value_cat_type' => $new_value_cat_type,'color' => $newcolor,'active' => $newactive,'sequence' => $newsequence, 'aco' => $newaco,
                 'repeat' => $new_event_repeat,'spec' => $new_event_recurrspec,
-                'recurrfreq' => $new_recurrfreq ?? '','duration' => $new_duration,'limitid' => $new_dailylimitid,
+                'recurrfreq' => '','duration' => $new_duration,'limitid' => $new_dailylimitid,
                 'end_date_flag' => $new_end_date_flag,'end_date_type' => $new_end_date_flag,
                 'end_date_freq' => $new_end_date_freq,
                 'end_all_day' => $new_end_all_day]
@@ -415,8 +419,8 @@ function postcalendar_admin_categoriesUpdate()
     if (empty($e)) {
         $msg = 'DONE';
     }
-    $output->Text(postcalendar_admin_categories($msg, $e));
-    return $output->GetOutput();
+    $body = $output->generateText(postcalendar_admin_categories($msg, $e));
+    return $output->GetOutput($body);
 }
 
 /**
@@ -429,28 +433,26 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 
     $output = new pnHTML();
     $output->SetInputMode(_PNH_VERBATIMINPUT);
-    // set up Smarty
-    $tpl = new pcSmarty();
-    $tpl->caching = false;
+    // set up Twig renderer (replaces legacy pcSmarty)
+    $tpl = CalendarRenderer::create();
 
-    $template_name = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
+    $template_nameRaw = pnModGetVar(__POSTCALENDAR__, 'pcTemplate');
+    $template_name = is_string($template_nameRaw) && $template_nameRaw !== ''
+        ? $template_nameRaw
+        : 'default';
 
-    if (!isset($template_name)) {
-        $template_name = 'default';
-    }
-
-    $output->Text(postcalendar_adminmenu("category"));
+    $body = $output->generateText(postcalendar_adminmenu("category"));
 
     if (!empty($e)) {
-        $output -> Text('<div class="alert alert-danger mx-1" role="alert">');
-        $output->Text('<span class="text-center font-weight-bold">' . text($e) . '</span>');
-        $output -> Text('</div><br />');
+        $body .= $output->generateText('<div class="alert alert-danger mx-1" role="alert">');
+        $body .= $output->generateText('<span class="text-center font-weight-bold">' . text($e) . '</span>');
+        $body .= $output->generateText('</div><br />');
     }
 
     if (!empty($msg)) {
-        $output -> Text('<div class="alert alert-success mx-1" role="alert">');
-        $output->Text('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
-        $output -> Text('</div><br />');
+        $body .= $output->generateText('<div class="alert alert-success mx-1" role="alert">');
+        $body .= $output->generateText('<span class="text-center font-weight-bold">' . text($msg) . '</span>');
+        $body .= $output->generateText('</div><br />');
     }
 
     //=================================================================
@@ -462,7 +464,8 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $all_categories = pnModAPIFunc(__POSTCALENDAR__, 'user', 'getCategories');
     //print_r($all_categories);
     unset($modinfo);
-    $tpl->config_dir = "modules/$modir/pntemplates/$template_name/config/";
+    // (legacy `$tpl->config_dir = ...` removed — Twig conversion dropped
+    //  the config_load directives that depended on it.)
 
     //=================================================================
     //  PARSE MAIN
@@ -487,10 +490,16 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $styleFilterEvent->setContextArgument('viewtype', 'admin');
     $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
-    $tpl->assign('globals', $GLOBALS);
+    // Templates need a small fixed subset of globals; avoid dumping
+    // the whole $GLOBALS into template scope (it exposes secrets,
+    // paths, DB handles, etc.). submit_category.html.twig reads
+    // translate_appt_categories.
+    $tpl->assign('globals', [
+        'translate_appt_categories' => OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories'),
+    ]);
     $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
     $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
-    $tpl->assign_by_ref('TPL_NAME', $template_name);
+    $tpl->assign('TPL_NAME', $template_name);
     $tpl->assign('FUNCTION', pnVarCleanFromInput('func'));
     $tpl->assign_by_ref('ModuleName', $modname);
     $tpl->assign_by_ref('ModuleDirectory', $modir);
@@ -665,9 +674,6 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $acoList = AclExtended::genAcoArray();
     $tpl->assign('ACO_List', $acoList);
 
-    $output->SetOutputMode(_PNH_RETURNOUTPUT);
-    $output->SetOutputMode(_PNH_KEEPOUTPUT);
-
     if (isset($data_loaded)) {
         $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update ?? '') . "\" />";
         $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id ?? '') . "\" />";
@@ -679,9 +685,13 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
-    $output->Text($tpl->fetch($template_name . '/admin/submit_category.html'));
-    $output->Text(postcalendar_footer());
-    return $output->GetOutput();
+    // Only the 'default' PostCalendar template set ships with the
+    // codebase (per 2f84202232's tplview removal); hardcoding the
+    // path matches what pnuserapi.php does and avoids letting the
+    // admin-set pcTemplate value reach Twig's FilesystemLoader.
+    $body .= $output->generateText($tpl->render('calendar/default/admin/submit_category.html.twig'));
+    $body .= $output->generateText(postcalendar_footer());
+    return $output->GetOutput($body);
 }
 
 /**
@@ -765,21 +775,19 @@ EOF;
 
 function postcalendar_admin_clearCache()
 {
-    $tpl = new pcSmarty();
-    //fmg: check that both subdirs to be cleared first exist and are writeable
-    $spec_err = '';
+    // Calendar Twig templates have no on-disk cache (TwigContainer does
+    // not set a cache option, so Twig recompiles per request). Modern
+    // Smarty (vendor/smarty/smarty, used by library/classes/Controller
+    // and other admin pages) does have a compiled-template cache under
+    // CacheDirectory's openemr-smarty scope; clear that here so an
+    // admin clicking this button gets the work the legacy button used
+    // to do against the now-deleted pcSmarty.
+    $smarty = new Smarty();
+    $smarty->setCompileDir((new CacheDirectory())->for('openemr-smarty'));
+    $smarty->clearAllCache();
+    $smarty->clearCompiledTemplate();
 
-    if (!file_exists($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' doesn't exist!<br />";
-    } elseif (!is_writable($tpl->compile_dir)) {
-        $spec_err .= "Error: folder '" . text($tpl->compile_dir) . "' not writeable!<br />";
-    }
-
-    //note: we don't abort on error... like before.
-    $tpl->clear_all_cache();
-    $tpl->clear_compiled_tpl();
-
-    return postcalendar_admin_modifyconfig('<div class="text-center">' . $spec_err . text(_PC_CACHE_CLEARED) . '</div>');
+    return postcalendar_admin_modifyconfig('<div class="text-center">' . text(_PC_CACHE_CLEARED) . '</div>');
 }
 
 function postcalendar_admin_testSystem()
@@ -789,7 +797,6 @@ function postcalendar_admin_testSystem()
     $version = $modinfo['version'];
     unset($modinfo);
 
-    $tpl = new pcSmarty();
     $infos = [];
 
     $__SERVER =& $_SERVER;
@@ -813,7 +820,8 @@ function postcalendar_admin_testSystem()
     array_push($infos, ['WebServer', $__SERVER['SERVER_SOFTWARE']]);
     array_push($infos, ['Module dir', "modules/$pcDir"]);
 
-    $modversion = [];
+    /** @var array{version: string} $modversion */
+    $modversion = ['version' => ''];
     include  "modules/$pcDir/pnversion.php";
 
     $error = '';
@@ -823,24 +831,24 @@ function postcalendar_admin_testSystem()
         $error .= '</div>';
     }
     array_push($infos, ['Module version', $version . " $error"]);
-    array_push($infos, ['smarty version', $tpl->_version]);
-    array_push($infos, ['smarty location',  SMARTY_DIR]);
-    array_push($infos, ['smarty template dir', $tpl->template_dir]);
 
-    $info = $tpl->compile_dir;
-    $error = '';
-    if (!file_exists($tpl->compile_dir)) {
-        $error .= " compile dir doesn't exist! [" . text($tpl->compile_dir) . "]<br />";
-    } else {
-        // dir exists -> check if it's writeable
-        if (!is_writable($tpl->compile_dir)) {
-            $error .= " compile dir not writeable! [" . text($tpl->compile_dir) . "]<br />";
-        }
+    // Modern Smarty (vendor/smarty/smarty) is still in OpenEMR for the
+    // non-calendar pages that extend Controller. Surface its version
+    // and compile-dir status here the way the legacy diagnostic did
+    // for pcSmarty.
+    $smartyCompileDir = (new CacheDirectory())->for('openemr-smarty');
+    $smartyCompileDirError = '';
+    if (!file_exists($smartyCompileDir)) {
+        $smartyCompileDirError = ' <span class="text-danger">' . xlt('compile dir does not exist') . '</span>';
+    } elseif (!is_writable($smartyCompileDir)) {
+        $smartyCompileDirError = ' <span class="text-danger">' . xlt('compile dir not writeable') . '</span>';
     }
-    if (strlen($error) > 0) {
-        $info .= "<br /><div class='text-danger'>$error</div>";
-    }
-    array_push($infos, ['smarty compile dir',  $info]);
+    array_push($infos, ['Smarty version', Smarty::SMARTY_VERSION]);
+    array_push($infos, ['Smarty compile dir', $smartyCompileDir . $smartyCompileDirError]);
+
+    // Twig has no on-disk cache configured by TwigContainer, so there's
+    // no equivalent compile-dir to report. Note the version for parity.
+    array_push($infos, ['Twig version', \Twig\Environment::VERSION]);
 
     if (AclMain::aclCheckCore('admin', 'super')) {
         $header = "<head><title>" . xlt("Diagnostics") . "</title></head><body>";

@@ -26,9 +26,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // this will ensure that the only script that can use this ajax call is the sql_upgrade.php script
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'sqlupgrade')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'sqlupgrade', dieOnFail: true);
 
 $trans_query = <<< strQuery
 Select * From INFORMATION_SCHEMA.PROCESSLIST

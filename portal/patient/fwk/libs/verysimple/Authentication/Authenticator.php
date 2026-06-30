@@ -41,7 +41,7 @@ class Authenticator
      * Returns the currently authenticated user or null
      *
      * @access public
-     * @return IAuthenticatable || null
+     * @return IAuthenticatable|null
      */
     public static function GetCurrentUser(string $guid = "CURRENT_USER")
     {
@@ -50,7 +50,7 @@ class Authenticator
             $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $sessionGuid = $session->get($guid);
             if (!empty($sessionGuid)) {
-                self::$user = unserialize($sessionGuid);
+                self::$user = unserialize($sessionGuid, ['allowed_classes' => true]);
             }
         }
 

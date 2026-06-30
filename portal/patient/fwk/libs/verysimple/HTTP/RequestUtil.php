@@ -134,8 +134,7 @@ class RequestUtil
      * Returns the parts of the url as deliminated by forward slashes for example /this/that/other
      * will be returned as an array [this,that,other]
      *
-     * @param
-     *          string root folder for the app (ex. 'myapp' or 'myapp/subdir1')
+     * @param string $appRoot root folder for the app (ex. 'myapp' or 'myapp/subdir1')
      * @return array
      */
     public static function GetUrlParts($appRoot = '')
@@ -172,8 +171,7 @@ class RequestUtil
      * For clients or servers that don't support PUT/DELETE requests, the emulated
      * param can be used or the override header
      *
-     * @param
-     *          string name of the querystring parameter that has the overridden request method
+     * @param string $emulateHttpParamName name of the querystring parameter that has the overridden request method
      */
     public static function GetMethod($emulateHttpParamName = '_method')
     {

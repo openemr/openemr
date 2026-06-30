@@ -53,18 +53,8 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method ADOConnection\\:\\:qStr\\(\\) with incorrect case\\: qstr$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method ADOConnection\\:\\:qStr\\(\\) with incorrect case\\: qstr$#',
     'count' => 12,
     'path' => __DIR__ . '/../../gacl/admin/acl_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method ADOConnection\\:\\:qStr\\(\\) with incorrect case\\: qstr$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../gacl/admin/assign_group.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
@@ -180,36 +170,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TeleHealthParticipantInvitationMailerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addReplyTo\\(\\) with incorrect case\\: AddReplyTo$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:isHTML\\(\\) with incorrect case\\: IsHTML$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:msgHTML\\(\\) with incorrect case\\: MsgHTML$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:send\\(\\) with incorrect case\\: Send$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:setFrom\\(\\) with incorrect case\\: SetFrom$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:addAddress\\(\\) with incorrect case\\: AddAddress$#',
@@ -370,11 +330,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to method Installer\\\\Controller\\\\InstallerController\\:\\:makeButtonForACLAction\\(\\) with incorrect case\\: makeButtonForAClAction$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method Mpdf\\\\Mpdf\\:\\:WriteHTML\\(\\) with incorrect case\\: writeHTML$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/orders/single_order_results.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method Mpdf\\\\Mpdf\\:\\:WriteHTML\\(\\) with incorrect case\\: writeHTML$#',

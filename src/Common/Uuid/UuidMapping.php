@@ -110,19 +110,14 @@ class UuidMapping
     //   when presented with that use case (this is why the uuid column in uuid_mapping is not unique btw).
     public static function createMissingResourceUuids($resource, $table, $resourcePath = null)
     {
-        try {
-            sqlBeginTrans();
+        return QueryUtils::inTransaction(function () use ($resource, $table, $resourcePath) {
             $counter = 0;
             do {
                 $count = self::createMissingResourceUuidsStep($resource, $table, $resourcePath);
                 $counter += $count;
             } while ($count > 0);
-            sqlCommitTrans();
             return $counter;
-        } catch (\Throwable $exception) {
-            sqlRollbackTrans();
-            throw $exception;
-        }
+        });
     }
 
     private static function createMissingResourceUuidsStep($resource, $table, $resourcePath = null)

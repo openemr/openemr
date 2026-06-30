@@ -37,7 +37,7 @@ jobs:
     name: PHP ${{ matrix.php-version }} - Isolated Tests
 
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
 
     - name: Setup PHP and Composer
       uses: ./.github/actions/setup-php-composer
@@ -53,20 +53,12 @@ jobs:
 
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit.xml
-        flags: isolated,php${{ matrix.php-version }}
+        flags: isolated-php${{ matrix.php-version }}
         report_type: test_results
-
-    - name: Hide test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit.xml') != '' }}
-      run: mv junit.xml junit.saved-test-data
-
-    - name: Unhide test results for GitHub upload
-      if: ${{ !cancelled() && hashFiles('junit.saved-test-data') != '' }}
-      run: mv junit.saved-test-data junit.xml
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() }}
@@ -83,8 +75,8 @@ jobs:
 
     - name: Upload coverage reports to Codecov
       if: ${{ steps.check-files.outputs.clover_exists == 'true' && !cancelled() }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: clover.xml
-        flags: isolated,php${{ matrix.php-version }}
+        flags: isolated-php${{ matrix.php-version }}

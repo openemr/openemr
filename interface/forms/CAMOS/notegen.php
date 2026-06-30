@@ -65,7 +65,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->getSrcDir() . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -262,7 +262,7 @@ if (filter_input(INPUT_POST, 'submit_pdf') || filter_input(INPUT_POST, 'submit_h
                     $user_id = $results['id'];
                 }
 
-                $path = OEGlobalsBag::getInstance()->getString('fileroot') . "/interface/forms/CAMOS";
+                $path = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/CAMOS";
                 $safeName = convert_safe_file_dir_name($user_id);
                 if (is_string($safeName) && file_exists($path . "/sig" . $safeName . ".jpg")) {
                 //show the image here
@@ -391,7 +391,7 @@ if (filter_input(INPUT_POST, 'submit_pdf') || filter_input(INPUT_POST, 'submit_h
                         $user_id = $results['id'];
                 }
 
-                $path = OEGlobalsBag::getInstance()->getString('fileroot') . "/interface/forms/CAMOS";
+                $path = OEGlobalsBag::getInstance()->getProjectDir() . "/interface/forms/CAMOS";
                 $safeName = convert_safe_file_dir_name($user_id);
                 if (is_string($safeName) && file_exists($path . "/sig" . $safeName . ".jpg")) {
                         $pdf->ezImage($path . "/sig" . $safeName . ".jpg", 0.0, 72.0, '', 'left', '');

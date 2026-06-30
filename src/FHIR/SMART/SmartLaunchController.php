@@ -95,7 +95,10 @@ class SmartLaunchController
             $this->renderLaunchScript();
     }
 
-    public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, $launchText = "Launch")
+    /**
+     * @param literal-string $launchText
+     */
+    public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, string $launchText = "Launch")
     {
         $launchCode = $launchToken->serialize();
         $launchParams = "?launch=" . urlencode((string) $launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);

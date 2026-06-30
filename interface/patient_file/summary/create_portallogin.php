@@ -23,6 +23,8 @@
  */
 
 require_once("../../globals.php");
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 require_once('../../../library/amc.php');
 
 use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
@@ -41,14 +43,11 @@ if ($option == '2') {
     $forced_reset_disable = 1; // sets database to ignore force reset on login
 }
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $credPlainMessage = '';
 $credEmailSent = false;
 $credEmailAddress = '';
 if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $postForcedResetDisable = $_POST['forced_reset_disable'] ?? 0;
     $rawForcedResetDisable = is_numeric($postForcedResetDisable) ? intval($postForcedResetDisable) : 0;
     $forced_reset_disable = $option == '2' ? $rawForcedResetDisable : $option;

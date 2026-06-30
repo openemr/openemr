@@ -12,10 +12,11 @@
  * @copyright Copyright (c) duhlman
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
@@ -68,7 +69,7 @@ class InsuranceCompany extends ORDataObject
     public $X12Partner;
 
     /**
-     * @var Integer CQM SOP, Source of Payment, from HL7
+     * @var int CQM SOP, Source of Payment, from HL7
      */
     public $cqm_sop;
 
@@ -336,15 +337,41 @@ class InsuranceCompany extends ORDataObject
 
     public function persist()
     {
-        parent::persist();
-        $this->address->persist($this->id);
-        $phoneService = new PhoneNumberService();
-        foreach ($this->phone_numbers as $phone) {
-            $phoneData = ['phone' => $phone->phoneNumber->getNationalDigits()];
-            $phoneService->type = $phone->type->value;
-            // Always insert for now - PhoneNumberService handles upsert logic
-            $phoneService->insert($phoneData, $this->id);
-        }
+        // Wrap the whole logical save (parent row, address row, phone_numbers
+        // delete + re-insert) in a single transaction. The delete-then-insert
+        // below is what stops the duplicate-phone-row accumulation that PR
+        // #10326 introduced; without the transaction, a connection drop
+        // between the DELETE and the final INSERT would leave the record
+        // with partial or no phone data instead of just the buggy duplicates.
+        QueryUtils::inTransaction(function (): void {
+            parent::persist();
+            $this->address->persist($this->id);
+            $phoneService = new PhoneNumberService();
+            // Reset phone_numbers rows for this company so the table mirrors
+            // $this->phone_numbers after the loop. PhoneNumberService::insert
+            // is a plain INSERT (contrary to the earlier "handles upsert
+            // logic" comment), so without the clear persist() accumulates a
+            // fresh WORK + FAX row on every save and the list-view LEFT JOINs
+            // on phone_numbers multiply each company across
+            // (work_count * fax_count) result rows.
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM phone_numbers WHERE foreign_id = ?",
+                [$this->id]
+            );
+            foreach ($this->phone_numbers as $phone) {
+                $nationalDigits = $phone->phoneNumber->getNationalDigits();
+                if ($nationalDigits === null) {
+                    // The legacy phone_numbers table stores 10-digit NANP parts
+                    // (area_code / prefix / number). Skip numbers we can't
+                    // represent in that schema rather than throwing a TypeError
+                    // from PhoneNumberService::getPhoneParts().
+                    continue;
+                }
+                $phoneData = ['phone' => $nationalDigits];
+                $phoneService->type = $phone->type->value;
+                $phoneService->insert($phoneData, $this->id);
+            }
+        });
     }
 
     public function insurance_companies_factory()

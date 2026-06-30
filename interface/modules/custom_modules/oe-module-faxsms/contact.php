@@ -52,6 +52,7 @@ $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
 $file_name = '';
+$pid = '';
 if (empty($isSMS)) {
 // fax contact form
     $interface_pid = $clientApp->getRequest('pid', '');
@@ -85,7 +86,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     echo "<script>var pid=" . js_escape($interface_pid ?: $pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";var isUniversal=" . js_escape($isUniversal) . ";</script>";
     ?>
     <?php if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled')) { ?>
-        <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->getWebRoot() ?>/library/js/CustomTemplateLoader.js"></script>
     <?php } ?>
     <script>
         const serviceType = <?php echo js_escape($serviceType); ?>;
@@ -205,7 +206,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         // callback for patient select dialog
         function setpatient(pid) {
-            let actionUrl = 'getPatientDetails';
+            let actionUrl = 'apiFetchPatientDetails';
             return $.post(actionUrl, {
                 'pid': pid,
                 'type': serviceType
@@ -213,13 +214,13 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $("#wait").remove()
             }, 'json').done(
                 function (data) {
-                    if (recipient && !data['phone_cell']) {
-                        data['phone_cell'] = recipient;
+                    if (recipient && !data['phone']) {
+                        data['phone'] = recipient;
                     }
                     $("#form_pid").val(pid);
                     $("#form_name").val(data['fname']);
                     $("#form_lastname").val(data['lname']);
-                    $("#form_phone").val(data['phone_cell']);
+                    $("#form_phone").val(data['phone']);
                     $("#form_email").val(data['email']);
                     $(".show-detail").removeClass('d-none')
                 });

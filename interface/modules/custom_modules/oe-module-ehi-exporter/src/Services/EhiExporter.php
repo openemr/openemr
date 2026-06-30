@@ -15,10 +15,10 @@ namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
@@ -152,6 +152,7 @@ class EhiExporter
     }
     public function exportAll(bool $includePatientDocuments, $defaultZipSize): EhiExportJob
     {
+        $job = null;
         try {
             $sql = "SELECT pid FROM patient_data"; // We do everything here
             $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
@@ -342,14 +343,13 @@ class EhiExporter
         return $updatedJobTask;
     }
 
-    private function getXmlNode($path)
+    private function getXmlNode(string $path)
     {
         $contents = file_get_contents($path);
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
         }
-        $xml = simplexml_load_string($contents);
-        return $xml;
+        return XmlUtils::loadString($contents);
     }
 
     private function exportBreadthAlgorithm(EhiExportJobTask $jobTask): EhiExportJobTask
@@ -543,7 +543,7 @@ class EhiExporter
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
         if (file_exists($filePath)) {
             $contents = file_get_contents($filePath);
-            return $this->cryptoGen->decryptStandard($contents, keySource: KeySource::Database);
+            return $this->cryptoGen->decryptFromFilesystem($contents);
         }
         return "";
     }
@@ -676,7 +676,7 @@ class EhiExporter
         // huge if there is a lot of patients represented
         fclose($csvFile);
         unset($csvFile);
-        $encryptedContents = $this->cryptoGen->encryptStandard($dataContents, keySource: KeySource::Database);
+        $encryptedContents = $this->cryptoGen->encryptForFilesystem($dataContents);
         $fileName = $outputLocation . DIRECTORY_SEPARATOR . $tableName . '.csv';
         $contentsWritten = file_put_contents($fileName, $encryptedContents);
         if ($contentsWritten === false) {
@@ -745,7 +745,7 @@ class EhiExporter
     private function addDocumentationReadme(\ZipArchive $zip)
     {
         $readmeContents = $this->twig->render(Bootstrap::MODULE_NAME . '/README.text.twig', [
-            'webBaseUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('webroot')
+            'webBaseUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->getWebRoot()
             // TODO: @brady.miller do we have a latest certified release version stored anywhere?
             ,'certifiedReleaseVersion' => Bootstrap::CERTIFIED_RELEASE_VERSION
         ]);

@@ -117,45 +117,29 @@ $logger->info("User logged in", ['userId' => $userId]);
 
 **Rationale:** Laminas-DB is deprecated and scheduled for removal.
 
-### NoCoversAnnotationRule
+### ForbiddenCoversRule
 
-**Purpose:** Prevents use of `@covers` annotations in test method docblocks.
+**Purpose:** Prevents use of `@covers` docblock annotations and `#[CoversClass]`/`#[CoversFunction]` PHP attributes in test files.
 
-**Rationale:** The `@covers` annotation in PHPUnit tests causes any code that is used transitively or ancillary to the annotated code to be excluded from coverage reports. This results in incomplete coverage information and makes it harder to understand which code paths are actually being exercised by our test suite.
-
-**Before (❌ Forbidden):**
-```php
-/**
- * @covers \OpenEMR\Services\SomeService
- */
-public function testSomeMethod(): void
-{
-    // test code
-}
-```
-
-**After (✅ Recommended):**
-```php
-public function testSomeMethod(): void
-{
-    // test code - coverage is tracked automatically for all exercised code
-}
-```
-
-### NoCoversAnnotationOnClassRule
-
-**Purpose:** Prevents use of `@covers` annotations in test class docblocks.
-
-**Rationale:** Same as `NoCoversAnnotationRule` - class-level `@covers` annotations also exclude transitively used code from coverage reports.
+**Rationale:** These annotations restrict PHPUnit's coverage attribution to only the listed symbols, which causes transitively used code to be excluded from coverage reports. This results in test file lines showing 0% in codecov patch coverage reports on test-only PRs.
 
 **Before (❌ Forbidden):**
 ```php
+use PHPUnit\Framework\Attributes\CoversClass;
+
 /**
  * @covers \OpenEMR\Services\SomeService
  */
+#[CoversClass(SomeService::class)]
 class SomeServiceTest extends TestCase
 {
-    // tests
+    /**
+     * @covers \OpenEMR\Services\SomeService::someMethod
+     */
+    public function testSomeMethod(): void
+    {
+        // test code
+    }
 }
 ```
 
@@ -163,7 +147,10 @@ class SomeServiceTest extends TestCase
 ```php
 class SomeServiceTest extends TestCase
 {
-    // tests - coverage is tracked automatically for all exercised code
+    public function testSomeMethod(): void
+    {
+        // test code - coverage is tracked automatically for all exercised code
+    }
 }
 ```
 
@@ -288,6 +275,37 @@ To regenerate the baseline after fixing violations:
 ```bash
 composer phpstan-baseline
 ```
+
+To wipe and rebuild the baseline from scratch (ignoring whatever is currently on disk):
+
+```bash
+composer phpstan-baseline-reset
+```
+
+This deletes every file under `.phpstan/baseline/`, writes a minimal empty `loader.php`, and then runs `composer phpstan-baseline` to rebuild the per-identifier files from the current codebase. Use this instead of `composer phpstan-baseline` when you want a clean regeneration — for example, when the baseline has drifted, or when the existing files are in a state PHPStan can't even load (leftover merge conflict markers, a truncated file, etc.).
+
+### Fatal-category caps
+
+Certain baseline files hold errors for code that cannot run at load or call time. `.phpstan/fatal-baseline-caps.php` records the current count per file and `tests/Tests/Isolated/PHPStan/FatalBaselineCapsIsolatedTest.php` asserts the actual count equals the cap. Two modes:
+
+- **Whole-file (`all`)** — every baseline entry counts. Used for identifiers where each entry is a symbol that simply doesn't exist:
+  - `class.notFound`, `method.notFound`, `staticMethod.notFound`, `trait.notFound`, `interface.notFound`
+  - `function.notFound`
+  - `classConstant.notFound`, `constant.notFound`
+  - `include.fileNotFound`, `includeOnce.fileNotFound`, `requireOnce.fileNotFound`, `require.fileNotFound`
+  - `return.missing`, `variable.undefined`
+
+- **Confident non-object (`confidentNonObject`)** — only entries whose reported type narrows to a definitely-non-object (e.g. `on bool`, `on null`, `on array`) count. PHPStan also fires `*.nonObject` on `mixed` and class-union types like `SomeClass|null`; those aren't certain crashes and are excluded. Covered identifiers:
+  - `method.nonObject`, `staticMethod.nonObject`
+  - `property.nonObject`, `classConstant.nonObject`
+  - `clone.nonObject`
+
+If you regenerate the baseline and a count changes:
+
+- **Count went down** — lower the cap in `fatal-baseline-caps.php` to match.
+- **Count went up** — fix the underlying code instead of raising the cap. Each entry resolves to one of four fixes: delete dead code, wrap optional code in `class_exists()` / `function_exists()` / `defined()`, add a PHPStan stub, or install the missing dependency.
+
+See openemr/openemr#11792 for the plan to drive every cap to zero.
 
 ## Running PHPStan
 

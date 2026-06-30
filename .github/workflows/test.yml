@@ -16,7 +16,7 @@ on:
       docker_dir:
         required: true
         type: string
-        description: Docker directory name (e.g., apache_84_114)
+        description: Docker directory name (e.g., apache_85_118)
       display_name:
         required: false
         type: string
@@ -45,22 +45,29 @@ on:
         type: choice
         options:
         - apache_82_118
+        - apache_82_118_redis_sentinel_mtls
+        - apache_82_118_upgrade
         - apache_83_118
-        - apache_84_1011
-        - apache_84_106
-        - apache_84_114
         - apache_84_118
-        - apache_84_120
-        - apache_84_57
-        - apache_84_80
-        - apache_84_84
-        - apache_84_93
+        - apache_85_1011
+        - apache_85_106
+        - apache_85_114
+        - apache_85_118
+        - apache_85_118_redis_sentinel
+        - apache_85_118_redis_sentinel_tls
+        - apache_85_118_redis_sentinel_mtls
+        - apache_85_118_upgrade
+        - apache_85_122
+        - apache_85_57
+        - apache_85_80
+        - apache_85_84
+        - apache_85_93
         - nginx_82
         - nginx_83
         - nginx_84
         - nginx_85
         - nginx_86
-        default: apache_84_114
+        default: apache_85_118
       enable_coverage:
         description: Enable coverage collection and reporting
         required: false
@@ -82,6 +89,7 @@ jobs:
       docker_dir: ${{ steps.parse.outputs.docker_dir }}
       e2e_enabled: ${{ steps.parse.outputs.e2e_enabled }}
       openemr_dir: ${{ steps.parse.outputs.openemr_dir }}
+      redis_sentinel_enabled: ${{ steps.parse.outputs.redis_sentinel_enabled }}
       suites: ${{ steps.compute-suites.outputs.suites }}
       compose_file: ${{ steps.parse-env.outputs.compose_file }}
       # Cache keys for restore in test jobs
@@ -90,7 +98,7 @@ jobs:
       ccda_build_key: ${{ steps.cache-keys.outputs.ccda-build }}
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Parse Configuration
       id: parse
@@ -100,6 +108,8 @@ jobs:
 
         # Extract outputs and write to GITHUB_OUTPUT
         jq -r '.[0].output | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_OUTPUT"
+        # redis_sentinel_enabled is not in output if template is absent; default to false
+        grep -q '^redis_sentinel_enabled=' "$GITHUB_OUTPUT" || echo 'redis_sentinel_enabled=false' >> "$GITHUB_OUTPUT"
 
         # Extract env vars and write to GITHUB_ENV
         jq -r '.[0].env | to_entries[] | "\(.key)=\(.value)"' parsed_config.json >> "$GITHUB_ENV"
@@ -114,12 +124,16 @@ jobs:
 
     - name: Compute test suite list
       id: compute-suites
+      # Suites common,controllers,fixtures,validators,unit are covered by integration-tests.yml
       run: |
+        base='["api","services","email"'
         if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
-          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","email","e2e"]' >> "$GITHUB_OUTPUT"
-        else
-          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","email"]' >> "$GITHUB_OUTPUT"
+          base="${base},"'"e2e"'
         fi
+        if [[ '${{ steps.parse.outputs.redis_sentinel_enabled }}' = 'true' ]]; then
+          base="${base},"'"redis-failover"'
+        fi
+        echo "suites=${base}]" >> "$GITHUB_OUTPUT"
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -156,10 +170,10 @@ jobs:
       id: cache-keys
       run: |
         {
-          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
-          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock') }}'
+          echo 'vendor=${{ runner.os }}-vendor-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
+          echo 'composer=${{ runner.os }}-composer-${{ steps.parse.outputs.php }}-${{ hashFiles('**/composer.lock', 'composer.json') }}'
           echo 'npm-build=${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
-          echo 'ccda-build=${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
+          echo 'ccda-build=${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/ccdaservice/package-lock.json') }}'
           echo 'npm=${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-${{ hashFiles('**/package-lock.json') }}'
         } >> "$GITHUB_OUTPUT"
 
@@ -168,7 +182,7 @@ jobs:
     # We don't need to run composer install at all if we get a hit.
     - name: Restore vendor artifacts
       id: vendor-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -197,7 +211,7 @@ jobs:
     - name: Restore composer downloads
       id: composer-cache-restore
       if: ${{ steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
@@ -232,7 +246,7 @@ jobs:
     # This does not include ccda.
     - name: Restore npm build artifacts
       id: npm-build-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -241,7 +255,6 @@ jobs:
           public/themes/
         restore-keys: |
           ${{ runner.os }}-npm-build-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-npm-build-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
@@ -263,15 +276,14 @@ jobs:
     # We don't need to run npm ci in ccdaservice at all if we get a hit.
     - name: Restore CCDA build artifacts
       id: ccda-build-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         path: |
           ccdaservice/node_modules/
           ccdaservice/packages/oe-cqm-service/node_modules/
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         restore-keys: |
-          ${{ runner.os }}-ccda-build-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-ccda-build-
+          ${{ runner.os }}-ccdaservice-modules-${{ steps.parse.outputs.node_version }}-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
@@ -294,13 +306,12 @@ jobs:
     - name: Restore npm cache
       if: ${{ steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true' }}
       id: npm-cache-restore
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
         restore-keys: |
           ${{ runner.os }}-node-${{ steps.parse.outputs.node_version }}-
-          ${{ runner.os }}-node-
 
     ##
     # The 'cache-hit' output for actions/cache/restore is always false
@@ -340,14 +351,14 @@ jobs:
     # Only save if we ran the build AND didn't get an exact cache hit (to avoid "cache already exists" warnings)
     - name: Save npm cache
       if: ${{ inputs.save_node_cache && (steps.npm-build-cache-check.outputs.hit != 'true' || steps.ccda-build-cache-check.outputs.hit != 'true') && steps.npm-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm }}
         path: ${{ steps.npm-cache-dir.outputs.dir }}
 
     - name: Save CCDA build artifacts
-      if: ${{ inputs.save_node_cache && steps.ccda-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      if: ${{ steps.ccda-build-cache-check.outputs.hit != 'true' }}
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.ccda-build }}
         path: |
@@ -356,7 +367,7 @@ jobs:
 
     - name: Save NPM build artifacts
       if: ${{ inputs.save_node_cache && steps.npm-build-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.npm-build }}
         path: |
@@ -366,14 +377,14 @@ jobs:
 
     - name: Save composer cache
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' && steps.composer-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.composer }}
         path: ${{ steps.composer-cache.outputs.dir }}
 
     - name: Save vendor artifacts
       if: ${{ inputs.save_composer_cache && steps.vendor-cache-check.outputs.hit != 'true' }}
-      uses: actions/cache/save@v5
+      uses: actions/cache/save@v6
       with:
         key: ${{ steps.cache-keys.outputs.vendor }}
         path: vendor/
@@ -389,6 +400,20 @@ jobs:
         . ci/ciLibrary.source
         dc config
 
+    - name: Login to Docker Hub
+      # Authenticated pulls have a much higher rate limit than anonymous ones,
+      # reducing the registry failures tracked in #12423. The secrets context
+      # is unavailable in `if`, so map the secrets into env and gate on them;
+      # fork PRs without the secrets skip this and pull anonymously as before.
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
     - name: Dockers environment start
       run: |
         . ci/ciLibrary.source
@@ -398,6 +423,12 @@ jobs:
       run: |
         . ci/ciLibrary.source
         install_configure
+
+    - name: Reseed DB from 5.0.0 dump and run upgrade chain
+      if: ${{ endsWith(inputs.docker_dir, '_upgrade') }}
+      run: |
+        . ci/ciLibrary.source
+        post_install_upgrade
 
     - name: PHP info
       run: |
@@ -448,7 +479,7 @@ jobs:
       ENABLE_COVERAGE: ${{ inputs.enable_coverage }}
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -464,7 +495,7 @@ jobs:
     ##
     # Restore build artifacts from GHA cache (populated by setup job)
     - name: Restore vendor artifacts
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ needs.setup.outputs.vendor_key }}
         path: vendor/
@@ -473,7 +504,7 @@ jobs:
           ${{ runner.os }}-vendor-
 
     - name: Restore npm build artifacts
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ needs.setup.outputs.npm_build_key }}
         path: |
@@ -485,15 +516,14 @@ jobs:
           ${{ runner.os }}-npm-build-
 
     - name: Restore CCDA build artifacts
-      uses: actions/cache/restore@v5
+      uses: actions/cache/restore@v6
       with:
         key: ${{ needs.setup.outputs.ccda_build_key }}
         path: |
           ccdaservice/node_modules/
           ccdaservice/packages/oe-cqm-service/node_modules/
         restore-keys: |
-          ${{ runner.os }}-ccda-build-${{ needs.setup.outputs.node_version }}-
-          ${{ runner.os }}-ccda-build-
+          ${{ runner.os }}-ccdaservice-modules-${{ needs.setup.outputs.node_version }}-
 
     - name: Download setup snapshot
       uses: actions/download-artifact@v8
@@ -512,6 +542,20 @@ jobs:
         # HACK Docker runs with a different uid/gid than the host.
         # See #9233
         sudo chmod -R 0777 .
+
+    - name: Login to Docker Hub
+      # Authenticated pulls have a much higher rate limit than anonymous ones,
+      # reducing the registry failures tracked in #12423. The secrets context
+      # is unavailable in `if`, so map the secrets into env and gate on them;
+      # fork PRs without the secrets skip this and pull anonymously as before.
+      if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+      uses: docker/login-action@v4
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Dockers environment start
       env:
@@ -543,8 +587,18 @@ jobs:
         . ci/ciLibrary.source
         setup_e2e_bookends ${{ needs.setup.outputs.webserver }}
 
+    ##
+    # Enable coredumps for the apache e2e cell so a segfaulting worker
+    # (#12438) leaves a core the failure-diagnostics step can backtrace
+    # (#12439). Apache-only: the nginx stack runs php-fpm, which logs
+    # crashes to the container log instead.
+    - name: Enable coredumps
+      if: ${{ matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
+      run: |
+        . ci/ciLibrary.source
+        enable_coredumps
+
     - name: Run ${{ matrix.suite }} tests
-      if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
         build_test ${{ matrix.suite }}
@@ -572,11 +626,11 @@ jobs:
     # Upload test results to Codecov
     - name: Upload test results to Codecov
       if: ${{ !cancelled() && hashFiles(format('junit-{0}.xml', matrix.suite)) != '' }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: junit-${{ matrix.suite }}.xml
-        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
         report_type: test_results
 
     ##
@@ -586,21 +640,21 @@ jobs:
     # plus test-file coverage (coverage.<suite>-tests.clover.xml).
     - name: Upload test coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles(format('coverage.{0}.clover.xml', matrix.suite)) != '' }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}.clover.xml
-        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
 
     # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
     # Verifies the test code itself is executing, separate from server-side coverage.
     - name: Upload test file coverage to Codecov
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && (matrix.suite == 'api' || matrix.suite == 'e2e') && hashFiles(format('coverage.{0}-tests.clover.xml', matrix.suite)) != '' }}
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: coverage.${{ matrix.suite }}-tests.clover.xml
-        flags: ${{ matrix.suite }}-tests,php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        flags: ${{ matrix.suite }}-tests,php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}${{ endsWith(needs.setup.outputs.docker_dir, '_upgrade') && ',upgrade' || '' }}
 
     ##
     # Upload JUnit results to GitHub
@@ -610,6 +664,81 @@ jobs:
       with:
         name: junit-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
         path: junit-${{ matrix.suite }}.xml
+
+    ##
+    # Selenium diagnostics for InvalidSessionIdException flake (#11725).
+    # Runs FIRST on failure so the selenium container is still alive — later
+    # E2e log steps can race with compose teardown. Captures container state,
+    # process tree, resource snapshot, and OOM/segfault evidence so the next
+    # silent Chrome death leaves a usable trace.
+    - name: Capture selenium diagnostics on failure
+      if: ${{ failure() && matrix.suite == 'e2e' }}
+      env:
+        # Write under RUNNER_TEMP so this step still works when the workspace
+        # is owned by the apache user (the openemr container chowns its
+        # bind-mounted workdir on startup, leaving the runner unable to mkdir
+        # in `.` when prereq steps were skipped).
+        DIAG_DIR: ${{ runner.temp }}/selenium-diagnostics
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${DIAG_DIR}"
+        # Container state — confirms whether selenium was up at failure time.
+        dc ps -a > "${DIAG_DIR}/docker-compose-ps.txt" 2>&1 || true
+        # Process tree inside the selenium container.
+        dc top selenium > "${DIAG_DIR}/docker-compose-top.txt" 2>&1 || true
+        # Memory/CPU snapshot — resolve service to container ID since
+        # `docker stats` does not accept compose service names.
+        selenium_cid=$(dc ps -q selenium 2>/dev/null || true)
+        if [[ -n "${selenium_cid}" ]]; then
+            docker stats --no-stream "${selenium_cid}" > "${DIAG_DIR}/docker-stats.txt" 2>&1 || true
+        else
+            echo 'selenium service has no container at failure time' > "${DIAG_DIR}/docker-stats.txt"
+        fi
+        # Kernel ring buffer — surface OOM-killer / segfault / chrome lines first,
+        # then a tail as fallback when the buffer is silent.
+        sudo dmesg -T 2>/dev/null | grep -iE 'oom|killed|segfault|chrome|selenium' \
+            > "${DIAG_DIR}/dmesg.matches.txt" 2>&1 || true
+        sudo dmesg -T 2>/dev/null | tail -200 > "${DIAG_DIR}/dmesg.tail.txt" 2>&1 || true
+        # Full selenium logs (also echoed to the job log by the later step, but
+        # capturing to a file makes them downloadable alongside the rest).
+        dc logs --no-color selenium > "${DIAG_DIR}/selenium.log" 2>&1 || true
+
+    - name: Upload selenium diagnostics
+      if: ${{ failure() && matrix.suite == 'e2e' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: selenium-diagnostics-${{ needs.setup.outputs.docker_dir }}
+        path: ${{ runner.temp }}/selenium-diagnostics/
+        if-no-files-found: ignore
+
+    ##
+    # Crash diagnostics for the apache worker segfault (#12438/#12439). The
+    # `E2e container logs`/`E2e error logs` steps below only echo to the job
+    # log, which is truncated to the summary tail — so the openemr PHP/Apache
+    # log and any coredump are not recoverable from a failed run. Capture them
+    # into a downloadable artifact, with a gdb backtrace naming the faulting
+    # shared object. junit is already uploaded separately (see above).
+    - name: Capture crash diagnostics on failure
+      if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
+      env:
+        CRASH_DIAG_DIR: ${{ runner.temp }}/crash-diagnostics
+      run: |
+        . ci/ciLibrary.source
+        mkdir -p "${CRASH_DIAG_DIR}"
+        # openemr container log (Apache core + AH00051 segfault lines).
+        dc logs --no-color openemr > "${CRASH_DIAG_DIR}/openemr.container.log" 2>&1 || true
+        # In-container Apache/PHP error log.
+        dump_error_log apache > "${CRASH_DIAG_DIR}/openemr.error.log" 2>&1 || true
+        # Backtrace + gzip'd core for each coredump produced this run.
+        capture_coredumps "${CRASH_DIAG_DIR}"
+
+    - name: Upload crash diagnostics
+      if: ${{ failure() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: crash-diagnostics-${{ needs.setup.outputs.docker_dir }}
+        path: ${{ runner.temp }}/crash-diagnostics/
+        if-no-files-found: ignore
 
     ##
     # E2E-specific post-test steps

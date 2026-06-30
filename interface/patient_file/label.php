@@ -20,6 +20,8 @@ use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../globals.php");
 
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$pid = $session->get('pid', 0);
 //Get the data to place on labels
 //
 $patdata = sqlQuery("SELECT " .
@@ -37,10 +39,8 @@ $dob = oeFormatShortDate($patdata['DOB']);
 //get label type and number of labels on sheet
 //
 
-if (OEGlobalsBag::getInstance()->get('chart_label_type') == '1') {
-    $pdf = new PDF_Label('5160');
-    $last = 30;
-}
+$pdf = new PDF_Label('5160');
+$last = 30;
 
 if (OEGlobalsBag::getInstance()->get('chart_label_type') == '2') {
     $pdf = new PDF_Label('5161');
