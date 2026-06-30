@@ -39,8 +39,8 @@ return [
     EventAuditLogger::class,
     // TODO: GET THESE VALUES FROM SOMEWHERE
     AuditConfig::class => fn (TC $c) => new AuditConfig(
-        enabled: false,
-        forceBreakglass: false,
+        enabled: $c->getBool('AUDIT_ENABLE'),
+        forceBreakglass: $c->getBool('AUDIT_BREAKGLASS_ACTIVITY'),
         queryEvents: false,
         httpRequestEvents: false,
         eventTypeFlags: [],
@@ -72,6 +72,7 @@ return [
     ),
     'AUDIT_ENABLE' => env('AUDIT_EVENTS', 'true')->asBool(),
     'AUDIT_EVENTS' => env('AUDIT_EVENTS', 'query,http-request,patient-record,scheduling,order,lab-order,lab-results,security-administrator,other'),
+    'AUDIT_BREAKGLASS_ACTIVITY' => env('AUDIT_BREAKGLASS_ACTIVITY', 'true')->asBool(),
 
 
     'ATNA_ENABLED' => env('ATNA_ENABLED', 'false')->asBool(),
