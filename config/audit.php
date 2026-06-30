@@ -37,13 +37,14 @@ return [
     ),
 
     EventAuditLogger::class,
-    // TODO: GET THESE VALUES FROM SOMEWHERE
+
     AuditConfig::class => fn (TC $c) => new AuditConfig(
         enabled: $c->getBool('AUDIT_ENABLE'),
         forceBreakglass: $c->getBool('AUDIT_BREAKGLASS_ACTIVITY'),
         queryEvents: $c->getBool('AUDIT_QUERIES'),
         httpRequestEvents: $c->getBool('AUDIT_HTTP_REQUESTS'),
-        eventTypeFlags: [],
+        // Remap the input string to the set of enabled events
+        eventTypeFlags: array_fill_keys(explode(',', $c->getString('AUDIT_EVENT_TYPES')), true),
     ),
     Audit\SinkInterface::class => Audit\MultiSink::class,
     Audit\MultiSink::class => function (TC $c) {
