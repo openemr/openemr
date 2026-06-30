@@ -1,0 +1,162 @@
+{#
+  UDS Patient Snapshot (Steps 2–3).
+
+  Reused demographics shown as data, an interactive Income & FPL card (#15),
+  and the remaining UDS sections as pending empty-states (#16–#17).
+  Server-rendered shell + Web Component islands.
+
+  Context:
+    snapshot       — OpenEMR\FQHC\Snapshot\UdsSnapshot, or null (no patient).
+    incomeSummary  — OpenEMR\FQHC\Income\IncomeSummary, or null.
+    incomeForm     — {householdSize, annualIncome, unknown} for form prefill.
+    guidelineLoaded — bool; false when the FPL reference table is unseeded.
+    csrfToken      — CSRF token for the income form.
+
+  TwigContainer disables autoescaping, so values are escaped explicitly.
+
+  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="fqhc-root">
+  <div class="fqhc-container">
+
+    <fqhc-page-header
+      heading="UDS Patient Snapshot"
+      subheading="{{ (snapshot and snapshot.patientName ? snapshot.patientName : 'Essential UDS fields for the selected patient')|e('html_attr') }}">
+      <div slot="actions" class="fqhc-cluster">
+        <fqhc-status-badge variant="info">UDS</fqhc-status-badge>
+      </div>
+    </fqhc-page-header>
+
+    {% if snapshot is null %}
+      <fqhc-card heading="No patient selected">
+        <fqhc-empty-state message="Select a patient first, then open FQHC to view their UDS snapshot."></fqhc-empty-state>
+      </fqhc-card>
+    {% else %}
+      <div class="fqhc-grid">
+
+        <fqhc-card heading="Demographics (reused)">
+          {% for field in snapshot.demographics %}
+            <fqhc-field-row
+              label="{{ field.label|e('html_attr') }}"
+              value="{{ (field.value ?? '')|e('html_attr') }}"></fqhc-field-row>
+          {% endfor %}
+        </fqhc-card>
+
+        {# Interactive Income & FPL card (#15). #}
+        <fqhc-card heading="Income & Federal Poverty Level">
+          {% if incomeSummary and incomeSummary.recorded %}
+            <fqhc-field-row label="Household size" value="{{ (incomeSummary.householdSize ?? '')|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="Annual income" value="{{ (incomeSummary.annualIncomeDisplay ?? '')|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="% of FPL" value="{{ (incomeSummary.fplPercent is null ? '' : incomeSummary.fplPercent ~ '%')|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="UDS income band" value="{{ incomeSummary.bandLabel|e('html_attr') }}"></fqhc-field-row>
+            <fqhc-field-row label="Sliding-fee tier" value="{{ incomeSummary.tierLabel|e('html_attr') }}"></fqhc-field-row>
+          {% else %}
+            <fqhc-empty-state message="Not yet recorded — enter household size and annual income below."></fqhc-empty-state>
+          {% endif %}
+
+          {% if not guidelineLoaded %}
+            <p class="fqhc-note">FPL guidelines are not loaded yet — install/seed the FQHC module to compute the band.</p>
+          {% endif %}
+
+          <form class="fqhc-form" method="post" action="save_income.php">
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|e('html_attr') }}">
+            <label class="fqhc-field">
+              <span>Household size</span>
+              <input type="number" name="household_size" min="1" step="1"
+                     value="{{ (incomeForm.householdSize ?? '')|e('html_attr') }}">
+            </label>
+            <label class="fqhc-field">
+              <span>Annual household income</span>
+              <input type="number" name="annual_income" min="0" step="1"
+                     value="{{ (incomeForm.annualIncome ?? '')|e('html_attr') }}">
+            </label>
+            <label class="fqhc-check">
+              <input type="checkbox" name="income_unknown" value="1" {{ incomeForm.unknown ? 'checked' : '' }}>
+              <span>Income declined / unknown</span>
+            </label>
+            <button type="submit" class="fqhc-button">Save income</button>
+          </form>
+        </fqhc-card>
+
+        {# Interactive Special populations card (#16). #}
+        <fqhc-card heading="Special populations">
+          {% if specialPopulations is empty %}
+            <fqhc-empty-state message="None recorded — add a status below."></fqhc-empty-state>
+          {% else %}
+            <div class="fqhc-stack">
+              {% for sp in specialPopulations %}
+                <div class="fqhc-row-between">
+                  <fqhc-status-badge variant="neutral">{{ sp.label|e('html') }}</fqhc-status-badge>
+                  <form method="post" action="save_special_population.php" class="fqhc-inline-form">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfToken|e('html_attr') }}">
+                    <input type="hidden" name="action" value="remove">
+                    <input type="hidden" name="population" value="{{ sp.population|e('html_attr') }}">
+                    <button type="submit" class="fqhc-link-button">Remove</button>
+                  </form>
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          <form class="fqhc-form" method="post" action="save_special_population.php">
+            <input type="hidden" name="csrf_token_form" value="{{ csrfToken|e('html_attr') }}">
+            <input type="hidden" name="action" value="add">
+            <label class="fqhc-field">
+              <span>Population</span>
+              <select name="population">
+                {% for choice in populationChoices %}
+                  <option value="{{ choice.value|e('html_attr') }}">{{ choice.label|e('html') }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="fqhc-field">
+              <span>Subtype (if applicable)</span>
+              <select name="subtype">
+                <option value="">—</option>
+                {% for group in subtypeGroups %}
+                  <optgroup label="{{ group.label|e('html_attr') }}">
+                    {% for opt in group.options %}
+                      <option value="{{ opt.value|e('html_attr') }}">{{ opt.label|e('html') }}</option>
+                    {% endfor %}
+                  </optgroup>
+                {% endfor %}
+              </select>
+            </label>
+            <label class="fqhc-field">
+              <span>As of date</span>
+              <input type="date" name="as_of_date">
+            </label>
+            <button type="submit" class="fqhc-button">Add status</button>
+          </form>
+        </fqhc-card>
+
+        {# Insurance → UDS payer category (#17), derived from existing coverage. #}
+        <fqhc-card heading="Insurance (UDS payer category)">
+          <div class="fqhc-cluster" style="margin-bottom: var(--fqhc-space-2);">
+            {% if not payerSummary.hasCoverage %}
+              <fqhc-status-badge variant="warning">{{ payerSummary.categoryLabel|e('html') }}</fqhc-status-badge>
+            {% elseif payerSummary.classified %}
+              <fqhc-status-badge variant="success">{{ payerSummary.categoryLabel|e('html') }}</fqhc-status-badge>
+            {% else %}
+              <fqhc-status-badge variant="danger">{{ payerSummary.categoryLabel|e('html') }}</fqhc-status-badge>
+            {% endif %}
+          </div>
+          {% if payerSummary.planName %}
+            <fqhc-field-row label="Plan on file" value="{{ payerSummary.planName|e('html_attr') }}"></fqhc-field-row>
+          {% endif %}
+          {% if payerSummary.hasCoverage and not payerSummary.classified %}
+            <p class="fqhc-note">This payer type isn't mapped to a UDS category yet — set the insurance company's type, or configure a payer mapping.</p>
+          {% endif %}
+        </fqhc-card>
+
+        {% for section in snapshot.pending %}
+          <fqhc-card heading="{{ section.title|e('html_attr') }}">
+            <fqhc-empty-state message="{{ section.message|e('html_attr') }}"></fqhc-empty-state>
+          </fqhc-card>
+        {% endfor %}
+
+      </div>
+    {% endif %}
+
+  </div>
+</div>
