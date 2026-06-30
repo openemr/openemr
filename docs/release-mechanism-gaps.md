@@ -869,6 +869,135 @@ known debt` section:
   workflow structure, peter-evans pattern) built in Phase A is
   designed to be reusable by workstream 2 without rework.
 
+### G12 — Patch-cycle bootstrap on rel-* requires manual SQL skeleton + docker scaffolding + master file-rename  *(workstream 6 design)*
+
+- **What:** When a maintainer bumps `$v_patch` in `version.php` on a
+  `rel-*` branch to start a new patch dev cycle (e.g., rel-810 going
+  from `8.1.0` to `8.1.1-dev` after 8.1.0 was the last shipped
+  version on the branch — or 8.1.1 to 8.1.2-dev after 8.1.1 ships),
+  multiple coordinated mechanical edits across rel-* + master are
+  needed today that are all manual:
+  - **Both sides — docker upgrade scaffolding** (per the `docker
+    upgrade actions mandatory per release` rule, PRs
+    #12608/#12609): bump 3 docker-version files (`docker-version`,
+    `docker/release/upgrade/docker-version`,
+    `sites/default/docker-version`); create
+    `docker/release/upgrade/fsupgrade-(N+1).sh` stub; extend
+    `docker/release/Dockerfile` to add the new fsupgrade script
+    name to BOTH the `COPY upgrade/...` block AND the `RUN chmod
+    500 ...` block.
+  - **Rel-* side** — create a blank SQL upgrade skeleton at
+    `sql/X_Y_(P-1)-to-X_Y_P_upgrade.sql` (long Comment Meta
+    Language Constructs header; empty body — body fills in
+    per-patch as the dev cycle progresses).
+  - **Master side** — create the same blank SQL skeleton (mirror of
+    the rel-side file — cross-branch propagation) AND rename
+    master's existing long-lived bridge file from
+    `sql/X_Y_(P-1)-to-X_(Y+1)_0_upgrade.sql` to
+    `sql/X_Y_P-to-X_(Y+1)_0_upgrade.sql`, preserving the bridge
+    file contents byte-for-byte (the bridge accumulates in-flight
+    dev-cycle SQL across patches; only the "from" anchor in the
+    filename advances).
+  - **Master side** — `.github/release-targets.yml` updates: add
+    the new dev row for the target rel branch (`docker_tags:
+    <target-version>,next`), drop any prior placeholder rows for
+    that same rel branch (rows flagged `unreleased: true` per the
+    multi-row mechanism added in openemr/openemr#12656).
+
+  Today: P8 in the canonical 8.1.1 release sequence captures this
+  manual work for the cut-time-only scope; the broader patch-cycle
+  bootstrap case (any rel branch, any patch, between ships) was
+  unstructured until this gap was identified.
+
+- **Design (2026-06-30):** New workflow
+  `.github/workflows/patch-prep-automation.yml` triggered on push
+  to `branches: rel-*` matching `paths: version.php`, with a
+  resolver step that gates on:
+  1. Skip cleanly on branch-creation events (`before` SHA all zeros)
+     — workstream 2 (branch-cut) owns that lifecycle event.
+  2. Fetch before-state + after-state `version.php` via GitHub API
+     (`github.event.before` vs `github.event.after`); parse
+     `$v_major`, `$v_minor`, `$v_patch`, `$v_tag` via regex.
+  3. **Gate**: `$v_patch` must have strictly increased.
+  4. **Gate**: after-state `$v_tag` must be `-dev` (excludes
+     release-prep's mid-flight `-dev` strip events that also bump
+     `$v_patch` in some flows).
+  5. **Gate**: same major + same minor before/after.
+
+  Two coordinated **ready-for-review** PRs (not drafts, mirroring
+  workstream 2's branch-cut PRs — patch-prep PRs should land fast):
+  - **Rel-side**: `patch-prep/<rel-branch>` → base `<rel-branch>`,
+    carrying docker upgrade scaffolding + new SQL upgrade skeleton.
+  - **Master-side**: `patch-prep/<rel-branch>-master` → base
+    `master`, carrying same docker upgrade scaffolding + same new
+    SQL skeleton (mirror) + master bridge-file rename + release-
+    targets row insert + placeholder drop.
+
+  **Mutator reuse + extension:**
+  - `DockerUpgradeScaffoldMutator` (NEW in workstream 2 / PR
+    #12696) — reused as-is, both sides.
+  - `SqlUpgradeSkeletonMutator` (existing) — reused with extension:
+    new `MutatorContext::$fromVersion` field (optional,
+    `MAJOR.MINOR.PATCH`) introduced because rel-side `version.php`
+    has already been bumped at workflow trigger time; the post-bump
+    `$v_patch` is the *target*, not the *from*. Mutator falls
+    through to existing version.php-derived behavior when
+    `fromVersion` is null — branch-cut callers unaffected.
+    Back-compat by construction.
+  - 2 new mutators (master-side only):
+    - `MasterSqlPatchBridgeMutator` — performs the bridge file
+      rename; preserves body byte-for-byte. Reports both old and
+      new paths in `MutatorResult::changedFiles` (rename = delete +
+      create).
+    - `PatchPrepReleaseTargetsMutator` — inserts new dev row +
+      drops placeholders scoped to the target rel branch only
+      (unlike `BranchCutReleaseTargetsMutator` which drops
+      uniformly). Line-based surgical edits to preserve comments;
+      Symfony YAML used as a structural sanity check on the result.
+
+  **Command + workflow shape:** new sibling command
+  `openemr:patch-prep` (NOT a `--scope=<x>` extension to
+  `openemr:release-prep` — matches the precedent set by workstream
+  2's `openemr:branch-cut`). Takes `--target-version`,
+  `--rel-branch`, `--prev-version`, internal `--side=rel|master`
+  for mutator-list selection. `workflow_dispatch` escape hatch
+  takes the same inputs explicitly for manual recovery.
+
+- **Lifecycle relationship to workstreams 2 + 3 (lifecycle
+  coverage):**
+
+  | Lifecycle event | Workstream | Trigger |
+  |---|---|---|
+  | Minor branch cut (`rel-NNN0` created) | 2 | `on: create:` for `rel-NNN0` refs |
+  | Patch dev cycle start (`$v_patch` bump on rel branch) | **6** | `on: push:` `rel-*` w/ `paths: version.php` + resolver gate |
+  | Per-release ship (rel branch merges to tag) | 3 | conductor `on: push:` `rel-*` (existing) |
+
+  Together, workstreams 2 + 3 + 6 cover the full release-lifecycle
+  automation surface. This closes G12 in tandem with G4 (workstream
+  2) and G11 (workstream 3 Phase A).
+
+- **Status:** Workstream 6 in-flight as of 2026-06-30. PR #12697
+  open (built on top of workstream 2's PR #12696 branch; rebases
+  cleanly once #12696 lands). Implementation goal: ONE PR for the
+  entire workstream 6 (new command + 2 new mutators + MutatorContext
+  extension + new workflow + tests). The MutatorContext extension is
+  strictly additive — existing branch-cut and release-prep callers
+  don't need updates.
+
+- **Conditional sequencing depending on 8.1.1 decision (open as of
+  2026-06-30):**
+  - **If pursuing 8.1.1**: rel-810's first patch-prep firing would
+    be the post-8.1.1-ship `8.1.1 → 8.1.2-dev` transition. For the
+    patch-prep workflow to fire on rel-810, the workflow YAML +
+    new mutators + command must be cherry-picked to rel-810
+    (alongside the workstream 3 Phase B cherry-pick of the
+    conductor extension). Alternative: accept one manual patch-prep
+    PR pair for the 8.1.1 → 8.1.2 transition.
+  - **If skipping 8.1.1 → 8.2.0**: rel-820 inherits master's
+    post-workstream-6-merge state; first patch-prep firing on
+    rel-820's `8.2.0 → 8.2.1-dev` transition is fully automated
+    without any cherry-pick needed.
+
 ## Timing picture: who does what, when
 
 Consolidates "what the conductor handles automatically" vs "what's
@@ -1141,6 +1270,18 @@ dance applies: `sql/8_1_1-to-8_2_0_upgrade.sql` →
 front of it — but that requires renaming `8_1_1-to-8_2_0` →
 `8_1_2-to-8_2_0`. So actually it DOES apply here.
 **TODO: verify the rename direction with maintainer when this step runs.**
+
+**Note (2026-06-30):** P8's framing above is scoped to the canonical
+8.1.1 release sequence (the SQL skeleton work happens here as part of
+the same post-ship cleanup chain). The broader patch-cycle bootstrap
+case — including this same SQL skeleton work on **both** rel + master
+plus docker upgrade scaffolding plus the master release-targets row
+insert — is now handled separately by **G12 / workstream 6
+(patch-prep automation, PR #12697)**. Once workstream 6 ships, P8 is
+absorbed into the patch-prep workflow's master-side PR for every
+patch transition (8.1.1 → 8.1.2-dev triggers it, etc.). P8 stays in
+the canonical sequence here for the manual baseline; consult G12 for
+the automated end-state.
 
 ### Implied (ride-along on other PRs)
 
@@ -1621,3 +1762,22 @@ checklist + the existing master-bump pattern.
   docker_tags: 8.1.0 + openemr_version_ref: v8_1_0 +
   unreleased: true) to wire up the mechanism without immediately
   publishing 8.1.0 daily images.
+- **2026-06-30**: Added G12 — Patch-cycle bootstrap on rel-* requires
+  manual SQL skeleton + docker scaffolding + master file-rename.
+  Captures the broader scope of the cut-time-only P8 work in the
+  canonical 8.1.1 sequence: any rel branch's `$v_patch` bump (between
+  ships) needs coordinated mechanical edits across rel + master.
+  Workstream 6 (PR #12697 in-flight, built on PR #12696's branch)
+  introduces `.github/workflows/patch-prep-automation.yml` triggered
+  on `push` to `rel-*` matching `paths: version.php` with resolver
+  gating on actual `$v_patch` increment + `$v_tag == '-dev'`. Two
+  coordinated ready-for-review PRs (mirroring workstream 2's
+  branch-cut + workstream 3's release-finalize pattern). Mutator
+  reuse from `DockerUpgradeScaffoldMutator` +
+  `SqlUpgradeSkeletonMutator` (extended via new
+  `MutatorContext::$fromVersion` field — back-compat) plus 2 new
+  mutators (`MasterSqlPatchBridgeMutator` +
+  `PatchPrepReleaseTargetsMutator`). Together with workstreams 2
+  (cut) + 3 (ship), this closes the full release-lifecycle
+  automation surface. Cross-referenced from P8 in the canonical
+  sequence.
