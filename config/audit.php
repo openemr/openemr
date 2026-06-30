@@ -23,6 +23,7 @@ use OpenEMR\Common\Logging\{
     BreakglassChecker,
     BreakglassCheckerInterface,
     EventAuditLogger,
+    EventCategory,
 };
 use Psr\Clock\ClockInterface;
 
@@ -38,14 +39,19 @@ return [
 
     EventAuditLogger::class,
 
-    AuditConfig::class => fn (TC $c) => new AuditConfig(
-        enabled: $c->getBool('AUDIT_ENABLE'),
-        forceBreakglass: $c->getBool('AUDIT_BREAKGLASS_ACTIVITY'),
-        queryEvents: $c->getBool('AUDIT_QUERIES'),
-        httpRequestEvents: $c->getBool('AUDIT_HTTP_REQUESTS'),
-        // Remap the input string to the set of enabled events
-        eventTypeFlags: array_fill_keys(explode(',', $c->getString('AUDIT_EVENT_TYPES')), true),
-    ),
+    AuditConfig::class => function (TC $c) {
+        $enabledCategories = array_filter(array_map(
+            fn (string $s) => EventCategory::tryFrom($s),
+            explode(',', $c->getString('AUDIT_EVENT_TYPES')),
+        ));
+        return new AuditConfig(
+            enabled: $c->getBool('AUDIT_ENABLE'),
+            forceBreakglass: $c->getBool('AUDIT_BREAKGLASS_ACTIVITY'),
+            queryEvents: $c->getBool('AUDIT_QUERIES'),
+            httpRequestEvents: $c->getBool('AUDIT_HTTP_REQUESTS'),
+            enabledEventTypes: array_values($enabledCategories),
+        );
+    },
     Audit\SinkInterface::class => Audit\MultiSink::class,
     Audit\MultiSink::class => function (TC $c) {
         $sinks = [];
