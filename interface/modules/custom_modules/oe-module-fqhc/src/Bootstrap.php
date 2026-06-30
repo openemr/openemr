@@ -26,6 +26,7 @@ class Bootstrap
 {
     public const MODULE_INSTALLATION_PATH = '/interface/modules/custom_modules/oe-module-fqhc';
     private const MENU_ID = 'fqhc0';
+    private const REPORT_MENU_ID = 'fqhc_report0';
 
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -38,8 +39,9 @@ class Bootstrap
     }
 
     /**
-     * Append a top-level "FQHC" menu item that opens the module host page.
-     * Guarded so repeated dispatches never duplicate the entry.
+     * Append a top-level "FQHC" menu item (opening the Patient Snapshot) with a
+     * "UDS Report" child. Guarded so repeated dispatches never duplicate the
+     * entry.
      */
     public function addMenuItem(MenuEvent $event): MenuEvent
     {
@@ -57,7 +59,7 @@ class Bootstrap
         $fqhc->menu_id = self::MENU_ID;
         $fqhc->label = xlt('FQHC');
         $fqhc->url = self::MODULE_INSTALLATION_PATH . '/public/index.php';
-        $fqhc->children = [];
+        $fqhc->children = [$this->reportMenuItem()];
         $fqhc->acl_req = ['patients', 'demo'];
         $fqhc->global_req = [];
 
@@ -65,5 +67,23 @@ class Bootstrap
         $event->setMenu($menu);
 
         return $event;
+    }
+
+    /**
+     * The "UDS Report" child item that opens the reporting page.
+     */
+    private function reportMenuItem(): stdClass
+    {
+        $report = new stdClass();
+        $report->requirement = 0;
+        $report->target = 'fqhc-report';
+        $report->menu_id = self::REPORT_MENU_ID;
+        $report->label = xlt('UDS Report');
+        $report->url = self::MODULE_INSTALLATION_PATH . '/public/report.php';
+        $report->children = [];
+        $report->acl_req = ['patients', 'demo'];
+        $report->global_req = [];
+
+        return $report;
     }
 }
