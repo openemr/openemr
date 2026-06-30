@@ -70,6 +70,9 @@ return [
         serverName: '', // SERVER[SERVER_NAME]
         serverAddress: '', // SERVER[SERVER_ADDRESS]
     ),
+    'AUDIT_ENABLE' => env('AUDIT_EVENTS', 'true')->asBool(),
+    'AUDIT_EVENTS' => env('AUDIT_EVENTS', 'query,http-request,patient-record,scheduling,order,lab-order,lab-results,security-administrator,other'),
+
 
     'ATNA_ENABLED' => env('ATNA_ENABLED', 'false')->asBool(),
     'ATNA_AUDIT_HOST' => env('ATNA_AUDIT_HOST'),
